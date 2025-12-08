@@ -49,10 +49,11 @@ export default function Carousel() {
       const xMove = -(scrollWidth - windowWidth + 200); // Extra padding
 
       // Horizontal Scroll Animation
-      gsap.to(track, {
+      const scrollTween = gsap.to(track, {
         x: xMove,
         ease: 'none',
         scrollTrigger: {
+          id: 'carousel-scroll',
           trigger: container,
           start: 'top top',
           end: `+=${scrollWidth}`,
@@ -73,10 +74,10 @@ export default function Carousel() {
           ease: 'none',
           scrollTrigger: {
             trigger: container,
-            start: 'top bottom',
-            end: 'bottom top',
+            start: 'left right',
+            end: 'right left',
             scrub: true,
-            horizontal: true
+            containerAnimation: gsap.getById('carousel-scroll') // Link to main scroll tween
           }
         });
       });
