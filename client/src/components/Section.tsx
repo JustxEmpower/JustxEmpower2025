@@ -25,104 +25,157 @@ export default function Section({
   dark = false
 }: SectionProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const imageWrapperRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const lineRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Image parallax
+      // Artistic Image Reveal
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 75%',
+          end: 'bottom top',
+          toggleActions: 'play none none reverse'
+        }
+      });
+
+      // Image parallax and scale effect
       gsap.fromTo(imageRef.current,
-        { scale: 1.1 },
+        { scale: 1.2, y: -50 },
         {
           scale: 1,
+          y: 50,
           ease: 'none',
           scrollTrigger: {
             trigger: sectionRef.current,
             start: 'top bottom',
             end: 'bottom top',
-            scrub: true
+            scrub: 1.5 // Smoother scrub
           }
         }
       );
 
-      // Content fade up
-      gsap.fromTo(contentRef.current?.children || [],
-        { y: 50, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 1,
-          stagger: 0.2,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top 70%',
-            toggleActions: 'play none none reverse'
-          }
+      // Reveal animation sequence
+      tl.fromTo(imageWrapperRef.current,
+        { clipPath: 'inset(100% 0 0 0)', opacity: 0 },
+        { clipPath: 'inset(0% 0 0 0)', opacity: 1, duration: 1.5, ease: 'power4.out' }
+      )
+      if (subtitle) {
+        const subtitleEl = contentRef.current?.querySelector('.subtitle');
+        if (subtitleEl) {
+          tl.fromTo(subtitleEl,
+            { y: 20, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' },
+            '-=1'
+          );
         }
-      );
+      }
+
+      const h2 = contentRef.current?.querySelector('h2');
+      if (h2) {
+        tl.fromTo(h2,
+          { y: 40, opacity: 0, rotateX: 10 },
+          { y: 0, opacity: 1, rotateX: 0, duration: 1, ease: 'power3.out' },
+          '-=0.6'
+        );
+      }
+
+      if (lineRef.current) {
+        tl.fromTo(lineRef.current,
+          { scaleX: 0, transformOrigin: 'left' },
+          { scaleX: 1, duration: 1, ease: 'expo.out' },
+          '-=0.8'
+        );
+      }
+
+      const p = contentRef.current?.querySelector('p');
+      if (p) {
+        tl.fromTo(p,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1, ease: 'power3.out' },
+          '-=0.8'
+        );
+      }
+
+      const button = contentRef.current?.querySelector('button');
+      if (button) {
+        tl.fromTo(button,
+          { y: 20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' },
+          '-=0.6'
+        );
+      }
+
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [subtitle]);
 
   return (
     <section 
       ref={sectionRef}
       className={cn(
-        "relative py-24 md:py-32 overflow-hidden",
-        dark ? "bg-secondary" : "bg-background"
+        "relative py-32 md:py-48 overflow-hidden",
+        dark ? "bg-[#f5f5f0]" : "bg-background" // Warmer off-white for dark mode alternative
       )}
     >
       <div className="container mx-auto px-6 md:px-12">
         <div className={cn(
-          "flex flex-col md:flex-row items-center gap-12 md:gap-24",
+          "flex flex-col md:flex-row items-center gap-16 md:gap-32",
           reversed ? "md:flex-row-reverse" : ""
         )}>
           
           {/* Image Column */}
-          <div className="w-full md:w-1/2 relative aspect-[4/5] overflow-hidden group">
+          <div 
+            ref={imageWrapperRef}
+            className="w-full md:w-1/2 relative aspect-[3/4] overflow-hidden rounded-[2rem] shadow-2xl shadow-black/5"
+          >
             <div 
               ref={imageRef}
-              className="w-full h-full bg-cover bg-center transition-transform duration-700"
+              className="absolute inset-[-10%] w-[120%] h-[120%] bg-cover bg-center will-change-transform"
               style={{ backgroundImage: `url(${image})` }}
               role="img"
               aria-label={imageAlt}
             />
-            {/* Hover Overlay */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-500" />
+            {/* Artistic Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 opacity-60" />
           </div>
 
           {/* Content Column */}
-          <div ref={contentRef} className="w-full md:w-1/2 flex flex-col justify-center">
+          <div ref={contentRef} className="w-full md:w-1/2 flex flex-col justify-center relative">
+            {/* Decorative background element */}
+            <div className="absolute -top-20 -left-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10" />
+
             {subtitle && (
-              <span className="font-sans text-xs uppercase tracking-[0.2em] text-primary mb-6 block">
+              <span className="subtitle font-sans text-xs uppercase tracking-[0.3em] text-primary/80 mb-8 block pl-1">
                 {subtitle}
               </span>
             )}
             
-            <h2 className={cn(
-              "font-serif text-4xl md:text-5xl lg:text-6xl font-light mb-8 leading-tight",
-              dark ? "text-foreground" : "text-foreground"
-            )}>
+            <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-light mb-8 leading-[1.1] text-foreground tracking-tight">
               {title}
             </h2>
+
+            <div ref={lineRef} className="w-24 h-[1px] bg-primary/30 mb-10" />
             
-            <p className="font-sans text-muted-foreground text-lg leading-relaxed mb-10 max-w-xl">
+            <p className="font-sans text-muted-foreground text-lg md:text-xl leading-relaxed mb-12 max-w-xl font-light">
               {description}
             </p>
             
             <button className={cn(
-              "self-start group relative px-8 py-4 overflow-hidden border transition-all duration-300",
-              dark 
-                ? "border-foreground text-foreground hover:text-white" 
-                : "border-foreground text-foreground hover:text-white"
+              "self-start group relative px-10 py-5 overflow-hidden rounded-full transition-all duration-500",
+              "border border-foreground/10 hover:border-transparent"
             )}>
-              <span className="relative z-10 font-sans text-xs uppercase tracking-[0.2em]">Discover More</span>
-              <div className={cn(
-                "absolute inset-0 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left ease-out",
-                dark ? "bg-foreground" : "bg-foreground"
-              )} />
+              <span className={cn(
+                "relative z-10 font-sans text-xs uppercase tracking-[0.25em] transition-colors duration-500",
+                "text-foreground group-hover:text-white"
+              )}>
+                Discover More
+              </span>
+              <div className="absolute inset-0 bg-foreground transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left ease-[0.22,1,0.36,1]" />
             </button>
           </div>
 

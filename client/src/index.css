@@ -58,7 +58,7 @@
   --input: #E5E5E5;
   --ring: #D4AF37;
   
-  --radius: 0px; /* Sharp edges for luxury feel */
+  --radius: 1.5rem; /* Soft rounded corners */
 }
 
 .dark {
@@ -122,6 +122,16 @@
     padding-left: 1.5rem;
     padding-right: 1.5rem;
     max-width: 1400px;
+  }
+
+  /* Global Rounded Corners for Images */
+  img, video, .bg-cover {
+    @apply rounded-[var(--radius)];
+  }
+  
+  /* Exception for full-screen hero */
+  .hero-section img, .hero-section video, .hero-section .bg-cover {
+    @apply rounded-none;
   }
   
   .headline-hero {

@@ -1,6 +1,8 @@
 import { Link } from 'wouter';
 
 export default function Footer() {
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="bg-[#1a1a1a] text-white pt-24 pb-12">
       <div className="container mx-auto px-6 md:px-12">
@@ -8,14 +10,15 @@ export default function Footer() {
           
           {/* Brand Column */}
           <div className="md:col-span-4">
-            <h2 className="font-serif text-3xl italic mb-8">Just Empower</h2>
+            <Link href="/">
+              <a className="font-serif text-3xl italic mb-8 block">JustEmpower 2025</a>
+            </Link>
             <p className="font-sans text-white/60 text-sm leading-relaxed max-w-xs mb-8">
               Catalyzing the rise of her through embodied transformation and conscious leadership.
             </p>
             <div className="flex gap-4">
-              {/* Social Icons Placeholder */}
-              <div className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300 cursor-pointer">IG</div>
-              <div className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300 cursor-pointer">LI</div>
+              <a href="#" className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300">IG</a>
+              <a href="#" className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300">LI</a>
             </div>
           </div>
 
@@ -23,11 +26,16 @@ export default function Footer() {
           <div className="md:col-span-2 md:col-start-7">
             <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">Explore</h3>
             <ul className="space-y-4">
-              {['About', 'Philosophy', 'Offerings', 'Journal'].map((item) => (
-                <li key={item}>
-                  <Link href={`/${item.toLowerCase()}`}>
+              {[
+                { label: 'About', href: '/about' },
+                { label: 'Philosophy', href: '/philosophy' },
+                { label: 'Offerings', href: '/offerings' },
+                { label: 'Journal', href: '/journal' }
+              ].map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href}>
                     <a className="font-serif text-lg text-white/80 hover:text-white hover:italic transition-all duration-300">
-                      {item}
+                      {item.label}
                     </a>
                   </Link>
                 </li>
@@ -39,11 +47,14 @@ export default function Footer() {
           <div className="md:col-span-2">
             <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">Connect</h3>
             <ul className="space-y-4">
-              {['Contact', 'Newsletter', 'Events', 'Donate'].map((item) => (
-                <li key={item}>
-                  <Link href={`/${item.toLowerCase()}`}>
+              {[
+                { label: 'Contact', href: '/contact' },
+                { label: 'Walk With Us', href: '/walk-with-us' }
+              ].map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href}>
                     <a className="font-serif text-lg text-white/80 hover:text-white hover:italic transition-all duration-300">
-                      {item}
+                      {item.label}
                     </a>
                   </Link>
                 </li>
@@ -71,7 +82,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40">
-            © 2025 Just Empower. All Rights Reserved.
+            © {currentYear} Just Empower™. All Rights Reserved.
           </p>
           <div className="flex gap-8">
             <a href="#" className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">Privacy Policy</a>
