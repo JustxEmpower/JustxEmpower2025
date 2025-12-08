@@ -12,14 +12,21 @@ export default function Hero() {
   const overlayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    // Ensure video plays when component mounts
+    if (videoRef.current) {
+      videoRef.current.play().catch(error => {
+        console.log("Video autoplay failed:", error);
+      });
+    }
+
     const ctx = gsap.context(() => {
       // Cinematic Opening Sequence
-      const tl = gsap.timeline({ delay: 0.2 });
+      const tl = gsap.timeline({ delay: 0.5 }); // Increased delay slightly to allow preloader fade out
 
       // 1. Fade in video from black
       tl.to(overlayRef.current, {
         opacity: 0.3,
-        duration: 2,
+        duration: 2.5,
         ease: 'power2.inOut'
       })
       
@@ -27,7 +34,7 @@ export default function Hero() {
       .fromTo('.hero-subtitle',
         { y: 20, opacity: 0, letterSpacing: '0.5em' },
         { y: 0, opacity: 1, letterSpacing: '0.3em', duration: 1.5, ease: 'power3.out' },
-        '-=1'
+        '-=1.5'
       )
       .fromTo('.hero-title-line', 
         { y: 100, opacity: 0, rotateX: -10, filter: 'blur(10px)' },
