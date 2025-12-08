@@ -24,8 +24,8 @@
 - [x] Create Admin Login page with minimalist design
 - [x] Create Admin Dashboard with navigation
 - [x] Create Admin Settings page for password/username changes
-- [ ] Create Content Editor for managing site sections
-- [ ] Create Article Manager for journal posts
-- [ ] Refactor Journal page to use API with 'Load More' button
-- [ ] Refactor public pages to consume dynamic content from database
-- [ ] Test admin portal and public site integration
+- [x] Create Content Editor for managing site sections
+- [x] Create Article Manager for journal posts
+- [x] Refactor Journal page to use API with 'Load More' button
+- [x] Refactor public pages to consume dynamic content from database (via Content Editor)
+- [x] Test admin portal and public site integration

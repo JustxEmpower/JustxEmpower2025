@@ -5,6 +5,8 @@ import NotFound from "@/pages/NotFound";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminSettings from "@/pages/AdminSettings";
+import AdminContent from "@/pages/AdminContent";
+import AdminArticles from "@/pages/AdminArticles";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -26,6 +28,8 @@ function Router() {
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminDashboard} />
       <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/admin/content" component={AdminContent} />
+      <Route path="/admin/articles" component={AdminArticles} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/philosophy" component={Philosophy} />
       <Route path="/offerings" component={Offerings} />
