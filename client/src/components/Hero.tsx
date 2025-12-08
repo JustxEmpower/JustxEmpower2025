@@ -99,7 +99,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <div ref={heroRef} className="hero-section relative h-screen w-full overflow-hidden bg-black">
+    <div ref={heroRef} className="hero-section relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
       {/* Video Background */}
       <div className="absolute inset-0 w-full h-[120%] -top-[10%]">
         <div ref={overlayRef} className="absolute inset-0 bg-black z-10" />
