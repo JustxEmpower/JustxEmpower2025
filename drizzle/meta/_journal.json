@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1765168518203,
+      "tag": "0000_mighty_roulette",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1765168602493,
+      "tag": "0001_yielding_radioactive_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1765168655109,
+      "tag": "0002_volatile_jane_foster",
+      "breakpoints": true
+    }
+  ]
+}
