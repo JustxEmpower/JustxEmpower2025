@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 const offerings = [
   {
     title: "Seeds of a New Paradigm",
-    image: "/media/11/Tri-Cover-1280x960.jpg",
+    image: "/media/Tri-Cover-1280x960.jpg",
     desc: "Cultivating consciousness for future generations.",
     link: "/offerings"
   },
@@ -26,7 +26,7 @@ const offerings = [
   },
   {
     title: "MOM VI-X",
-    image: "/media/11/Cover-Final-Emblem-V1-1024x731.png",
+    image: "/media/Cover-Final-Emblem-V1-1024x731.png",
     desc: "Empowering mothers as leaders of change.",
     link: "/offerings"
   }
@@ -103,23 +103,24 @@ export default function Carousel() {
               }}
               className="relative w-[80vw] md:w-[40vw] lg:w-[30vw] h-full group overflow-hidden cursor-pointer rounded-[2rem] shadow-2xl shadow-black/5 transition-all duration-500 hover:-translate-y-4"
             >
-              <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute inset-0 overflow-hidden rounded-[2rem]">
                 <div 
                   className="card-image absolute inset-[-10%] w-[120%] h-[120%] bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
                   style={{ backgroundImage: `url(${item.image})` }}
                 />
               </div>
               
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-500" />
+              {/* Gradient overlay for text readability */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 transition-opacity duration-500 rounded-[2rem]" />
               
-              <div className="absolute bottom-0 left-0 p-10 w-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                <span className="font-sans text-xs uppercase tracking-[0.2em] text-white/70 mb-4 block border-l-2 border-white/30 pl-3">
+              <div className="absolute bottom-0 left-0 p-10 w-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 z-20">
+                <span className="font-sans text-xs uppercase tracking-[0.2em] text-white/90 mb-4 block border-l-2 border-white/50 pl-3">
                   Explore
                 </span>
-                <h3 className="font-serif text-4xl text-white mb-4 italic font-light leading-tight">
+                <h3 className="font-serif text-4xl text-white mb-4 italic font-light leading-tight drop-shadow-lg">
                   {item.title}
                 </h3>
-                <p className="font-sans text-white/80 text-sm tracking-wide opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 transform translate-y-4 group-hover:translate-y-0">
+                <p className="font-sans text-white/90 text-sm tracking-wide opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 transform translate-y-4 group-hover:translate-y-0 drop-shadow-md">
                   {item.desc}
                 </p>
               </div>
