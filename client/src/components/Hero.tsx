@@ -20,8 +20,15 @@ export default function Hero() {
     }
 
     const ctx = gsap.context(() => {
+      // Reset initial states to ensure visibility if animation fails
+      gsap.set('.hero-subtitle', { opacity: 0, y: 20 });
+      gsap.set('.hero-title-line', { opacity: 0, y: 100, rotateX: -10, filter: 'blur(10px)' });
+      gsap.set('.hero-desc', { opacity: 0, y: 30 });
+      gsap.set('.hero-btn', { opacity: 0, y: 20 });
+      gsap.set(overlayRef.current, { opacity: 1 }); // Start black
+
       // Cinematic Opening Sequence
-      const tl = gsap.timeline({ delay: 0.5 }); // Increased delay slightly to allow preloader fade out
+      const tl = gsap.timeline({ delay: 0.5 });
 
       // 1. Fade in video from black
       tl.to(overlayRef.current, {
@@ -31,26 +38,34 @@ export default function Hero() {
       })
       
       // 2. Reveal text elements with staggered, elegant motion
-      .fromTo('.hero-subtitle',
-        { y: 20, opacity: 0, letterSpacing: '0.5em' },
-        { y: 0, opacity: 1, letterSpacing: '0.3em', duration: 1.5, ease: 'power3.out' },
-        '-=1.5'
-      )
-      .fromTo('.hero-title-line', 
-        { y: 100, opacity: 0, rotateX: -10, filter: 'blur(10px)' },
-        { y: 0, opacity: 1, rotateX: 0, filter: 'blur(0px)', duration: 1.5, stagger: 0.2, ease: 'power4.out' },
-        '-=1.2'
-      )
-      .fromTo('.hero-desc',
-        { y: 30, opacity: 0 },
-        { y: 0, opacity: 0.9, duration: 1.2, ease: 'power3.out' },
-        '-=1'
-      )
-      .fromTo('.hero-btn',
-        { y: 20, opacity: 0 },
-        { y: 0, opacity: 1, duration: 1, ease: 'power2.out' },
-        '-=0.8'
-      );
+      .to('.hero-subtitle', {
+        y: 0, 
+        opacity: 1, 
+        letterSpacing: '0.3em', 
+        duration: 1.5, 
+        ease: 'power3.out' 
+      }, '-=1.5')
+      .to('.hero-title-line', {
+        y: 0, 
+        opacity: 1, 
+        rotateX: 0, 
+        filter: 'blur(0px)', 
+        duration: 1.5, 
+        stagger: 0.2, 
+        ease: 'power4.out' 
+      }, '-=1.2')
+      .to('.hero-desc', {
+        y: 0, 
+        opacity: 0.9, 
+        duration: 1.2, 
+        ease: 'power3.out' 
+      }, '-=1')
+      .to('.hero-btn', {
+        y: 0, 
+        opacity: 1, 
+        duration: 1, 
+        ease: 'power2.out' 
+      }, '-=0.8');
 
       // Parallax Scroll Effects
       gsap.to(videoRef.current, {
@@ -87,7 +102,7 @@ export default function Hero() {
     <div ref={heroRef} className="hero-section relative h-screen w-full overflow-hidden bg-black">
       {/* Video Background */}
       <div className="absolute inset-0 w-full h-[120%] -top-[10%]">
-        <div ref={overlayRef} className="absolute inset-0 bg-black z-10 opacity-100" /> {/* Start full black */}
+        <div ref={overlayRef} className="absolute inset-0 bg-black z-10" />
         <video
           ref={videoRef}
           autoPlay
@@ -110,13 +125,13 @@ export default function Hero() {
         </h2>
         
         <div className="overflow-hidden mb-2">
-          <h1 className="hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light italic tracking-wide leading-[1.1]">
+          <h1 className="hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light italic tracking-wide leading-[1.1] opacity-0">
             Catalyzing the
           </h1>
         </div>
         
         <div className="overflow-hidden mb-8 md:mb-12">
-          <h1 className="hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light tracking-wide leading-[1.1]">
+          <h1 className="hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light tracking-wide leading-[1.1] opacity-0">
             Rise of Her
           </h1>
         </div>
