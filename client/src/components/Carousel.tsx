@@ -8,7 +8,7 @@ gsap.registerPlugin(ScrollTrigger);
 const offerings = [
   {
     title: "Seeds of a New Paradigm",
-    image: "/media/Tri-Cover-1280x960.jpg",
+    image: "/media/11/Tri-Cover-1280x960.jpg",
     desc: "Cultivating consciousness for future generations.",
     link: "/offerings"
   },
@@ -26,7 +26,7 @@ const offerings = [
   },
   {
     title: "MOM VI-X",
-    image: "/media/Cover-Final-Emblem-V1-1024x731.png",
+    image: "/media/11/Cover-Final-Emblem-V1-1024x731.png",
     desc: "Empowering mothers as leaders of change.",
     link: "/offerings"
   }
