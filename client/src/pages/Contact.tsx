@@ -1,11 +1,13 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { MapView } from '@/components/Map';
 
 export default function Contact() {
   const [location] = useLocation();
+  const mapRef = useRef<google.maps.Map | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -57,6 +59,24 @@ export default function Contact() {
                   <a href="#" className="text-muted-foreground hover:text-primary transition-colors">LinkedIn</a>
                 </div>
               </div>
+            </div>
+
+            {/* Map Integration */}
+            <div className="w-full h-[300px] rounded-[1.5rem] overflow-hidden shadow-lg mt-8">
+              <MapView 
+                initialCenter={{ lat: 30.2672, lng: -97.7431 }} // Austin, TX coordinates
+                initialZoom={12}
+                className="w-full h-full"
+                onMapReady={(map) => {
+                  mapRef.current = map;
+                  // Add a marker for Austin
+                  new google.maps.marker.AdvancedMarkerElement({
+                    map,
+                    position: { lat: 30.2672, lng: -97.7431 },
+                    title: "Just Empower HQ",
+                  });
+                }}
+              />
             </div>
           </div>
 

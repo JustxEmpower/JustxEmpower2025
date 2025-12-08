@@ -14,10 +14,15 @@ export default function Philosophy() {
       {/* Hero Section */}
       <div className="relative h-[60vh] w-full overflow-hidden">
         <div className="absolute inset-0 bg-black/30 z-10" />
-        <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(/media/12/IMG_0513-1280x1358.jpg)' }}
-        />
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        >
+          <source src="/media/09/emerge-with-us.mp4" type="video/mp4" />
+        </video>
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
             Our Philosophy
@@ -63,7 +68,7 @@ export default function Philosophy() {
         title="The Three Pillars"
         subtitle="Integrated Transformation"
         description="Just Empower's mission is realized through three integrated pillars: Personal Empowerment, Community & Cultural Initiatives, and Systemic Regeneration. Together, these pillars foster measurable transformation across individual, relational, and cultural levels."
-        image="/media/11/Cover-Final-Emblem-1280x960.jpg"
+        image="/media/11/Cover-Final-Emblem-V1-1024x731.png"
         imageAlt="Three Pillars Symbol"
         dark
       />

@@ -11,7 +11,13 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="md:col-span-4">
             <Link href="/">
-              <a className="font-serif text-3xl italic mb-8 block">JustEmpower 2025</a>
+              <a className="block w-32 mb-8 hover:opacity-80 transition-opacity duration-300">
+              <img 
+                src="/media/logo-white.png" 
+                alt="Just Empower" 
+                className="w-full h-auto object-contain"
+              />
+            </a>
             </Link>
             <p className="font-sans text-white/60 text-sm leading-relaxed max-w-xs mb-8">
               Catalyzing the rise of her through embodied transformation and conscious leadership.
