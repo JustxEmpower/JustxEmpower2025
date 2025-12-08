@@ -1,7 +1,8 @@
+import { useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
-import { Route, Switch } from "wouter";
+import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
@@ -13,6 +14,7 @@ import Contact from "./pages/Contact";
 import WalkWithUs from "./pages/WalkWithUs";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import Preloader from "./components/Preloader";
 
 function Router() {
   return (
@@ -30,14 +32,27 @@ function Router() {
 }
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [location] = useLocation();
+
+  // Only show preloader on initial load or home page refresh
+  useEffect(() => {
+    if (location !== '/') {
+      setIsLoading(false);
+    }
+  }, []);
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
-          <Header />
-          <Router />
-          <Footer />
+          {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
+          <div className={`transition-opacity duration-1000 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
+            <Header />
+            <Router />
+            <Footer />
+          </div>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
