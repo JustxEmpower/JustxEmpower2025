@@ -38,11 +38,15 @@ export default function Header() {
     >
       <div className="flex items-center justify-between max-w-[1920px] mx-auto">
         <Link href="/">
-          <a className={cn(
-            "font-serif text-2xl tracking-wide transition-colors duration-300",
-            isScrolled ? "text-foreground" : "text-white"
-          )}>
-            JustEmpower 2025
+          <a className="block w-16 h-16 relative transition-transform duration-300 hover:scale-105">
+            <img 
+              src="/media/logo-white.png" 
+              alt="Just Empower" 
+              className={cn(
+                "w-full h-full object-contain transition-all duration-300",
+                isScrolled ? "invert brightness-0" : "" // Invert to black when scrolled on white background
+              )}
+            />
           </a>
         </Link>
 
