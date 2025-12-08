@@ -67,6 +67,8 @@ export const adminUsers = mysqlTable("adminUsers", {
   id: int("id").autoincrement().primaryKey(),
   username: varchar("username", { length: 100 }).notNull().unique(),
   passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
+  mailchimpApiKey: varchar("mailchimpApiKey", { length: 255 }),
+  mailchimpAudienceId: varchar("mailchimpAudienceId", { length: 100 }),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastLoginAt: timestamp("lastLoginAt"),

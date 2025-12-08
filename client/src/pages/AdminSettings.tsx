@@ -17,6 +17,18 @@ export default function AdminSettings() {
   
   const [newUsername, setNewUsername] = useState('');
   const [usernamePassword, setUsernamePassword] = useState('');
+  
+  const [mailchimpApiKey, setMailchimpApiKey] = useState('');
+  const [mailchimpAudienceId, setMailchimpAudienceId] = useState('');
+  
+  const updateMailchimpMutation = trpc.newsletter.updateSettings.useMutation({
+    onSuccess: () => {
+      toast.success('Mailchimp settings saved successfully!');
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to save settings');
+    },
+  });
 
   const changePasswordMutation = trpc.admin.changePassword.useMutation({
     onSuccess: () => {
@@ -229,7 +241,7 @@ export default function AdminSettings() {
             </div>
 
             {/* Change Username */}
-            <div className="bg-white dark:bg-neutral-900 rounded-xl p-6 border border-neutral-200 dark:border-neutral-800">
+            <div className="bg-white dark:bg-neutral-900 rounded-xl p-6 border border-neutral-200 dark:border-neutral-800 mb-6">
               <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100 mb-4">
                 Change Username
               </h2>
@@ -270,6 +282,65 @@ export default function AdminSettings() {
                   {changeUsernameMutation.isPending ? 'Updating...' : 'Update Username'}
                 </Button>
               </form>
+            </div>
+
+            {/* Mailchimp Configuration */}
+            <div className="bg-white dark:bg-neutral-900 rounded-xl p-6 border border-neutral-200 dark:border-neutral-800">
+              <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100 mb-2">
+                Mailchimp Integration
+              </h2>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
+                Connect your Mailchimp account to enable newsletter subscriptions
+              </p>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                    Mailchimp API Key
+                  </label>
+                  <Input
+                    type="text"
+                    value={mailchimpApiKey}
+                    onChange={(e) => setMailchimpApiKey(e.target.value)}
+                    placeholder="Enter your Mailchimp API key"
+                    className="h-11 font-mono text-sm"
+                  />
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                    Find this in your Mailchimp account under Account → Extras → API keys
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                    Audience ID (List ID)
+                  </label>
+                  <Input
+                    type="text"
+                    value={mailchimpAudienceId}
+                    onChange={(e) => setMailchimpAudienceId(e.target.value)}
+                    placeholder="Enter your Mailchimp Audience ID"
+                    className="h-11 font-mono text-sm"
+                  />
+                  <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                    Find this in Mailchimp under Audience → Settings → Audience name and defaults
+                  </p>
+                </div>
+                <Button
+                  onClick={() => {
+                    if (!mailchimpApiKey || !mailchimpAudienceId) {
+                      toast.error('Please fill in both fields');
+                      return;
+                    }
+                    
+                    updateMailchimpMutation.mutate({
+                      apiKey: mailchimpApiKey,
+                      audienceId: mailchimpAudienceId,
+                    });
+                  }}
+                  disabled={updateMailchimpMutation.isPending}
+                  className="w-full h-11"
+                >
+                  {updateMailchimpMutation.isPending ? 'Saving...' : 'Save Mailchimp Settings'}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

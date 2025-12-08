@@ -29,3 +29,13 @@
 - [x] Refactor Journal page to use API with 'Load More' button
 - [x] Refactor public pages to consume dynamic content from database (via Content Editor)
 - [x] Test admin portal and public site integration
+
+## Mailchimp Integration
+
+- [x] Add Mailchimp API Key and Audience ID fields to Admin Settings
+- [x] Create NewsletterSignup component with email validation
+- [x] Implement backend API for Mailchimp subscriber management
+- [x] Add newsletter signup form to Footer
+- [x] Create scroll-triggered popup modal for newsletter subscription
+- [x] Add inline newsletter CTA sections to About and Philosophy pages
+- [x] Test Mailchimp integration end-to-end

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Section from '@/components/Section';
 import { useLocation } from 'wouter';
+import NewsletterSignup from '@/components/NewsletterSignup';
 
 export default function About() {
   const [location] = useLocation();
@@ -62,6 +63,21 @@ export default function About() {
           <p className="font-sans text-lg text-muted-foreground leading-relaxed">
             Though her roots first took hold in Southern California, April grounded herself in the vibrant soils of Austin, Texas—a sanctuary that attuned her rhythm, mirrored her reinvention, and revealed the sacred nature of emergence.
           </p>
+        </div>
+      </div>
+
+      {/* Newsletter CTA */}
+      <div className="py-24 px-6 md:px-12 bg-neutral-50 dark:bg-neutral-900">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="font-serif text-3xl md:text-4xl italic mb-4 text-foreground">
+            Stay Connected
+          </h2>
+          <p className="font-sans text-muted-foreground mb-8">
+            Join our monthly mailing list for insights on embodied transformation, conscious leadership, and the rise of her.
+          </p>
+          <div className="max-w-md mx-auto">
+            <NewsletterSignup variant="inline" />
+          </div>
         </div>
       </div>
     </div>

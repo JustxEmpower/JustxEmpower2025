@@ -1,4 +1,5 @@
 import { Link } from 'wouter';
+import NewsletterSignup from '@/components/NewsletterSignup';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -71,16 +72,10 @@ export default function Footer() {
           {/* Newsletter Column */}
           <div className="md:col-span-2">
             <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">Stay Connected</h3>
-            <form className="flex flex-col gap-4">
-              <input 
-                type="email" 
-                placeholder="Email Address" 
-                className="bg-transparent border-b border-white/20 py-2 text-white placeholder:text-white/20 focus:outline-none focus:border-white transition-colors"
-              />
-              <button className="self-start font-sans text-xs uppercase tracking-[0.2em] mt-2 hover:text-primary transition-colors">
-                Subscribe
-              </button>
-            </form>
+            <p className="font-sans text-white/60 text-sm mb-4">
+              Join our monthly mailing list for insights and updates.
+            </p>
+            <NewsletterSignup variant="footer" />
           </div>
 
         </div>

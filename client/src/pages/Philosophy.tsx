@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Section from '@/components/Section';
 import { useLocation } from 'wouter';
+import NewsletterSignup from '@/components/NewsletterSignup';
 
 export default function Philosophy() {
   const [location] = useLocation();
@@ -72,6 +73,21 @@ export default function Philosophy() {
         imageAlt="Three Pillars Symbol"
         dark
       />
+
+      {/* Newsletter CTA */}
+      <div className="py-24 px-6 md:px-12 bg-neutral-50 dark:bg-neutral-900">
+        <div className="max-w-2xl mx-auto text-center">
+          <h2 className="font-serif text-3xl md:text-4xl italic mb-4 text-foreground">
+            Deepen Your Practice
+          </h2>
+          <p className="font-sans text-muted-foreground mb-8">
+            Receive monthly insights on embodiment, conscious leadership, and the philosophy of transformation.
+          </p>
+          <div className="max-w-md mx-auto">
+            <NewsletterSignup variant="inline" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

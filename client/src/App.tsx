@@ -20,6 +20,7 @@ import WalkWithUs from "./pages/WalkWithUs";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Preloader from "@/components/Preloader";
+import NewsletterPopup from "@/components/NewsletterPopup";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/admin/content" component={AdminContent} />
       <Route path="/admin/articles" component={AdminArticles} />
       <Route path={"/404"} component={NotFound} />
+      <Route path="/about" component={About} />
       <Route path="/philosophy" component={Philosophy} />
       <Route path="/offerings" component={Offerings} />
       <Route path="/journal" component={Journal} />
@@ -44,6 +46,9 @@ function Router() {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [location] = useLocation();
+  
+  // Don't show newsletter popup on admin pages
+  const isAdminPage = location.startsWith('/admin');
 
   // Only show preloader on initial load or home page refresh
   useEffect(() => {
@@ -62,6 +67,7 @@ function App() {
             <Header />
             <Router />
             <Footer />
+            {!isAdminPage && <NewsletterPopup />}
           </div>
         </TooltipProvider>
       </ThemeProvider>
