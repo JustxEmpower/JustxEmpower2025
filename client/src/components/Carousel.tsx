@@ -1,9 +1,10 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Draggable } from 'gsap/Draggable';
 import { Link } from 'wouter';
 
-gsap.registerPlugin(ScrollTrigger);
+gsap.registerPlugin(ScrollTrigger, Draggable);
 
 const offerings = [
   {
@@ -44,24 +45,40 @@ export default function Carousel() {
       if (!track || !container) return;
 
       // Calculate the total scrollable width
-      // We want to scroll the track to the left by (total width - viewport width)
       const getScrollAmount = () => {
         const trackWidth = track.scrollWidth;
         const viewportWidth = window.innerWidth;
         return -(trackWidth - viewportWidth + 100); // Add a little buffer
       };
 
+      // Create the scroll tween
       const tween = gsap.to(track, {
         x: getScrollAmount,
         ease: "none",
         scrollTrigger: {
           trigger: container,
           start: "top top",
-          end: () => `+=${getScrollAmount() * -1}`, // Scroll distance matches horizontal movement
+          end: () => `+=${getScrollAmount() * -1}`,
           pin: true,
           scrub: 1,
           invalidateOnRefresh: true,
           anticipatePin: 1,
+        }
+      });
+
+      // Add touch-swipe support for mobile
+      Draggable.create(track, {
+        type: "x",
+        inertia: true,
+        bounds: {
+          minX: getScrollAmount(),
+          maxX: 0
+        },
+        onDrag: function() {
+          // Sync the scroll position with the drag
+          const progress = this.x / getScrollAmount();
+          const scrollPos = progress * (getScrollAmount() * -1);
+          window.scrollTo(0, container.offsetTop + scrollPos);
         }
       });
 
@@ -78,7 +95,7 @@ export default function Carousel() {
         </h2>
       </div>
 
-      {/* Track container - starts off-screen to the right slightly for entrance effect */}
+      {/* Track container */}
       <div ref={trackRef} className="flex gap-8 md:gap-12 px-6 md:px-12 w-max items-center h-[60vh] md:h-[70vh] pl-[10vw] md:pl-[20vw]">
         {offerings.map((item, i) => (
           <Link key={i} href={item.link}>
@@ -112,7 +129,7 @@ export default function Carousel() {
       </div>
       
       <div className="absolute bottom-12 left-6 md:left-12 flex items-center gap-4">
-        <span className="font-sans text-xs uppercase tracking-[0.2em] text-muted-foreground animate-pulse">Scroll to Explore</span>
+        <span className="font-sans text-xs uppercase tracking-[0.2em] text-muted-foreground animate-pulse">Scroll or Swipe to Explore</span>
         <div className="w-24 h-[1px] bg-muted-foreground/30" />
       </div>
     </div>
