@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
-import { LogOut, FileText, Settings, Layout, FolderOpen, Palette } from 'lucide-react';
+import { LogOut, FileText, Settings, Layout, FolderOpen, Palette, BarChart3 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [location, setLocation] = useLocation();
@@ -31,6 +31,7 @@ export default function AdminDashboard() {
     { icon: FileText, label: 'Articles', path: '/admin/articles' },
     { icon: FolderOpen, label: 'Media', path: '/admin/media' },
     { icon: Palette, label: 'Theme', path: '/admin/theme' },
+    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];
 
@@ -140,7 +141,7 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100 mb-4">
                 Quick Actions
               </h2>
-              <div className="grid grid-cols-5 gap-4">
+              <div className="grid grid-cols-6 gap-4">
                 <Button
                   onClick={() => setLocation('/admin/content')}
                   variant="outline"
@@ -172,6 +173,14 @@ export default function AdminDashboard() {
                 >
                   <Palette className="w-6 h-6" />
                   <span>Theme</span>
+                </Button>
+                <Button
+                  onClick={() => setLocation('/admin/analytics')}
+                  variant="outline"
+                  className="h-24 flex-col gap-2"
+                >
+                  <BarChart3 className="w-6 h-6" />
+                  <span>Analytics</span>
                 </Button>
                 <Button
                   onClick={() => setLocation('/admin/settings')}

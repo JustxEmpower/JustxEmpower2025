@@ -9,6 +9,7 @@ import AdminContent from "@/pages/AdminContent";
 import AdminArticles from "@/pages/AdminArticles";
 import AdminMedia from "@/pages/AdminMedia";
 import AdminTheme from "@/pages/AdminTheme";
+import AdminAnalytics from "@/pages/AdminAnalytics";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -24,6 +25,7 @@ import Footer from "@/components/Footer";
 import Preloader from "@/components/Preloader";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import { AIChatAssistant } from "@/components/AIChatAssistant";
+import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -37,6 +39,7 @@ function Router() {
       <Route path="/admin/articles" component={AdminArticles} />
       <Route path="/admin/media" component={AdminMedia} />
       <Route path="/admin/theme" component={AdminTheme} />
+      <Route path="/admin/analytics" component={AdminAnalytics} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/about" component={About} />
       <Route path="/philosophy" component={Philosophy} />
@@ -75,6 +78,7 @@ function App() {
             <Footer />
             {!isAdminPage && <NewsletterPopup />}
             {!isAdminPage && <AIChatAssistant />}
+            {!isAdminPage && <AnalyticsTracker />}
           </div>
         </TooltipProvider>
       </ThemeProvider>

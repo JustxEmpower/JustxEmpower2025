@@ -285,3 +285,51 @@ export const visitorProfiles = mysqlTable("visitorProfiles", {
 
 export type VisitorProfile = typeof visitorProfiles.$inferSelect;
 export type InsertVisitorProfile = typeof visitorProfiles.$inferInsert;
+
+
+/**
+ * Analytics page views table
+ */
+export const analyticsPageViews = mysqlTable("analyticsPageViews", {
+  id: int("id").autoincrement().primaryKey(),
+  visitorId: varchar("visitorId", { length: 255 }),
+  sessionId: varchar("sessionId", { length: 255 }).notNull(),
+  page: varchar("page", { length: 500 }).notNull(),
+  referrer: varchar("referrer", { length: 500 }),
+  userAgent: text("userAgent"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type AnalyticsPageView = typeof analyticsPageViews.$inferSelect;
+export type InsertAnalyticsPageView = typeof analyticsPageViews.$inferInsert;
+
+/**
+ * Analytics sessions table
+ */
+export const analyticsSessions = mysqlTable("analyticsSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 255 }).notNull().unique(),
+  visitorId: varchar("visitorId", { length: 255 }),
+  startTime: timestamp("startTime").defaultNow().notNull(),
+  endTime: timestamp("endTime"),
+  pageCount: int("pageCount").default(0).notNull(),
+  duration: int("duration").default(0).notNull(), // in seconds
+});
+
+export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
+export type InsertAnalyticsSession = typeof analyticsSessions.$inferInsert;
+
+/**
+ * Analytics events table for custom tracking
+ */
+export const analyticsEvents = mysqlTable("analyticsEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  visitorId: varchar("visitorId", { length: 255 }),
+  sessionId: varchar("sessionId", { length: 255 }).notNull(),
+  eventType: varchar("eventType", { length: 100 }).notNull(), // e.g., "button_click", "form_submit", "ai_chat_open"
+  eventData: text("eventData"), // JSON
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
