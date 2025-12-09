@@ -17,7 +17,7 @@ export default function AdminLogin() {
       localStorage.setItem('adminToken', data.token);
       localStorage.setItem('adminUsername', data.username);
       toast.success('Welcome back');
-      setLocation('/admin');
+      setLocation('/admin/dashboard');
     },
     onError: (error) => {
       toast.error(error.message || 'Invalid credentials');

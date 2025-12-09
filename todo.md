@@ -46,3 +46,17 @@
 - [x] Refactor Philosophy, Offerings, Contact pages to load from database (hero sections - main content editable via CMS)
 - [x] Fix logo path on Admin Login page
 - [x] Test complete system end-to-end
+
+## Media Library System (NEW)
+
+- [x] Create Media database table to track uploaded files
+- [x] Build backend API for media upload to S3
+- [x] Build backend API for media listing and deletion
+- [x] Create Media Manager admin page with upload and gallery
+- [x] Create Media Picker modal component for selecting media
+- [x] Integrate Media Picker into Content Editor for image/video fields
+- [ ] Test complete media upload and selection workflow
+
+## Bug Fixes
+
+- [x] Fix "Back to Dashboard" button navigation in admin pages

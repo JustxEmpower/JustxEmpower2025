@@ -16,7 +16,13 @@ import {
   getAllSiteContent,
   updateSiteContent,
   upsertSiteContent,
+  createMedia,
+  getAllMedia,
+  getMediaById,
+  deleteMedia,
 } from "./adminDb";
+import { storagePut } from "./storage";
+import { nanoid } from "nanoid";
 
 // Admin session management (simple in-memory for now)
 const adminSessions = new Map<string, { username: string; expiresAt: number }>();
@@ -254,6 +260,60 @@ export const adminRouter = router({
       }))
       .mutation(async ({ input }) => {
         await upsertSiteContent(input);
+        return { success: true };
+      }),
+  }),
+  
+  // Media library management
+  media: router({
+    list: adminProcedure
+      .query(async () => {
+        return await getAllMedia();
+      }),
+    
+    upload: adminProcedure
+      .input(z.object({
+        filename: z.string(),
+        mimeType: z.string(),
+        fileSize: z.number(),
+        base64Data: z.string(), // Base64 encoded file data
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Decode base64 data
+        const buffer = Buffer.from(input.base64Data, 'base64');
+        
+        // Generate unique filename
+        const ext = input.filename.split('.').pop() || '';
+        const uniqueFilename = `${nanoid()}.${ext}`;
+        const s3Key = `media/${uniqueFilename}`;
+        
+        // Upload to S3
+        const { url } = await storagePut(s3Key, buffer, input.mimeType);
+        
+        // Determine media type
+        const type = input.mimeType.startsWith('video/') ? 'video' : 'image';
+        
+        // Save to database
+        await createMedia({
+          filename: uniqueFilename,
+          originalName: input.filename,
+          mimeType: input.mimeType,
+          fileSize: input.fileSize,
+          s3Key,
+          url,
+          type,
+          uploadedBy: ctx.adminUsername,
+        });
+        
+        return { success: true, url };
+      }),
+    
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        // Note: We're not deleting from S3 for safety
+        // You can add S3 deletion logic here if needed
+        await deleteMedia(input.id);
         return { success: true };
       }),
   }),

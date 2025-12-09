@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
-import { LogOut, FileText, Settings, Layout } from 'lucide-react';
+import { LogOut, FileText, Settings, Layout, FolderOpen } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [location, setLocation] = useLocation();
@@ -29,6 +29,7 @@ export default function AdminDashboard() {
   const navItems = [
     { icon: Layout, label: 'Content', path: '/admin/content' },
     { icon: FileText, label: 'Articles', path: '/admin/articles' },
+    { icon: FolderOpen, label: 'Media', path: '/admin/media' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];
 
@@ -138,7 +139,7 @@ export default function AdminDashboard() {
               <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100 mb-4">
                 Quick Actions
               </h2>
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-4 gap-4">
                 <Button
                   onClick={() => setLocation('/admin/content')}
                   variant="outline"
@@ -154,6 +155,14 @@ export default function AdminDashboard() {
                 >
                   <FileText className="w-6 h-6" />
                   <span>Manage Articles</span>
+                </Button>
+                <Button
+                  onClick={() => setLocation('/admin/media')}
+                  variant="outline"
+                  className="h-24 flex-col gap-2"
+                >
+                  <FolderOpen className="w-6 h-6" />
+                  <span>Media Library</span>
                 </Button>
                 <Button
                   onClick={() => setLocation('/admin/settings')}

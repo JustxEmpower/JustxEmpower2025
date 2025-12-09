@@ -1,5 +1,5 @@
 import { eq, desc } from "drizzle-orm";
-import { adminUsers, articles, siteContent, InsertArticle, InsertSiteContent } from "../drizzle/schema";
+import { adminUsers, articles, siteContent, media, InsertArticle, InsertSiteContent } from "../drizzle/schema";
 import { getDb } from "./db";
 import crypto from "crypto";
 
@@ -145,4 +145,47 @@ export async function updateSiteContent(id: number, contentValue: string) {
   await db.update(siteContent)
     .set({ contentValue, updatedAt: new Date() })
     .where(eq(siteContent.id, id));
+}
+
+// ============================================
+// Media Management Functions
+// ============================================
+
+export async function createMedia(data: {
+  filename: string;
+  originalName: string;
+  mimeType: string;
+  fileSize: number;
+  s3Key: string;
+  url: string;
+  type: "image" | "video";
+  uploadedBy?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const [result] = await db.insert(media).values(data);
+  return result;
+}
+
+export async function getAllMedia() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(media).orderBy(desc(media.createdAt));
+}
+
+export async function getMediaById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const [result] = await db.select().from(media).where(eq(media.id, id));
+  return result;
+}
+
+export async function deleteMedia(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(media).where(eq(media.id, id));
 }

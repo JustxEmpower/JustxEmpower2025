@@ -183,7 +183,7 @@ export default function AdminSettings() {
         <div className="p-8">
           <div className="max-w-3xl mx-auto">
             <Button
-              onClick={() => setLocation('/admin')}
+              onClick={() => setLocation('/admin/dashboard')}
               variant="ghost"
               className="mb-6 gap-2"
             >

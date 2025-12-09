@@ -76,3 +76,22 @@ export const adminUsers = mysqlTable("adminUsers", {
 
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type InsertAdminUser = typeof adminUsers.$inferInsert;
+
+/**
+ * Media library table for tracking uploaded images and videos
+ */
+export const media = mysqlTable("media", {
+  id: int("id").autoincrement().primaryKey(),
+  filename: varchar("filename", { length: 255 }).notNull(),
+  originalName: varchar("originalName", { length: 255 }).notNull(),
+  mimeType: varchar("mimeType", { length: 100 }).notNull(),
+  fileSize: int("fileSize").notNull(), // in bytes
+  s3Key: varchar("s3Key", { length: 500 }).notNull(), // S3 storage key
+  url: varchar("url", { length: 1000 }).notNull(), // Public URL
+  type: mysqlEnum("type", ["image", "video"]).notNull(),
+  uploadedBy: varchar("uploadedBy", { length: 100 }), // admin username
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Media = typeof media.$inferSelect;
+export type InsertMedia = typeof media.$inferInsert;

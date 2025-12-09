@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { LogOut, FileText, Settings, Layout, ArrowLeft, Save, ChevronDown, ChevronUp } from 'lucide-react';
+import { LogOut, FileText, Settings, Layout, ArrowLeft, Save, ChevronDown, ChevronUp, FolderOpen, Image } from 'lucide-react';
+import MediaPicker from '@/components/MediaPicker';
 
 interface ContentItem {
   id: number;
@@ -23,6 +24,8 @@ export default function AdminContent() {
   const [content, setContent] = useState<ContentItem[]>([]);
   const [editedContent, setEditedContent] = useState<Record<number, string>>({});
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [selectedFieldId, setSelectedFieldId] = useState<number | null>(null);
 
   const { data: contentData, isLoading, refetch } = trpc.admin.content.getByPage.useQuery(
     { page: selectedPage },
@@ -104,8 +107,22 @@ export default function AdminContent() {
   const navItems = [
     { icon: Layout, label: 'Content', path: '/admin/content' },
     { icon: FileText, label: 'Articles', path: '/admin/articles' },
+    { icon: FolderOpen, label: 'Media', path: '/admin/media' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];
+
+  const handleOpenMediaPicker = (fieldId: number) => {
+    setSelectedFieldId(fieldId);
+    setMediaPickerOpen(true);
+  };
+
+  const handleMediaSelect = (url: string) => {
+    if (selectedFieldId !== null) {
+      handleContentChange(selectedFieldId, url);
+    }
+    setMediaPickerOpen(false);
+    setSelectedFieldId(null);
+  };
 
   // Group content by section
   const groupedContent = content.reduce((acc, item) => {
@@ -206,7 +223,7 @@ export default function AdminContent() {
           <div className="max-w-5xl mx-auto">
             <div className="flex items-center justify-between mb-6">
               <Button
-                onClick={() => setLocation('/admin')}
+                onClick={() => setLocation('/admin/dashboard')}
                 variant="ghost"
                 className="gap-2"
               >
@@ -299,13 +316,26 @@ export default function AdminContent() {
                                 placeholder={`Enter ${item.contentKey}...`}
                               />
                             ) : (
-                              <Input
-                                type={inputType}
-                                value={currentValue}
-                                onChange={(e) => handleContentChange(item.id, e.target.value)}
-                                className={`h-11 ${isModified ? 'border-amber-400 dark:border-amber-600' : ''}`}
-                                placeholder={`Enter ${item.contentKey}...`}
-                              />
+                              <div className="flex gap-2">
+                                <Input
+                                  type={inputType}
+                                  value={currentValue}
+                                  onChange={(e) => handleContentChange(item.id, e.target.value)}
+                                  className={`h-11 flex-1 ${isModified ? 'border-amber-400 dark:border-amber-600' : ''}`}
+                                  placeholder={`Enter ${item.contentKey}...`}
+                                />
+                                {(item.contentKey.includes('Url') || item.contentKey.includes('Image') || item.contentKey.includes('Video')) && (
+                                  <Button
+                                    type="button"
+                                    onClick={() => handleOpenMediaPicker(item.id)}
+                                    variant="outline"
+                                    size="icon"
+                                    className="h-11 w-11 flex-shrink-0"
+                                  >
+                                    <Image className="w-4 h-4" />
+                                  </Button>
+                                )}
+                              </div>
                             )}
                             {item.contentKey.includes('Url') && currentValue && (
                               <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
@@ -344,6 +374,17 @@ export default function AdminContent() {
           </div>
         </div>
       </main>
+
+      {/* Media Picker Modal */}
+      <MediaPicker
+        open={mediaPickerOpen}
+        onClose={() => {
+          setMediaPickerOpen(false);
+          setSelectedFieldId(null);
+        }}
+        onSelect={handleMediaSelect}
+        mediaType="all"
+      />
     </div>
   );
 }

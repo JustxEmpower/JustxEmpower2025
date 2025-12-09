@@ -7,6 +7,7 @@ import AdminDashboard from "@/pages/AdminDashboard";
 import AdminSettings from "@/pages/AdminSettings";
 import AdminContent from "@/pages/AdminContent";
 import AdminArticles from "@/pages/AdminArticles";
+import AdminMedia from "@/pages/AdminMedia";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -31,6 +32,7 @@ function Router() {
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/content" component={AdminContent} />
       <Route path="/admin/articles" component={AdminArticles} />
+      <Route path="/admin/media" component={AdminMedia} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/about" component={About} />
       <Route path="/philosophy" component={Philosophy} />

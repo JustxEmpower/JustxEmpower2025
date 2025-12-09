@@ -50,7 +50,7 @@ export default function NewsletterSignup({ variant = 'inline', className = '' }:
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
+          placeholder="Your email address"
           required
           className="flex-1 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-400"
           disabled={subscribeMutation.isPending}
@@ -161,7 +161,7 @@ export default function NewsletterSignup({ variant = 'inline', className = '' }:
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
+          placeholder="Your email address"
           required
           className="h-11"
           disabled={subscribeMutation.isPending}
