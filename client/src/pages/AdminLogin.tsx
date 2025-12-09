@@ -37,9 +37,9 @@ export default function AdminLogin() {
         {/* Logo / Brand */}
         <div className="text-center mb-12">
           <img
-            src="/media/logo-mono-white.png"
+            src="/media/logo-color.png"
             alt="Just Empower"
-            className="h-16 mx-auto mb-6 opacity-90"
+            className="h-16 mx-auto mb-6"
           />
           <h1 className="text-2xl font-light text-neutral-900 dark:text-neutral-100 tracking-tight">
             Admin Portal

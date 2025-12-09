@@ -140,10 +140,10 @@ export default function Hero() {
           Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.
         </p>
         
-        <Link href="/walk-with-us">
+        <Link href="/about">
           <div className="hero-btn group relative px-12 py-6 overflow-hidden rounded-full border border-white/30 hover:border-white transition-all duration-500 opacity-0 cursor-pointer">
             <span className="relative z-10 font-sans text-xs uppercase tracking-[0.25em] text-white group-hover:text-black transition-colors duration-500">
-              Walk With Us
+              Discover More
             </span>
             <div className="absolute inset-0 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left ease-[0.22,1,0.36,1]" />
           </div>

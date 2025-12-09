@@ -1,21 +1,7 @@
 # Project TODO
 
 ## Completed Features
-- [x] Basic homepage layout with video hero
-- [x] Navigation menu with mobile overlay
-- [x] All page video heroes with rounded corners
-- [x] Footer with logo
-- [x] Contact form with validation
-- [x] Interactive map on Contact page
-- [x] Philosophy page with video background
-- [x] About page with video background
-- [x] Offerings page with video background and carousel
-- [x] Journal page with initial content
-- [x] Mobile navigation menu
-- [x] Upgrade to full-stack (database + backend)
-- [x] Database schema for Articles and SiteContent
 
-## In Progress
 - [x] Add AdminUser table with username/password authentication
 - [x] Create seed script for admin user and initial content
 - [x] Build backend APIs for admin authentication
@@ -27,7 +13,6 @@
 - [x] Create Content Editor for managing site sections
 - [x] Create Article Manager for journal posts
 - [x] Refactor Journal page to use API with 'Load More' button
-- [x] Refactor public pages to consume dynamic content from database (via Content Editor)
 - [x] Test admin portal and public site integration
 
 ## Mailchimp Integration
@@ -39,3 +24,25 @@
 - [x] Create scroll-triggered popup modal for newsletter subscription
 - [x] Add inline newsletter CTA sections to About and Philosophy pages
 - [x] Test Mailchimp integration end-to-end
+
+## Update Discover More Button and About Page
+
+- [x] Scrape content from https://justxempower.com/our-founder/
+- [x] Update Home.tsx "Discover More" button to link to /about
+- [x] Refactor About.tsx with full founder story content
+- [ ] Verify About page displays correctly
+- [x] Scrape content from https://justxempower.com/just-empower/
+- [ ] Create AboutJustEmpower.tsx page with organization content
+- [ ] Update navigation to include both About pages
+
+## Complete CMS Integration (CRITICAL)
+
+- [x] Expand database schema to store ALL page content sections (not just hero) - Schema already supports this
+- [x] Create comprehensive seed data for all page sections
+- [ ] Fix Settings page to properly save and load Mailchimp API keys
+- [ ] Expand Content Editor to show ALL editable sections for each page
+- [ ] Refactor Home page to load all content from database
+- [ ] Refactor About page to load all content from database
+- [ ] Refactor Philosophy, Offerings, Contact pages to load from database
+- [ ] Fix logo path on Admin Login page
+- [ ] Test complete system end-to-end
