@@ -50,6 +50,13 @@
       "when": 1765244744354,
       "tag": "0006_stale_hannibal_king",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1765246340341,
+      "tag": "0007_handy_yellowjacket",
+      "breakpoints": true
     }
   ]
 }

@@ -20,9 +20,12 @@ import {
   getAllMedia,
   getMediaById,
   deleteMedia,
+  getThemeSettings,
+  updateThemeSettings,
 } from "./adminDb";
 import { storagePut } from "./storage";
 import { nanoid } from "nanoid";
+import { generateColorPalette, suggestFontPairings } from "./aiService";
 
 // Admin session management (simple in-memory for now)
 const adminSessions = new Map<string, { username: string; expiresAt: number }>();
@@ -315,6 +318,48 @@ export const adminRouter = router({
         // You can add S3 deletion logic here if needed
         await deleteMedia(input.id);
         return { success: true };
+      }),
+  }),
+  
+  // Theme Settings
+  theme: router({
+    get: adminProcedure.query(async () => {
+      return await getThemeSettings();
+    }),
+    
+    update: adminProcedure
+      .input(z.object({
+        primaryColor: z.string().optional(),
+        secondaryColor: z.string().optional(),
+        accentColor: z.string().optional(),
+        backgroundColor: z.string().optional(),
+        textColor: z.string().optional(),
+        headingFont: z.string().optional(),
+        bodyFont: z.string().optional(),
+        headingFontUrl: z.string().optional(),
+        bodyFontUrl: z.string().optional(),
+        containerMaxWidth: z.string().optional(),
+        sectionSpacing: z.string().optional(),
+        borderRadius: z.string().optional(),
+        enableAnimations: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await updateThemeSettings(input);
+        return { success: true };
+      }),
+    
+    generatePalette: adminProcedure
+      .input(z.object({ description: z.string() }))
+      .mutation(async ({ input }) => {
+        const palette = await generateColorPalette(input.description);
+        return palette;
+      }),
+    
+    suggestFonts: adminProcedure
+      .input(z.object({ style: z.string() }))
+      .mutation(async ({ input }) => {
+        const fonts = await suggestFontPairings(input.style);
+        return fonts;
       }),
   }),
 });

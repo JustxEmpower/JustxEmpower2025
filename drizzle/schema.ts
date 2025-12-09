@@ -253,3 +253,35 @@ export const aiSettings = mysqlTable("aiSettings", {
 
 export type AISettings = typeof aiSettings.$inferSelect;
 export type InsertAISettings = typeof aiSettings.$inferInsert;
+
+
+/**
+ * AI feedback table for rating and improving responses
+ */
+export const aiFeedback = mysqlTable("aiFeedback", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  visitorId: varchar("visitorId", { length: 255 }),
+  rating: mysqlEnum("rating", ["positive", "negative"]).notNull(),
+  feedbackText: text("feedbackText"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AIFeedback = typeof aiFeedback.$inferSelect;
+export type InsertAIFeedback = typeof aiFeedback.$inferInsert;
+
+/**
+ * Visitor profiles for persistent conversation memory
+ */
+export const visitorProfiles = mysqlTable("visitorProfiles", {
+  id: int("id").autoincrement().primaryKey(),
+  visitorId: varchar("visitorId", { length: 255 }).notNull().unique(),
+  firstVisit: timestamp("firstVisit").defaultNow().notNull(),
+  lastVisit: timestamp("lastVisit").defaultNow().onUpdateNow().notNull(),
+  totalConversations: int("totalConversations").default(0).notNull(),
+  preferences: text("preferences"), // JSON: interests, topics discussed, etc.
+  context: text("context"), // JSON: journey stage, pain points, goals
+});
+
+export type VisitorProfile = typeof visitorProfiles.$inferSelect;
+export type InsertVisitorProfile = typeof visitorProfiles.$inferInsert;

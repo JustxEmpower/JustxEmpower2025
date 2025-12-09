@@ -12,6 +12,8 @@ import {
   siteSettings,
   aiChatConversations,
   aiSettings,
+  aiFeedback,
+  visitorProfiles,
   InsertArticle, 
   InsertSiteContent 
 } from "../drizzle/schema";
@@ -203,4 +205,54 @@ export async function deleteMedia(id: number) {
   if (!db) throw new Error("Database not available");
   
   await db.delete(media).where(eq(media.id, id));
+}
+
+
+// Theme Settings operations
+export async function getThemeSettings() {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const result = await db.select().from(themeSettings).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function updateThemeSettings(settings: Partial<typeof themeSettings.$inferInsert>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const existing = await getThemeSettings();
+  
+  if (existing) {
+    await db.update(themeSettings)
+      .set({ ...settings, updatedAt: new Date() })
+      .where(eq(themeSettings.id, existing.id));
+  } else {
+    await db.insert(themeSettings).values({
+      ...settings,
+      updatedAt: new Date(),
+    } as any);
+  }
+}
+
+// Brand Assets operations
+export async function getAllBrandAssets() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(brandAssets).orderBy(desc(brandAssets.updatedAt));
+}
+
+export async function createBrandAsset(asset: typeof brandAssets.$inferInsert) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(brandAssets).values(asset);
+}
+
+export async function deleteBrandAsset(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(brandAssets).where(eq(brandAssets.id, id));
 }

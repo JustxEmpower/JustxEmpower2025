@@ -2,7 +2,7 @@ import { z } from "zod";
 import { publicProcedure, router } from "./_core/trpc";
 import { chatWithAI, initializeGemini, analyzeSentiment } from "./aiService";
 import { getDb } from "./db";
-import { aiChatConversations, aiSettings } from "../drizzle/schema";
+import { aiChatConversations, aiSettings, aiFeedback, visitorProfiles } from "../drizzle/schema";
 import { desc, eq } from "drizzle-orm";
 
 // Initialize Gemini on server start
@@ -102,6 +102,96 @@ export const aiRouter = router({
         .limit(input.limit);
 
       return history.reverse();
+    }),
+
+  /**
+   * Submit feedback for an AI response
+   */
+  submitFeedback: publicProcedure
+    .input(
+      z.object({
+        conversationId: z.number(),
+        visitorId: z.string().optional(),
+        rating: z.enum(["positive", "negative"]),
+        feedbackText: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      await db.insert(aiFeedback).values({
+        conversationId: input.conversationId,
+        visitorId: input.visitorId,
+        rating: input.rating,
+        feedbackText: input.feedbackText,
+      });
+
+      return { success: true };
+    }),
+
+  /**
+   * Track or update visitor profile
+   */
+  trackVisitor: publicProcedure
+    .input(
+      z.object({
+        visitorId: z.string(),
+        preferences: z.string().optional(),
+        context: z.string().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Check if visitor exists
+      const existing = await db
+        .select()
+        .from(visitorProfiles)
+        .where(eq(visitorProfiles.visitorId, input.visitorId))
+        .limit(1);
+
+      if (existing.length > 0) {
+        // Update existing profile
+        await db
+          .update(visitorProfiles)
+          .set({
+            lastVisit: new Date(),
+            totalConversations: existing[0].totalConversations + 1,
+            preferences: input.preferences || existing[0].preferences,
+            context: input.context || existing[0].context,
+          })
+          .where(eq(visitorProfiles.visitorId, input.visitorId));
+      } else {
+        // Create new profile
+        await db.insert(visitorProfiles).values({
+          visitorId: input.visitorId,
+          totalConversations: 1,
+          preferences: input.preferences,
+          context: input.context,
+        });
+      }
+
+      return { success: true };
+    }),
+
+  /**
+   * Get visitor profile for personalized responses
+   */
+  getVisitorProfile: publicProcedure
+    .input(z.object({ visitorId: z.string() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return null;
+
+      const profile = await db
+        .select()
+        .from(visitorProfiles)
+        .where(eq(visitorProfiles.visitorId, input.visitorId))
+        .limit(1);
+
+      return profile.length > 0 ? profile[0] : null;
     }),
 
   /**

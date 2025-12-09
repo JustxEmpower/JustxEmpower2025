@@ -128,3 +128,13 @@
 ### Bug Fixes
 - [x] Fix admin dashboard route (/admin vs /admin/dashboard)
 - [x] Fix logo path in all admin pages
+
+## AI Enhancements (NEW)
+
+- [x] Build Theme Settings admin page with AI color palette generator
+- [x] Build Theme Settings admin page with AI font pairing suggestions
+- [x] Add rating system to AI chat responses (thumbs up/down)
+- [x] Add qualitative feedback form for AI responses
+- [x] Implement visitor ID tracking for returning users
+- [x] Enhance conversation memory to recall previous sessions by visitor ID
+- [x] Store visitor preferences and context across sessions

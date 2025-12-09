@@ -2,14 +2,16 @@ import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, ThumbsUp, ThumbsDown } from "lucide-react";
 import { nanoid } from "nanoid";
+import { toast } from "sonner";
 
 interface Message {
-  id: string;
+  id: string | number;
   role: "user" | "assistant";
   message: string;
   timestamp: Date;
+  feedbackGiven?: boolean;
 }
 
 export function AIChatAssistant() {
@@ -17,11 +19,26 @@ export function AIChatAssistant() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [sessionId] = useState(() => nanoid());
+  const [visitorId] = useState(() => {
+    // Try to get existing visitor ID from localStorage
+    const existing = localStorage.getItem("je_visitor_id");
+    if (existing) return existing;
+    // Create new visitor ID
+    const newId = nanoid();
+    localStorage.setItem("je_visitor_id", newId);
+    return newId;
+  });
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const chatMutation = trpc.ai.chat.useMutation();
   const settingsQuery = trpc.ai.getSettings.useQuery();
+  const feedbackMutation = trpc.ai.submitFeedback.useMutation();
+  const trackVisitorMutation = trpc.ai.trackVisitor.useMutation();
+  const visitorProfileQuery = trpc.ai.getVisitorProfile.useQuery(
+    { visitorId },
+    { enabled: isOpen }
+  );
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -40,7 +57,7 @@ export function AIChatAssistant() {
   useEffect(() => {
     if (historyQuery.data) {
       const loadedMessages: Message[] = historyQuery.data.map((msg) => ({
-        id: msg.id.toString(),
+        id: msg.id,
         role: msg.role as "user" | "assistant",
         message: msg.message,
         timestamp: new Date(msg.createdAt),
@@ -48,6 +65,13 @@ export function AIChatAssistant() {
       setMessages(loadedMessages);
     }
   }, [historyQuery.data]);
+
+  // Track visitor on mount
+  useEffect(() => {
+    if (isOpen) {
+      trackVisitorMutation.mutate({ visitorId });
+    }
+  }, [isOpen]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -67,14 +91,16 @@ export function AIChatAssistant() {
       const response = await chatMutation.mutateAsync({
         message: input,
         sessionId,
+        visitorId,
         context: window.location.pathname,
       });
 
       const aiMessage: Message = {
-        id: nanoid(),
+        id: Date.now(), // Use timestamp as temp ID until we get the real ID from DB
         role: "assistant",
         message: response.message,
         timestamp: new Date(),
+        feedbackGiven: false,
       };
 
       setMessages((prev) => [...prev, aiMessage]);
@@ -96,6 +122,27 @@ export function AIChatAssistant() {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  const handleFeedback = async (messageId: string | number, rating: "positive" | "negative") => {
+    try {
+      await feedbackMutation.mutateAsync({
+        conversationId: typeof messageId === "number" ? messageId : parseInt(messageId),
+        visitorId,
+        rating,
+      });
+
+      // Mark message as feedback given
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId ? { ...msg, feedbackGiven: true } : msg
+        )
+      );
+
+      toast.success(rating === "positive" ? "Thank you for your feedback!" : "We'll work on improving.");
+    } catch (error) {
+      console.error("Feedback error:", error);
     }
   };
 
@@ -169,26 +216,49 @@ export function AIChatAssistant() {
                   msg.role === "user" ? "justify-end" : "justify-start"
                 }`}
               >
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 ${
-                    msg.role === "user"
-                      ? "bg-black text-white"
-                      : "bg-white text-gray-800 border border-gray-200"
-                  }`}
-                >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {msg.message}
-                  </p>
-                  <p
-                    className={`text-xs mt-2 ${
-                      msg.role === "user" ? "text-gray-300" : "text-gray-400"
+                <div className="flex flex-col gap-2 max-w-[80%]">
+                  <div
+                    className={`rounded-2xl px-4 py-3 ${
+                      msg.role === "user"
+                        ? "bg-black text-white"
+                        : "bg-white text-gray-800 border border-gray-200"
                     }`}
                   >
-                    {msg.timestamp.toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                      {msg.message}
+                    </p>
+                    <p
+                      className={`text-xs mt-2 ${
+                        msg.role === "user" ? "text-gray-300" : "text-gray-400"
+                      }`}
+                    >
+                      {msg.timestamp.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
+                  </div>
+                  {msg.role === "assistant" && !msg.feedbackGiven && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleFeedback(msg.id, "positive")}
+                        className="text-gray-400 hover:text-green-600 transition-colors"
+                        title="Helpful response"
+                      >
+                        <ThumbsUp className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleFeedback(msg.id, "negative")}
+                        className="text-gray-400 hover:text-red-600 transition-colors"
+                        title="Needs improvement"
+                      >
+                        <ThumbsDown className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
+                  {msg.role === "assistant" && msg.feedbackGiven && (
+                    <p className="text-xs text-gray-400">Thank you for your feedback</p>
+                  )}
                 </div>
               </div>
             ))}
