@@ -40,7 +40,7 @@ export default function AdminDashboard() {
         {/* Logo */}
         <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
           <img
-            src="/media/logo-mono-white.png"
+            src="/media/logo-white.png"
             alt="Just Empower"
             className="h-10 opacity-90"
           />

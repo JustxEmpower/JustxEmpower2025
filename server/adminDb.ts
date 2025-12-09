@@ -1,5 +1,20 @@
 import { eq, desc } from "drizzle-orm";
-import { adminUsers, articles, siteContent, media, InsertArticle, InsertSiteContent } from "../drizzle/schema";
+import { 
+  adminUsers, 
+  articles, 
+  siteContent, 
+  media, 
+  themeSettings,
+  brandAssets,
+  pages,
+  navigation,
+  seoSettings,
+  siteSettings,
+  aiChatConversations,
+  aiSettings,
+  InsertArticle, 
+  InsertSiteContent 
+} from "../drizzle/schema";
 import { getDb } from "./db";
 import crypto from "crypto";
 

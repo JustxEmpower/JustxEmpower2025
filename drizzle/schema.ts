@@ -95,3 +95,161 @@ export const media = mysqlTable("media", {
 
 export type Media = typeof media.$inferSelect;
 export type InsertMedia = typeof media.$inferInsert;
+
+/**
+ * Theme settings table for design system control
+ */
+export const themeSettings = mysqlTable("themeSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  // Color Palette
+  primaryColor: varchar("primaryColor", { length: 50 }).default("#000000"),
+  secondaryColor: varchar("secondaryColor", { length: 50 }).default("#ffffff"),
+  accentColor: varchar("accentColor", { length: 50 }).default("#1a1a1a"),
+  backgroundColor: varchar("backgroundColor", { length: 50 }).default("#ffffff"),
+  textColor: varchar("textColor", { length: 50 }).default("#000000"),
+  
+  // Typography
+  headingFont: varchar("headingFont", { length: 255 }).default("Playfair Display"),
+  bodyFont: varchar("bodyFont", { length: 255 }).default("Inter"),
+  headingFontUrl: varchar("headingFontUrl", { length: 500 }),
+  bodyFontUrl: varchar("bodyFontUrl", { length: 500 }),
+  
+  // Spacing & Layout
+  containerMaxWidth: varchar("containerMaxWidth", { length: 50 }).default("1280px"),
+  sectionSpacing: varchar("sectionSpacing", { length: 50 }).default("120px"),
+  borderRadius: varchar("borderRadius", { length: 50 }).default("8px"),
+  
+  // Animations
+  enableAnimations: int("enableAnimations").default(1).notNull(),
+  animationSpeed: varchar("animationSpeed", { length: 50 }).default("0.6s"),
+  
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ThemeSettings = typeof themeSettings.$inferSelect;
+export type InsertThemeSettings = typeof themeSettings.$inferInsert;
+
+/**
+ * Brand assets table for logo and brand image management
+ */
+export const brandAssets = mysqlTable("brandAssets", {
+  id: int("id").autoincrement().primaryKey(),
+  assetType: mysqlEnum("assetType", ["logo_header", "logo_footer", "logo_mobile", "favicon", "og_image", "twitter_image"]).notNull(),
+  assetUrl: varchar("assetUrl", { length: 1000 }).notNull(),
+  assetName: varchar("assetName", { length: 255 }),
+  width: int("width"),
+  height: int("height"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BrandAsset = typeof brandAssets.$inferSelect;
+export type InsertBrandAsset = typeof brandAssets.$inferInsert;
+
+/**
+ * Pages table for dynamic page management
+ */
+export const pages = mysqlTable("pages", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  template: varchar("template", { length: 100 }).default("default"),
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: text("metaDescription"),
+  ogImage: varchar("ogImage", { length: 1000 }),
+  published: int("published").default(1).notNull(),
+  showInNav: int("showInNav").default(1).notNull(),
+  navOrder: int("navOrder").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Page = typeof pages.$inferSelect;
+export type InsertPage = typeof pages.$inferInsert;
+
+/**
+ * Navigation items table for menu management
+ */
+export const navigation = mysqlTable("navigation", {
+  id: int("id").autoincrement().primaryKey(),
+  location: mysqlEnum("location", ["header", "footer"]).notNull(),
+  label: varchar("label", { length: 100 }).notNull(),
+  url: varchar("url", { length: 500 }).notNull(),
+  order: int("order").default(0).notNull(),
+  isExternal: int("isExternal").default(0).notNull(),
+  openInNewTab: int("openInNewTab").default(0).notNull(),
+  parentId: int("parentId"), // for nested menus
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Navigation = typeof navigation.$inferSelect;
+export type InsertNavigation = typeof navigation.$inferInsert;
+
+/**
+ * SEO settings table for meta tags and structured data
+ */
+export const seoSettings = mysqlTable("seoSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  pageSlug: varchar("pageSlug", { length: 255 }).notNull().unique(), // 'home', 'about', etc.
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: text("metaDescription"),
+  metaKeywords: text("metaKeywords"),
+  ogTitle: varchar("ogTitle", { length: 255 }),
+  ogDescription: text("ogDescription"),
+  ogImage: varchar("ogImage", { length: 1000 }),
+  twitterCard: varchar("twitterCard", { length: 50 }).default("summary_large_image"),
+  canonicalUrl: varchar("canonicalUrl", { length: 500 }),
+  noIndex: int("noIndex").default(0).notNull(),
+  structuredData: text("structuredData"), // JSON-LD
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SEOSettings = typeof seoSettings.$inferSelect;
+export type InsertSEOSettings = typeof seoSettings.$inferInsert;
+
+/**
+ * Site settings table for analytics, custom code, and integrations
+ */
+export const siteSettings = mysqlTable("siteSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  settingKey: varchar("settingKey", { length: 100 }).notNull().unique(),
+  settingValue: text("settingValue"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SiteSettings = typeof siteSettings.$inferSelect;
+export type InsertSiteSettings = typeof siteSettings.$inferInsert;
+
+
+/**
+ * AI chat conversations table for visitor chat history
+ */
+export const aiChatConversations = mysqlTable("aiChatConversations", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 255 }).notNull(),
+  visitorId: varchar("visitorId", { length: 255 }), // optional identifier
+  message: text("message").notNull(),
+  role: mysqlEnum("role", ["user", "assistant"]).notNull(),
+  context: text("context"), // page context, visitor intent, etc.
+  sentiment: varchar("sentiment", { length: 50 }), // positive, neutral, negative
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AIChatConversation = typeof aiChatConversations.$inferSelect;
+export type InsertAIChatConversation = typeof aiChatConversations.$inferInsert;
+
+/**
+ * AI settings table for API keys and configuration
+ */
+export const aiSettings = mysqlTable("aiSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  geminiApiKey: varchar("geminiApiKey", { length: 500 }),
+  chatEnabled: int("chatEnabled").default(1).notNull(),
+  chatBubbleColor: varchar("chatBubbleColor", { length: 50 }).default("#000000"),
+  chatBubblePosition: varchar("chatBubblePosition", { length: 50 }).default("bottom-right"),
+  systemPrompt: text("systemPrompt"), // Custom AI personality/instructions
+  autoResponses: text("autoResponses"), // JSON of common Q&A pairs
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AISettings = typeof aiSettings.$inferSelect;
+export type InsertAISettings = typeof aiSettings.$inferInsert;

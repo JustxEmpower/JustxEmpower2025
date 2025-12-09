@@ -125,7 +125,7 @@ export default function AdminSettings() {
       <aside className="w-64 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col">
         <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
           <img
-            src="/media/logo-mono-white.png"
+            src="/media/logo-white.png"
             alt="Just Empower"
             className="h-10 opacity-90"
           />

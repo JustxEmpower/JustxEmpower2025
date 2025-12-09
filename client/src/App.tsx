@@ -22,6 +22,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Preloader from "@/components/Preloader";
 import NewsletterPopup from "@/components/NewsletterPopup";
+import { AIChatAssistant } from "@/components/AIChatAssistant";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -29,6 +30,7 @@ function Router() {
       <Route path={"/"} component={Home} />
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={AdminDashboard} />
+      <Route path="/admin/dashboard" component={AdminDashboard} />
       <Route path="/admin/settings" component={AdminSettings} />
       <Route path="/admin/content" component={AdminContent} />
       <Route path="/admin/articles" component={AdminArticles} />
@@ -70,6 +72,7 @@ function App() {
             <Router />
             <Footer />
             {!isAdminPage && <NewsletterPopup />}
+            {!isAdminPage && <AIChatAssistant />}
           </div>
         </TooltipProvider>
       </ThemeProvider>
