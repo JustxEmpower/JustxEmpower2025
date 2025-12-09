@@ -203,15 +203,6 @@ export default function AdminMedia() {
           <div className="max-w-7xl mx-auto">
             <div className="flex items-center justify-between mb-6">
               <Button
-                onClick={() => setLocation('/admin/dashboard')}
-                variant="ghost"
-                className="gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Dashboard
-              </Button>
-              
-              <Button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
                 className="gap-2"

@@ -182,16 +182,7 @@ export default function AdminSettings() {
       <main className="flex-1 overflow-auto">
         <div className="p-8">
           <div className="max-w-3xl mx-auto">
-            <Button
-              onClick={() => setLocation('/admin/dashboard')}
-              variant="ghost"
-              className="mb-6 gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to Dashboard
-            </Button>
-
-            <h1 className="text-3xl font-light text-neutral-900 dark:text-neutral-100 mb-2">
+            <h1 className="text-3xl font-light text-neutral-900 dark:text-neutral-100 mb-8">
               Settings
             </h1>
             <p className="text-neutral-600 dark:text-neutral-400 mb-8">

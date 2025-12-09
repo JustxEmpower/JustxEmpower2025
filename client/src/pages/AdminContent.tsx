@@ -222,15 +222,6 @@ export default function AdminContent() {
         <div className="p-8">
           <div className="max-w-5xl mx-auto">
             <div className="flex items-center justify-between mb-6">
-              <Button
-                onClick={() => setLocation('/admin/dashboard')}
-                variant="ghost"
-                className="gap-2"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Back to Dashboard
-              </Button>
-              
               {hasUnsavedChanges && (
                 <Button
                   onClick={handleSaveAll}

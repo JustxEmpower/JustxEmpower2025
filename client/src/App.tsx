@@ -9,6 +9,8 @@ import AdminContent from "@/pages/AdminContent";
 import AdminArticles from "@/pages/AdminArticles";
 import AdminMedia from "@/pages/AdminMedia";
 import AdminTheme from "@/pages/AdminTheme";
+import AdminPages from "@/pages/AdminPages";
+import DynamicPage from "@/pages/DynamicPage";
 import AdminAnalytics from "@/pages/AdminAnalytics";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -40,12 +42,14 @@ function Router() {
       <Route path="/admin/media" component={AdminMedia} />
       <Route path="/admin/theme" component={AdminTheme} />
       <Route path="/admin/analytics" component={AdminAnalytics} />
+      <Route path="/admin/pages" component={AdminPages} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/about" component={About} />
       <Route path="/philosophy" component={Philosophy} />
       <Route path="/offerings" component={Offerings} />
       <Route path="/journal" component={Journal} />
       <Route path="/contact" component={Contact} />
+      <Route path="/:slug" component={DynamicPage} />
       <Route path="/walk-with-us" component={WalkWithUs} />
       <Route component={NotFound} />
     </Switch>

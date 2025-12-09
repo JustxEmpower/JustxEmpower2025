@@ -22,8 +22,17 @@ import {
   deleteMedia,
   getThemeSettings,
   updateThemeSettings,
+  getAllPages,
+  getPageBySlug,
+  createPage,
+  updatePage,
+  deletePage,
+  reorderPages,
 } from "./adminDb";
 import { storagePut } from "./storage";
+import { getDb } from "./db";
+import * as schema from "../drizzle/schema";
+import { eq, and } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { generateColorPalette, suggestFontPairings } from "./aiService";
 
@@ -362,6 +371,82 @@ export const adminRouter = router({
         return fonts;
       }),
   }),
+
+  // Pages Management
+  pages: router({
+    list: adminProcedure.query(async () => {
+      return await getAllPages();
+    }),
+
+    get: adminProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        const page = await getPageBySlug(input.slug);
+        if (!page) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Page not found" });
+        }
+        return page;
+      }),
+
+    create: adminProcedure
+      .input(
+        z.object({
+          title: z.string(),
+          slug: z.string(),
+          template: z.string().optional(),
+          metaTitle: z.string().optional(),
+          metaDescription: z.string().optional(),
+          ogImage: z.string().optional(),
+          published: z.number().optional(),
+          showInNav: z.number().optional(),
+          navOrder: z.number().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await createPage(input);
+      }),
+
+    update: adminProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          title: z.string().optional(),
+          slug: z.string().optional(),
+          template: z.string().optional(),
+          metaTitle: z.string().optional(),
+          metaDescription: z.string().optional(),
+          ogImage: z.string().optional(),
+          published: z.number().optional(),
+          showInNav: z.number().optional(),
+          navOrder: z.number().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return await updatePage(id, data);
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        return await deletePage(input.id);
+      }),
+
+    reorder: adminProcedure
+      .input(
+        z.object({
+          pageOrders: z.array(
+            z.object({
+              id: z.number(),
+              navOrder: z.number(),
+            })
+          ),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await reorderPages(input.pageOrders);
+      }),
+  }),
 });
 
 // Public article router (for the Journal page)
@@ -394,4 +479,29 @@ export const publicContentRouter = router({
     .query(async ({ input }) => {
       return await getSiteContentByPage(input.page);
     }),
+});
+
+
+// Public pages router
+export const publicPagesRouter = router({
+  getBySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      const page = await getPageBySlug(input.slug);
+      if (!page || page.published !== 1) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Page not found" });
+      }
+      return page;
+    }),
+
+  getNavPages: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    const pages = await db
+      .select()
+      .from(schema.pages)
+      .where(and(eq(schema.pages.published, 1), eq(schema.pages.showInNav, 1)))
+      .orderBy(schema.pages.navOrder);
+    return pages;
+  }),
 });

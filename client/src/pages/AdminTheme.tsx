@@ -4,11 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Palette, Type, Save, Loader2, ArrowLeft } from "lucide-react";
+import { Sparkles, Palette, Type, Save, Loader2, Layout, FileText, Settings, FolderOpen, BarChart3, Files, LogOut } from "lucide-react";
 import { toast } from "sonner";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 export default function AdminTheme() {
+  const [location, setLocation] = useLocation();
+
+  const navItems = [
+    { icon: Layout, label: "Content", path: "/admin/content" },
+    { icon: FileText, label: "Articles", path: "/admin/articles" },
+    { icon: FolderOpen, label: "Media", path: "/admin/media" },
+    { icon: Palette, label: "Theme", path: "/admin/theme" },
+    { icon: Files, label: "Pages", path: "/admin/pages" },
+    { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
+    { icon: Settings, label: "Settings", path: "/admin/settings" },
+  ];
+
   const [paletteDescription, setPaletteDescription] = useState("");
   const [fontStyle, setFontStyle] = useState("");
   const [isGeneratingPalette, setIsGeneratingPalette] = useState(false);
@@ -133,13 +145,25 @@ export default function AdminTheme() {
           <img src="/media/logo-white.png" alt="Just Empower" className="w-32 mb-8 invert" />
         </Link>
 
-        <nav className="space-y-2">
-          <Link href="/admin/dashboard">
-            <Button variant="ghost" className="w-full justify-start">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
+        <nav className="flex-1 p-4 space-y-1">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location === item.path;
+            return (
+              <button
+                key={item.path}
+                onClick={() => setLocation(item.path)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  isActive
+                    ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
+                    : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <span className="font-medium text-sm">{item.label}</span>
+              </button>
+            );
+          })}
         </nav>
 
         <div className="absolute bottom-6 left-6 right-6">

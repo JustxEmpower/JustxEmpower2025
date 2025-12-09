@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
-import { LogOut, FileText, Settings, Layout, FolderOpen, Palette, BarChart3 } from 'lucide-react';
+import { Layout, FileText, Settings, FolderOpen, Palette, BarChart3, LogOut, Files } from "lucide-react";
 
 export default function AdminDashboard() {
   const [location, setLocation] = useLocation();
@@ -30,8 +30,9 @@ export default function AdminDashboard() {
     { icon: Layout, label: 'Content', path: '/admin/content' },
     { icon: FileText, label: 'Articles', path: '/admin/articles' },
     { icon: FolderOpen, label: 'Media', path: '/admin/media' },
-    { icon: Palette, label: 'Theme', path: '/admin/theme' },
-    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
+    { icon: Palette, label: "Theme", path: "/admin/theme" },
+    { icon: Files, label: "Pages", path: "/admin/pages" },
+    { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];
 

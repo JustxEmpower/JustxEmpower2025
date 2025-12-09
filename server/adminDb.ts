@@ -256,3 +256,76 @@ export async function deleteBrandAsset(id: number) {
   
   await db.delete(brandAssets).where(eq(brandAssets.id, id));
 }
+
+
+/**
+ * Pages Management
+ */
+export async function getAllPages() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(pages).orderBy(pages.navOrder);
+}
+
+export async function getPageBySlug(slug: string) {
+  const db = await getDb();
+  if (!db) return null;
+  const result = await db.select().from(pages).where(eq(pages.slug, slug)).limit(1);
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function createPage(data: {
+  title: string;
+  slug: string;
+  template?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  ogImage?: string;
+  published?: number;
+  showInNav?: number;
+  navOrder?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(pages).values(data);
+  return result;
+}
+
+export async function updatePage(id: number, data: Partial<{
+  title: string;
+  slug: string;
+  template: string;
+  metaTitle: string;
+  metaDescription: string;
+  ogImage: string;
+  published: number;
+  showInNav: number;
+  navOrder: number;
+}>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(pages).set(data).where(eq(pages.id, id));
+  return { success: true };
+}
+
+export async function deletePage(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(pages).where(eq(pages.id, id));
+  return { success: true };
+}
+
+export async function reorderPages(pageOrders: { id: number; navOrder: number }[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Update each page's navOrder
+  for (const page of pageOrders) {
+    await db.update(pages).set({ navOrder: page.navOrder }).where(eq(pages.id, page.id));
+  }
+  
+  return { success: true };
+}
