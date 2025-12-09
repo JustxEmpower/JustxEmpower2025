@@ -37,7 +37,7 @@ export default function AdminLogin() {
         {/* Logo / Brand */}
         <div className="text-center mb-12">
           <img
-            src="/media/logo-color.png"
+            src="/media/08/justempower-logo.png"
             alt="Just Empower"
             className="h-16 mx-auto mb-6"
           />

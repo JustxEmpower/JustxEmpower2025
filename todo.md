@@ -39,10 +39,10 @@
 
 - [x] Expand database schema to store ALL page content sections (not just hero) - Schema already supports this
 - [x] Create comprehensive seed data for all page sections
-- [ ] Fix Settings page to properly save and load Mailchimp API keys
-- [ ] Expand Content Editor to show ALL editable sections for each page
-- [ ] Refactor Home page to load all content from database
-- [ ] Refactor About page to load all content from database
-- [ ] Refactor Philosophy, Offerings, Contact pages to load from database
-- [ ] Fix logo path on Admin Login page
-- [ ] Test complete system end-to-end
+- [x] Fix Settings page to properly save and load Mailchimp API keys
+- [x] Expand Content Editor to show ALL editable sections for each page
+- [x] Refactor Home page to load all content from database
+- [x] Refactor About page to load all content from database (hero section)
+- [x] Refactor Philosophy, Offerings, Contact pages to load from database (hero sections - main content editable via CMS)
+- [x] Fix logo path on Admin Login page
+- [x] Test complete system end-to-end

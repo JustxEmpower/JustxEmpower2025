@@ -2,10 +2,12 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import NewsletterSignup from '@/components/NewsletterSignup';
+import { usePageContent } from '@/hooks/usePageContent';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function About() {
+  const { getContent, getSection, isLoading } = usePageContent('about');
   const heroRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -74,7 +76,7 @@ export default function About() {
             playsInline
             className="w-full h-full object-cover"
           >
-            <source src="/media/09/seeds-of-power.mp4" type="video/mp4" />
+            <source src={getContent('hero', 'videoUrl', '/media/09/seeds-of-power.mp4')} type="video/mp4" />
           </video>
         </div>
 
@@ -82,15 +84,15 @@ export default function About() {
         <div className="relative z-20 h-full flex flex-col items-center justify-center text-center px-4">
           <div className="about-hero-text">
             <h2 className="font-sans text-white text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 opacity-90">
-              April Gambardella
+              {getContent('hero', 'subtitle', 'April Gambardella')}
             </h2>
             
             <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-white font-light italic tracking-wide leading-[1.1] mb-8">
-              The Founder
+              {getContent('hero', 'title', 'The Founder')}
             </h1>
             
             <p className="font-sans text-white/90 text-lg md:text-xl font-light tracking-wide max-w-3xl leading-relaxed">
-              Steward of Embodied Change & Energetic Coherence
+              {getContent('hero', 'description', 'Steward of Embodied Change & Energetic Coherence')}
             </p>
           </div>
         </div>

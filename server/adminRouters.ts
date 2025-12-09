@@ -67,6 +67,19 @@ const adminProcedure = publicProcedure.use(async ({ ctx, next }) => {
 });
 
 export const adminRouter = router({
+  // Get current admin settings
+  getSettings: adminProcedure.query(async ({ ctx }) => {
+    const admin = await getAdminByUsername(ctx.adminUsername);
+    if (!admin) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Admin user not found" });
+    }
+    return {
+      username: admin.username,
+      mailchimpApiKey: admin.mailchimpApiKey || '',
+      mailchimpAudienceId: admin.mailchimpAudienceId || '',
+    };
+  }),
+
   // Authentication
   login: publicProcedure
     .input(z.object({

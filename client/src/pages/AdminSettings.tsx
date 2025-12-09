@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,17 @@ export default function AdminSettings() {
   
   const [mailchimpApiKey, setMailchimpApiKey] = useState('');
   const [mailchimpAudienceId, setMailchimpAudienceId] = useState('');
+  
+  // Fetch current settings
+  const { data: settings } = trpc.admin.getSettings.useQuery();
+  
+  // Populate form when settings load
+  useEffect(() => {
+    if (settings) {
+      setMailchimpApiKey(settings.mailchimpApiKey || '');
+      setMailchimpAudienceId(settings.mailchimpAudienceId || '');
+    }
+  }, [settings]);
   
   const updateMailchimpMutation = trpc.newsletter.updateSettings.useMutation({
     onSuccess: () => {
