@@ -64,6 +64,20 @@
       "when": 1765246561741,
       "tag": "0008_supreme_blue_marvel",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1765247633636,
+      "tag": "0009_easy_vapor",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "5",
+      "when": 1765411565167,
+      "tag": "0010_rainy_black_bolt",
+      "breakpoints": true
     }
   ]
 }

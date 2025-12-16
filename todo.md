@@ -171,3 +171,35 @@
 - [x] Remove redundant "Back to Dashboard" buttons from all admin pages
 - [x] Ensure sidebar navigation is consistent across all admin pages
 - [ ] Fix admin session persistence issue
+
+## Visual Block Editor for Pages (NEW)
+
+- [ ] Create pageBlocks database table to store content blocks
+- [ ] Build backend API for creating, updating, deleting, and reordering blocks
+- [ ] Create Text Block component with rich text editor
+- [ ] Create Image Block component with Media Library integration
+- [ ] Create Video Block component
+- [ ] Create Quote Block component
+- [ ] Create CTA Block component
+- [ ] Create Spacer Block component
+- [ ] Integrate block editor into Pages Manager with drag-and-drop
+- [ ] Add block settings panel (alignment, colors, spacing)
+- [ ] Build dynamic page renderer to display blocks on public site
+- [ ] Add live preview mode
+- [ ] Test complete block editor workflow
+
+## Sidebar Navigation Consistency Fix (URGENT)
+
+- [x] Audit all admin pages (Content, Articles, Media, Theme, Pages, Analytics, Settings)
+- [x] Add missing nav items (Theme, Pages, Analytics) to pages that don't have them
+- [x] Ensure all 7 nav items appear on every admin page sidebar
+- [x] Test navigation consistency across all admin pages
+
+
+## Critical Bug: Admin Session Expires During Save Operations (URGENT)
+
+- [x] Investigate why admin session expires/redirects to login when saving content
+- [x] Check adminProcedure authentication middleware
+- [x] Fix session persistence during tRPC mutations (implemented database-backed sessions)
+- [x] Test that content saves without logout (vitest tests pass)
+- [x] Verify all admin operations maintain session (vitest tests pass)

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { LogOut, FileText, Settings, Layout, ArrowLeft } from 'lucide-react';
+import { LogOut, FileText, Settings, Layout, FolderOpen, Palette, Files, BarChart3 } from 'lucide-react';
 
 export default function AdminSettings() {
   const [location, setLocation] = useLocation();
@@ -116,6 +116,10 @@ export default function AdminSettings() {
   const navItems = [
     { icon: Layout, label: 'Content', path: '/admin/content' },
     { icon: FileText, label: 'Articles', path: '/admin/articles' },
+    { icon: FolderOpen, label: 'Media', path: '/admin/media' },
+    { icon: Palette, label: 'Theme', path: '/admin/theme' },
+    { icon: Files, label: 'Pages', path: '/admin/pages' },
+    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];
 

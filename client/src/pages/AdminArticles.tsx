@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { LogOut, FileText, Settings, Layout, ArrowLeft, Plus, Edit, Trash2, Save, X } from 'lucide-react';
+import { LogOut, FileText, Settings, Layout, Plus, Edit, Trash2, Save, X, FolderOpen, Palette, Files, BarChart3 } from 'lucide-react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -140,6 +140,10 @@ export default function AdminArticles() {
   const navItems = [
     { icon: Layout, label: 'Content', path: '/admin/content' },
     { icon: FileText, label: 'Articles', path: '/admin/articles' },
+    { icon: FolderOpen, label: 'Media', path: '/admin/media' },
+    { icon: Palette, label: 'Theme', path: '/admin/theme' },
+    { icon: Files, label: 'Pages', path: '/admin/pages' },
+    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];
 

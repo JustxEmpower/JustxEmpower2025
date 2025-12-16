@@ -7,6 +7,7 @@ import {
   themeSettings,
   brandAssets,
   pages,
+  pageBlocks,
   navigation,
   seoSettings,
   siteSettings,
@@ -328,4 +329,74 @@ export async function reorderPages(pageOrders: { id: number; navOrder: number }[
   }
   
   return { success: true };
+}
+
+
+// ============= PAGE BLOCKS MANAGEMENT =============
+
+export async function getPageBlocks(pageId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  const blocks = await db
+    .select()
+    .from(pageBlocks)
+    .where(eq(pageBlocks.pageId, pageId))
+    .orderBy(pageBlocks.order);
+  return blocks;
+}
+
+export async function createPageBlock(data: {
+  pageId: number;
+  type: "text" | "image" | "video" | "quote" | "cta" | "spacer";
+  content: string;
+  order: number;
+  settings?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(pageBlocks).values({
+    pageId: data.pageId,
+    type: data.type,
+    content: data.content,
+    order: data.order,
+    settings: data.settings || "{}",
+  });
+  
+  return { success: true };
+}
+
+export async function updatePageBlock(id: number, data: {
+  content?: string;
+  order?: number;
+  settings?: string;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .update(pageBlocks)
+    .set(data)
+    .where(eq(pageBlocks.id, id));
+}
+
+export async function deletePageBlock(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .delete(pageBlocks)
+    .where(eq(pageBlocks.id, id));
+}
+
+export async function reorderPageBlocks(blocks: { id: number; order: number }[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  for (const block of blocks) {
+    await db
+      .update(pageBlocks)
+      .set({ order: block.order })
+      .where(eq(pageBlocks.id, block.id));
+  }
 }

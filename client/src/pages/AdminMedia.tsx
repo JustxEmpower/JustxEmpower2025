@@ -4,7 +4,7 @@ import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { LogOut, FileText, Settings, Layout, ArrowLeft, Upload, Trash2, Image as ImageIcon, Video, FolderOpen } from 'lucide-react';
+import { LogOut, FileText, Settings, Layout, Upload, Trash2, Image as ImageIcon, Video, FolderOpen, Palette, Files, BarChart3 } from 'lucide-react';
 
 interface MediaItem {
   id: number;
@@ -135,6 +135,9 @@ export default function AdminMedia() {
     { icon: Layout, label: 'Content', path: '/admin/content' },
     { icon: FileText, label: 'Articles', path: '/admin/articles' },
     { icon: FolderOpen, label: 'Media', path: '/admin/media' },
+    { icon: Palette, label: 'Theme', path: '/admin/theme' },
+    { icon: Files, label: 'Pages', path: '/admin/pages' },
+    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];
 

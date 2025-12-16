@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { LogOut, FileText, Settings, Layout, ArrowLeft, Save, ChevronDown, ChevronUp, FolderOpen, Image } from 'lucide-react';
+import { LogOut, FileText, Settings, Layout, Save, ChevronDown, ChevronUp, FolderOpen, Image, Palette, Files, BarChart3 } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
 
 interface ContentItem {
@@ -32,16 +32,7 @@ export default function AdminContent() {
     { enabled: isAuthenticated }
   );
 
-  const updateMutation = trpc.admin.content.update.useMutation({
-    onSuccess: () => {
-      toast.success('Content updated successfully');
-      setEditedContent({});
-      refetch();
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to update content');
-    },
-  });
+  const updateMutation = trpc.admin.content.update.useMutation();
 
   useEffect(() => {
     if (contentData) {
@@ -65,18 +56,42 @@ export default function AdminContent() {
     setEditedContent(prev => ({ ...prev, [id]: value }));
   };
 
-  const handleSaveAll = () => {
+  const handleSaveAll = async () => {
     if (Object.keys(editedContent).length === 0) {
       toast.info('No changes to save');
       return;
     }
     
-    Object.entries(editedContent).forEach(([id, value]) => {
-      updateMutation.mutate({
-        id: parseInt(id),
-        contentValue: value,
-      });
-    });
+    const updates = Object.entries(editedContent);
+    let successCount = 0;
+    let errorCount = 0;
+    
+    // Save all updates sequentially
+    for (const [id, value] of updates) {
+      try {
+        await updateMutation.mutateAsync({
+          id: parseInt(id),
+          contentValue: value,
+        });
+        successCount++;
+      } catch (error) {
+        console.error(`Failed to update content ID ${id}:`, error);
+        errorCount++;
+      }
+    }
+    
+    // Show result toast
+    if (errorCount === 0) {
+      toast.success(`Successfully saved ${successCount} change${successCount > 1 ? 's' : ''}`);
+    } else if (successCount > 0) {
+      toast.warning(`Saved ${successCount} change${successCount > 1 ? 's' : ''}, ${errorCount} failed`);
+    } else {
+      toast.error('Failed to save changes');
+    }
+    
+    // Clear edited content and refetch
+    setEditedContent({});
+    refetch();
   };
 
   const toggleSection = (section: string) => {
@@ -108,6 +123,9 @@ export default function AdminContent() {
     { icon: Layout, label: 'Content', path: '/admin/content' },
     { icon: FileText, label: 'Articles', path: '/admin/articles' },
     { icon: FolderOpen, label: 'Media', path: '/admin/media' },
+    { icon: Palette, label: 'Theme', path: '/admin/theme' },
+    { icon: Files, label: 'Pages', path: '/admin/pages' },
+    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
     { icon: Settings, label: 'Settings', path: '/admin/settings' },
   ];
 

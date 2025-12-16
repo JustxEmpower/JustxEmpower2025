@@ -28,40 +28,75 @@ import {
   updatePage,
   deletePage,
   reorderPages,
+  getPageBlocks,
+  createPageBlock,
+  updatePageBlock,
+  deletePageBlock,
+  reorderPageBlocks,
 } from "./adminDb";
 import { storagePut } from "./storage";
 import { getDb } from "./db";
 import * as schema from "../drizzle/schema";
-import { eq, and } from "drizzle-orm";
+import { eq, and, lt } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { generateColorPalette, suggestFontPairings } from "./aiService";
 
-// Admin session management (simple in-memory for now)
-const adminSessions = new Map<string, { username: string; expiresAt: number }>();
-
+// Admin session management (database-backed for persistence)
 function generateSessionToken(): string {
-  return Math.random().toString(36).substring(2) + Date.now().toString(36);
+  return nanoid(64); // Secure random token
 }
 
-function createAdminSession(username: string): string {
+async function createAdminSession(username: string): Promise<string> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
   const token = generateSessionToken();
-  const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
-  adminSessions.set(token, { username, expiresAt });
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  
+  await db.insert(schema.adminSessions).values({
+    token,
+    username,
+    expiresAt,
+  });
+  
   return token;
 }
 
-function validateAdminSession(token: string): string | null {
-  const session = adminSessions.get(token);
+async function validateAdminSession(token: string): Promise<string | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const [session] = await db
+    .select()
+    .from(schema.adminSessions)
+    .where(eq(schema.adminSessions.token, token))
+    .limit(1);
+  
   if (!session) return null;
-  if (session.expiresAt < Date.now()) {
-    adminSessions.delete(token);
+  
+  // Check if expired
+  if (session.expiresAt < new Date()) {
+    // Clean up expired session
+    await db.delete(schema.adminSessions).where(eq(schema.adminSessions.token, token));
     return null;
   }
+  
   return session.username;
 }
 
-function deleteAdminSession(token: string) {
-  adminSessions.delete(token);
+async function deleteAdminSession(token: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.delete(schema.adminSessions).where(eq(schema.adminSessions.token, token));
+}
+
+// Clean up expired sessions periodically
+async function cleanupExpiredSessions(): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.delete(schema.adminSessions).where(lt(schema.adminSessions.expiresAt, new Date()));
 }
 
 // Admin authentication middleware
@@ -71,7 +106,7 @@ const adminProcedure = publicProcedure.use(async ({ ctx, next }) => {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "Admin token required" });
   }
   
-  const username = validateAdminSession(token);
+  const username = await validateAdminSession(token);
   if (!username) {
     throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid or expired admin session" });
   }
@@ -111,7 +146,7 @@ export const adminRouter = router({
         throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid credentials" });
       }
       
-      const token = createAdminSession(admin.username);
+      const token = await createAdminSession(admin.username);
       
       return {
         success: true,
@@ -121,9 +156,9 @@ export const adminRouter = router({
     }),
   
   logout: adminProcedure
-    .mutation(({ ctx }) => {
+    .mutation(async ({ ctx }) => {
       const token = ctx.req.headers["x-admin-token"] as string;
-      deleteAdminSession(token);
+      await deleteAdminSession(token);
       return { success: true };
     }),
   
@@ -446,6 +481,64 @@ export const adminRouter = router({
       .mutation(async ({ input }) => {
         return await reorderPages(input.pageOrders);
       }),
+
+    // Page Blocks Management
+    blocks: router({
+      list: adminProcedure
+        .input(z.object({ pageId: z.number() }))
+        .query(async ({ input }) => {
+          return await getPageBlocks(input.pageId);
+        }),
+
+      create: adminProcedure
+        .input(
+          z.object({
+            pageId: z.number(),
+            type: z.enum(["text", "image", "video", "quote", "cta", "spacer"]),
+            content: z.string(),
+            order: z.number(),
+            settings: z.string().optional(),
+          })
+        )
+        .mutation(async ({ input }) => {
+          return await createPageBlock(input);
+        }),
+
+      update: adminProcedure
+        .input(
+          z.object({
+            id: z.number(),
+            content: z.string().optional(),
+            order: z.number().optional(),
+            settings: z.string().optional(),
+          })
+        )
+        .mutation(async ({ input }) => {
+          const { id, ...data } = input;
+          return await updatePageBlock(id, data);
+        }),
+
+      delete: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          return await deletePageBlock(input.id);
+        }),
+
+      reorder: adminProcedure
+        .input(
+          z.object({
+            blocks: z.array(
+              z.object({
+                id: z.number(),
+                order: z.number(),
+              })
+            ),
+          })
+        )
+        .mutation(async ({ input }) => {
+          return await reorderPageBlocks(input.blocks);
+        }),
+    }),
   }),
 });
 

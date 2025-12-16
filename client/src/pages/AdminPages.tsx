@@ -22,6 +22,7 @@ import {
   FolderOpen,
   Palette,
   BarChart3,
+  Files,
   Plus,
   Edit,
   Trash2,
@@ -185,6 +186,7 @@ export default function AdminPages() {
     { icon: FileText, label: "Articles", path: "/admin/articles" },
     { icon: FolderOpen, label: "Media", path: "/admin/media" },
     { icon: Palette, label: "Theme", path: "/admin/theme" },
+    { icon: Files, label: "Pages", path: "/admin/pages" },
     { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
     { icon: Settings, label: "Settings", path: "/admin/settings" },
   ];

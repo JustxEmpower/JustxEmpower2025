@@ -78,6 +78,19 @@ export type AdminUser = typeof adminUsers.$inferSelect;
 export type InsertAdminUser = typeof adminUsers.$inferInsert;
 
 /**
+ * Admin sessions table for persistent session storage
+ */
+export const adminSessions = mysqlTable("adminSessions", {
+  token: varchar("token", { length: 255 }).notNull().primaryKey(),
+  username: varchar("username", { length: 100 }).notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AdminSession = typeof adminSessions.$inferSelect;
+export type InsertAdminSession = typeof adminSessions.$inferInsert;
+
+/**
  * Media library table for tracking uploaded images and videos
  */
 export const media = mysqlTable("media", {
@@ -333,3 +346,20 @@ export const analyticsEvents = mysqlTable("analyticsEvents", {
 
 export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
 export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
+
+/**
+ * Page content blocks for visual block editor
+ */
+export const pageBlocks = mysqlTable("pageBlocks", {
+  id: int("id").autoincrement().primaryKey(),
+  pageId: int("pageId").notNull(),
+  type: mysqlEnum("type", ["text", "image", "video", "quote", "cta", "spacer"]).notNull(),
+  content: text("content"), // JSON string with block-specific data
+  order: int("order").notNull().default(0),
+  settings: text("settings"), // JSON string with block settings (alignment, colors, spacing)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PageBlock = typeof pageBlocks.$inferSelect;
+export type InsertPageBlock = typeof pageBlocks.$inferInsert;
