@@ -203,3 +203,20 @@
 - [x] Fix session persistence during tRPC mutations (implemented database-backed sessions)
 - [x] Test that content saves without logout (vitest tests pass)
 - [x] Verify all admin operations maintain session (vitest tests pass)
+
+
+## Visual Block Editor Implementation (IN PROGRESS)
+
+- [x] Implement backend API for block CRUD operations (create, update, delete, reorder)
+- [x] Create Text Block component with rich text editor
+- [x] Create Image Block component with Media Library integration
+- [x] Create Video Block component with URL input
+- [x] Create Quote Block component with author attribution
+- [x] Create CTA Block component with button customization
+- [x] Create Spacer Block component for vertical spacing
+- [x] Install and configure dnd-kit for drag-and-drop
+- [x] Build block editor UI in AdminPages with drag-and-drop
+- [x] Add block settings panel (alignment, colors, spacing, padding)
+- [x] Create dynamic page renderer component for public site
+- [ ] Add live preview mode in block editor (future enhancement)
+- [x] Test complete block editor workflow end-to-end

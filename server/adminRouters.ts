@@ -597,4 +597,10 @@ export const publicPagesRouter = router({
       .orderBy(schema.pages.navOrder);
     return pages;
   }),
+
+  getBlocks: publicProcedure
+    .input(z.object({ pageId: z.number() }))
+    .query(async ({ input }) => {
+      return await getPageBlocks(input.pageId);
+    }),
 });

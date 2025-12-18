@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { trpc } from "@/lib/trpc";
+import BlockEditor from "@/components/BlockEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,10 +68,11 @@ interface Page {
 interface SortablePageProps {
   page: Page;
   onEdit: (page: Page) => void;
+  onEditBlocks: (page: Page) => void;
   onDelete: (id: number) => void;
 }
 
-function SortablePage({ page, onEdit, onDelete }: SortablePageProps) {
+function SortablePage({ page, onEdit, onEditBlocks, onDelete }: SortablePageProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: page.id,
   });
@@ -118,6 +120,10 @@ function SortablePage({ page, onEdit, onDelete }: SortablePageProps) {
           </span>
         )}
 
+        <Button onClick={() => onEditBlocks(page)} variant="outline" size="sm">
+          <Layout className="w-4 h-4" />
+        </Button>
+
         <Button onClick={() => onEdit(page)} variant="outline" size="sm">
           <Edit className="w-4 h-4" />
         </Button>
@@ -141,6 +147,7 @@ export default function AdminPages() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<Page | null>(null);
+  const [editingBlocksPage, setEditingBlocksPage] = useState<Page | null>(null);
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -253,6 +260,10 @@ export default function AdminPages() {
       showInNav: page.showInNav,
     });
     setIsEditDialogOpen(true);
+  };
+
+  const handleEditBlocks = (page: Page) => {
+    setEditingBlocksPage(page);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
@@ -467,7 +478,22 @@ export default function AdminPages() {
               </Dialog>
             </div>
 
-            {/* Pages List */}
+            {/* Block Editor or Pages List */}
+            {editingBlocksPage ? (
+              <div className="space-y-6">
+                <Button
+                  variant="outline"
+                  onClick={() => setEditingBlocksPage(null)}
+                  className="mb-4"
+                >
+                  ← Back to Pages
+                </Button>
+                <BlockEditor
+                  pageId={editingBlocksPage.id}
+                  pageName={editingBlocksPage.title}
+                />
+              </div>
+            ) : (
             <div className="space-y-3">
               <DndContext
                 sensors={sensors}
@@ -483,6 +509,7 @@ export default function AdminPages() {
                       key={page.id}
                       page={page}
                       onEdit={handleEditPage}
+                      onEditBlocks={handleEditBlocks}
                       onDelete={handleDeletePage}
                     />
                   ))}
@@ -495,6 +522,7 @@ export default function AdminPages() {
                 </div>
               )}
             </div>
+            )}
           </div>
         </div>
       </main>
