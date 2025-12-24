@@ -2,6 +2,10 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
+import { adminRouter, publicArticlesRouter, publicContentRouter, publicPagesRouter, aiChatAnalyticsRouter } from "./adminRouters";
+import { newsletterRouter } from "./newsletterRouter";
+import { aiRouter } from "./aiRouters";
+import { analyticsRouter } from "./analyticsRouters";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -17,12 +21,27 @@ export const appRouter = router({
     }),
   }),
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  // Admin portal routes
+  admin: adminRouter,
+  
+  // Public routes for articles and content
+  articles: publicArticlesRouter,
+  content: publicContentRouter,
+  
+  // Newsletter subscription
+  newsletter: newsletterRouter,
+  
+  // AI Chat Assistant
+  ai: aiRouter,
+  
+  // Analytics
+  analytics: analyticsRouter,
+  
+  // AI Chat Analytics
+  aiChatAnalytics: aiChatAnalyticsRouter,
+  
+  // Public pages
+  pages: publicPagesRouter,
 });
 
 export type AppRouter = typeof appRouter;

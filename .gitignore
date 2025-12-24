@@ -105,3 +105,15 @@ temp/
 *.db
 *.sqlite
 *.sqlite3
+
+
+# Large media files (should be stored in S3/CDN)
+*.mp4
+*.mov
+*.webm
+*.avi
+*.mkv
+
+# Large image files over 5MB
+client/public/assets/2025-6/11/Black-lava-stone*.png
+client/public/media/11/Black-lava-stone*.png
