@@ -148,6 +148,20 @@
       "when": 1766206803761,
       "tag": "0020_slim_northstar",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "5",
+      "when": 1766584773399,
+      "tag": "0021_sloppy_leo",
+      "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "5",
+      "when": 1766586662201,
+      "tag": "0022_famous_nuke",
+      "breakpoints": true
     }
   ]
 }

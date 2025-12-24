@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Palette, Type, Save, Loader2, Layout, FileText, Settings, FolderOpen, BarChart3, Files, LogOut } from "lucide-react";
+import { Sparkles, Palette, Type, Save, Loader2, Layout, FileText, Settings, FolderOpen, BarChart3, Files, LogOut, Image, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
 
@@ -45,6 +45,11 @@ export default function AdminTheme() {
     sectionSpacing: "120px",
     borderRadius: "8px",
     enableAnimations: 1,
+    heroBackgroundImage: "",
+    heroBackgroundVideo: "",
+    footerBackgroundImage: "",
+    shopBackgroundImage: "",
+    eventsBackgroundImage: "",
   });
 
   useEffect(() => {
@@ -63,6 +68,11 @@ export default function AdminTheme() {
         sectionSpacing: themeQuery.data.sectionSpacing || "120px",
         borderRadius: themeQuery.data.borderRadius || "8px",
         enableAnimations: themeQuery.data.enableAnimations || 1,
+        heroBackgroundImage: themeQuery.data.heroBackgroundImage || "",
+        heroBackgroundVideo: themeQuery.data.heroBackgroundVideo || "",
+        footerBackgroundImage: themeQuery.data.footerBackgroundImage || "",
+        shopBackgroundImage: themeQuery.data.shopBackgroundImage || "",
+        eventsBackgroundImage: themeQuery.data.eventsBackgroundImage || "",
       });
     }
   }, [themeQuery.data]);
@@ -383,6 +393,79 @@ export default function AdminTheme() {
                 <p className="text-sm text-gray-500 mt-3">
                   Using Google Fonts. Changes will apply after saving.
                 </p>
+              </CardContent>
+            </Card>
+
+            {/* Section Background Images */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Image className="w-5 h-5" />
+                  Section Background Images
+                </CardTitle>
+                <CardDescription>
+                  Upload or set URLs for background images on different sections of your site
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <Label>Hero Background Image URL</Label>
+                    <Input
+                      value={formData.heroBackgroundImage}
+                      onChange={(e) =>
+                        setFormData({ ...formData, heroBackgroundImage: e.target.value })
+                      }
+                      placeholder="https://example.com/hero-bg.jpg"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Leave empty to use default video background</p>
+                  </div>
+
+                  <div>
+                    <Label>Hero Background Video URL</Label>
+                    <Input
+                      value={formData.heroBackgroundVideo}
+                      onChange={(e) =>
+                        setFormData({ ...formData, heroBackgroundVideo: e.target.value })
+                      }
+                      placeholder="/home-slide-1.mp4 or https://example.com/video.mp4"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Video will be used if no image is set</p>
+                  </div>
+
+                  <div>
+                    <Label>Shop Page Background Image URL</Label>
+                    <Input
+                      value={formData.shopBackgroundImage}
+                      onChange={(e) =>
+                        setFormData({ ...formData, shopBackgroundImage: e.target.value })
+                      }
+                      placeholder="https://example.com/shop-bg.jpg"
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Events Page Background Image URL</Label>
+                    <Input
+                      value={formData.eventsBackgroundImage}
+                      onChange={(e) =>
+                        setFormData({ ...formData, eventsBackgroundImage: e.target.value })
+                      }
+                      placeholder="https://example.com/events-bg.jpg"
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Footer Background Image URL</Label>
+                    <Input
+                      value={formData.footerBackgroundImage}
+                      onChange={(e) =>
+                        setFormData({ ...formData, footerBackgroundImage: e.target.value })
+                      }
+                      placeholder="https://example.com/footer-bg.jpg"
+                    />
+                  </div>
+                </div>
               </CardContent>
             </Card>
 

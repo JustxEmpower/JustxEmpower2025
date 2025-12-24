@@ -1445,6 +1445,526 @@ export const adminRouter = router({
         return { success: true };
       }),
   }),
+
+  // Products Management
+  products: router({
+    list: adminProcedure
+      .input(z.object({
+        status: z.enum(["draft", "active", "archived"]).optional(),
+        search: z.string().optional(),
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const conditions: any[] = [];
+        if (input?.status) {
+          conditions.push(eq(schema.products.status, input.status));
+        }
+        if (input?.search) {
+          conditions.push(
+            sql`(${schema.products.name} LIKE ${`%${input.search}%`} OR ${schema.products.sku} LIKE ${`%${input.search}%`})`
+          );
+        }
+        
+        const products = await db
+          .select()
+          .from(schema.products)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(schema.products.createdAt))
+          .limit(input?.limit || 50)
+          .offset(input?.offset || 0);
+        
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.products)
+          .where(conditions.length > 0 ? and(...conditions) : undefined);
+        
+        return {
+          products,
+          total: countResult?.count || 0,
+        };
+      }),
+
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const [product] = await db
+          .select()
+          .from(schema.products)
+          .where(eq(schema.products.id, input.id));
+        
+        if (!product) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
+        }
+        
+        return product;
+      }),
+
+    create: adminProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        slug: z.string().min(1),
+        sku: z.string().optional(),
+        description: z.string().optional(),
+        shortDescription: z.string().optional(),
+        price: z.number().min(0),
+        compareAtPrice: z.number().optional(),
+        costPrice: z.number().optional(),
+        categoryId: z.number().optional(),
+        images: z.string().optional(),
+        featuredImage: z.string().optional(),
+        stock: z.number().default(0),
+        lowStockThreshold: z.number().optional(),
+        trackInventory: z.number().default(1),
+        weight: z.number().optional(),
+        dimensions: z.string().optional(),
+        tags: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        status: z.enum(["draft", "active", "archived"]).default("draft"),
+        isFeatured: z.number().default(0),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Check for duplicate slug
+        const [existing] = await db
+          .select()
+          .from(schema.products)
+          .where(eq(schema.products.slug, input.slug));
+        
+        if (existing) {
+          throw new TRPCError({ code: "CONFLICT", message: "A product with this slug already exists" });
+        }
+        
+        const result = await db.insert(schema.products).values(input);
+        return { success: true, id: Number(result[0].insertId) };
+      }),
+
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        slug: z.string().min(1).optional(),
+        sku: z.string().optional(),
+        description: z.string().optional(),
+        shortDescription: z.string().optional(),
+        price: z.number().min(0).optional(),
+        compareAtPrice: z.number().nullable().optional(),
+        costPrice: z.number().nullable().optional(),
+        categoryId: z.number().nullable().optional(),
+        images: z.string().optional(),
+        featuredImage: z.string().nullable().optional(),
+        stock: z.number().optional(),
+        lowStockThreshold: z.number().optional(),
+        trackInventory: z.number().optional(),
+        weight: z.number().nullable().optional(),
+        dimensions: z.string().optional(),
+        tags: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        status: z.enum(["draft", "active", "archived"]).optional(),
+        isFeatured: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const { id, ...updates } = input;
+        
+        // Check for duplicate slug if updating slug
+        if (updates.slug) {
+          const [existing] = await db
+            .select()
+            .from(schema.products)
+            .where(and(
+              eq(schema.products.slug, updates.slug),
+              sql`${schema.products.id} != ${id}`
+            ));
+          
+          if (existing) {
+            throw new TRPCError({ code: "CONFLICT", message: "A product with this slug already exists" });
+          }
+        }
+        
+        await db
+          .update(schema.products)
+          .set(updates)
+          .where(eq(schema.products.id, id));
+        
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db
+          .delete(schema.products)
+          .where(eq(schema.products.id, input.id));
+        
+        return { success: true };
+      }),
+  }),
+
+  // Events Management
+  events: router({
+    list: adminProcedure
+      .input(z.object({
+        status: z.enum(["draft", "published", "cancelled", "completed"]).optional(),
+        search: z.string().optional(),
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const conditions: any[] = [];
+        if (input?.status) {
+          conditions.push(eq(schema.events.status, input.status));
+        }
+        if (input?.search) {
+          conditions.push(
+            sql`(${schema.events.title} LIKE ${`%${input.search}%`} OR ${schema.events.venue} LIKE ${`%${input.search}%`})`
+          );
+        }
+        
+        const events = await db
+          .select()
+          .from(schema.events)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(schema.events.startDate))
+          .limit(input?.limit || 50)
+          .offset(input?.offset || 0);
+        
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.events)
+          .where(conditions.length > 0 ? and(...conditions) : undefined);
+        
+        return {
+          events,
+          total: countResult?.count || 0,
+        };
+      }),
+
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const [event] = await db
+          .select()
+          .from(schema.events)
+          .where(eq(schema.events.id, input.id));
+        
+        if (!event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+        }
+        
+        // Get registrations count
+        const [regCount] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.eventRegistrations)
+          .where(eq(schema.eventRegistrations.eventId, input.id));
+        
+        return {
+          ...event,
+          registrationCount: regCount?.count || 0,
+        };
+      }),
+
+    create: adminProcedure
+      .input(z.object({
+        title: z.string().min(1),
+        slug: z.string().min(1),
+        description: z.string().optional(),
+        shortDescription: z.string().optional(),
+        eventType: z.enum(["workshop", "retreat", "webinar", "meetup", "conference", "other"]).default("workshop"),
+        startDate: z.date(),
+        endDate: z.date().optional(),
+        timezone: z.string().optional(),
+        isAllDay: z.number().default(0),
+        locationType: z.enum(["in_person", "virtual", "hybrid"]).default("in_person"),
+        venue: z.string().optional(),
+        address: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        country: z.string().optional(),
+        virtualUrl: z.string().optional(),
+        virtualPassword: z.string().optional(),
+        isFree: z.number().default(0),
+        price: z.number().default(0),
+        earlyBirdPrice: z.number().optional(),
+        earlyBirdDeadline: z.date().optional(),
+        capacity: z.number().optional(),
+        waitlistEnabled: z.number().default(0),
+        featuredImage: z.string().optional(),
+        images: z.string().optional(),
+        registrationOpen: z.number().default(1),
+        registrationDeadline: z.date().optional(),
+        requiresApproval: z.number().default(0),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        status: z.enum(["draft", "published", "cancelled", "completed"]).default("draft"),
+        isFeatured: z.number().default(0),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Check for duplicate slug
+        const [existing] = await db
+          .select()
+          .from(schema.events)
+          .where(eq(schema.events.slug, input.slug));
+        
+        if (existing) {
+          throw new TRPCError({ code: "CONFLICT", message: "An event with this slug already exists" });
+        }
+        
+        const result = await db.insert(schema.events).values(input);
+        return { success: true, id: Number(result[0].insertId) };
+      }),
+
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().min(1).optional(),
+        slug: z.string().min(1).optional(),
+        description: z.string().optional(),
+        shortDescription: z.string().optional(),
+        eventType: z.enum(["workshop", "retreat", "webinar", "meetup", "conference", "other"]).optional(),
+        startDate: z.date().optional(),
+        endDate: z.date().nullable().optional(),
+        timezone: z.string().optional(),
+        isAllDay: z.number().optional(),
+        locationType: z.enum(["in_person", "virtual", "hybrid"]).optional(),
+        venue: z.string().nullable().optional(),
+        address: z.string().nullable().optional(),
+        city: z.string().nullable().optional(),
+        state: z.string().nullable().optional(),
+        country: z.string().nullable().optional(),
+        virtualUrl: z.string().nullable().optional(),
+        virtualPassword: z.string().nullable().optional(),
+        isFree: z.number().optional(),
+        price: z.number().optional(),
+        earlyBirdPrice: z.number().nullable().optional(),
+        earlyBirdDeadline: z.date().nullable().optional(),
+        capacity: z.number().nullable().optional(),
+        waitlistEnabled: z.number().optional(),
+        featuredImage: z.string().nullable().optional(),
+        images: z.string().optional(),
+        registrationOpen: z.number().optional(),
+        registrationDeadline: z.date().nullable().optional(),
+        requiresApproval: z.number().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        status: z.enum(["draft", "published", "cancelled", "completed"]).optional(),
+        isFeatured: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const { id, ...updates } = input;
+        
+        // Check for duplicate slug if updating slug
+        if (updates.slug) {
+          const [existing] = await db
+            .select()
+            .from(schema.events)
+            .where(and(
+              eq(schema.events.slug, updates.slug),
+              sql`${schema.events.id} != ${id}`
+            ));
+          
+          if (existing) {
+            throw new TRPCError({ code: "CONFLICT", message: "An event with this slug already exists" });
+          }
+        }
+        
+        await db
+          .update(schema.events)
+          .set(updates)
+          .where(eq(schema.events.id, id));
+        
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Delete related registrations first
+        await db
+          .delete(schema.eventRegistrations)
+          .where(eq(schema.eventRegistrations.eventId, input.id));
+        
+        await db
+          .delete(schema.events)
+          .where(eq(schema.events.id, input.id));
+        
+        return { success: true };
+      }),
+
+    // Get registrations for an event
+    getRegistrations: adminProcedure
+      .input(z.object({
+        eventId: z.number(),
+        status: z.enum(["pending", "confirmed", "waitlisted", "cancelled", "attended", "no_show"]).optional(),
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+      }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const conditions = [eq(schema.eventRegistrations.eventId, input.eventId)];
+        if (input.status) {
+          conditions.push(eq(schema.eventRegistrations.status, input.status));
+        }
+        
+        const registrations = await db
+          .select()
+          .from(schema.eventRegistrations)
+          .where(and(...conditions))
+          .orderBy(desc(schema.eventRegistrations.createdAt))
+          .limit(input.limit)
+          .offset(input.offset);
+        
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.eventRegistrations)
+          .where(and(...conditions));
+        
+        return {
+          registrations,
+          total: countResult?.count || 0,
+        };
+      }),
+
+    // Update registration status
+    updateRegistrationStatus: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        status: z.enum(["pending", "confirmed", "waitlisted", "cancelled", "attended", "no_show"]),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db
+          .update(schema.eventRegistrations)
+          .set({ status: input.status })
+          .where(eq(schema.eventRegistrations.id, input.id));
+        
+        return { success: true };
+      }),
+  }),
+
+  // Orders Management
+  orders: router({
+    list: adminProcedure
+      .input(z.object({
+        status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled", "refunded"]).optional(),
+        search: z.string().optional(),
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const conditions: any[] = [];
+        if (input?.status) {
+          conditions.push(eq(schema.orders.status, input.status));
+        }
+        if (input?.search) {
+          conditions.push(
+            sql`(${schema.orders.orderNumber} LIKE ${`%${input.search}%`} OR ${schema.orders.email} LIKE ${`%${input.search}%`})`
+          );
+        }
+        
+        const orders = await db
+          .select()
+          .from(schema.orders)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(schema.orders.createdAt))
+          .limit(input?.limit || 50)
+          .offset(input?.offset || 0);
+        
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.orders)
+          .where(conditions.length > 0 ? and(...conditions) : undefined);
+        
+        return {
+          orders,
+          total: countResult?.count || 0,
+        };
+      }),
+
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const [order] = await db
+          .select()
+          .from(schema.orders)
+          .where(eq(schema.orders.id, input.id));
+        
+        if (!order) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+        }
+        
+        // Get order items
+        const items = await db
+          .select()
+          .from(schema.orderItems)
+          .where(eq(schema.orderItems.orderId, input.id));
+        
+        return {
+          ...order,
+          items,
+        };
+      }),
+
+    updateStatus: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled", "refunded"]),
+        trackingNumber: z.string().optional(),
+        trackingUrl: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const { id, ...updates } = input;
+        await db
+          .update(schema.orders)
+          .set(updates)
+          .where(eq(schema.orders.id, id));
+        
+        return { success: true };
+      }),
+  }),
 });
 
 // Public article router (for the Journal page)

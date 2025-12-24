@@ -1,0 +1,34 @@
+{
+  "query": "SELECT * FROM products LIMIT 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT * FROM products LIMIT 1;",
+  "rows": [
+    {
+      "id": "1",
+      "sku": "JOURNAL-001",
+      "name": "Empowerment Journal",
+      "slug": "empowerment-journal",
+      "description": "A beautiful journal designed to help you reflect on your journey of empowerment. Features guided prompts, inspirational quotes, and space for daily gratitude.",
+      "categoryId": "NULL",
+      "basePrice": "29.99",
+      "compareAtPrice": "39.99",
+      "images": "NULL",
+      "featured": "0",
+      "published": "1",
+      "tags": "NULL",
+      "productType": "physical",
+      "customAttributes": "NULL",
+      "metadata": "NULL",
+      "totalStock": "100",
+      "lowStockThreshold": "5",
+      "stripeProductId": "NULL",
+      "createdAt": "2025-12-24 12:35:45",
+      "updatedAt": "2025-12-24 12:35:45",
+      "status": "draft",
+      "isFeatured": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tsku\tname\tslug\tdescription\tcategoryId\tbasePrice\tcompareAtPrice\timages\tfeatured\tpublished\ttags\tproductType\tcustomAttributes\tmetadata\ttotalStock\tlowStockThreshold\tstripeProductId\tcreatedAt\tupdatedAt\tstatus\tisFeatured\n1\tJOURNAL-001\tEmpowerment Journal\tempowerment-journal\tA beautiful journal designed to help you reflect on your journey of empowerment. Features guided prompts, inspirational quotes, and space for daily gratitude.\tNULL\t29.99\t39.99\tNULL\t0\t1\tNULL\tphysical\tNULL\tNULL\t100\t5\tNULL\t2025-12-24 12:35:45\t2025-12-24 12:35:45\tdraft\t0\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

@@ -20,6 +20,9 @@ import AdminRedirects from "@/pages/AdminRedirects";
 import AdminCode from "@/pages/AdminCode";
 import AdminBackup from "@/pages/AdminBackup";
 import AdminUsers from "@/pages/AdminUsers";
+import AdminProducts from "@/pages/AdminProducts";
+import AdminEvents from "@/pages/AdminEvents";
+import AdminOrders from "@/pages/AdminOrders";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -37,6 +40,12 @@ import Preloader from "@/components/Preloader";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import { AIChatAssistant } from "@/components/AIChatAssistant";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
+import { CartProvider } from "@/contexts/CartContext";
+import Shop from "@/pages/Shop";
+import ProductDetail from "@/pages/ProductDetail";
+import Checkout from "@/pages/Checkout";
+import Events from "@/pages/Events";
+import EventDetail from "@/pages/EventDetail";
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -60,6 +69,9 @@ function Router() {
       <Route path="/admin/code" component={AdminCode} />
       <Route path="/admin/backup" component={AdminBackup} />
       <Route path="/admin/users" component={AdminUsers} />
+      <Route path="/admin/products" component={AdminProducts} />
+      <Route path="/admin/events" component={AdminEvents} />
+      <Route path="/admin/orders" component={AdminOrders} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/about" component={About} />
       <Route path="/about-just-empower" component={AboutJustEmpower} />
@@ -67,6 +79,11 @@ function Router() {
       <Route path="/offerings" component={Offerings} />
       <Route path="/journal" component={Journal} />
       <Route path="/contact" component={Contact} />
+      <Route path="/shop" component={Shop} />
+      <Route path="/shop/:slug" component={ProductDetail} />
+      <Route path="/checkout" component={Checkout} />
+      <Route path="/events" component={Events} />
+      <Route path="/events/:slug" component={EventDetail} />
       <Route path="/:slug" component={DynamicPage} />
       <Route path="/walk-with-us" component={WalkWithUs} />
       <Route component={NotFound} />
@@ -90,6 +107,7 @@ function App() {
 
   return (
     <ErrorBoundary>
+      <CartProvider>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
@@ -104,6 +122,7 @@ function App() {
           </div>
         </TooltipProvider>
       </ThemeProvider>
+      </CartProvider>
     </ErrorBoundary>
   );
 }

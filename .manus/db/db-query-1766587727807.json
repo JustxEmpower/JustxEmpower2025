@@ -1,0 +1,73 @@
+{
+  "query": "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'products';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = 'products';",
+  "rows": [
+    {
+      "COLUMN_NAME": "id"
+    },
+    {
+      "COLUMN_NAME": "sku"
+    },
+    {
+      "COLUMN_NAME": "name"
+    },
+    {
+      "COLUMN_NAME": "slug"
+    },
+    {
+      "COLUMN_NAME": "description"
+    },
+    {
+      "COLUMN_NAME": "categoryId"
+    },
+    {
+      "COLUMN_NAME": "basePrice"
+    },
+    {
+      "COLUMN_NAME": "compareAtPrice"
+    },
+    {
+      "COLUMN_NAME": "images"
+    },
+    {
+      "COLUMN_NAME": "featured"
+    },
+    {
+      "COLUMN_NAME": "published"
+    },
+    {
+      "COLUMN_NAME": "tags"
+    },
+    {
+      "COLUMN_NAME": "productType"
+    },
+    {
+      "COLUMN_NAME": "customAttributes"
+    },
+    {
+      "COLUMN_NAME": "metadata"
+    },
+    {
+      "COLUMN_NAME": "totalStock"
+    },
+    {
+      "COLUMN_NAME": "lowStockThreshold"
+    },
+    {
+      "COLUMN_NAME": "stripeProductId"
+    },
+    {
+      "COLUMN_NAME": "createdAt"
+    },
+    {
+      "COLUMN_NAME": "updatedAt"
+    },
+    {
+      "COLUMN_NAME": "status"
+    }
+  ],
+  "messages": [],
+  "stdout": "COLUMN_NAME\nid\nsku\nname\nslug\ndescription\ncategoryId\nbasePrice\ncompareAtPrice\nimages\nfeatured\npublished\ntags\nproductType\ncustomAttributes\nmetadata\ntotalStock\nlowStockThreshold\nstripeProductId\ncreatedAt\nupdatedAt\nstatus\n",
+  "stderr": "",
+  "execution_time_ms": 59
+}

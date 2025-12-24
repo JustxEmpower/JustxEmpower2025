@@ -3,6 +3,8 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import { adminRouter, publicArticlesRouter, publicContentRouter, publicPagesRouter, aiChatAnalyticsRouter, publicThemeRouter } from "./adminRouters";
+import { shopRouter } from "./shopRouter";
+import { eventsRouter } from "./eventsRouter";
 import { newsletterRouter } from "./newsletterRouter";
 import { aiRouter } from "./aiRouters";
 import { analyticsRouter } from "./analyticsRouters";
@@ -45,6 +47,12 @@ export const appRouter = router({
   
   // Public theme settings
   theme: publicThemeRouter,
+  
+  // Shop/E-commerce
+  shop: shopRouter,
+  
+  // Events with registration and payment
+  events: eventsRouter,
 });
 
 export type AppRouter = typeof appRouter;

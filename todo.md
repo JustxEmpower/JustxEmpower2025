@@ -398,3 +398,90 @@
 - [x] Changed background from #FFFFFF to #FFF8E7 (cream) in admin
 - [x] Verified change reflected on public site immediately
 - [x] All theme settings (colors, fonts, spacing) now controllable from admin
+
+
+## Shop/E-commerce Implementation (Dec 24, 2025)
+
+### Database Schema
+- [ ] Create products table (name, description, price, images, stock, categories)
+- [ ] Create orders table (user, items, total, status, shipping, payment)
+- [ ] Create orderItems table (order, product, quantity, price)
+- [ ] Create categories table for product organization
+- [ ] Create shoppingCart table for persistent carts
+
+### Backend APIs
+- [ ] Products CRUD endpoints (admin)
+- [ ] Public products listing and detail endpoints
+- [ ] Shopping cart management endpoints
+- [ ] Stripe checkout session creation
+- [ ] Order creation and management
+- [ ] Webhook handler for Stripe events
+
+### Frontend Pages
+- [ ] Shop page with product grid and filtering
+- [ ] Product detail page with add to cart
+- [ ] Cart page with quantity management
+- [ ] Checkout page with Stripe Elements
+- [ ] Order confirmation page
+- [ ] Order history page (user account)
+
+### Admin Pages
+- [ ] Products management page
+- [ ] Orders management page
+- [ ] Categories management page
+
+## Event Registration with Payment (Dec 24, 2025)
+
+### Database Schema
+- [ ] Create events table (title, description, date, location, price, capacity)
+- [ ] Create eventRegistrations table (event, user, status, payment)
+- [ ] Create attendees table (registration, name, email, ticket type)
+
+### Backend APIs
+- [ ] Events CRUD endpoints (admin)
+- [ ] Public events listing and detail endpoints
+- [ ] Event registration with Stripe payment
+- [ ] Registration confirmation and tickets
+- [ ] Attendee management endpoints
+
+### Frontend Pages
+- [ ] Events listing page with calendar view
+- [ ] Event detail page with registration form
+- [ ] Registration checkout with Stripe
+- [ ] Ticket confirmation page
+- [ ] My registrations page (user account)
+
+### Admin Pages
+- [ ] Events management page
+- [ ] Registrations/attendees management
+- [ ] QR code check-in system
+
+## Image Background Controls (Dec 24, 2025)
+
+### Database Schema
+- [ ] Add background image fields to themeSettings table
+- [ ] Add section-specific background settings
+
+### Admin UI
+- [ ] Hero section background image upload
+- [ ] Footer background image upload
+- [ ] Section-specific background controls
+- [ ] Background overlay/opacity settings
+
+### Frontend Integration
+- [ ] Apply background images from theme settings
+- [ ] Support for parallax and fixed backgrounds
+- [ ] Responsive background handling
+
+
+## Admin Products, Events, and Orders Management (COMPLETED)
+
+- [x] Add admin CRUD endpoints for products to adminRouters.ts (list, create, update, delete)
+- [x] Add admin CRUD endpoints for events to adminRouters.ts (list, create, update, delete, getRegistrations)
+- [x] Add admin orders endpoints to adminRouters.ts (list, updateStatus)
+- [x] Create AdminProducts page with full CRUD interface
+- [x] Create AdminEvents page with full CRUD interface
+- [x] Create AdminOrders page with order management interface
+- [x] Add routes to App.tsx for AdminProducts, AdminEvents, AdminOrders
+- [x] Write vitest tests for admin router structure
+- [x] All tests passing
