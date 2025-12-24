@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
-import { adminRouter, publicArticlesRouter, publicContentRouter, publicPagesRouter, aiChatAnalyticsRouter } from "./adminRouters";
+import { adminRouter, publicArticlesRouter, publicContentRouter, publicPagesRouter, aiChatAnalyticsRouter, publicThemeRouter } from "./adminRouters";
 import { newsletterRouter } from "./newsletterRouter";
 import { aiRouter } from "./aiRouters";
 import { analyticsRouter } from "./analyticsRouters";
@@ -42,6 +42,9 @@ export const appRouter = router({
   
   // Public pages
   pages: publicPagesRouter,
+  
+  // Public theme settings
+  theme: publicThemeRouter,
 });
 
 export type AppRouter = typeof appRouter;

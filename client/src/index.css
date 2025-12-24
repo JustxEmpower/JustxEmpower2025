@@ -35,21 +35,33 @@
 }
 
 :root {
-  /* Discovery Land / Just Empower 2025 Palette */
-  --background: #FFFFFF;
-  --foreground: #333333;
+  /* Theme variables from admin settings (can be overridden via JS) */
+  --theme-primary: #D4AF37;
+  --theme-secondary: #F8F8F8;
+  --theme-accent: #F4E4C1;
+  --theme-background: #FFFFFF;
+  --theme-text: #333333;
+  --theme-heading-font: "Playfair Display", serif;
+  --theme-body-font: "Inter", sans-serif;
+  --theme-container-max-width: 1400px;
+  --theme-section-spacing: 120px;
+  --theme-border-radius: 1.5rem;
   
-  --primary: #D4AF37; /* Gold */
+  /* Discovery Land / Just Empower 2025 Palette */
+  --background: var(--theme-background, #FFFFFF);
+  --foreground: var(--theme-text, #333333);
+  
+  --primary: var(--theme-primary, #D4AF37); /* Gold */
   --primary-foreground: #FFFFFF;
   
-  --secondary: #F8F8F8; /* Off-white */
-  --secondary-foreground: #333333;
+  --secondary: var(--theme-secondary, #F8F8F8); /* Off-white */
+  --secondary-foreground: var(--theme-text, #333333);
   
   --muted: #E5E5E5;
   --muted-foreground: #666666;
   
-  --accent: #F4E4C1; /* Light Gold */
-  --accent-foreground: #333333;
+  --accent: var(--theme-accent, #F4E4C1); /* Light Gold */
+  --accent-foreground: var(--theme-text, #333333);
   
   --card: #FFFFFF;
   --card-foreground: #333333;
@@ -58,7 +70,7 @@
   --input: #E5E5E5;
   --ring: #D4AF37;
   
-  --radius: 1.5rem; /* Soft rounded corners */
+  --radius: var(--theme-border-radius, 1.5rem); /* Soft rounded corners */
 }
 
 .dark {
@@ -121,7 +133,7 @@
     margin-right: auto;
     padding-left: 1.5rem;
     padding-right: 1.5rem;
-    max-width: 1400px;
+    max-width: var(--theme-container-max-width, 1400px);
   }
 
   /* Global Rounded Corners for Images */

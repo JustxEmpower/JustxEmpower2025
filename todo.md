@@ -365,3 +365,36 @@
 - [x] Fixed QR Scanner - Implemented actual QR code scanning
 - [x] Added Contact form backend endpoint
 - [x] Fixed JSON parsing error in CartContext
+
+
+## Background Section Audit (Dec 24, 2025)
+- [ ] Find backgrounds section in admin dashboard
+- [ ] Verify background settings save to database
+- [ ] Ensure backgrounds apply to main site pages
+- [ ] Test background changes reflect on public pages
+
+
+## Theme/Background Settings Integration (Dec 24, 2025) ✅
+
+### Public Theme API
+- [x] Created publicThemeRouter in adminRouters.ts
+- [x] Added theme.get endpoint to public routers.ts
+- [x] Theme settings now accessible to frontend without admin auth
+
+### ThemeContext Enhancement
+- [x] Updated ThemeContext.tsx to fetch theme settings from database
+- [x] Apply theme settings as CSS variables dynamically
+- [x] Load Google Fonts dynamically based on admin settings
+- [x] Handle null values with sensible defaults
+
+### CSS Variable Integration
+- [x] Updated index.css with --theme-* CSS variables
+- [x] Background color now uses var(--theme-background)
+- [x] Primary, secondary, accent colors use theme variables
+- [x] Border radius uses var(--theme-border-radius)
+- [x] Container max width uses var(--theme-container-max-width)
+
+### Verified Working
+- [x] Changed background from #FFFFFF to #FFF8E7 (cream) in admin
+- [x] Verified change reflected on public site immediately
+- [x] All theme settings (colors, fonts, spacing) now controllable from admin

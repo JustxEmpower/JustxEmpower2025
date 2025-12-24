@@ -1510,6 +1510,12 @@ export const publicPagesRouter = router({
     }),
 });
 
+// Public theme router for applying theme settings to the site
+export const publicThemeRouter = router({
+  get: publicProcedure.query(async () => {
+    return await getThemeSettings();
+  }),
+});
 
 // AI Chat Analytics Router
 export const aiChatAnalyticsRouter = router({
