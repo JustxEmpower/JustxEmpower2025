@@ -1,0 +1,157 @@
+{
+  "query": "SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = DATABASE() ORDER BY TABLE_NAME;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT TABLE_NAME FROM information_schema.tables WHERE table_schema = DATABASE() ORDER BY TABLE_NAME;",
+  "rows": [
+    {
+      "TABLE_NAME": "__drizzle_migrations"
+    },
+    {
+      "TABLE_NAME": "activityLog"
+    },
+    {
+      "TABLE_NAME": "adminSessions"
+    },
+    {
+      "TABLE_NAME": "adminUsers"
+    },
+    {
+      "TABLE_NAME": "aiChatConversations"
+    },
+    {
+      "TABLE_NAME": "aiFeedback"
+    },
+    {
+      "TABLE_NAME": "aiSettings"
+    },
+    {
+      "TABLE_NAME": "ambassadorCommissions"
+    },
+    {
+      "TABLE_NAME": "ambassadors"
+    },
+    {
+      "TABLE_NAME": "analyticsEvents"
+    },
+    {
+      "TABLE_NAME": "analyticsPageViews"
+    },
+    {
+      "TABLE_NAME": "analyticsSessions"
+    },
+    {
+      "TABLE_NAME": "articles"
+    },
+    {
+      "TABLE_NAME": "backupCategories"
+    },
+    {
+      "TABLE_NAME": "backupRestoreHistory"
+    },
+    {
+      "TABLE_NAME": "backupTagRelations"
+    },
+    {
+      "TABLE_NAME": "backupTags"
+    },
+    {
+      "TABLE_NAME": "backups"
+    },
+    {
+      "TABLE_NAME": "blockTemplates"
+    },
+    {
+      "TABLE_NAME": "blockVersions"
+    },
+    {
+      "TABLE_NAME": "brandAssets"
+    },
+    {
+      "TABLE_NAME": "discountCodes"
+    },
+    {
+      "TABLE_NAME": "emailSettings"
+    },
+    {
+      "TABLE_NAME": "eventRegistrations"
+    },
+    {
+      "TABLE_NAME": "events"
+    },
+    {
+      "TABLE_NAME": "formFields"
+    },
+    {
+      "TABLE_NAME": "formSubmissions"
+    },
+    {
+      "TABLE_NAME": "inventoryAdjustments"
+    },
+    {
+      "TABLE_NAME": "media"
+    },
+    {
+      "TABLE_NAME": "navigation"
+    },
+    {
+      "TABLE_NAME": "orderItems"
+    },
+    {
+      "TABLE_NAME": "orders"
+    },
+    {
+      "TABLE_NAME": "pageBackgrounds"
+    },
+    {
+      "TABLE_NAME": "pageBlocks"
+    },
+    {
+      "TABLE_NAME": "pages"
+    },
+    {
+      "TABLE_NAME": "productCategories"
+    },
+    {
+      "TABLE_NAME": "productReviews"
+    },
+    {
+      "TABLE_NAME": "productVariants"
+    },
+    {
+      "TABLE_NAME": "products"
+    },
+    {
+      "TABLE_NAME": "quickActionsPreferences"
+    },
+    {
+      "TABLE_NAME": "redirects"
+    },
+    {
+      "TABLE_NAME": "scheduledBackups"
+    },
+    {
+      "TABLE_NAME": "seoSettings"
+    },
+    {
+      "TABLE_NAME": "setupCompletion"
+    },
+    {
+      "TABLE_NAME": "shoppingCarts"
+    },
+    {
+      "TABLE_NAME": "siteContent"
+    },
+    {
+      "TABLE_NAME": "siteSettings"
+    },
+    {
+      "TABLE_NAME": "themeSettings"
+    },
+    {
+      "TABLE_NAME": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "TABLE_NAME\n__drizzle_migrations\nactivityLog\nadminSessions\nadminUsers\naiChatConversations\naiFeedback\naiSettings\nambassadorCommissions\nambassadors\nanalyticsEvents\nanalyticsPageViews\nanalyticsSessions\narticles\nbackupCategories\nbackupRestoreHistory\nbackupTagRelations\nbackupTags\nbackups\nblockTemplates\nblockVersions\nbrandAssets\ndiscountCodes\nemailSettings\neventRegistrations\nevents\nformFields\nformSubmissions\ninventoryAdjustments\nmedia\nnavigation\norderItems\norders\npageBackgrounds\npageBlocks\npages\nproductCategories\nproductReviews\nproductVariants\nproducts\nquickActionsPreferences\nredirects\nscheduledBackups\nseoSettings\nsetupCompletion\nshoppingCarts\nsiteContent\nsiteSettings\nthemeSettings\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 56
+}

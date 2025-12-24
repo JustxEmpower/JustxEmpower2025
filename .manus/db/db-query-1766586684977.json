@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE themeSettings \nADD COLUMN IF NOT EXISTS heroBackgroundImage VARCHAR(1000),\nADD COLUMN IF NOT EXISTS heroBackgroundVideo VARCHAR(1000),\nADD COLUMN IF NOT EXISTS shopBackgroundImage VARCHAR(1000),\nADD COLUMN IF NOT EXISTS eventsBackgroundImage VARCHAR(1000),\nADD COLUMN IF NOT EXISTS footerBackgroundImage VARCHAR(1000);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute ALTER TABLE themeSettings \nADD COLUMN IF NOT EXISTS heroBackgroundImage VARCHAR(1000),\nADD COLUMN IF NOT EXISTS heroBackgroundVideo VARCHAR(1000),\nADD COLUMN IF NOT EXISTS shopBackgroundImage VARCHAR(1000),\nADD COLUMN IF NOT EXISTS eventsBackgroundImage VARCHAR(1000),\nADD COLUMN IF NOT EXISTS footerBackgroundImage VARCHAR(1000);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 1663
+}

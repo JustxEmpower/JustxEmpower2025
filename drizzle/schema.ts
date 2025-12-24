@@ -25,4 +25,845 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+/**
+ * Articles table for blog posts/journal entries
+ */
+export const articles = mysqlTable("articles", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  category: varchar("category", { length: 100 }),
+  date: varchar("date", { length: 50 }),
+  excerpt: text("excerpt"),
+  content: text("content").notNull(),
+  imageUrl: varchar("imageUrl", { length: 500 }),
+  published: int("published").default(1).notNull(), // 1 = published, 0 = draft
+  status: varchar("status", { length: 20 }).default("published").notNull(), // published, draft, scheduled
+  publishDate: timestamp("publishDate"), // For scheduled publishing
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Article = typeof articles.$inferSelect;
+export type InsertArticle = typeof articles.$inferInsert;
+
+/**
+ * Site content table for managing page sections, hero text, and media
+ */
+export const siteContent = mysqlTable("siteContent", {
+  id: int("id").autoincrement().primaryKey(),
+  page: varchar("page", { length: 100 }).notNull(), // 'home', 'about', 'philosophy', etc.
+  section: varchar("section", { length: 100 }).notNull(), // 'hero', 'about', 'offerings', etc.
+  contentKey: varchar("contentKey", { length: 100 }).notNull(), // 'title', 'subtitle', 'description', 'videoUrl', 'imageUrl'
+  contentValue: text("contentValue").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SiteContent = typeof siteContent.$inferSelect;
+export type InsertSiteContent = typeof siteContent.$inferInsert;
+
+/**
+ * Admin users table for custom admin authentication (separate from OAuth users)
+ */
+export const adminUsers = mysqlTable("adminUsers", {
+  id: int("id").autoincrement().primaryKey(),
+  username: varchar("username", { length: 100 }).notNull().unique(),
+  passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }),
+  role: varchar("role", { length: 50 }).default("editor").notNull(), // 'super_admin', 'admin', 'editor', 'viewer'
+  permissions: text("permissions"), // JSON array of permissions
+  mailchimpApiKey: varchar("mailchimpApiKey", { length: 255 }),
+  mailchimpAudienceId: varchar("mailchimpAudienceId", { length: 100 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  lastLoginAt: timestamp("lastLoginAt"),
+});
+
+export type AdminUser = typeof adminUsers.$inferSelect;
+export type InsertAdminUser = typeof adminUsers.$inferInsert;
+
+/**
+ * Admin sessions table for persistent session storage
+ */
+export const adminSessions = mysqlTable("adminSessions", {
+  token: varchar("token", { length: 255 }).notNull().primaryKey(),
+  username: varchar("username", { length: 100 }).notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AdminSession = typeof adminSessions.$inferSelect;
+export type InsertAdminSession = typeof adminSessions.$inferInsert;
+
+/**
+ * Media library table for tracking uploaded images and videos
+ */
+export const media = mysqlTable("media", {
+  id: int("id").autoincrement().primaryKey(),
+  filename: varchar("filename", { length: 255 }).notNull(),
+  originalName: varchar("originalName", { length: 255 }).notNull(),
+  mimeType: varchar("mimeType", { length: 100 }).notNull(),
+  fileSize: int("fileSize").notNull(), // in bytes
+  s3Key: varchar("s3Key", { length: 500 }).notNull(), // S3 storage key
+  url: varchar("url", { length: 1000 }).notNull(), // Public URL
+  type: mysqlEnum("type", ["image", "video"]).notNull(),
+  uploadedBy: varchar("uploadedBy", { length: 100 }), // admin username
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Media = typeof media.$inferSelect;
+export type InsertMedia = typeof media.$inferInsert;
+
+/**
+ * Theme settings table for design system control
+ */
+export const themeSettings = mysqlTable("themeSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  // Color Palette
+  primaryColor: varchar("primaryColor", { length: 50 }).default("#000000"),
+  secondaryColor: varchar("secondaryColor", { length: 50 }).default("#ffffff"),
+  accentColor: varchar("accentColor", { length: 50 }).default("#1a1a1a"),
+  backgroundColor: varchar("backgroundColor", { length: 50 }).default("#ffffff"),
+  textColor: varchar("textColor", { length: 50 }).default("#000000"),
+  
+  // Typography
+  headingFont: varchar("headingFont", { length: 255 }).default("Playfair Display"),
+  bodyFont: varchar("bodyFont", { length: 255 }).default("Inter"),
+  headingFontUrl: varchar("headingFontUrl", { length: 500 }),
+  bodyFontUrl: varchar("bodyFontUrl", { length: 500 }),
+  
+  // Spacing & Layout
+  containerMaxWidth: varchar("containerMaxWidth", { length: 50 }).default("1280px"),
+  sectionSpacing: varchar("sectionSpacing", { length: 50 }).default("120px"),
+  borderRadius: varchar("borderRadius", { length: 50 }).default("8px"),
+  
+  // Animations
+  enableAnimations: int("enableAnimations").default(1).notNull(),
+  animationSpeed: varchar("animationSpeed", { length: 50 }).default("0.6s"),
+  
+  // Background Images
+  heroBackgroundImage: varchar("heroBackgroundImage", { length: 1000 }),
+  heroBackgroundVideo: varchar("heroBackgroundVideo", { length: 1000 }),
+  shopBackgroundImage: varchar("shopBackgroundImage", { length: 1000 }),
+  eventsBackgroundImage: varchar("eventsBackgroundImage", { length: 1000 }),
+  footerBackgroundImage: varchar("footerBackgroundImage", { length: 1000 }),
+  
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ThemeSettings = typeof themeSettings.$inferSelect;
+export type InsertThemeSettings = typeof themeSettings.$inferInsert;
+
+/**
+ * Brand assets table for logo and brand image management
+ */
+export const brandAssets = mysqlTable("brandAssets", {
+  id: int("id").autoincrement().primaryKey(),
+  assetType: mysqlEnum("assetType", ["logo_header", "logo_footer", "logo_mobile", "favicon", "og_image", "twitter_image"]).notNull(),
+  assetUrl: varchar("assetUrl", { length: 1000 }).notNull(),
+  assetName: varchar("assetName", { length: 255 }),
+  width: int("width"),
+  height: int("height"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BrandAsset = typeof brandAssets.$inferSelect;
+export type InsertBrandAsset = typeof brandAssets.$inferInsert;
+
+/**
+ * Pages table for dynamic page management
+ */
+export const pages = mysqlTable("pages", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  template: varchar("template", { length: 100 }).default("default"),
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: text("metaDescription"),
+  ogImage: varchar("ogImage", { length: 1000 }),
+  published: int("published").default(1).notNull(),
+  showInNav: int("showInNav").default(1).notNull(),
+  navOrder: int("navOrder").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Page = typeof pages.$inferSelect;
+export type InsertPage = typeof pages.$inferInsert;
+
+/**
+ * Navigation items table for menu management
+ */
+export const navigation = mysqlTable("navigation", {
+  id: int("id").autoincrement().primaryKey(),
+  location: mysqlEnum("location", ["header", "footer"]).notNull(),
+  label: varchar("label", { length: 100 }).notNull(),
+  url: varchar("url", { length: 500 }).notNull(),
+  order: int("order").default(0).notNull(),
+  isExternal: int("isExternal").default(0).notNull(),
+  openInNewTab: int("openInNewTab").default(0).notNull(),
+  parentId: int("parentId"), // for nested menus
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Navigation = typeof navigation.$inferSelect;
+export type InsertNavigation = typeof navigation.$inferInsert;
+
+/**
+ * SEO settings table for meta tags and structured data
+ */
+export const seoSettings = mysqlTable("seoSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  pageSlug: varchar("pageSlug", { length: 255 }).notNull().unique(), // 'home', 'about', etc.
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: text("metaDescription"),
+  metaKeywords: text("metaKeywords"),
+  ogTitle: varchar("ogTitle", { length: 255 }),
+  ogDescription: text("ogDescription"),
+  ogImage: varchar("ogImage", { length: 1000 }),
+  twitterCard: varchar("twitterCard", { length: 50 }).default("summary_large_image"),
+  canonicalUrl: varchar("canonicalUrl", { length: 500 }),
+  noIndex: int("noIndex").default(0).notNull(),
+  structuredData: text("structuredData"), // JSON-LD
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SEOSettings = typeof seoSettings.$inferSelect;
+export type InsertSEOSettings = typeof seoSettings.$inferInsert;
+
+/**
+ * Site settings table for analytics, custom code, and integrations
+ */
+export const siteSettings = mysqlTable("siteSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  settingKey: varchar("settingKey", { length: 100 }).notNull().unique(),
+  settingValue: text("settingValue"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SiteSettings = typeof siteSettings.$inferSelect;
+export type InsertSiteSettings = typeof siteSettings.$inferInsert;
+
+
+/**
+ * AI chat conversations table for visitor chat history
+ */
+export const aiChatConversations = mysqlTable("aiChatConversations", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 255 }).notNull(),
+  visitorId: varchar("visitorId", { length: 255 }), // optional identifier
+  message: text("message").notNull(),
+  role: mysqlEnum("role", ["user", "assistant"]).notNull(),
+  context: text("context"), // page context, visitor intent, etc.
+  sentiment: varchar("sentiment", { length: 50 }), // positive, neutral, negative
+  topic: varchar("topic", { length: 100 }), // conversation topic (e.g., "leadership", "empowerment", "coaching")
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AIChatConversation = typeof aiChatConversations.$inferSelect;
+export type InsertAIChatConversation = typeof aiChatConversations.$inferInsert;
+
+/**
+ * AI settings table for API keys and configuration
+ */
+export const aiSettings = mysqlTable("aiSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  geminiApiKey: varchar("geminiApiKey", { length: 500 }),
+  chatEnabled: int("chatEnabled").default(1).notNull(),
+  chatBubbleColor: varchar("chatBubbleColor", { length: 50 }).default("#000000"),
+  chatBubblePosition: varchar("chatBubblePosition", { length: 50 }).default("bottom-right"),
+  systemPrompt: text("systemPrompt"), // Custom AI personality/instructions
+  autoResponses: text("autoResponses"), // JSON of common Q&A pairs
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AISettings = typeof aiSettings.$inferSelect;
+export type InsertAISettings = typeof aiSettings.$inferInsert;
+
+
+/**
+ * AI feedback table for rating and improving responses
+ */
+export const aiFeedback = mysqlTable("aiFeedback", {
+  id: int("id").autoincrement().primaryKey(),
+  conversationId: int("conversationId").notNull(),
+  visitorId: varchar("visitorId", { length: 255 }),
+  rating: mysqlEnum("rating", ["positive", "negative"]).notNull(),
+  feedbackText: text("feedbackText"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AIFeedback = typeof aiFeedback.$inferSelect;
+export type InsertAIFeedback = typeof aiFeedback.$inferInsert;
+
+/**
+ * Visitor profiles for persistent conversation memory
+ */
+export const visitorProfiles = mysqlTable("visitorProfiles", {
+  id: int("id").autoincrement().primaryKey(),
+  visitorId: varchar("visitorId", { length: 255 }).notNull().unique(),
+  firstVisit: timestamp("firstVisit").defaultNow().notNull(),
+  lastVisit: timestamp("lastVisit").defaultNow().onUpdateNow().notNull(),
+  totalConversations: int("totalConversations").default(0).notNull(),
+  preferences: text("preferences"), // JSON: interests, topics discussed, etc.
+  context: text("context"), // JSON: journey stage, pain points, goals
+});
+
+export type VisitorProfile = typeof visitorProfiles.$inferSelect;
+export type InsertVisitorProfile = typeof visitorProfiles.$inferInsert;
+
+
+/**
+ * Analytics page views table
+ */
+export const analyticsPageViews = mysqlTable("analyticsPageViews", {
+  id: int("id").autoincrement().primaryKey(),
+  visitorId: varchar("visitorId", { length: 255 }),
+  sessionId: varchar("sessionId", { length: 255 }).notNull(),
+  page: varchar("page", { length: 500 }).notNull(),
+  referrer: varchar("referrer", { length: 500 }),
+  userAgent: text("userAgent"),
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type AnalyticsPageView = typeof analyticsPageViews.$inferSelect;
+export type InsertAnalyticsPageView = typeof analyticsPageViews.$inferInsert;
+
+/**
+ * Analytics sessions table
+ */
+export const analyticsSessions = mysqlTable("analyticsSessions", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 255 }).notNull().unique(),
+  visitorId: varchar("visitorId", { length: 255 }),
+  startTime: timestamp("startTime").defaultNow().notNull(),
+  endTime: timestamp("endTime"),
+  pageCount: int("pageCount").default(0).notNull(),
+  duration: int("duration").default(0).notNull(), // in seconds
+});
+
+export type AnalyticsSession = typeof analyticsSessions.$inferSelect;
+export type InsertAnalyticsSession = typeof analyticsSessions.$inferInsert;
+
+/**
+ * Analytics events table for custom tracking
+ */
+export const analyticsEvents = mysqlTable("analyticsEvents", {
+  id: int("id").autoincrement().primaryKey(),
+  visitorId: varchar("visitorId", { length: 255 }),
+  sessionId: varchar("sessionId", { length: 255 }).notNull(),
+  eventType: varchar("eventType", { length: 100 }).notNull(), // e.g., "button_click", "form_submit", "ai_chat_open"
+  eventData: text("eventData"), // JSON
+  timestamp: timestamp("timestamp").defaultNow().notNull(),
+});
+
+export type AnalyticsEvent = typeof analyticsEvents.$inferSelect;
+export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
+
+/**
+ * Page content blocks for visual block editor
+ */
+export const pageBlocks = mysqlTable("pageBlocks", {
+  id: int("id").autoincrement().primaryKey(),
+  pageId: int("pageId").notNull(),
+  type: mysqlEnum("type", ["text", "image", "video", "quote", "cta", "spacer"]).notNull(),
+  content: text("content"), // JSON string with block-specific data
+  order: int("order").notNull().default(0),
+  settings: text("settings"), // JSON string with block settings (alignment, colors, spacing)
+  visibility: text("visibility"), // JSON string with visibility conditions (device, auth, schedule)
+  animation: text("animation"), // JSON string with animation settings (type, trigger, timing)
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PageBlock = typeof pageBlocks.$inferSelect;
+export type InsertPageBlock = typeof pageBlocks.$inferInsert;
+
+// Parsed version of PageBlock with JSON fields converted to objects
+export type ParsedPageBlock = Omit<PageBlock, 'content' | 'settings' | 'animation' | 'visibility'> & {
+  content: any;
+  settings: any;
+  animation: any;
+  visibility: any;
+};
+
+/**
+ * Block templates for saving and reusing block combinations
+ */
+export const blockTemplates = mysqlTable("blockTemplates", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  blocks: text("blocks").notNull(), // JSON array of block configurations
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BlockTemplate = typeof blockTemplates.$inferSelect;
+export type InsertBlockTemplate = typeof blockTemplates.$inferInsert;
+
+/**
+ * Block versions for tracking history and enabling restore
+ */
+export const blockVersions = mysqlTable("blockVersions", {
+  id: int("id").autoincrement().primaryKey(),
+  blockId: int("blockId").notNull(),
+  pageId: int("pageId").notNull(),
+  type: mysqlEnum("type", ["text", "image", "video", "quote", "cta", "spacer"]).notNull(),
+  content: text("content"),
+  order: int("order").notNull(),
+  settings: text("settings"),
+  versionNumber: int("versionNumber").notNull(),
+  createdBy: varchar("createdBy", { length: 255 }), // username who made the change
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type BlockVersion = typeof blockVersions.$inferSelect;
+export type InsertBlockVersion = typeof blockVersions.$inferInsert;
+
+/**
+ * Form fields table for customizable contact forms
+ */
+export const formFields = mysqlTable("formFields", {
+  id: int("id").autoincrement().primaryKey(),
+  fieldName: varchar("fieldName", { length: 100 }).notNull(), // e.g., "name", "email", "message"
+  fieldLabel: varchar("fieldLabel", { length: 255 }).notNull(), // Display label
+  fieldType: mysqlEnum("fieldType", ["text", "email", "tel", "textarea", "select", "checkbox"]).notNull(),
+  placeholder: varchar("placeholder", { length: 255 }),
+  required: int("required").default(1).notNull(),
+  order: int("order").default(0).notNull(),
+  options: text("options"), // JSON array for select/checkbox options
+  validation: text("validation"), // JSON validation rules
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type FormField = typeof formFields.$inferSelect;
+export type InsertFormField = typeof formFields.$inferInsert;
+
+/**
+ * Form submissions table for storing contact form data
+ */
+export const formSubmissions = mysqlTable("formSubmissions", {
+  id: int("id").autoincrement().primaryKey(),
+  formData: text("formData").notNull(), // JSON of all form fields
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  submittedAt: timestamp("submittedAt").defaultNow().notNull(),
+  isRead: int("isRead").default(0).notNull(),
+});
+
+export type FormSubmission = typeof formSubmissions.$inferSelect;
+export type InsertFormSubmission = typeof formSubmissions.$inferInsert;
+
+/**
+ * URL redirects table for SEO and site restructuring
+ */
+export const redirects = mysqlTable("redirects", {
+  id: int("id").autoincrement().primaryKey(),
+  fromPath: varchar("fromPath", { length: 500 }).notNull(),
+  toPath: varchar("toPath", { length: 500 }).notNull(),
+  redirectType: mysqlEnum("redirectType", ["301", "302"]).default("301").notNull(),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Redirect = typeof redirects.$inferSelect;
+export type InsertRedirect = typeof redirects.$inferInsert;
+
+/**
+ * Database backups table for backup/restore functionality
+ */
+export const backups = mysqlTable("backups", {
+  id: int("id").autoincrement().primaryKey(),
+  backupName: varchar("backupName", { length: 255 }).notNull(),
+  backupType: varchar("backupType", { length: 50 }).notNull(), // 'manual', 'scheduled'
+  backupData: text("backupData").notNull(), // JSON dump of database
+  fileSize: int("fileSize").notNull(), // Size in bytes
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Backup = typeof backups.$inferSelect;
+export type InsertBackup = typeof backups.$inferInsert;
+
+/**
+ * Email settings table for email provider configuration and weekly reports
+ */
+export const emailSettings = mysqlTable("emailSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  emailProvider: varchar("emailProvider", { length: 50 }), // 'sendgrid', 'mailgun', 'ses', 'smtp', etc.
+  apiKey: varchar("apiKey", { length: 500 }),
+  fromEmail: varchar("fromEmail", { length: 320 }),
+  fromName: varchar("fromName", { length: 255 }),
+  smtpHost: varchar("smtpHost", { length: 255 }),
+  smtpPort: int("smtpPort"),
+  smtpUsername: varchar("smtpUsername", { length: 255 }),
+  smtpPassword: varchar("smtpPassword", { length: 255 }),
+  weeklyReportEnabled: int("weeklyReportEnabled").default(0).notNull(),
+  reportRecipients: text("reportRecipients"), // JSON array of email addresses
+  reportDay: int("reportDay").default(1), // 0=Sunday, 1=Monday, etc.
+  reportTime: varchar("reportTime", { length: 5 }).default("09:00"), // HH:MM format
+  lastSentAt: timestamp("lastSentAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EmailSettings = typeof emailSettings.$inferSelect;
+export type InsertEmailSettings = typeof emailSettings.$inferInsert;
+
+
+/**
+ * ==========================================
+ * SHOP / E-COMMERCE TABLES
+ * ==========================================
+ */
+
+/**
+ * Product categories for shop organization
+ */
+export const productCategories = mysqlTable("productCategories", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  imageUrl: varchar("imageUrl", { length: 1000 }),
+  parentId: int("parentId"), // For nested categories
+  order: int("order").default(0).notNull(),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ProductCategory = typeof productCategories.$inferSelect;
+export type InsertProductCategory = typeof productCategories.$inferInsert;
+
+/**
+ * Products table for shop items
+ */
+export const products = mysqlTable("products", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  sku: varchar("sku", { length: 100 }).unique(),
+  description: text("description"),
+  shortDescription: text("shortDescription"),
+  price: int("price").notNull(), // Price in cents
+  compareAtPrice: int("compareAtPrice"), // Original price for showing discounts
+  costPrice: int("costPrice"), // Cost for profit calculations
+  categoryId: int("categoryId"),
+  images: text("images"), // JSON array of image URLs
+  featuredImage: varchar("featuredImage", { length: 1000 }),
+  stock: int("stock").default(0).notNull(),
+  lowStockThreshold: int("lowStockThreshold").default(5),
+  trackInventory: int("trackInventory").default(1).notNull(),
+  weight: int("weight"), // Weight in grams for shipping
+  dimensions: text("dimensions"), // JSON: {length, width, height}
+  tags: text("tags"), // JSON array of tags
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: text("metaDescription"),
+  status: mysqlEnum("status", ["draft", "active", "archived"]).default("draft").notNull(),
+  isFeatured: int("isFeatured").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Product = typeof products.$inferSelect;
+export type InsertProduct = typeof products.$inferInsert;
+
+/**
+ * Product variants (size, color, etc.)
+ */
+export const productVariants = mysqlTable("productVariants", {
+  id: int("id").autoincrement().primaryKey(),
+  productId: int("productId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(), // e.g., "Small / Red"
+  sku: varchar("sku", { length: 100 }),
+  price: int("price"), // Override price if different
+  stock: int("stock").default(0).notNull(),
+  options: text("options"), // JSON: {size: "S", color: "Red"}
+  imageUrl: varchar("imageUrl", { length: 1000 }),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ProductVariant = typeof productVariants.$inferSelect;
+export type InsertProductVariant = typeof productVariants.$inferInsert;
+
+/**
+ * Shopping cart for persistent cart storage
+ */
+export const shoppingCarts = mysqlTable("shoppingCarts", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 255 }).notNull(),
+  userId: int("userId"), // Optional: for logged-in users
+  items: text("items").notNull(), // JSON array of cart items
+  subtotal: int("subtotal").default(0).notNull(), // In cents
+  discountCode: varchar("discountCode", { length: 100 }),
+  discountAmount: int("discountAmount").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  expiresAt: timestamp("expiresAt"), // For cart abandonment
+});
+
+export type ShoppingCart = typeof shoppingCarts.$inferSelect;
+export type InsertShoppingCart = typeof shoppingCarts.$inferInsert;
+
+/**
+ * Discount codes for promotions
+ */
+export const discountCodes = mysqlTable("discountCodes", {
+  id: int("id").autoincrement().primaryKey(),
+  code: varchar("code", { length: 100 }).notNull().unique(),
+  type: mysqlEnum("type", ["percentage", "fixed", "free_shipping"]).notNull(),
+  value: int("value").notNull(), // Percentage (0-100) or fixed amount in cents
+  minOrderAmount: int("minOrderAmount"), // Minimum order for discount
+  maxUses: int("maxUses"), // Total uses allowed
+  usedCount: int("usedCount").default(0).notNull(),
+  startsAt: timestamp("startsAt"),
+  expiresAt: timestamp("expiresAt"),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type DiscountCode = typeof discountCodes.$inferSelect;
+export type InsertDiscountCode = typeof discountCodes.$inferInsert;
+
+/**
+ * Orders table
+ */
+export const orders = mysqlTable("orders", {
+  id: int("id").autoincrement().primaryKey(),
+  orderNumber: varchar("orderNumber", { length: 50 }).notNull().unique(),
+  userId: int("userId"), // Optional: for guest checkout
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  status: mysqlEnum("status", ["pending", "processing", "shipped", "delivered", "cancelled", "refunded"]).default("pending").notNull(),
+  paymentStatus: mysqlEnum("paymentStatus", ["pending", "paid", "failed", "refunded"]).default("pending").notNull(),
+  paymentMethod: varchar("paymentMethod", { length: 50 }), // stripe, paypal, etc.
+  paymentIntentId: varchar("paymentIntentId", { length: 255 }), // Stripe payment intent
+  subtotal: int("subtotal").notNull(), // In cents
+  discountAmount: int("discountAmount").default(0),
+  discountCode: varchar("discountCode", { length: 100 }),
+  shippingAmount: int("shippingAmount").default(0),
+  taxAmount: int("taxAmount").default(0),
+  total: int("total").notNull(), // In cents
+  currency: varchar("currency", { length: 3 }).default("USD").notNull(),
+  // Shipping address
+  shippingFirstName: varchar("shippingFirstName", { length: 100 }),
+  shippingLastName: varchar("shippingLastName", { length: 100 }),
+  shippingAddress1: varchar("shippingAddress1", { length: 255 }),
+  shippingAddress2: varchar("shippingAddress2", { length: 255 }),
+  shippingCity: varchar("shippingCity", { length: 100 }),
+  shippingState: varchar("shippingState", { length: 100 }),
+  shippingPostalCode: varchar("shippingPostalCode", { length: 20 }),
+  shippingCountry: varchar("shippingCountry", { length: 100 }),
+  // Billing address (if different)
+  billingFirstName: varchar("billingFirstName", { length: 100 }),
+  billingLastName: varchar("billingLastName", { length: 100 }),
+  billingAddress1: varchar("billingAddress1", { length: 255 }),
+  billingAddress2: varchar("billingAddress2", { length: 255 }),
+  billingCity: varchar("billingCity", { length: 100 }),
+  billingState: varchar("billingState", { length: 100 }),
+  billingPostalCode: varchar("billingPostalCode", { length: 20 }),
+  billingCountry: varchar("billingCountry", { length: 100 }),
+  // Tracking
+  trackingNumber: varchar("trackingNumber", { length: 255 }),
+  trackingUrl: varchar("trackingUrl", { length: 500 }),
+  shippedAt: timestamp("shippedAt"),
+  deliveredAt: timestamp("deliveredAt"),
+  notes: text("notes"), // Internal notes
+  customerNotes: text("customerNotes"), // Customer order notes
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Order = typeof orders.$inferSelect;
+export type InsertOrder = typeof orders.$inferInsert;
+
+/**
+ * Order items (line items)
+ */
+export const orderItems = mysqlTable("orderItems", {
+  id: int("id").autoincrement().primaryKey(),
+  orderId: int("orderId").notNull(),
+  productId: int("productId").notNull(),
+  variantId: int("variantId"),
+  name: varchar("name", { length: 255 }).notNull(), // Product name at time of order
+  sku: varchar("sku", { length: 100 }),
+  price: int("price").notNull(), // Price per unit in cents
+  quantity: int("quantity").notNull(),
+  total: int("total").notNull(), // price * quantity
+  imageUrl: varchar("imageUrl", { length: 1000 }),
+  options: text("options"), // JSON: variant options selected
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type OrderItem = typeof orderItems.$inferSelect;
+export type InsertOrderItem = typeof orderItems.$inferInsert;
+
+/**
+ * ==========================================
+ * EVENTS TABLES
+ * ==========================================
+ */
+
+/**
+ * Events table for workshops, retreats, etc.
+ */
+export const events = mysqlTable("events", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  shortDescription: text("shortDescription"),
+  eventType: mysqlEnum("eventType", ["workshop", "retreat", "webinar", "meetup", "conference", "other"]).default("workshop").notNull(),
+  // Date and time
+  startDate: timestamp("startDate").notNull(),
+  endDate: timestamp("endDate"),
+  timezone: varchar("timezone", { length: 100 }).default("America/Los_Angeles"),
+  isAllDay: int("isAllDay").default(0).notNull(),
+  // Location
+  locationType: mysqlEnum("locationType", ["in_person", "virtual", "hybrid"]).default("in_person").notNull(),
+  venue: varchar("venue", { length: 255 }),
+  address: text("address"),
+  city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 100 }),
+  country: varchar("country", { length: 100 }),
+  virtualUrl: varchar("virtualUrl", { length: 500 }), // Zoom/Meet link
+  virtualPassword: varchar("virtualPassword", { length: 100 }),
+  // Pricing
+  isFree: int("isFree").default(0).notNull(),
+  price: int("price").default(0), // In cents
+  earlyBirdPrice: int("earlyBirdPrice"), // In cents
+  earlyBirdDeadline: timestamp("earlyBirdDeadline"),
+  // Capacity
+  capacity: int("capacity"), // Max attendees
+  registrationCount: int("registrationCount").default(0).notNull(),
+  waitlistEnabled: int("waitlistEnabled").default(0).notNull(),
+  // Media
+  featuredImage: varchar("featuredImage", { length: 1000 }),
+  images: text("images"), // JSON array
+  // Registration
+  registrationOpen: int("registrationOpen").default(1).notNull(),
+  registrationDeadline: timestamp("registrationDeadline"),
+  requiresApproval: int("requiresApproval").default(0).notNull(),
+  // SEO
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: text("metaDescription"),
+  // Status
+  status: mysqlEnum("status", ["draft", "published", "cancelled", "completed"]).default("draft").notNull(),
+  isFeatured: int("isFeatured").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Event = typeof events.$inferSelect;
+export type InsertEvent = typeof events.$inferInsert;
+
+/**
+ * Event ticket types (for multi-tier pricing)
+ */
+export const eventTicketTypes = mysqlTable("eventTicketTypes", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(), // e.g., "General Admission", "VIP"
+  description: text("description"),
+  price: int("price").notNull(), // In cents
+  quantity: int("quantity"), // Max tickets of this type
+  soldCount: int("soldCount").default(0).notNull(),
+  maxPerOrder: int("maxPerOrder").default(10),
+  salesStart: timestamp("salesStart"),
+  salesEnd: timestamp("salesEnd"),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EventTicketType = typeof eventTicketTypes.$inferSelect;
+export type InsertEventTicketType = typeof eventTicketTypes.$inferInsert;
+
+/**
+ * Event registrations
+ */
+export const eventRegistrations = mysqlTable("eventRegistrations", {
+  id: int("id").autoincrement().primaryKey(),
+  eventId: int("eventId").notNull(),
+  userId: int("userId"), // Optional: for guest registration
+  ticketTypeId: int("ticketTypeId"),
+  confirmationNumber: varchar("confirmationNumber", { length: 50 }).notNull().unique(),
+  // Registrant info
+  firstName: varchar("firstName", { length: 100 }).notNull(),
+  lastName: varchar("lastName", { length: 100 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  // Payment
+  quantity: int("quantity").default(1).notNull(),
+  unitPrice: int("unitPrice").notNull(), // In cents
+  total: int("total").notNull(), // In cents
+  paymentStatus: mysqlEnum("paymentStatus", ["pending", "paid", "failed", "refunded"]).default("pending").notNull(),
+  paymentIntentId: varchar("paymentIntentId", { length: 255 }),
+  // Status
+  status: mysqlEnum("status", ["pending", "confirmed", "waitlisted", "cancelled", "attended", "no_show"]).default("pending").notNull(),
+  checkedInAt: timestamp("checkedInAt"),
+  // Additional info
+  dietaryRestrictions: text("dietaryRestrictions"),
+  specialRequests: text("specialRequests"),
+  customFields: text("customFields"), // JSON for event-specific fields
+  notes: text("notes"), // Admin notes
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type EventRegistration = typeof eventRegistrations.$inferSelect;
+export type InsertEventRegistration = typeof eventRegistrations.$inferInsert;
+
+/**
+ * Event attendees (for group registrations)
+ */
+export const eventAttendees = mysqlTable("eventAttendees", {
+  id: int("id").autoincrement().primaryKey(),
+  registrationId: int("registrationId").notNull(),
+  eventId: int("eventId").notNull(),
+  firstName: varchar("firstName", { length: 100 }).notNull(),
+  lastName: varchar("lastName", { length: 100 }).notNull(),
+  email: varchar("email", { length: 320 }),
+  phone: varchar("phone", { length: 50 }),
+  ticketTypeId: int("ticketTypeId"),
+  checkedInAt: timestamp("checkedInAt"),
+  qrCode: varchar("qrCode", { length: 255 }), // Unique QR code for check-in
+  dietaryRestrictions: text("dietaryRestrictions"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type EventAttendee = typeof eventAttendees.$inferSelect;
+export type InsertEventAttendee = typeof eventAttendees.$inferInsert;
+
+/**
+ * ==========================================
+ * BACKGROUND IMAGE SETTINGS
+ * ==========================================
+ */
+
+/**
+ * Section backgrounds for customizable page backgrounds
+ */
+export const sectionBackgrounds = mysqlTable("sectionBackgrounds", {
+  id: int("id").autoincrement().primaryKey(),
+  sectionKey: varchar("sectionKey", { length: 100 }).notNull().unique(), // e.g., "hero", "footer", "philosophy", "offerings"
+  backgroundType: mysqlEnum("backgroundType", ["color", "image", "video", "gradient"]).default("color").notNull(),
+  backgroundColor: varchar("backgroundColor", { length: 50 }),
+  backgroundImage: varchar("backgroundImage", { length: 1000 }),
+  backgroundVideo: varchar("backgroundVideo", { length: 1000 }),
+  gradientStart: varchar("gradientStart", { length: 50 }),
+  gradientEnd: varchar("gradientEnd", { length: 50 }),
+  gradientDirection: varchar("gradientDirection", { length: 50 }).default("to bottom"),
+  overlayColor: varchar("overlayColor", { length: 50 }), // For image/video overlay
+  overlayOpacity: int("overlayOpacity").default(50), // 0-100
+  backgroundPosition: varchar("backgroundPosition", { length: 50 }).default("center center"),
+  backgroundSize: varchar("backgroundSize", { length: 50 }).default("cover"),
+  backgroundAttachment: mysqlEnum("backgroundAttachment", ["scroll", "fixed"]).default("scroll"),
+  isActive: int("isActive").default(1).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type SectionBackground = typeof sectionBackgrounds.$inferSelect;
+export type InsertSectionBackground = typeof sectionBackgrounds.$inferInsert;
