@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
+import { getMediaUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -63,7 +64,7 @@ export default function Contact() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/media/09/home-top-2.mp4" type="video/mp4" />
+          <source src={getMediaUrl('/media/videos/home-top-2.mp4')} type="video/mp4" />
         </video>
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">

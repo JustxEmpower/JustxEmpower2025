@@ -1,14 +1,9 @@
 import { useState } from "react";
 import { useParams, Link } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ChevronLeft, Minus, Plus, ShoppingCart, Share2 } from "lucide-react";
+import { ChevronLeft, Minus, Plus, ShoppingBag } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import CartSlideout from "@/components/CartSlideout";
-import { toast } from "sonner";
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -25,41 +20,35 @@ export default function ProductDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)]">
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid md:grid-cols-2 gap-12">
-            <Skeleton className="aspect-square rounded-lg" />
-            <div className="space-y-4">
-              <Skeleton className="h-8 w-3/4" />
-              <Skeleton className="h-6 w-1/4" />
-              <Skeleton className="h-24 w-full" />
-              <Skeleton className="h-12 w-full" />
-            </div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="w-8 h-8 border border-neutral-200 border-t-black rounded-full animate-spin" />
       </div>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-semibold mb-4">Product Not Found</h1>
-          <Link href="/shop">
-            <Button>Back to Shop</Button>
-          </Link>
-        </div>
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
+        <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-400 mb-8">
+          Product not found
+        </p>
+        <Link href="/shop">
+          <span className="text-[11px] uppercase tracking-[0.2em] text-black hover:text-neutral-600 transition-colors">
+            ← Back to Shop
+          </span>
+        </Link>
       </div>
     );
   }
 
   const images = product.images ? JSON.parse(product.images as string) : [];
   const mainImage = images[selectedImage] || "/placeholder-product.jpg";
-  const isOnSale = product.compareAtPrice && product.compareAtPrice > product.price;
   const isOutOfStock = product.stock != null && product.stock <= 0;
   
   const formatPrice = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+  
+  // Generate product code
+  const productCode = product.name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2) + '-' + String(product.id).padStart(2, '0');
 
   const handleAddToCart = () => {
     if (!isOutOfStock) {
@@ -74,151 +63,164 @@ export default function ProductDetail() {
     }
   };
 
-  const handleShare = async () => {
-    try {
-      await navigator.share({
-        title: product.name,
-        url: window.location.href,
-      });
-    } catch {
-      navigator.clipboard.writeText(window.location.href);
-      toast.success("Link copied to clipboard");
-    }
-  };
-
   return (
-    <div className="min-h-screen bg-[var(--theme-background)]">
-      <div className="container mx-auto px-4 py-4">
-        <Link href="/shop" className="inline-flex items-center text-stone-600 hover:text-stone-900">
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to Shop
-        </Link>
+    <div className="min-h-screen bg-white">
+      {/* Minimal Top Bar */}
+      <div className="fixed top-20 left-0 right-0 z-40 bg-white border-b border-neutral-100">
+        <div className="flex items-center justify-between px-6 py-3">
+          <Link href="/shop">
+            <span className="text-[11px] uppercase tracking-[0.2em] text-neutral-400 hover:text-black transition-colors flex items-center gap-2">
+              <ChevronLeft className="w-3 h-3" />
+              Back
+            </span>
+          </Link>
+          
+          <span className="text-[11px] uppercase tracking-[0.3em] text-black font-medium">
+            {productCode}
+          </span>
+          
+          <button
+            onClick={() => setCartOpen(true)}
+            className="text-[11px] uppercase tracking-[0.2em] text-neutral-600 hover:text-black transition-colors flex items-center gap-2"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            {getCartCount() > 0 && <span>{getCartCount()}</span>}
+          </button>
+        </div>
       </div>
 
-      <section className="container mx-auto px-4 pb-12">
-        <div className="grid md:grid-cols-2 gap-12">
-          <div className="space-y-4">
-            <div className="aspect-square rounded-lg overflow-hidden bg-stone-100">
-              <img src={mainImage} alt={product.name} className="w-full h-full object-cover" />
+      {/* Product Content */}
+      <main className="pt-32 pb-20">
+        <div className="grid lg:grid-cols-2 min-h-[calc(100vh-200px)]">
+          {/* Image Gallery - Left Side */}
+          <div className="relative">
+            {/* Main Image */}
+            <div className="sticky top-32 h-[calc(100vh-200px)]">
+              <div className="h-full bg-neutral-50 flex items-center justify-center p-8">
+                <img
+                  src={mainImage}
+                  alt={product.name}
+                  className="max-w-full max-h-full object-contain"
+                />
+              </div>
+              
+              {/* Thumbnail Navigation */}
+              {images.length > 1 && (
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
+                  {images.map((_: string, idx: number) => (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedImage(idx)}
+                      className={`w-2 h-2 rounded-full transition-colors ${
+                        selectedImage === idx ? "bg-black" : "bg-neutral-300 hover:bg-neutral-400"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
-            {images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto">
-                {images.map((img: string, idx: number) => (
+          </div>
+
+          {/* Product Info - Right Side */}
+          <div className="flex flex-col justify-center px-8 lg:px-16 py-12">
+            {/* Product Name */}
+            <h1 className="text-[11px] uppercase tracking-[0.3em] text-black mb-2">
+              {product.name}
+            </h1>
+            
+            {/* Price */}
+            <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 mb-12">
+              {formatPrice(product.price)}
+            </p>
+            
+            {/* Description */}
+            {product.description && (
+              <p className="text-[12px] leading-relaxed text-neutral-600 mb-12 max-w-md">
+                {product.description}
+              </p>
+            )}
+            
+            {/* Size/Variant Selector - Placeholder */}
+            <div className="mb-8">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-4">
+                Select Size
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {['XS', 'S', 'M', 'L', 'XL'].map((size) => (
                   <button
-                    key={idx}
-                    onClick={() => setSelectedImage(idx)}
-                    className={`w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 border-2 ${
-                      selectedImage === idx ? "border-black" : "border-transparent"
-                    }`}
+                    key={size}
+                    className="w-12 h-12 border border-neutral-200 text-[11px] uppercase tracking-[0.1em] hover:border-black transition-colors"
                   >
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    {size}
                   </button>
                 ))}
               </div>
-            )}
-          </div>
-
-          <div className="space-y-6">
-            <div>
-              {isOnSale && <Badge className="bg-red-500 mb-2">Sale</Badge>}
-              <h1 className="text-3xl font-serif mb-2">{product.name}</h1>
-              <p className="text-sm text-stone-500">SKU: {product.sku || "N/A"}</p>
             </div>
-
-            <div className="flex items-baseline gap-3">
-              <span className="text-3xl font-semibold">{formatPrice(product.price)}</span>
-              {isOnSale && (
-                <span className="text-xl text-stone-400 line-through">
-                  {formatPrice(product.compareAtPrice!)}
-                </span>
-              )}
-            </div>
-
-            {product.description && (
-              <p className="text-stone-600 leading-relaxed">{product.description}</p>
-            )}
-
-            <div className="flex items-center gap-2">
-              {isOutOfStock ? (
-                <Badge variant="destructive">Out of Stock</Badge>
-              ) : product.stock && product.stock < 10 ? (
-                <Badge variant="secondary">Only {product.stock} left</Badge>
-              ) : (
-                <Badge variant="secondary" className="bg-green-100 text-green-800">In Stock</Badge>
-              )}
-            </div>
-
-            <div className="space-y-4">
+            
+            {/* Quantity */}
+            <div className="mb-8">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-4">
+                Quantity
+              </p>
               <div className="flex items-center gap-4">
-                <span className="text-sm font-medium">Quantity:</span>
-                <div className="flex items-center border rounded-md">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    disabled={isOutOfStock}
-                  >
-                    <Minus className="h-4 w-4" />
-                  </Button>
-                  <span className="w-12 text-center">{quantity}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setQuantity(quantity + 1)}
-                    disabled={isOutOfStock || (product.stock != null && quantity >= product.stock)}
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <Button onClick={handleAddToCart} disabled={isOutOfStock} className="flex-1" size="lg">
-                  <ShoppingCart className="h-5 w-5 mr-2" />
-                  {isOutOfStock ? "Out of Stock" : "Add to Cart"}
-                </Button>
-                <Button variant="outline" size="lg" onClick={handleShare}>
-                  <Share2 className="h-5 w-5" />
-                </Button>
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={isOutOfStock}
+                  className="w-10 h-10 border border-neutral-200 flex items-center justify-center hover:border-black transition-colors disabled:opacity-50"
+                >
+                  <Minus className="w-3 h-3" />
+                </button>
+                <span className="text-[11px] uppercase tracking-[0.2em] w-8 text-center">
+                  {quantity}
+                </span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  disabled={isOutOfStock || (product.stock != null && quantity >= product.stock)}
+                  className="w-10 h-10 border border-neutral-200 flex items-center justify-center hover:border-black transition-colors disabled:opacity-50"
+                >
+                  <Plus className="w-3 h-3" />
+                </button>
               </div>
             </div>
-
-            {getCartCount() > 0 && (
-              <Button variant="link" onClick={() => setCartOpen(true)} className="p-0 h-auto">
-                View Cart ({getCartCount()} items)
-              </Button>
+            
+            {/* Add to Cart Button */}
+            <button
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              className={`w-full py-4 text-[11px] uppercase tracking-[0.2em] transition-colors ${
+                isOutOfStock
+                  ? "bg-neutral-100 text-neutral-400 cursor-not-allowed"
+                  : "bg-black text-white hover:bg-neutral-800"
+              }`}
+            >
+              {isOutOfStock ? "Sold Out" : "Add to Bag"}
+            </button>
+            
+            {/* Stock Status */}
+            {!isOutOfStock && product.stock && product.stock < 10 && (
+              <p className="text-[10px] uppercase tracking-[0.15em] text-neutral-400 mt-4 text-center">
+                Only {product.stock} left
+              </p>
             )}
+            
+            {/* Additional Info */}
+            <div className="mt-16 pt-8 border-t border-neutral-100">
+              <div className="space-y-4">
+                <button className="w-full flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-neutral-500 hover:text-black transition-colors py-2">
+                  <span>Details</span>
+                  <Plus className="w-3 h-3" />
+                </button>
+                <button className="w-full flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-neutral-500 hover:text-black transition-colors py-2">
+                  <span>Shipping & Returns</span>
+                  <Plus className="w-3 h-3" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
+      </main>
 
-        <div className="mt-16">
-          <Tabs defaultValue="description">
-            <TabsList>
-              <TabsTrigger value="description">Description</TabsTrigger>
-              <TabsTrigger value="details">Details</TabsTrigger>
-              <TabsTrigger value="shipping">Shipping</TabsTrigger>
-            </TabsList>
-            <TabsContent value="description" className="mt-6">
-              <div className="prose max-w-none">{product.description || "No description available."}</div>
-            </TabsContent>
-            <TabsContent value="details" className="mt-6">
-              <dl className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <dt className="font-medium">SKU</dt>
-                  <dd className="text-stone-600">{product.sku || "N/A"}</dd>
-                </div>
-              </dl>
-            </TabsContent>
-            <TabsContent value="shipping" className="mt-6">
-              <div className="prose max-w-none text-stone-600">
-                <p>Free shipping on orders over $100.</p>
-                <p>Standard shipping: 5-7 business days.</p>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
-
+      {/* Cart Slideout */}
       <CartSlideout open={cartOpen} onClose={() => setCartOpen(false)} />
     </div>
   );

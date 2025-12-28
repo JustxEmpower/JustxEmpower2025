@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
+import { getMediaUrl } from '@/lib/media';
 
 export default function WalkWithUs() {
   const [location] = useLocation();
@@ -16,7 +17,7 @@ export default function WalkWithUs() {
         <div className="absolute inset-0 bg-black/30 z-10" />
         <div 
           className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: 'url(/media/11/Tri-Cover-1280x960.jpg)' }}
+          style={{ backgroundImage: `url(${getMediaUrl('/media/11/Tri-Cover-1280x960.jpg')})` }}
         />
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
@@ -58,7 +59,7 @@ export default function WalkWithUs() {
 
         <div className="relative rounded-[1.5rem] overflow-hidden h-[400px]">
           <img 
-            src="/media/12/IMG_0513-1280x1358.jpg" 
+            src={getMediaUrl('/media/12/IMG_0513-1280x1358.jpg')} 
             alt="Community" 
             className="w-full h-full object-cover"
           />

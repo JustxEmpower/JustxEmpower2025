@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO pages (title, slug, template, metaTitle, metaDescription, published, showInNav, navOrder, parentId) VALUES \n('Founder', 'founder', 'default', 'Founder | Just Empower', 'Meet the founder of Just Empower and her journey of empowerment.', 1, 1, 2, 4),\n('Vision & Ethos', 'vision-ethos', 'default', 'Vision & Ethos | Just Empower', 'Our vision and guiding principles for women empowerment.', 1, 1, 3, 4);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute INSERT INTO pages (title, slug, template, metaTitle, metaDescription, published, showInNav, navOrder, parentId) VALUES \n('Founder', 'founder', 'default', 'Founder | Just Empower', 'Meet the founder of Just Empower and her journey of empowerment.', 1, 1, 2, 4),\n('Vision & Ethos', 'vision-ethos', 'default', 'Vision & Ethos | Just Empower', 'Our vision and guiding principles for women empowerment.', 1, 1, 3, 4);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 59
+}

@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO pages (title, slug, template, metaTitle, metaDescription, published, showInNav, navOrder, parentId) VALUES \n('Shop', 'shop', 'default', 'Shop | Just Empower', 'Shop empowering products from Just Empower.', 1, 1, 8, NULL),\n('Events', 'events', 'default', 'Events | Just Empower', 'Join our upcoming events and gatherings.', 1, 1, 9, NULL),\n('Resources', 'resources', 'default', 'Resources | Just Empower', 'Access valuable resources for your empowerment journey.', 1, 1, 10, NULL),\n('Walk With Us', 'walk-with-us', 'default', 'Walk With Us | Just Empower', 'Join our community and walk with us on this journey.', 1, 1, 11, NULL),\n('Contact', 'contact', 'default', 'Contact | Just Empower', 'Get in touch with Just Empower.', 1, 1, 12, NULL);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute INSERT INTO pages (title, slug, template, metaTitle, metaDescription, published, showInNav, navOrder, parentId) VALUES \n('Shop', 'shop', 'default', 'Shop | Just Empower', 'Shop empowering products from Just Empower.', 1, 1, 8, NULL),\n('Events', 'events', 'default', 'Events | Just Empower', 'Join our upcoming events and gatherings.', 1, 1, 9, NULL),\n('Resources', 'resources', 'default', 'Resources | Just Empower', 'Access valuable resources for your empowerment journey.', 1, 1, 10, NULL),\n('Walk With Us', 'walk-with-us', 'default', 'Walk With Us | Just Empower', 'Join our community and walk with us on this journey.', 1, 1, 11, NULL),\n('Contact', 'contact', 'default', 'Contact | Just Empower', 'Get in touch with Just Empower.', 1, 1, 12, NULL);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 56
+}

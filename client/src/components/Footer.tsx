@@ -1,5 +1,6 @@
 import { Link } from 'wouter';
 import NewsletterSignup from '@/components/NewsletterSignup';
+import { getMediaUrl } from '@/lib/media';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -14,7 +15,7 @@ export default function Footer() {
             <Link href="/">
               <a className="block w-32 mb-8 hover:opacity-80 transition-opacity duration-300">
               <img 
-                src="/media/logo-white.png" 
+                src={getMediaUrl('/media/logo-white.png')} 
                 alt="Just Empower" 
                 className="w-full h-auto object-contain"
               />

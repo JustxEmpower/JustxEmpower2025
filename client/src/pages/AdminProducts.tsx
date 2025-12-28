@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import AdminSidebar from '@/components/AdminSidebar';
 import {
   LogOut,
   FileText,
@@ -151,64 +152,12 @@ export default function AdminProducts() {
     return null;
   }
 
-  const navItems = [
-    { icon: Layout, label: "Content", path: "/admin/content" },
-    { icon: FileText, label: "Articles", path: "/admin/articles" },
-    { icon: FolderOpen, label: "Media", path: "/admin/media" },
-    { icon: Palette, label: "Theme", path: "/admin/theme" },
-    { icon: Files, label: "Pages", path: "/admin/pages" },
-    { icon: ShoppingBag, label: "Products", path: "/admin/products" },
-    { icon: Calendar, label: "Events", path: "/admin/events" },
-    { icon: ClipboardList, label: "Orders", path: "/admin/orders" },
-    { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
-    { icon: Settings, label: "Settings", path: "/admin/settings" },
-  ];
-
   const products = productsQuery.data?.products || [];
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col">
-        <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
-          <img src="/media/logo-white.png" alt="Just Empower" className="h-10 opacity-90" />
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2 font-light">Admin Portal</p>
-        </div>
-        <nav className="flex-1 p-4">
-          <ul className="space-y-1">
-            {navItems.map((item) => (
-              <li key={item.path}>
-                <button
-                  onClick={() => setLocation(item.path)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${
-                    location === item.path
-                      ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
-                      : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
-                  }`}
-                >
-                  <item.icon className="w-4 h-4" />
-                  {item.label}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </nav>
-        <div className="p-4 border-t border-neutral-200 dark:border-neutral-800">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center">
-              <span className="text-xs font-medium">{username?.[0]?.toUpperCase()}</span>
-            </div>
-            <div>
-              <p className="text-sm font-medium">{username}</p>
-              <p className="text-xs text-neutral-500">Administrator</p>
-            </div>
-          </div>
-          <Button variant="ghost" size="sm" className="w-full justify-start" onClick={logout}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
-        </div>
-      </aside>
+      <AdminSidebar variant="light" />
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">

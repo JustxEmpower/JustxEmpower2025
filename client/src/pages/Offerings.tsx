@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Section from '@/components/Section';
 import { useLocation } from 'wouter';
+import { getMediaUrl } from '@/lib/media';
 
 export default function Offerings() {
   const [location] = useLocation();
@@ -21,7 +22,7 @@ export default function Offerings() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/media/09/seeds-of-video-2.mp4" type="video/mp4" />
+          <source src={getMediaUrl('/media/videos/seeds-of-video-2.mp4')} type="video/mp4" />
         </video>
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
@@ -38,7 +39,7 @@ export default function Offerings() {
         title="Seeds of a New Paradigm"
         subtitle="Coherence as Creation"
         description="This was the heart of regeneration: coherence as creation's remembering, and humanity as the soil through which it blooms. Just Empower was not merely a platform; it was a living ecosystem of renewal, resilience, and reclamation."
-        image="/media/12/IMG_0513-1280x1358.jpg"
+        image={getMediaUrl('/media/12/IMG_0513-1280x1358.jpg')}
         imageAlt="Seeds of a New Paradigm"
       />
 
@@ -47,7 +48,7 @@ export default function Offerings() {
         title="She Writes"
         subtitle="Lessons from the Living Codex"
         description="A living journal—a chamber of remembrance where experience and wisdom converged. The blog explored Universal Laws, Archetypes, Consciousness, Transformation, and Alchemy—transforming wound into wisdom."
-        image="/media/11/Tri-Cover-1280x960.jpg"
+        image={getMediaUrl('/media/11/Tri-Cover-1280x960.jpg')}
         imageAlt="She Writes"
         reversed
         dark
@@ -58,7 +59,7 @@ export default function Offerings() {
         title="Emerge with Us"
         subtitle="Partnerships Rooted in Reciprocity"
         description="Partnership with Just Empower was not transactional; it was transformational. To collaborate was to invest in the renewal of culture itself—through aligned initiatives that restored coherence between people, purpose, and planet."
-        image="/media/11/Cover-Final-Emblem-1280x960.jpg"
+        image={getMediaUrl('/media/11/Cover-Final-Emblem-1280x960.jpg')}
         imageAlt="Emerge with Us"
       />
 
@@ -67,7 +68,7 @@ export default function Offerings() {
         title="Rooted Unity"
         subtitle="A Movement for the Earth"
         description="Rooted Unity cultivated ecological stewardship and collective renewal through conscious policy, regenerative design, and the principles of living reciprocity. A living bridge between the wild intelligence of nature and the thoughtful evolution of shared systems."
-        image="/media/12/IMG_0516-800x1044.jpg"
+        image={getMediaUrl('/media/12/IMG_0516-800x1044.jpg')}
         imageAlt="Rooted Unity"
         reversed
         dark

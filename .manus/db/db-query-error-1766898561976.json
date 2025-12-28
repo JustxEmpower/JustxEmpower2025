@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, title, slug, parent_id, show_in_nav, published FROM pages ORDER BY nav_order, id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT id, title, slug, parent_id, show_in_nav, published FROM pages ORDER BY nav_order, id;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1054 (42S22) at line 1: Unknown column 'nav_order' in 'order clause'"
+  ]
+}

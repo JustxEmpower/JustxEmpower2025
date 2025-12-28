@@ -2,31 +2,32 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
+import { getMediaUrl } from '@/lib/media';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const offerings = [
   {
     title: "Seeds of a New Paradigm",
-    image: "/media/11/Tri-Cover-1280x960.jpg",
+    image: getMediaUrl('/media/11/Tri-Cover-1280x960.jpg'),
     desc: "Cultivating consciousness for future generations.",
     link: "/offerings"
   },
   {
     title: "Emerge With Us",
-    image: "/media/12/IMG_0513-1280x1358.jpg",
+    image: getMediaUrl('/media/12/IMG_0513-1280x1358.jpg'),
     desc: "A journey of collective transformation.",
     link: "/offerings"
   },
   {
     title: "Rooted Unity",
-    image: "/media/12/IMG_0516-800x1044.jpg",
+    image: getMediaUrl('/media/12/IMG_0516-800x1044.jpg'),
     desc: "Connecting deeply with nature and self.",
     link: "/offerings"
   },
   {
     title: "MOM VI-X",
-    image: "/media/11/Cover-Final-Emblem-V1-1024x731.png",
+    image: getMediaUrl('/media/11/Cover-Final-Emblem-V1-1024x731.png'),
     desc: "Empowering mothers as leaders of change.",
     link: "/offerings"
   }

@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import Section from '@/components/Section';
 import { useLocation } from 'wouter';
+import { getMediaUrl } from '@/lib/media';
 import NewsletterSignup from '@/components/NewsletterSignup';
 
 export default function Philosophy() {
@@ -22,7 +23,7 @@ export default function Philosophy() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/media/09/emerge-with-us.mp4" type="video/mp4" />
+          <source src={getMediaUrl('/media/videos/emerge-with-us.mp4')} type="video/mp4" />
         </video>
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
@@ -56,7 +57,7 @@ export default function Philosophy() {
           </div>
           <div className="sticky top-32">
             <img 
-              src="/media/12/IMG_0516-800x1044.jpg" 
+              src={getMediaUrl('/media/12/IMG_0516-800x1044.jpg')} 
               alt="Nature philosophy" 
               className="w-full h-[80vh] object-cover rounded-[1.5rem]"
             />
@@ -69,7 +70,7 @@ export default function Philosophy() {
         title="The Three Pillars"
         subtitle="Integrated Transformation"
         description="Just Empower's mission is realized through three integrated pillars: Personal Empowerment, Community & Cultural Initiatives, and Systemic Regeneration. Together, these pillars foster measurable transformation across individual, relational, and cultural levels."
-        image="/media/11/Cover-Final-Emblem-V1-1024x731.png"
+        image={getMediaUrl('/media/11/Cover-Final-Emblem-V1-1024x731.png')}
         imageAlt="Three Pillars Symbol"
         dark
       />

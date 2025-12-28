@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { cn } from '@/lib/utils';
+import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 
@@ -48,7 +49,7 @@ export default function Journal() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src="/media/09/home-fog-slide-3.mp4" type="video/mp4" />
+          <source src={getMediaUrl('/media/videos/home-fog-slide-3.mp4')} type="video/mp4" />
         </video>
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
@@ -69,7 +70,7 @@ export default function Journal() {
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
                 <img
-                  src={featuredPost.imageUrl || "/media/11/Cover-Final-Emblem-V1-1024x731.png"}
+                  src={getMediaUrl(featuredPost.imageUrl || '/media/11/Cover-Final-Emblem-V1-1024x731.png')}
                   alt={featuredPost.title}
                   className="w-full h-full object-cover"
                 />
@@ -111,7 +112,7 @@ export default function Journal() {
                 <article key={index} className="group cursor-pointer">
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-6">
                     <img
-                      src={post.imageUrl || "/media/12/IMG_0513-1280x1358.jpg"}
+                      src={getMediaUrl(post.imageUrl || '/media/12/IMG_0513-1280x1358.jpg')}
                       alt={post.title}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />

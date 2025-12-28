@@ -1,0 +1,52 @@
+{
+  "query": "SELECT * FROM pages;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT * FROM pages;",
+  "rows": [
+    {
+      "id": "30008",
+      "title": "Undo Test Page 1766583110206",
+      "slug": "undo-test-1766583110206",
+      "template": "default",
+      "metaTitle": "NULL",
+      "metaDescription": "NULL",
+      "ogImage": "NULL",
+      "published": "0",
+      "showInNav": "1",
+      "navOrder": "0",
+      "createdAt": "2025-12-24 13:31:50",
+      "updatedAt": "2025-12-24 13:31:50"
+    },
+    {
+      "id": "30019",
+      "title": "Block Test Page",
+      "slug": "block-test-1766583302020",
+      "template": "default",
+      "metaTitle": "NULL",
+      "metaDescription": "NULL",
+      "ogImage": "NULL",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "999",
+      "createdAt": "2025-12-24 13:35:02",
+      "updatedAt": "2025-12-24 13:35:02"
+    },
+    {
+      "id": "30022",
+      "title": "Block Test Page",
+      "slug": "block-test-1766583322658",
+      "template": "default",
+      "metaTitle": "NULL",
+      "metaDescription": "NULL",
+      "ogImage": "NULL",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "999",
+      "createdAt": "2025-12-24 13:35:22",
+      "updatedAt": "2025-12-24 13:35:22"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tslug\ttemplate\tmetaTitle\tmetaDescription\togImage\tpublished\tshowInNav\tnavOrder\tcreatedAt\tupdatedAt\n30008\tUndo Test Page 1766583110206\tundo-test-1766583110206\tdefault\tNULL\tNULL\tNULL\t0\t1\t0\t2025-12-24 13:31:50\t2025-12-24 13:31:50\n30019\tBlock Test Page\tblock-test-1766583302020\tdefault\tNULL\tNULL\tNULL\t1\t0\t999\t2025-12-24 13:35:02\t2025-12-24 13:35:02\n30022\tBlock Test Page\tblock-test-1766583322658\tdefault\tNULL\tNULL\tNULL\t1\t0\t999\t2025-12-24 13:35:22\t2025-12-24 13:35:22\n",
+  "stderr": "",
+  "execution_time_ms": 55
+}

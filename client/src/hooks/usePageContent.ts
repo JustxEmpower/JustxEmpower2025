@@ -5,7 +5,8 @@ import { trpc } from '@/lib/trpc';
  * Returns a helper function to get specific content values by section and key
  */
 export function usePageContent(page: string) {
-  const { data: contentData, isLoading } = trpc.admin.content.getByPage.useQuery({ page });
+  // Use the public content route instead of admin route
+  const { data: contentData, isLoading } = trpc.content.getByPage.useQuery({ page });
 
   // Helper function to get a specific content value
   const getContent = (section: string, key: string, defaultValue: string = ''): string => {

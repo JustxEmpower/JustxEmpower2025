@@ -1,0 +1,52 @@
+{
+  "query": "SELECT id, title, slug, parentId FROM pages ORDER BY navOrder;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT id, title, slug, parentId FROM pages ORDER BY navOrder;",
+  "rows": [
+    {
+      "id": "30008",
+      "title": "Undo Test Page 1766583110206",
+      "slug": "undo-test-1766583110206",
+      "parentId": "NULL"
+    },
+    {
+      "id": "60001",
+      "title": "Philosophy",
+      "slug": "philosophy",
+      "parentId": "NULL"
+    },
+    {
+      "id": "60002",
+      "title": "Founder",
+      "slug": "founder",
+      "parentId": "4"
+    },
+    {
+      "id": "60003",
+      "title": "Vision & Ethos",
+      "slug": "vision-ethos",
+      "parentId": "4"
+    },
+    {
+      "id": "60004",
+      "title": "Offerings",
+      "slug": "offerings",
+      "parentId": "NULL"
+    },
+    {
+      "id": "30019",
+      "title": "Block Test Page",
+      "slug": "block-test-1766583302020",
+      "parentId": "NULL"
+    },
+    {
+      "id": "30022",
+      "title": "Block Test Page",
+      "slug": "block-test-1766583322658",
+      "parentId": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tslug\tparentId\n30008\tUndo Test Page 1766583110206\tundo-test-1766583110206\tNULL\n60001\tPhilosophy\tphilosophy\tNULL\n60002\tFounder\tfounder\t4\n60003\tVision & Ethos\tvision-ethos\t4\n60004\tOfferings\tofferings\tNULL\n30019\tBlock Test Page\tblock-test-1766583302020\tNULL\n30022\tBlock Test Page\tblock-test-1766583322658\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

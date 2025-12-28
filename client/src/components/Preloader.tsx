@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { getMediaUrl } from '@/lib/media';
 
 export default function Preloader({ onComplete }: { onComplete: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -67,7 +68,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
       <div className="relative w-32 h-32 md:w-48 md:h-48 flex items-center justify-center">
         <img 
           ref={logoRef}
-          src="/media/logo-white.png" 
+          src={getMediaUrl('/media/logo-white.png')} 
           alt="Just Empower" 
           className="w-full h-full object-contain"
         />

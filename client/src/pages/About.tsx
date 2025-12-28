@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import NewsletterSignup from '@/components/NewsletterSignup';
+import { getMediaUrl } from '@/lib/media';
 import { usePageContent } from '@/hooks/usePageContent';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -76,7 +77,7 @@ export default function About() {
             playsInline
             className="w-full h-full object-cover"
           >
-            <source src={getContent('hero', 'videoUrl', '/media/09/seeds-of-power.mp4')} type="video/mp4" />
+            <source src={getMediaUrl(getContent('hero', 'videoUrl', '/media/videos/seeds-of-power.mp4'))} type="video/mp4" />
           </video>
         </div>
 

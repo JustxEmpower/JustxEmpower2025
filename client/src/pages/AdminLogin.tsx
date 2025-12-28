@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useLocation } from 'wouter';
 import { trpc } from '@/lib/trpc';
+import { getMediaUrl } from '@/lib/media';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
@@ -37,7 +38,7 @@ export default function AdminLogin() {
         {/* Logo / Brand */}
         <div className="text-center mb-12">
           <img
-            src="/media/08/justempower-logo.png"
+            src={getMediaUrl('/media/08/justempower-logo.png')}
             alt="Just Empower"
             className="h-16 mx-auto mb-6"
           />

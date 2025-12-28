@@ -441,6 +441,54 @@ Make it engaging, include relevant keywords, and ensure it's exactly 150-160 cha
 }
 
 /**
+ * Generate SEO metadata for a page using AI
+ */
+export async function generatePageSeo(title: string, slug: string): Promise<{ metaTitle: string; metaDescription: string }> {
+  if (!genAI) {
+    throw new Error("Gemini AI not initialized");
+  }
+
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+  const prompt = `Generate SEO metadata for a webpage about Just Empower, a women's empowerment and leadership organization.
+
+Page Title: "${title}"
+Page URL Slug: "${slug}"
+
+Generate:
+1. An SEO-optimized meta title (50-60 characters) that includes relevant keywords
+2. A compelling meta description (150-160 characters) that encourages clicks
+
+Context: Just Empower focuses on women's empowerment, leadership development, feminine wisdom, personal growth, and transformational coaching.
+
+Respond in this exact JSON format:
+{"metaTitle": "your title here", "metaDescription": "your description here"}`;
+
+  try {
+    const result = await model.generateContent(prompt);
+    const text = result.response.text().trim();
+    
+    // Extract JSON from the response
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      return {
+        metaTitle: parsed.metaTitle || title,
+        metaDescription: parsed.metaDescription || `Learn about ${title} at Just Empower.`,
+      };
+    }
+  } catch (error) {
+    console.error("Error generating page SEO:", error);
+  }
+
+  // Fallback if AI fails
+  return {
+    metaTitle: `${title} | Just Empower`,
+    metaDescription: `Discover ${title} at Just Empower - empowering women through leadership, wisdom, and transformational growth.`,
+  };
+}
+
+/**
  * Extract topic from conversation message using Gemini AI
  */
 export async function extractTopicFromMessage(message: string): Promise<string> {

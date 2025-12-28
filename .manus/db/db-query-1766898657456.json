@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO pages (title, slug, template, metaTitle, metaDescription, published, showInNav, navOrder, parentId) VALUES \n('Workshops & Programs', 'workshops-programs', 'default', 'Workshops & Programs | Just Empower', 'Join our transformational workshops and programs for women.', 1, 1, 5, 7),\n('VI • X Journal Trilogy', 'vi-x-journal-trilogy', 'default', 'VI • X Journal Trilogy | Just Empower', 'Explore the VI • X Journal Trilogy for self-discovery and empowerment.', 1, 1, 6, 7),\n('Blog (She Writes)', 'blog', 'default', 'Blog - She Writes | Just Empower', 'Read inspiring stories and insights from Just Empower.', 1, 1, 7, 7);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute INSERT INTO pages (title, slug, template, metaTitle, metaDescription, published, showInNav, navOrder, parentId) VALUES \n('Workshops & Programs', 'workshops-programs', 'default', 'Workshops & Programs | Just Empower', 'Join our transformational workshops and programs for women.', 1, 1, 5, 7),\n('VI • X Journal Trilogy', 'vi-x-journal-trilogy', 'default', 'VI • X Journal Trilogy | Just Empower', 'Explore the VI • X Journal Trilogy for self-discovery and empowerment.', 1, 1, 6, 7),\n('Blog (She Writes)', 'blog', 'default', 'Blog - She Writes | Just Empower', 'Read inspiring stories and insights from Just Empower.', 1, 1, 7, 7);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 57
+}

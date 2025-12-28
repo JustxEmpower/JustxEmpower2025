@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText } from "./aiService";
+import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo } from "./aiService";
 import { publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -10,6 +10,7 @@ import {
   getAllArticles,
   getPublishedArticles,
   getArticleBySlug,
+  addPageToSeoSettings,
   createArticle,
   updateArticle,
   deleteArticle,
@@ -587,10 +588,46 @@ export const adminRouter = router({
           published: z.number().optional(),
           showInNav: z.number().optional(),
           navOrder: z.number().optional(),
+          parentId: z.number().nullable().optional(),
+          autoGenerateSeo: z.boolean().optional(),
         })
       )
       .mutation(async ({ input }) => {
-        return await createPage(input);
+        let seoData = {
+          metaTitle: input.metaTitle,
+          metaDescription: input.metaDescription,
+        };
+
+        // Auto-generate SEO if requested and not provided
+        if (input.autoGenerateSeo && (!input.metaTitle || !input.metaDescription)) {
+          try {
+            const generatedSeo = await generatePageSeo(input.title, input.slug);
+            if (!input.metaTitle && generatedSeo.metaTitle) {
+              seoData.metaTitle = generatedSeo.metaTitle;
+            }
+            if (!input.metaDescription && generatedSeo.metaDescription) {
+              seoData.metaDescription = generatedSeo.metaDescription;
+            }
+          } catch (error) {
+            console.error('Failed to auto-generate SEO:', error);
+          }
+        }
+
+        // Create the page with SEO data
+        const page = await createPage({
+          ...input,
+          metaTitle: seoData.metaTitle,
+          metaDescription: seoData.metaDescription,
+        });
+
+        // Auto-add to SEO settings
+        try {
+          await addPageToSeoSettings(page.id, input.slug, seoData.metaTitle || input.title, seoData.metaDescription);
+        } catch (error) {
+          console.error('Failed to add page to SEO settings:', error);
+        }
+
+        return page;
       }),
 
     update: adminProcedure
@@ -606,6 +643,7 @@ export const adminRouter = router({
           published: z.number().optional(),
           showInNav: z.number().optional(),
           navOrder: z.number().optional(),
+          parentId: z.number().nullable().optional(),
         })
       )
       .mutation(async ({ input }) => {
@@ -1143,7 +1181,7 @@ export const adminRouter = router({
       }),
   }),
 
-  // Backup & Restore Management
+  // Backup & Restore Management (with S3 storage)
   backups: router({
     list: adminProcedure
       .query(async () => {
@@ -1159,8 +1197,12 @@ export const adminRouter = router({
       }),
 
     create: adminProcedure
-      .input(z.object({ backupName: z.string() }))
-      .mutation(async ({ input }) => {
+      .input(z.object({ 
+        backupName: z.string(),
+        description: z.string().optional(),
+        backupType: z.enum(['manual', 'auto', 'scheduled']).default('manual')
+      }))
+      .mutation(async ({ input, ctx }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
         
@@ -1169,30 +1211,73 @@ export const adminRouter = router({
           'articles', 'pages', 'pageBlocks', 'siteContent', 'media',
           'themeSettings', 'navigation', 'seoSettings', 'brandAssets',
           'formFields', 'formSubmissions', 'redirects', 'siteSettings',
-          'blockTemplates', 'users', 'aiSettings'
+          'blockTemplates', 'users', 'aiSettings', 'aiChatConversations',
+          'products', 'productCategories', 'orders', 'events'
         ];
         
-        const backupData: any = {};
+        const backupData: any = {
+          metadata: {
+            createdAt: new Date().toISOString(),
+            backupName: input.backupName,
+            description: input.description,
+            tables: tables,
+            version: '2.0'
+          }
+        };
+        
         for (const table of tables) {
           try {
-            const data = await db.select().from((schema as any)[table]);
-            backupData[table] = data;
+            const tableSchema = (schema as any)[table];
+            if (tableSchema) {
+              const data = await db.select().from(tableSchema);
+              backupData[table] = data;
+            }
           } catch (error) {
             console.error(`Error backing up table ${table}:`, error);
           }
         }
         
-        const backupJson = JSON.stringify(backupData);
+        const backupJson = JSON.stringify(backupData, null, 2);
         const fileSize = Buffer.byteLength(backupJson, 'utf8');
+        
+        // Upload to S3
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const s3Key = `backups/${timestamp}-${input.backupName.replace(/[^a-zA-Z0-9-_]/g, '_')}.json`;
+        
+        let s3Url = null;
+        try {
+          // Try Manus Forge API first (for Manus sandbox)
+          const { storagePut } = await import('./storage');
+          const result = await storagePut(s3Key, backupJson, 'application/json');
+          s3Url = result.url;
+        } catch (forgeError) {
+          console.log('Forge API not available, trying direct AWS S3...');
+          try {
+            // Fallback to direct AWS S3 (for AWS deployment)
+            const { uploadToS3, isAwsEnvironment } = await import('./awsStorage');
+            if (isAwsEnvironment()) {
+              const result = await uploadToS3(`media/${s3Key}`, backupJson, 'application/json');
+              s3Url = result.url;
+            }
+          } catch (awsError) {
+            console.error('Failed to upload backup to AWS S3:', awsError);
+            // Continue without S3 - store in database as fallback
+          }
+        }
         
         await db.insert(schema.backups).values({
           backupName: input.backupName,
-          backupType: 'manual',
-          backupData: backupJson,
+          backupType: input.backupType,
+          backupData: s3Url ? null : backupJson, // Only store in DB if S3 fails
+          s3Key: s3Url ? s3Key : null,
+          s3Url: s3Url,
           fileSize,
+          description: input.description,
+          tablesIncluded: JSON.stringify(tables),
+          createdBy: ctx.adminUsername || 'system',
         });
         
-        return { success: true };
+        return { success: true, s3Url };
       }),
 
     download: adminProcedure
@@ -1211,7 +1296,21 @@ export const adminRouter = router({
           throw new TRPCError({ code: "NOT_FOUND", message: "Backup not found" });
         }
         
-        return { backupData: backup[0].backupData };
+        // If backup is in S3, fetch it
+        if (backup[0].s3Url) {
+          try {
+            const response = await fetch(backup[0].s3Url);
+            if (response.ok) {
+              const backupData = await response.text();
+              return { backupData, s3Url: backup[0].s3Url };
+            }
+          } catch (error) {
+            console.error('Failed to fetch backup from S3:', error);
+          }
+        }
+        
+        // Fallback to database storage
+        return { backupData: backup[0].backupData || '{}', s3Url: null };
       }),
 
     restore: adminProcedure
@@ -1230,7 +1329,27 @@ export const adminRouter = router({
           throw new TRPCError({ code: "NOT_FOUND", message: "Backup not found" });
         }
         
-        const backupData = JSON.parse(backup[0].backupData);
+        let backupDataStr = backup[0].backupData;
+        
+        // If backup is in S3, fetch it
+        if (backup[0].s3Url && !backupDataStr) {
+          try {
+            const response = await fetch(backup[0].s3Url);
+            if (response.ok) {
+              backupDataStr = await response.text();
+            } else {
+              throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to fetch backup from S3" });
+            }
+          } catch (error) {
+            throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to fetch backup from S3" });
+          }
+        }
+        
+        if (!backupDataStr) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Backup data not found" });
+        }
+        
+        const backupData = JSON.parse(backupDataStr);
         
         // Restore tables (skip sensitive tables like adminUsers, adminSessions)
         const tablesToRestore = [
@@ -1243,12 +1362,15 @@ export const adminRouter = router({
         for (const table of tablesToRestore) {
           if (backupData[table] && Array.isArray(backupData[table])) {
             try {
-              // Delete existing data
-              await db.delete((schema as any)[table]);
-              
-              // Insert backup data
-              if (backupData[table].length > 0) {
-                await db.insert((schema as any)[table]).values(backupData[table]);
+              const tableSchema = (schema as any)[table];
+              if (tableSchema) {
+                // Delete existing data
+                await db.delete(tableSchema);
+                
+                // Insert backup data
+                if (backupData[table].length > 0) {
+                  await db.insert(tableSchema).values(backupData[table]);
+                }
               }
             } catch (error) {
               console.error(`Error restoring table ${table}:`, error);
@@ -1264,6 +1386,9 @@ export const adminRouter = router({
       .mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Note: We don't delete from S3 to keep a permanent archive
+        // The S3 lifecycle policy can handle cleanup if needed
         
         await db
           .delete(schema.backups)
@@ -2016,7 +2141,15 @@ export const publicPagesRouter = router({
     const db = await getDb();
     if (!db) return [];
     const pages = await db
-      .select()
+      .select({
+        id: schema.pages.id,
+        title: schema.pages.title,
+        slug: schema.pages.slug,
+        published: schema.pages.published,
+        showInNav: schema.pages.showInNav,
+        navOrder: schema.pages.navOrder,
+        parentId: schema.pages.parentId,
+      })
       .from(schema.pages)
       .where(and(eq(schema.pages.published, 1), eq(schema.pages.showInNav, 1)))
       .orderBy(schema.pages.navOrder);

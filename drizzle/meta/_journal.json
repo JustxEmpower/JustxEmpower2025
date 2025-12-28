@@ -169,6 +169,20 @@
       "when": 1766588591876,
       "tag": "0023_medical_forgotten_one",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "5",
+      "when": 1766889953391,
+      "tag": "0024_charming_sleepwalker",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "5",
+      "when": 1766895715360,
+      "tag": "0025_handy_quentin_quire",
+      "breakpoints": true
     }
   ]
 }

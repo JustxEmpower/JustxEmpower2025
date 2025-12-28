@@ -1,0 +1,85 @@
+{
+  "query": "SELECT id, title, slug FROM pages ORDER BY id",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT id, title, slug FROM pages ORDER BY id",
+  "rows": [
+    {
+      "id": "30008",
+      "title": "Undo Test Page 1766583110206",
+      "slug": "undo-test-1766583110206"
+    },
+    {
+      "id": "30019",
+      "title": "Block Test Page",
+      "slug": "block-test-1766583302020"
+    },
+    {
+      "id": "30022",
+      "title": "Block Test Page",
+      "slug": "block-test-1766583322658"
+    },
+    {
+      "id": "60001",
+      "title": "Philosophy",
+      "slug": "philosophy"
+    },
+    {
+      "id": "60002",
+      "title": "Founder",
+      "slug": "founder"
+    },
+    {
+      "id": "60003",
+      "title": "Vision & Ethos",
+      "slug": "vision-ethos"
+    },
+    {
+      "id": "60004",
+      "title": "Offerings",
+      "slug": "offerings"
+    },
+    {
+      "id": "60005",
+      "title": "Workshops & Programs",
+      "slug": "workshops-programs"
+    },
+    {
+      "id": "60006",
+      "title": "VI • X Journal Trilogy",
+      "slug": "vi-x-journal-trilogy"
+    },
+    {
+      "id": "60007",
+      "title": "Blog (She Writes)",
+      "slug": "blog"
+    },
+    {
+      "id": "60008",
+      "title": "Shop",
+      "slug": "shop"
+    },
+    {
+      "id": "60009",
+      "title": "Events",
+      "slug": "events"
+    },
+    {
+      "id": "60010",
+      "title": "Resources",
+      "slug": "resources"
+    },
+    {
+      "id": "60011",
+      "title": "Walk With Us",
+      "slug": "walk-with-us"
+    },
+    {
+      "id": "60012",
+      "title": "Contact",
+      "slug": "contact"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tslug\n30008\tUndo Test Page 1766583110206\tundo-test-1766583110206\n30019\tBlock Test Page\tblock-test-1766583302020\n30022\tBlock Test Page\tblock-test-1766583322658\n60001\tPhilosophy\tphilosophy\n60002\tFounder\tfounder\n60003\tVision & Ethos\tvision-ethos\n60004\tOfferings\tofferings\n60005\tWorkshops & Programs\tworkshops-programs\n60006\tVI • X Journal Trilogy\tvi-x-journal-trilogy\n60007\tBlog (She Writes)\tblog\n60008\tShop\tshop\n60009\tEvents\tevents\n60010\tResources\tresources\n60011\tWalk With Us\twalk-with-us\n60012\tContact\tcontact\n",
+  "stderr": "",
+  "execution_time_ms": 54
+}

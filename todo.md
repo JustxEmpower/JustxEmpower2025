@@ -485,3 +485,327 @@
 - [x] Add routes to App.tsx for AdminProducts, AdminEvents, AdminOrders
 - [x] Write vitest tests for admin router structure
 - [x] All tests passing
+
+
+## AWS Elastic Beanstalk Deployment Fixes (December 2025)
+
+- [x] Fix vite import issue in production build (use dynamic imports)
+- [x] Update package.json to exclude vite from server bundle
+- [x] Create static.ts for production static file serving
+- [x] Fix usePageContent hook to use public route instead of admin route
+- [x] Create MySQL RDS instance (justxempower-mysql)
+- [x] Update DATABASE_URL environment variable to use MySQL
+- [x] Add security group rule for MySQL access
+- [x] Deploy v24 with all fixes
+- [x] Verify AI chat works with gemini-2.0-flash model
+- [x] Verify website loads properly at justxempower.com
+
+
+## Admin Credentials Fix (AWS Deployment)
+
+- [x] Investigate why admin credentials don't work on AWS
+- [x] Check if adminUsers table has data in MySQL database
+- [x] Seed admin user if missing
+- [x] Test admin login on AWS deployment
+
+
+## Admin Dashboard Navigation & Media Fixes (AWS)
+
+- [ ] Add "Back to Homepage" button on admin dashboard
+- [ ] Fix sidebar navigation to show all menu items on every admin page
+- [ ] Investigate missing media files on AWS (lava video, butterfly hand, etc.)
+- [ ] Configure S3 storage for media files
+- [ ] Upload missing media to S3
+- [ ] Update media URLs in database to use S3
+- [ ] Deploy fixes to AWS and test
+
+
+## Admin Dashboard UI & Feature Fixes (Dec 27, 2025)
+- [ ] Fix main site navigation bleeding through admin pages (remove main nav from admin routes)
+- [ ] Fix transparent buttons showing content behind them (add solid backgrounds)
+- [ ] Add Shop page to admin sidebar navigation
+- [ ] Implement S3 media storage for admin media uploads
+- [ ] Add code backup/versioning mechanism to admin dashboard
+- [ ] Enhance page builder with SEO integration for created pages
+- [ ] Upload video files to S3 for proper media delivery
+- [ ] Fix Create Page button functionality
+
+
+## AWS Deployment Fixes (December 27, 2025)
+
+- [x] Fix navigation bleed-through on admin dashboard pages
+- [x] Remove main site Header/Footer from admin pages in App.tsx
+- [x] Fix transparent button backgrounds on admin pages
+- [x] Add Shop page to admin sidebar navigation
+- [x] Create shared AdminSidebar component with all 18 menu items
+- [x] Upload all media files (videos, images) to S3 bucket
+- [x] Create getMediaUrl helper utility for S3 URL generation
+- [x] Update all components to use S3 URLs for media
+- [x] Update database with S3 video URLs
+- [x] Configure S3 bucket for public media access
+- [x] Deploy v28 with all S3 media fixes
+- [x] Verify video backgrounds loading from S3 (homepage lava video working)
+- [x] Verify images loading from S3 (all carousel images working)
+- [x] Test admin dashboard navigation consistency
+
+
+## New Features Implementation (December 27, 2025)
+
+### S3 Code Backup System
+- [x] Create backups database table to track backup metadata
+- [x] Build backend API for creating content snapshots
+- [x] Build backend API for uploading snapshots to S3 (using AWS SDK directly)
+- [x] Build backend API for listing and restoring backups
+- [x] Update AdminBackup page with backup/restore UI
+- [ ] Add automatic backup on content changes
+- [x] Test backup and restore workflow (verified S3 upload working)
+
+### Enhanced Page Builder
+- [ ] Add page templates (blank, landing, article, gallery)
+- [ ] Add more block types (gallery, accordion, tabs, columns)
+- [ ] Add block duplication feature
+- [ ] Add block copy/paste between pages
+- [ ] Add responsive preview (desktop/tablet/mobile)
+- [ ] Add custom CSS per block
+- [ ] Add block animations/transitions
+- [ ] Test enhanced page builder
+
+### Auto-SEO Generation
+- [x] Create AI-powered SEO generator service (using Gemini 2.0 Flash)
+- [x] Auto-generate meta title from page title
+- [x] Auto-generate meta description from page content
+- [x] Auto-generate Open Graph tags
+- [ ] Add SEO score/suggestions
+- [x] Integrate auto-SEO into page creation flow
+- [x] Test auto-SEO generation (verified working)
+
+
+## AWS Deployment Verification (December 27, 2025)
+
+### Verified Working Features
+- [x] Website live at justxempower.com
+- [x] Homepage with lava/fog video backgrounds from S3
+- [x] All images loading from S3 bucket
+- [x] AI Chat Assistant (Gemini 2.0 Flash) working
+- [x] Admin dashboard accessible at /admin/login
+- [x] Admin sidebar with 18 menu items on all pages
+- [x] S3 backup system creating and storing backups
+- [x] Auto-SEO generation when creating pages
+- [x] New pages automatically added to SEO Manager
+- [x] Manus Console sandbox running with live preview
+
+### AWS Infrastructure
+- Elastic Beanstalk: justxempower-prod-v2 (Green/Ready)
+- Version: v30-s3-backup
+- RDS MySQL: justxempower-mysql-db.c5zqr0lqz8yd.us-east-1.rds.amazonaws.com
+- S3 Bucket: elasticbeanstalk-us-east-1-137738969420
+- Region: us-east-1
+
+### Admin Credentials
+- Username: JusticeEmpower
+- Password: EmpowerX2025
+
+
+## Admin Sidebar Menu Fix (December 27, 2025)
+
+- [x] Add missing sidebar menu items (Products, Orders, Reviews, Categories, Events, Attendees, Revenue, Payments, Financial Analytics)
+- [x] Add Shop to main site navigation
+- [x] Verify all 26 sidebar items visible
+- [x] Deploy v32 to AWS
+
+## Shop Page Redesign - Yeezy.com Style (December 27, 2025)
+
+### Missing Menu Items to Add
+- [ ] Add Products menu item to sidebar
+- [ ] Add Orders menu item to sidebar
+- [ ] Add Reviews menu item to sidebar
+- [ ] Add Categories menu item to sidebar
+- [ ] Add Events menu item to sidebar
+- [ ] Add Attendees menu item to sidebar
+- [ ] Add Revenue menu item to sidebar
+- [ ] Add Payments menu item to sidebar
+- [ ] Add Financial Analytics menu item to sidebar
+- [ ] Add Shop to main site navigation
+- [ ] Deploy updated sidebar to AWS
+- [ ] Verify all menu items visible on all admin pages
+
+
+## Shop Page Redesign - Yeezy.com Style (December 27, 2025)
+
+- [x] Redesign Shop page with Yeezy-inspired minimalist aesthetic
+- [x] Large product images with minimal text
+- [x] Clean white/neutral background
+- [x] Stark typography (uppercase tracking)
+- [x] Grid layout with generous spacing
+- [x] Minimal product info (product code on hover, price only)
+- [x] Redesign ProductDetail page to match
+- [x] Deploy to AWS (v32-sidebar-shop)
+
+
+## Transparent UI Components Audit (December 27, 2025)
+
+- [ ] Fix Select dropdown transparent background (SEO page issue)
+- [ ] Audit all admin pages for transparent buttons/dropdowns
+- [ ] Audit all main site pages for transparent buttons/dropdowns
+- [ ] Fix global select/dropdown styles
+- [ ] Deploy fixes to AWS
+
+
+## Transparent UI Components Audit - COMPLETED (December 27, 2025)
+
+- [x] Audit all admin dashboard pages for transparent buttons/dropdowns
+- [x] Audit all main site pages for transparent buttons/dropdowns
+- [x] Fix global CSS variables for popover/destructive colors (added to index.css @theme)
+- [x] Fix Button component outline/ghost variants (bg-background instead of bg-transparent)
+- [x] Fix Select component trigger background (bg-background)
+- [x] Fix Input component background (bg-background)
+- [x] Fix Textarea component background (bg-background)
+- [x] Fix Toggle component background (bg-background)
+- [x] Deploy fixes to AWS (v33-transparent-fix)
+- [x] Verify all fixes working (SEO dropdown, Users Edit button, Backup buttons)
+
+
+
+## Dynamic Navigation System with Dropdowns (December 27, 2025)
+
+### Database Schema Updates
+- [ ] Add parentId field to pages table for parent-child relationships
+- [ ] Add sortOrder field to pages table for custom ordering
+- [ ] Run database migration
+
+### Pages Manager Updates
+- [ ] Add parent page selector dropdown to page creation/edit form
+- [ ] Display pages in hierarchical tree view
+- [ ] Allow drag-and-drop reordering of pages
+- [ ] Show sub-pages indented under parent pages
+
+### Header Navigation Updates
+- [ ] Fetch dynamic pages from database for navigation
+- [ ] Render dropdown menus for pages with children
+- [ ] Implement hover/click dropdown behavior
+- [ ] Style dropdown menus to match site design
+
+### Automatic Navigation Sizing
+- [ ] Calculate available space for navigation items
+- [ ] Adjust font size/spacing based on item count
+- [ ] Collapse to hamburger menu on mobile
+- [ ] Handle overflow gracefully (more menu or scroll)
+
+### Testing & Deployment
+- [ ] Test navigation with various page configurations
+- [ ] Test dropdown functionality on desktop and mobile
+- [ ] Deploy to AWS
+- [ ] Verify on live site
+
+
+
+## Dynamic Navigation System with Dropdown Sub-menus (December 27, 2025) ✅
+
+- [x] Update database schema for parent-child page relationships (parentId field)
+- [x] Update Pages Manager to support sub-pages and parent selection dropdown
+- [x] Update Header component with dynamic navigation from database
+- [x] Implement dropdown menus for pages with children (hover to reveal sub-pages)
+- [x] Implement automatic navigation sizing based on item count (responsive text sizing)
+- [x] Add Navigation Tips info box to Pages Manager
+- [x] Deploy changes to AWS (v34-dynamic-nav)
+- [x] Verify navigation system working (Community Events showing in nav)
+- [x] Verify parent page selection dropdown in Create Page dialog
+
+
+## Shop Page Home Button (December 27, 2025)
+
+- [ ] Add back/home button to Shop page that redirects to homepage
+- [ ] Deploy to AWS
+- [ ] Verify button works
+
+
+## Site Navigation Restructure (December 28, 2025)
+
+- [x] Update Header with new navigation structure:
+  - Philosophy (dropdown: Founder, Vision & Ethos)
+  - Offerings (dropdown: Workshops & Programs, VI•X Journal Trilogy, Blog/She Writes)
+  - Shop
+  - Events
+  - Resources
+  - Walk With Us
+  - Contact
+- [x] Remove About from navigation (now under Philosophy as Founder)
+- [x] Remove Journal from navigation (now under Offerings as Blog/She Writes)
+- [x] Create/update pages in database with parent-child relationships
+- [x] Deploy to AWS (v37-nav-restructure)
+- [x] Verify navigation structure (both dropdowns working)
+
+
+## Admin Content Editing for All Pages (December 28, 2025)
+
+- [x] Audit current admin content editing system
+- [ ] Populate Pages Manager with all core site pages:
+  - Philosophy (parent)
+  - Founder (child of Philosophy)
+  - Vision & Ethos (child of Philosophy)
+  - Offerings (parent)
+  - Workshops & Programs (child of Offerings)
+  - VI • X Journal Trilogy (child of Offerings)
+  - Blog/She Writes (child of Offerings)
+  - Shop
+  - Events
+  - Resources
+  - Walk With Us
+  - Contact
+- [ ] Make clicking on page in Pages Manager link to content editor
+- [ ] Update AdminContent to accept page parameter from URL
+- [ ] Ensure core pages have content editing:
+  - Philosophy page
+  - Founder page (About)
+  - Vision & Ethos page
+  - Offerings page
+  - Workshops & Programs page
+  - VI • X Journal Trilogy page
+  - Blog (She Writes) / Journal page
+  - Shop page
+  - Events page
+  - Resources page
+  - Walk With Us page
+  - Contact page
+- [ ] Ensure dynamically created pages have full content editing
+- [ ] Add rich text editor for page content
+- [ ] Deploy to AWS
+- [ ] Verify all pages are editable from admin dashboard
+
+
+## Pages Manager - Core Pages Population (NEW - December 2024)
+
+- [x] Create all core pages in AWS RDS database via admin dashboard UI
+- [x] Create Philosophy parent page (/philosophy)
+- [x] Create Founder sub-page under Philosophy (/founder)
+- [x] Create Vision & Ethos sub-page under Philosophy (/vision-ethos)
+- [x] Create Offerings parent page (/offerings)
+- [x] Create Workshops & Programs sub-page under Offerings (/workshops-programs)
+- [x] Create VI•X Journal Trilogy sub-page under Offerings (/vix-journal-trilogy)
+- [x] Create Blog - She Writes sub-page under Offerings (/blog-she-writes)
+- [x] Create Shop page (/shop)
+- [x] Create Events page (/events)
+- [x] Create Resources page (/resources)
+- [x] Create Walk With Us page (/walk-with-us)
+- [x] Create Contact page (/contact)
+- [x] Fix truncated page names and slugs (Philosophy, Founder, Vision & Ethos, Offerings)
+- [x] Verify all pages appear in navigation with proper dropdown menus
+- [x] Verify Philosophy dropdown shows Founder and Vision & Ethos
+- [x] Verify Offerings dropdown shows Workshops & Programs, VI•X Journal Trilogy, Blog (She Writes)
+- [x] Verify content editor is accessible by clicking "Click to edit content →"
+- [x] All 13 pages are Published and showing in Navigation
+- [x] All pages have AI-generated SEO metadata
+
+
+
+## AWS Infrastructure & Backup Setup (NEW - December 2024)
+
+- [ ] Create backup zip of critical project files
+- [ ] Push code to GitHub repository (JustxEmpower/JustxEmpower2025)
+- [ ] Export database schema and seed data for backup
+- [ ] Document AWS infrastructure architecture
+- [ ] Ensure backend properly supports admin dashboard
+- [ ] Ensure admin dashboard properly supports main site
+- [ ] Verify shop functionality is properly integrated
+- [ ] Create infrastructure documentation for deployment
+

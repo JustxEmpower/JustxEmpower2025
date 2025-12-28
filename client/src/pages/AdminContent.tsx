@@ -8,6 +8,7 @@ import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { LogOut, FileText, Settings, Layout, Save, ChevronDown, ChevronUp, FolderOpen, Image, Palette, Files, BarChart3 } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
+import AdminSidebar from '@/components/AdminSidebar';
 
 interface ContentItem {
   id: number;
@@ -20,7 +21,12 @@ interface ContentItem {
 export default function AdminContent() {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, isChecking, username, logout } = useAdminAuth();
-  const [selectedPage, setSelectedPage] = useState('home');
+  
+  // Get page from URL query parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const pageFromUrl = urlParams.get('page');
+  
+  const [selectedPage, setSelectedPage] = useState(pageFromUrl || 'home');
   const [content, setContent] = useState<ContentItem[]>([]);
   const [editedContent, setEditedContent] = useState<Record<number, string>>({});
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
@@ -111,22 +117,26 @@ export default function AdminContent() {
   }
 
   const pages = [
+    // Core pages
     { id: 'home', label: 'Home' },
-    { id: 'about', label: 'About (Founder)' },
+    // Philosophy section
     { id: 'philosophy', label: 'Philosophy' },
+    { id: 'founder', label: 'Founder' },
+    { id: 'vision-ethos', label: 'Vision & Ethos' },
+    // Offerings section
     { id: 'offerings', label: 'Offerings' },
-    { id: 'journal', label: 'Journal' },
+    { id: 'workshops-programs', label: 'Workshops & Programs' },
+    { id: 'vi-x-journal-trilogy', label: 'VI • X Journal Trilogy' },
+    { id: 'blog', label: 'Blog (She Writes)' },
+    // Other main pages
+    { id: 'shop', label: 'Shop' },
+    { id: 'events', label: 'Events' },
+    { id: 'resources', label: 'Resources' },
+    { id: 'walk-with-us', label: 'Walk With Us' },
     { id: 'contact', label: 'Contact' },
-  ];
-  
-  const navItems = [
-    { icon: Layout, label: 'Content', path: '/admin/content' },
-    { icon: FileText, label: 'Articles', path: '/admin/articles' },
-    { icon: FolderOpen, label: 'Media', path: '/admin/media' },
-    { icon: Palette, label: 'Theme', path: '/admin/theme' },
-    { icon: Files, label: 'Pages', path: '/admin/pages' },
-    { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
-    { icon: Settings, label: 'Settings', path: '/admin/settings' },
+    // Legacy pages (for backwards compatibility)
+    { id: 'about', label: 'About (Legacy)' },
+    { id: 'journal', label: 'Journal (Legacy)' },
   ];
 
   const handleOpenMediaPicker = (fieldId: number) => {
@@ -179,61 +189,7 @@ export default function AdminContent() {
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col">
-        <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
-          <img
-            src="/media/logo-white.png"
-            alt="Just Empower"
-            className="h-10 opacity-90"
-          />
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2 font-light">
-            Admin Portal
-          </p>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.path;
-            return (
-              <button
-                key={item.path}
-                onClick={() => setLocation(item.path)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100'
-                    : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium text-sm">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-neutral-200 dark:border-neutral-800">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                {username}
-              </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                Administrator
-              </p>
-            </div>
-          </div>
-          <Button
-            onClick={logout}
-            variant="outline"
-            className="w-full justify-start gap-2"
-            size="sm"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </Button>
-        </div>
-      </aside>
+      <AdminSidebar variant="light" />
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
@@ -264,7 +220,11 @@ export default function AdminContent() {
               {pages.map((page) => (
                 <button
                   key={page.id}
-                  onClick={() => setSelectedPage(page.id)}
+                  onClick={() => {
+                    setSelectedPage(page.id);
+                    // Update URL without full page reload
+                    window.history.pushState({}, '', `/admin/content?page=${page.id}`);
+                  }}
                   className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
                     selectedPage === page.id
                       ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900'

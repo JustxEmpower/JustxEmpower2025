@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Search, Save, Loader2, Layout, FileText, Settings, FolderOpen, BarChart3, Files, Palette, LogOut, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
+import AdminSidebar from '@/components/AdminSidebar';
 
 export default function AdminSEO() {
   const [location, setLocation] = useLocation();
@@ -30,18 +31,6 @@ export default function AdminSEO() {
     noIndex: false,
     structuredData: "",
   });
-
-  const navItems = [
-    { icon: Layout, label: "Content", path: "/admin/content" },
-    { icon: FileText, label: "Articles", path: "/admin/articles" },
-    { icon: FolderOpen, label: "Media", path: "/admin/media" },
-    { icon: Palette, label: "Theme", path: "/admin/theme" },
-    { icon: Files, label: "Pages", path: "/admin/pages" },
-    { icon: Briefcase, label: "Brand", path: "/admin/brand" },
-    { icon: Search, label: "SEO", path: "/admin/seo" },
-    { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
-    { icon: Settings, label: "Settings", path: "/admin/settings" },
-  ];
 
   const pagesQuery = trpc.admin.pages.list.useQuery();
   const seoQuery = trpc.admin.seo.get.useQuery({ pageSlug: selectedPage });
@@ -113,42 +102,7 @@ export default function AdminSEO() {
   return (
     <div className="flex min-h-screen bg-stone-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-stone-900 text-stone-100 p-6 flex flex-col">
-        <div className="mb-8">
-          <h1 className="text-2xl font-serif">Just Empower</h1>
-          <p className="text-sm text-stone-400 mt-1">Admin Portal</p>
-        </div>
-
-        <nav className="flex-1 space-y-2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.path;
-            return (
-              <Link key={item.path} href={item.path}>
-                <a
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
-                      ? "bg-amber-600 text-white"
-                      : "text-stone-300 hover:bg-stone-800 hover:text-white"
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span>{item.label}</span>
-                </a>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <Button
-          onClick={logout}
-          variant="ghost"
-          className="w-full justify-start text-stone-300 hover:text-white hover:bg-stone-800 mt-4"
-        >
-          <LogOut className="w-5 h-5 mr-3" />
-          Logout
-        </Button>
-      </aside>
+      <AdminSidebar variant="dark" />
 
       {/* Main Content */}
       <main className="flex-1 p-8">

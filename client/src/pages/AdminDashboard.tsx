@@ -2,38 +2,24 @@ import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { trpc } from "@/lib/trpc";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import AdminSidebar from "@/components/AdminSidebar";
 import {
-  Layout,
   FileText,
-  Settings,
-  FolderOpen,
-  Palette,
-  BarChart3,
-  LogOut,
   Files,
   Users,
-  Briefcase,
-  Search,
-  Menu,
   FormInput,
-  Link as LinkIcon,
-  Code,
-  Database,
-  Shield,
-  TrendingUp,
-  Eye,
-  MessageSquare,
   Image,
   ArrowRight,
   Activity,
   Clock,
+  Palette,
+  BarChart3,
 } from "lucide-react";
 
 export default function AdminDashboard() {
   const [location, setLocation] = useLocation();
-  const { isAuthenticated, isChecking, username, logout } = useAdminAuth();
+  const { isAuthenticated, isChecking, username } = useAdminAuth();
 
   // Fetch dashboard statistics
   const statsQuery = trpc.admin.dashboard.stats.useQuery(undefined, {
@@ -61,24 +47,6 @@ export default function AdminDashboard() {
   if (!isAuthenticated) {
     return null;
   }
-
-  const navItems = [
-    { icon: Layout, label: "Content", path: "/admin/content" },
-    { icon: FileText, label: "Articles", path: "/admin/articles" },
-    { icon: FolderOpen, label: "Media", path: "/admin/media" },
-    { icon: Palette, label: "Theme", path: "/admin/theme" },
-    { icon: Files, label: "Pages", path: "/admin/pages" },
-    { icon: Briefcase, label: "Brand", path: "/admin/brand" },
-    { icon: Search, label: "SEO", path: "/admin/seo" },
-    { icon: Menu, label: "Navigation", path: "/admin/navigation" },
-    { icon: FormInput, label: "Forms", path: "/admin/forms" },
-    { icon: LinkIcon, label: "Redirects", path: "/admin/redirects" },
-    { icon: Code, label: "Custom Code", path: "/admin/code" },
-    { icon: Database, label: "Backup", path: "/admin/backup" },
-    { icon: Users, label: "Users", path: "/admin/users" },
-    { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
-    { icon: Settings, label: "Settings", path: "/admin/settings" },
-  ];
 
   const quickActions = [
     {
@@ -138,49 +106,8 @@ export default function AdminDashboard() {
 
   return (
     <div className="flex min-h-screen bg-stone-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-stone-900 text-stone-100 p-6 flex flex-col">
-        <div className="mb-8">
-          <h1 className="text-2xl font-serif">Just Empower</h1>
-          <p className="text-sm text-stone-400 mt-1">Admin Portal</p>
-        </div>
-
-        <nav className="flex-1 space-y-2">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.path;
-            return (
-              <Link key={item.path} href={item.path}>
-                <a
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                    isActive
-                      ? "bg-amber-600 text-white"
-                      : "text-stone-300 hover:bg-stone-800 hover:text-white"
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span>{item.label}</span>
-                </a>
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="mt-4 pt-4 border-t border-stone-800">
-          <div className="px-4 py-2 text-sm text-stone-400">
-            Logged in as <span className="text-stone-200 font-medium">{username}</span>
-          </div>
-        </div>
-
-        <Button
-          onClick={logout}
-          variant="ghost"
-          className="w-full justify-start text-stone-300 hover:text-white hover:bg-stone-800 mt-2"
-        >
-          <LogOut className="w-5 h-5 mr-3" />
-          Logout
-        </Button>
-      </aside>
+      {/* Shared Sidebar */}
+      <AdminSidebar variant="dark" />
 
       {/* Main Content */}
       <main className="flex-1 p-8 overflow-auto">

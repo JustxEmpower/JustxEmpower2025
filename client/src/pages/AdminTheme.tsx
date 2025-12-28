@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
+import AdminSidebar from '@/components/AdminSidebar';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,15 +12,7 @@ import { Link, useLocation } from "wouter";
 export default function AdminTheme() {
   const [location, setLocation] = useLocation();
 
-  const navItems = [
-    { icon: Layout, label: "Content", path: "/admin/content" },
-    { icon: FileText, label: "Articles", path: "/admin/articles" },
-    { icon: FolderOpen, label: "Media", path: "/admin/media" },
-    { icon: Palette, label: "Theme", path: "/admin/theme" },
-    { icon: Files, label: "Pages", path: "/admin/pages" },
-    { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
-    { icon: Settings, label: "Settings", path: "/admin/settings" },
-  ];
+
 
   const [paletteDescription, setPaletteDescription] = useState("");
   const [fontStyle, setFontStyle] = useState("");
@@ -148,42 +141,12 @@ export default function AdminTheme() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 p-6">
-        <Link href="/admin/dashboard">
-          <img src="/media/logo-white.png" alt="Just Empower" className="w-32 mb-8 invert" />
-        </Link>
-
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.path;
-            return (
-              <button
-                key={item.path}
-                onClick={() => setLocation(item.path)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
-                    ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
-                    : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium text-sm">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="absolute bottom-6 left-6 right-6">
-          <p className="text-sm font-medium">JusticeEmpower</p>
-          <p className="text-xs text-gray-500">Administrator</p>
-        </div>
-      </div>
+      <AdminSidebar variant="light" />
 
       {/* Main Content */}
-      <div className="ml-64 p-8">
+      <div className="flex-1 p-8 overflow-auto">
         <div className="max-w-4xl">
           <div className="mb-8">
             <h1 className="text-3xl font-serif mb-2">Theme & Design System</h1>

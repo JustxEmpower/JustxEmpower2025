@@ -23,6 +23,13 @@ import AdminUsers from "@/pages/AdminUsers";
 import AdminProducts from "@/pages/AdminProducts";
 import AdminEvents from "@/pages/AdminEvents";
 import AdminOrders from "@/pages/AdminOrders";
+import AdminShop from "@/pages/AdminShop";
+import AdminReviews from "@/pages/AdminReviews";
+import AdminCategories from "@/pages/AdminCategories";
+import AdminAttendees from "@/pages/AdminAttendees";
+import AdminRevenue from "@/pages/AdminRevenue";
+import AdminPayments from "@/pages/AdminPayments";
+import AdminFinancialAnalytics from "@/pages/AdminFinancialAnalytics";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -46,6 +53,7 @@ import ProductDetail from "@/pages/ProductDetail";
 import Checkout from "@/pages/Checkout";
 import Events from "@/pages/Events";
 import EventDetail from "@/pages/EventDetail";
+
 function Router() {
   // make sure to consider if you need authentication for certain routes
   return (
@@ -72,6 +80,14 @@ function Router() {
       <Route path="/admin/products" component={AdminProducts} />
       <Route path="/admin/events" component={AdminEvents} />
       <Route path="/admin/orders" component={AdminOrders} />
+      <Route path="/admin/shop" component={AdminShop} />
+      {/* New admin routes */}
+      <Route path="/admin/reviews" component={AdminReviews} />
+      <Route path="/admin/categories" component={AdminCategories} />
+      <Route path="/admin/attendees" component={AdminAttendees} />
+      <Route path="/admin/revenue" component={AdminRevenue} />
+      <Route path="/admin/payments" component={AdminPayments} />
+      <Route path="/admin/financial-analytics" component={AdminFinancialAnalytics} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/about" component={About} />
       <Route path="/about-just-empower" component={AboutJustEmpower} />
@@ -95,7 +111,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [location] = useLocation();
   
-  // Don't show newsletter popup on admin pages
+  // Check if we're on an admin page
   const isAdminPage = location.startsWith('/admin');
 
   // Only show preloader on initial load or home page refresh
@@ -111,11 +127,12 @@ function App() {
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
           <Toaster />
-          {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
-          <div className={`transition-opacity duration-1000 ${isLoading ? 'opacity-0' : 'opacity-100'}`}>
-            <Header />
+          {isLoading && !isAdminPage && <Preloader onComplete={() => setIsLoading(false)} />}
+          <div className={`transition-opacity duration-1000 ${isLoading && !isAdminPage ? 'opacity-0' : 'opacity-100'}`}>
+            {/* Only show Header and Footer on non-admin pages */}
+            {!isAdminPage && <Header />}
             <Router />
-            <Footer />
+            {!isAdminPage && <Footer />}
             {!isAdminPage && <NewsletterPopup />}
             {!isAdminPage && <AIChatAssistant />}
             {!isAdminPage && <AnalyticsTracker />}

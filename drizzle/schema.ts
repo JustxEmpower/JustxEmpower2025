@@ -184,6 +184,7 @@ export const pages = mysqlTable("pages", {
   published: int("published").default(1).notNull(),
   showInNav: int("showInNav").default(1).notNull(),
   navOrder: int("navOrder").default(0),
+  parentId: int("parentId"), // For sub-pages/dropdown menus - null means top-level
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -477,9 +478,14 @@ export type InsertRedirect = typeof redirects.$inferInsert;
 export const backups = mysqlTable("backups", {
   id: int("id").autoincrement().primaryKey(),
   backupName: varchar("backupName", { length: 255 }).notNull(),
-  backupType: varchar("backupType", { length: 50 }).notNull(), // 'manual', 'scheduled'
-  backupData: text("backupData").notNull(), // JSON dump of database
+  backupType: varchar("backupType", { length: 50 }).notNull(), // 'manual', 'scheduled', 'auto'
+  backupData: text("backupData"), // JSON dump of database (optional if using S3)
+  s3Key: varchar("s3Key", { length: 500 }), // S3 storage key for backup file
+  s3Url: varchar("s3Url", { length: 1000 }), // S3 URL for backup file
   fileSize: int("fileSize").notNull(), // Size in bytes
+  description: text("description"), // Optional description of what changed
+  tablesIncluded: text("tablesIncluded"), // JSON array of table names included in backup
+  createdBy: varchar("createdBy", { length: 100 }), // Admin username who created backup
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 

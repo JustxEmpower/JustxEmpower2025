@@ -457,3 +457,53 @@ export async function reorderPageBlocks(blocks: { id: number; order: number }[])
   }
 }
 
+
+// ============= SEO SETTINGS MANAGEMENT =============
+
+export async function addPageToSeoSettings(
+  pageId: number,
+  pageSlug: string,
+  metaTitle?: string,
+  metaDescription?: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if SEO settings already exist for this page
+  const existing = await db
+    .select()
+    .from(seoSettings)
+    .where(eq(seoSettings.pageSlug, pageSlug))
+    .limit(1);
+
+  if (existing.length > 0) {
+    // Update existing SEO settings if new values are provided
+    if (metaTitle || metaDescription) {
+      await db
+        .update(seoSettings)
+        .set({
+          ...(metaTitle && { metaTitle }),
+          ...(metaDescription && { metaDescription }),
+        })
+        .where(eq(seoSettings.pageSlug, pageSlug));
+    }
+    return { success: true, updated: true };
+  }
+
+  // Create new SEO settings entry (only use columns that exist in the schema)
+  await db.insert(seoSettings).values({
+    pageSlug,
+    metaTitle: metaTitle || pageSlug,
+    metaDescription: metaDescription || '',
+    metaKeywords: '',
+    ogTitle: metaTitle || pageSlug,
+    ogDescription: metaDescription || '',
+    ogImage: '',
+    twitterCard: 'summary_large_image',
+    canonicalUrl: `/${pageSlug}`,
+    noIndex: 0,
+    structuredData: '',
+  });
+
+  return { success: true, created: true };
+}

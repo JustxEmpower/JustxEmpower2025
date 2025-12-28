@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
+import { usePageContent } from '@/hooks/usePageContent';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -10,6 +11,11 @@ export default function Hero() {
   const textRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  
+  const { getContent, isLoading } = usePageContent('home');
+  
+  // Get video URL from database, fallback to S3 URL
+  const videoUrl = getContent('hero', 'videoUrl') || 'https://elasticbeanstalk-us-east-1-137738969420.s3.amazonaws.com/media/videos/home-slide-1.mp4';
 
   useEffect(() => {
     // Ensure video plays when component mounts
@@ -111,7 +117,7 @@ export default function Hero() {
           playsInline
           className="w-full h-full object-cover"
         >
-          <source src="/home-slide-1.mp4" type="video/mp4" />
+          <source src={videoUrl} type="video/mp4" />
         </video>
       </div>
 

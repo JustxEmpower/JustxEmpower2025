@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { trpc } from "@/lib/trpc";
 import BlockEditor from "@/components/BlockEditor";
@@ -7,6 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -16,20 +23,15 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  LogOut,
-  FileText,
-  Settings,
   Layout,
-  FolderOpen,
-  Palette,
-  BarChart3,
-  Files,
   Plus,
   Edit,
   Trash2,
   GripVertical,
   Eye,
   EyeOff,
+  ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -49,6 +51,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import AdminSidebar from '@/components/AdminSidebar';
 
 interface Page {
   id: number;
@@ -61,6 +64,7 @@ interface Page {
   published: number;
   showInNav: number;
   navOrder: number | null;
+  parentId: number | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -70,9 +74,11 @@ interface SortablePageProps {
   onEdit: (page: Page) => void;
   onEditBlocks: (page: Page) => void;
   onDelete: (id: number) => void;
+  isChild?: boolean;
+  parentTitle?: string;
 }
 
-function SortablePage({ page, onEdit, onEditBlocks, onDelete }: SortablePageProps) {
+function SortablePage({ page, onEdit, onEditBlocks, onDelete, isChild, parentTitle }: SortablePageProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: page.id,
   });
@@ -86,7 +92,7 @@ function SortablePage({ page, onEdit, onEditBlocks, onDelete }: SortablePageProp
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-4 p-4 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800"
+      className={`flex items-center gap-4 p-4 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800 ${isChild ? 'ml-8 border-l-4 border-l-primary/30' : ''}`}
     >
       <button
         {...attributes}
@@ -96,10 +102,23 @@ function SortablePage({ page, onEdit, onEditBlocks, onDelete }: SortablePageProp
         <GripVertical className="w-5 h-5" />
       </button>
 
-      <div className="flex-1">
-        <h3 className="font-medium text-neutral-900 dark:text-neutral-100">{page.title}</h3>
+      <Link 
+        href={`/admin/content?page=${page.slug}`}
+        className="flex-1 cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-800 rounded-lg p-2 -m-2 transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          {isChild && (
+            <ChevronRight className="w-4 h-4 text-neutral-400" />
+          )}
+          <h3 className="font-medium text-neutral-900 dark:text-neutral-100 hover:text-primary transition-colors">{page.title}</h3>
+          <ExternalLink className="w-3 h-3 text-neutral-400" />
+        </div>
         <p className="text-sm text-neutral-500">/{page.slug}</p>
-      </div>
+        {isChild && parentTitle && (
+          <p className="text-xs text-primary/70 mt-1">Sub-page of: {parentTitle}</p>
+        )}
+        <p className="text-xs text-primary mt-1">Click to edit content →</p>
+      </Link>
 
       <div className="flex items-center gap-2">
         {page.published === 1 ? (
@@ -143,7 +162,7 @@ function SortablePage({ page, onEdit, onEditBlocks, onDelete }: SortablePageProp
 
 export default function AdminPages() {
   const [location, setLocation] = useLocation();
-  const { isAuthenticated, isChecking, username, logout } = useAdminAuth();
+  const { isAuthenticated, isChecking } = useAdminAuth();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<Page | null>(null);
@@ -155,6 +174,8 @@ export default function AdminPages() {
     metaDescription: "",
     published: 1,
     showInNav: 1,
+    parentId: null as number | null,
+    autoGenerateSeo: true,
   });
 
   const pagesQuery = trpc.admin.pages.list.useQuery();
@@ -188,15 +209,25 @@ export default function AdminPages() {
     return null;
   }
 
-  const navItems = [
-    { icon: Layout, label: "Content", path: "/admin/content" },
-    { icon: FileText, label: "Articles", path: "/admin/articles" },
-    { icon: FolderOpen, label: "Media", path: "/admin/media" },
-    { icon: Palette, label: "Theme", path: "/admin/theme" },
-    { icon: Files, label: "Pages", path: "/admin/pages" },
-    { icon: BarChart3, label: "Analytics", path: "/admin/analytics" },
-    { icon: Settings, label: "Settings", path: "/admin/settings" },
-  ];
+  // Organize pages hierarchically
+  const pages = pagesQuery.data || [];
+  const topLevelPages = pages.filter(p => !p.parentId);
+  const childPages = pages.filter(p => p.parentId);
+
+  // Build hierarchical list for display
+  const hierarchicalPages: { page: Page; isChild: boolean; parentTitle?: string }[] = [];
+  topLevelPages.forEach(parent => {
+    hierarchicalPages.push({ page: parent, isChild: false });
+    const children = childPages.filter(c => c.parentId === parent.id);
+    children.forEach(child => {
+      hierarchicalPages.push({ page: child, isChild: true, parentTitle: parent.title });
+    });
+  });
+  // Add orphan children (parent deleted)
+  const orphans = childPages.filter(c => !topLevelPages.find(p => p.id === c.parentId));
+  orphans.forEach(orphan => {
+    hierarchicalPages.push({ page: orphan, isChild: true, parentTitle: '(Parent Deleted)' });
+  });
 
   const handleCreatePage = async () => {
     try {
@@ -210,6 +241,8 @@ export default function AdminPages() {
         metaDescription: "",
         published: 1,
         showInNav: 1,
+        parentId: null,
+        autoGenerateSeo: true,
       });
       pagesQuery.refetch();
     } catch (error) {
@@ -237,6 +270,13 @@ export default function AdminPages() {
   };
 
   const handleDeletePage = async (id: number) => {
+    // Check if page has children
+    const hasChildren = pages.some(p => p.parentId === id);
+    if (hasChildren) {
+      toast.error("Cannot delete page with sub-pages. Delete or reassign sub-pages first.");
+      return;
+    }
+
     if (!confirm("Are you sure you want to delete this page?")) return;
 
     try {
@@ -258,6 +298,8 @@ export default function AdminPages() {
       metaDescription: page.metaDescription || "",
       published: page.published,
       showInNav: page.showInNav,
+      parentId: page.parentId,
+      autoGenerateSeo: false,
     });
     setIsEditDialogOpen(true);
   };
@@ -271,13 +313,12 @@ export default function AdminPages() {
 
     if (!over || active.id === over.id) return;
 
-    const pages = pagesQuery.data || [];
-    const oldIndex = pages.findIndex((p) => p.id === active.id);
-    const newIndex = pages.findIndex((p) => p.id === over.id);
+    const oldIndex = hierarchicalPages.findIndex((p) => p.page.id === active.id);
+    const newIndex = hierarchicalPages.findIndex((p) => p.page.id === over.id);
 
-    const reorderedPages = arrayMove(pages, oldIndex, newIndex);
-    const pageOrders = reorderedPages.map((page, index) => ({
-      id: page.id,
+    const reorderedPages = arrayMove(hierarchicalPages, oldIndex, newIndex);
+    const pageOrders = reorderedPages.map((item, index) => ({
+      id: item.page.id,
       navOrder: index,
     }));
 
@@ -291,64 +332,148 @@ export default function AdminPages() {
     }
   };
 
+  // Get available parent pages (exclude current page when editing)
+  const availableParentPages = topLevelPages.filter(p => 
+    !editingPage || p.id !== editingPage.id
+  );
+
+  const PageFormFields = ({ isEdit = false }: { isEdit?: boolean }) => (
+    <div className="space-y-4">
+      <div>
+        <Label htmlFor={isEdit ? "edit-title" : "title"}>Page Title</Label>
+        <Input
+          id={isEdit ? "edit-title" : "title"}
+          value={formData.title}
+          onChange={(e) =>
+            setFormData({ ...formData, title: e.target.value })
+          }
+          placeholder="About Us"
+        />
+      </div>
+
+      <div>
+        <Label htmlFor={isEdit ? "edit-slug" : "slug"}>URL Slug</Label>
+        <Input
+          id={isEdit ? "edit-slug" : "slug"}
+          value={formData.slug}
+          onChange={(e) =>
+            setFormData({ ...formData, slug: e.target.value })
+          }
+          placeholder="about-us"
+        />
+        <p className="text-xs text-neutral-500 mt-1">
+          URL: /{formData.slug}
+        </p>
+      </div>
+
+      <div>
+        <Label htmlFor={isEdit ? "edit-parent" : "parent"}>Parent Page (for dropdown menu)</Label>
+        <Select
+          value={formData.parentId?.toString() || "none"}
+          onValueChange={(value) =>
+            setFormData({ ...formData, parentId: value === "none" ? null : parseInt(value) })
+          }
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select parent page (optional)" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">No parent (top-level page)</SelectItem>
+            {availableParentPages.map((page) => (
+              <SelectItem key={page.id} value={page.id.toString()}>
+                {page.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-neutral-500 mt-1">
+          Sub-pages appear as dropdown items under their parent in navigation
+        </p>
+      </div>
+
+      <div>
+        <Label htmlFor={isEdit ? "edit-metaTitle" : "metaTitle"}>SEO Title</Label>
+        <Input
+          id={isEdit ? "edit-metaTitle" : "metaTitle"}
+          value={formData.metaTitle}
+          onChange={(e) =>
+            setFormData({ ...formData, metaTitle: e.target.value })
+          }
+          placeholder="About Us - Just Empower"
+        />
+      </div>
+
+      <div>
+        <Label htmlFor={isEdit ? "edit-metaDescription" : "metaDescription"}>SEO Description</Label>
+        <Textarea
+          id={isEdit ? "edit-metaDescription" : "metaDescription"}
+          value={formData.metaDescription}
+          onChange={(e) =>
+            setFormData({ ...formData, metaDescription: e.target.value })
+          }
+          placeholder="Learn about our mission and values"
+          rows={3}
+        />
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {!isEdit && (
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.autoGenerateSeo}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  autoGenerateSeo: e.target.checked,
+                })
+              }
+              className="rounded"
+            />
+            <span className="text-sm">Auto-generate SEO with AI</span>
+            <span className="text-xs text-neutral-500">(uses AI to create optimized meta tags)</span>
+          </label>
+        )}
+
+        <div className="flex gap-4">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.published === 1}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  published: e.target.checked ? 1 : 0,
+                })
+              }
+              className="rounded"
+            />
+            <span className="text-sm">Published</span>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={formData.showInNav === 1}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  showInNav: e.target.checked ? 1 : 0,
+                })
+              }
+              className="rounded"
+            />
+            <span className="text-sm">Show in Navigation</span>
+          </label>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col">
-        <div className="p-6 border-b border-neutral-200 dark:border-neutral-800">
-          <img
-            src="/media/logo-white.png"
-            alt="Just Empower"
-            className="h-10 opacity-90"
-          />
-          <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2 font-light">
-            Admin Portal
-          </p>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-1">
-          {navItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = location === item.path;
-            return (
-              <button
-                key={item.path}
-                onClick={() => setLocation(item.path)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
-                    ? "bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100"
-                    : "text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50"
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span className="font-medium text-sm">{item.label}</span>
-              </button>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-neutral-200 dark:border-neutral-800">
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-                {username}
-              </p>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                Administrator
-              </p>
-            </div>
-          </div>
-          <Button
-            onClick={logout}
-            variant="outline"
-            className="w-full justify-start gap-2"
-            size="sm"
-          >
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </Button>
-        </div>
-      </aside>
+      <AdminSidebar variant="light" />
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
@@ -375,107 +500,34 @@ export default function AdminPages() {
                   <DialogHeader>
                     <DialogTitle>Create New Page</DialogTitle>
                     <DialogDescription>
-                      Add a new page to your website
+                      Add a new page to your website. Set a parent page to create dropdown menus.
                     </DialogDescription>
                   </DialogHeader>
 
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="title">Page Title</Label>
-                      <Input
-                        id="title"
-                        value={formData.title}
-                        onChange={(e) =>
-                          setFormData({ ...formData, title: e.target.value })
-                        }
-                        placeholder="About Us"
-                      />
-                    </div>
+                  <PageFormFields />
 
-                    <div>
-                      <Label htmlFor="slug">URL Slug</Label>
-                      <Input
-                        id="slug"
-                        value={formData.slug}
-                        onChange={(e) =>
-                          setFormData({ ...formData, slug: e.target.value })
-                        }
-                        placeholder="about-us"
-                      />
-                      <p className="text-xs text-neutral-500 mt-1">
-                        URL: /{formData.slug}
-                      </p>
-                    </div>
-
-                    <div>
-                      <Label htmlFor="metaTitle">SEO Title</Label>
-                      <Input
-                        id="metaTitle"
-                        value={formData.metaTitle}
-                        onChange={(e) =>
-                          setFormData({ ...formData, metaTitle: e.target.value })
-                        }
-                        placeholder="About Us - Just Empower"
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="metaDescription">SEO Description</Label>
-                      <Textarea
-                        id="metaDescription"
-                        value={formData.metaDescription}
-                        onChange={(e) =>
-                          setFormData({ ...formData, metaDescription: e.target.value })
-                        }
-                        placeholder="Learn about our mission and values"
-                        rows={3}
-                      />
-                    </div>
-
-                    <div className="flex gap-4">
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={formData.published === 1}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              published: e.target.checked ? 1 : 0,
-                            })
-                          }
-                          className="rounded"
-                        />
-                        <span className="text-sm">Published</span>
-                      </label>
-
-                      <label className="flex items-center gap-2">
-                        <input
-                          type="checkbox"
-                          checked={formData.showInNav === 1}
-                          onChange={(e) =>
-                            setFormData({
-                              ...formData,
-                              showInNav: e.target.checked ? 1 : 0,
-                            })
-                          }
-                          className="rounded"
-                        />
-                        <span className="text-sm">Show in Navigation</span>
-                      </label>
-                    </div>
-
-                    <div className="flex justify-end gap-2 pt-4">
-                      <Button
-                        variant="outline"
-                        onClick={() => setIsCreateDialogOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button onClick={handleCreatePage}>Create Page</Button>
-                    </div>
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button
+                      variant="outline"
+                      onClick={() => setIsCreateDialogOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button onClick={handleCreatePage}>Create Page</Button>
                   </div>
                 </DialogContent>
               </Dialog>
+            </div>
+
+            {/* Info Box */}
+            <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+              <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Navigation Tips</h3>
+              <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                <li>• Pages marked "In Nav" appear in the main site navigation</li>
+                <li>• Set a parent page to create dropdown menus</li>
+                <li>• Drag pages to reorder them in the navigation</li>
+                <li>• Navigation automatically adjusts sizing based on item count</li>
+              </ul>
             </div>
 
             {/* Block Editor or Pages List */}
@@ -501,16 +553,18 @@ export default function AdminPages() {
                 onDragEnd={handleDragEnd}
               >
                 <SortableContext
-                  items={pagesQuery.data?.map((p) => p.id) || []}
+                  items={hierarchicalPages.map((p) => p.page.id)}
                   strategy={verticalListSortingStrategy}
                 >
-                  {pagesQuery.data?.map((page) => (
+                  {hierarchicalPages.map(({ page, isChild, parentTitle }) => (
                     <SortablePage
                       key={page.id}
                       page={page}
                       onEdit={handleEditPage}
                       onEditBlocks={handleEditBlocks}
                       onDelete={handleDeletePage}
+                      isChild={isChild}
+                      parentTitle={parentTitle}
                     />
                   ))}
                 </SortableContext>
@@ -532,88 +586,16 @@ export default function AdminPages() {
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Edit Page</DialogTitle>
-            <DialogDescription>Update page details and SEO settings</DialogDescription>
+            <DialogDescription>Update page details, SEO settings, and parent page</DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="edit-title">Page Title</Label>
-              <Input
-                id="edit-title"
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              />
-            </div>
+          <PageFormFields isEdit />
 
-            <div>
-              <Label htmlFor="edit-slug">URL Slug</Label>
-              <Input
-                id="edit-slug"
-                value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-              />
-              <p className="text-xs text-neutral-500 mt-1">URL: /{formData.slug}</p>
-            </div>
-
-            <div>
-              <Label htmlFor="edit-metaTitle">SEO Title</Label>
-              <Input
-                id="edit-metaTitle"
-                value={formData.metaTitle}
-                onChange={(e) => setFormData({ ...formData, metaTitle: e.target.value })}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="edit-metaDescription">SEO Description</Label>
-              <Textarea
-                id="edit-metaDescription"
-                value={formData.metaDescription}
-                onChange={(e) =>
-                  setFormData({ ...formData, metaDescription: e.target.value })
-                }
-                rows={3}
-              />
-            </div>
-
-            <div className="flex gap-4">
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.published === 1}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      published: e.target.checked ? 1 : 0,
-                    })
-                  }
-                  className="rounded"
-                />
-                <span className="text-sm">Published</span>
-              </label>
-
-              <label className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  checked={formData.showInNav === 1}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      showInNav: e.target.checked ? 1 : 0,
-                    })
-                  }
-                  className="rounded"
-                />
-                <span className="text-sm">Show in Navigation</span>
-              </label>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-4">
-              <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleUpdatePage}>Save Changes</Button>
-            </div>
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdatePage}>Save Changes</Button>
           </div>
         </DialogContent>
       </Dialog>

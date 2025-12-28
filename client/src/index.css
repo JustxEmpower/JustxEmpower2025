@@ -25,6 +25,12 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
 
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -66,6 +72,12 @@
   --card: #FFFFFF;
   --card-foreground: #333333;
   
+  --popover: #FFFFFF;
+  --popover-foreground: #333333;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #FFFFFF;
+  
   --border: #E5E5E5;
   --input: #E5E5E5;
   --ring: #D4AF37;
@@ -91,6 +103,12 @@
   
   --card: #1a1a1a;
   --card-foreground: #FFFFFF;
+  
+  --popover: #1a1a1a;
+  --popover-foreground: #FFFFFF;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #FFFFFF;
   
   --border: #333333;
   --input: #333333;
