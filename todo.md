@@ -994,3 +994,12 @@
 - [x] Ensure map loads with Austin, Texas location
 - [x] Verify map styling matches site design
 
+
+## AWS Deployment Documentation - December 2025
+
+- [ ] Create AWS RDS configuration guide
+- [ ] Create environment variables documentation
+- [ ] Create deployment scripts for EC2/ECS
+- [ ] Create GitHub Actions CI/CD workflow
+- [ ] Document database migration steps
+
