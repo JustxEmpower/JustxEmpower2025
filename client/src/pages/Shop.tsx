@@ -121,7 +121,17 @@ interface ProductCardProps {
 
 function ProductCard({ product }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const images = product.images ? JSON.parse(product.images) : [];
+  
+  // Safely parse images JSON
+  let images: string[] = [];
+  try {
+    if (product.images && typeof product.images === 'string' && product.images.trim()) {
+      images = JSON.parse(product.images);
+    }
+  } catch (e) {
+    console.warn('Failed to parse product images:', product.images);
+    images = [];
+  }
   const mainImage = images[0] || "/placeholder-product.jpg";
   const hoverImage = images[1] || mainImage;
   

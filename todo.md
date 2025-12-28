@@ -1041,3 +1041,40 @@
 - [x] Support dropdown menus via parentId relationships
 - [ ] Deploy fully dynamic navigation to AWS
 - [ ] Test navigation deletion sync between admin and main site
+
+- [x] Change "Events" navigation to "Community Events" 
+- [x] Ensure Community Events page is linked correctly in navigation
+
+
+## Events System Integration (NEW)
+
+- [ ] Connect admin events to Community Events calendar page
+- [ ] Ensure events created in admin appear on Community Events calendar
+- [ ] Connect attendee management to event registrations
+- [ ] Track event ticket sales in revenue analytics alongside shop
+
+
+## Admin Dashboard to Frontend Connection Audit (CRITICAL)
+
+### Events System
+- [x] Verify Admin Events creates events that appear on Community Events calendar
+- [x] Verify event status (published/draft) controls visibility on frontend
+- [x] Verify event registrations flow to Admin Attendees page
+- [x] Verify ticket purchases track in revenue analytics
+
+### Shop System  
+- [x] Verify Admin Products appear on Shop page
+- [x] Verify product status controls visibility
+- [ ] Verify orders flow to Admin Orders page
+- [ ] Verify shop sales track in revenue analytics
+
+### Content System
+- [ ] Verify Admin Pages creates pages accessible via navigation
+- [ ] Verify Admin Navigation controls Header menu items
+- [ ] Verify Admin Content updates reflect on frontend pages
+- [ ] Verify page blocks render correctly on dynamic pages
+
+### Analytics System
+- [ ] Verify revenue analytics combines Shop + Events sales
+- [ ] Verify attendee counts are accurate
+- [ ] Verify page view tracking works

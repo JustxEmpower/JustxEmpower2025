@@ -1,0 +1,35 @@
+{
+  "query": "SELECT * FROM events LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT * FROM events LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "title": "Women's Leadership Retreat 2025",
+      "slug": "women-s-leadership-retreat-2025",
+      "description": "A transformative gathering for women leaders to connect, grow, and empower each other.",
+      "eventType": "workshop",
+      "startDate": "2025-01-15 09:00:00",
+      "endDate": "2025-01-15 17:00:00",
+      "location": "San Francisco, CA",
+      "locationDetails": "123 Main Street, San Francisco, CA 94102",
+      "imageUrl": "NULL",
+      "price": "$150",
+      "capacity": "50",
+      "registrationUrl": "NULL",
+      "feedbackSurveyUrl": "NULL",
+      "materials": "NULL",
+      "tags": "leadership, empowerment",
+      "featured": "0",
+      "published": "1",
+      "googleCalendarEventId": "NULL",
+      "createdAt": "2025-12-24 12:31:39",
+      "updatedAt": "2025-12-24 12:31:39",
+      "status": "draft",
+      "isFeatured": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tslug\tdescription\teventType\tstartDate\tendDate\tlocation\tlocationDetails\timageUrl\tprice\tcapacity\tregistrationUrl\tfeedbackSurveyUrl\tmaterials\ttags\tfeatured\tpublished\tgoogleCalendarEventId\tcreatedAt\tupdatedAt\tstatus\tisFeatured\n1\tWomen's Leadership Retreat 2025\twomen-s-leadership-retreat-2025\tA transformative gathering for women leaders to connect, grow, and empower each other.\tworkshop\t2025-01-15 09:00:00\t2025-01-15 17:00:00\tSan Francisco, CA\t123 Main Street, San Francisco, CA 94102\tNULL\t$150\t50\tNULL\tNULL\tNULL\tleadership, empowerment\t0\t1\tNULL\t2025-12-24 12:31:39\t2025-12-24 12:31:39\tdraft\t0\n",
+  "stderr": "",
+  "execution_time_ms": 57
+}
