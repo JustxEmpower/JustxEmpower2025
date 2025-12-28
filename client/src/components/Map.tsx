@@ -90,7 +90,7 @@ declare global {
 // Check if we're using Manus Forge proxy or direct Google Maps API
 const FORGE_API_KEY = import.meta.env.VITE_FRONTEND_FORGE_API_KEY;
 const FORGE_BASE_URL = import.meta.env.VITE_FRONTEND_FORGE_API_URL || "https://forge.butterfly-effect.dev";
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || "AIzaSyDTJF0gY65vLesOhd8QPBkHuNGNCG4i84k";
 
 // Use Forge proxy if available, otherwise use direct Google Maps API
 const USE_FORGE_PROXY = !!FORGE_API_KEY && !!FORGE_BASE_URL;
