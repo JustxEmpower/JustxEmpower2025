@@ -7,13 +7,12 @@
 
 /// <reference types="@types/google.maps" />
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 declare global {
   interface Window {
     google?: typeof google;
-    initGoogleMaps?: () => void;
   }
 }
 
@@ -21,7 +20,6 @@ declare global {
 const GOOGLE_MAPS_API_KEY = "AIzaSyDTJF0gY65vLesOhd8QPBkHuNGNCG4i84k";
 
 let scriptLoadPromise: Promise<void> | null = null;
-let scriptLoaded = false;
 
 function loadMapScript(): Promise<void> {
   // Return existing promise if script is already loading
@@ -31,7 +29,6 @@ function loadMapScript(): Promise<void> {
 
   // Check if Google Maps is already loaded
   if (window.google?.maps) {
-    scriptLoaded = true;
     return Promise.resolve();
   }
 
@@ -42,11 +39,9 @@ function loadMapScript(): Promise<void> {
       const checkGoogle = setInterval(() => {
         if (window.google?.maps) {
           clearInterval(checkGoogle);
-          scriptLoaded = true;
           resolve();
         }
       }, 100);
-      // Timeout after 10 seconds
       setTimeout(() => {
         clearInterval(checkGoogle);
         resolve();
@@ -62,28 +57,23 @@ function loadMapScript(): Promise<void> {
     script.defer = true;
     
     script.onload = () => {
-      // Wait a bit for Google Maps to fully initialize
       const checkGoogle = setInterval(() => {
         if (window.google?.maps) {
           clearInterval(checkGoogle);
-          scriptLoaded = true;
           resolve();
         }
       }, 50);
-      // Timeout after 5 seconds
       setTimeout(() => {
         clearInterval(checkGoogle);
         if (window.google?.maps) {
-          scriptLoaded = true;
           resolve();
         } else {
-          reject(new Error("Google Maps failed to initialize after script load"));
+          reject(new Error("Google Maps failed to initialize"));
         }
       }, 5000);
     };
     
-    script.onerror = (e) => {
-      console.error("Failed to load Google Maps script:", e);
+    script.onerror = () => {
       scriptLoadPromise = null;
       reject(new Error("Failed to load Google Maps script"));
     };
@@ -108,93 +98,110 @@ export function MapView({
   onMapReady,
 }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<google.maps.Map | null>(null);
+  const mapInstance = useRef<google.maps.Map | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const initAttempted = useRef(false);
+  const [isContainerReady, setIsContainerReady] = useState(false);
+
+  // Mark container as ready after mount
+  useEffect(() => {
+    // Small delay to ensure DOM is fully rendered
+    const timer = setTimeout(() => {
+      setIsContainerReady(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Initialize map only after container is ready
+  const initMap = useCallback(async () => {
+    if (!isContainerReady) return;
+    if (!mapContainer.current) {
+      console.error("Map container ref is null");
+      setError("Map container not found");
+      setIsLoading(false);
+      return;
+    }
+    if (mapInstance.current) {
+      // Map already initialized
+      return;
+    }
+
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      await loadMapScript();
+      
+      // Double-check container after async operation
+      if (!mapContainer.current) {
+        console.error("Map container disappeared after script load");
+        setError("Map container not found");
+        setIsLoading(false);
+        return;
+      }
+      
+      if (!window.google?.maps) {
+        console.error("Google Maps not available");
+        setError("Google Maps failed to load");
+        setIsLoading(false);
+        return;
+      }
+      
+      mapInstance.current = new window.google.maps.Map(mapContainer.current, {
+        zoom: initialZoom,
+        center: initialCenter,
+        mapTypeControl: true,
+        fullscreenControl: true,
+        zoomControl: true,
+        streetViewControl: true,
+        mapId: "DEMO_MAP_ID",
+      });
+      
+      if (onMapReady && mapInstance.current) {
+        onMapReady(mapInstance.current);
+      }
+      
+      setIsLoading(false);
+    } catch (err) {
+      console.error("Map initialization error:", err);
+      setError(err instanceof Error ? err.message : "Failed to load map");
+      setIsLoading(false);
+    }
+  }, [isContainerReady, initialCenter, initialZoom, onMapReady]);
 
   useEffect(() => {
-    // Prevent double initialization
-    if (initAttempted.current) return;
-    initAttempted.current = true;
-
-    const initMap = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
-        
-        console.log("Loading Google Maps script...");
-        await loadMapScript();
-        console.log("Google Maps script loaded successfully");
-        
-        if (!mapContainer.current) {
-          console.error("Map container not found");
-          setError("Map container not found");
-          setIsLoading(false);
-          return;
-        }
-        
-        if (!window.google?.maps) {
-          console.error("Google Maps not available after script load");
-          setError("Google Maps failed to load");
-          setIsLoading(false);
-          return;
-        }
-        
-        console.log("Creating map instance...");
-        map.current = new window.google.maps.Map(mapContainer.current, {
-          zoom: initialZoom,
-          center: initialCenter,
-          mapTypeControl: true,
-          fullscreenControl: true,
-          zoomControl: true,
-          streetViewControl: true,
-          mapId: "DEMO_MAP_ID",
-        });
-        
-        console.log("Map created successfully");
-        
-        if (onMapReady && map.current) {
-          onMapReady(map.current);
-        }
-        
-        setIsLoading(false);
-      } catch (err) {
-        console.error("Map initialization error:", err);
-        setError(err instanceof Error ? err.message : "Failed to load map");
-        setIsLoading(false);
-      }
-    };
-
     initMap();
-  }, [initialCenter.lat, initialCenter.lng, initialZoom]);
+  }, [initMap]);
 
-  // Show error state
-  if (error) {
-    return (
-      <div className={cn("w-full h-[500px] flex items-center justify-center bg-stone-100 rounded-lg", className)}>
-        <div className="text-center text-stone-500">
-          <p className="text-sm">Map unavailable</p>
-          <p className="text-xs mt-1">Austin, Texas</p>
-          <p className="text-xs mt-2 text-red-500">{error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className={cn("w-full h-[500px] flex items-center justify-center bg-stone-100 rounded-lg", className)}>
-        <div className="text-center text-stone-400">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-400 mx-auto mb-2"></div>
-          <p className="text-sm">Loading map...</p>
-        </div>
-      </div>
-    );
-  }
-
+  // Always render the container div first
   return (
-    <div ref={mapContainer} className={cn("w-full h-[500px]", className)} />
+    <div className={cn("w-full h-[500px] relative", className)}>
+      {/* Map container - always rendered */}
+      <div 
+        ref={mapContainer} 
+        className="w-full h-full"
+        style={{ display: error ? 'none' : 'block' }}
+      />
+      
+      {/* Error overlay */}
+      {error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-stone-100 rounded-lg">
+          <div className="text-center text-stone-500">
+            <p className="text-sm">Map unavailable</p>
+            <p className="text-xs mt-1">Austin, Texas</p>
+          </div>
+        </div>
+      )}
+      
+      {/* Loading overlay */}
+      {isLoading && !error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-stone-100 rounded-lg">
+          <div className="text-center text-stone-400">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-stone-400 mx-auto mb-2"></div>
+            <p className="text-sm">Loading map...</p>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
