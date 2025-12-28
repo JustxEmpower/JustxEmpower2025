@@ -918,3 +918,65 @@
 - [x] Inserted community-events page content (7 entries)
 - [x] Verified all pages show content in production Content Editor
 - [x] Total: 136 siteContent entries across 15 pages
+
+
+## New Features (December 2024)
+
+### 1. File Upload & Management for Resources Page
+- [ ] Create resources database table (id, title, description, fileUrl, fileType, fileSize, category, downloadCount, createdAt)
+- [ ] Build backend API for resource upload to S3
+- [ ] Build backend API for resource listing, filtering, and deletion
+- [ ] Create Resources admin page with upload form and file gallery
+- [ ] Create public Resources page with categorized file downloads
+- [ ] Add download tracking and analytics
+- [ ] Test complete resource management workflow
+
+### 2. Calendar View for Community Events Page
+- [ ] Install calendar library (react-big-calendar or similar)
+- [ ] Create calendar component with month/week/day views
+- [ ] Integrate with existing events database
+- [ ] Add event detail modal on calendar click
+- [ ] Style calendar to match site design
+- [ ] Test calendar view with existing events
+
+### 3. Drag-and-Drop Navigation Reordering in Admin
+- [ ] Update navigation database schema to include order field
+- [ ] Install dnd-kit for drag-and-drop functionality
+- [ ] Create sortable navigation list component
+- [ ] Implement reorder API endpoint
+- [ ] Add visual feedback during drag operations
+- [ ] Test navigation reordering and verify public site reflects changes
+
+
+## New Features - December 2025
+
+### Resources Page with File Upload & Management
+- [x] Create resourceCategories database table
+- [x] Create resources database table with file metadata
+- [x] Create resourceDownloads table for tracking downloads
+- [x] Build resources API endpoints (list, categories, featured, download)
+- [x] Create AdminResources component for managing resources
+- [x] Add Resources to admin sidebar navigation
+- [x] Create AdminResourcesPage wrapper with auth
+- [x] Add admin resources route to App.tsx
+- [x] Create public Resources page with category filtering
+- [x] Add search functionality to Resources page
+- [x] Add featured resources section
+- [x] Implement email capture for downloads (optional per resource)
+- [x] Update App.tsx to use Resources page instead of DynamicPage
+
+### Calendar View for Community Events
+- [x] Add calendar endpoint to eventsRouter for date range queries
+- [x] Add eventTypes endpoint for filter options
+- [x] Create EventCalendar component with month view
+- [x] Add event type filtering with color coding
+- [x] Create event detail dialog in calendar
+- [x] Create CommunityEvents page with calendar/list toggle
+- [x] Add list view with status filters (upcoming/past/all)
+- [x] Update App.tsx to use CommunityEvents page
+
+### Navigation Reordering (Already Implemented)
+- [x] Navigation reorder API endpoint exists in adminRouters
+- [x] AdminNavigation page has drag-and-drop with @dnd-kit
+- [x] Add parentId support to navigation create/update endpoints
+

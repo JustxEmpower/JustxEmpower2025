@@ -30,6 +30,7 @@ import {
   DollarSign,
   CreditCard,
   TrendingUp,
+  FileDown,
 } from 'lucide-react';
 
 // Complete list of all admin navigation items matching the original design
@@ -47,6 +48,8 @@ const navItems = [
   // Events section
   { icon: Calendar, label: 'Events', path: '/admin/events' },
   { icon: UserCheck, label: 'Attendees', path: '/admin/attendees' },
+  // Resources / Document Library
+  { icon: FileDown, label: 'Resources', path: '/admin/resources' },
   // Financial section
   { icon: DollarSign, label: 'Revenue', path: '/admin/revenue' },
   { icon: CreditCard, label: 'Payments', path: '/admin/payments' },

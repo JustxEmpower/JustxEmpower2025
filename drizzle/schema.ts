@@ -873,3 +873,82 @@ export const sectionBackgrounds = mysqlTable("sectionBackgrounds", {
 
 export type SectionBackground = typeof sectionBackgrounds.$inferSelect;
 export type InsertSectionBackground = typeof sectionBackgrounds.$inferInsert;
+
+
+/**
+ * ==========================================
+ * RESOURCES / DOCUMENT LIBRARY
+ * ==========================================
+ */
+
+/**
+ * Resource categories for organizing downloadable content
+ */
+export const resourceCategories = mysqlTable("resourceCategories", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  icon: varchar("icon", { length: 100 }), // Icon name or URL
+  order: int("order").default(0).notNull(),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type ResourceCategory = typeof resourceCategories.$inferSelect;
+export type InsertResourceCategory = typeof resourceCategories.$inferInsert;
+
+/**
+ * Resources table for downloadable files and documents
+ */
+export const resources = mysqlTable("resources", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  description: text("description"),
+  categoryId: int("categoryId"),
+  // File info
+  fileUrl: varchar("fileUrl", { length: 1000 }).notNull(),
+  s3Key: varchar("s3Key", { length: 500 }).notNull(),
+  fileName: varchar("fileName", { length: 255 }).notNull(),
+  fileType: varchar("fileType", { length: 100 }).notNull(), // pdf, docx, xlsx, etc.
+  mimeType: varchar("mimeType", { length: 100 }).notNull(),
+  fileSize: int("fileSize").notNull(), // in bytes
+  // Thumbnail/preview
+  thumbnailUrl: varchar("thumbnailUrl", { length: 1000 }),
+  // Access control
+  isPublic: int("isPublic").default(1).notNull(), // 1 = public, 0 = requires login
+  requiresEmail: int("requiresEmail").default(0).notNull(), // Capture email before download
+  // Analytics
+  downloadCount: int("downloadCount").default(0).notNull(),
+  viewCount: int("viewCount").default(0).notNull(),
+  // SEO
+  metaTitle: varchar("metaTitle", { length: 255 }),
+  metaDescription: text("metaDescription"),
+  // Status
+  status: mysqlEnum("status", ["draft", "published", "archived"]).default("published").notNull(),
+  isFeatured: int("isFeatured").default(0).notNull(),
+  // Timestamps
+  publishedAt: timestamp("publishedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Resource = typeof resources.$inferSelect;
+export type InsertResource = typeof resources.$inferInsert;
+
+/**
+ * Resource downloads tracking for analytics
+ */
+export const resourceDownloads = mysqlTable("resourceDownloads", {
+  id: int("id").autoincrement().primaryKey(),
+  resourceId: int("resourceId").notNull(),
+  visitorId: varchar("visitorId", { length: 255 }),
+  email: varchar("email", { length: 320 }), // If captured
+  ipAddress: varchar("ipAddress", { length: 45 }),
+  userAgent: text("userAgent"),
+  downloadedAt: timestamp("downloadedAt").defaultNow().notNull(),
+});
+
+export type ResourceDownload = typeof resourceDownloads.$inferSelect;
+export type InsertResourceDownload = typeof resourceDownloads.$inferInsert;

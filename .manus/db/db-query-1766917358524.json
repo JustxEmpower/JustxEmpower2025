@@ -1,0 +1,9 @@
+{
+  "query": "CREATE TABLE IF NOT EXISTS resourceDownloads (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  resourceId INT NOT NULL,\n  visitorId VARCHAR(255),\n  email VARCHAR(320),\n  ipAddress VARCHAR(45),\n  userAgent TEXT,\n  downloadedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute CREATE TABLE IF NOT EXISTS resourceDownloads (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  resourceId INT NOT NULL,\n  visitorId VARCHAR(255),\n  email VARCHAR(320),\n  ipAddress VARCHAR(45),\n  userAgent TEXT,\n  downloadedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 250
+}

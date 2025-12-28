@@ -396,6 +396,77 @@ export const eventsRouter = router({
       return { registrations: registrationsWithEvents };
     }),
   
+  // Get events for calendar view (by date range)
+  calendar: publicProcedure
+    .input(z.object({
+      startDate: z.string(), // ISO date string
+      endDate: z.string(), // ISO date string
+      eventTypes: z.array(z.string()).optional(),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const start = new Date(input.startDate);
+      const end = new Date(input.endDate);
+      
+      const conditions = [
+        eq(events.status, "published"),
+        gte(events.startDate, start),
+        lte(events.startDate, end),
+      ];
+      
+      if (input.eventTypes && input.eventTypes.length > 0) {
+        conditions.push(
+          or(
+            ...input.eventTypes.map(type => 
+              eq(events.eventType, type as "workshop" | "retreat" | "webinar" | "meetup" | "conference" | "other")
+            )
+          )!
+        );
+      }
+      
+      const result = await db
+        .select()
+        .from(events)
+        .where(and(...conditions))
+        .orderBy(asc(events.startDate));
+      
+      return result.map((e: Event) => ({
+        id: e.id,
+        title: e.title,
+        slug: e.slug,
+        description: e.shortDescription || e.description,
+        eventType: e.eventType,
+        startDate: e.startDate,
+        endDate: e.endDate,
+        isAllDay: e.isAllDay === 1,
+        locationType: e.locationType,
+        venue: e.venue,
+        city: e.city,
+        isFree: e.isFree === 1,
+        price: e.price,
+        formattedPrice: formatPrice(e.price || 0),
+        capacity: e.capacity,
+        registrationCount: e.registrationCount,
+        spotsRemaining: e.capacity ? e.capacity - (e.registrationCount || 0) : null,
+        featuredImage: e.featuredImage,
+        registrationOpen: e.registrationOpen === 1,
+      }));
+    }),
+  
+  // Get event types for filter
+  eventTypes: publicProcedure.query(async () => {
+    return [
+      { value: "workshop", label: "Workshop", color: "#F59E0B" },
+      { value: "retreat", label: "Retreat", color: "#10B981" },
+      { value: "webinar", label: "Webinar", color: "#3B82F6" },
+      { value: "meetup", label: "Meetup", color: "#8B5CF6" },
+      { value: "conference", label: "Conference", color: "#EC4899" },
+      { value: "other", label: "Other", color: "#6B7280" },
+    ];
+  }),
+
   // Cancel registration
   cancelRegistration: publicProcedure
     .input(z.object({

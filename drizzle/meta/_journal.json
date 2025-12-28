@@ -183,6 +183,13 @@
       "when": 1766895715360,
       "tag": "0025_handy_quentin_quire",
       "breakpoints": true
+    },
+    {
+      "idx": 26,
+      "version": "5",
+      "when": 1766917294689,
+      "tag": "0026_worthless_terrax",
+      "breakpoints": true
     }
   ]
 }

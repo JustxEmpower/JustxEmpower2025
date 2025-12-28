@@ -30,6 +30,7 @@ import AdminAttendees from "@/pages/AdminAttendees";
 import AdminRevenue from "@/pages/AdminRevenue";
 import AdminPayments from "@/pages/AdminPayments";
 import AdminFinancialAnalytics from "@/pages/AdminFinancialAnalytics";
+import AdminResourcesPage from "@/pages/AdminResourcesPage";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -53,6 +54,8 @@ import ProductDetail from "@/pages/ProductDetail";
 import Checkout from "@/pages/Checkout";
 import Events from "@/pages/Events";
 import EventDetail from "@/pages/EventDetail";
+import Resources from "@/pages/Resources";
+import CommunityEvents from "@/pages/CommunityEvents";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -88,6 +91,7 @@ function Router() {
       <Route path="/admin/revenue" component={AdminRevenue} />
       <Route path="/admin/payments" component={AdminPayments} />
       <Route path="/admin/financial-analytics" component={AdminFinancialAnalytics} />
+      <Route path="/admin/resources" component={AdminResourcesPage} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/about" component={About} />
       <Route path="/about-just-empower" component={AboutJustEmpower} />
@@ -101,8 +105,8 @@ function Router() {
       <Route path="/vix-journal-trilogy" component={Journal} />
       <Route path="/blog-she-writes" component={Journal} />
       <Route path="/blog" component={Journal} />
-      <Route path="/resources" component={DynamicPage} />
-      <Route path="/community-events" component={DynamicPage} />
+      <Route path="/resources" component={Resources} />
+      <Route path="/community-events" component={CommunityEvents} />
       <Route path="/shop" component={Shop} />
       <Route path="/shop/:slug" component={ProductDetail} />
       <Route path="/checkout" component={Checkout} />

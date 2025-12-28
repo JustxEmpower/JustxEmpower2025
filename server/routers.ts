@@ -5,6 +5,7 @@ import { publicProcedure, router } from "./_core/trpc";
 import { adminRouter, publicArticlesRouter, publicContentRouter, publicPagesRouter, aiChatAnalyticsRouter, publicThemeRouter } from "./adminRouters";
 import { shopRouter } from "./shopRouter";
 import { eventsRouter } from "./eventsRouter";
+import { adminResourcesRouter, publicResourcesRouter } from "./resourcesRouter";
 import { newsletterRouter } from "./newsletterRouter";
 import { aiRouter } from "./aiRouters";
 import { analyticsRouter } from "./analyticsRouters";
@@ -53,6 +54,10 @@ export const appRouter = router({
   
   // Events with registration and payment
   events: eventsRouter,
+  
+  // Resources / Document Library
+  resources: publicResourcesRouter,
+  adminResources: adminResourcesRouter,
 });
 
 export type AppRouter = typeof appRouter;

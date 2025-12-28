@@ -971,13 +971,14 @@ export const adminRouter = router({
         isExternal: z.number(),
         openInNewTab: z.number(),
         order: z.number(),
+        parentId: z.number().nullable().optional(),
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
         
-        await db.insert(schema.navigation).values(input);
-        return { success: true };
+        const result = await db.insert(schema.navigation).values(input);
+        return { success: true, id: result[0].insertId };
       }),
 
     update: adminProcedure
@@ -987,6 +988,8 @@ export const adminRouter = router({
         url: z.string().optional(),
         isExternal: z.number().optional(),
         openInNewTab: z.number().optional(),
+        parentId: z.number().nullable().optional(),
+        order: z.number().optional(),
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
