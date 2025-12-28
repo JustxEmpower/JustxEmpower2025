@@ -8,20 +8,47 @@ import {
   aiChatConversations,
   aiFeedback,
   visitorProfiles,
+  adminSessions,
 } from "../drizzle/schema";
-import { desc, eq, gte, sql, and } from "drizzle-orm";
+import { desc, eq, gte, sql, and, lt } from "drizzle-orm";
+import { TRPCError } from "@trpc/server";
 
-// Admin procedure (requires authentication)
-const adminProcedure = publicProcedure.use(async (opts) => {
-  const token = opts.ctx.req.headers.authorization?.replace("Bearer ", "");
-  // Simple token validation (you should use your existing admin auth)
+// Validate admin session token
+async function validateAdminSession(token: string): Promise<string | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  // Clean up expired sessions
+  await db.delete(adminSessions).where(lt(adminSessions.expiresAt, new Date()));
+  
+  const session = await db
+    .select()
+    .from(adminSessions)
+    .where(eq(adminSessions.token, token))
+    .limit(1);
+  
+  if (session.length === 0) return null;
+  if (new Date(session[0].expiresAt) < new Date()) return null;
+  
+  return session[0].username;
+}
+
+// Admin procedure (requires authentication) - matches adminRouters.ts
+const adminProcedure = publicProcedure.use(async ({ ctx, next }) => {
+  const token = ctx.req.headers["x-admin-token"] as string;
   if (!token) {
-    throw new Error("Unauthorized");
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Admin token required" });
   }
-  return opts.next({
+  
+  const username = await validateAdminSession(token);
+  if (!username) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid or expired admin session" });
+  }
+  
+  return next({
     ctx: {
-      ...opts.ctx,
-      adminToken: token,
+      ...ctx,
+      adminUsername: username,
     },
   });
 });

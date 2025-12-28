@@ -1016,3 +1016,9 @@
 - [x] Fix /journal-trilogy page 404 error
 - [x] Fix Google Maps not showing on Contact page in production (requires VITE_GOOGLE_MAPS_API_KEY env var)
 
+
+### Analytics Tracking Bug - December 28, 2025
+- [x] Fix page view tracking showing 0 (fixed adminProcedure auth)
+- [x] Fix unique visitors tracking showing 0 (fixed adminProcedure auth)
+- [x] Verify analytics data is being collected
+
