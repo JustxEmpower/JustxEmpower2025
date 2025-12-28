@@ -1003,3 +1003,16 @@
 - [ ] Create GitHub Actions CI/CD workflow
 - [ ] Document database migration steps
 
+
+## Bug Fixes - December 2025
+
+### Video Playback Issues
+- [ ] Investigate videos not playing on pages
+- [ ] Fix video source paths
+- [ ] Test video playback across all pages
+
+
+### Production Bugs - December 28, 2025
+- [x] Fix /journal-trilogy page 404 error
+- [x] Fix Google Maps not showing on Contact page in production (requires VITE_GOOGLE_MAPS_API_KEY env var)
+

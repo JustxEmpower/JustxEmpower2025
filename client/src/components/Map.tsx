@@ -69,44 +69,78 @@
  *
  * -------------------------------
  * ✅ SUMMARY
- * - “map-attached” → AdvancedMarkerElement, DirectionsRenderer, Layers.
- * - “standalone” → Geocoder, DirectionsService, DistanceMatrixService, ElevationService.
- * - “data-only” → Place, Geometry utilities.
+ * - "map-attached" → AdvancedMarkerElement, DirectionsRenderer, Layers.
+ * - "standalone" → Geocoder, DirectionsService, DistanceMatrixService, ElevationService.
+ * - "data-only" → Place, Geometry utilities.
  */
 
 /// <reference types="@types/google.maps" />
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePersistFn } from "@/hooks/usePersistFn";
 import { cn } from "@/lib/utils";
 
 declare global {
   interface Window {
     google?: typeof google;
+    initGoogleMaps?: () => void;
   }
 }
 
-const API_KEY = import.meta.env.VITE_FRONTEND_FORGE_API_KEY;
-const FORGE_BASE_URL =
-  import.meta.env.VITE_FRONTEND_FORGE_API_URL ||
-  "https://forge.butterfly-effect.dev";
-const MAPS_PROXY_URL = `${FORGE_BASE_URL}/v1/maps/proxy`;
+// Check if we're using Manus Forge proxy or direct Google Maps API
+const FORGE_API_KEY = import.meta.env.VITE_FRONTEND_FORGE_API_KEY;
+const FORGE_BASE_URL = import.meta.env.VITE_FRONTEND_FORGE_API_URL || "https://forge.butterfly-effect.dev";
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
-function loadMapScript() {
-  return new Promise(resolve => {
+// Use Forge proxy if available, otherwise use direct Google Maps API
+const USE_FORGE_PROXY = !!FORGE_API_KEY && !!FORGE_BASE_URL;
+
+function getMapScriptUrl(): string {
+  if (USE_FORGE_PROXY) {
+    const MAPS_PROXY_URL = `${FORGE_BASE_URL}/v1/maps/proxy`;
+    return `${MAPS_PROXY_URL}/maps/api/js?key=${FORGE_API_KEY}&v=weekly&libraries=marker,places,geocoding,geometry`;
+  } else if (GOOGLE_MAPS_API_KEY) {
+    return `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_MAPS_API_KEY}&v=weekly&libraries=marker,places,geocoding,geometry`;
+  } else {
+    console.warn("No Google Maps API key configured. Map will not load.");
+    return "";
+  }
+}
+
+let scriptLoadPromise: Promise<void> | null = null;
+
+function loadMapScript(): Promise<void> {
+  // Return existing promise if script is already loading/loaded
+  if (scriptLoadPromise) {
+    return scriptLoadPromise;
+  }
+
+  // Check if Google Maps is already loaded
+  if (window.google?.maps) {
+    return Promise.resolve();
+  }
+
+  const scriptUrl = getMapScriptUrl();
+  if (!scriptUrl) {
+    return Promise.reject(new Error("No Google Maps API key configured"));
+  }
+
+  scriptLoadPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
-    script.src = `${MAPS_PROXY_URL}/maps/api/js?key=${API_KEY}&v=weekly&libraries=marker,places,geocoding,geometry`;
+    script.src = scriptUrl;
     script.async = true;
-    script.crossOrigin = "anonymous";
+    script.defer = true;
     script.onload = () => {
-      resolve(null);
-      script.remove(); // Clean up immediately
+      resolve();
     };
     script.onerror = () => {
-      console.error("Failed to load Google Maps script");
+      scriptLoadPromise = null;
+      reject(new Error("Failed to load Google Maps script"));
     };
     document.head.appendChild(script);
   });
+
+  return scriptLoadPromise;
 }
 
 interface MapViewProps {
@@ -124,30 +158,73 @@ export function MapView({
 }: MapViewProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<google.maps.Map | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   const init = usePersistFn(async () => {
-    await loadMapScript();
-    if (!mapContainer.current) {
-      console.error("Map container not found");
-      return;
-    }
-    map.current = new window.google.maps.Map(mapContainer.current, {
-      zoom: initialZoom,
-      center: initialCenter,
-      mapTypeControl: true,
-      fullscreenControl: true,
-      zoomControl: true,
-      streetViewControl: true,
-      mapId: "DEMO_MAP_ID",
-    });
-    if (onMapReady) {
-      onMapReady(map.current);
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      await loadMapScript();
+      
+      if (!mapContainer.current) {
+        console.error("Map container not found");
+        return;
+      }
+      
+      if (!window.google?.maps) {
+        throw new Error("Google Maps failed to initialize");
+      }
+      
+      map.current = new window.google.maps.Map(mapContainer.current, {
+        zoom: initialZoom,
+        center: initialCenter,
+        mapTypeControl: true,
+        fullscreenControl: true,
+        zoomControl: true,
+        streetViewControl: true,
+        mapId: "DEMO_MAP_ID",
+      });
+      
+      if (onMapReady) {
+        onMapReady(map.current);
+      }
+      
+      setIsLoading(false);
+    } catch (err) {
+      console.error("Map initialization error:", err);
+      setError(err instanceof Error ? err.message : "Failed to load map");
+      setIsLoading(false);
     }
   });
 
   useEffect(() => {
     init();
   }, [init]);
+
+  // Show error state
+  if (error) {
+    return (
+      <div className={cn("w-full h-[500px] flex items-center justify-center bg-stone-100 rounded-lg", className)}>
+        <div className="text-center text-stone-500">
+          <p className="text-sm">Map unavailable</p>
+          <p className="text-xs mt-1">Austin, Texas</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className={cn("w-full h-[500px] flex items-center justify-center bg-stone-100 rounded-lg animate-pulse", className)}>
+        <div className="text-center text-stone-400">
+          <p className="text-sm">Loading map...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={mapContainer} className={cn("w-full h-[500px]", className)} />

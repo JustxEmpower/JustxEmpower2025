@@ -1,0 +1,166 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "activityLog"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "adminSessions"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "adminUsers"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "aiChatConversations"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "aiFeedback"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "aiSettings"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "ambassadorCommissions"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "ambassadors"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "analyticsEvents"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "analyticsPageViews"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "analyticsSessions"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "articles"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "backupCategories"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "backupRestoreHistory"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "backupTagRelations"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "backupTags"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "backups"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "blockTemplates"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "blockVersions"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "brandAssets"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "discountCodes"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "emailSettings"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "eventRegistrations"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "events"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "formFields"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "formSubmissions"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "inventoryAdjustments"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "media"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "navigation"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "orderItems"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "orders"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "pageBackgrounds"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "pageBlocks"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "pages"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "productCategories"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "productReviews"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "productVariants"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "products"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "quickActionsPreferences"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "redirects"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "resourceCategories"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "resourceDownloads"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "resources"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "scheduledBackups"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "seoSettings"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "setupCompletion"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "shoppingCarts"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "siteContent"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "siteSettings"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "themeSettings"
+    },
+    {
+      "Tables_in_nfjRiEndnKWe5mynUDANL9": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_nfjRiEndnKWe5mynUDANL9\n__drizzle_migrations\nactivityLog\nadminSessions\nadminUsers\naiChatConversations\naiFeedback\naiSettings\nambassadorCommissions\nambassadors\nanalyticsEvents\nanalyticsPageViews\nanalyticsSessions\narticles\nbackupCategories\nbackupRestoreHistory\nbackupTagRelations\nbackupTags\nbackups\nblockTemplates\nblockVersions\nbrandAssets\ndiscountCodes\nemailSettings\neventRegistrations\nevents\nformFields\nformSubmissions\ninventoryAdjustments\nmedia\nnavigation\norderItems\norders\npageBackgrounds\npageBlocks\npages\nproductCategories\nproductReviews\nproductVariants\nproducts\nquickActionsPreferences\nredirects\nresourceCategories\nresourceDownloads\nresources\nscheduledBackups\nseoSettings\nsetupCompletion\nshoppingCarts\nsiteContent\nsiteSettings\nthemeSettings\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 1289
+}

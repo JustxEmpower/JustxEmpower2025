@@ -103,6 +103,7 @@ function Router() {
       <Route path="/vision-ethos" component={Philosophy} />
       <Route path="/workshops-programs" component={Offerings} />
       <Route path="/vix-journal-trilogy" component={Journal} />
+      <Route path="/journal-trilogy" component={Journal} />
       <Route path="/blog-she-writes" component={Journal} />
       <Route path="/blog" component={Journal} />
       <Route path="/resources" component={Resources} />
