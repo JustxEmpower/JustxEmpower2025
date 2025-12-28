@@ -1,0 +1,569 @@
+[
+  {
+    "id": 1,
+    "page": "home",
+    "section": "hero",
+    "contentKey": "subtitle",
+    "contentValue": "Test Updated Value - 1766583323874",
+    "altText": null,
+    "updatedAt": "2025-12-24T18:35:24.000Z"
+  },
+  {
+    "id": 2,
+    "page": "home",
+    "section": "hero",
+    "contentKey": "title",
+    "contentValue": "Catalyzing the Rise of Her.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:37.000Z"
+  },
+  {
+    "id": 3,
+    "page": "home",
+    "section": "hero",
+    "contentKey": "description",
+    "contentValue": "Empowering Women Through Conscious Leadership",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:37.000Z"
+  },
+  {
+    "id": 4,
+    "page": "home",
+    "section": "hero",
+    "contentKey": "subDescription",
+    "contentValue": "Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:37.000Z"
+  },
+  {
+    "id": 5,
+    "page": "home",
+    "section": "hero",
+    "contentKey": "videoUrl",
+    "contentValue": "/home-slide-1.mp4",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:37.000Z"
+  },
+  {
+    "id": 6,
+    "page": "home",
+    "section": "hero",
+    "contentKey": "ctaText",
+    "contentValue": "DISCOVER MORE",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:37.000Z"
+  },
+  {
+    "id": 7,
+    "page": "home",
+    "section": "hero",
+    "contentKey": "ctaLink",
+    "contentValue": "/about",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:37.000Z"
+  },
+  {
+    "id": 8,
+    "page": "home",
+    "section": "philosophy",
+    "contentKey": "label",
+    "contentValue": "OUR APPROACH",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:50.000Z"
+  },
+  {
+    "id": 9,
+    "page": "home",
+    "section": "philosophy",
+    "contentKey": "title",
+    "contentValue": "The Philosophy",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:50.000Z"
+  },
+  {
+    "id": 10,
+    "page": "home",
+    "section": "philosophy",
+    "contentKey": "description",
+    "contentValue": "Just Empower operates at the intersection of personal healing and systemic change. We believe that true transformation begins within and ripples outward, creating waves of positive impact in our communities and beyond.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:50.000Z"
+  },
+  {
+    "id": 11,
+    "page": "home",
+    "section": "philosophy",
+    "contentKey": "imageUrl",
+    "contentValue": "/media/11/Fam.jpg",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:50.000Z"
+  },
+  {
+    "id": 12,
+    "page": "home",
+    "section": "philosophy",
+    "contentKey": "ctaText",
+    "contentValue": "DISCOVER MORE",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:50.000Z"
+  },
+  {
+    "id": 13,
+    "page": "home",
+    "section": "philosophy",
+    "contentKey": "ctaLink",
+    "contentValue": "/philosophy",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:50.000Z"
+  },
+  {
+    "id": 14,
+    "page": "home",
+    "section": "community",
+    "contentKey": "label",
+    "contentValue": "Community",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 15,
+    "page": "home",
+    "section": "community",
+    "contentKey": "title",
+    "contentValue": "Emerge With Us",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 16,
+    "page": "home",
+    "section": "community",
+    "contentKey": "description",
+    "contentValue": "We are planting seeds for a new paradigm rooted in consciousness, compassion, and sacred reciprocity.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 17,
+    "page": "home",
+    "section": "community",
+    "contentKey": "imageUrl",
+    "contentValue": "/media/11/Fam.jpg",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 18,
+    "page": "home",
+    "section": "community",
+    "contentKey": "ctaText",
+    "contentValue": "EXPLORE",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 19,
+    "page": "home",
+    "section": "community",
+    "contentKey": "ctaLink",
+    "contentValue": "/offerings",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 20,
+    "page": "home",
+    "section": "rootedUnity",
+    "contentKey": "label",
+    "contentValue": "Coming 2026",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 21,
+    "page": "home",
+    "section": "rootedUnity",
+    "contentKey": "title",
+    "contentValue": "Rooted Unity",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 22,
+    "page": "home",
+    "section": "rootedUnity",
+    "contentKey": "description",
+    "contentValue": "Ecological stewardship meets personal healing. Recognizing that our internal landscape mirrors the external world, we embark on a journey of regenerative living and planetary care.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 23,
+    "page": "home",
+    "section": "rootedUnity",
+    "contentKey": "imageUrl",
+    "contentValue": "/media/11/Lavender1.jpg",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 24,
+    "page": "home",
+    "section": "rootedUnity",
+    "contentKey": "ctaText",
+    "contentValue": "EXPLORE",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 25,
+    "page": "home",
+    "section": "rootedUnity",
+    "contentKey": "ctaLink",
+    "contentValue": "/offerings",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:45:59.000Z"
+  },
+  {
+    "id": 26,
+    "page": "home",
+    "section": "offerings",
+    "contentKey": "title",
+    "contentValue": "Our Offerings",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 27,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item1_title",
+    "contentValue": "Seeds of a New Paradigm",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 28,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item1_description",
+    "contentValue": "Cultivating consciousness for future generations.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 29,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item1_imageUrl",
+    "contentValue": "/media/09/seeds-of-video.mp4_snapshot_00.00.000.jpg",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 30,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item1_link",
+    "contentValue": "/offerings/seeds",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 31,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item2_title",
+    "contentValue": "Emerge With Us",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 32,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item2_description",
+    "contentValue": "A journey of collective transformation.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 33,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item2_imageUrl",
+    "contentValue": "/media/11/Fam.jpg",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 34,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item2_link",
+    "contentValue": "/offerings/emerge",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 35,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item3_title",
+    "contentValue": "Rooted Unity",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 36,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item3_description",
+    "contentValue": "Connecting deeply with nature and self.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 37,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item3_imageUrl",
+    "contentValue": "/media/11/Lavender1.jpg",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 38,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item3_link",
+    "contentValue": "/offerings/rooted-unity",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 39,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item4_title",
+    "contentValue": "MOM VI-X",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 40,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item4_description",
+    "contentValue": "Empowering mothers as leaders of change.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 41,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item4_imageUrl",
+    "contentValue": "/media/11/IMG_3018.jpg",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 42,
+    "page": "home",
+    "section": "carousel",
+    "contentKey": "item4_link",
+    "contentValue": "/offerings/mom",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:15.000Z"
+  },
+  {
+    "id": 43,
+    "page": "about",
+    "section": "hero",
+    "contentKey": "subtitle",
+    "contentValue": "OUR STORY",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 44,
+    "page": "about",
+    "section": "hero",
+    "contentKey": "title",
+    "contentValue": "About Just Empower",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 45,
+    "page": "about",
+    "section": "hero",
+    "contentKey": "description",
+    "contentValue": "Founded with a vision to catalyze the rise of feminine leadership, Just Empower creates transformative spaces for women to discover their authentic power.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 46,
+    "page": "about",
+    "section": "hero",
+    "contentKey": "imageUrl",
+    "contentValue": "/media/11/Fam.jpg",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 47,
+    "page": "philosophy",
+    "section": "hero",
+    "contentKey": "subtitle",
+    "contentValue": "OUR APPROACH",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 48,
+    "page": "philosophy",
+    "section": "hero",
+    "contentKey": "title",
+    "contentValue": "The Philosophy",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 49,
+    "page": "philosophy",
+    "section": "hero",
+    "contentKey": "description",
+    "contentValue": "Just Empower operates at the intersection of personal healing and systemic change, recognizing that true transformation begins within and ripples outward.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 50,
+    "page": "philosophy",
+    "section": "hero",
+    "contentKey": "imageUrl",
+    "contentValue": "/media/11/Fam.jpg",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 51,
+    "page": "offerings",
+    "section": "hero",
+    "contentKey": "subtitle",
+    "contentValue": "WHAT WE OFFER",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 52,
+    "page": "offerings",
+    "section": "hero",
+    "contentKey": "title",
+    "contentValue": "Our Offerings",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 53,
+    "page": "offerings",
+    "section": "hero",
+    "contentKey": "description",
+    "contentValue": "Transformative programs and experiences designed to support your journey of embodied empowerment.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 54,
+    "page": "offerings",
+    "section": "hero",
+    "contentKey": "imageUrl",
+    "contentValue": "/media/11/Lavender1.jpg",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 55,
+    "page": "contact",
+    "section": "hero",
+    "contentKey": "subtitle",
+    "contentValue": "GET IN TOUCH",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 56,
+    "page": "contact",
+    "section": "hero",
+    "contentKey": "title",
+    "contentValue": "Contact Us",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 57,
+    "page": "contact",
+    "section": "hero",
+    "contentKey": "description",
+    "contentValue": "We would love to hear from you. Reach out to learn more about our programs and community.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 58,
+    "page": "events",
+    "section": "hero",
+    "contentKey": "subtitle",
+    "contentValue": "JOIN US",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 59,
+    "page": "events",
+    "section": "hero",
+    "contentKey": "title",
+    "contentValue": "Upcoming Events",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 60,
+    "page": "events",
+    "section": "hero",
+    "contentKey": "description",
+    "contentValue": "Transformative gatherings and experiences for conscious leaders.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 61,
+    "page": "journal",
+    "section": "hero",
+    "contentKey": "subtitle",
+    "contentValue": "INSIGHTS",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 62,
+    "page": "journal",
+    "section": "hero",
+    "contentKey": "title",
+    "contentValue": "Journal",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  },
+  {
+    "id": 63,
+    "page": "journal",
+    "section": "hero",
+    "contentKey": "description",
+    "contentValue": "Reflections, wisdom, and stories from our community of conscious leaders.",
+    "altText": null,
+    "updatedAt": "2025-12-24T16:46:25.000Z"
+  }
+]

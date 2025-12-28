@@ -1,0 +1,3929 @@
+[
+  {
+    "TABLE_NAME": "__drizzle_migrations",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "__drizzle_migrations",
+    "COLUMN_NAME": "hash",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "__drizzle_migrations",
+    "COLUMN_NAME": "created_at",
+    "DATA_TYPE": "bigint",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "activityLog",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "activityLog",
+    "COLUMN_NAME": "adminUsername",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "activityLog",
+    "COLUMN_NAME": "activityType",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "activityLog",
+    "COLUMN_NAME": "action",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "activityLog",
+    "COLUMN_NAME": "entityId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "activityLog",
+    "COLUMN_NAME": "entityTitle",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "activityLog",
+    "COLUMN_NAME": "metadata",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "activityLog",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminSessions",
+    "COLUMN_NAME": "token",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "adminSessions",
+    "COLUMN_NAME": "username",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminSessions",
+    "COLUMN_NAME": "expiresAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminSessions",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminUsers",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "adminUsers",
+    "COLUMN_NAME": "username",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "adminUsers",
+    "COLUMN_NAME": "passwordHash",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminUsers",
+    "COLUMN_NAME": "email",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminUsers",
+    "COLUMN_NAME": "role",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminUsers",
+    "COLUMN_NAME": "permissions",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminUsers",
+    "COLUMN_NAME": "mailchimpApiKey",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminUsers",
+    "COLUMN_NAME": "mailchimpAudienceId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminUsers",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminUsers",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "adminUsers",
+    "COLUMN_NAME": "lastLoginAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiChatConversations",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "aiChatConversations",
+    "COLUMN_NAME": "sessionId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiChatConversations",
+    "COLUMN_NAME": "visitorId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiChatConversations",
+    "COLUMN_NAME": "message",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiChatConversations",
+    "COLUMN_NAME": "role",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiChatConversations",
+    "COLUMN_NAME": "context",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiChatConversations",
+    "COLUMN_NAME": "sentiment",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiChatConversations",
+    "COLUMN_NAME": "topic",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiChatConversations",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiFeedback",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "aiFeedback",
+    "COLUMN_NAME": "conversationId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiFeedback",
+    "COLUMN_NAME": "visitorId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiFeedback",
+    "COLUMN_NAME": "rating",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiFeedback",
+    "COLUMN_NAME": "feedbackText",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiFeedback",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiSettings",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "aiSettings",
+    "COLUMN_NAME": "geminiApiKey",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiSettings",
+    "COLUMN_NAME": "chatEnabled",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiSettings",
+    "COLUMN_NAME": "chatBubbleColor",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiSettings",
+    "COLUMN_NAME": "chatBubblePosition",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiSettings",
+    "COLUMN_NAME": "systemPrompt",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiSettings",
+    "COLUMN_NAME": "autoResponses",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "aiSettings",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadorCommissions",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "ambassadorCommissions",
+    "COLUMN_NAME": "ambassadorId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadorCommissions",
+    "COLUMN_NAME": "orderId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadorCommissions",
+    "COLUMN_NAME": "orderTotal",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadorCommissions",
+    "COLUMN_NAME": "commissionRate",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadorCommissions",
+    "COLUMN_NAME": "commissionAmount",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadorCommissions",
+    "COLUMN_NAME": "status",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadorCommissions",
+    "COLUMN_NAME": "paidAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadorCommissions",
+    "COLUMN_NAME": "notes",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadorCommissions",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadorCommissions",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "userId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "name",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "email",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "code",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "commissionRate",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "totalEarnings",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "totalOrders",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "totalRevenue",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "payoutEmail",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "payoutMethod",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "active",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "notes",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "ambassadors",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsEvents",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "analyticsEvents",
+    "COLUMN_NAME": "visitorId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsEvents",
+    "COLUMN_NAME": "sessionId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsEvents",
+    "COLUMN_NAME": "eventType",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsEvents",
+    "COLUMN_NAME": "eventData",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsEvents",
+    "COLUMN_NAME": "timestamp",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsPageViews",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "analyticsPageViews",
+    "COLUMN_NAME": "visitorId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsPageViews",
+    "COLUMN_NAME": "sessionId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsPageViews",
+    "COLUMN_NAME": "page",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsPageViews",
+    "COLUMN_NAME": "referrer",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsPageViews",
+    "COLUMN_NAME": "userAgent",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsPageViews",
+    "COLUMN_NAME": "timestamp",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsSessions",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "analyticsSessions",
+    "COLUMN_NAME": "sessionId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "analyticsSessions",
+    "COLUMN_NAME": "visitorId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsSessions",
+    "COLUMN_NAME": "startTime",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsSessions",
+    "COLUMN_NAME": "endTime",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsSessions",
+    "COLUMN_NAME": "pageCount",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "analyticsSessions",
+    "COLUMN_NAME": "duration",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "title",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "slug",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "category",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "date",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "excerpt",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "content",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "imageUrl",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "published",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "status",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "publishDate",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "articles",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "name",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "displayName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "description",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "icon",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "color",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "s3Folder",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "retentionDays",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "maxBackups",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "autoCleanup",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "sortOrder",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "isSystem",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "isActive",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupCategories",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "backupId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "restoredBy",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "restoreType",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "status",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "itemsRestored",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "itemsFailed",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "errorMessage",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "rollbackBackupId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "startedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "completedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupRestoreHistory",
+    "COLUMN_NAME": "metadata",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupTagRelations",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "backupTagRelations",
+    "COLUMN_NAME": "backupId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupTagRelations",
+    "COLUMN_NAME": "tagId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupTagRelations",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupTags",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "backupTags",
+    "COLUMN_NAME": "name",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "backupTags",
+    "COLUMN_NAME": "color",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupTags",
+    "COLUMN_NAME": "description",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backupTags",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backups",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "backups",
+    "COLUMN_NAME": "backupName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backups",
+    "COLUMN_NAME": "backupType",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backups",
+    "COLUMN_NAME": "backupData",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backups",
+    "COLUMN_NAME": "fileSize",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backups",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backups",
+    "COLUMN_NAME": "backupCategory",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backups",
+    "COLUMN_NAME": "categoryId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backups",
+    "COLUMN_NAME": "s3Key",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backups",
+    "COLUMN_NAME": "s3Url",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "backups",
+    "COLUMN_NAME": "tags",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockTemplates",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "blockTemplates",
+    "COLUMN_NAME": "name",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockTemplates",
+    "COLUMN_NAME": "description",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockTemplates",
+    "COLUMN_NAME": "blocks",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockTemplates",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockTemplates",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockVersions",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "blockVersions",
+    "COLUMN_NAME": "blockId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockVersions",
+    "COLUMN_NAME": "pageId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockVersions",
+    "COLUMN_NAME": "type",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockVersions",
+    "COLUMN_NAME": "content",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockVersions",
+    "COLUMN_NAME": "order",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockVersions",
+    "COLUMN_NAME": "settings",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockVersions",
+    "COLUMN_NAME": "versionNumber",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockVersions",
+    "COLUMN_NAME": "createdBy",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "blockVersions",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "brandAssets",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "brandAssets",
+    "COLUMN_NAME": "assetType",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "brandAssets",
+    "COLUMN_NAME": "assetUrl",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "brandAssets",
+    "COLUMN_NAME": "assetName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "brandAssets",
+    "COLUMN_NAME": "width",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "brandAssets",
+    "COLUMN_NAME": "height",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "brandAssets",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "code",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "description",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "type",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "value",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "minPurchaseAmount",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "maxDiscountAmount",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "usageLimit",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "usageCount",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "perCustomerLimit",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "validFrom",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "validUntil",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "active",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "applicableCategories",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "applicableProducts",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "discountCodes",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "emailProvider",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "apiKey",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "fromEmail",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "fromName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "smtpHost",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "smtpPort",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "smtpUsername",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "smtpPassword",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "weeklyReportEnabled",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "reportRecipients",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "reportDay",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "reportTime",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "lastSentAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "emailSettings",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "eventId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "firstName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "lastName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "email",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "phone",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "status",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "notes",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "customFields",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "confirmationSent",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "reminderSent",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "checkedIn",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "checkedInAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "editToken",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "qrCode",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "paymentStatus",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "stripePaymentIntentId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "amountPaid",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "currency",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "paidAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "refundRequested",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "refundRequestedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "refundReason",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "refundStatus",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "refundProcessedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "refundAmount",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "refundNotes",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "stripeRefundId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "registeredAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "eventRegistrations",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "title",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "slug",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "description",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "eventType",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "startDate",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "endDate",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "location",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "locationDetails",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "imageUrl",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "price",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "capacity",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "registrationUrl",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "feedbackSurveyUrl",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "materials",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "tags",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "featured",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "published",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "googleCalendarEventId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "status",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "events",
+    "COLUMN_NAME": "isFeatured",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formFields",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "formFields",
+    "COLUMN_NAME": "fieldName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formFields",
+    "COLUMN_NAME": "fieldLabel",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formFields",
+    "COLUMN_NAME": "fieldType",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formFields",
+    "COLUMN_NAME": "placeholder",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formFields",
+    "COLUMN_NAME": "required",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formFields",
+    "COLUMN_NAME": "order",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formFields",
+    "COLUMN_NAME": "options",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formFields",
+    "COLUMN_NAME": "validation",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formFields",
+    "COLUMN_NAME": "isActive",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formFields",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formSubmissions",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "formSubmissions",
+    "COLUMN_NAME": "formData",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formSubmissions",
+    "COLUMN_NAME": "ipAddress",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formSubmissions",
+    "COLUMN_NAME": "userAgent",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formSubmissions",
+    "COLUMN_NAME": "submittedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "formSubmissions",
+    "COLUMN_NAME": "isRead",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "inventoryAdjustments",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "inventoryAdjustments",
+    "COLUMN_NAME": "productId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "inventoryAdjustments",
+    "COLUMN_NAME": "variantId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "inventoryAdjustments",
+    "COLUMN_NAME": "type",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "inventoryAdjustments",
+    "COLUMN_NAME": "quantity",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "inventoryAdjustments",
+    "COLUMN_NAME": "previousStock",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "inventoryAdjustments",
+    "COLUMN_NAME": "newStock",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "inventoryAdjustments",
+    "COLUMN_NAME": "reason",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "inventoryAdjustments",
+    "COLUMN_NAME": "orderId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "inventoryAdjustments",
+    "COLUMN_NAME": "adminUsername",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "inventoryAdjustments",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "filename",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "originalName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "mimeType",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "fileSize",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "s3Key",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "url",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "type",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "folder",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "tags",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "uploadedBy",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "media",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "navigation",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "navigation",
+    "COLUMN_NAME": "location",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "navigation",
+    "COLUMN_NAME": "label",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "navigation",
+    "COLUMN_NAME": "url",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "navigation",
+    "COLUMN_NAME": "order",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "navigation",
+    "COLUMN_NAME": "isExternal",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "navigation",
+    "COLUMN_NAME": "openInNewTab",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "navigation",
+    "COLUMN_NAME": "parentId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "navigation",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "orderId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "productId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "variantId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "sku",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "productName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "variantName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "price",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "quantity",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "subtotal",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "imageUrl",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "metadata",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orderItems",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "orderNumber",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "userId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "customerEmail",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "customerName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "customerPhone",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "shippingAddress",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "billingAddress",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "status",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "paymentStatus",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "subtotal",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "discountAmount",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "shippingCost",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "taxAmount",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "total",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "discountCode",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "ambassadorCode",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "stripePaymentIntentId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "stripeCheckoutSessionId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "trackingNumber",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "trackingUrl",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "notes",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "metadata",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "paidAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "shippedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "deliveredAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "cancelledAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "orders",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "pageSlug",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "backgroundType",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "backgroundColor",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "gradientStart",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "gradientEnd",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "gradientDirection",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "patternType",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "patternColor",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "patternSize",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "patternOpacity",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "backgroundImage",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "backgroundSize",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "backgroundPosition",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "backgroundRepeat",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "overlayEnabled",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "overlayColor",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "isActive",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBackgrounds",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBlocks",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "pageBlocks",
+    "COLUMN_NAME": "pageId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBlocks",
+    "COLUMN_NAME": "type",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBlocks",
+    "COLUMN_NAME": "content",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBlocks",
+    "COLUMN_NAME": "order",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBlocks",
+    "COLUMN_NAME": "settings",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBlocks",
+    "COLUMN_NAME": "visibility",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBlocks",
+    "COLUMN_NAME": "animation",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBlocks",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pageBlocks",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "title",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "slug",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "template",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "metaTitle",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "metaDescription",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "ogImage",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "published",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "showInNav",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "navOrder",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "pages",
+    "COLUMN_NAME": "parentId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productCategories",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "productCategories",
+    "COLUMN_NAME": "name",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productCategories",
+    "COLUMN_NAME": "slug",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "productCategories",
+    "COLUMN_NAME": "description",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productCategories",
+    "COLUMN_NAME": "imageUrl",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productCategories",
+    "COLUMN_NAME": "sortOrder",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productCategories",
+    "COLUMN_NAME": "published",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productCategories",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productCategories",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productCategories",
+    "COLUMN_NAME": "order",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "productId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "userId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "orderId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "rating",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "title",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "comment",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "customerName",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "customerEmail",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "verified",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "published",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "helpful",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productReviews",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "productId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "sku",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "name",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "size",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "color",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "material",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "price",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "stock",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "imageUrl",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "stripePriceId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "productVariants",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "sku",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "name",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "slug",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "description",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "categoryId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "basePrice",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "compareAtPrice",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "images",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "featured",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "published",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "tags",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "productType",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "customAttributes",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "metadata",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "totalStock",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "lowStockThreshold",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "stripeProductId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "status",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "products",
+    "COLUMN_NAME": "isFeatured",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "quickActionsPreferences",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "quickActionsPreferences",
+    "COLUMN_NAME": "adminUsername",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "quickActionsPreferences",
+    "COLUMN_NAME": "actionId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "quickActionsPreferences",
+    "COLUMN_NAME": "isVisible",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "quickActionsPreferences",
+    "COLUMN_NAME": "sortOrder",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "quickActionsPreferences",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "quickActionsPreferences",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "redirects",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "redirects",
+    "COLUMN_NAME": "fromPath",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "redirects",
+    "COLUMN_NAME": "toPath",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "redirects",
+    "COLUMN_NAME": "redirectType",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "redirects",
+    "COLUMN_NAME": "isActive",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "redirects",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "name",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "categoryId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "scheduleType",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "cronExpression",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "hour",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "dayOfWeek",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "dayOfMonth",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "backupType",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "includeMedia",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "isActive",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "lastRunAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "nextRunAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "lastStatus",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "lastError",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "totalRuns",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "successfulRuns",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "failedRuns",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "scheduledBackups",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "pageSlug",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "metaTitle",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "metaDescription",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "metaKeywords",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "ogTitle",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "ogDescription",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "ogImage",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "twitterCard",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "canonicalUrl",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "noIndex",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "structuredData",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "seoSettings",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "setupCompletion",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "setupCompletion",
+    "COLUMN_NAME": "isComplete",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "setupCompletion",
+    "COLUMN_NAME": "adminCreated",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "setupCompletion",
+    "COLUMN_NAME": "siteConfigured",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "setupCompletion",
+    "COLUMN_NAME": "themeConfigured",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "setupCompletion",
+    "COLUMN_NAME": "completedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "setupCompletion",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "shoppingCarts",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "shoppingCarts",
+    "COLUMN_NAME": "sessionId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "shoppingCarts",
+    "COLUMN_NAME": "userId",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "shoppingCarts",
+    "COLUMN_NAME": "items",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "shoppingCarts",
+    "COLUMN_NAME": "discountCode",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "shoppingCarts",
+    "COLUMN_NAME": "discountAmount",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "shoppingCarts",
+    "COLUMN_NAME": "subtotal",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "shoppingCarts",
+    "COLUMN_NAME": "total",
+    "DATA_TYPE": "decimal",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "shoppingCarts",
+    "COLUMN_NAME": "expiresAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "shoppingCarts",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "shoppingCarts",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "siteContent",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "siteContent",
+    "COLUMN_NAME": "page",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "siteContent",
+    "COLUMN_NAME": "section",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "siteContent",
+    "COLUMN_NAME": "contentKey",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "siteContent",
+    "COLUMN_NAME": "contentValue",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "siteContent",
+    "COLUMN_NAME": "altText",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "siteContent",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "siteSettings",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "siteSettings",
+    "COLUMN_NAME": "settingKey",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "siteSettings",
+    "COLUMN_NAME": "settingValue",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "siteSettings",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "primaryColor",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "secondaryColor",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "accentColor",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "backgroundColor",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "textColor",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "headingFont",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "bodyFont",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "headingFontUrl",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "bodyFontUrl",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "containerMaxWidth",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "sectionSpacing",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "borderRadius",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "enableAnimations",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "animationSpeed",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "heroBackgroundImage",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "heroBackgroundVideo",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "shopBackgroundImage",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "eventsBackgroundImage",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "themeSettings",
+    "COLUMN_NAME": "footerBackgroundImage",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "users",
+    "COLUMN_NAME": "id",
+    "DATA_TYPE": "int",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "PRI"
+  },
+  {
+    "TABLE_NAME": "users",
+    "COLUMN_NAME": "openId",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": "UNI"
+  },
+  {
+    "TABLE_NAME": "users",
+    "COLUMN_NAME": "name",
+    "DATA_TYPE": "text",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "users",
+    "COLUMN_NAME": "email",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "users",
+    "COLUMN_NAME": "loginMethod",
+    "DATA_TYPE": "varchar",
+    "IS_NULLABLE": "YES",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "users",
+    "COLUMN_NAME": "role",
+    "DATA_TYPE": "enum",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "users",
+    "COLUMN_NAME": "createdAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "users",
+    "COLUMN_NAME": "updatedAt",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  },
+  {
+    "TABLE_NAME": "users",
+    "COLUMN_NAME": "lastSignedIn",
+    "DATA_TYPE": "timestamp",
+    "IS_NULLABLE": "NO",
+    "COLUMN_KEY": ""
+  }
+]

@@ -1,0 +1,27 @@
+[
+  {
+    "id": 1,
+    "title": "Women's Leadership Retreat 2025",
+    "slug": "women-s-leadership-retreat-2025",
+    "description": "A transformative gathering for women leaders to connect, grow, and empower each other.",
+    "eventType": "workshop",
+    "startDate": "2025-01-15T14:00:00.000Z",
+    "endDate": "2025-01-15T22:00:00.000Z",
+    "location": "San Francisco, CA",
+    "locationDetails": "123 Main Street, San Francisco, CA 94102",
+    "imageUrl": null,
+    "price": "$150",
+    "capacity": 50,
+    "registrationUrl": null,
+    "feedbackSurveyUrl": null,
+    "materials": null,
+    "tags": "leadership, empowerment",
+    "featured": 0,
+    "published": 1,
+    "googleCalendarEventId": null,
+    "createdAt": "2025-12-24T17:31:39.000Z",
+    "updatedAt": "2025-12-24T17:31:39.000Z",
+    "status": "draft",
+    "isFeatured": 0
+  }
+]

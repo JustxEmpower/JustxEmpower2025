@@ -1,0 +1,25 @@
+[
+  {
+    "id": 1,
+    "primaryColor": "#000000",
+    "secondaryColor": "#ffffff",
+    "accentColor": "#1a1a1a",
+    "backgroundColor": "#FFF8E7",
+    "textColor": "#000000",
+    "headingFont": "Playfair Display",
+    "bodyFont": "Inter",
+    "headingFontUrl": "",
+    "bodyFontUrl": "",
+    "containerMaxWidth": "1280px",
+    "sectionSpacing": "120px",
+    "borderRadius": "8px",
+    "enableAnimations": 1,
+    "animationSpeed": "0.6s",
+    "updatedAt": "2025-12-24T18:53:59.000Z",
+    "heroBackgroundImage": null,
+    "heroBackgroundVideo": null,
+    "shopBackgroundImage": null,
+    "eventsBackgroundImage": null,
+    "footerBackgroundImage": null
+  }
+]
