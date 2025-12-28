@@ -980,3 +980,17 @@
 - [x] AdminNavigation page has drag-and-drop with @dnd-kit
 - [x] Add parentId support to navigation create/update endpoints
 
+
+
+## API Integrations - December 2025
+
+### Mailchimp API Integration
+- [x] Verify Mailchimp API endpoint implementation
+- [x] Test newsletter subscription functionality
+- [x] Ensure API key and Audience ID are properly used
+
+### Google Maps API Integration
+- [x] Fix Google Maps display on contact page
+- [x] Ensure map loads with Austin, Texas location
+- [x] Verify map styling matches site design
+
