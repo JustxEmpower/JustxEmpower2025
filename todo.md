@@ -517,7 +517,7 @@
 - [ ] Configure S3 storage for media files
 - [ ] Upload missing media to S3
 - [ ] Update media URLs in database to use S3
-- [ ] Deploy fixes to AWS and test
+- [x] Deploy all fixes to AWS test
 
 
 ## Admin Dashboard UI & Feature Fixes (Dec 27, 2025)
@@ -1078,3 +1078,9 @@
 - [ ] Verify revenue analytics combines Shop + Events sales
 - [ ] Verify attendee counts are accurate
 - [ ] Verify page view tracking works
+
+
+## Shop Page Fixes (Dec 28, 2025)
+- [ ] Fix Home button not working on Shop page
+- [ ] Fix All button not working on Shop page
+- [ ] Fix products not loading on production

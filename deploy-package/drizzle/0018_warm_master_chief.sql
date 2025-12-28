@@ -1,0 +1,1 @@
+ALTER TABLE `aiChatConversations` ADD `topic` varchar(100);

@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { ShoppingBag, ArrowLeft } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import CartSlideout from "@/components/CartSlideout";
 
 export default function Shop() {
+  const [, setLocation] = useLocation();
   const [category, setCategory] = useState<string>("all");
   const [cartOpen, setCartOpen] = useState(false);
   
@@ -30,15 +31,17 @@ export default function Shop() {
         <div className="flex items-center justify-between px-6 py-3">
           {/* Back to Home + Category Navigation - Yeezy Style */}
           <nav className="flex items-center gap-8">
-            <Link
-              href="/"
+            <button
+              type="button"
+              onClick={() => setLocation("/")}
               className="text-[11px] uppercase tracking-[0.2em] text-neutral-400 hover:text-black transition-colors flex items-center gap-2"
             >
               <ArrowLeft className="w-3 h-3" />
               Home
-            </Link>
+            </button>
             <span className="text-neutral-200">|</span>
             <button
+              type="button"
               onClick={() => setCategory("all")}
               className={`text-[11px] uppercase tracking-[0.2em] transition-colors ${
                 category === "all" ? "text-black" : "text-neutral-400 hover:text-black"
@@ -48,6 +51,7 @@ export default function Shop() {
             </button>
             {categories.map((cat: { id: number; slug: string; name: string }) => (
               <button
+                type="button"
                 key={cat.id}
                 onClick={() => setCategory(cat.slug)}
                 className={`text-[11px] uppercase tracking-[0.2em] transition-colors ${
@@ -61,6 +65,7 @@ export default function Shop() {
           
           {/* Cart */}
           <button
+            type="button"
             onClick={() => setCartOpen(true)}
             className="relative text-[11px] uppercase tracking-[0.2em] text-neutral-600 hover:text-black transition-colors flex items-center gap-2"
           >
