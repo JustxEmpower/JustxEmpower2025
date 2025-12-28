@@ -19,6 +19,7 @@ interface NavPage {
 interface NavItem {
   href: string;
   label: string;
+  isButton?: boolean;
   children?: NavItem[];
 }
 
@@ -32,54 +33,49 @@ export default function Header() {
   const menuItemsRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch dynamic pages from database for additional nav items
-  const { data: dynamicPages } = trpc.pages.getNavPages.useQuery();
+  // Fetch navigation pages from database - this is the ONLY source of truth
+  const { data: navPages, isLoading } = trpc.pages.getNavPages.useQuery();
+  
+  // Fetch site settings for logo and brand
+  const { data: siteSettings } = trpc.siteSettings.get.useQuery();
 
-  // New navigation structure based on sitemap
-  const navLinks: NavItem[] = [
-    { 
-      href: '/philosophy', 
-      label: 'Philosophy',
-      children: [
-        { href: '/about', label: 'Founder' },
-        { href: '/philosophy', label: 'Vision & Ethos' },
-      ]
-    },
-    { 
-      href: '/offerings', 
-      label: 'Offerings',
-      children: [
-        { href: '/offerings', label: 'Workshops & Programs' },
-        { href: '/journal-trilogy', label: 'VI • X Journal Trilogy' },
-        { href: '/journal', label: 'Blog (She Writes)' },
-      ]
-    },
-    { href: '/shop', label: 'Shop' },
-    { href: '/events', label: 'Events' },
-    { href: '/resources', label: 'Resources' },
-  ];
-
-  // Add any additional dynamic pages that aren't in the core structure
-  const additionalNavItems = useMemo(() => {
-    if (!dynamicPages || dynamicPages.length === 0) return [];
-
-    // Filter out pages that are already in our core navigation
-    const corePageSlugs = ['philosophy', 'about', 'offerings', 'shop', 'events', 'resources', 'walk-with-us', 'contact', 'journal', 'journal-trilogy'];
-    
-    const additionalPages = dynamicPages.filter(p => 
-      !p.parentId && !corePageSlugs.includes(p.slug)
-    );
-
-    return additionalPages.map(page => ({
-      href: `/${page.slug}`,
-      label: page.title,
-    }));
-  }, [dynamicPages]);
-
-  // Combine nav links with any additional dynamic pages
+  // Build navigation structure entirely from database pages
   const allNavLinks: NavItem[] = useMemo(() => {
-    return [...navLinks, ...additionalNavItems];
-  }, [additionalNavItems]);
+    if (!navPages || navPages.length === 0) {
+      return [];
+    }
+
+    // Separate parent pages (no parentId) from child pages
+    const parentPages = navPages.filter(p => !p.parentId);
+    const childPages = navPages.filter(p => p.parentId);
+
+    // Build navigation items with children
+    const navItems: NavItem[] = parentPages.map(parent => {
+      const children = childPages
+        .filter(child => child.parentId === parent.id)
+        .map(child => ({
+          href: `/${child.slug}`,
+          label: child.title,
+        }));
+
+      // Check if this is a CTA button (slug contains 'walk-with' or title contains button indicator)
+      const isButton = parent.slug.includes('walk-with') || parent.title.toLowerCase().includes('[button]');
+      const label = parent.title.replace('[button]', '').replace('[Button]', '').trim();
+
+      return {
+        href: `/${parent.slug}`,
+        label: label,
+        isButton: isButton,
+        children: children.length > 0 ? children : undefined,
+      };
+    });
+
+    return navItems;
+  }, [navPages]);
+
+  // Separate regular nav items from button items
+  const regularNavItems = useMemo(() => allNavLinks.filter(item => !item.isButton), [allNavLinks]);
+  const buttonNavItems = useMemo(() => allNavLinks.filter(item => item.isButton), [allNavLinks]);
 
   // Calculate font size based on number of items
   const navFontSize = useMemo(() => {
@@ -170,6 +166,10 @@ export default function Header() {
     setOpenMobileDropdown(openMobileDropdown === label ? null : label);
   };
 
+  // Get logo URL from site settings or use default
+  const logoUrl = siteSettings?.logoUrl || getMediaUrl('/media/logo-white.png');
+  const siteName = siteSettings?.siteName || 'Site Logo';
+
   return (
     <header 
       className={cn(
@@ -181,8 +181,8 @@ export default function Header() {
         <Link href="/">
           <a className="block w-16 h-16 relative transition-transform duration-300 hover:scale-105 z-50">
             <img 
-              src={getMediaUrl('/media/logo-white.png')} 
-              alt="Just Empower" 
+              src={logoUrl} 
+              alt={siteName} 
               className={cn(
                 "w-full h-full object-contain transition-all duration-300",
                 (isScrolled || isMobileMenuOpen) ? "invert brightness-0" : ""
@@ -193,7 +193,8 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className={cn("hidden md:flex items-center", navGap)}>
-          {allNavLinks.map((link) => (
+          {/* Regular Navigation Items */}
+          {regularNavItems.map((link) => (
             <div 
               key={link.href + link.label}
               className="relative"
@@ -248,29 +249,20 @@ export default function Header() {
             </div>
           ))}
           
-          {/* Walk With Us - CTA Button */}
-          <Link href="/walk-with-us">
-            <a className={cn(
-              "px-6 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 border",
-              navFontSize,
-              isScrolled 
-                ? "border-foreground text-foreground hover:bg-foreground hover:text-white" 
-                : "border-white text-white hover:bg-white hover:text-foreground"
-            )}>
-              Walk With Us
-            </a>
-          </Link>
-          
-          {/* Contact */}
-          <Link href="/contact">
-            <a className={cn(
-              "uppercase tracking-[0.15em] hover:opacity-70 transition-all duration-300",
-              navFontSize,
-              isScrolled ? "text-foreground" : "text-white"
-            )}>
-              Contact
-            </a>
-          </Link>
+          {/* Button Navigation Items (CTA buttons) */}
+          {buttonNavItems.map((link) => (
+            <Link key={link.href + link.label} href={link.href}>
+              <a className={cn(
+                "px-6 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 border",
+                navFontSize,
+                isScrolled 
+                  ? "border-foreground text-foreground hover:bg-foreground hover:text-white" 
+                  : "border-white text-white hover:bg-white hover:text-foreground"
+              )}>
+                {link.label}
+              </a>
+            </Link>
+          ))}
         </nav>
 
         {/* Mobile Menu Button */}
@@ -302,7 +294,8 @@ export default function Header() {
           </div>
 
           <nav ref={menuItemsRef} className="flex flex-col items-center gap-6 relative z-10 py-20">
-            {allNavLinks.map((link) => (
+            {/* Regular Navigation Items */}
+            {regularNavItems.map((link) => (
               <div key={link.href + link.label} className="flex flex-col items-center">
                 {link.children ? (
                   // Parent with dropdown (mobile)
@@ -341,26 +334,15 @@ export default function Header() {
               </div>
             ))}
             
-            {/* Walk With Us - Mobile CTA */}
-            <Link href="/walk-with-us">
-              <a className="px-10 py-4 rounded-full text-sm uppercase tracking-[0.2em] border border-foreground text-foreground hover:bg-foreground hover:text-white transition-all mt-6">
-                Walk With Us
-              </a>
-            </Link>
-            
-            {/* Contact - Mobile */}
-            <Link href="/contact">
-              <a className="text-3xl font-serif italic text-foreground hover:text-primary transition-colors font-light mt-2">
-                Contact
-              </a>
-            </Link>
+            {/* Button Navigation Items (CTA buttons) - Mobile */}
+            {buttonNavItems.map((link) => (
+              <Link key={link.href + link.label} href={link.href}>
+                <a className="mt-4 px-8 py-3 rounded-full border-2 border-foreground text-foreground hover:bg-foreground hover:text-white transition-all duration-300 text-xl">
+                  {link.label}
+                </a>
+              </Link>
+            ))}
           </nav>
-          
-          <div className="absolute bottom-12 left-0 w-full text-center">
-             <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
-               © 2025 Just Empower
-             </p>
-          </div>
         </div>
       </div>
     </header>

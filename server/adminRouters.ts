@@ -2173,6 +2173,44 @@ export const publicThemeRouter = router({
   }),
 });
 
+// Public site settings router for frontend to fetch brand/site settings
+export const publicSiteSettingsRouter = router({
+  get: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return {};
+    
+    const settings = await db
+      .select()
+      .from(schema.siteSettings);
+    
+    // Convert array to object for easier access
+    const settingsObj: Record<string, string> = {};
+    settings.forEach(s => {
+      if (s.settingValue !== null) {
+        settingsObj[s.settingKey] = s.settingValue;
+      }
+    });
+    
+    return settingsObj;
+  }),
+  
+  // Get specific setting by key
+  getByKey: publicProcedure
+    .input(z.object({ key: z.string() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return null;
+      
+      const setting = await db
+        .select()
+        .from(schema.siteSettings)
+        .where(eq(schema.siteSettings.settingKey, input.key))
+        .limit(1);
+      
+      return setting[0]?.settingValue || null;
+    }),
+});
+
 // AI Chat Analytics Router
 export const aiChatAnalyticsRouter = router({
   // Get topic distribution

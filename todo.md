@@ -1022,3 +1022,22 @@
 - [x] Fix unique visitors tracking showing 0 (fixed adminProcedure auth)
 - [x] Verify analytics data is being collected
 
+
+
+### Navigation & Page Management Bugs - December 28, 2025
+- [ ] Fix navigation deletion not working (items still show after deletion)
+- [ ] Connect admin events to Community Events page
+- [ ] Fix page creation functionality
+- [ ] Fix page deletion functionality
+
+
+
+## Fully Dynamic Navigation System (NEW)
+
+- [x] Remove all hardcoded navigation links from Header.tsx
+- [x] Make Header read navigation entirely from Pages table (showInNav field)
+- [x] Add public siteSettings router for frontend to fetch brand/logo settings
+- [x] Support CTA buttons via slug pattern (walk-with-us) or [button] in title
+- [x] Support dropdown menus via parentId relationships
+- [ ] Deploy fully dynamic navigation to AWS
+- [ ] Test navigation deletion sync between admin and main site

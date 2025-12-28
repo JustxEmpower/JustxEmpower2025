@@ -1,0 +1,127 @@
+{
+  "query": "SELECT id, title, slug, showInNav, navOrder, parentId, published FROM pages WHERE showInNav = 1 ORDER BY navOrder ASC;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT id, title, slug, showInNav, navOrder, parentId, published FROM pages WHERE showInNav = 1 ORDER BY navOrder ASC;",
+  "rows": [
+    {
+      "id": "30008",
+      "title": "Undo Test Page 1766583110206",
+      "slug": "undo-test-1766583110206",
+      "showInNav": "1",
+      "navOrder": "0",
+      "parentId": "NULL",
+      "published": "0"
+    },
+    {
+      "id": "60001",
+      "title": "Philosophy",
+      "slug": "philosophy",
+      "showInNav": "1",
+      "navOrder": "1",
+      "parentId": "NULL",
+      "published": "1"
+    },
+    {
+      "id": "60002",
+      "title": "Founder",
+      "slug": "founder",
+      "showInNav": "1",
+      "navOrder": "2",
+      "parentId": "4",
+      "published": "1"
+    },
+    {
+      "id": "60003",
+      "title": "Vision & Ethos",
+      "slug": "vision-ethos",
+      "showInNav": "1",
+      "navOrder": "3",
+      "parentId": "4",
+      "published": "1"
+    },
+    {
+      "id": "60004",
+      "title": "Offerings",
+      "slug": "offerings",
+      "showInNav": "1",
+      "navOrder": "4",
+      "parentId": "NULL",
+      "published": "1"
+    },
+    {
+      "id": "60005",
+      "title": "Workshops & Programs",
+      "slug": "workshops-programs",
+      "showInNav": "1",
+      "navOrder": "5",
+      "parentId": "7",
+      "published": "1"
+    },
+    {
+      "id": "60006",
+      "title": "VI • X Journal Trilogy",
+      "slug": "vi-x-journal-trilogy",
+      "showInNav": "1",
+      "navOrder": "6",
+      "parentId": "7",
+      "published": "1"
+    },
+    {
+      "id": "60007",
+      "title": "Blog (She Writes)",
+      "slug": "blog",
+      "showInNav": "1",
+      "navOrder": "7",
+      "parentId": "7",
+      "published": "1"
+    },
+    {
+      "id": "60008",
+      "title": "Shop",
+      "slug": "shop",
+      "showInNav": "1",
+      "navOrder": "8",
+      "parentId": "NULL",
+      "published": "1"
+    },
+    {
+      "id": "60009",
+      "title": "Events",
+      "slug": "events",
+      "showInNav": "1",
+      "navOrder": "9",
+      "parentId": "NULL",
+      "published": "1"
+    },
+    {
+      "id": "60010",
+      "title": "Resources",
+      "slug": "resources",
+      "showInNav": "1",
+      "navOrder": "10",
+      "parentId": "NULL",
+      "published": "1"
+    },
+    {
+      "id": "60011",
+      "title": "Walk With Us",
+      "slug": "walk-with-us",
+      "showInNav": "1",
+      "navOrder": "11",
+      "parentId": "NULL",
+      "published": "1"
+    },
+    {
+      "id": "60012",
+      "title": "Contact",
+      "slug": "contact",
+      "showInNav": "1",
+      "navOrder": "12",
+      "parentId": "NULL",
+      "published": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tslug\tshowInNav\tnavOrder\tparentId\tpublished\n30008\tUndo Test Page 1766583110206\tundo-test-1766583110206\t1\t0\tNULL\t0\n60001\tPhilosophy\tphilosophy\t1\t1\tNULL\t1\n60002\tFounder\tfounder\t1\t2\t4\t1\n60003\tVision & Ethos\tvision-ethos\t1\t3\t4\t1\n60004\tOfferings\tofferings\t1\t4\tNULL\t1\n60005\tWorkshops & Programs\tworkshops-programs\t1\t5\t7\t1\n60006\tVI • X Journal Trilogy\tvi-x-journal-trilogy\t1\t6\t7\t1\n60007\tBlog (She Writes)\tblog\t1\t7\t7\t1\n60008\tShop\tshop\t1\t8\tNULL\t1\n60009\tEvents\tevents\t1\t9\tNULL\t1\n60010\tResources\tresources\t1\t10\tNULL\t1\n60011\tWalk With Us\twalk-with-us\t1\t11\tNULL\t1\n60012\tContact\tcontact\t1\t12\tNULL\t1\n",
+  "stderr": "",
+  "execution_time_ms": 704
+}
