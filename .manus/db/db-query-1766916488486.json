@@ -1,0 +1,45 @@
+{
+  "query": "SELECT id, page, section, contentKey, LEFT(contentValue, 50) as preview FROM siteContent WHERE page = 'founder' LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT id, page, section, contentKey, LEFT(contentValue, 50) as preview FROM siteContent WHERE page = 'founder' LIMIT 5;",
+  "rows": [
+    {
+      "id": "30001",
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "preview": "APRIL GAMBARDELLA"
+    },
+    {
+      "id": "30002",
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "title",
+      "preview": "The Founder"
+    },
+    {
+      "id": "30003",
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "description",
+      "preview": "Steward of Embodied Change & Energetic Coherence"
+    },
+    {
+      "id": "30004",
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "videoUrl",
+      "preview": "/media/founder-hero.mp4"
+    },
+    {
+      "id": "30005",
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "preview": "/media/11/Fam.jpg"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpage\tsection\tcontentKey\tpreview\n30001\tfounder\thero\tsubtitle\tAPRIL GAMBARDELLA\n30002\tfounder\thero\ttitle\tThe Founder\n30003\tfounder\thero\tdescription\tSteward of Embodied Change & Energetic Coherence\n30004\tfounder\thero\tvideoUrl\t/media/founder-hero.mp4\n30005\tfounder\thero\timageUrl\t/media/11/Fam.jpg\n",
+  "stderr": "",
+  "execution_time_ms": 53
+}

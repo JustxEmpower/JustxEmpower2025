@@ -895,3 +895,26 @@
 - Walk With Us (hero, overview, options)
 - Community Events (hero, overview)
 - Contact (hero)
+
+
+## Production RDS Content Population (December 2024) ✅
+
+**Critical Discovery**: Production Elastic Beanstalk uses a DIFFERENT database than Manus:
+- Production: `justxempower-mysql.cg7k02qmmmt6.us-east-1.rds.amazonaws.com` / `justxempower`
+- Manus: `justxempower-2025.cjcwiyqe2jnf.us-east-1.rds.amazonaws.com` / `justxempower_2025`
+
+**All data must go to the production RDS, not Manus.**
+
+- [x] Discovered database mismatch between production and Manus
+- [x] Connected directly to production RDS via mysql client
+- [x] Inserted founder page content (14 entries)
+- [x] Inserted vision-ethos page content (11 entries)
+- [x] Inserted workshops-programs page content (14 entries)
+- [x] Inserted vix-journal-trilogy page content (11 entries)
+- [x] Inserted blog page content (4 entries)
+- [x] Inserted shop page content (7 entries)
+- [x] Inserted resources page content (7 entries)
+- [x] Inserted walk-with-us page content (11 entries)
+- [x] Inserted community-events page content (7 entries)
+- [x] Verified all pages show content in production Content Editor
+- [x] Total: 136 siteContent entries across 15 pages

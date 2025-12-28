@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO siteContent (page, section, contentKey, contentValue) VALUES \n('founder', 'opening', 'paragraph1', 'From the moment my eyes opened to this world, I have been drawn to truth—not from a need to know, but from a need to understand.'),\n('founder', 'opening', 'paragraph2', 'That ethos of restoration and responsibility became the ground of my devotion. Over time, it expanded beyond personal integrity into a greater mission.'),\n('founder', 'opening', 'paragraph3', 'Just as we are responsible for the spaces we inhabit, we are stewards of the Earth, entrusted with its vitality.');",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute INSERT INTO siteContent (page, section, contentKey, contentValue) VALUES \n('founder', 'opening', 'paragraph1', 'From the moment my eyes opened to this world, I have been drawn to truth—not from a need to know, but from a need to understand.'),\n('founder', 'opening', 'paragraph2', 'That ethos of restoration and responsibility became the ground of my devotion. Over time, it expanded beyond personal integrity into a greater mission.'),\n('founder', 'opening', 'paragraph3', 'Just as we are responsible for the spaces we inhabit, we are stewards of the Earth, entrusted with its vitality.');",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 168
+}

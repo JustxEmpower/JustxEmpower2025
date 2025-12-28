@@ -1,0 +1,100 @@
+{
+  "query": "SELECT id, page, section, contentKey FROM siteContent WHERE page = 'founder' ORDER BY id DESC LIMIT 15;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT id, page, section, contentKey FROM siteContent WHERE page = 'founder' ORDER BY id DESC LIMIT 15;",
+  "rows": [
+    {
+      "id": "60014",
+      "page": "founder",
+      "section": "depth",
+      "contentKey": "paragraph2"
+    },
+    {
+      "id": "60013",
+      "page": "founder",
+      "section": "depth",
+      "contentKey": "paragraph1"
+    },
+    {
+      "id": "60012",
+      "page": "founder",
+      "section": "depth",
+      "contentKey": "title"
+    },
+    {
+      "id": "60011",
+      "page": "founder",
+      "section": "truth",
+      "contentKey": "paragraph2"
+    },
+    {
+      "id": "60010",
+      "page": "founder",
+      "section": "truth",
+      "contentKey": "paragraph1"
+    },
+    {
+      "id": "60009",
+      "page": "founder",
+      "section": "truth",
+      "contentKey": "title"
+    },
+    {
+      "id": "60008",
+      "page": "founder",
+      "section": "opening",
+      "contentKey": "paragraph3"
+    },
+    {
+      "id": "60007",
+      "page": "founder",
+      "section": "opening",
+      "contentKey": "paragraph2"
+    },
+    {
+      "id": "60006",
+      "page": "founder",
+      "section": "opening",
+      "contentKey": "paragraph1"
+    },
+    {
+      "id": "60005",
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "imageUrl"
+    },
+    {
+      "id": "60004",
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "videoUrl"
+    },
+    {
+      "id": "60003",
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "description"
+    },
+    {
+      "id": "60002",
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "title"
+    },
+    {
+      "id": "60001",
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "subtitle"
+    },
+    {
+      "id": "30014",
+      "page": "founder",
+      "section": "depth",
+      "contentKey": "paragraph2"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpage\tsection\tcontentKey\n60014\tfounder\tdepth\tparagraph2\n60013\tfounder\tdepth\tparagraph1\n60012\tfounder\tdepth\ttitle\n60011\tfounder\ttruth\tparagraph2\n60010\tfounder\ttruth\tparagraph1\n60009\tfounder\ttruth\ttitle\n60008\tfounder\topening\tparagraph3\n60007\tfounder\topening\tparagraph2\n60006\tfounder\topening\tparagraph1\n60005\tfounder\thero\timageUrl\n60004\tfounder\thero\tvideoUrl\n60003\tfounder\thero\tdescription\n60002\tfounder\thero\ttitle\n60001\tfounder\thero\tsubtitle\n30014\tfounder\tdepth\tparagraph2\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}
