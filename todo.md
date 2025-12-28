@@ -818,3 +818,24 @@
 - [x] Connect page slugs to dynamic page renderer component
 - [x] Test all 13 pages render without "Page Not Found" error (on dev server)
 
+
+
+## Content Migration from Live Site (December 2024) ✅
+
+**Solution**: Instead of duplicating content, routed new URLs to existing page components that already have the content.
+
+- [x] /founder → Routes to About.tsx (full founder content)
+- [x] /vision-ethos → Routes to Philosophy.tsx (philosophy content)
+- [x] /workshops-programs → Routes to Offerings.tsx (offerings content)
+- [x] /vix-journal-trilogy → Routes to Journal.tsx (journal/blog content)
+- [x] /blog-she-writes → Routes to Journal.tsx (journal/blog content)
+- [x] /blog → Routes to Journal.tsx (journal/blog content)
+- [x] /philosophy → Already has Philosophy.tsx
+- [x] /offerings → Already has Offerings.tsx
+- [x] /shop → Already has Shop.tsx
+- [x] /events → Already has Events.tsx
+- [x] /contact → Already has Contact.tsx
+- [x] /walk-with-us → Already has WalkWithUs.tsx
+- [x] /resources → Routes to DynamicPage (needs Block Editor content)
+- [x] /community-events → Routes to DynamicPage (needs Block Editor content)
+- [x] All pages verified working on dev server

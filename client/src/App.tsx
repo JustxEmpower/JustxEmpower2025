@@ -95,6 +95,14 @@ function Router() {
       <Route path="/offerings" component={Offerings} />
       <Route path="/journal" component={Journal} />
       <Route path="/contact" component={Contact} />
+      <Route path="/founder" component={About} />
+      <Route path="/vision-ethos" component={Philosophy} />
+      <Route path="/workshops-programs" component={Offerings} />
+      <Route path="/vix-journal-trilogy" component={Journal} />
+      <Route path="/blog-she-writes" component={Journal} />
+      <Route path="/blog" component={Journal} />
+      <Route path="/resources" component={DynamicPage} />
+      <Route path="/community-events" component={DynamicPage} />
       <Route path="/shop" component={Shop} />
       <Route path="/shop/:slug" component={ProductDetail} />
       <Route path="/checkout" component={Checkout} />

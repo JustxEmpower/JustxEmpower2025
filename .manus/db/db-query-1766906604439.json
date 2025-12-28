@@ -1,0 +1,46 @@
+{
+  "query": "SELECT * FROM siteContent WHERE page = 'about';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT * FROM siteContent WHERE page = 'about';",
+  "rows": [
+    {
+      "id": "43",
+      "page": "about",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "OUR STORY",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:46:25"
+    },
+    {
+      "id": "44",
+      "page": "about",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "About Just Empower",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:46:25"
+    },
+    {
+      "id": "45",
+      "page": "about",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Founded with a vision to catalyze the rise of feminine leadership, Just Empower creates transformative spaces for women to discover their authentic power.",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:46:25"
+    },
+    {
+      "id": "46",
+      "page": "about",
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:46:25"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpage\tsection\tcontentKey\tcontentValue\taltText\tupdatedAt\n43\tabout\thero\tsubtitle\tOUR STORY\tNULL\t2025-12-24 11:46:25\n44\tabout\thero\ttitle\tAbout Just Empower\tNULL\t2025-12-24 11:46:25\n45\tabout\thero\tdescription\tFounded with a vision to catalyze the rise of feminine leadership, Just Empower creates transformative spaces for women to discover their authentic power.\tNULL\t2025-12-24 11:46:25\n46\tabout\thero\timageUrl\t/media/11/Fam.jpg\tNULL\t2025-12-24 11:46:25\n",
+  "stderr": "",
+  "execution_time_ms": 98
+}
