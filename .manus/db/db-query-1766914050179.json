@@ -1,0 +1,70 @@
+{
+  "query": "SELECT DISTINCT page, section, COUNT(*) as field_count FROM siteContent GROUP BY page, section ORDER BY page, section;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT DISTINCT page, section, COUNT(*) as field_count FROM siteContent GROUP BY page, section ORDER BY page, section;",
+  "rows": [
+    {
+      "page": "about",
+      "section": "hero",
+      "field_count": "4"
+    },
+    {
+      "page": "contact",
+      "section": "hero",
+      "field_count": "3"
+    },
+    {
+      "page": "events",
+      "section": "hero",
+      "field_count": "3"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "field_count": "16"
+    },
+    {
+      "page": "home",
+      "section": "community",
+      "field_count": "6"
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "field_count": "7"
+    },
+    {
+      "page": "home",
+      "section": "offerings",
+      "field_count": "1"
+    },
+    {
+      "page": "home",
+      "section": "philosophy",
+      "field_count": "6"
+    },
+    {
+      "page": "home",
+      "section": "rootedUnity",
+      "field_count": "6"
+    },
+    {
+      "page": "journal",
+      "section": "hero",
+      "field_count": "3"
+    },
+    {
+      "page": "offerings",
+      "section": "hero",
+      "field_count": "4"
+    },
+    {
+      "page": "philosophy",
+      "section": "hero",
+      "field_count": "4"
+    }
+  ],
+  "messages": [],
+  "stdout": "page\tsection\tfield_count\nabout\thero\t4\ncontact\thero\t3\nevents\thero\t3\nhome\tcarousel\t16\nhome\tcommunity\t6\nhome\thero\t7\nhome\tofferings\t1\nhome\tphilosophy\t6\nhome\trootedUnity\t6\njournal\thero\t3\nofferings\thero\t4\nphilosophy\thero\t4\n",
+  "stderr": "",
+  "execution_time_ms": 115
+}

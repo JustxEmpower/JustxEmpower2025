@@ -839,3 +839,59 @@
 - [x] /resources → Routes to DynamicPage (needs Block Editor content)
 - [x] /community-events → Routes to DynamicPage (needs Block Editor content)
 - [x] All pages verified working on dev server
+
+
+## AWS Deployment v42 - Content Routing (December 28, 2025) ✅
+
+- [x] Build production bundle with `pnpm build`
+- [x] Create deployment package with node_modules (340MB)
+- [x] Upload to S3: elasticbeanstalk-us-east-1-137738969420/justxempower-2025/v42-content-routing-20251228041718.zip
+- [x] Deploy to Elastic Beanstalk environment: justxempower-prod-v2
+- [x] Environment status: Ready, Health: Green
+- [x] Verify /founder page shows full content on live site
+- [x] Verify /workshops-programs page shows offerings content on live site
+- [x] Verify /vix-journal-trilogy page shows journal content on live site
+- [x] Push Procfile and .gitignore updates to GitHub
+- [x] AWS and GitHub now in sync
+
+
+## Admin Content Editor Integration for All Pages (December 28, 2025)
+
+- [ ] Audit existing siteContent entries in database
+- [ ] Add missing siteContent entries for new page routes:
+  - [ ] founder (hero, opening, sections)
+  - [ ] vision-ethos (hero, sections)
+  - [ ] workshops-programs (hero, sections)
+  - [ ] vix-journal-trilogy (hero, sections)
+  - [ ] blog-she-writes (hero, sections)
+  - [ ] resources (hero, sections)
+  - [ ] community-events (hero, sections)
+- [ ] Update Content Editor to show all 13 pages as tabs
+- [ ] Test editing workflow: admin changes reflect on public site
+- [ ] Deploy to AWS
+- [ ] Verify on live site
+
+
+## Admin Content Editor Integration Complete (December 28, 2024)
+
+- [x] Audit existing siteContent entries in database (7 pages had entries)
+- [x] Add missing siteContent entries for new page routes (92 entries added via seed script)
+- [x] Update Content Editor to show all pages as tabs (already configured in AdminContent.tsx)
+- [x] Test admin to public site editing workflow (verified Founder, Workshops & Programs pages)
+- [x] All 13 pages now have editable content sections in admin Content Editor
+
+**Pages with Content Editor sections:**
+- Home (hero, philosophy, community, rootedUnity, offerings, carousel)
+- Philosophy (hero)
+- Founder (hero, opening, truth, depth)
+- Vision & Ethos (hero, vision, ethos)
+- Offerings (hero)
+- Workshops & Programs (hero, overview, offerings)
+- VI•X Journal Trilogy (hero, overview, volumes)
+- Blog (hero)
+- Shop (hero, overview)
+- Events (hero)
+- Resources (hero, overview)
+- Walk With Us (hero, overview, options)
+- Community Events (hero, overview)
+- Contact (hero)

@@ -1,0 +1,31 @@
+{
+  "query": "SELECT DISTINCT page FROM siteContent ORDER BY page;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT DISTINCT page FROM siteContent ORDER BY page;",
+  "rows": [
+    {
+      "page": "about"
+    },
+    {
+      "page": "contact"
+    },
+    {
+      "page": "events"
+    },
+    {
+      "page": "home"
+    },
+    {
+      "page": "journal"
+    },
+    {
+      "page": "offerings"
+    },
+    {
+      "page": "philosophy"
+    }
+  ],
+  "messages": [],
+  "stdout": "page\nabout\ncontact\nevents\nhome\njournal\nofferings\nphilosophy\n",
+  "stderr": "",
+  "execution_time_ms": 67
+}
