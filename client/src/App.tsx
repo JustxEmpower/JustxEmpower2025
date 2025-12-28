@@ -100,8 +100,8 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       <Route path="/events" component={Events} />
       <Route path="/events/:slug" component={EventDetail} />
-      <Route path="/:slug" component={DynamicPage} />
       <Route path="/walk-with-us" component={WalkWithUs} />
+      <Route path="/:slug" component={DynamicPage} />
       <Route component={NotFound} />
     </Switch>
   );

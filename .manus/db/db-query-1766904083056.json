@@ -1,0 +1,100 @@
+{
+  "query": "SELECT id, title, slug, published FROM pages ORDER BY id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT id, title, slug, published FROM pages ORDER BY id;",
+  "rows": [
+    {
+      "id": "30008",
+      "title": "Undo Test Page 1766583110206",
+      "slug": "undo-test-1766583110206",
+      "published": "0"
+    },
+    {
+      "id": "30019",
+      "title": "Block Test Page",
+      "slug": "block-test-1766583302020",
+      "published": "1"
+    },
+    {
+      "id": "30022",
+      "title": "Block Test Page",
+      "slug": "block-test-1766583322658",
+      "published": "1"
+    },
+    {
+      "id": "60001",
+      "title": "Philosophy",
+      "slug": "philosophy",
+      "published": "1"
+    },
+    {
+      "id": "60002",
+      "title": "Founder",
+      "slug": "founder",
+      "published": "1"
+    },
+    {
+      "id": "60003",
+      "title": "Vision & Ethos",
+      "slug": "vision-ethos",
+      "published": "1"
+    },
+    {
+      "id": "60004",
+      "title": "Offerings",
+      "slug": "offerings",
+      "published": "1"
+    },
+    {
+      "id": "60005",
+      "title": "Workshops & Programs",
+      "slug": "workshops-programs",
+      "published": "1"
+    },
+    {
+      "id": "60006",
+      "title": "VI • X Journal Trilogy",
+      "slug": "vi-x-journal-trilogy",
+      "published": "1"
+    },
+    {
+      "id": "60007",
+      "title": "Blog (She Writes)",
+      "slug": "blog",
+      "published": "1"
+    },
+    {
+      "id": "60008",
+      "title": "Shop",
+      "slug": "shop",
+      "published": "1"
+    },
+    {
+      "id": "60009",
+      "title": "Events",
+      "slug": "events",
+      "published": "1"
+    },
+    {
+      "id": "60010",
+      "title": "Resources",
+      "slug": "resources",
+      "published": "1"
+    },
+    {
+      "id": "60011",
+      "title": "Walk With Us",
+      "slug": "walk-with-us",
+      "published": "1"
+    },
+    {
+      "id": "60012",
+      "title": "Contact",
+      "slug": "contact",
+      "published": "1"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tslug\tpublished\n30008\tUndo Test Page 1766583110206\tundo-test-1766583110206\t0\n30019\tBlock Test Page\tblock-test-1766583302020\t1\n30022\tBlock Test Page\tblock-test-1766583322658\t1\n60001\tPhilosophy\tphilosophy\t1\n60002\tFounder\tfounder\t1\n60003\tVision & Ethos\tvision-ethos\t1\n60004\tOfferings\tofferings\t1\n60005\tWorkshops & Programs\tworkshops-programs\t1\n60006\tVI • X Journal Trilogy\tvi-x-journal-trilogy\t1\n60007\tBlog (She Writes)\tblog\t1\n60008\tShop\tshop\t1\n60009\tEvents\tevents\t1\n60010\tResources\tresources\t1\n60011\tWalk With Us\twalk-with-us\t1\n60012\tContact\tcontact\t1\n",
+  "stderr": "",
+  "execution_time_ms": 202
+}
