@@ -31,6 +31,7 @@ import AdminRevenue from "@/pages/AdminRevenue";
 import AdminPayments from "@/pages/AdminPayments";
 import AdminFinancialAnalytics from "@/pages/AdminFinancialAnalytics";
 import AdminResourcesPage from "@/pages/AdminResourcesPage";
+import AdminContactMessages from "@/pages/AdminContactMessages";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -97,6 +98,7 @@ function Router() {
       <Route path="/admin/payments" component={AdminPayments} />
       <Route path="/admin/financial-analytics" component={AdminFinancialAnalytics} />
       <Route path="/admin/resources" component={AdminResourcesPage} />
+      <Route path="/admin/messages" component={AdminContactMessages} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/about" component={About} />
       <Route path="/about-just-empower" component={AboutJustEmpower} />

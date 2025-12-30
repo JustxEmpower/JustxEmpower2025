@@ -2093,6 +2093,176 @@ export const adminRouter = router({
         return { success: true };
       }),
   }),
+
+  // Revenue Analytics
+  revenue: router({
+    stats: adminProcedure
+      .input(z.object({
+        period: z.enum(["today", "week", "month", "year", "all"]).optional().default("month"),
+      }).optional())
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Calculate date range
+        const now = new Date();
+        let startDate: Date | null = null;
+        const period = input?.period || "month";
+        
+        switch (period) {
+          case "today":
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            break;
+          case "week":
+            startDate = new Date(now);
+            startDate.setDate(startDate.getDate() - 7);
+            break;
+          case "month":
+            startDate = new Date(now);
+            startDate.setMonth(startDate.getMonth() - 1);
+            break;
+          case "year":
+            startDate = new Date(now);
+            startDate.setFullYear(startDate.getFullYear() - 1);
+            break;
+          case "all":
+            startDate = null;
+            break;
+        }
+        
+        // Get shop revenue from orders
+        const shopConditions = [eq(schema.orders.status, "delivered")];
+        if (startDate) {
+          shopConditions.push(gte(schema.orders.createdAt, startDate));
+        }
+        
+        const [shopStats] = await db
+          .select({
+            totalRevenue: sql<number>`COALESCE(SUM(${schema.orders.total}), 0)`.as('totalRevenue'),
+            orderCount: sql<number>`COUNT(*)`.as('orderCount'),
+          })
+          .from(schema.orders)
+          .where(and(...shopConditions));
+        
+        // Get event revenue from registrations
+        const eventConditions = [eq(schema.eventRegistrations.status, "confirmed")];
+        if (startDate) {
+          eventConditions.push(gte(schema.eventRegistrations.createdAt, startDate));
+        }
+        
+        const [eventStats] = await db
+          .select({
+            totalRevenue: sql<number>`COALESCE(SUM(${schema.eventRegistrations.total}), 0)`.as('totalRevenue'),
+            registrationCount: sql<number>`COUNT(*)`.as('registrationCount'),
+          })
+          .from(schema.eventRegistrations)
+          .where(and(...eventConditions));
+        
+        // Get previous period for comparison
+        let prevStartDate: Date | null = null;
+        let prevEndDate: Date | null = null;
+        
+        if (startDate) {
+          const periodMs = now.getTime() - startDate.getTime();
+          prevEndDate = new Date(startDate);
+          prevStartDate = new Date(startDate.getTime() - periodMs);
+        }
+        
+        let prevShopRevenue = 0;
+        let prevEventRevenue = 0;
+        
+        if (prevStartDate && prevEndDate) {
+          const [prevShopStats] = await db
+            .select({
+              totalRevenue: sql<number>`COALESCE(SUM(${schema.orders.total}), 0)`.as('totalRevenue'),
+            })
+            .from(schema.orders)
+            .where(and(
+              eq(schema.orders.status, "delivered"),
+              gte(schema.orders.createdAt, prevStartDate),
+              sql`${schema.orders.createdAt} < ${prevEndDate}`
+            ));
+          prevShopRevenue = prevShopStats?.totalRevenue || 0;
+          
+          const [prevEventStats] = await db
+            .select({
+              totalRevenue: sql<number>`COALESCE(SUM(${schema.eventRegistrations.total}), 0)`.as('totalRevenue'),
+            })
+            .from(schema.eventRegistrations)
+            .where(and(
+              eq(schema.eventRegistrations.status, "confirmed"),
+              gte(schema.eventRegistrations.createdAt, prevStartDate),
+              sql`${schema.eventRegistrations.createdAt} < ${prevEndDate}`
+            ));
+          prevEventRevenue = prevEventStats?.totalRevenue || 0;
+        }
+        
+        const shopRevenue = shopStats?.totalRevenue || 0;
+        const eventRevenue = eventStats?.totalRevenue || 0;
+        const totalRevenue = shopRevenue + eventRevenue;
+        const prevTotalRevenue = prevShopRevenue + prevEventRevenue;
+        
+        const percentChange = prevTotalRevenue > 0 
+          ? Math.round(((totalRevenue - prevTotalRevenue) / prevTotalRevenue) * 100)
+          : totalRevenue > 0 ? 100 : 0;
+        
+        return {
+          totalRevenue,
+          shopRevenue,
+          eventRevenue,
+          orderCount: shopStats?.orderCount || 0,
+          registrationCount: eventStats?.registrationCount || 0,
+          percentChange,
+          period,
+        };
+      }),
+
+    recentTransactions: adminProcedure
+      .input(z.object({
+        limit: z.number().optional().default(10),
+      }).optional())
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Get recent orders
+        const orders = await db
+          .select({
+            id: schema.orders.id,
+            type: sql<string>`'order'`.as('type'),
+            reference: schema.orders.orderNumber,
+            email: schema.orders.email,
+            amount: schema.orders.total,
+            status: schema.orders.status,
+            createdAt: schema.orders.createdAt,
+          })
+          .from(schema.orders)
+          .orderBy(desc(schema.orders.createdAt))
+          .limit(input?.limit || 10);
+        
+        // Get recent event registrations
+        const registrations = await db
+          .select({
+            id: schema.eventRegistrations.id,
+            type: sql<string>`'registration'`.as('type'),
+            reference: schema.eventRegistrations.confirmationNumber,
+            email: schema.eventRegistrations.email,
+            amount: schema.eventRegistrations.total,
+            status: schema.eventRegistrations.status,
+            createdAt: schema.eventRegistrations.createdAt,
+          })
+          .from(schema.eventRegistrations)
+          .orderBy(desc(schema.eventRegistrations.createdAt))
+          .limit(input?.limit || 10);
+        
+        // Combine and sort by date
+        const transactions = [...orders, ...registrations]
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, input?.limit || 10);
+        
+        return { transactions };
+      }),
+  }),
 });
 
 // Public article router (for the Journal page)
@@ -2171,6 +2341,44 @@ export const publicThemeRouter = router({
   get: publicProcedure.query(async () => {
     return await getThemeSettings();
   }),
+});
+
+// Public site settings router for frontend to fetch brand/site settings
+export const publicSiteSettingsRouter = router({
+  get: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return {};
+    
+    const settings = await db
+      .select()
+      .from(schema.siteSettings);
+    
+    // Convert array to object for easier access
+    const settingsObj: Record<string, string> = {};
+    settings.forEach(s => {
+      if (s.settingValue !== null) {
+        settingsObj[s.settingKey] = s.settingValue;
+      }
+    });
+    
+    return settingsObj;
+  }),
+  
+  // Get specific setting by key
+  getByKey: publicProcedure
+    .input(z.object({ key: z.string() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return null;
+      
+      const setting = await db
+        .select()
+        .from(schema.siteSettings)
+        .where(eq(schema.siteSettings.settingKey, input.key))
+        .limit(1);
+      
+      return setting[0]?.settingValue || null;
+    }),
 });
 
 // AI Chat Analytics Router

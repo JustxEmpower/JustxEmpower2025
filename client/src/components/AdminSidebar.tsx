@@ -31,6 +31,7 @@ import {
   CreditCard,
   TrendingUp,
   FileDown,
+  Mail,
 } from 'lucide-react';
 
 // Complete list of all admin navigation items matching the original design
@@ -63,6 +64,7 @@ const navItems = [
   { icon: Search, label: 'SEO', path: '/admin/seo' },
   { icon: Menu, label: 'Navigation', path: '/admin/navigation' },
   { icon: FormInput, label: 'Forms', path: '/admin/forms' },
+  { icon: Mail, label: 'Messages', path: '/admin/messages' },
   { icon: LinkIcon, label: 'Redirects', path: '/admin/redirects' },
   // Advanced
   { icon: Code, label: 'Custom Code', path: '/admin/code' },

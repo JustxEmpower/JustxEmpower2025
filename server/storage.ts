@@ -5,8 +5,16 @@ import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 // S3 Configuration from environment variables
+// Extract region from AWS_REGION (handles both "us-east-1" and "USEast(N.Virginia)us-east-1" formats)
+const extractRegion = (regionStr: string | undefined): string => {
+  if (!regionStr) return "us-east-1";
+  // Check if it contains a standard region format like us-east-1
+  const match = regionStr.match(/(us|eu|ap|sa|ca|me|af)-[a-z]+-\d+/);
+  return match ? match[0] : "us-east-1";
+};
+
 const s3Config = {
-  region: process.env.AWS_REGION || "us-east-1",
+  region: extractRegion(process.env.AWS_REGION),
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",

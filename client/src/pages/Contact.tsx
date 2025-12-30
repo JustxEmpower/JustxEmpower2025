@@ -46,7 +46,7 @@ export default function Contact() {
       toast.success("Message sent successfully! We'll get back to you soon.");
       reset();
     },
-    onError: (error) => {
+    onError: (error: { message?: string }) => {
       toast.error(error.message || "Failed to send message. Please try again.");
     },
   });

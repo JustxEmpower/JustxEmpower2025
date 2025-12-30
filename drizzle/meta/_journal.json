@@ -197,6 +197,13 @@
       "when": 1767060117424,
       "tag": "0027_kind_meltdown",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "5",
+      "when": 1767064740724,
+      "tag": "0028_funny_nighthawk",
+      "breakpoints": true
     }
   ]
 }

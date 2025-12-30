@@ -146,17 +146,14 @@ export default function AdminContent() {
     // Offerings section
     { id: 'offerings', label: 'Offerings' },
     { id: 'workshops-programs', label: 'Workshops & Programs' },
-    { id: 'vi-x-journal-trilogy', label: 'VI • X Journal Trilogy' },
+    { id: 'vix-journal-trilogy', label: 'VI • X Journal Trilogy' },
     { id: 'blog', label: 'Blog (She Writes)' },
     // Other main pages
     { id: 'shop', label: 'Shop' },
-    { id: 'events', label: 'Events' },
+    { id: 'community-events', label: 'Community Events' },
     { id: 'resources', label: 'Resources' },
     { id: 'walk-with-us', label: 'Walk With Us' },
     { id: 'contact', label: 'Contact' },
-    // Legacy pages (for backwards compatibility)
-    { id: 'about', label: 'About (Legacy)' },
-    { id: 'journal', label: 'Journal (Legacy)' },
   ];
 
   const handleOpenMediaPicker = (fieldId: number) => {

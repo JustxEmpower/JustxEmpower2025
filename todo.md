@@ -1084,3 +1084,34 @@
 - [ ] Fix Home button not working on Shop page
 - [ ] Fix All button not working on Shop page
 - [ ] Fix products not loading on production
+
+
+## Phase 2 Punch List (Dec 29, 2025)
+
+### Mailchimp Integration
+- [x] Configure Mailchimp with API key (stored in database settings)
+- [x] Test newsletter subscription syncs to Mailchimp
+
+### Content Editor
+- [x] Remove redundant pages (events vs community events, philosophy duplicates)
+- [x] Ensure all page sections are editable in admin (13 pages now in Content Editor)
+- [x] Home page already in Content Editor
+
+### Footer
+- [x] Add "Accessibility" link to footer (left of Privacy Policy)
+- [x] Added all legal page links (Accessibility, Privacy Policy, Terms of Service, Cookie Policy)
+
+### Resources
+- [x] Document upload to S3 already implemented (resourcesRouter.ts uses storagePut)
+
+### Admin Contact Messages
+- [x] Add section in admin to view contact form submissions (AdminContactMessages.tsx)
+- [x] Messages page shows sender info and allows status management
+
+### Newsletter Form
+- [x] Fix responsiveness - email input now expands, stacks on mobile
+- [x] Mobile-friendly layout with flex-col sm:flex-row
+
+### Legal Docs
+- [x] Renamed "Disclaimer" to "Warranty Disclaimer" in Terms of Service (clearer, industry standard)
+- [x] All legal pages (Privacy Policy, Terms, Cookies, Accessibility) are complete and linked in footer

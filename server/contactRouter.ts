@@ -80,7 +80,7 @@ export const contactRouter = router({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
       }
 
-      const updateData: any = { status: input.status };
+      const updateData: Record<string, unknown> = { status: input.status };
       if (input.notes !== undefined) {
         updateData.notes = input.notes;
       }

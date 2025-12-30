@@ -86,9 +86,19 @@ export default function Footer() {
           <p className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40">
             © {currentYear} Just Empower™. All Rights Reserved.
           </p>
-          <div className="flex gap-8">
-            <a href="#" className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">Privacy Policy</a>
-            <a href="#" className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">Terms of Use</a>
+          <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+            <Link href="/accessibility">
+              <a className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">Accessibility</a>
+            </Link>
+            <Link href="/privacy-policy">
+              <a className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">Privacy Policy</a>
+            </Link>
+            <Link href="/terms-of-service">
+              <a className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">Terms of Service</a>
+            </Link>
+            <Link href="/cookie-policy">
+              <a className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">Cookie Policy</a>
+            </Link>
           </div>
         </div>
       </div>
