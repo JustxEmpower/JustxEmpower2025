@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { MapView } from '@/components/Map';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { trpc } from '@/lib/trpc';
 
 const contactSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -40,16 +41,23 @@ export default function Contact() {
     window.scrollTo(0, 0);
   }, [location]);
 
+  const submitMutation = trpc.contact.submit.useMutation({
+    onSuccess: () => {
+      toast.success("Message sent successfully! We'll get back to you soon.");
+      reset();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to send message. Please try again.");
+    },
+  });
+
   const onSubmit = async (data: ContactFormValues) => {
     setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    
-    console.log('Form submitted:', data);
-    toast.success("Message sent successfully! We'll get back to you soon.");
-    reset();
-    setIsSubmitting(false);
+    try {
+      await submitMutation.mutateAsync(data);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

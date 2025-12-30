@@ -19,6 +19,7 @@ export default function AdminSEO() {
   const { logout } = useAdminAuth();
   
   const [selectedPage, setSelectedPage] = useState("home");
+  const [isPageChanging, setIsPageChanging] = useState(false);
   const [formData, setFormData] = useState({
     metaTitle: "",
     metaDescription: "",
@@ -58,8 +59,9 @@ export default function AdminSEO() {
         noIndex: seoQuery.data.noIndex === 1,
         structuredData: seoQuery.data.structuredData || "",
       });
-    } else {
-      // Reset form for new page
+      setIsPageChanging(false);
+    } else if (isPageChanging) {
+      // Only reset form when explicitly changing pages, not during refetch
       setFormData({
         metaTitle: "",
         metaDescription: "",
@@ -72,8 +74,9 @@ export default function AdminSEO() {
         noIndex: false,
         structuredData: "",
       });
+      setIsPageChanging(false);
     }
-  }, [seoQuery.data]);
+  }, [seoQuery.data, isPageChanging]);
 
   const handleSave = async () => {
     await updateMutation.mutateAsync({
@@ -84,6 +87,7 @@ export default function AdminSEO() {
   };
 
   const handlePageChange = (pageSlug: string) => {
+    setIsPageChanging(true);
     setSelectedPage(pageSlug);
   };
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'wouter';
+import { useLocation, Link } from 'wouter';
 import { cn } from '@/lib/utils';
 import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
@@ -92,12 +92,14 @@ export default function Journal() {
                 <p className="font-sans text-base leading-relaxed text-foreground/80 mb-8">
                   {featuredPost.excerpt}
                 </p>
-                <Button
-                  variant="outline"
-                  className="rounded-full px-8"
-                >
-                  Read Article
-                </Button>
+                <Link href={`/blog/${featuredPost.slug}`}>
+                  <Button
+                    variant="outline"
+                    className="rounded-full px-8"
+                  >
+                    Read Article
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>
@@ -109,7 +111,8 @@ export default function Journal() {
             <h2 className="font-sans text-xs tracking-[0.2em] uppercase text-muted-foreground mb-8 border-b border-border pb-4">Recent Articles</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {regularPosts.map((post, index) => (
-                <article key={index} className="group cursor-pointer">
+                <Link key={index} href={`/blog/${post.slug}`}>
+                <article className="group cursor-pointer">
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-6">
                     <img
                       src={getMediaUrl(post.imageUrl || '/media/12/IMG_0513-1280x1358.jpg')}
@@ -134,6 +137,7 @@ export default function Journal() {
                     {post.excerpt}
                   </p>
                 </article>
+                </Link>
               ))}
             </div>
           </div>

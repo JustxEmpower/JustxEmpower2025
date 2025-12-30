@@ -38,7 +38,14 @@ export default function AdminContent() {
     { enabled: isAuthenticated }
   );
 
-  const updateMutation = trpc.admin.content.update.useMutation();
+  const utils = trpc.useUtils();
+  const updateMutation = trpc.admin.content.update.useMutation({
+    onSuccess: async () => {
+      // Invalidate and refetch the content query
+      await utils.admin.content.getByPage.invalidate({ page: selectedPage });
+      await refetch();
+    },
+  });
 
   useEffect(() => {
     if (contentData) {
@@ -49,8 +56,10 @@ export default function AdminContent() {
         return acc;
       }, {});
       setExpandedSections(sections);
+      // Clear any edited content when page data changes
+      setEditedContent({});
     }
-  }, [contentData]);
+  }, [contentData, selectedPage]);
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) {
@@ -60,9 +69,11 @@ export default function AdminContent() {
 
   const handleContentChange = (id: number, value: string) => {
     setEditedContent(prev => ({ ...prev, [id]: value }));
+    // Update the local content state immediately for UI feedback
+    setContent(prev => prev.map(item => item.id === id ? { ...item, contentValue: value } : item));
   };
 
-  const handleSaveAll = async () => {
+    const handleSaveAll = async () => {
     if (Object.keys(editedContent).length === 0) {
       toast.info('No changes to save');
       return;
@@ -94,17 +105,18 @@ export default function AdminContent() {
     } else {
       toast.error('Failed to save changes');
     }
-    
-    // Clear edited content and refetch
-    setEditedContent({});
-    refetch();
   };
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
-  if (isChecking || isLoading) {
+  // When selected page changes, refetch content
+  useEffect(() => {
+    refetch();
+  }, [selectedPage, refetch]);
+
+  if (isChecking) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
         <p className="text-neutral-500">Loading...</p>
@@ -114,6 +126,14 @@ export default function AdminContent() {
 
   if (!isAuthenticated) {
     return null;
+  }
+
+  if (isLoading && content.length === 0) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-neutral-50 dark:bg-neutral-950">
+        <p className="text-neutral-500">Loading content...</p>
+      </div>
+    );
   }
 
   const pages = [

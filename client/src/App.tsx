@@ -56,6 +56,11 @@ import Events from "@/pages/Events";
 import EventDetail from "@/pages/EventDetail";
 import Resources from "@/pages/Resources";
 import CommunityEvents from "@/pages/CommunityEvents";
+import ArticleDetail from "@/pages/ArticleDetail";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
+import AccessibilityStatement from "@/pages/AccessibilityStatement";
+import CookiePolicy from "@/pages/CookiePolicy";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -106,6 +111,7 @@ function Router() {
       <Route path="/journal-trilogy" component={Journal} />
       <Route path="/blog-she-writes" component={Journal} />
       <Route path="/blog" component={Journal} />
+      <Route path="/blog/:slug" component={ArticleDetail} />
       <Route path="/resources" component={Resources} />
       <Route path="/community-events" component={CommunityEvents} />
       <Route path="/shop" component={Shop} />
@@ -114,6 +120,11 @@ function Router() {
       <Route path="/events" component={Events} />
       <Route path="/events/:slug" component={EventDetail} />
       <Route path="/walk-with-us" component={WalkWithUs} />
+      {/* Legal Pages */}
+      <Route path="/privacy-policy" component={PrivacyPolicy} />
+      <Route path="/terms-of-service" component={TermsOfService} />
+      <Route path="/accessibility" component={AccessibilityStatement} />
+      <Route path="/cookie-policy" component={CookiePolicy} />
       <Route path="/:slug" component={DynamicPage} />
       <Route component={NotFound} />
     </Switch>

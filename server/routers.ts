@@ -6,6 +6,7 @@ import { adminRouter, publicArticlesRouter, publicContentRouter, publicPagesRout
 import { shopRouter } from "./shopRouter";
 import { eventsRouter } from "./eventsRouter";
 import { adminResourcesRouter, publicResourcesRouter } from "./resourcesRouter";
+import { contactRouter } from "./contactRouter";
 import { newsletterRouter } from "./newsletterRouter";
 import { aiRouter } from "./aiRouters";
 import { analyticsRouter } from "./analyticsRouters";
@@ -61,6 +62,9 @@ export const appRouter = router({
   // Resources / Document Library
   resources: publicResourcesRouter,
   adminResources: adminResourcesRouter,
+  
+  // Contact form submissions
+  contact: contactRouter,
 });
 
 export type AppRouter = typeof appRouter;
