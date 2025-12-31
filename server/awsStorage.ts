@@ -2,8 +2,10 @@
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
+// Use elasticbeanstalk bucket which has proper permissions
 const S3_BUCKET = process.env.AWS_S3_BUCKET || "elasticbeanstalk-us-east-1-137738969420";
 const S3_REGION = process.env.AWS_REGION || "us-east-1";
+const MEDIA_PREFIX = "justxempower-media/";
 
 let s3Client: S3Client | null = null;
 
@@ -24,20 +26,23 @@ export async function uploadToS3(
 ): Promise<{ key: string; url: string }> {
   const client = getS3Client();
   
+  // Add media prefix if not already present
+  const fullKey = key.startsWith(MEDIA_PREFIX) || key.startsWith("backups/") ? key : MEDIA_PREFIX + key;
+  
   const body = typeof data === "string" ? Buffer.from(data, "utf-8") : data;
   
+  // Don't use ACL - the bucket may not allow it
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET,
-    Key: key,
+    Key: fullKey,
     Body: body,
     ContentType: contentType,
-    ACL: "public-read", // Make the file publicly accessible
   });
   
   await client.send(command);
   
-  const url = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${key}`;
-  return { key, url };
+  const url = `https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com/${fullKey}`;
+  return { key: fullKey, url };
 }
 
 export async function getS3SignedUrl(key: string, expiresIn = 3600): Promise<string> {
