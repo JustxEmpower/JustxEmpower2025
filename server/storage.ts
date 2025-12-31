@@ -21,21 +21,13 @@ const s3Config = {
   },
 };
 
-// Use elasticbeanstalk bucket which has proper permissions
-const BUCKET_NAME = process.env.AWS_S3_BUCKET || "elasticbeanstalk-us-east-1-137738969420";
-// Media files will be stored under justxempower-media/ prefix
-const MEDIA_PREFIX = "justxempower-media/";
+const BUCKET_NAME = process.env.AWS_S3_BUCKET || "justxempower-assets";
 
 // Create S3 client
 const s3Client = new S3Client(s3Config);
 
 function normalizeKey(relKey: string): string {
-  // Add media prefix if not already present
-  const key = relKey.replace(/^\/+/, "");
-  if (!key.startsWith(MEDIA_PREFIX) && !key.startsWith("backups/")) {
-    return MEDIA_PREFIX + key;
-  }
-  return key;
+  return relKey.replace(/^\/+/, "");
 }
 
 /**
@@ -62,12 +54,13 @@ export async function storagePut(
     };
   }
   
-  // Don't use ACL - the bucket may not allow it
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
     Body: typeof data === "string" ? Buffer.from(data) : data,
     ContentType: contentType,
+    // Make the object publicly readable
+    ACL: "public-read",
   });
 
   try {
