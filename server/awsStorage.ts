@@ -26,12 +26,13 @@ export async function uploadToS3(
   
   const body = typeof data === "string" ? Buffer.from(data, "utf-8") : data;
   
+  // Note: ACL is not used as the bucket has ACLs disabled
+  // Public access is controlled via bucket policy
   const command = new PutObjectCommand({
     Bucket: S3_BUCKET,
     Key: key,
     Body: body,
     ContentType: contentType,
-    ACL: "public-read", // Make the file publicly accessible
   });
   
   await client.send(command);

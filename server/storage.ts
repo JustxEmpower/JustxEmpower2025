@@ -54,13 +54,13 @@ export async function storagePut(
     };
   }
   
+  // Note: ACL is not used as the bucket has ACLs disabled
+  // Public access is controlled via bucket policy
   const command = new PutObjectCommand({
     Bucket: BUCKET_NAME,
     Key: key,
     Body: typeof data === "string" ? Buffer.from(data) : data,
     ContentType: contentType,
-    // Make the object publicly readable
-    ACL: "public-read",
   });
 
   try {
