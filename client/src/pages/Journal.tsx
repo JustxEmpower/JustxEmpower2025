@@ -4,12 +4,16 @@ import { cn } from '@/lib/utils';
 import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
+import { usePageContent } from '@/hooks/usePageContent';
 
 export default function Journal() {
   const [location] = useLocation();
   const [limit] = useState(6);
   const [offset, setOffset] = useState(0);
   const [allArticles, setAllArticles] = useState<any[]>([]);
+  
+  // Get page content from database
+  const { getContent, isLoading: contentLoading } = usePageContent('blog');
 
   const { data: articles, isLoading, refetch } = trpc.articles.list.useQuery({
     limit,
@@ -37,6 +41,17 @@ export default function Journal() {
   const featuredPost = allArticles[0] || null;
   const regularPosts = allArticles.slice(1);
 
+  // Get hero content from database
+  const heroTitle = getContent('hero', 'title', 'She Writes');
+  const heroSubtitle = getContent('hero', 'subtitle', 'SHE WRITES');
+  const heroDescription = getContent('hero', 'description', 'Lessons from the Living Codex');
+  const heroImage = getContent('hero', 'imageUrl', '/media/11/Fam.jpg');
+
+  // Get overview content from database
+  const overviewTitle = getContent('overview', 'title', 'Latest Posts');
+  const overviewParagraph1 = getContent('overview', 'paragraph1', 'Welcome to She Writes, a sacred space for reflection, wisdom, and storytelling.');
+  const overviewParagraph2 = getContent('overview', 'paragraph2', 'Here you will find articles, insights, and musings from April and our community of conscious leaders.');
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -53,10 +68,10 @@ export default function Journal() {
         </video>
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
-            She Writes
+            {heroTitle}
           </h1>
           <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90">
-            Lessons from the Living Codex
+            {heroDescription}
           </p>
         </div>
       </div>
