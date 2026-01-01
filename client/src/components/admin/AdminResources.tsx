@@ -104,6 +104,10 @@ export default function AdminResources() {
     requiresEmail: false,
     status: 'published' as 'draft' | 'published' | 'archived',
     isFeatured: false,
+    // Premium fields
+    isPremium: false,
+    price: '',
+    allowPreview: true,
   });
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [categoryForm, setCategoryForm] = useState({
@@ -167,6 +171,9 @@ export default function AdminResources() {
       requiresEmail: false,
       status: 'published',
       isFeatured: false,
+      isPremium: false,
+      price: '',
+      allowPreview: true,
     });
     setSelectedFile(null);
     if (fileInputRef.current) {
@@ -206,6 +213,9 @@ export default function AdminResources() {
         requiresEmail: uploadForm.requiresEmail ? 1 : 0,
         status: uploadForm.status,
         isFeatured: uploadForm.isFeatured ? 1 : 0,
+        isPremium: uploadForm.isPremium ? 1 : 0,
+        price: uploadForm.price ? Math.round(parseFloat(uploadForm.price) * 100) : 0, // Convert to cents
+        allowPreview: uploadForm.allowPreview ? 1 : 0,
       });
     };
     reader.readAsDataURL(selectedFile);
@@ -435,6 +445,50 @@ export default function AdminResources() {
                       checked={uploadForm.isFeatured}
                       onCheckedChange={(checked) => setUploadForm(prev => ({ ...prev, isFeatured: checked }))}
                     />
+                  </div>
+                  
+                  {/* Premium Content Section */}
+                  <div className="border-t pt-3 mt-3">
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <Label>Premium Content</Label>
+                        <p className="text-sm text-stone-500">Require payment to download</p>
+                      </div>
+                      <Switch
+                        checked={uploadForm.isPremium}
+                        onCheckedChange={(checked) => setUploadForm(prev => ({ ...prev, isPremium: checked }))}
+                      />
+                    </div>
+                    
+                    {uploadForm.isPremium && (
+                      <>
+                        <div className="mb-3">
+                          <Label>Price (USD)</Label>
+                          <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-500">$</span>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={uploadForm.price}
+                              onChange={(e) => setUploadForm(prev => ({ ...prev, price: e.target.value }))}
+                              placeholder="9.99"
+                              className="pl-7"
+                            />
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <Label>Allow Preview</Label>
+                            <p className="text-sm text-stone-500">Let users preview before purchase</p>
+                          </div>
+                          <Switch
+                            checked={uploadForm.allowPreview}
+                            onCheckedChange={(checked) => setUploadForm(prev => ({ ...prev, allowPreview: checked }))}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>

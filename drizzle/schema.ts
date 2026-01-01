@@ -919,6 +919,10 @@ export const resources = mysqlTable("resources", {
   // Access control
   isPublic: int("isPublic").default(1).notNull(), // 1 = public, 0 = requires login
   requiresEmail: int("requiresEmail").default(0).notNull(), // Capture email before download
+  // Pricing
+  isPremium: int("isPremium").default(0).notNull(), // 1 = paid content, 0 = free
+  price: int("price").default(0), // Price in cents (e.g., 999 = $9.99)
+  allowPreview: int("allowPreview").default(1).notNull(), // Allow preview even for premium content
   // Analytics
   downloadCount: int("downloadCount").default(0).notNull(),
   viewCount: int("viewCount").default(0).notNull(),

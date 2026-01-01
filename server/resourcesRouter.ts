@@ -268,6 +268,10 @@ export const adminResourcesRouter = router({
       requiresEmail: z.number().optional().default(0),
       status: z.enum(['draft', 'published', 'archived']).optional().default('published'),
       isFeatured: z.number().optional().default(0),
+      // Premium fields
+      isPremium: z.number().optional().default(0),
+      price: z.number().optional().default(0), // Price in cents
+      allowPreview: z.number().optional().default(1),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -304,6 +308,9 @@ export const adminResourcesRouter = router({
         requiresEmail: input.requiresEmail,
         status: input.status,
         isFeatured: input.isFeatured,
+        isPremium: input.isPremium,
+        price: input.price,
+        allowPreview: input.allowPreview,
         publishedAt: input.status === 'published' ? new Date() : null,
       });
       
@@ -327,6 +334,10 @@ export const adminResourcesRouter = router({
       isFeatured: z.number().optional(),
       metaTitle: z.string().optional(),
       metaDescription: z.string().optional(),
+      // Premium fields
+      isPremium: z.number().optional(),
+      price: z.number().optional(),
+      allowPreview: z.number().optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -478,6 +489,11 @@ export const publicResourcesRouter = router({
         categoryName: r.categoryName,
         categorySlug: r.categorySlug,
         requiresEmail: r.resource.requiresEmail,
+        // Premium fields
+        isPremium: r.resource.isPremium,
+        price: r.resource.price,
+        allowPreview: r.resource.allowPreview,
+        fileUrl: r.resource.fileUrl, // Needed for preview
       }));
     }),
 
@@ -639,6 +655,12 @@ export const publicResourcesRouter = router({
         formattedSize: formatFileSize(r.resource.fileSize),
         downloadCount: r.resource.downloadCount,
         categoryName: r.categoryName,
+        requiresEmail: r.resource.requiresEmail,
+        // Premium fields
+        isPremium: r.resource.isPremium,
+        price: r.resource.price,
+        allowPreview: r.resource.allowPreview,
+        fileUrl: r.resource.fileUrl,
       }));
     }),
 });

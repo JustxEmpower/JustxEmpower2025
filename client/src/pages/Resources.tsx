@@ -24,7 +24,12 @@ import {
   FolderOpen,
   Star,
   Eye,
-  ChevronRight,
+  Play,
+  X,
+  ExternalLink,
+  Lock,
+  ShoppingCart,
+  DollarSign,
 } from 'lucide-react';
 
 // File type icon mapping
@@ -36,6 +41,7 @@ const getFileIcon = (fileType: string, size: 'sm' | 'lg' = 'sm') => {
   if (['xls', 'xlsx', 'csv'].includes(type)) return <FileSpreadsheet className={`${sizeClass} text-green-500`} />;
   if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(type)) return <FileImage className={`${sizeClass} text-purple-500`} />;
   if (['zip', 'rar', '7z', 'tar', 'gz'].includes(type)) return <FileArchive className={`${sizeClass} text-amber-500`} />;
+  if (['mp4', 'webm', 'mov', 'avi'].includes(type)) return <Play className={`${sizeClass} text-pink-500`} />;
   return <File className={`${sizeClass} text-gray-500`} />;
 };
 
@@ -52,12 +58,44 @@ const getFileTypeBadge = (fileType: string) => {
     ZIP: 'bg-amber-100 text-amber-700',
     PNG: 'bg-purple-100 text-purple-700',
     JPG: 'bg-purple-100 text-purple-700',
+    JPEG: 'bg-purple-100 text-purple-700',
+    GIF: 'bg-purple-100 text-purple-700',
+    MP4: 'bg-pink-100 text-pink-700',
+    WEBM: 'bg-pink-100 text-pink-700',
+    MOV: 'bg-pink-100 text-pink-700',
   };
   return (
     <Badge className={`${colors[type] || 'bg-gray-100 text-gray-700'} hover:${colors[type] || 'bg-gray-100'}`}>
       {type}
     </Badge>
   );
+};
+
+// Check if file type is previewable
+const isPreviewable = (fileType: string): boolean => {
+  const type = fileType.toLowerCase();
+  return ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'mp4', 'webm', 'mov', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(type);
+};
+
+// Get preview button text based on file type
+const getPreviewButtonText = (fileType: string): string => {
+  const type = fileType.toLowerCase();
+  if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(type)) return 'View';
+  if (['mp4', 'webm', 'mov'].includes(type)) return 'Play';
+  return 'Preview';
+};
+
+// Get preview icon based on file type
+const getPreviewIcon = (fileType: string) => {
+  const type = fileType.toLowerCase();
+  if (['mp4', 'webm', 'mov'].includes(type)) return <Play className="w-4 h-4 mr-2" />;
+  return <Eye className="w-4 h-4 mr-2" />;
+};
+
+// Format price from cents to dollars
+const formatPrice = (priceInCents: number): string => {
+  if (!priceInCents || priceInCents === 0) return 'Free';
+  return `$${(priceInCents / 100).toFixed(2)}`;
 };
 
 export default function Resources() {
@@ -67,6 +105,14 @@ export default function Resources() {
   const [selectedResource, setSelectedResource] = useState<any>(null);
   const [email, setEmail] = useState('');
   const [downloadError, setDownloadError] = useState('');
+  
+  // Preview state
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewResource, setPreviewResource] = useState<any>(null);
+  
+  // Purchase state
+  const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
+  const [purchaseResource, setPurchaseResource] = useState<any>(null);
 
   // Queries
   const resourcesQuery = trpc.resources.list.useQuery({
@@ -101,6 +147,15 @@ export default function Resources() {
   });
 
   const handleDownload = (resource: any) => {
+    // Check if premium content
+    if (resource.isPremium && resource.price > 0) {
+      // TODO: Check if user has purchased this resource
+      // For now, show purchase dialog
+      setPurchaseResource(resource);
+      setPurchaseDialogOpen(true);
+      return;
+    }
+    
     if (resource.requiresEmail) {
       setSelectedResource(resource);
       setEmailDialogOpen(true);
@@ -110,6 +165,25 @@ export default function Resources() {
         visitorId: localStorage.getItem('visitorId') || undefined,
       });
     }
+  };
+
+  const handlePreview = (resource: any) => {
+    // Check if preview is allowed for premium content
+    if (resource.isPremium && !resource.allowPreview) {
+      // Show purchase dialog instead
+      setPurchaseResource(resource);
+      setPurchaseDialogOpen(true);
+      return;
+    }
+    
+    setPreviewResource(resource);
+    setPreviewOpen(true);
+  };
+
+  const handlePurchase = (resource: any) => {
+    // TODO: Integrate with Stripe or payment system
+    // For now, redirect to contact or show message
+    window.location.href = `/contact?subject=Purchase: ${encodeURIComponent(resource.title)}`;
   };
 
   const handleEmailSubmit = () => {
@@ -129,11 +203,131 @@ export default function Resources() {
     });
   };
 
+  // Get preview content based on file type
+  const renderPreviewContent = () => {
+    if (!previewResource) return null;
+    
+    const fileType = previewResource.fileType.toLowerCase();
+    const fileUrl = previewResource.fileUrl;
+    
+    // Images - direct display
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(fileType)) {
+      return (
+        <div className="flex items-center justify-center h-full bg-black/5 rounded-lg overflow-hidden">
+          <img 
+            src={fileUrl} 
+            alt={previewResource.title}
+            className="max-w-full max-h-[70vh] object-contain"
+          />
+        </div>
+      );
+    }
+    
+    // Videos - HTML5 video player
+    if (['mp4', 'webm', 'mov'].includes(fileType)) {
+      return (
+        <div className="flex items-center justify-center h-full bg-black rounded-lg overflow-hidden">
+          <video 
+            src={fileUrl} 
+            controls 
+            autoPlay
+            className="max-w-full max-h-[70vh]"
+          >
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      );
+    }
+    
+    // PDFs - embedded viewer
+    if (fileType === 'pdf') {
+      return (
+        <div className="h-[70vh] bg-gray-100 rounded-lg overflow-hidden">
+          <iframe
+            src={`${fileUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+            className="w-full h-full border-0"
+            title={previewResource.title}
+          />
+        </div>
+      );
+    }
+    
+    // Office documents - Google Docs Viewer
+    if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(fileType)) {
+      const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
+      return (
+        <div className="h-[70vh] bg-gray-100 rounded-lg overflow-hidden">
+          <iframe
+            src={googleViewerUrl}
+            className="w-full h-full border-0"
+            title={previewResource.title}
+          />
+        </div>
+      );
+    }
+    
+    // Fallback - show message with download option
+    return (
+      <div className="flex flex-col items-center justify-center h-64 bg-gray-100 rounded-lg">
+        <File className="w-16 h-16 text-gray-400 mb-4" />
+        <p className="text-gray-600 mb-4">Preview not available for this file type</p>
+        <Button onClick={() => handleDownload(previewResource)} className="bg-amber-600 hover:bg-amber-700">
+          <Download className="w-4 h-4 mr-2" />
+          Download to View
+        </Button>
+      </div>
+    );
+  };
+
   // Filter resources by search
   const filteredResources = resourcesQuery.data?.filter(resource =>
     resource.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     resource.description?.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
+
+  // Render action buttons for a resource
+  const renderResourceActions = (resource: any, size: 'sm' | 'default' = 'default') => {
+    const isPremium = resource.isPremium && resource.price > 0;
+    const canPreview = isPreviewable(resource.fileType) && (!isPremium || resource.allowPreview);
+    
+    return (
+      <div className="flex gap-2 flex-shrink-0">
+        {/* Preview/View Button */}
+        {canPreview && (
+          <Button
+            variant="outline"
+            size={size}
+            onClick={() => handlePreview(resource)}
+          >
+            {getPreviewIcon(resource.fileType)}
+            {getPreviewButtonText(resource.fileType)}
+          </Button>
+        )}
+        
+        {/* Download or Purchase Button */}
+        {isPremium ? (
+          <Button
+            size={size}
+            className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+            onClick={() => handleDownload(resource)}
+          >
+            <ShoppingCart className="w-4 h-4 mr-2" />
+            {formatPrice(resource.price)}
+          </Button>
+        ) : (
+          <Button
+            size={size}
+            className="bg-amber-600 hover:bg-amber-700"
+            onClick={() => handleDownload(resource)}
+            disabled={downloadMutation.isPending}
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Download
+          </Button>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -168,7 +362,15 @@ export default function Resources() {
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {featuredQuery.data.map((resource) => (
-                <Card key={resource.id} className="border-amber-200 bg-amber-50/50 hover:shadow-lg transition-shadow">
+                <Card key={resource.id} className={`border-amber-200 bg-amber-50/50 hover:shadow-lg transition-shadow relative ${resource.isPremium ? 'ring-2 ring-amber-400' : ''}`}>
+                  {resource.isPremium && resource.price > 0 && (
+                    <div className="absolute top-3 right-3">
+                      <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-white">
+                        <DollarSign className="w-3 h-3 mr-1" />
+                        Premium
+                      </Badge>
+                    </div>
+                  )}
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       {getFileIcon(resource.fileType, 'lg')}
@@ -186,15 +388,9 @@ export default function Resources() {
                         <span className="mx-2">•</span>
                         <span>{resource.downloadCount} downloads</span>
                       </div>
-                      <Button 
-                        size="sm" 
-                        className="bg-amber-600 hover:bg-amber-700"
-                        onClick={() => handleDownload(resource)}
-                        disabled={downloadMutation.isPending}
-                      >
-                        <Download className="w-4 h-4 mr-1" />
-                        Download
-                      </Button>
+                    </div>
+                    <div className="mt-4">
+                      {renderResourceActions(resource, 'sm')}
                     </div>
                   </CardContent>
                 </Card>
@@ -279,18 +475,30 @@ export default function Resources() {
             ) : (
               <div className="space-y-4">
                 {filteredResources.map((resource) => (
-                  <Card key={resource.id} className="hover:shadow-md transition-shadow">
+                  <Card key={resource.id} className={`hover:shadow-md transition-shadow ${resource.isPremium && resource.price > 0 ? 'border-l-4 border-l-amber-500' : ''}`}>
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0">
+                        <div className="flex-shrink-0 relative">
                           {getFileIcon(resource.fileType, 'lg')}
+                          {resource.isPremium && resource.price > 0 && (
+                            <div className="absolute -top-1 -right-1 bg-amber-500 rounded-full p-1">
+                              <Lock className="w-3 h-3 text-white" />
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-4">
                             <div>
-                              <h3 className="text-lg font-medium text-stone-900 mb-1">
-                                {resource.title}
-                              </h3>
+                              <div className="flex items-center gap-2 mb-1">
+                                <h3 className="text-lg font-medium text-stone-900">
+                                  {resource.title}
+                                </h3>
+                                {resource.isPremium && resource.price > 0 && (
+                                  <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs">
+                                    {formatPrice(resource.price)}
+                                  </Badge>
+                                )}
+                              </div>
                               {resource.description && (
                                 <p className="text-stone-600 mb-3 line-clamp-2">
                                   {resource.description}
@@ -311,14 +519,7 @@ export default function Resources() {
                                 )}
                               </div>
                             </div>
-                            <Button
-                              className="bg-amber-600 hover:bg-amber-700 flex-shrink-0"
-                              onClick={() => handleDownload(resource)}
-                              disabled={downloadMutation.isPending}
-                            >
-                              <Download className="w-4 h-4 mr-2" />
-                              Download
-                            </Button>
+                            {renderResourceActions(resource)}
                           </div>
                         </div>
                       </div>
@@ -371,6 +572,115 @@ export default function Resources() {
               {downloadMutation.isPending ? 'Downloading...' : 'Download'}
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Purchase Dialog */}
+      <Dialog open={purchaseDialogOpen} onOpenChange={setPurchaseDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Lock className="w-5 h-5 text-amber-500" />
+              Premium Resource
+            </DialogTitle>
+            <DialogDescription>
+              "{purchaseResource?.title}" is a premium resource
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-medium text-stone-900">{purchaseResource?.title}</span>
+                <span className="text-2xl font-bold text-amber-600">
+                  {purchaseResource && formatPrice(purchaseResource.price)}
+                </span>
+              </div>
+              <p className="text-sm text-stone-600">{purchaseResource?.description}</p>
+            </div>
+            <div className="space-y-2 text-sm text-stone-600">
+              <p className="flex items-center gap-2">
+                <Download className="w-4 h-4 text-green-500" />
+                Instant download after purchase
+              </p>
+              <p className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-blue-500" />
+                {purchaseResource?.fileType.toUpperCase()} format • {purchaseResource?.formattedSize}
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPurchaseDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={() => handlePurchase(purchaseResource)}
+              className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+            >
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              Purchase Now
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Preview Modal */}
+      <Dialog open={previewOpen} onOpenChange={setPreviewOpen}>
+        <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] overflow-hidden">
+          <DialogHeader>
+            <div className="flex items-center justify-between pr-8">
+              <div className="flex items-center gap-3">
+                {previewResource && getFileIcon(previewResource.fileType, 'sm')}
+                <div>
+                  <DialogTitle className="text-lg">{previewResource?.title}</DialogTitle>
+                  <DialogDescription className="flex items-center gap-2 mt-1">
+                    {previewResource && getFileTypeBadge(previewResource.fileType)}
+                    <span>{previewResource?.formattedSize}</span>
+                    {previewResource?.isPremium && previewResource?.price > 0 && (
+                      <Badge className="bg-amber-500 text-white">Premium</Badge>
+                    )}
+                  </DialogDescription>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(previewResource?.fileUrl, '_blank')}
+                  title="Open in new tab"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </Button>
+                {previewResource?.isPremium && previewResource?.price > 0 ? (
+                  <Button
+                    size="sm"
+                    className="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700"
+                    onClick={() => {
+                      setPreviewOpen(false);
+                      handleDownload(previewResource);
+                    }}
+                  >
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    {formatPrice(previewResource.price)}
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="bg-amber-600 hover:bg-amber-700"
+                    onClick={() => {
+                      handleDownload(previewResource);
+                      setPreviewOpen(false);
+                    }}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    Download
+                  </Button>
+                )}
+              </div>
+            </div>
+          </DialogHeader>
+          <div className="mt-4 overflow-auto">
+            {renderPreviewContent()}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
