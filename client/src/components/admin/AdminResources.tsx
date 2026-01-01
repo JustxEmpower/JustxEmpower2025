@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import { toast } from 'sonner';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -125,6 +126,11 @@ export default function AdminResources() {
       resourcesQuery.refetch();
       setIsUploadOpen(false);
       resetUploadForm();
+      toast.success('Resource uploaded successfully!');
+    },
+    onError: (error) => {
+      console.error('Upload error:', error);
+      toast.error(`Upload failed: ${error.message}`);
     },
   });
   const updateMutation = trpc.adminResources.update.useMutation({

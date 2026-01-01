@@ -1,24 +1,46 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { trpc } from '@/lib/trpc';
 
 export default function CookiePolicy() {
   const [location] = useLocation();
+  
+  // Fetch content from database
+  const { data: contentData, isLoading } = trpc.content.getByPage.useQuery({ page: 'cookie-policy' });
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
 
+  // Helper to get content value by key
+  const getContent = (key: string, defaultValue: string = '') => {
+    const item = contentData?.find((c: any) => c.contentKey === key);
+    return item?.contentValue || defaultValue;
+  };
+
+  // Default values
+  const title = getContent('title', 'Cookie Policy');
+  const lastUpdated = getContent('lastUpdated', 'December 2024');
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="py-24 px-6 md:px-12 max-w-4xl mx-auto">
-        <h1 className="font-serif text-4xl md:text-5xl italic mb-8 text-foreground">Cookie Policy</h1>
-        <p className="text-sm text-muted-foreground mb-12">Last updated: December 28, 2025</p>
+        <h1 className="font-serif text-4xl md:text-5xl italic mb-8 text-foreground">{title}</h1>
+        <p className="text-sm text-muted-foreground mb-12">Last updated: {lastUpdated}</p>
 
         <div className="prose prose-lg max-w-none text-foreground/80 space-y-8">
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">What Are Cookies</h2>
             <p>
-              Cookies are small text files that are placed on your computer or mobile device when you visit a website. They are widely used to make websites work more efficiently and to provide information to the owners of the site.
+              {getContent('whatAreCookies', 'Cookies are small text files that are placed on your computer or mobile device when you visit a website. They are widely used to make websites work more efficiently and to provide information to the owners of the site.')}
             </p>
           </section>
 
@@ -114,14 +136,14 @@ export default function CookiePolicy() {
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Your Consent</h2>
             <p>
-              By continuing to use our website, you consent to our use of cookies as described in this policy. You can withdraw your consent at any time by clearing cookies from your browser and adjusting your browser settings.
+              {getContent('consent', 'By continuing to use our website, you consent to our use of cookies as described in this policy. You can withdraw your consent at any time by clearing cookies from your browser and adjusting your browser settings.')}
             </p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Changes to This Policy</h2>
             <p>
-              We may update this Cookie Policy from time to time. We will notify you of any changes by posting the new Cookie Policy on this page and updating the "Last updated" date.
+              {getContent('changes', 'We may update this Cookie Policy from time to time. We will notify you of any changes by posting the new Cookie Policy on this page and updating the "Last updated" date.')}
             </p>
           </section>
 
@@ -132,8 +154,8 @@ export default function CookiePolicy() {
             </p>
             <p className="mt-4">
               <strong>Just Empower</strong><br />
-              Email: connect@justxempower.com<br />
-              Austin, Texas
+              Email: {getContent('contactEmail', 'connect@justxempower.com')}<br />
+              {getContent('location', 'Austin, Texas')}
             </p>
           </section>
         </div>

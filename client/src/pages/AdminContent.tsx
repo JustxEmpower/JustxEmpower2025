@@ -154,6 +154,11 @@ export default function AdminContent() {
     { id: 'resources', label: 'Resources' },
     { id: 'walk-with-us', label: 'Walk With Us' },
     { id: 'contact', label: 'Contact' },
+    // Footer/Legal pages
+    { id: 'accessibility', label: 'Accessibility' },
+    { id: 'privacy-policy', label: 'Privacy Policy' },
+    { id: 'terms-of-service', label: 'Terms of Service' },
+    { id: 'cookie-policy', label: 'Cookie Policy' },
   ];
 
   const handleOpenMediaPicker = (fieldId: number) => {

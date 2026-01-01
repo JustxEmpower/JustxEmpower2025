@@ -1,24 +1,46 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { trpc } from '@/lib/trpc';
 
 export default function TermsOfService() {
   const [location] = useLocation();
+  
+  // Fetch content from database
+  const { data: contentData, isLoading } = trpc.content.getByPage.useQuery({ page: 'terms-of-service' });
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
 
+  // Helper to get content value by key
+  const getContent = (key: string, defaultValue: string = '') => {
+    const item = contentData?.find((c: any) => c.contentKey === key);
+    return item?.contentValue || defaultValue;
+  };
+
+  // Default values
+  const title = getContent('title', 'Terms of Service');
+  const lastUpdated = getContent('lastUpdated', 'December 2024');
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="py-24 px-6 md:px-12 max-w-4xl mx-auto">
-        <h1 className="font-serif text-4xl md:text-5xl italic mb-8 text-foreground">Terms of Service</h1>
-        <p className="text-sm text-muted-foreground mb-12">Last updated: December 28, 2025</p>
+        <h1 className="font-serif text-4xl md:text-5xl italic mb-8 text-foreground">{title}</h1>
+        <p className="text-sm text-muted-foreground mb-12">Last updated: {lastUpdated}</p>
 
         <div className="prose prose-lg max-w-none text-foreground/80 space-y-8">
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Agreement to Terms</h2>
             <p>
-              By accessing or using the Just Empower website (justxempower.com), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
+              {getContent('agreement', 'By accessing or using the Just Empower website (justxempower.com), you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.')}
             </p>
           </section>
 
@@ -62,35 +84,35 @@ export default function TermsOfService() {
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Warranty Disclaimer</h2>
             <p>
-              The materials on Just Empower's website are provided on an 'as is' basis. Just Empower makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
+              {getContent('warranty', "The materials on Just Empower's website are provided on an 'as is' basis. Just Empower makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.")}
             </p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Limitations</h2>
             <p>
-              In no event shall Just Empower or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Just Empower's website.
+              {getContent('limitations', "In no event shall Just Empower or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Just Empower's website.")}
             </p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Accuracy of Materials</h2>
             <p>
-              The materials appearing on Just Empower's website could include technical, typographical, or photographic errors. Just Empower does not warrant that any of the materials on its website are accurate, complete, or current.
+              {getContent('accuracy', "The materials appearing on Just Empower's website could include technical, typographical, or photographic errors. Just Empower does not warrant that any of the materials on its website are accurate, complete, or current.")}
             </p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Links</h2>
             <p>
-              Just Empower has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by Just Empower of the site.
+              {getContent('links', "Just Empower has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by Just Empower of the site.")}
             </p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Governing Law</h2>
             <p>
-              These terms and conditions are governed by and construed in accordance with the laws of the State of Texas, and you irrevocably submit to the exclusive jurisdiction of the courts in that State.
+              {getContent('governingLaw', 'These terms and conditions are governed by and construed in accordance with the laws of the State of Texas, and you irrevocably submit to the exclusive jurisdiction of the courts in that State.')}
             </p>
           </section>
 
@@ -101,8 +123,8 @@ export default function TermsOfService() {
             </p>
             <p className="mt-4">
               <strong>Just Empower</strong><br />
-              Email: connect@justxempower.com<br />
-              Austin, Texas
+              Email: {getContent('contactEmail', 'connect@justxempower.com')}<br />
+              {getContent('location', 'Austin, Texas')}
             </p>
           </section>
         </div>

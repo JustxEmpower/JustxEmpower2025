@@ -1,24 +1,46 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
+import { trpc } from '@/lib/trpc';
 
 export default function PrivacyPolicy() {
   const [location] = useLocation();
+  
+  // Fetch content from database
+  const { data: contentData, isLoading } = trpc.content.getByPage.useQuery({ page: 'privacy-policy' });
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
 
+  // Helper to get content value by key
+  const getContent = (key: string, defaultValue: string = '') => {
+    const item = contentData?.find((c: any) => c.contentKey === key);
+    return item?.contentValue || defaultValue;
+  };
+
+  // Default values
+  const title = getContent('title', 'Privacy Policy');
+  const lastUpdated = getContent('lastUpdated', 'December 2024');
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="py-24 px-6 md:px-12 max-w-4xl mx-auto">
-        <h1 className="font-serif text-4xl md:text-5xl italic mb-8 text-foreground">Privacy Policy</h1>
-        <p className="text-sm text-muted-foreground mb-12">Last updated: December 28, 2025</p>
+        <h1 className="font-serif text-4xl md:text-5xl italic mb-8 text-foreground">{title}</h1>
+        <p className="text-sm text-muted-foreground mb-12">Last updated: {lastUpdated}</p>
 
         <div className="prose prose-lg max-w-none text-foreground/80 space-y-8">
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Introduction</h2>
             <p>
-              Just Empower ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website justxempower.com, including any other media form, media channel, mobile website, or mobile application related or connected thereto.
+              {getContent('introduction', 'Just Empower ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website justxempower.com, including any other media form, media channel, mobile website, or mobile application related or connected thereto.')}
             </p>
           </section>
 
@@ -66,7 +88,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Security of Your Information</h2>
             <p>
-              We use administrative, technical, and physical security measures to protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that no security measures are perfect or impenetrable.
+              {getContent('security', 'We use administrative, technical, and physical security measures to protect your personal information. While we have taken reasonable steps to secure the personal information you provide to us, please be aware that no security measures are perfect or impenetrable.')}
             </p>
           </section>
 
@@ -89,8 +111,8 @@ export default function PrivacyPolicy() {
             </p>
             <p className="mt-4">
               <strong>Just Empower</strong><br />
-              Email: connect@justxempower.com<br />
-              Austin, Texas
+              Email: {getContent('contactEmail', 'connect@justxempower.com')}<br />
+              {getContent('location', 'Austin, Texas')}
             </p>
           </section>
         </div>
