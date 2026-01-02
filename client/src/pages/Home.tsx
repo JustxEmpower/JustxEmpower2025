@@ -53,9 +53,11 @@ export default function Home() {
         <Section 
           title={philosophySection.title || 'The Philosophy'}
           subtitle={philosophySection.label || 'Our Approach'}
-          description={philosophySection.description || 'Just Empower operates at the intersection of personal healing and systemic change.'}
+          description={philosophySection.description || 'Just Empower operates at the intersection of personal reclamation and collective influence. We believe that transformative leadership begins within—through self-trust, discernment, and embodied integrity—and radiates outward into the structures we shape, steward, and reimagine.'}
           image={getMediaUrl(philosophySection.imageUrl || '/media/12/IMG_0513-1280x1358.jpg')}
           imageAlt="Ocean waves representing depth and flow"
+          ctaText={philosophySection.ctaText || 'Discover More'}
+          ctaLink={philosophySection.ctaLink || '/philosophy/vision-ethos'}
         />
 
         <Carousel />
@@ -63,19 +65,23 @@ export default function Home() {
         <Section 
           title={communitySection.title || 'Emerge With Us'}
           subtitle={communitySection.label || 'Community'}
-          description={communitySection.description || 'We are planting seeds for a new paradigm rooted in consciousness, compassion, and sacred reciprocity.'}
+          description={communitySection.description || 'We are planting seeds for a new paradigm—one rooted in consciousness, compassion, and sacred reciprocity. This is an invitation for women ready to move beyond survival patterns and into grounded discernment, embodied presence, and conscious self-authority.'}
           image={getMediaUrl(communitySection.imageUrl || '/media/12/IMG_0516-800x1044.jpg')}
           imageAlt="Woman walking in nature"
           reversed
           dark
+          ctaText={communitySection.ctaText || 'Walk With Us'}
+          ctaLink={communitySection.ctaLink || '/walk-with-us'}
         />
 
         <Section 
           title={rootedUnitySection.title || 'Rooted Unity'}
           subtitle={rootedUnitySection.label || 'Coming 2026'}
-          description={rootedUnitySection.description || 'Ecological stewardship meets personal healing. Recognizing that our internal landscape mirrors the external world, we embark on a journey of regenerative living and planetary care.'}
+          description={rootedUnitySection.description || 'Ecological stewardship meets personal healing. Recognizing that our internal landscape mirrors the external world, we embark on a journey of regenerative living and planetary care—understanding that tending the Earth is an extension of tending the self.'}
           image={getMediaUrl(rootedUnitySection.imageUrl || '/media/11/Lavender1.jpg')}
           imageAlt="Forest sunlight representing growth"
+          ctaText={rootedUnitySection.ctaText || 'Learn More'}
+          ctaLink={rootedUnitySection.ctaLink || '/offerings/rooted-unity'}
         />
       </main>
     </div>

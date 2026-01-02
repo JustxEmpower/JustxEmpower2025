@@ -14,8 +14,14 @@ export default function Hero() {
   
   const { getContent, isLoading } = usePageContent('home');
   
-  // Get video URL from database, fallback to S3 URL
+  // Get all hero content from database with fallbacks
   const videoUrl = getContent('hero', 'videoUrl') || 'https://elasticbeanstalk-us-east-1-137738969420.s3.amazonaws.com/media/videos/home-slide-1.mp4';
+  const subtitle = getContent('hero', 'subtitle') || 'Welcome to Just Empower';
+  const titleLine1 = getContent('hero', 'titleLine1') || 'Catalyzing the';
+  const titleLine2 = getContent('hero', 'titleLine2') || 'Rise of Her';
+  const description = getContent('hero', 'description') || 'Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.';
+  const ctaText = getContent('hero', 'ctaText') || 'Discover More';
+  const ctaLink = getContent('hero', 'ctaLink') || '/about';
 
   useEffect(() => {
     // Ensure video plays when component mounts
@@ -127,29 +133,29 @@ export default function Hero() {
         className="relative z-20 h-full flex flex-col items-center justify-center text-center px-4"
       >
         <h2 className="hero-subtitle font-sans text-white text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 opacity-0">
-          Welcome to Just Empower
+          {subtitle}
         </h2>
         
         <div className="overflow-hidden mb-2">
           <h1 className="hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light italic tracking-wide leading-[1.1] opacity-0">
-            Catalyzing the
+            {titleLine1}
           </h1>
         </div>
         
         <div className="overflow-hidden mb-8 md:mb-12">
           <h1 className="hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light tracking-wide leading-[1.1] opacity-0">
-            Rise of Her
+            {titleLine2}
           </h1>
         </div>
         
         <p className="hero-desc font-sans text-white/90 text-lg md:text-xl font-light tracking-wide max-w-2xl mb-12 leading-relaxed opacity-0">
-          Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.
+          {description}
         </p>
         
-        <Link href="/about">
+        <Link href={ctaLink}>
           <div className="hero-btn group relative px-12 py-6 overflow-hidden rounded-full border border-white/30 hover:border-white transition-all duration-500 opacity-0 cursor-pointer">
             <span className="relative z-10 font-sans text-xs uppercase tracking-[0.25em] text-white group-hover:text-black transition-colors duration-500">
-              Discover More
+              {ctaText}
             </span>
             <div className="absolute inset-0 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left ease-[0.22,1,0.36,1]" />
           </div>

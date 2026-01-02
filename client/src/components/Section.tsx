@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Link } from 'wouter';
 import { cn } from '@/lib/utils';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -13,6 +14,8 @@ interface SectionProps {
   imageAlt: string;
   reversed?: boolean;
   dark?: boolean;
+  ctaText?: string;
+  ctaLink?: string;
 }
 
 export default function Section({ 
@@ -22,7 +25,9 @@ export default function Section({
   image, 
   imageAlt, 
   reversed = false,
-  dark = false
+  dark = false,
+  ctaText = 'Discover More',
+  ctaLink = '#'
 }: SectionProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const imageWrapperRef = useRef<HTMLDivElement>(null);
@@ -100,7 +105,7 @@ export default function Section({
         );
       }
 
-      const button = contentRef.current?.querySelector('button');
+      const button = contentRef.current?.querySelector('.cta-button');
       if (button) {
         tl.fromTo(button,
           { y: 20, opacity: 0 },
@@ -165,18 +170,20 @@ export default function Section({
               {description}
             </p>
             
-            <button className={cn(
-              "self-start group relative px-10 py-5 overflow-hidden rounded-full transition-all duration-500",
-              "border border-foreground/10 hover:border-transparent"
-            )}>
-              <span className={cn(
-                "relative z-10 font-sans text-xs uppercase tracking-[0.25em] transition-colors duration-500",
-                "text-foreground group-hover:text-white"
+            <Link href={ctaLink}>
+              <div className={cn(
+                "cta-button self-start group relative px-10 py-5 overflow-hidden rounded-full transition-all duration-500 cursor-pointer",
+                "border border-foreground/10 hover:border-transparent"
               )}>
-                Discover More
-              </span>
-              <div className="absolute inset-0 bg-foreground transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left ease-[0.22,1,0.36,1]" />
-            </button>
+                <span className={cn(
+                  "relative z-10 font-sans text-xs uppercase tracking-[0.25em] transition-colors duration-500",
+                  "text-foreground group-hover:text-white"
+                )}>
+                  {ctaText}
+                </span>
+                <div className="absolute inset-0 bg-foreground transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left ease-[0.22,1,0.36,1]" />
+              </div>
+            </Link>
           </div>
 
         </div>
