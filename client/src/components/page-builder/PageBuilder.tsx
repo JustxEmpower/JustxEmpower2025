@@ -30,6 +30,7 @@ import {
   Smartphone,
   MoreHorizontal,
   Loader2,
+  ArrowLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,6 +45,7 @@ import Canvas from './Canvas';
 
 interface PageBuilderProps {
   pageId?: string;
+  pageTitle?: string;
   initialBlocks?: Array<{
     id: string;
     type: string;
@@ -56,9 +58,11 @@ interface PageBuilderProps {
     content: Record<string, unknown>;
     order: number;
   }>) => Promise<void>;
+  onBack?: () => void;
+  onSettings?: () => void;
 }
 
-export default function PageBuilder({ pageId, initialBlocks, onSave }: PageBuilderProps) {
+export default function PageBuilder({ pageId, pageTitle: propPageTitle, initialBlocks, onSave, onBack, onSettings }: PageBuilderProps) {
   const {
     blocks,
     pageTitle,
@@ -85,6 +89,43 @@ export default function PageBuilder({ pageId, initialBlocks, onSave }: PageBuild
 
   const [viewportSize, setViewportSize] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [activeNewBlock, setActiveNewBlock] = React.useState<BlockType | null>(null);
+  
+  // Resizable panel widths
+  const [leftPanelWidth, setLeftPanelWidth] = React.useState(320);
+  const [rightPanelWidth, setRightPanelWidth] = React.useState(320);
+  const [isResizingLeft, setIsResizingLeft] = React.useState(false);
+  const [isResizingRight, setIsResizingRight] = React.useState(false);
+
+  // Handle panel resize
+  const handleMouseMove = React.useCallback((e: MouseEvent) => {
+    if (isResizingLeft) {
+      const newWidth = Math.max(240, Math.min(500, e.clientX));
+      setLeftPanelWidth(newWidth);
+    } else if (isResizingRight) {
+      const newWidth = Math.max(280, Math.min(500, window.innerWidth - e.clientX));
+      setRightPanelWidth(newWidth);
+    }
+  }, [isResizingLeft, isResizingRight]);
+
+  const handleMouseUp = React.useCallback(() => {
+    setIsResizingLeft(false);
+    setIsResizingRight(false);
+  }, []);
+
+  React.useEffect(() => {
+    if (isResizingLeft || isResizingRight) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    }
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+  }, [isResizingLeft, isResizingRight, handleMouseMove, handleMouseUp]);
 
   // Initialize with props
   useEffect(() => {
@@ -94,7 +135,10 @@ export default function PageBuilder({ pageId, initialBlocks, onSave }: PageBuild
     if (initialBlocks) {
       setBlocks(initialBlocks);
     }
-  }, [pageId, initialBlocks, setPageId, setBlocks]);
+    if (propPageTitle) {
+      setPageTitle(propPageTitle);
+    }
+  }, [pageId, initialBlocks, propPageTitle, setPageId, setBlocks, setPageTitle]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -155,6 +199,22 @@ export default function PageBuilder({ pageId, initialBlocks, onSave }: PageBuild
         <header className="h-14 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between px-4 flex-shrink-0">
           {/* Left section */}
           <div className="flex items-center gap-2">
+            {onBack && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onBack}
+                    className="h-9 w-9 p-0"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Back to pages</TooltipContent>
+              </Tooltip>
+            )}
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -177,6 +237,22 @@ export default function PageBuilder({ pageId, initialBlocks, onSave }: PageBuild
               className="w-48 h-9 bg-transparent border-transparent hover:border-neutral-300 dark:hover:border-neutral-700 focus:border-primary"
               placeholder="Page title..."
             />
+
+            {onSettings && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={onSettings}
+                    className="h-9 w-9 p-0"
+                  >
+                    <Settings className="w-4 h-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Page settings</TooltipContent>
+              </Tooltip>
+            )}
           </div>
 
           {/* Center section - Viewport controls */}
@@ -308,10 +384,10 @@ export default function PageBuilder({ pageId, initialBlocks, onSave }: PageBuild
             {leftPanelOpen && (
               <motion.aside
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 320, opacity: 1 }}
+                animate={{ width: leftPanelWidth, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col overflow-hidden flex-shrink-0"
+                transition={{ duration: isResizingLeft ? 0 : 0.2 }}
+                className="bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col overflow-hidden flex-shrink-0 relative"
               >
                 <Tabs
                   value={activeLeftTab}
@@ -353,6 +429,15 @@ export default function PageBuilder({ pageId, initialBlocks, onSave }: PageBuild
                     </div>
                   </TabsContent>
                 </Tabs>
+                {/* Resize handle */}
+                <div
+                  className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/50 transition-colors group"
+                  onMouseDown={() => setIsResizingLeft(true)}
+                >
+                  <div className="absolute top-1/2 right-0 -translate-y-1/2 w-4 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <MoreHorizontal className="w-4 h-4 text-neutral-400 rotate-90" />
+                  </div>
+                </div>
               </motion.aside>
             )}
           </AnimatePresence>
@@ -374,11 +459,20 @@ export default function PageBuilder({ pageId, initialBlocks, onSave }: PageBuild
             {rightPanelOpen && (
               <motion.aside
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 320, opacity: 1 }}
+                animate={{ width: rightPanelWidth, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 overflow-hidden flex-shrink-0"
+                transition={{ duration: isResizingRight ? 0 : 0.2 }}
+                className="bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 overflow-hidden flex-shrink-0 relative"
               >
+                {/* Resize handle */}
+                <div
+                  className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-primary/50 transition-colors group"
+                  onMouseDown={() => setIsResizingRight(true)}
+                >
+                  <div className="absolute top-1/2 left-0 -translate-y-1/2 w-4 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <MoreHorizontal className="w-4 h-4 text-neutral-400 rotate-90" />
+                  </div>
+                </div>
                 <BlockSettings />
               </motion.aside>
             )}

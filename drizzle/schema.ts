@@ -367,7 +367,8 @@ export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
 export const pageBlocks = mysqlTable("pageBlocks", {
   id: int("id").autoincrement().primaryKey(),
   pageId: int("pageId").notNull(),
-  type: mysqlEnum("type", ["text", "image", "video", "quote", "cta", "spacer"]).notNull(),
+  blockId: varchar("blockId", { length: 100 }), // Unique ID from page builder (e.g., 'block-abc123')
+  type: varchar("type", { length: 100 }).notNull(), // Changed from enum to varchar for flexibility
   content: text("content"), // JSON string with block-specific data
   order: int("order").notNull().default(0),
   settings: text("settings"), // JSON string with block settings (alignment, colors, spacing)

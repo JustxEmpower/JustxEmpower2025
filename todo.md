@@ -1319,3 +1319,43 @@ NODE_ENV=production
 - [ ] Test drag-and-drop functionality
 - [ ] Verify all 60 block types render correctly
 - [ ] Test save functionality with backend API
+
+
+## Page Builder Save & Navigation Integration (CRITICAL)
+- [ ] Create backend API for saving page builder pages
+- [ ] Create backend API for loading page builder pages
+- [ ] Integrate page builder with navigation menu system
+- [ ] Add "Create New Page" functionality
+- [ ] Add page slug/URL configuration
+- [ ] Add page SEO settings (title, description)
+- [ ] Test save/load workflow end-to-end
+
+## S3 Media Upload for Page Builder (NEW)
+- [ ] Add S3 upload option for Video blocks
+- [ ] Add S3 upload option for Image blocks  
+- [ ] Add S3 upload option for Audio blocks
+- [ ] Create MediaUploader component with drag-and-drop
+- [ ] Integrate with existing S3 storage helpers
+- [ ] Make left panel resizable with drag handle
+- [ ] Make right panel resizable with drag handle
+
+
+## Page Builder Enhancements (Jan 2, 2026)
+
+### Resizable Panels
+- [x] Make left panel resizable with drag handle
+- [x] Make right panel resizable with drag handle
+
+### Save/Load Integration
+- [x] Create backend API for bulk saving page builder blocks
+- [x] Update PageBuilderPage to save/load pages from database
+- [x] Add page list view with create/edit functionality
+- [x] Add page settings dialog (title, slug, SEO, navigation)
+- [x] Integrate with navigation menu system
+
+### Media Library Integration
+- [x] Add Media Library picker to BlockSettings for URL fields
+- [x] Support S3 upload for video, image, and audio blocks
+
+### Admin Sidebar
+- [x] Add Page Builder link to admin sidebar navigation

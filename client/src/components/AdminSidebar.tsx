@@ -43,6 +43,7 @@ const navItems = [
   { icon: FileText, label: 'Articles', path: '/admin/articles' },
   { icon: FolderOpen, label: 'Media', path: '/admin/media' },
   { icon: Files, label: 'Pages', path: '/admin/pages' },
+  { icon: Code, label: 'Page Builder', path: '/admin/page-builder' },
   // E-commerce / Shop section
   { icon: Package, label: 'Products', path: '/admin/products' },
   { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },

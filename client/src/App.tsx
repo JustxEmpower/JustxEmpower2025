@@ -103,6 +103,7 @@ function Router() {
       <Route path="/admin/messages" component={AdminContactMessages} />
       <Route path="/admin/carousel" component={AdminCarousel} />
       <Route path="/admin/page-builder" component={PageBuilderPage} />
+      <Route path="/admin/page-builder/new" component={PageBuilderPage} />
       <Route path="/admin/page-builder/:pageId" component={PageBuilderPage} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/about" component={About} />
