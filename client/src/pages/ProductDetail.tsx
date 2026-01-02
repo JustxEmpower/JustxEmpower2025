@@ -41,7 +41,17 @@ export default function ProductDetail() {
     );
   }
 
-  const images = product.images ? JSON.parse(product.images as string) : [];
+  // Safely parse images JSON with error handling
+  let images: string[] = [];
+  try {
+    if (product.images) {
+      const parsed = JSON.parse(product.images as string);
+      images = Array.isArray(parsed) ? parsed : [];
+    }
+  } catch (e) {
+    console.warn('Failed to parse product images:', e);
+    images = [];
+  }
   const mainImage = images[selectedImage] || "/placeholder-product.jpg";
   const isOutOfStock = product.stock != null && product.stock <= 0;
   

@@ -1115,3 +1115,63 @@
 ### Legal Docs
 - [x] Renamed "Disclaimer" to "Warranty Disclaimer" in Terms of Service (clearer, industry standard)
 - [x] All legal pages (Privacy Policy, Terms, Cookies, Accessibility) are complete and linked in footer
+
+
+---
+
+## JustxEmpower Bug Tracker - 41 Issues (Jan 2, 2026)
+
+### CRITICAL Issues
+
+- [x] Bug #03: Carousel Offerings - cannot upload images (Fixed - carousel management system implemented)
+- [x] Bug #04: Carousel Offerings - image previews broken (Fixed - admin carousel page working)
+- [ ] Bug #17: Offerings - cannot save newly created pages
+- [ ] Bug #18: "Failed to update page" error in Pages Manager
+- [ ] Bug #19: Vision & Ethos not reflecting updates
+- [ ] Bug #20: Contact form "Failed to submit" error
+- [ ] Bug #21: HOME PAGE - not saving/reflecting changes
+- [ ] Bug #22: CONTACT - not saving/reflecting changes
+- [ ] Bug #23: All Content Editor changes not reflecting
+- [ ] Bug #24: Media Library - broken preview thumbnails
+- [ ] Bug #27: Footer pages not saving (Privacy, Access, Terms, Cookie)
+- [ ] Bug #31: Brand Assets - upload not working/saving
+- [ ] Bug #35: Accessibility Statement not reflecting edits
+- [ ] Bug #37: New pages don't appear in Content Editor
+- [ ] Bug #38: Philosophy page not reflecting changes
+- [ ] Bug #41: Walk With Us page not saving
+
+### HIGH Priority Issues
+
+- [x] Bug #02: Gemini AI chatbot shows "technical difficulties" (Fixed - API key configured)
+- [ ] Bug #05: Carousel slides not linked to pages
+- [ ] Bug #06: Blog needs rich text (paragraphs, headings)
+- [ ] Bug #07: "Generate SEO" button fails - API_KEY_INVALID
+- [ ] Bug #09: Seeds of Paradigm page 404 error
+- [ ] Bug #10: Home Panel 1 CTA wrong link + wrong text
+- [ ] Bug #11: Home Panel 2 CTA not linked
+- [ ] Bug #12: Home Panel (near Emerge) CTA not linked
+- [ ] Bug #14: Cannot edit CTA button text on Home page
+- [ ] Bug #15: Cannot edit "Rooted Unity" section
+- [ ] Bug #26: Resources - cannot upload documents
+- [ ] Bug #29: Mailchimp integration needs verification
+- [ ] Bug #32: Brand Assets - preview thumbnails broken
+- [ ] Bug #34: Cannot edit all headings/titles
+- [ ] Bug #36: Pages Manager - input focus bug (typing kicks out)
+- [ ] Bug #39: Shop product page JSON parse error
+
+### MEDIUM Priority Issues
+
+- [x] Bug #01: "Walk With Us" button responsive formatting broken (Fixed - navigation link corrected)
+- [ ] Bug #08: Photo/video adjustment tools needed site-wide
+- [ ] Bug #13: Vision & Ethos broken "Nature philosophy" image
+- [ ] Bug #16: Blog - cannot edit Date published
+- [ ] Bug #25: Blog - cannot edit photos on main page
+- [ ] Bug #30: Newsletter email input not expanding on mobile
+- [ ] Bug #33: Contact form - where do submissions go?
+- [ ] Bug #40: Carousel text titles misaligned
+
+### LOW Priority Issues
+
+- [ ] Bug #28: Policy pages need PDF download option
+
+### Progress: 4/41 Fixed
