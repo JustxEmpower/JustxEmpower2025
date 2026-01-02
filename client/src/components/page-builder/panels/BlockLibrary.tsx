@@ -157,7 +157,7 @@ export default function BlockLibrary() {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col overflow-hidden">
       {/* Search */}
       <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
         <div className="relative">
@@ -172,7 +172,7 @@ export default function BlockLibrary() {
       </div>
 
       {/* Block categories */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1 h-[calc(100vh-220px)]">
         <div className="p-2">
           {searchQuery ? (
             // Show flat list when searching
