@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -125,6 +125,7 @@ export default function BlockLibrary() {
     () => new Set<BlockCategory>(['layout', 'content'])
   );
   const addBlock = usePageBuilderStore((state) => state.addBlock);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const toggleCategory = (category: BlockCategory) => {
     setExpandedCategories((prev) => {
@@ -155,8 +156,16 @@ export default function BlockLibrary() {
     addBlock(block);
   };
 
+  // Handle wheel events to ensure scrolling works
+  const handleWheel = (e: React.WheelEvent) => {
+    if (scrollContainerRef.current) {
+      e.stopPropagation();
+      scrollContainerRef.current.scrollTop += e.deltaY;
+    }
+  };
+
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col" style={{ maxHeight: 'calc(100vh - 120px)' }}>
       {/* Search */}
       <div className="p-4 border-b border-neutral-200 dark:border-neutral-700 flex-shrink-0">
         <div className="relative">
@@ -170,8 +179,19 @@ export default function BlockLibrary() {
         </div>
       </div>
 
-      {/* Block categories - using native overflow scroll */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-2" style={{ minHeight: 0 }}>
+      {/* Block categories - scrollable container */}
+      <div 
+        ref={scrollContainerRef}
+        onWheel={handleWheel}
+        className="flex-1 p-2"
+        style={{ 
+          overflowY: 'scroll',
+          overflowX: 'hidden',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'thin',
+          scrollbarColor: '#d1d5db transparent'
+        }}
+      >
         {searchQuery ? (
           // Show flat list when searching
           <div className="grid grid-cols-1 gap-2 p-2">

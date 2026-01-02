@@ -333,7 +333,7 @@ export default function PageBuilder({ pageId, initialBlocks, onSave }: PageBuild
                     </TabsTrigger>
                   </TabsList>
 
-                  <TabsContent value="blocks" className="flex-1 mt-0 overflow-hidden">
+                  <TabsContent value="blocks" className="flex-1 mt-0 overflow-auto">
                     <BlockLibrary />
                   </TabsContent>
 
