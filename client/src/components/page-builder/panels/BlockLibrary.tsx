@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { blockTypes, blockCategories, BlockType, BlockCategory } from '../blockTypes';
 import { usePageBuilderStore } from '../usePageBuilderStore';
 import { useDraggable } from '@dnd-kit/core';
@@ -159,7 +158,7 @@ export default function BlockLibrary() {
   return (
     <div className="h-full flex flex-col overflow-hidden">
       {/* Search */}
-      <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
+      <div className="p-4 border-b border-neutral-200 dark:border-neutral-700 flex-shrink-0">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
           <Input
@@ -171,45 +170,43 @@ export default function BlockLibrary() {
         </div>
       </div>
 
-      {/* Block categories */}
-      <ScrollArea className="flex-1 h-[calc(100vh-220px)]">
-        <div className="p-2">
-          {searchQuery ? (
-            // Show flat list when searching
-            <div className="grid grid-cols-1 gap-2 p-2">
-              {filteredBlocks.length > 0 ? (
-                filteredBlocks.map((block) => (
-                  <DraggableBlock
-                    key={block.id}
-                    block={block}
-                    onClick={() => handleAddBlock(block)}
-                  />
-                ))
-              ) : (
-                <div className="text-center py-8 text-neutral-500">
-                  <p className="text-sm">No blocks found</p>
-                  <p className="text-xs mt-1">Try a different search term</p>
-                </div>
-              )}
-            </div>
-          ) : (
-            // Show categorized list
-            blocksByCategory.map((category) => (
-              <CategorySection
-                key={category.id}
-                category={category}
-                blocks={category.blocks}
-                isExpanded={expandedCategories.has(category.id)}
-                onToggle={() => toggleCategory(category.id)}
-                onAddBlock={handleAddBlock}
-              />
-            ))
-          )}
-        </div>
-      </ScrollArea>
+      {/* Block categories - using native overflow scroll */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-2" style={{ minHeight: 0 }}>
+        {searchQuery ? (
+          // Show flat list when searching
+          <div className="grid grid-cols-1 gap-2 p-2">
+            {filteredBlocks.length > 0 ? (
+              filteredBlocks.map((block) => (
+                <DraggableBlock
+                  key={block.id}
+                  block={block}
+                  onClick={() => handleAddBlock(block)}
+                />
+              ))
+            ) : (
+              <div className="text-center py-8 text-neutral-500">
+                <p className="text-sm">No blocks found</p>
+                <p className="text-xs mt-1">Try a different search term</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          // Show categorized list
+          blocksByCategory.map((category) => (
+            <CategorySection
+              key={category.id}
+              category={category}
+              blocks={category.blocks}
+              isExpanded={expandedCategories.has(category.id)}
+              onToggle={() => toggleCategory(category.id)}
+              onAddBlock={handleAddBlock}
+            />
+          ))
+        )}
+      </div>
 
       {/* Quick tip */}
-      <div className="p-4 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50">
+      <div className="p-4 border-t border-neutral-200 dark:border-neutral-700 bg-neutral-50 dark:bg-neutral-800/50 flex-shrink-0">
         <p className="text-xs text-neutral-500 dark:text-neutral-400">
           <span className="font-medium">Tip:</span> Drag blocks to the canvas or click to add at the end
         </p>
