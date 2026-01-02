@@ -54,7 +54,7 @@ export default function Navigation() {
                 </a>
               </Link>
             ))}
-            <Link href="/connect">
+            <Link href="/walk-with-us">
               <a className={cn(
                 "px-6 py-3 border text-xs uppercase tracking-[0.15em] transition-all duration-300 hover:bg-primary hover:border-primary hover:text-white",
                 scrolled 
@@ -109,7 +109,7 @@ export default function Navigation() {
               </a>
             </Link>
           ))}
-          <Link href="/connect">
+          <Link href="/walk-with-us">
             <a 
               className="mt-8 px-8 py-4 border border-foreground text-foreground text-sm uppercase tracking-[0.2em] hover:bg-foreground hover:text-white transition-all duration-300"
               onClick={() => setMobileMenuOpen(false)}
