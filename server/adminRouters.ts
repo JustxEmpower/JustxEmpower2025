@@ -2481,3 +2481,128 @@ export const aiChatAnalyticsRouter = router({
       };
     }),
 });
+
+
+// Carousel Offerings Router
+export const carouselRouter = router({
+  // Get all carousel offerings (public - for homepage)
+  getAll: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    
+    const offerings = await db
+      .select()
+      .from(schema.carouselOfferings)
+      .where(eq(schema.carouselOfferings.isActive, 1))
+      .orderBy(schema.carouselOfferings.order);
+    
+    return offerings;
+  }),
+
+  // Get all carousel offerings including inactive (admin only)
+  getAllAdmin: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    
+    const offerings = await db
+      .select()
+      .from(schema.carouselOfferings)
+      .orderBy(schema.carouselOfferings.order);
+    
+    return offerings;
+  }),
+
+  // Create new carousel offering
+  create: adminProcedure
+    .input(z.object({
+      title: z.string().min(1),
+      description: z.string().optional(),
+      link: z.string().optional(),
+      imageUrl: z.string().optional(),
+      order: z.number().optional().default(0),
+      isActive: z.number().optional().default(1),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const result = await db.insert(schema.carouselOfferings).values({
+        title: input.title,
+        description: input.description || null,
+        link: input.link || null,
+        imageUrl: input.imageUrl || null,
+        order: input.order,
+        isActive: input.isActive,
+      });
+      
+      return { success: true, id: result[0].insertId };
+    }),
+
+  // Update carousel offering
+  update: adminProcedure
+    .input(z.object({
+      id: z.number(),
+      title: z.string().min(1).optional(),
+      description: z.string().optional(),
+      link: z.string().optional(),
+      imageUrl: z.string().optional(),
+      order: z.number().optional(),
+      isActive: z.number().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const { id, ...updateData } = input;
+      
+      // Filter out undefined values
+      const filteredData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, v]) => v !== undefined)
+      );
+      
+      if (Object.keys(filteredData).length === 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No fields to update" });
+      }
+      
+      await db
+        .update(schema.carouselOfferings)
+        .set(filteredData)
+        .where(eq(schema.carouselOfferings.id, id));
+      
+      return { success: true };
+    }),
+
+  // Delete carousel offering
+  delete: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      await db
+        .delete(schema.carouselOfferings)
+        .where(eq(schema.carouselOfferings.id, input.id));
+      
+      return { success: true };
+    }),
+
+  // Reorder carousel offerings
+  reorder: adminProcedure
+    .input(z.array(z.object({
+      id: z.number(),
+      order: z.number(),
+    })))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      for (const item of input) {
+        await db
+          .update(schema.carouselOfferings)
+          .set({ order: item.order })
+          .where(eq(schema.carouselOfferings.id, item.id));
+      }
+      
+      return { success: true };
+    }),
+});

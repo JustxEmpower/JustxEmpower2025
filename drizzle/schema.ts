@@ -996,3 +996,22 @@ export const newsletterSubscribers = mysqlTable("newsletterSubscribers", {
 
 export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 export type InsertNewsletterSubscriber = typeof newsletterSubscribers.$inferInsert;
+
+
+/**
+ * Carousel offerings for homepage dynamic carousel
+ */
+export const carouselOfferings = mysqlTable("carouselOfferings", {
+  id: int("id").autoincrement().primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  link: varchar("link", { length: 500 }),
+  imageUrl: varchar("imageUrl", { length: 1000 }),
+  order: int("order").default(0).notNull(),
+  isActive: int("isActive").default(1).notNull(), // 1 = active, 0 = inactive
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CarouselOffering = typeof carouselOfferings.$inferSelect;
+export type InsertCarouselOffering = typeof carouselOfferings.$inferInsert;

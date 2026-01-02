@@ -3,32 +3,45 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
 import { getMediaUrl } from '@/lib/media';
+import { trpc } from '@/lib/trpc';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const offerings = [
+// Fallback offerings in case database is empty or loading fails
+const fallbackOfferings = [
   {
+    id: 1,
     title: "Seeds of a New Paradigm",
-    image: getMediaUrl('/media/11/Tri-Cover-1280x960.jpg'),
-    desc: "Cultivating consciousness for future generations.",
+    imageUrl: getMediaUrl('/media/11/Tri-Cover-1280x960.jpg'),
+    description: "A transformative journey for women ready to plant seeds of conscious leadership.",
     link: "/offerings"
   },
   {
+    id: 2,
+    title: "She Writes",
+    imageUrl: getMediaUrl('/media/12/IMG_0513-1280x1358.jpg'),
+    description: "Explore the power of written expression as a tool for healing and transformation.",
+    link: "/offerings"
+  },
+  {
+    id: 3,
     title: "Emerge With Us",
-    image: getMediaUrl('/media/12/IMG_0513-1280x1358.jpg'),
-    desc: "A journey of collective transformation.",
+    imageUrl: getMediaUrl('/media/12/IMG_0516-800x1044.jpg'),
+    description: "An immersive experience of collective transformation and conscious community.",
     link: "/offerings"
   },
   {
+    id: 4,
     title: "Rooted Unity",
-    image: getMediaUrl('/media/12/IMG_0516-800x1044.jpg'),
-    desc: "Connecting deeply with nature and self.",
+    imageUrl: getMediaUrl('/media/11/Lavender1.jpg'),
+    description: "Ecological stewardship meets personal healing.",
     link: "/offerings"
   },
   {
+    id: 5,
     title: "MOM VI-X",
-    image: getMediaUrl('/media/11/Cover-Final-Emblem-V1-1024x731.png'),
-    desc: "Empowering mothers as leaders of change.",
+    imageUrl: getMediaUrl('/media/11/Cover-Final-Emblem-V1-1024x731.png'),
+    description: "Empowering mothers as leaders of change through guided journaling.",
     link: "/offerings"
   }
 ];
@@ -37,7 +50,24 @@ export default function Carousel() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
+  // Fetch carousel offerings from database
+  const { data: dbOfferings, isLoading } = trpc.carousel.getAll.useQuery();
+
+  // Use database offerings if available, otherwise use fallback
+  const offerings = dbOfferings && dbOfferings.length > 0 
+    ? dbOfferings.map(o => ({
+        id: o.id,
+        title: o.title,
+        imageUrl: o.imageUrl || getMediaUrl('/media/11/Tri-Cover-1280x960.jpg'),
+        description: o.description || '',
+        link: o.link || '/offerings'
+      }))
+    : fallbackOfferings;
+
   useEffect(() => {
+    // Wait for offerings to be loaded before initializing GSAP
+    if (isLoading) return;
+
     const ctx = gsap.context(() => {
       const section = sectionRef.current;
       const track = trackRef.current;
@@ -72,7 +102,7 @@ export default function Carousel() {
     }, sectionRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isLoading, offerings]);
 
   return (
     <section ref={sectionRef} className="relative h-screen bg-background overflow-hidden flex flex-col justify-center py-20">
@@ -84,15 +114,15 @@ export default function Carousel() {
       </div>
 
       <div ref={trackRef} className="flex gap-8 md:gap-12 px-6 md:px-12 w-max items-center h-[60vh] md:h-[70vh] pl-[10vw] md:pl-[20vw] z-20">
-        {offerings.map((item, i) => (
-          <Link key={i} href={item.link} className="block h-full shrink-0">
+        {offerings.map((item) => (
+          <Link key={item.id} href={item.link} className="block h-full shrink-0">
             <div 
               className="relative w-[80vw] md:w-[40vw] lg:w-[30vw] h-full group overflow-hidden cursor-pointer rounded-[2rem] shadow-2xl shadow-black/5 transition-all duration-500 hover:-translate-y-4 bg-gray-900"
             >
               <div className="absolute inset-0 overflow-hidden rounded-[2rem]">
                 <div 
                   className="absolute inset-0 w-full h-full bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
-                  style={{ backgroundImage: `url(${item.image})` }}
+                  style={{ backgroundImage: `url(${item.imageUrl})` }}
                 />
               </div>
               
@@ -106,7 +136,7 @@ export default function Carousel() {
                   {item.title}
                 </h3>
                 <p className="font-sans text-white/90 text-sm tracking-wide opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 transform translate-y-4 group-hover:translate-y-0 drop-shadow-md">
-                  {item.desc}
+                  {item.description}
                 </p>
               </div>
             </div>
