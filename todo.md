@@ -1359,3 +1359,11 @@ NODE_ENV=production
 
 ### Admin Sidebar
 - [x] Add Page Builder link to admin sidebar navigation
+
+
+## Pages + Page Builder Integration (CRITICAL)
+- [ ] Update "Manage Pages" quick action to go to Page Builder
+- [ ] Add "Edit with Page Builder" button to each page in Pages section
+- [ ] Ensure Page Builder created pages appear in Pages list
+- [ ] Sync navigation hierarchy - pages with "Show in Navigation" appear in site menu
+- [ ] Test unified workflow end-to-end

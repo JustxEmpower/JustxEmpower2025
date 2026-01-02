@@ -42,9 +42,13 @@ interface PageData {
 
 export default function PageBuilderPage() {
   const { user, loading: authLoading } = useAuth();
-  const [, setLocation] = useLocation();
+  const [location, setLocation] = useLocation();
   const [matchNew] = useRoute('/admin/page-builder/new');
   const [matchEdit, params] = useRoute('/admin/page-builder/:pageId');
+  
+  // Parse query params for ?page=ID from Pages section
+  const queryParams = new URLSearchParams(location.split('?')[1] || '');
+  const queryPageId = queryParams.get('page') ? parseInt(queryParams.get('page')!) : null;
   
   const [showPageList, setShowPageList] = useState(false);
   const [showNewPageDialog, setShowNewPageDialog] = useState(false);
@@ -63,10 +67,10 @@ export default function PageBuilderPage() {
   const [newPageShowInNav, setNewPageShowInNav] = useState(true);
   const [newPageParentId, setNewPageParentId] = useState<number | null>(null);
 
-  // Fetch all pages for the list
+  // Fetch all pages for the list (always fetch to support loading by ID)
   const { data: pages, isLoading: pagesLoading, refetch: refetchPages } = trpc.admin.pages.list.useQuery(
     undefined,
-    { enabled: !matchNew && !matchEdit }
+    { enabled: true }
   );
 
   // Fetch single page data when editing
@@ -119,15 +123,20 @@ export default function PageBuilderPage() {
     },
   });
 
-  // Load page data when pageId changes
+  // Load page data when pageId changes (from route or query param)
   useEffect(() => {
-    if (pageId && pages) {
-      const page = pages.find((p: PageData) => p.id === pageId);
+    const targetPageId = pageId || queryPageId;
+    if (targetPageId && pages) {
+      const page = pages.find((p: PageData) => p.id === targetPageId);
       if (page) {
         setCurrentPage(page as PageData);
+        // If loaded from query param, redirect to proper URL
+        if (queryPageId && !pageId) {
+          setLocation(`/admin/page-builder/${targetPageId}`, { replace: true });
+        }
       }
     }
-  }, [pageId, pages]);
+  }, [pageId, queryPageId, pages, setLocation]);
 
   // Load blocks when page changes
   useEffect(() => {

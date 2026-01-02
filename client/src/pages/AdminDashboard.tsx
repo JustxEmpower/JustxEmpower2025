@@ -59,8 +59,8 @@ export default function AdminDashboard() {
     {
       icon: Files,
       title: "Manage Pages",
-      description: "Edit page content with blocks",
-      path: "/admin/pages",
+      description: "Build pages with visual editor",
+      path: "/admin/page-builder",
       color: "bg-purple-100 text-purple-600",
     },
     {
