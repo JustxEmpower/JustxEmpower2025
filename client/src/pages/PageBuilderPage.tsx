@@ -87,6 +87,9 @@ export default function PageBuilderPage() {
     onSuccess: (page) => {
       toast.success('Page created successfully');
       setShowNewPageDialog(false);
+      setNewPageTitle('');
+      setNewPageSlug('');
+      setSlugManuallyEdited(false);
       setCurrentPage(page as PageData);
       setLocation(`/admin/page-builder/${page.id}`);
       refetchPages();
@@ -139,16 +142,18 @@ export default function PageBuilderPage() {
     }
   }, [blocksData]);
 
-  // Auto-generate slug from title
+  // Auto-generate slug from title (only when user hasn't manually edited)
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  
   useEffect(() => {
-    if (newPageTitle && !newPageSlug) {
+    if (newPageTitle && !slugManuallyEdited) {
       const slug = newPageTitle
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '');
       setNewPageSlug(slug);
     }
-  }, [newPageTitle, newPageSlug]);
+  }, [newPageTitle, slugManuallyEdited]);
 
   // Show loading state
   if (authLoading) {
@@ -320,7 +325,10 @@ export default function PageBuilderPage() {
                   <Input
                     id="slug"
                     value={newPageSlug}
-                    onChange={(e) => setNewPageSlug(e.target.value)}
+                    onChange={(e) => {
+                      setNewPageSlug(e.target.value);
+                      setSlugManuallyEdited(true);
+                    }}
                     placeholder="about-us"
                   />
                 </div>
@@ -356,7 +364,12 @@ export default function PageBuilderPage() {
               )}
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowNewPageDialog(false)}>
+              <Button variant="outline" onClick={() => {
+                setShowNewPageDialog(false);
+                setNewPageTitle('');
+                setNewPageSlug('');
+                setSlugManuallyEdited(false);
+              }}>
                 Cancel
               </Button>
               <Button onClick={handleCreatePage} disabled={createPageMutation.isPending}>
