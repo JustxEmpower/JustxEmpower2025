@@ -41,31 +41,68 @@ export default function Journal() {
   const featuredPost = allArticles[0] || null;
   const regularPosts = allArticles.slice(1);
 
-  // Get hero content from database
-  const heroTitle = getContent('hero', 'title', 'She Writes');
-  const heroSubtitle = getContent('hero', 'subtitle', 'SHE WRITES');
-  const heroDescription = getContent('hero', 'description', 'Lessons from the Living Codex');
-  const heroImage = getContent('hero', 'imageUrl', '/media/11/Fam.jpg');
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
+
+  // Get hero content from CMS
+  const heroTitle = getContent('hero', 'title') || 'She Writes';
+  const heroSubtitle = getContent('hero', 'subtitle') || 'SHE WRITES';
+  const heroDescription = getContent('hero', 'description') || 'Lessons from the Living Codex';
+  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
+  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  
+  // Determine which media to use for hero (video takes priority)
+  const heroMediaUrl = heroVideoUrl || heroImageUrl;
+  const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
   // Get overview content from database
-  const overviewTitle = getContent('overview', 'title', 'Latest Posts');
-  const overviewParagraph1 = getContent('overview', 'paragraph1', 'Welcome to She Writes, a sacred space for reflection, wisdom, and storytelling.');
-  const overviewParagraph2 = getContent('overview', 'paragraph2', 'Here you will find articles, insights, and musings from April and our community of conscious leaders.');
+  const overviewTitle = getContent('overview', 'title') || 'Latest Posts';
+  const overviewParagraph1 = getContent('overview', 'paragraph1') || 'Welcome to She Writes, a sacred space for reflection, wisdom, and storytelling.';
+  const overviewParagraph2 = getContent('overview', 'paragraph2') || 'Here you will find articles, insights, and musings from April and our community of conscious leaders.';
+
+  // Get fallback image for articles from CMS
+  const articleFallbackImage = getContent('articles', 'fallbackImageUrl') || '';
+
+  if (contentLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-neutral-500">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="relative h-[50vh] w-full overflow-hidden rounded-b-[2.5rem]">
         <div className="absolute inset-0 bg-black/30 z-10" />
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src={getMediaUrl('/media/videos/home-fog-slide-3.mp4')} type="video/mp4" />
-        </video>
+        
+        {/* Video or Image Background */}
+        {heroMediaUrl && isHeroVideo ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source 
+              src={getProperMediaUrl(heroMediaUrl)} 
+              type={heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
+            />
+          </video>
+        ) : heroMediaUrl ? (
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
+        )}
+        
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
             {heroTitle}
@@ -84,11 +121,21 @@ export default function Journal() {
             <h2 className="font-sans text-xs tracking-[0.2em] uppercase text-muted-foreground mb-8 border-b border-border pb-4">Featured Article</h2>
             <div className="grid md:grid-cols-2 gap-12 items-center">
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-                <img
-                  src={getMediaUrl(featuredPost.imageUrl || '/media/11/Cover-Final-Emblem-V1-1024x731.png')}
-                  alt={featuredPost.title}
-                  className="w-full h-full object-cover"
-                />
+                {featuredPost.imageUrl ? (
+                  <img
+                    src={getProperMediaUrl(featuredPost.imageUrl)}
+                    alt={featuredPost.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : articleFallbackImage ? (
+                  <img
+                    src={getProperMediaUrl(articleFallbackImage)}
+                    alt={featuredPost.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-neutral-300 to-neutral-500" />
+                )}
               </div>
               <div>
                 {featuredPost.category && (
@@ -129,11 +176,21 @@ export default function Journal() {
                 <Link key={index} href={`/blog/${post.slug}`}>
                 <article className="group cursor-pointer">
                   <div className="relative aspect-[4/3] overflow-hidden rounded-2xl mb-6">
-                    <img
-                      src={getMediaUrl(post.imageUrl || '/media/12/IMG_0513-1280x1358.jpg')}
-                      alt={post.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
+                    {post.imageUrl ? (
+                      <img
+                        src={getProperMediaUrl(post.imageUrl)}
+                        alt={post.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : articleFallbackImage ? (
+                      <img
+                        src={getProperMediaUrl(articleFallbackImage)}
+                        alt={post.title}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-neutral-300 to-neutral-500" />
+                    )}
                   </div>
                   {post.category && (
                     <p className="font-sans text-xs tracking-[0.2em] uppercase text-muted-foreground mb-3">

@@ -12,6 +12,12 @@ export default function WalkWithUs() {
     window.scrollTo(0, 0);
   }, [location]);
 
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -20,34 +26,35 @@ export default function WalkWithUs() {
     );
   }
 
-  // Get hero section content
+  // Get hero section content from CMS
   const heroTitle = getContent('hero', 'title') || 'Walk With Us';
   const heroSubtitle = getContent('hero', 'subtitle') || 'A Collective Invocation';
-  const heroImage = getContent('hero', 'imageUrl') || '/media/11/Tri-Cover-1280x960.jpg';
+  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
+  const heroImageUrl = getContent('hero', 'imageUrl') || '';
   
-  // Check if hero media is a video
-  const heroMediaUrl = getMediaUrl(heroImage);
-  const isVideo = /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl);
+  // Determine which media to use for hero (video takes priority)
+  const heroMediaUrl = heroVideoUrl || heroImageUrl;
+  const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
-  // Get main content section
+  // Get main content section from CMS
   const mainTitle = getContent('main', 'title') || 'Join the Movement';
   const mainDescription = getContent('main', 'description') || 'This is not a solitary endeavor; it is a collective invocation. We call forth aligned professionals: policy strategists, environmental scientists, systems thinkers, legal advocates, planners, and community organizers who carry both vision and skill. Equally, we seek those who may not have borne formal titles yet held within them the heart, conviction, and devotion to move purpose into form.';
 
-  // Get partner card content
+  // Get partner card content from CMS
   const partnerTitle = getContent('partners', 'title') || 'For Partners';
   const partnerDescription = getContent('partners', 'description') || 'Collaborate on initiatives that restore coherence between people, purpose, and planet.';
   const partnerCtaText = getContent('partners', 'ctaText') || 'Partner With Us';
   const partnerCtaLink = getContent('partners', 'ctaLink') || '/contact';
 
-  // Get individual card content
+  // Get individual card content from CMS
   const individualTitle = getContent('individuals', 'title') || 'For Individuals';
   const individualDescription = getContent('individuals', 'description') || 'Join our community of awakened women reclaiming sovereignty and embodied truth.';
   const individualCtaText = getContent('individuals', 'ctaText') || 'Join Community';
   const individualCtaLink = getContent('individuals', 'ctaLink') || '/community-events';
 
-  // Get quote section
+  // Get quote section from CMS
   const quoteText = getContent('quote', 'text') || '"In protecting what flourishes, we protect the right of all beings to rise, to renew, and to remain free."';
-  const quoteImage = getContent('quote', 'imageUrl') || '/media/12/IMG_0513-1280x1358.jpg';
+  const quoteImageUrl = getContent('quote', 'imageUrl') || '';
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,8 +62,8 @@ export default function WalkWithUs() {
       <div className="relative h-[70vh] w-full overflow-hidden">
         <div className="absolute inset-0 bg-black/30 z-10" />
         
-        {/* Video Background */}
-        {isVideo ? (
+        {/* Video or Image Background */}
+        {heroMediaUrl && isVideo ? (
           <video
             autoPlay
             muted
@@ -65,16 +72,18 @@ export default function WalkWithUs() {
             className="absolute inset-0 w-full h-full object-cover"
           >
             <source 
-              src={heroMediaUrl} 
-              type={heroMediaUrl.endsWith('.mov') ? 'video/quicktime' : heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
+              src={getProperMediaUrl(heroMediaUrl)} 
+              type={heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
             />
             Your browser does not support the video tag.
           </video>
-        ) : (
+        ) : heroMediaUrl ? (
           <div 
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${heroMediaUrl})` }}
+            style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
           />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
         )}
         
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
@@ -120,11 +129,15 @@ export default function WalkWithUs() {
         </div>
 
         <div className="relative rounded-[1.5rem] overflow-hidden h-[400px]">
-          <img 
-            src={getMediaUrl(quoteImage)} 
-            alt="Community" 
-            className="w-full h-full object-cover"
-          />
+          {quoteImageUrl ? (
+            <img 
+              src={getProperMediaUrl(quoteImageUrl)} 
+              alt="Community" 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-neutral-300 to-neutral-500" />
+          )}
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
             <p className="text-white font-serif text-3xl italic max-w-2xl px-4">
               {quoteText}

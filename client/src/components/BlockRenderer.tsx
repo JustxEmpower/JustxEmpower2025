@@ -290,7 +290,7 @@ function RenderBlock({ block }: { block: BlockData }) {
 
       case "heading":
         const level = cleanContent.level || 'h2';
-        const HeadingTag = level as keyof JSX.IntrinsicElements;
+        const HeadingTag = level as 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
         const headingSizes: Record<string, string> = {
           h1: 'text-5xl md:text-6xl',
           h2: 'text-4xl md:text-5xl',

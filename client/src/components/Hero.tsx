@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
 import { usePageContent } from '@/hooks/usePageContent';
+import { getMediaUrl } from '@/lib/media';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -14,8 +15,18 @@ export default function Hero() {
   
   const { getContent, isLoading } = usePageContent('home');
   
-  // Get all hero content from database with fallbacks
-  const videoUrl = getContent('hero', 'videoUrl') || 'https://elasticbeanstalk-us-east-1-137738969420.s3.amazonaws.com/media/videos/home-slide-1.mp4';
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
+  
+  // Get all hero content from database - no hardcoded fallbacks for media
+  const videoUrl = getContent('hero', 'videoUrl') || '';
+  const imageUrl = getContent('hero', 'imageUrl') || '';
+  const heroMediaUrl = videoUrl || imageUrl;
+  const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
+  
   const subtitle = getContent('hero', 'subtitle') || 'Welcome to Just Empower';
   // Title can be stored as single 'title' field or split into 'titleLine1'/'titleLine2'
   const fullTitle = getContent('hero', 'title') || '';
@@ -115,19 +126,33 @@ export default function Hero() {
 
   return (
     <div ref={heroRef} className="hero-section relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
-      {/* Video Background */}
+      {/* Video/Image Background */}
       <div className="absolute inset-0 w-full h-[120%] -top-[10%]">
         <div ref={overlayRef} className="absolute inset-0 bg-black z-10" />
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          className="w-full h-full object-cover"
-        >
-          <source src={videoUrl} type="video/mp4" />
-        </video>
+        
+        {/* Video or Image Background */}
+        {heroMediaUrl && isVideo ? (
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover"
+          >
+            <source 
+              src={getProperMediaUrl(heroMediaUrl)} 
+              type={heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
+            />
+          </video>
+        ) : heroMediaUrl ? (
+          <div 
+            className="w-full h-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-neutral-700 to-neutral-900" />
+        )}
       </div>
 
       {/* Content */}

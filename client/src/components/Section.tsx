@@ -10,7 +10,7 @@ interface SectionProps {
   title: string;
   subtitle?: string;
   description: string;
-  image: string;
+  image?: string;
   imageAlt: string;
   reversed?: boolean;
   dark?: boolean;
@@ -138,13 +138,22 @@ export default function Section({
             ref={imageWrapperRef}
             className="w-full md:w-1/2 relative aspect-[3/4] overflow-hidden rounded-[2rem] shadow-2xl shadow-black/5"
           >
-            <div 
-              ref={imageRef}
-              className="absolute inset-[-10%] w-[120%] h-[120%] bg-cover bg-center will-change-transform"
-              style={{ backgroundImage: `url(${image})` }}
-              role="img"
-              aria-label={imageAlt}
-            />
+            {image ? (
+              <div 
+                ref={imageRef}
+                className="absolute inset-[-10%] w-[120%] h-[120%] bg-cover bg-center will-change-transform"
+                style={{ backgroundImage: `url(${image})` }}
+                role="img"
+                aria-label={imageAlt}
+              />
+            ) : (
+              <div 
+                ref={imageRef}
+                className="absolute inset-[-10%] w-[120%] h-[120%] bg-gradient-to-br from-neutral-300 to-neutral-500 will-change-transform"
+                role="img"
+                aria-label={imageAlt}
+              />
+            )}
             {/* Artistic Overlay */}
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 opacity-60" />
           </div>

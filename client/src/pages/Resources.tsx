@@ -312,7 +312,7 @@ export default function Resources() {
             onClick={() => handleDownload(resource)}
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
-            {formatPrice(resource.price)}
+            {formatPrice(resource.price ?? 0)}
           </Button>
         ) : (
           <Button
@@ -363,7 +363,7 @@ export default function Resources() {
             <div className="grid md:grid-cols-3 gap-6">
               {featuredQuery.data.map((resource) => (
                 <Card key={resource.id} className={`border-amber-200 bg-amber-50/50 hover:shadow-lg transition-shadow relative ${resource.isPremium ? 'ring-2 ring-amber-400' : ''}`}>
-                  {resource.isPremium && resource.price > 0 && (
+                  {resource.isPremium && (resource.price ?? 0) > 0 && (
                     <div className="absolute top-3 right-3">
                       <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-white">
                         <DollarSign className="w-3 h-3 mr-1" />
@@ -475,12 +475,12 @@ export default function Resources() {
             ) : (
               <div className="space-y-4">
                 {filteredResources.map((resource) => (
-                  <Card key={resource.id} className={`hover:shadow-md transition-shadow ${resource.isPremium && resource.price > 0 ? 'border-l-4 border-l-amber-500' : ''}`}>
+                  <Card key={resource.id} className={`hover:shadow-md transition-shadow ${resource.isPremium && (resource.price ?? 0) > 0 ? 'border-l-4 border-l-amber-500' : ''}`}>
                     <CardContent className="p-6">
                       <div className="flex items-start gap-4">
                         <div className="flex-shrink-0 relative">
                           {getFileIcon(resource.fileType, 'lg')}
-                          {resource.isPremium && resource.price > 0 && (
+                          {resource.isPremium && (resource.price ?? 0) > 0 && (
                             <div className="absolute -top-1 -right-1 bg-amber-500 rounded-full p-1">
                               <Lock className="w-3 h-3 text-white" />
                             </div>
@@ -493,9 +493,9 @@ export default function Resources() {
                                 <h3 className="text-lg font-medium text-stone-900">
                                   {resource.title}
                                 </h3>
-                                {resource.isPremium && resource.price > 0 && (
+                                {resource.isPremium && (resource.price ?? 0) > 0 && (
                                   <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs">
-                                    {formatPrice(resource.price)}
+                                    {formatPrice(resource.price ?? 0)}
                                   </Badge>
                                 )}
                               </div>

@@ -295,6 +295,7 @@ export const shopRouter = router({
         const taxAmount = 0;
         const total = subtotal - discountAmount + shippingAmount + taxAmount;
         
+        if (!stripe) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing not configured" });
         const paymentIntent = await stripe.paymentIntents.create({
           amount: total,
           currency: "usd",
@@ -337,6 +338,7 @@ export const shopRouter = router({
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
         const { sessionId, paymentIntentId, email, phone, shippingAddress, customerNotes } = input;
         
+        if (!stripe) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing not configured" });
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
         if (paymentIntent.status !== "succeeded") throw new TRPCError({ code: "BAD_REQUEST", message: "Payment not completed" });
         

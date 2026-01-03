@@ -145,7 +145,9 @@ export default function PageBuilderPage() {
       // Invalidate queries to refresh data
       utils.admin.pages.blocks.list.invalidate({ pageId: savedPageId });
       utils.admin.pages.getById.invalidate({ id: savedPageId });
-      utils.navigation.getAll.invalidate();
+      // Navigation is under admin router
+      utils.admin.navigation.list.invalidate({ location: 'header' });
+      utils.admin.navigation.list.invalidate({ location: 'footer' });
 
       toast.success('Page saved successfully!');
       

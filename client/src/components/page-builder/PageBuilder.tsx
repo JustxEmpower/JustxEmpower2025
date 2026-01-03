@@ -474,7 +474,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                   transition: 'width 0.3s ease',
                 }}
               >
-                <Canvas isPreviewMode={isPreviewMode} />
+                <Canvas />
               </div>
             </div>
           </main>
@@ -570,7 +570,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
       <DragOverlay>
         {activeNewBlock && (
           <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl border-2 border-primary p-4 opacity-90">
-            <p className="text-sm font-medium">{activeNewBlock.label}</p>
+            <p className="text-sm font-medium">{activeNewBlock.name}</p>
           </div>
         )}
       </DragOverlay>

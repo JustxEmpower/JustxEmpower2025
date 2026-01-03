@@ -19,6 +19,12 @@ export default function ArticleDetail() {
     window.scrollTo(0, 0);
   }, [slug]);
 
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
+
   const handleShare = async () => {
     if (navigator.share) {
       try {
@@ -86,11 +92,15 @@ export default function ArticleDetail() {
       {/* Hero Section */}
       <div className="relative h-[60vh] w-full overflow-hidden">
         <div className="absolute inset-0 bg-black/40 z-10" />
-        <img
-          src={getMediaUrl(article.imageUrl || '/media/11/Cover-Final-Emblem-V1-1024x731.png')}
-          alt={article.title}
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+        {article.imageUrl ? (
+          <img
+            src={getProperMediaUrl(article.imageUrl)}
+            alt={article.title}
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
+        )}
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           {article.category && (
             <p className="font-sans text-xs tracking-[0.2em] uppercase opacity-80 mb-4">

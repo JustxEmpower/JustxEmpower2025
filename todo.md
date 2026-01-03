@@ -1324,3 +1324,140 @@ NODE_ENV=production
 - [x] BlockRenderer updated to handle all Page Builder block types
 - [x] Dynamic pages render Page Builder blocks correctly on public site
 - [x] Page Builder loads existing pages for editing
+
+
+## Bug Fix: Carousel Preview Links (Jan 2026)
+
+- [x] Fix broken preview links in Carousel Offerings admin page
+- [x] Ensure offering images display correctly in admin list
+- [x] Added elegant amber gradient placeholders with first letter fallback
+
+## Rename: Carousel to Featured Offerings (Jan 2026)
+
+- [x] Rename "Carousel" to "Featured Offerings" in admin sidebar
+- [x] Update AdminCarousel page title and description
+- [x] Update dialog and empty state text
+
+
+## Fix: Restore Carousel Elegant Placeholders (Jan 2026)
+
+- [x] Apply elegant amber gradient placeholders to AdminCarousel
+- [x] Add first letter fallback for missing images
+
+
+## Page Builder Missing Features (Jan 2026)
+
+- [ ] Add back button to navigate to pages list
+- [ ] Add expandable/collapsible left panel (block library)
+- [ ] Add expandable/collapsible right panel (settings)
+- [ ] Add media picker integration for image blocks
+
+
+## Page Builder Enhancements (Jan 2, 2026)
+
+- [x] Add back button to navigate to pages list
+- [x] Expandable/collapsible side panels (already existed)
+- [x] Add media picker integration for image fields
+- [x] Fix Page Builder infinite loop error
+- [x] Add pages.getById endpoint for loading existing pages
+- [x] Fix page title loading when editing existing pages
+- [x] Elegant amber gradient placeholders for Featured Offerings admin
+
+
+## Page Builder Resizable Panels (Jan 2, 2026)
+
+- [x] Add draggable resize handle to left panel (block library)
+- [x] Add draggable resize handle to right panel (settings)
+- [x] Store panel widths in state for persistence
+- [x] Added visual indicator on hover for resize handles
+
+
+## Bug Fix: Builder Button on Pages (Jan 2, 2026)
+
+- [ ] Fix Builder button to pass page ID when editing existing pages
+- [ ] Ensure Page Builder loads the correct page content
+
+## Page Builder Navigation Fix (Jan 2, 2026)
+
+- [x] Fix Builder button in AdminPages to navigate to Page Builder with page ID
+- [x] Clicking Builder on existing page now loads that page's content for editing
+- [x] Verified Philosophy page loads correctly in Page Builder with existing content
+
+
+## Logo Display Fix (January 2026)
+
+- [x] Investigate logo locations (Header, Footer, Preloader, AdminSidebar)
+- [x] Fix getMediaUrl function to route logo-white.png to legacy S3 bucket
+- [x] Verify logo displays correctly in sandbox preview
+- [x] Commit changes to GitHub (commit 0ffa110)
+- [ ] Deploy to production EC2 server
+
+
+## Preloader Logo in Brand Assets (January 2026)
+
+- [x] Add logo_preloader field to brand assets database schema
+- [x] Update getBrandAssets and saveBrandAssets API endpoints
+- [x] Add preloader logo upload field to Brand Assets admin page
+- [x] Update Preloader component to fetch logo from brand assets
+- [x] Test preloader logo customization
+- [x] Commit changes to GitHub (commit 250bf32)
+
+
+## Media Upload Fix (January 2026)
+
+- [ ] Investigate media upload API returning HTML instead of JSON
+- [ ] Check S3 storage configuration for media uploads
+- [ ] Fix media upload to properly use S3 storage
+- [ ] Fix broken image display in Media Library
+- [ ] Test media upload functionality
+- [ ] Commit changes to GitHub
+
+
+## Direct S3 Upload with Presigned URLs (January 2026)
+
+- [x] Add presigned URL generation function to storage.ts
+- [x] Create tRPC endpoint for generating presigned upload URLs
+- [x] Update AdminMedia frontend to upload directly to S3
+- [x] Add progress indicator for uploads
+- [x] Support images, videos, and audio files
+- [x] Commit changes to GitHub (commit c7cbe2c)
+
+
+## Fix Broken Media Thumbnails (January 2026)
+
+- [ ] Query database to check stored media URLs
+- [ ] Identify URL pattern issues
+- [ ] Fix getMediaUrl function or migrate URLs
+- [ ] Test thumbnail display
+- [ ] Commit changes to GitHub
+
+
+## Content Editor Media Display Fix (January 2026)
+- [ ] Investigate why media added via Content editor doesn't display
+- [ ] Check how media URLs are saved in pageContent table
+- [ ] Fix URL handling for images and videos
+- [ ] Test media display on frontend
+
+
+## Remove Hardcoded URLs & Fix Contact System (January 2026)
+- [x] Update Contact.tsx to use CMS content for hero media
+- [x] Update WalkWithUs.tsx to use CMS content
+- [x] Update Home.tsx to use CMS content for all sections
+- [x] Update Hero.tsx to use CMS content for video/image
+- [x] Update Offerings.tsx to use CMS content for hero media
+- [x] Update Journal.tsx to use CMS content for hero media
+- [x] Update About.tsx to use CMS content for all sections
+- [x] Update AdminLogin.tsx to use brand assets for logo
+- [x] Fix Section.tsx to handle optional image prop
+- [x] Fix TypeScript errors in BlockRenderer.tsx
+- [x] Fix TypeScript errors in PageBuilder.tsx
+- [x] Fix TypeScript errors in BlockSettings.tsx
+- [x] Fix TypeScript errors in PageBuilderPage.tsx
+- [x] Fix TypeScript errors in Resources.tsx
+- [x] Fix TypeScript errors in adminDb.ts
+- [x] Fix Stripe null checks in eventsRouter.ts
+- [x] Fix Stripe null checks in shopRouter.ts
+- [ ] Fix Contact Messages admin - reading message details
+- [ ] Fix Reply via Email functionality
+- [ ] Test all pages with CMS media
+- [ ] Commit changes to GitHub

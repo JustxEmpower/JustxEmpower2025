@@ -9,6 +9,12 @@ import { getMediaUrl } from '@/lib/media';
 export default function Home() {
   const { getContent, getSection, isLoading } = usePageContent('home');
 
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
+
   useEffect(() => {
     // Initialize Lenis smooth scroll with more artistic, fluid settings
     const lenis = new Lenis({
@@ -54,7 +60,7 @@ export default function Home() {
           title={philosophySection.title || 'The Philosophy'}
           subtitle={philosophySection.label || 'Our Approach'}
           description={philosophySection.description || 'Just Empower operates at the intersection of personal reclamation and collective influence. We believe that transformative leadership begins within—through self-trust, discernment, and embodied integrity—and radiates outward into the structures we shape, steward, and reimagine.'}
-          image={getMediaUrl(philosophySection.imageUrl || '/media/12/IMG_0513-1280x1358.jpg')}
+          image={philosophySection.imageUrl ? getProperMediaUrl(philosophySection.imageUrl) : undefined}
           imageAlt="Ocean waves representing depth and flow"
           ctaText={philosophySection.ctaText || 'Discover More'}
           ctaLink={philosophySection.ctaLink || '/philosophy/vision-ethos'}
@@ -66,7 +72,7 @@ export default function Home() {
           title={communitySection.title || 'Emerge With Us'}
           subtitle={communitySection.label || 'Community'}
           description={communitySection.description || 'We are planting seeds for a new paradigm—one rooted in consciousness, compassion, and sacred reciprocity. This is an invitation for women ready to move beyond survival patterns and into grounded discernment, embodied presence, and conscious self-authority.'}
-          image={getMediaUrl(communitySection.imageUrl || '/media/12/IMG_0516-800x1044.jpg')}
+          image={communitySection.imageUrl ? getProperMediaUrl(communitySection.imageUrl) : undefined}
           imageAlt="Woman walking in nature"
           reversed
           dark
@@ -78,7 +84,7 @@ export default function Home() {
           title={rootedUnitySection.title || 'Rooted Unity'}
           subtitle={rootedUnitySection.label || 'Coming 2026'}
           description={rootedUnitySection.description || 'Ecological stewardship meets personal healing. Recognizing that our internal landscape mirrors the external world, we embark on a journey of regenerative living and planetary care—understanding that tending the Earth is an extension of tending the self.'}
-          image={getMediaUrl(rootedUnitySection.imageUrl || '/media/11/Lavender1.jpg')}
+          image={rootedUnitySection.imageUrl ? getProperMediaUrl(rootedUnitySection.imageUrl) : undefined}
           imageAlt="Forest sunlight representing growth"
           ctaText={rootedUnitySection.ctaText || 'Learn More'}
           ctaLink={rootedUnitySection.ctaLink || '/offerings/rooted-unity'}

@@ -1,0 +1,1 @@
+ALTER TABLE `brandAssets` MODIFY COLUMN `assetType` enum('logo_header','logo_footer','logo_mobile','logo_preloader','favicon','og_image','twitter_image') NOT NULL;

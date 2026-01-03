@@ -379,7 +379,7 @@ export async function createPageBlock(data: {
   
   const [result] = await db.insert(pageBlocks).values({
     pageId: data.pageId,
-    type: data.type,
+    type: data.type as "text" | "image" | "video" | "quote" | "cta" | "spacer",
     content: data.content,
     order: data.order,
     settings: data.settings || "{}",

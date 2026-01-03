@@ -284,7 +284,7 @@ function ImageFieldWithPicker({
       )}
       <MediaPicker
         open={mediaPickerOpen}
-        onOpenChange={setMediaPickerOpen}
+        onClose={() => setMediaPickerOpen(false)}
         onSelect={(url) => {
           onChange(fieldKey, url);
           setMediaPickerOpen(false);

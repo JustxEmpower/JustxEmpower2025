@@ -12,6 +12,12 @@ export default function AdminLogin() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Fetch brand assets for logo using the correct endpoint
+  const { data: brandAssets } = trpc.siteSettings.getBrandAssets.useQuery();
+  
+  // Get logo URL from brand assets, with fallback
+  const logoUrl = brandAssets?.logo_black || brandAssets?.logo || '';
+
   const loginMutation = trpc.admin.login.useMutation({
     onSuccess: (data) => {
       // Store admin token in localStorage
@@ -32,16 +38,28 @@ export default function AdminLogin() {
     loginMutation.mutate({ username, password });
   };
 
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-950 dark:to-neutral-900">
       <div className="w-full max-w-md px-8">
         {/* Logo / Brand */}
         <div className="text-center mb-12">
-          <img
-            src={getMediaUrl('/media/08/justempower-logo.png')}
-            alt="Just Empower"
-            className="h-16 mx-auto mb-6"
-          />
+          {logoUrl ? (
+            <img
+              src={getProperMediaUrl(logoUrl)}
+              alt="Just Empower"
+              className="h-16 mx-auto mb-6"
+            />
+          ) : (
+            <div className="h-16 mx-auto mb-6 flex items-center justify-center">
+              <span className="text-2xl font-serif italic text-neutral-900 dark:text-neutral-100">Just Empower</span>
+            </div>
+          )}
           <h1 className="text-2xl font-light text-neutral-900 dark:text-neutral-100 tracking-tight">
             Admin Portal
           </h1>

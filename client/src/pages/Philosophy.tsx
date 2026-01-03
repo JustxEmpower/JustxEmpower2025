@@ -7,45 +7,86 @@ import { usePageContent } from '@/hooks/usePageContent';
 
 export default function Philosophy() {
   const [location] = useLocation();
-  const { getContent, getSection, isLoading } = usePageContent('philosophy');
+  const { getContent, isLoading } = usePageContent('philosophy');
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
 
-  // Get hero content
-  const heroTitle = getContent('hero', 'title', 'Our Philosophy');
-  const heroSubtitle = getContent('hero', 'subtitle', 'OUR APPROACH');
-  const heroDescription = getContent('hero', 'description', 'Embodiment Over Intellectualization');
-  const heroImage = getContent('hero', 'imageUrl', '/media/11/Fam.jpg');
+  // Get hero content from CMS
+  const heroTitle = getContent('hero', 'title') || 'Our Philosophy';
+  const heroSubtitle = getContent('hero', 'subtitle') || 'OUR APPROACH';
+  const heroDescription = getContent('hero', 'description') || 'Embodiment Over Intellectualization';
+  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
+  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  
+  // Determine which media to use for hero (video takes priority)
+  const heroMediaUrl = heroVideoUrl || heroImageUrl;
+  const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
-  // Get principles content
-  const principlesTitle = getContent('principles', 'title', 'Foundational Principles');
-  const principle1Title = getContent('principles', 'principle1_title', 'Embodiment');
-  const principle1Desc = getContent('principles', 'principle1_description', 'Truth begins where intellect ends—within the lived intelligence of the body and breath. Transformation moves from concept into experience, as the nervous system becomes the gateway to sovereignty.');
-  const principle2Title = getContent('principles', 'principle2_title', 'Wholeness');
-  const principle2Desc = getContent('principles', 'principle2_description', 'Wholeness is not something to achieve or restore—it is something to reclaim. The work is not about fixing what is broken, but remembering what endures: clarity, sovereignty, embodied truth.');
-  const principle3Title = getContent('principles', 'principle3_title', "Nature's Intelligence");
-  const principle3Desc = getContent('principles', 'principle3_description', "Rather than replicating outdated systems, Just Empower roots its work in nature's original intelligence—adaptive, regenerative, and quietly revolutionary.");
+  // Get principles content from CMS
+  const principlesTitle = getContent('principles', 'title') || 'Foundational Principles';
+  const principlesImageUrl = getContent('principles', 'imageUrl') || '';
+  const principle1Title = getContent('principles', 'principle1_title') || 'Embodiment';
+  const principle1Desc = getContent('principles', 'principle1_description') || 'Truth begins where intellect ends—within the lived intelligence of the body and breath. Transformation moves from concept into experience, as the nervous system becomes the gateway to sovereignty.';
+  const principle2Title = getContent('principles', 'principle2_title') || 'Wholeness';
+  const principle2Desc = getContent('principles', 'principle2_description') || 'Wholeness is not something to achieve or restore—it is something to reclaim. The work is not about fixing what is broken, but remembering what endures: clarity, sovereignty, embodied truth.';
+  const principle3Title = getContent('principles', 'principle3_title') || "Nature's Intelligence";
+  const principle3Desc = getContent('principles', 'principle3_description') || "Rather than replicating outdated systems, Just Empower roots its work in nature's original intelligence—adaptive, regenerative, and quietly revolutionary.";
 
-  // Get newsletter content
-  const newsletterTitle = getContent('newsletter', 'title', 'Deepen Your Practice');
-  const newsletterDesc = getContent('newsletter', 'description', 'Receive monthly insights on embodiment, conscious leadership, and the philosophy of transformation.');
+  // Get pillars content from CMS
+  const pillarsTitle = getContent('pillars', 'title') || 'The Three Pillars';
+  const pillarsSubtitle = getContent('pillars', 'subtitle') || 'Integrated Transformation';
+  const pillarsDescription = getContent('pillars', 'description') || "Just Empower's mission is realized through three integrated pillars: Personal Empowerment, Community & Cultural Initiatives, and Systemic Regeneration. Together, these pillars foster measurable transformation across individual, relational, and cultural levels.";
+  const pillarsImageUrl = getContent('pillars', 'imageUrl') || '';
+
+  // Get newsletter content from CMS
+  const newsletterTitle = getContent('newsletter', 'title') || 'Deepen Your Practice';
+  const newsletterDesc = getContent('newsletter', 'description') || 'Receive monthly insights on embodiment, conscious leadership, and the philosophy of transformation.';
+
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-neutral-500">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="relative h-[60vh] w-full overflow-hidden rounded-b-[2.5rem]">
         <div className="absolute inset-0 bg-black/30 z-10" />
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src={getMediaUrl('/media/videos/emerge-with-us.mp4')} type="video/mp4" />
-        </video>
+        
+        {/* Video or Image Background */}
+        {heroMediaUrl && isHeroVideo ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source 
+              src={getProperMediaUrl(heroMediaUrl)} 
+              type={heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
+            />
+          </video>
+        ) : heroMediaUrl ? (
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
+        )}
+        
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
             {heroTitle}
@@ -77,21 +118,25 @@ export default function Philosophy() {
             </div>
           </div>
           <div className="sticky top-32">
-            <img 
-              src={getMediaUrl('/media/12/IMG_0516-800x1044.jpg')} 
-              alt="Nature philosophy" 
-              className="w-full h-[80vh] object-cover rounded-[1.5rem]"
-            />
+            {principlesImageUrl ? (
+              <img 
+                src={getProperMediaUrl(principlesImageUrl)} 
+                alt="Nature philosophy" 
+                className="w-full h-[80vh] object-cover rounded-[1.5rem]"
+              />
+            ) : (
+              <div className="w-full h-[80vh] bg-gradient-to-br from-neutral-300 to-neutral-500 rounded-[1.5rem]" />
+            )}
           </div>
         </div>
       </div>
 
       {/* Three Pillars */}
       <Section 
-        title="The Three Pillars"
-        subtitle="Integrated Transformation"
-        description="Just Empower's mission is realized through three integrated pillars: Personal Empowerment, Community & Cultural Initiatives, and Systemic Regeneration. Together, these pillars foster measurable transformation across individual, relational, and cultural levels."
-        image={getMediaUrl('/media/11/Cover-Final-Emblem-V1-1024x731.png')}
+        title={pillarsTitle}
+        subtitle={pillarsSubtitle}
+        description={pillarsDescription}
+        image={pillarsImageUrl ? getProperMediaUrl(pillarsImageUrl) : undefined}
         imageAlt="Three Pillars Symbol"
         dark
       />

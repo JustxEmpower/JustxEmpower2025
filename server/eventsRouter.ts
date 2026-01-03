@@ -211,6 +211,7 @@ export const eventsRouter = router({
       }
       
       // Create Stripe payment intent
+      if (!stripe) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing not configured" });
       const paymentIntent = await stripe.paymentIntents.create({
         amount: totalAmount,
         currency: "usd",
@@ -275,6 +276,7 @@ export const eventsRouter = router({
       if (totalAmount > 0) {
         if (!paymentIntentId) throw new TRPCError({ code: "BAD_REQUEST", message: "Payment required" });
         
+        if (!stripe) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing not configured" });
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
         if (paymentIntent.status !== "succeeded") throw new TRPCError({ code: "BAD_REQUEST", message: "Payment not completed" });
       }
@@ -514,7 +516,7 @@ export const eventsRouter = router({
       }
       
       // Process refund if paid
-      if (registration.paymentIntentId && registration.paymentStatus === "paid") {
+      if (registration.paymentIntentId && registration.paymentStatus === "paid" && stripe) {
         try {
           await stripe.refunds.create({
             payment_intent: registration.paymentIntentId,

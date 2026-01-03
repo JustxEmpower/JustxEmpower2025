@@ -12,6 +12,7 @@ import { MapView } from '@/components/Map';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
+import { usePageContent } from '@/hooks/usePageContent';
 
 const contactSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -27,6 +28,7 @@ export default function Contact() {
   const [location] = useLocation();
   const mapRef = useRef<google.maps.Map | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { getContent, isLoading } = usePageContent('contact');
 
   const {
     register,
@@ -60,26 +62,59 @@ export default function Contact() {
     }
   };
 
+  // Get hero content from CMS
+  const heroTitle = getContent('hero', 'title') || 'Connect';
+  const heroSubtitle = getContent('hero', 'subtitle') || 'Begin the Conversation';
+  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
+  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  
+  // Determine which media to use (video takes priority)
+  const heroMediaUrl = heroVideoUrl || heroImageUrl;
+  const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <p className="text-neutral-500">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
       <div className="relative h-[50vh] w-full overflow-hidden rounded-b-[2.5rem]">
         <div className="absolute inset-0 bg-black/30 z-10" />
-        <video
-          autoPlay
-          loop
-          muted
-          playsInline
-          className="absolute inset-0 w-full h-full object-cover"
-        >
-          <source src={getMediaUrl('/media/videos/home-top-2.mp4')} type="video/mp4" />
-        </video>
+        
+        {/* Video or Image Background */}
+        {heroMediaUrl && isVideo ? (
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source 
+              src={heroMediaUrl.startsWith('http') ? heroMediaUrl : getMediaUrl(heroMediaUrl)} 
+              type={heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
+            />
+          </video>
+        ) : heroMediaUrl ? (
+          <div 
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${heroMediaUrl.startsWith('http') ? heroMediaUrl : getMediaUrl(heroMediaUrl)})` }}
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
+        )}
+        
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
-            Connect
+            {heroTitle}
           </h1>
           <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90">
-            Begin the Conversation
+            {heroSubtitle}
           </p>
         </div>
       </div>
