@@ -1,5 +1,8 @@
 // S3 bucket URL for media files
-export const S3_MEDIA_BASE_URL = 'https://elasticbeanstalk-us-east-1-137738969420.s3.amazonaws.com';
+// Primary bucket for new uploads
+export const S3_MEDIA_BASE_URL = 'https://justxempower-assets.s3.us-east-1.amazonaws.com';
+// Legacy bucket for older media
+export const S3_LEGACY_BASE_URL = 'https://elasticbeanstalk-us-east-1-137738969420.s3.amazonaws.com';
 
 /**
  * Convert a local media path to S3 URL
@@ -17,6 +20,14 @@ export function getMediaUrl(path: string | undefined | null): string {
   // Convert local path to S3 URL
   // Remove leading slash if present
   const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  // Check if it's a legacy path format (media/11/..., media/12/..., etc.)
+  // These are stored in the legacy Elastic Beanstalk bucket
+  if (cleanPath.startsWith('media/1') || cleanPath.startsWith('media/2')) {
+    return `${S3_LEGACY_BASE_URL}/${cleanPath}`;
+  }
+  
+  // New uploads go to the primary bucket
   return `${S3_MEDIA_BASE_URL}/${cleanPath}`;
 }
 
@@ -29,5 +40,5 @@ export function getVideoUrl(filename: string): string {
   if (filename.startsWith('http://') || filename.startsWith('https://')) {
     return filename;
   }
-  return `${S3_MEDIA_BASE_URL}/media/videos/${filename}`;
+  return `${S3_LEGACY_BASE_URL}/media/videos/${filename}`;
 }
