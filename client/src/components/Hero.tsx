@@ -17,9 +17,12 @@ export default function Hero() {
   // Get all hero content from database with fallbacks
   const videoUrl = getContent('hero', 'videoUrl') || 'https://elasticbeanstalk-us-east-1-137738969420.s3.amazonaws.com/media/videos/home-slide-1.mp4';
   const subtitle = getContent('hero', 'subtitle') || 'Welcome to Just Empower';
-  const titleLine1 = getContent('hero', 'titleLine1') || 'Catalyzing the';
-  const titleLine2 = getContent('hero', 'titleLine2') || 'Rise of Her';
-  const description = getContent('hero', 'description') || 'Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.';
+  // Title can be stored as single 'title' field or split into 'titleLine1'/'titleLine2'
+  const fullTitle = getContent('hero', 'title') || '';
+  const titleLine1 = getContent('hero', 'titleLine1') || (fullTitle ? fullTitle.split(' ').slice(0, 2).join(' ') : 'Catalyzing the');
+  const titleLine2 = getContent('hero', 'titleLine2') || (fullTitle ? fullTitle.split(' ').slice(2).join(' ') : 'Rise of Her');
+  // Use subDescription for the main description text, fall back to description
+  const description = getContent('hero', 'subDescription') || getContent('hero', 'description') || 'Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.';
   const ctaText = getContent('hero', 'ctaText') || 'Discover More';
   const ctaLink = getContent('hero', 'ctaLink') || '/about';
 
