@@ -16,7 +16,6 @@ export default function PageBuilderPage() {
   const [currentPageId, setCurrentPageId] = useState<number | undefined>(pageId);
   const [pageTitle, setPageTitle] = useState('Untitled Page');
   const [pageSlug, setPageSlug] = useState('');
-  const [blocksLoaded, setBlocksLoaded] = useState(false);
   
   const { setBlocks, setPageId: setStorePageId, setPageTitle: setStorePageTitle } = usePageBuilderStore();
 
@@ -40,36 +39,6 @@ export default function PageBuilderPage() {
     }
   }, [existingPage]);
 
-  // Load blocks into the store when they're fetched
-  useEffect(() => {
-    if (existingBlocks && existingBlocks.length > 0 && !blocksLoaded) {
-      const parsedBlocks = existingBlocks.map(block => {
-        let content: Record<string, unknown> = {};
-        try {
-          content = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
-        } catch (e) {
-          content = {};
-        }
-        
-        // Get the original block type from the content if stored, otherwise use the db type
-        const originalType = (content._originalType as string) || block.type;
-        
-        // Remove the _originalType from content before using
-        const { _originalType, ...cleanContent } = content;
-        
-        return {
-          id: String(block.id),
-          type: originalType,
-          content: cleanContent,
-          order: block.order,
-        };
-      });
-      
-      setBlocks(parsedBlocks);
-      setBlocksLoaded(true);
-    }
-  }, [existingBlocks, blocksLoaded, setBlocks]);
-
   // Mutations
   const createPageMutation = trpc.admin.pages.create.useMutation();
   const updatePageMutation = trpc.admin.pages.update.useMutation();
@@ -78,8 +47,10 @@ export default function PageBuilderPage() {
   const deleteBlockMutation = trpc.admin.pages.blocks.delete.useMutation();
   const utils = trpc.useUtils();
 
-  // Show loading state
-  if (authLoading || (currentPageId && (pageLoading || blocksLoading))) {
+  // Show loading state while fetching existing page data
+  const isLoadingExistingPage = currentPageId && (pageLoading || blocksLoading);
+  
+  if (authLoading || isLoadingExistingPage) {
     return (
       <div className="h-screen flex items-center justify-center bg-neutral-100 dark:bg-neutral-950">
         <div className="text-center">
@@ -240,7 +211,7 @@ export default function PageBuilderPage() {
     return typeMap[type] || 'text';
   };
 
-  // Convert existing blocks to Page Builder format
+  // Convert existing blocks to Page Builder format - only when data is loaded
   const initialBlocks = (existingBlocks && existingBlocks.length > 0) 
     ? existingBlocks.map(block => {
         let content: Record<string, unknown> = {};
@@ -262,7 +233,7 @@ export default function PageBuilderPage() {
         };
       })
     : [
-        // Demo blocks for new pages
+        // Demo blocks for new pages only
         {
           id: 'demo-hero',
           type: 'hero',
@@ -304,8 +275,13 @@ export default function PageBuilderPage() {
         },
       ];
 
+  // Use a unique key to force PageBuilder to remount when editing different pages
+  // This ensures the blocksInitializedRef gets reset for each page
+  const builderKey = currentPageId ? `page-${currentPageId}` : 'new-page';
+
   return (
     <PageBuilder
+      key={builderKey}
       pageId={currentPageId ? String(currentPageId) : undefined}
       initialBlocks={initialBlocks}
       initialTitle={existingPage?.title || 'Untitled Page'}
