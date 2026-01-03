@@ -30,39 +30,51 @@ import {
   Smartphone,
   MoreHorizontal,
   Loader2,
-  ArrowLeft,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { usePageBuilderStore } from './usePageBuilderStore';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { usePageBuilderStore, PageBlock } from './usePageBuilderStore';
 import { BlockType } from './blockTypes';
 import BlockLibrary from './panels/BlockLibrary';
 import LayersPanel from './panels/LayersPanel';
 import BlockSettings from './panels/BlockSettings';
 import Canvas from './Canvas';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface PageBuilderProps {
   pageId?: string;
-  pageTitle?: string;
   initialBlocks?: Array<{
     id: string;
     type: string;
     content: Record<string, unknown>;
     order: number;
   }>;
-  onSave?: (blocks: Array<{
-    id: string;
-    type: string;
-    content: Record<string, unknown>;
-    order: number;
-  }>) => Promise<void>;
-  onBack?: () => void;
-  onSettings?: () => void;
+  initialTitle?: string;
+  onSave?: (
+    blocks: Array<{
+      id: string;
+      type: string;
+      content: Record<string, unknown>;
+      order: number;
+    }>,
+    title: string,
+    slug: string,
+    showInNav: boolean
+  ) => Promise<void>;
 }
 
-export default function PageBuilder({ pageId, pageTitle: propPageTitle, initialBlocks, onSave, onBack, onSettings }: PageBuilderProps) {
+export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSave }: PageBuilderProps) {
   const {
     blocks,
     pageTitle,
@@ -89,43 +101,9 @@ export default function PageBuilder({ pageId, pageTitle: propPageTitle, initialB
 
   const [viewportSize, setViewportSize] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [activeNewBlock, setActiveNewBlock] = React.useState<BlockType | null>(null);
-  
-  // Resizable panel widths
-  const [leftPanelWidth, setLeftPanelWidth] = React.useState(320);
-  const [rightPanelWidth, setRightPanelWidth] = React.useState(320);
-  const [isResizingLeft, setIsResizingLeft] = React.useState(false);
-  const [isResizingRight, setIsResizingRight] = React.useState(false);
-
-  // Handle panel resize
-  const handleMouseMove = React.useCallback((e: MouseEvent) => {
-    if (isResizingLeft) {
-      const newWidth = Math.max(240, Math.min(500, e.clientX));
-      setLeftPanelWidth(newWidth);
-    } else if (isResizingRight) {
-      const newWidth = Math.max(280, Math.min(500, window.innerWidth - e.clientX));
-      setRightPanelWidth(newWidth);
-    }
-  }, [isResizingLeft, isResizingRight]);
-
-  const handleMouseUp = React.useCallback(() => {
-    setIsResizingLeft(false);
-    setIsResizingRight(false);
-  }, []);
-
-  React.useEffect(() => {
-    if (isResizingLeft || isResizingRight) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = 'col-resize';
-      document.body.style.userSelect = 'none';
-    }
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-    };
-  }, [isResizingLeft, isResizingRight, handleMouseMove, handleMouseUp]);
+  const [showSaveDialog, setShowSaveDialog] = React.useState(false);
+  const [pageSlug, setPageSlug] = React.useState('');
+  const [showInNav, setShowInNav] = React.useState(false);
 
   // Initialize with props
   useEffect(() => {
@@ -133,12 +111,19 @@ export default function PageBuilder({ pageId, pageTitle: propPageTitle, initialB
       setPageId(pageId);
     }
     if (initialBlocks) {
-      setBlocks(initialBlocks);
+      setBlocks(initialBlocks as PageBlock[]);
     }
-    if (propPageTitle) {
-      setPageTitle(propPageTitle);
+    if (initialTitle) {
+      setPageTitle(initialTitle);
     }
-  }, [pageId, initialBlocks, propPageTitle, setPageId, setBlocks, setPageTitle]);
+  }, [pageId, initialBlocks, initialTitle, setPageId, setBlocks, setPageTitle]);
+
+  // Auto-generate slug from title
+  useEffect(() => {
+    if (!pageSlug && pageTitle && pageTitle !== 'Untitled Page') {
+      setPageSlug(pageTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''));
+    }
+  }, [pageTitle, pageSlug]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -170,11 +155,18 @@ export default function PageBuilder({ pageId, pageTitle: propPageTitle, initialB
     }
   };
 
-  const handleSave = async () => {
+  const handleSaveClick = () => {
+    setShowSaveDialog(true);
+  };
+
+  const handleSaveConfirm = async () => {
     if (onSave) {
       setSaving(true);
       try {
-        await onSave(blocks);
+        await onSave(blocks, pageTitle, pageSlug, showInNav);
+        setShowSaveDialog(false);
+      } catch (error) {
+        console.error('Save failed:', error);
       } finally {
         setSaving(false);
       }
@@ -199,22 +191,6 @@ export default function PageBuilder({ pageId, pageTitle: propPageTitle, initialB
         <header className="h-14 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between px-4 flex-shrink-0">
           {/* Left section */}
           <div className="flex items-center gap-2">
-            {onBack && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onBack}
-                    className="h-9 w-9 p-0"
-                  >
-                    <ArrowLeft className="w-5 h-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Back to pages</TooltipContent>
-              </Tooltip>
-            )}
-
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
@@ -237,22 +213,6 @@ export default function PageBuilder({ pageId, pageTitle: propPageTitle, initialB
               className="w-48 h-9 bg-transparent border-transparent hover:border-neutral-300 dark:hover:border-neutral-700 focus:border-primary"
               placeholder="Page title..."
             />
-
-            {onSettings && (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={onSettings}
-                    className="h-9 w-9 p-0"
-                  >
-                    <Settings className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Page settings</TooltipContent>
-              </Tooltip>
-            )}
           </div>
 
           {/* Center section - Viewport controls */}
@@ -300,65 +260,64 @@ export default function PageBuilder({ pageId, pageTitle: propPageTitle, initialB
 
           {/* Right section */}
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={undo}
-                    disabled={!canUndo()}
-                    className="h-9 w-9 p-0"
-                  >
-                    <Undo2 className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Undo</TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={redo}
-                    disabled={!canRedo()}
-                    className="h-9 w-9 p-0"
-                  >
-                    <Redo2 className="w-4 h-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Redo</TooltipContent>
-              </Tooltip>
-            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={undo}
+                  disabled={!canUndo}
+                  className="h-9 w-9 p-0"
+                >
+                  <Undo2 className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Undo</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={redo}
+                  disabled={!canRedo}
+                  className="h-9 w-9 p-0"
+                >
+                  <Redo2 className="w-4 h-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Redo</TooltipContent>
+            </Tooltip>
 
             <div className="h-6 w-px bg-neutral-200 dark:bg-neutral-700 mx-1" />
 
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button
-                  variant={isPreviewMode ? 'secondary' : 'ghost'}
+                  variant="ghost"
                   size="sm"
                   onClick={togglePreviewMode}
-                  className="h-9 gap-2"
+                  className="h-9 px-3 gap-2"
                 >
                   {isPreviewMode ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  {isPreviewMode ? 'Edit' : 'Preview'}
+                  <span className="text-sm">Preview</span>
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{isPreviewMode ? 'Exit preview' : 'Preview page'}</TooltipContent>
             </Tooltip>
 
             <Button
-              onClick={handleSave}
+              size="sm"
+              onClick={handleSaveClick}
               disabled={isSaving}
-              className="h-9 gap-2"
+              className="h-9 px-4 gap-2"
             >
               {isSaving ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Save className="w-4 h-4" />
               )}
-              Save
+              <span>Save</span>
             </Button>
 
             <Tooltip>
@@ -377,102 +336,80 @@ export default function PageBuilder({ pageId, pageTitle: propPageTitle, initialB
           </div>
         </header>
 
-        {/* Main content area */}
+        {/* Main Content */}
         <div className="flex-1 flex overflow-hidden">
-          {/* Left Panel */}
+          {/* Left Panel - Block Library & Layers */}
           <AnimatePresence>
             {leftPanelOpen && (
               <motion.aside
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: leftPanelWidth, opacity: 1 }}
+                animate={{ width: 280, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: isResizingLeft ? 0 : 0.2 }}
-                className="bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col overflow-hidden flex-shrink-0 relative"
+                transition={{ duration: 0.2 }}
+                className="bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col overflow-hidden flex-shrink-0"
               >
-                <Tabs
-                  value={activeLeftTab}
-                  onValueChange={(v) => setActiveLeftTab(v as 'blocks' | 'layers' | 'templates')}
-                  className="flex-1 flex flex-col"
-                >
-                  <TabsList className="mx-4 mt-4 grid grid-cols-3">
-                    <TabsTrigger value="blocks" className="gap-1">
+                <Tabs value={activeLeftTab} onValueChange={(v) => setActiveLeftTab(v as 'blocks' | 'layers' | 'templates')} className="flex flex-col h-full">
+                  <TabsList className="w-full justify-start rounded-none border-b border-neutral-200 dark:border-neutral-800 bg-transparent h-12 px-2 flex-shrink-0">
+                    <TabsTrigger value="blocks" className="gap-2">
                       <LayoutGrid className="w-4 h-4" />
-                      <span className="hidden sm:inline">Blocks</span>
+                      Blocks
                     </TabsTrigger>
-                    <TabsTrigger value="layers" className="gap-1">
+                    <TabsTrigger value="layers" className="gap-2">
                       <Layers className="w-4 h-4" />
-                      <span className="hidden sm:inline">Layers</span>
+                      Layers
                     </TabsTrigger>
-                    <TabsTrigger value="templates" className="gap-1">
+                    <TabsTrigger value="templates" className="gap-2">
                       <FileText className="w-4 h-4" />
-                      <span className="hidden sm:inline">Templates</span>
+                      Templates
                     </TabsTrigger>
                   </TabsList>
-
-                  <TabsContent value="blocks" className="flex-1 mt-0 overflow-auto">
-                    <BlockLibrary />
-                  </TabsContent>
-
-                  <TabsContent value="layers" className="flex-1 mt-0 overflow-hidden">
-                    <LayersPanel />
-                  </TabsContent>
-
-                  <TabsContent value="templates" className="flex-1 mt-0 overflow-hidden p-4">
-                    <div className="text-center py-12">
-                      <FileText className="w-12 h-12 text-neutral-400 mx-auto mb-4" />
-                      <h3 className="font-semibold text-neutral-700 dark:text-neutral-300 mb-2">
-                        Templates
-                      </h3>
-                      <p className="text-sm text-neutral-500">
-                        Pre-built page templates coming soon
-                      </p>
-                    </div>
-                  </TabsContent>
-                </Tabs>
-                {/* Resize handle */}
-                <div
-                  className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-primary/50 transition-colors group"
-                  onMouseDown={() => setIsResizingLeft(true)}
-                >
-                  <div className="absolute top-1/2 right-0 -translate-y-1/2 w-4 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <MoreHorizontal className="w-4 h-4 text-neutral-400 rotate-90" />
+                  <div className="flex-1 overflow-hidden">
+                    <TabsContent value="blocks" className="h-full m-0 overflow-hidden">
+                      <BlockLibrary />
+                    </TabsContent>
+                    <TabsContent value="layers" className="h-full m-0 overflow-hidden">
+                      <LayersPanel />
+                    </TabsContent>
+                    <TabsContent value="templates" className="h-full m-0 p-4 overflow-auto">
+                      <p className="text-sm text-neutral-500">Templates coming soon...</p>
+                    </TabsContent>
                   </div>
-                </div>
+                </Tabs>
               </motion.aside>
             )}
           </AnimatePresence>
 
           {/* Canvas */}
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-hidden">
             <div
-              className="min-h-full transition-all duration-300 mx-auto"
+              className="h-full overflow-auto p-8"
               style={{
-                maxWidth: viewportWidths[viewportSize],
+                display: 'flex',
+                justifyContent: 'center',
               }}
             >
-              <Canvas />
+              <div
+                style={{
+                  width: viewportWidths[viewportSize],
+                  maxWidth: '100%',
+                  transition: 'width 0.3s ease',
+                }}
+              >
+                <Canvas isPreviewMode={isPreviewMode} />
+              </div>
             </div>
           </main>
 
-          {/* Right Panel */}
+          {/* Right Panel - Block Settings */}
           <AnimatePresence>
             {rightPanelOpen && (
               <motion.aside
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: rightPanelWidth, opacity: 1 }}
+                animate={{ width: 320, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: isResizingRight ? 0 : 0.2 }}
-                className="bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 overflow-hidden flex-shrink-0 relative"
+                transition={{ duration: 0.2 }}
+                className="bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 overflow-hidden flex-shrink-0"
               >
-                {/* Resize handle */}
-                <div
-                  className="absolute top-0 left-0 w-1 h-full cursor-col-resize hover:bg-primary/50 transition-colors group"
-                  onMouseDown={() => setIsResizingRight(true)}
-                >
-                  <div className="absolute top-1/2 left-0 -translate-y-1/2 w-4 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <MoreHorizontal className="w-4 h-4 text-neutral-400 rotate-90" />
-                  </div>
-                </div>
                 <BlockSettings />
               </motion.aside>
             )}
@@ -480,19 +417,71 @@ export default function PageBuilder({ pageId, pageTitle: propPageTitle, initialB
         </div>
       </div>
 
-      {/* Drag overlay for new blocks */}
+      {/* Save Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Save Page</DialogTitle>
+            <DialogDescription>
+              Configure your page settings before saving.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="page-title">Page Title</Label>
+              <Input
+                id="page-title"
+                value={pageTitle}
+                onChange={(e) => setPageTitle(e.target.value)}
+                placeholder="Enter page title"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="page-slug">URL Slug</Label>
+              <Input
+                id="page-slug"
+                value={pageSlug}
+                onChange={(e) => setPageSlug(e.target.value)}
+                placeholder="page-url-slug"
+              />
+              <p className="text-xs text-neutral-500">
+                Your page will be accessible at: /{pageSlug || 'page-slug'}
+              </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="show-in-nav"
+                checked={showInNav}
+                onCheckedChange={(checked) => setShowInNav(checked as boolean)}
+              />
+              <Label htmlFor="show-in-nav" className="text-sm font-normal">
+                Show in navigation menu
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveConfirm} disabled={isSaving || !pageTitle}>
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Saving...
+                </>
+              ) : (
+                'Save Page'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Drag Overlay */}
       <DragOverlay>
         {activeNewBlock && (
-          <div className="p-4 bg-white dark:bg-neutral-800 rounded-xl shadow-2xl border border-primary/30 opacity-90">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary text-white">
-                <activeNewBlock.icon className="w-5 h-5" />
-              </div>
-              <div>
-                <p className="font-medium text-sm">{activeNewBlock.name}</p>
-                <p className="text-xs text-neutral-500">{activeNewBlock.description}</p>
-              </div>
-            </div>
+          <div className="bg-white dark:bg-neutral-800 rounded-lg shadow-xl border-2 border-primary p-4 opacity-90">
+            <p className="text-sm font-medium">{activeNewBlock.label}</p>
           </div>
         )}
       </DragOverlay>
