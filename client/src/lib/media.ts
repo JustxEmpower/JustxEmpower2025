@@ -12,14 +12,23 @@ export const S3_LEGACY_BASE_URL = 'https://elasticbeanstalk-us-east-1-1377389694
 export function getMediaUrl(path: string | undefined | null): string {
   if (!path) return '';
   
-  // If already an absolute URL (S3 or other), return as-is
+  // If already an absolute URL (S3 or other), check if it needs fixing
   if (path.startsWith('http://') || path.startsWith('https://')) {
+    // Fix URLs with incorrect uploads/media path - should be just media/
+    if (path.includes('/uploads/media/')) {
+      return path.replace('/uploads/media/', '/media/');
+    }
     return path;
   }
   
   // Convert local path to S3 URL
   // Remove leading slash if present
-  const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  let cleanPath = path.startsWith('/') ? path.slice(1) : path;
+  
+  // Fix uploads/media prefix - should be just media/
+  if (cleanPath.startsWith('uploads/media/')) {
+    cleanPath = cleanPath.replace('uploads/media/', 'media/');
+  }
   
   // Check if it's a legacy path format (media/11/..., media/12/..., etc.)
   // These are stored in the legacy Elastic Beanstalk bucket
