@@ -1367,3 +1367,14 @@ NODE_ENV=production
 - [ ] Ensure Page Builder created pages appear in Pages list
 - [ ] Sync navigation hierarchy - pages with "Show in Navigation" appear in site menu
 - [ ] Test unified workflow end-to-end
+
+
+## Option B: Content Editor + Page Builder Integration (IMPLEMENTING)
+- [ ] Add clear descriptions to Content Editor sidebar item ("Edit existing page content")
+- [ ] Add clear descriptions to Page Builder sidebar item ("Build new pages")
+- [ ] Update Content Editor header with explanation of its purpose
+- [ ] Update Page Builder header with explanation of its purpose
+- [ ] Ensure Page Builder pages with showInNav=true appear in site navigation
+- [ ] Create dynamic page renderer route for Page Builder pages
+- [ ] Add "When to use which" guidance in admin dashboard
+- [ ] Test that both systems work independently and together

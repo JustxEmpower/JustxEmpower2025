@@ -37,13 +37,13 @@ import {
 
 // Complete list of all admin navigation items matching the original design
 const navItems = [
-  { icon: Home, label: 'Dashboard', path: '/admin/dashboard' },
-  { icon: Layout, label: 'Content', path: '/admin/content' },
+  { icon: Home, label: 'Dashboard', path: '/admin/dashboard', description: 'Overview & quick actions' },
+  { icon: Layout, label: 'Content', path: '/admin/content', description: 'Edit existing pages' },
   { icon: Images, label: 'Carousel', path: '/admin/carousel' },
   { icon: FileText, label: 'Articles', path: '/admin/articles' },
   { icon: FolderOpen, label: 'Media', path: '/admin/media' },
-  { icon: Files, label: 'Pages', path: '/admin/pages' },
-  { icon: Code, label: 'Page Builder', path: '/admin/page-builder' },
+  { icon: Files, label: 'Pages', path: '/admin/pages', description: 'Manage all pages' },
+  { icon: Code, label: 'Page Builder', path: '/admin/page-builder', description: 'Build new pages' },
   // E-commerce / Shop section
   { icon: Package, label: 'Products', path: '/admin/products' },
   { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
@@ -122,6 +122,7 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
             <button
               key={item.path}
               onClick={() => setLocation(item.path)}
+              title={(item as any).description || item.label}
               className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-colors ${
                 isDark
                   ? isActive
@@ -133,7 +134,18 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
               }`}
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
-              <span className={`${isDark ? '' : 'font-medium text-sm'} truncate`}>{item.label}</span>
+              <div className="flex flex-col items-start min-w-0">
+                <span className={`${isDark ? '' : 'font-medium text-sm'} truncate`}>{item.label}</span>
+                {(item as any).description && (
+                  <span className={`text-xs truncate ${
+                    isDark 
+                      ? isActive ? 'text-amber-200/70' : 'text-stone-500'
+                      : isActive ? 'text-neutral-500 dark:text-neutral-400' : 'text-neutral-400 dark:text-neutral-500'
+                  }`}>
+                    {(item as any).description}
+                  </span>
+                )}
+              </div>
             </button>
           );
         })}
