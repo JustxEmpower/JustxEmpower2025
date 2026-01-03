@@ -32,7 +32,6 @@ import {
   EyeOff,
   ChevronRight,
   ExternalLink,
-  PanelLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -140,12 +139,9 @@ function SortablePage({ page, onEdit, onEditBlocks, onDelete, isChild, parentTit
           </span>
         )}
 
-        <Link href={`/admin/page-builder?page=${page.id}`}>
-          <Button variant="outline" size="sm" title="Edit with Page Builder">
-            <PanelLeft className="w-4 h-4 mr-1" />
-            Builder
-          </Button>
-        </Link>
+        <Button onClick={() => onEditBlocks(page)} variant="outline" size="sm">
+          <Layout className="w-4 h-4" />
+        </Button>
 
         <Button onClick={() => onEdit(page)} variant="outline" size="sm">
           <Edit className="w-4 h-4" />
@@ -309,7 +305,8 @@ export default function AdminPages() {
   };
 
   const handleEditBlocks = (page: Page) => {
-    setEditingBlocksPage(page);
+    // Navigate to Page Builder with the page ID to edit existing page
+    setLocation(`/admin/page-builder/${page.id}`);
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
