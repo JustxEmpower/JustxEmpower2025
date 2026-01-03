@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { trpc } from "@/lib/trpc";
-import BlockEditor from "@/components/BlockEditor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -166,7 +165,7 @@ export default function AdminPages() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<Page | null>(null);
-  const [editingBlocksPage, setEditingBlocksPage] = useState<Page | null>(null);
+
   const [formData, setFormData] = useState({
     title: "",
     slug: "",
@@ -531,22 +530,7 @@ export default function AdminPages() {
               </ul>
             </div>
 
-            {/* Block Editor or Pages List */}
-            {editingBlocksPage ? (
-              <div className="space-y-6">
-                <Button
-                  variant="outline"
-                  onClick={() => setEditingBlocksPage(null)}
-                  className="mb-4"
-                >
-                  ← Back to Pages
-                </Button>
-                <BlockEditor
-                  pageId={editingBlocksPage.id}
-                  pageName={editingBlocksPage.title}
-                />
-              </div>
-            ) : (
+            {/* Pages List */}
             <div className="space-y-3">
               <DndContext
                 sensors={sensors}
@@ -577,7 +561,6 @@ export default function AdminPages() {
                 </div>
               )}
             </div>
-            )}
           </div>
         </div>
       </main>
