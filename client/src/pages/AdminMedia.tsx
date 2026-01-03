@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,7 @@ import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { LogOut, FileText, Settings, Layout, Upload, Trash2, Image as ImageIcon, Video, FolderOpen, Palette, Files, BarChart3, Sparkles } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
+import { getMediaUrl } from '@/lib/media';
 
 interface MediaItem {
   id: number;
@@ -290,7 +291,7 @@ export default function AdminMedia() {
                     <div className="aspect-video bg-neutral-100 dark:bg-neutral-800 relative overflow-hidden">
                       {item.type === 'image' ? (
                         <img
-                          src={item.url}
+                          src={getMediaUrl(item.url)}
                           alt={item.originalName}
                           className="w-full h-full object-cover"
                         />
