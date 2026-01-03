@@ -162,18 +162,38 @@ function RenderBlock({ block }: { block: BlockData }) {
     // Use original type for Page Builder blocks
     switch (originalType) {
       // Page Builder block types
-      case "hero":
+      case "hero": {
+        // Check if backgroundImage is a video file
+        const bgMedia = cleanContent.backgroundImage || '';
+        const isVideo = /\.(mp4|webm|mov|ogg)$/i.test(bgMedia) || bgMedia.includes('video/');
+        
         return (
           <div 
             className="relative min-h-[60vh] flex items-center justify-center text-center py-20"
             style={{
-              backgroundImage: cleanContent.backgroundImage ? `url(${cleanContent.backgroundImage})` : undefined,
+              backgroundImage: !isVideo && bgMedia ? `url(${bgMedia})` : undefined,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
+              backgroundColor: isVideo ? '#1a1a1a' : undefined,
             }}
           >
-            {cleanContent.overlay && cleanContent.backgroundImage && (
-              <div className="absolute inset-0 bg-black/50" />
+            {/* Video Background */}
+            {isVideo && bgMedia && (
+              <video
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ zIndex: 0 }}
+              >
+                <source src={bgMedia} type={bgMedia.endsWith('.mov') ? 'video/quicktime' : bgMedia.endsWith('.webm') ? 'video/webm' : 'video/mp4'} />
+                Your browser does not support the video tag.
+              </video>
+            )}
+            {/* Overlay */}
+            {cleanContent.overlay && (cleanContent.backgroundImage || isVideo) && (
+              <div className="absolute inset-0 bg-black/50" style={{ zIndex: 1 }} />
             )}
             <div className="relative z-10 max-w-4xl mx-auto px-4">
               <h1 className="text-5xl md:text-6xl font-light mb-6">
@@ -192,6 +212,7 @@ function RenderBlock({ block }: { block: BlockData }) {
             </div>
           </div>
         );
+      }
 
       case "feature-grid":
         const features = cleanContent.features || [];
