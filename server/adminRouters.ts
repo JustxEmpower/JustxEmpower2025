@@ -576,6 +576,23 @@ export const adminRouter = router({
         return page;
       }),
 
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const [page] = await db
+          .select()
+          .from(schema.pages)
+          .where(eq(schema.pages.id, input.id));
+        
+        if (!page) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Page not found" });
+        }
+        return page;
+      }),
+
     create: adminProcedure
       .input(
         z.object({
@@ -684,8 +701,7 @@ export const adminRouter = router({
         .input(
           z.object({
             pageId: z.number(),
-            blockId: z.string().optional(), // Unique ID from page builder
-            type: z.string(), // Any block type string
+            type: z.enum(["text", "image", "video", "quote", "cta", "spacer"]),
             content: z.string(),
             order: z.number(),
             settings: z.string().optional(),
@@ -701,8 +717,6 @@ export const adminRouter = router({
         .input(
           z.object({
             id: z.number(),
-            blockId: z.string().optional(),
-            type: z.string().optional(),
             content: z.string().optional(),
             order: z.number().optional(),
             settings: z.string().optional(),
@@ -734,44 +748,6 @@ export const adminRouter = router({
         )
         .mutation(async ({ input }) => {
           return await reorderPageBlocks(input.blocks);
-        }),
-
-      // Bulk save all blocks for a page (replaces existing blocks)
-      saveAll: adminProcedure
-        .input(
-          z.object({
-            pageId: z.number(),
-            blocks: z.array(
-              z.object({
-                blockId: z.string(), // Unique ID from page builder
-                type: z.string(),
-                content: z.record(z.unknown()), // JSON object
-                order: z.number(),
-              })
-            ),
-          })
-        )
-        .mutation(async ({ input }) => {
-          const db = await getDb();
-          if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-
-          // Delete existing blocks for this page
-          await db.delete(schema.pageBlocks).where(eq(schema.pageBlocks.pageId, input.pageId));
-
-          // Insert new blocks
-          if (input.blocks.length > 0) {
-            const blocksToInsert = input.blocks.map((block) => ({
-              pageId: input.pageId,
-              blockId: block.blockId,
-              type: block.type,
-              content: JSON.stringify(block.content),
-              order: block.order,
-            }));
-
-            await db.insert(schema.pageBlocks).values(blocksToInsert);
-          }
-
-          return { success: true, count: input.blocks.length };
         }),
 
       // Block version history endpoints

@@ -233,8 +233,8 @@ export default function AdminCarousel() {
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-serif">Carousel Offerings</h1>
-              <p className="text-neutral-600 mt-1">Manage the offerings displayed in the homepage carousel</p>
+              <h1 className="text-3xl font-serif">Featured Offerings</h1>
+              <p className="text-neutral-600 mt-1">Manage the featured offerings displayed on the homepage</p>
             </div>
             <Button onClick={handleOpenCreate} className="gap-2">
               <Plus className="h-4 w-4" />
@@ -272,18 +272,21 @@ export default function AdminCarousel() {
                     </button>
                   </div>
                   
-                  <div className="w-24 h-16 bg-neutral-200 rounded overflow-hidden flex-shrink-0">
+                  <div className="w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 relative">
                     {offering.imageUrl ? (
                       <img
                         src={offering.imageUrl}
                         alt={offering.title}
                         className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
                       />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Image className="h-6 w-6 text-neutral-400" />
-                      </div>
-                    )}
+                    ) : null}
+                    <div className={`absolute inset-0 bg-gradient-to-br from-amber-100 via-amber-50 to-orange-100 flex items-center justify-center ${offering.imageUrl ? 'hidden' : ''}`}>
+                      <span className="text-2xl font-serif text-amber-600/60">{offering.title.charAt(0)}</span>
+                    </div>
                   </div>
                   
                   <div className="flex-1 min-w-0">
@@ -333,9 +336,11 @@ export default function AdminCarousel() {
             </div>
           ) : (
             <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
-              <Image className="h-12 w-12 mx-auto text-neutral-300 mb-4" />
+              <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-100 via-amber-50 to-orange-100 flex items-center justify-center">
+                <span className="text-3xl font-serif text-amber-600/60">✦</span>
+              </div>
               <h3 className="text-lg font-medium text-neutral-700">No offerings yet</h3>
-              <p className="text-neutral-500 mt-1 mb-4">Add your first carousel offering to display on the homepage</p>
+              <p className="text-neutral-500 mt-1 mb-4">Add your first featured offering to display on the homepage</p>
               <Button onClick={handleOpenCreate} className="gap-2">
                 <Plus className="h-4 w-4" />
                 Add Offering
@@ -352,8 +357,8 @@ export default function AdminCarousel() {
             <DialogTitle>{editingOffering ? 'Edit Offering' : 'Add New Offering'}</DialogTitle>
             <DialogDescription>
               {editingOffering
-                ? 'Update the details of this carousel offering.'
-                : 'Create a new offering to display in the homepage carousel.'}
+                ? 'Update the details of this featured offering.'
+                : 'Create a new featured offering to display on the homepage.'}
             </DialogDescription>
           </DialogHeader>
           
@@ -404,12 +409,19 @@ export default function AdminCarousel() {
                 </Button>
               </div>
               {formData.imageUrl && (
-                <div className="mt-2 w-full h-32 bg-neutral-100 rounded overflow-hidden">
+                <div className="mt-2 w-full h-32 rounded-lg overflow-hidden relative">
                   <img
                     src={formData.imageUrl}
                     alt="Preview"
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                      e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                    }}
                   />
+                  <div className="hidden absolute inset-0 bg-gradient-to-br from-amber-100 via-amber-50 to-orange-100 flex items-center justify-center">
+                    <span className="text-sm text-amber-600/80">Image failed to load</span>
+                  </div>
                 </div>
               )}
             </div>

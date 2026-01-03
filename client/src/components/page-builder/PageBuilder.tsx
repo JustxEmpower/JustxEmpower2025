@@ -104,23 +104,31 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
   const [showSaveDialog, setShowSaveDialog] = React.useState(false);
   const [pageSlug, setPageSlug] = React.useState('');
   const [showInNav, setShowInNav] = React.useState(false);
-  const initializedRef = React.useRef(false);
+  const blocksInitializedRef = React.useRef(false);
+  const prevInitialTitleRef = React.useRef<string | undefined>(undefined);
 
-  // Initialize with props - only run once
+  // Initialize page ID
   useEffect(() => {
-    if (initializedRef.current) return;
-    initializedRef.current = true;
-    
     if (pageId) {
       setPageId(pageId);
     }
-    if (initialBlocks && initialBlocks.length > 0) {
-      setBlocks(initialBlocks as PageBlock[]);
+  }, [pageId, setPageId]);
+
+  // Initialize blocks only once when they first become available
+  useEffect(() => {
+    if (!blocksInitializedRef.current && initialBlocks && initialBlocks.length > 0) {
+      blocksInitializedRef.current = true;
+      setBlocks(initialBlocks as PageBlock[], true); // skip history on initial load
     }
-    if (initialTitle) {
+  }, [initialBlocks, setBlocks]);
+
+  // Update title when initialTitle changes (for loading existing pages)
+  useEffect(() => {
+    if (initialTitle && initialTitle !== 'Untitled Page' && initialTitle !== prevInitialTitleRef.current) {
+      prevInitialTitleRef.current = initialTitle;
       setPageTitle(initialTitle);
     }
-  }, []);
+  }, [initialTitle, setPageTitle]);
 
   // Auto-generate slug from title
   useEffect(() => {
