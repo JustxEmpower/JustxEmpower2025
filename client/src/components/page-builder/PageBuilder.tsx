@@ -109,6 +109,44 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
   const [showInNav, setShowInNav] = React.useState(false);
   const blocksInitializedRef = React.useRef(false);
   const prevInitialTitleRef = React.useRef<string | undefined>(undefined);
+  
+  // Resizable panel widths
+  const [leftPanelWidth, setLeftPanelWidth] = React.useState(280);
+  const [rightPanelWidth, setRightPanelWidth] = React.useState(320);
+  const [isResizingLeft, setIsResizingLeft] = React.useState(false);
+  const [isResizingRight, setIsResizingRight] = React.useState(false);
+
+  // Handle panel resize
+  const handleMouseMove = React.useCallback((e: MouseEvent) => {
+    if (isResizingLeft) {
+      const newWidth = Math.max(200, Math.min(500, e.clientX));
+      setLeftPanelWidth(newWidth);
+    }
+    if (isResizingRight) {
+      const newWidth = Math.max(250, Math.min(600, window.innerWidth - e.clientX));
+      setRightPanelWidth(newWidth);
+    }
+  }, [isResizingLeft, isResizingRight]);
+
+  const handleMouseUp = React.useCallback(() => {
+    setIsResizingLeft(false);
+    setIsResizingRight(false);
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }, []);
+
+  React.useEffect(() => {
+    if (isResizingLeft || isResizingRight) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+    }
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizingLeft, isResizingRight, handleMouseMove, handleMouseUp]);
 
   // Initialize page ID
   useEffect(() => {
@@ -374,11 +412,21 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
             {leftPanelOpen && (
               <motion.aside
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 280, opacity: 1 }}
+                animate={{ width: leftPanelWidth, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col overflow-hidden flex-shrink-0"
+                transition={{ duration: isResizingLeft ? 0 : 0.2 }}
+                className="bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800 flex flex-col overflow-hidden flex-shrink-0 relative"
               >
+                {/* Resize handle */}
+                <div
+                  className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-primary/30 active:bg-primary/50 transition-colors z-10 group"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setIsResizingLeft(true);
+                  }}
+                >
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-neutral-300 dark:bg-neutral-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
                 <Tabs value={activeLeftTab} onValueChange={(v) => setActiveLeftTab(v as 'blocks' | 'layers' | 'templates')} className="flex flex-col h-full">
                   <TabsList className="w-full justify-start rounded-none border-b border-neutral-200 dark:border-neutral-800 bg-transparent h-12 px-2 flex-shrink-0">
                     <TabsTrigger value="blocks" className="gap-2">
@@ -436,11 +484,21 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
             {rightPanelOpen && (
               <motion.aside
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 320, opacity: 1 }}
+                animate={{ width: rightPanelWidth, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 overflow-hidden flex-shrink-0"
+                transition={{ duration: isResizingRight ? 0 : 0.2 }}
+                className="bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 overflow-hidden flex-shrink-0 relative"
               >
+                {/* Resize handle */}
+                <div
+                  className="absolute left-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-primary/30 active:bg-primary/50 transition-colors z-10 group"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    setIsResizingRight(true);
+                  }}
+                >
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-neutral-300 dark:bg-neutral-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
                 <BlockSettings />
               </motion.aside>
             )}
