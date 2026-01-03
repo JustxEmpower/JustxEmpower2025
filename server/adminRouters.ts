@@ -701,7 +701,7 @@ export const adminRouter = router({
         .input(
           z.object({
             pageId: z.number(),
-            type: z.enum(["text", "image", "video", "quote", "cta", "spacer"]),
+            type: z.string(), // Accept any block type from Page Builder
             content: z.string(),
             order: z.number(),
             settings: z.string().optional(),
@@ -2379,6 +2379,22 @@ export const publicSiteSettingsRouter = router({
     });
     
     return settingsObj;
+  }),
+  
+  // Get brand assets for public display
+  getBrandAssets: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return {};
+    
+    const assets = await db.select().from(schema.brandAssets);
+    
+    // Convert array to object keyed by assetType
+    const assetsObj: Record<string, string> = {};
+    assets.forEach(a => {
+      assetsObj[a.assetType] = a.assetUrl;
+    });
+    
+    return assetsObj;
   }),
   
   // Get specific setting by key

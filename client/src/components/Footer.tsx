@@ -1,9 +1,16 @@
 import { Link } from 'wouter';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { getMediaUrl } from '@/lib/media';
+import { trpc } from '@/lib/trpc';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+  
+  // Fetch brand assets from database
+  const { data: brandAssets } = trpc.siteSettings.getBrandAssets.useQuery();
+  
+  // Get footer logo URL from brand assets or use fallback
+  const logoUrl = brandAssets?.logo_footer || brandAssets?.logo_header || getMediaUrl('/media/logo-white.png');
 
   return (
     <footer className="bg-[#1a1a1a] text-white pt-24 pb-12">
@@ -15,7 +22,7 @@ export default function Footer() {
             <Link href="/">
               <a className="block w-32 mb-8 hover:opacity-80 transition-opacity duration-300">
               <img 
-                src={getMediaUrl('/media/logo-white.png')} 
+                src={logoUrl} 
                 alt="Just Empower" 
                 className="w-full h-auto object-contain"
               />

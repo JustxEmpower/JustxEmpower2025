@@ -38,6 +38,9 @@ export default function Header() {
   
   // Fetch site settings for logo and brand
   const { data: siteSettings } = trpc.siteSettings.get.useQuery();
+  
+  // Fetch brand assets for logo
+  const { data: brandAssets } = trpc.siteSettings.getBrandAssets.useQuery();
 
   // Build navigation structure entirely from database pages
   const allNavLinks: NavItem[] = useMemo(() => {
@@ -166,8 +169,8 @@ export default function Header() {
     setOpenMobileDropdown(openMobileDropdown === label ? null : label);
   };
 
-  // Get logo URL from site settings or use default
-  const logoUrl = siteSettings?.logoUrl || getMediaUrl('/media/logo-white.png');
+  // Get logo URL from brand assets, site settings, or use default
+  const logoUrl = brandAssets?.logo_header || siteSettings?.logoUrl || getMediaUrl('/media/logo-white.png');
   const siteName = siteSettings?.siteName || 'Site Logo';
 
   return (

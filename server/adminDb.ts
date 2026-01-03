@@ -367,7 +367,7 @@ export async function getPageBlocks(pageId: number): Promise<ParsedPageBlock[]> 
 
 export async function createPageBlock(data: {
   pageId: number;
-  type: "text" | "image" | "video" | "quote" | "cta" | "spacer";
+  type: string; // Accept any block type from Page Builder
   content: string;
   order: number;
   settings?: string;
