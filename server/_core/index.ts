@@ -1,4 +1,4 @@
-import "dotenv/config";
+
 import express from "express";
 import { createServer } from "http";
 import net from "net";
@@ -6,7 +6,7 @@ import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
-import { serveStatic } from "./static";
+import { serveStatic, setupVite } from "./vite";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -30,23 +30,38 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
-  // Configure body parser with larger size limit for file uploads
-  app.use(express.json({ limit: "50mb" }));
-  app.use(express.urlencoded({ limit: "50mb", extended: true }));
+  
+  // Configure body parser with larger size limit for file uploads (200MB for videos)
+  app.use(express.json({ limit: "200mb" }));
+  app.use(express.urlencoded({ limit: "200mb", extended: true }));
+  
+  // Global error handler for payload too large
+  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+    if (err.type === 'entity.too.large') {
+      console.error('[Server] Payload too large:', err.message);
+      return res.status(413).json({ error: 'Payload too large. Maximum file size is 200MB.' });
+    }
+    next(err);
+  });
+  
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
-  // tRPC API
+  
+  // tRPC API with increased body size limit
   app.use(
     "/api/trpc",
+    express.json({ limit: "200mb" }),
     createExpressMiddleware({
       router: appRouter,
       createContext,
+      onError: ({ error, path }) => {
+        console.error(`[tRPC Error] ${path}:`, error.message);
+      },
     })
   );
+  
   // development mode uses Vite, production mode uses static files
   if (process.env.NODE_ENV === "development") {
-    // Dynamic import to avoid loading vite in production
-    const { setupVite } = await import("./vite");
     await setupVite(app, server);
   } else {
     serveStatic(app);
