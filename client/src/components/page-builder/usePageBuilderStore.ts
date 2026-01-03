@@ -38,7 +38,7 @@ interface PageBuilderState {
   // Actions
   setPageId: (id: string | null) => void;
   setPageTitle: (title: string) => void;
-  setBlocks: (blocks: PageBlock[]) => void;
+  setBlocks: (blocks: PageBlock[], skipHistory?: boolean) => void;
   addBlock: (blockType: BlockType, index?: number) => void;
   updateBlock: (id: string, content: Record<string, unknown>) => void;
   deleteBlock: (id: string) => void;
@@ -87,9 +87,11 @@ export const usePageBuilderStore = create<PageBuilderState>((set, get) => ({
   
   setPageTitle: (title) => set({ pageTitle: title }),
   
-  setBlocks: (blocks) => {
+  setBlocks: (blocks, skipHistory = false) => {
     set({ blocks });
-    get().saveToHistory();
+    if (!skipHistory) {
+      get().saveToHistory();
+    }
   },
   
   addBlock: (blockType, index) => {

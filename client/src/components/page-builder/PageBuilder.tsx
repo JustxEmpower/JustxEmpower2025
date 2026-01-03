@@ -104,19 +104,23 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
   const [showSaveDialog, setShowSaveDialog] = React.useState(false);
   const [pageSlug, setPageSlug] = React.useState('');
   const [showInNav, setShowInNav] = React.useState(false);
+  const initializedRef = React.useRef(false);
 
-  // Initialize with props
+  // Initialize with props - only run once
   useEffect(() => {
+    if (initializedRef.current) return;
+    initializedRef.current = true;
+    
     if (pageId) {
       setPageId(pageId);
     }
-    if (initialBlocks) {
+    if (initialBlocks && initialBlocks.length > 0) {
       setBlocks(initialBlocks as PageBlock[]);
     }
     if (initialTitle) {
       setPageTitle(initialTitle);
     }
-  }, [pageId, initialBlocks, initialTitle, setPageId, setBlocks, setPageTitle]);
+  }, []);
 
   // Auto-generate slug from title
   useEffect(() => {
