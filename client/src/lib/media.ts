@@ -4,6 +4,13 @@ export const S3_MEDIA_BASE_URL = 'https://justxempower-assets.s3.us-east-1.amazo
 // Legacy bucket for older media
 export const S3_LEGACY_BASE_URL = 'https://elasticbeanstalk-us-east-1-137738969420.s3.amazonaws.com';
 
+// Known legacy files that exist in the Elastic Beanstalk bucket
+const LEGACY_FILES = [
+  'media/logo-white.png',
+  'media/logo-black.png',
+  'media/logo.png',
+];
+
 /**
  * Convert a local media path to S3 URL
  * @param path - Local path like "/media/11/image.jpg" or already an S3 URL
@@ -28,6 +35,11 @@ export function getMediaUrl(path: string | undefined | null): string {
   // Fix uploads/media prefix - should be just media/
   if (cleanPath.startsWith('uploads/media/')) {
     cleanPath = cleanPath.replace('uploads/media/', 'media/');
+  }
+  
+  // Check if it's a known legacy file
+  if (LEGACY_FILES.includes(cleanPath)) {
+    return `${S3_LEGACY_BASE_URL}/${cleanPath}`;
   }
   
   // Check if it's a legacy path format (media/11/..., media/12/..., etc.)
