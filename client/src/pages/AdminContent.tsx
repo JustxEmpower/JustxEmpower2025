@@ -41,8 +41,9 @@ export default function AdminContent() {
   const utils = trpc.useUtils();
   const updateMutation = trpc.admin.content.update.useMutation({
     onSuccess: async () => {
-      // Invalidate and refetch the content query
+      // Invalidate and refetch both admin and public content queries
       await utils.admin.content.getByPage.invalidate({ page: selectedPage });
+      await utils.content.getByPage.invalidate({ page: selectedPage });
       await refetch();
     },
   });
@@ -105,6 +106,10 @@ export default function AdminContent() {
     } else {
       toast.error('Failed to save changes');
     }
+    
+    // Clear edited content and refetch after all saves complete
+    setEditedContent({});
+    await refetch();
   };
 
   const toggleSection = (section: string) => {
