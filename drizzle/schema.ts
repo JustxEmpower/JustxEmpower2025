@@ -159,7 +159,7 @@ export type InsertThemeSettings = typeof themeSettings.$inferInsert;
  */
 export const brandAssets = mysqlTable("brandAssets", {
   id: int("id").autoincrement().primaryKey(),
-  assetType: mysqlEnum("assetType", ["logo_header", "logo_footer", "logo_mobile", "favicon", "og_image", "twitter_image"]).notNull(),
+  assetType: mysqlEnum("assetType", ["logo_header", "logo_footer", "logo_mobile", "logo_preloader", "favicon", "og_image", "twitter_image"]).notNull(),
   assetUrl: varchar("assetUrl", { length: 1000 }).notNull(),
   assetName: varchar("assetName", { length: 255 }),
   width: int("width"),
@@ -367,8 +367,7 @@ export type InsertAnalyticsEvent = typeof analyticsEvents.$inferInsert;
 export const pageBlocks = mysqlTable("pageBlocks", {
   id: int("id").autoincrement().primaryKey(),
   pageId: int("pageId").notNull(),
-  blockId: varchar("blockId", { length: 100 }), // Unique ID from page builder (e.g., 'block-abc123')
-  type: varchar("type", { length: 100 }).notNull(), // Changed from enum to varchar for flexibility
+  type: mysqlEnum("type", ["text", "image", "video", "quote", "cta", "spacer"]).notNull(),
   content: text("content"), // JSON string with block-specific data
   order: int("order").notNull().default(0),
   settings: text("settings"), // JSON string with block settings (alignment, colors, spacing)

@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Link, useLocation } from "wouter";
 import AdminSidebar from '@/components/AdminSidebar';
 
-type AssetType = "logo_header" | "logo_footer" | "logo_mobile" | "favicon" | "og_image" | "twitter_image";
+type AssetType = "logo_header" | "logo_footer" | "logo_mobile" | "logo_preloader" | "favicon" | "og_image" | "twitter_image";
 
 export default function AdminBrand() {
   const [location, setLocation] = useLocation();
@@ -25,6 +25,7 @@ export default function AdminBrand() {
     { type: "logo_header", label: "Header Logo", description: "Main logo displayed in the website header" },
     { type: "logo_footer", label: "Footer Logo", description: "Logo displayed in the website footer" },
     { type: "logo_mobile", label: "Mobile Logo", description: "Optimized logo for mobile devices" },
+    { type: "logo_preloader", label: "Preloader Logo", description: "Logo displayed during site loading animation" },
     { type: "favicon", label: "Favicon", description: "Small icon displayed in browser tabs (16x16 or 32x32)" },
     { type: "og_image", label: "Open Graph Image", description: "Image for social media sharing (1200x630)" },
     { type: "twitter_image", label: "Twitter Card Image", description: "Image for Twitter cards (1200x600)" },

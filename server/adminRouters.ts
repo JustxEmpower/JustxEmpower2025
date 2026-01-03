@@ -809,7 +809,7 @@ export const adminRouter = router({
 
     upload: adminProcedure
       .input(z.object({
-        assetType: z.enum(["logo_header", "logo_footer", "logo_mobile", "favicon", "og_image", "twitter_image"]),
+        assetType: z.enum(["logo_header", "logo_footer", "logo_mobile", "logo_preloader", "favicon", "og_image", "twitter_image"]),
         assetName: z.string(),
         base64Data: z.string(),
       }))
@@ -869,7 +869,7 @@ export const adminRouter = router({
 
     delete: adminProcedure
       .input(z.object({
-        assetType: z.enum(["logo_header", "logo_footer", "logo_mobile", "favicon", "og_image", "twitter_image"]),
+        assetType: z.enum(["logo_header", "logo_footer", "logo_mobile", "logo_preloader", "favicon", "og_image", "twitter_image"]),
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();

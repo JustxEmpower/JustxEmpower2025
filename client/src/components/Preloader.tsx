@@ -1,11 +1,18 @@
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { getMediaUrl } from '@/lib/media';
+import { trpc } from '@/lib/trpc';
 
 export default function Preloader({ onComplete }: { onComplete: () => void }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const logoRef = useRef<HTMLImageElement>(null);
   const progressRef = useRef<HTMLDivElement>(null);
+
+  // Fetch brand assets for preloader logo
+  const { data: brandAssets } = trpc.siteSettings.getBrandAssets.useQuery();
+  
+  // Get preloader logo URL from brand assets, or fall back to header logo, then default
+  const logoUrl = brandAssets?.logo_preloader || brandAssets?.logo_header || getMediaUrl('/media/logo-white.png');
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -68,7 +75,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
       <div className="relative w-32 h-32 md:w-48 md:h-48 flex items-center justify-center">
         <img 
           ref={logoRef}
-          src={getMediaUrl('/media/logo-white.png')} 
+          src={logoUrl} 
           alt="Just Empower" 
           className="w-full h-full object-contain"
         />
