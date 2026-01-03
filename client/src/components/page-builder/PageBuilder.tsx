@@ -30,7 +30,9 @@ import {
   Smartphone,
   MoreHorizontal,
   Loader2,
+  ArrowLeft,
 } from 'lucide-react';
+import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -75,6 +77,7 @@ interface PageBuilderProps {
 }
 
 export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSave }: PageBuilderProps) {
+  const [, setLocation] = useLocation();
   const {
     blocks,
     pageTitle,
@@ -203,6 +206,22 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
         <header className="h-14 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between px-4 flex-shrink-0">
           {/* Left section */}
           <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLocation('/admin/pages')}
+                  className="h-9 w-9 p-0"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Back to Pages</TooltipContent>
+            </Tooltip>
+
+            <div className="h-6 w-px bg-neutral-200 dark:bg-neutral-700" />
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button

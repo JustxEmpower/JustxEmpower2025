@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, FolderOpen } from 'lucide-react';
+import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image } from 'lucide-react';
+import MediaPicker from '@/components/MediaPicker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -11,65 +12,6 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePageBuilderStore } from '../usePageBuilderStore';
 import { getBlockById } from '../blockTypes';
-import MediaPicker from '@/components/MediaPicker';
-
-// Media field component with URL input + Media Library button
-function MediaField({
-  fieldKey,
-  value,
-  onChange,
-  label,
-  mediaType = 'all',
-}: {
-  fieldKey: string;
-  value: string;
-  onChange: (key: string, value: string) => void;
-  label: string;
-  mediaType?: 'image' | 'video' | 'all';
-}) {
-  const [showMediaPicker, setShowMediaPicker] = useState(false);
-
-  return (
-    <div className="space-y-2">
-      <Label htmlFor={fieldKey} className="text-sm font-medium">
-        {label}
-      </Label>
-      <div className="flex gap-2">
-        <Input
-          id={fieldKey}
-          type="url"
-          value={value}
-          onChange={(e) => onChange(fieldKey, e.target.value)}
-          placeholder="https://..."
-          className="flex-1 bg-neutral-50 dark:bg-neutral-800"
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setShowMediaPicker(true)}
-          className="shrink-0"
-          title="Browse Media Library"
-        >
-          <FolderOpen className="w-4 h-4" />
-        </Button>
-      </div>
-      <p className="text-xs text-neutral-500">
-        Enter a URL or browse your Media Library
-      </p>
-      
-      <MediaPicker
-        open={showMediaPicker}
-        onClose={() => setShowMediaPicker(false)}
-        onSelect={(url) => {
-          onChange(fieldKey, url);
-          setShowMediaPicker(false);
-        }}
-        mediaType={mediaType}
-      />
-    </div>
-  );
-}
 
 // Generic field renderer based on content type
 function renderField(
@@ -134,26 +76,6 @@ function renderField(
                 {v.charAt(0).toUpperCase() + v.slice(1)}
               </SelectItem>
             ))}
-          </SelectContent>
-        </Select>
-      </div>
-    );
-  }
-
-  if (key === 'provider') {
-    return (
-      <div key={key} className="space-y-2">
-        <Label htmlFor={key} className="text-sm font-medium">
-          Provider
-        </Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
-          <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="youtube">YouTube</SelectItem>
-            <SelectItem value="vimeo">Vimeo</SelectItem>
-            <SelectItem value="custom">Custom URL / S3</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -250,47 +172,24 @@ function renderField(
     );
   }
 
-  // Media URL fields - show with Media Library picker
-  if (key === 'url' && (blockType === 'video' || blockType === 'video-background')) {
+  // Image/URL fields with MediaPicker
+  if (
+    key.toLowerCase().includes('image') ||
+    key.toLowerCase().includes('src') ||
+    key.toLowerCase().includes('background')
+  ) {
     return (
-      <MediaField
+      <ImageFieldWithPicker
         key={key}
         fieldKey={key}
+        label={label}
         value={value as string}
         onChange={onChange}
-        label={label}
-        mediaType="video"
       />
     );
   }
 
-  if (key === 'url' && blockType === 'audio') {
-    return (
-      <MediaField
-        key={key}
-        fieldKey={key}
-        value={value as string}
-        onChange={onChange}
-        label={label}
-        mediaType="all"
-      />
-    );
-  }
-
-  if (key === 'src' || key === 'imageUrl' || key === 'backgroundImage' || (key === 'image' && typeof value === 'string')) {
-    return (
-      <MediaField
-        key={key}
-        fieldKey={key}
-        value={value as string}
-        onChange={onChange}
-        label={label}
-        mediaType="image"
-      />
-    );
-  }
-
-  // Other URL fields (links, not media)
+  // URL/Link fields (non-image)
   if (
     key.toLowerCase().includes('url') ||
     key.toLowerCase().includes('link')
@@ -331,6 +230,68 @@ function renderField(
 
   // Skip complex objects/arrays for now (would need custom editors)
   return null;
+}
+
+// Image field component with MediaPicker integration
+function ImageFieldWithPicker({
+  fieldKey,
+  label,
+  value,
+  onChange,
+}: {
+  fieldKey: string;
+  label: string;
+  value: string;
+  onChange: (key: string, value: unknown) => void;
+}) {
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={fieldKey} className="text-sm font-medium">
+        {label}
+      </Label>
+      <div className="flex gap-2">
+        <Input
+          id={fieldKey}
+          type="url"
+          value={value || ''}
+          onChange={(e) => onChange(fieldKey, e.target.value)}
+          placeholder="https://..."
+          className="bg-neutral-50 dark:bg-neutral-800 flex-1"
+        />
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => setMediaPickerOpen(true)}
+          className="px-3"
+        >
+          <Image className="w-4 h-4" />
+        </Button>
+      </div>
+      {value && (
+        <div className="relative w-full h-24 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+          <img
+            src={value}
+            alt="Preview"
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        </div>
+      )}
+      <MediaPicker
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        onSelect={(url) => {
+          onChange(fieldKey, url);
+          setMediaPickerOpen(false);
+        }}
+      />
+    </div>
+  );
 }
 
 function getVariantsForBlock(blockType: string): string[] {
