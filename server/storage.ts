@@ -31,6 +31,42 @@ function normalizeKey(relKey: string): string {
 }
 
 /**
+ * Generate a presigned URL for direct browser-to-S3 uploads
+ * @param relKey - The relative key/path for the file in S3
+ * @param contentType - MIME type of the file
+ * @param expiresIn - URL expiration time in seconds (default: 1 hour)
+ * @returns Object with uploadUrl (presigned), key, and publicUrl
+ */
+export async function getPresignedUploadUrl(
+  relKey: string,
+  contentType: string,
+  expiresIn = 3600
+): Promise<{ uploadUrl: string; key: string; publicUrl: string }> {
+  const key = normalizeKey(relKey);
+  
+  // Check if AWS credentials are configured
+  if (!process.env.AWS_ACCESS_KEY_ID || !process.env.AWS_SECRET_ACCESS_KEY) {
+    throw new Error("AWS credentials not configured");
+  }
+  
+  const command = new PutObjectCommand({
+    Bucket: BUCKET_NAME,
+    Key: key,
+    ContentType: contentType,
+  });
+
+  try {
+    const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn });
+    const publicUrl = `https://${BUCKET_NAME}.s3.${s3Config.region}.amazonaws.com/${key}`;
+    
+    return { uploadUrl, key, publicUrl };
+  } catch (error) {
+    console.error("S3 presigned URL error:", error);
+    throw new Error(`Failed to generate upload URL: ${error instanceof Error ? error.message : "Unknown error"}`);
+  }
+}
+
+/**
  * Upload a file to S3
  * @param relKey - The relative key/path for the file in S3
  * @param data - The file data as Buffer, Uint8Array, or string

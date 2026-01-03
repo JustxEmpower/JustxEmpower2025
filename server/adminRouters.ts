@@ -36,7 +36,7 @@ import {
   deletePageBlock,
   reorderPageBlocks,
 } from "./adminDb";
-import { storagePut } from "./storage";
+import { storagePut, getPresignedUploadUrl } from "./storage";
 import { getDb } from "./db";
 import * as schema from "../drizzle/schema";
 import { eq, and, sql, desc, lt, gte, isNotNull } from "drizzle-orm";
@@ -438,6 +438,64 @@ export const adminRouter = router({
         return await getAllMedia();
       }),
     
+    // Get presigned URL for direct S3 upload (for large files)
+    getUploadUrl: adminProcedure
+      .input(z.object({
+        filename: z.string(),
+        mimeType: z.string(),
+        fileSize: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Generate unique filename
+        const ext = input.filename.split('.').pop() || '';
+        const uniqueFilename = `${nanoid()}.${ext}`;
+        const s3Key = `media/${uniqueFilename}`;
+        
+        // Get presigned URL for direct upload
+        const { uploadUrl, publicUrl } = await getPresignedUploadUrl(s3Key, input.mimeType);
+        
+        return {
+          uploadUrl,
+          publicUrl,
+          s3Key,
+          uniqueFilename,
+          originalName: input.filename,
+          mimeType: input.mimeType,
+          fileSize: input.fileSize,
+        };
+      }),
+    
+    // Confirm upload after direct S3 upload completes
+    confirmUpload: adminProcedure
+      .input(z.object({
+        s3Key: z.string(),
+        uniqueFilename: z.string(),
+        originalName: z.string(),
+        mimeType: z.string(),
+        fileSize: z.number(),
+        publicUrl: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Determine media type
+        const type = input.mimeType.startsWith('video/') ? 'video' : 
+                     input.mimeType.startsWith('audio/') ? 'video' : 'image';
+        
+        // Save to database
+        await createMedia({
+          filename: input.uniqueFilename,
+          originalName: input.originalName,
+          mimeType: input.mimeType,
+          fileSize: input.fileSize,
+          s3Key: input.s3Key,
+          url: input.publicUrl,
+          type,
+          uploadedBy: ctx.adminUsername,
+        });
+        
+        return { success: true, url: input.publicUrl };
+      }),
+    
+    // Legacy upload (for small files via base64)
     upload: adminProcedure
       .input(z.object({
         filename: z.string(),

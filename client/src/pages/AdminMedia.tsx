@@ -2,9 +2,10 @@ import { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { LogOut, FileText, Settings, Layout, Upload, Trash2, Image as ImageIcon, Video, FolderOpen, Palette, Files, BarChart3, Sparkles } from 'lucide-react';
+import { Upload, Trash2, Image as ImageIcon, Video, FolderOpen, Sparkles, Music, X } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { getMediaUrl } from '@/lib/media';
 
@@ -20,10 +21,18 @@ interface MediaItem {
   createdAt: Date | string;
 }
 
+interface UploadProgress {
+  filename: string;
+  progress: number;
+  status: 'pending' | 'uploading' | 'confirming' | 'complete' | 'error';
+  error?: string;
+}
+
 export default function AdminMedia() {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, isChecking, username, logout } = useAdminAuth();
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<Map<string, UploadProgress>>(new Map());
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set());
   const [isBulkProcessing, setIsBulkProcessing] = useState(false);
@@ -33,17 +42,8 @@ export default function AdminMedia() {
     { enabled: isAuthenticated }
   );
 
-  const uploadMutation = trpc.admin.media.upload.useMutation({
-    onSuccess: () => {
-      toast.success('Media uploaded successfully');
-      refetch();
-      setUploading(false);
-    },
-    onError: (error) => {
-      toast.error(error.message || 'Failed to upload media');
-      setUploading(false);
-    },
-  });
+  const getUploadUrlMutation = trpc.admin.media.getUploadUrl.useMutation();
+  const confirmUploadMutation = trpc.admin.media.confirmUpload.useMutation();
 
   const deleteMutation = trpc.admin.media.delete.useMutation({
     onSuccess: () => {
@@ -58,7 +58,6 @@ export default function AdminMedia() {
   const generateAltTextMutation = trpc.admin.ai.generateImageAlt.useMutation({
     onSuccess: (data, variables) => {
       toast.success('Alt text generated!');
-      // Show the generated alt text in a toast with copy button
       navigator.clipboard.writeText(data.altText);
       toast.info(`Alt text copied: "${data.altText}"`, { duration: 5000 });
     },
@@ -72,13 +71,11 @@ export default function AdminMedia() {
       setIsBulkProcessing(false);
       setSelectedImages(new Set());
       
-      // Show results
       const results = data.results;
       const successCount = results.filter(r => r.altText !== 'Image').length;
       
       toast.success(`Generated alt text for ${successCount} of ${results.length} images`);
       
-      // Copy all alt texts to clipboard
       const altTexts = results.map((r, i) => `${i + 1}. ${r.altText}`).join('\n');
       navigator.clipboard.writeText(altTexts);
       toast.info('All alt texts copied to clipboard!', { duration: 5000 });
@@ -132,44 +129,133 @@ export default function AdminMedia() {
     }
   }, [isAuthenticated, isChecking, setLocation]);
 
+  // Direct S3 upload with presigned URL
+  const uploadFileDirectToS3 = async (file: File): Promise<void> => {
+    const fileId = `${file.name}-${Date.now()}`;
+    
+    // Update progress state
+    setUploadProgress(prev => new Map(prev).set(fileId, {
+      filename: file.name,
+      progress: 0,
+      status: 'pending'
+    }));
+
+    try {
+      // Step 1: Get presigned URL from server
+      setUploadProgress(prev => {
+        const newMap = new Map(prev);
+        newMap.set(fileId, { ...newMap.get(fileId)!, status: 'uploading', progress: 5 });
+        return newMap;
+      });
+
+      const uploadData = await getUploadUrlMutation.mutateAsync({
+        filename: file.name,
+        mimeType: file.type,
+        fileSize: file.size,
+      });
+
+      // Step 2: Upload directly to S3 using presigned URL
+      const xhr = new XMLHttpRequest();
+      
+      await new Promise<void>((resolve, reject) => {
+        xhr.upload.addEventListener('progress', (event) => {
+          if (event.lengthComputable) {
+            const percentComplete = Math.round((event.loaded / event.total) * 90) + 5; // 5-95%
+            setUploadProgress(prev => {
+              const newMap = new Map(prev);
+              newMap.set(fileId, { ...newMap.get(fileId)!, progress: percentComplete });
+              return newMap;
+            });
+          }
+        });
+
+        xhr.addEventListener('load', () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            resolve();
+          } else {
+            reject(new Error(`Upload failed with status ${xhr.status}`));
+          }
+        });
+
+        xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
+        xhr.addEventListener('abort', () => reject(new Error('Upload aborted')));
+
+        xhr.open('PUT', uploadData.uploadUrl);
+        xhr.setRequestHeader('Content-Type', file.type);
+        xhr.send(file);
+      });
+
+      // Step 3: Confirm upload with server
+      setUploadProgress(prev => {
+        const newMap = new Map(prev);
+        newMap.set(fileId, { ...newMap.get(fileId)!, status: 'confirming', progress: 95 });
+        return newMap;
+      });
+
+      await confirmUploadMutation.mutateAsync({
+        s3Key: uploadData.s3Key,
+        uniqueFilename: uploadData.uniqueFilename,
+        originalName: uploadData.originalName,
+        mimeType: uploadData.mimeType,
+        fileSize: uploadData.fileSize,
+        publicUrl: uploadData.publicUrl,
+      });
+
+      // Success!
+      setUploadProgress(prev => {
+        const newMap = new Map(prev);
+        newMap.set(fileId, { ...newMap.get(fileId)!, status: 'complete', progress: 100 });
+        return newMap;
+      });
+
+      toast.success(`${file.name} uploaded successfully`);
+      
+      // Remove from progress after a delay
+      setTimeout(() => {
+        setUploadProgress(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(fileId);
+          return newMap;
+        });
+      }, 2000);
+
+    } catch (error) {
+      console.error('Upload error:', error);
+      setUploadProgress(prev => {
+        const newMap = new Map(prev);
+        newMap.set(fileId, { 
+          ...newMap.get(fileId)!, 
+          status: 'error', 
+          error: error instanceof Error ? error.message : 'Upload failed'
+        });
+        return newMap;
+      });
+      toast.error(`Failed to upload ${file.name}`);
+    }
+  };
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
     setUploading(true);
 
-    for (const file of Array.from(files)) {
+    // Process all files in parallel
+    const uploadPromises = Array.from(files).map(async (file) => {
       // Validate file type
-      if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) {
-        toast.error(`${file.name}: Only images and videos are supported`);
-        continue;
+      if (!file.type.startsWith('image/') && !file.type.startsWith('video/') && !file.type.startsWith('audio/')) {
+        toast.error(`${file.name}: Only images, videos, and audio files are supported`);
+        return;
       }
 
-      // Validate file size (50MB max)
-      if (file.size > 50 * 1024 * 1024) {
-        toast.error(`${file.name}: File size must be less than 50MB`);
-        continue;
-      }
+      // No file size limit for direct S3 uploads!
+      await uploadFileDirectToS3(file);
+    });
 
-      // Convert to base64
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        const base64Data = event.target?.result as string;
-        const base64Content = base64Data.split(',')[1]; // Remove data:image/png;base64, prefix
+    await Promise.all(uploadPromises);
 
-        try {
-          await uploadMutation.mutateAsync({
-            filename: file.name,
-            mimeType: file.type,
-            fileSize: file.size,
-            base64Data: base64Content,
-          });
-        } catch (error) {
-          console.error('Upload error:', error);
-        }
-      };
-      reader.readAsDataURL(file);
-    }
+    setUploading(false);
+    refetch();
 
     // Reset input
     if (fileInputRef.current) {
@@ -186,12 +272,28 @@ export default function AdminMedia() {
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
-    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    if (bytes < 1024 * 1024 * 1024) return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    return (bytes / (1024 * 1024 * 1024)).toFixed(2) + ' GB';
   };
 
   const copyToClipboard = (url: string) => {
     navigator.clipboard.writeText(url);
     toast.success('URL copied to clipboard');
+  };
+
+  const cancelUpload = (fileId: string) => {
+    setUploadProgress(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(fileId);
+      return newMap;
+    });
+  };
+
+  const getMediaIcon = (mimeType: string) => {
+    if (mimeType.startsWith('image/')) return <ImageIcon className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />;
+    if (mimeType.startsWith('video/')) return <Video className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />;
+    if (mimeType.startsWith('audio/')) return <Music className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />;
+    return <ImageIcon className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />;
   };
 
   if (isChecking || isLoading) {
@@ -253,19 +355,62 @@ export default function AdminMedia() {
             <h1 className="text-3xl font-light text-neutral-900 dark:text-neutral-100 mb-2">
               Media Library
             </h1>
-            <p className="text-neutral-600 dark:text-neutral-400 mb-8">
-              Upload and manage images and videos for your website
+            <p className="text-neutral-600 dark:text-neutral-400 mb-4">
+              Upload and manage images, videos, and audio files for your website
+            </p>
+            <p className="text-sm text-green-600 dark:text-green-400 mb-8">
+              ✓ Direct S3 upload enabled - No file size limit!
             </p>
 
-            {/* Hidden file input */}
+            {/* Hidden file input - now accepts audio too */}
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*,video/*"
+              accept="image/*,video/*,audio/*"
               multiple
               onChange={handleFileSelect}
               className="hidden"
             />
+
+            {/* Upload Progress */}
+            {uploadProgress.size > 0 && (
+              <div className="mb-6 space-y-3">
+                {Array.from(uploadProgress.entries()).map(([fileId, progress]) => (
+                  <div key={fileId} className="bg-white dark:bg-neutral-900 rounded-lg p-4 border border-neutral-200 dark:border-neutral-800">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate flex-1">
+                        {progress.filename}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-neutral-500">
+                          {progress.status === 'pending' && 'Preparing...'}
+                          {progress.status === 'uploading' && `${progress.progress}%`}
+                          {progress.status === 'confirming' && 'Finalizing...'}
+                          {progress.status === 'complete' && '✓ Complete'}
+                          {progress.status === 'error' && '✗ Failed'}
+                        </span>
+                        {progress.status === 'error' && (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => cancelUpload(fileId)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                    <Progress 
+                      value={progress.progress} 
+                      className={`h-2 ${progress.status === 'error' ? 'bg-red-100' : ''}`}
+                    />
+                    {progress.error && (
+                      <p className="text-xs text-red-500 mt-1">{progress.error}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
 
             {/* Media Grid */}
             {mediaList && mediaList.length > 0 ? (
@@ -295,6 +440,10 @@ export default function AdminMedia() {
                           alt={item.originalName}
                           className="w-full h-full object-cover"
                         />
+                      ) : item.mimeType.startsWith('audio/') ? (
+                        <div className="w-full h-full flex items-center justify-center">
+                          <Music className="w-12 h-12 text-neutral-400" />
+                        </div>
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <Video className="w-12 h-12 text-neutral-400" />
@@ -337,11 +486,7 @@ export default function AdminMedia() {
                     {/* Media Info */}
                     <div className="p-4">
                       <div className="flex items-start gap-2 mb-2">
-                        {item.type === 'image' ? (
-                          <ImageIcon className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />
-                        ) : (
-                          <Video className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />
-                        )}
+                        {getMediaIcon(item.mimeType)}
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
                             {item.originalName}
@@ -362,7 +507,7 @@ export default function AdminMedia() {
               <div className="bg-white dark:bg-neutral-900 rounded-xl p-12 border border-neutral-200 dark:border-neutral-800 text-center">
                 <FolderOpen className="w-12 h-12 text-neutral-300 dark:text-neutral-700 mx-auto mb-4" />
                 <p className="text-neutral-500 dark:text-neutral-400 mb-4">
-                  No media files yet. Upload your first image or video to get started.
+                  No media files yet. Upload your first image, video, or audio file to get started.
                 </p>
                 <Button onClick={() => fileInputRef.current?.click()} className="gap-2">
                   <Upload className="w-4 h-4" />
