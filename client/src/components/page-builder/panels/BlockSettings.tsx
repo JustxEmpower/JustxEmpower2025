@@ -228,7 +228,69 @@ function renderField(
     );
   }
 
-  // Skip complex objects/arrays for now (would need custom editors)
+  // Handle button objects (primaryButton, secondaryButton)
+  if (
+    (key === 'primaryButton' || key === 'secondaryButton') &&
+    typeof value === 'object' &&
+    value !== null
+  ) {
+    const buttonValue = value as { text?: string; link?: string };
+    return (
+      <div key={key} className="space-y-3 p-3 rounded-lg bg-neutral-100 dark:bg-neutral-800">
+        <Label className="text-sm font-medium">{label}</Label>
+        <div className="space-y-2">
+          <div>
+            <Label htmlFor={`${key}-text`} className="text-xs text-muted-foreground">
+              Button Text
+            </Label>
+            <Input
+              id={`${key}-text`}
+              value={buttonValue.text || ''}
+              onChange={(e) =>
+                onChange(key, { ...buttonValue, text: e.target.value })
+              }
+              placeholder="Button text"
+              className="bg-white dark:bg-neutral-900"
+            />
+          </div>
+          <div>
+            <Label htmlFor={`${key}-link`} className="text-xs text-muted-foreground">
+              Button Link
+            </Label>
+            <Input
+              id={`${key}-link`}
+              value={buttonValue.link || ''}
+              onChange={(e) =>
+                onChange(key, { ...buttonValue, link: e.target.value })
+              }
+              placeholder="https://..."
+              className="bg-white dark:bg-neutral-900"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Handle ctaText and ctaLink fields specifically
+  if (key === 'ctaText' || key === 'ctaLink') {
+    return (
+      <div key={key} className="space-y-2">
+        <Label htmlFor={key} className="text-sm font-medium">
+          {key === 'ctaText' ? 'CTA Button Text' : 'CTA Button Link'}
+        </Label>
+        <Input
+          id={key}
+          value={value as string || ''}
+          onChange={(e) => onChange(key, e.target.value)}
+          placeholder={key === 'ctaText' ? 'Get Started' : 'https://...'}
+          className="bg-neutral-50 dark:bg-neutral-800"
+        />
+      </div>
+    );
+  }
+
+  // Skip other complex objects/arrays for now (would need custom editors)
   return null;
 }
 

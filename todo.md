@@ -1527,3 +1527,30 @@ NODE_ENV=production
 - [ ] Test all page builder tools end-to-end
 - [ ] Verify changes appear on live site immediately
 - [ ] Deploy fully functional page builder to production
+
+
+## Content Editor Fixes (Jan 4, 2026) ✅
+
+### Legal Pages CMS Integration
+- [x] Refactored AccessibilityStatement.tsx to be fully CMS-driven
+- [x] Refactored PrivacyPolicy.tsx to be fully CMS-driven
+- [x] Refactored TermsOfService.tsx to be fully CMS-driven
+- [x] Refactored CookiePolicy.tsx to be fully CMS-driven
+- [x] Created seed script to populate all legal pages content in database
+- [x] All section headings and paragraphs now editable via Content Editor
+
+### CTA Button Editing
+- [x] Added primaryButton and secondaryButton object handling to BlockSettings
+- [x] Added ctaText and ctaLink field handling to BlockSettings
+- [x] CTA buttons now fully editable in Page Builder
+
+### Media Upload in Page Builder
+- [x] Updated MediaPicker component with upload tab
+- [x] Added drag-and-drop file upload support
+- [x] Added upload progress tracking
+- [x] Media can now be uploaded directly when adding content to pages
+
+### Bug Fixes
+- [x] Fixed "TypeError: Invalid URL" error on page-builder (added fallback for missing VITE env vars)
+- [x] Fixed AWS region configuration for S3 operations
+- [x] Added all image format conversions support (jpeg, png, webp, heic, heif, tiff, bmp)
