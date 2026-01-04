@@ -38,12 +38,50 @@ export default function Hero() {
 
   useEffect(() => {
     // Ensure video plays when component mounts
-    if (videoRef.current) {
-      videoRef.current.play().catch(err => {
-        console.log('Video autoplay failed:', err);
-      });
+    if (videoRef.current && isVideo && videoUrl) {
+      // Try to play immediately
+      const playPromise = videoRef.current.play();
+      
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            console.log('✅ Video autoplay succeeded');
+          })
+          .catch(err => {
+            console.log('⚠️ Video autoplay failed:', err.message);
+            // Try again after a short delay
+            setTimeout(() => {
+              videoRef.current?.play().catch(e => {
+                console.log('❌ Video play retry failed:', e.message);
+              });
+            }, 500);
+          });
+      }
     }
-  }, [heroMediaUrl]);
+  }, [heroMediaUrl, isVideo, videoUrl]);
+
+  // Handle video element ready state
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const handleCanPlay = () => {
+      console.log('Video can play');
+      video.play().catch(err => console.log('Play on canplay failed:', err));
+    };
+
+    const handleLoadedMetadata = () => {
+      console.log('Video metadata loaded');
+    };
+
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+    return () => {
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    };
+  }, []);
 
   useEffect(() => {
     if (!heroRef.current) return;
@@ -120,8 +158,8 @@ export default function Hero() {
     <div ref={heroRef} className="hero-section relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
       {/* Video/Image Background */}
       <div className="absolute inset-0 w-full h-full">
-        {/* Overlay */}
-        <div ref={overlayRef} className="absolute inset-0 bg-black z-10" />
+        {/* Overlay for text readability */}
+        <div ref={overlayRef} className="absolute inset-0 bg-black/40 z-5" />
         
         {/* Video Background */}
         {isVideo && videoUrl ? (
