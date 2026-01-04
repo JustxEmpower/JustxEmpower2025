@@ -172,8 +172,8 @@ export default function BlockLibrary() {
       </div>
 
       {/* Block categories */}
-      <ScrollArea className="flex-1">
-        <div className="p-2">
+      <ScrollArea className="flex-1 overflow-hidden">
+        <div className="p-2 pr-4">
           {searchQuery ? (
             // Show flat list when searching
             <div className="grid grid-cols-1 gap-2 p-2">
