@@ -49,6 +49,7 @@ export default function Hero() {
   console.log('Hero videoUrl from CMS:', videoUrl);
   console.log('Hero heroMediaUrl:', heroMediaUrl);
   console.log('Hero isVideo:', isVideo);
+  console.log('Hero isLoading:', isLoading);
 
   useEffect(() => {
     // Ensure video plays when component mounts
@@ -136,6 +137,15 @@ export default function Hero() {
 
     return () => ctx.revert();
   }, []);
+
+  // Don't render video until CMS data is loaded
+  if (isLoading && !heroMediaUrl) {
+    return (
+      <div className="hero-section relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
+        <div className="absolute inset-0 bg-gradient-to-br from-neutral-700 to-neutral-900" />
+      </div>
+    );
+  }
 
   return (
     <div ref={heroRef} className="hero-section relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
