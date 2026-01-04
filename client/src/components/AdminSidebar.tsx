@@ -33,6 +33,7 @@ import {
   FileDown,
   Mail,
   Images,
+  Blocks,
 } from 'lucide-react';
 
 // Complete list of all admin navigation items matching the original design
@@ -43,6 +44,7 @@ const navItems = [
   { icon: FileText, label: 'Articles', path: '/admin/articles' },
   { icon: FolderOpen, label: 'Media', path: '/admin/media' },
   { icon: Files, label: 'Pages', path: '/admin/pages' },
+  { icon: Blocks, label: 'Page Builder', path: '/admin/page-builder' },
   // E-commerce / Shop section
   { icon: Package, label: 'Products', path: '/admin/products' },
   { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
@@ -111,7 +113,7 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
         )}
       </div>
 
-      <nav className={`flex-1 overflow-y-auto ${isDark ? 'space-y-1 px-3' : 'p-4 space-y-1'}`}>
+      <nav className={`flex-1 min-h-0 overflow-y-auto ${isDark ? 'space-y-1 px-3' : 'p-4 space-y-1'}`}>
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location === item.path || 

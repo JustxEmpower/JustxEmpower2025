@@ -1461,3 +1461,24 @@ NODE_ENV=production
 - [ ] Fix Reply via Email functionality
 - [ ] Test all pages with CMS media
 - [ ] Commit changes to GitHub
+
+
+## Bug Fix: Homepage Video Not Loading from CMS (Jan 2026)
+
+- [ ] Investigate why CMS video content is not displaying on homepage
+- [ ] Fix Hero component to properly load video from CMS
+- [ ] Test video playback on homepage
+
+## Hero Section CMS Fix (Jan 3, 2026)
+- [x] Fix Home page hero to read from CMS
+- [x] Fix Contact page hero to read from CMS
+- [x] Fix Journal page hero to read from CMS
+- [x] Fix CommunityEvents page hero to read from CMS
+- [x] Fix Resources page hero to read from CMS
+- [x] Add Page Builder back to admin sidebar menu
+- [x] Fix admin sidebar scroll issue
+- [x] Fix Page Builder save/load functionality for draft and published pages
+  - Page Builder saves pages as published by default
+  - Page Builder saves blocks correctly to database
+  - Pages are accessible via dynamic routing when published Page Builder back to admin sidebar menu
+- [x] Fix admin sidebar scroll issue

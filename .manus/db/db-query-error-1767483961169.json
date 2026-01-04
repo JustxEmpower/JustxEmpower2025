@@ -1,0 +1,8 @@
+{
+  "query": "UPDATE site_content SET content_value = 'https://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4' WHERE page = 'home' AND section = 'hero' AND content_key = 'videoUrl';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute UPDATE site_content SET content_value = 'https://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4' WHERE page = 'home' AND section = 'hero' AND content_key = 'videoUrl';",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'nfjriendnkwe5mynudanl9.site_content' doesn't exist"
+  ]
+}

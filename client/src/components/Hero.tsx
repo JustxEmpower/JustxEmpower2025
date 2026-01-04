@@ -34,8 +34,14 @@ export default function Hero() {
   const titleLine2 = getContent('hero', 'titleLine2') || (fullTitle ? fullTitle.split(' ').slice(2).join(' ') : 'Rise of Her');
   // Use subDescription for the main description text, fall back to description
   const description = getContent('hero', 'subDescription') || getContent('hero', 'description') || 'Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.';
-  const ctaText = getContent('hero', 'ctaText') || 'Discover More';
-  const ctaLink = getContent('hero', 'ctaLink') || '/about';
+  // CMS uses buttonText/buttonLink, also check ctaText/ctaLink for backwards compatibility
+  const ctaText = getContent('hero', 'ctaText') || getContent('hero', 'buttonText') || 'Discover More';
+  const ctaLink = getContent('hero', 'ctaLink') || getContent('hero', 'buttonLink') || '/about';
+  
+  // Debug logging for video URL
+  console.log('Hero videoUrl from CMS:', videoUrl);
+  console.log('Hero heroMediaUrl:', heroMediaUrl);
+  console.log('Hero isVideo:', isVideo);
 
   useEffect(() => {
     // Ensure video plays when component mounts

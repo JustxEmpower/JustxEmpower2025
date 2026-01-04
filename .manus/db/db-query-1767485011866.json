@@ -1,0 +1,100 @@
+{
+  "query": "SELECT id, title, slug, template, published, showInNav, navOrder FROM pages ORDER BY id DESC LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT id, title, slug, template, published, showInNav, navOrder FROM pages ORDER BY id DESC LIMIT 10;",
+  "rows": [
+    {
+      "id": "210005",
+      "title": "Block Test Page",
+      "slug": "block-test-1767427475756",
+      "template": "default",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "999"
+    },
+    {
+      "id": "210003",
+      "title": "Block Test Page",
+      "slug": "block-test-1767427459956",
+      "template": "default",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "999"
+    },
+    {
+      "id": "180001",
+      "title": "Test Save Workflow Page",
+      "slug": "t",
+      "template": "page-builder",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "100"
+    },
+    {
+      "id": "150001",
+      "title": "Test Navigation Page",
+      "slug": "test-nav-page",
+      "template": "page-builder",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "100"
+    },
+    {
+      "id": "120008",
+      "title": "Block Test Page",
+      "slug": "block-test-1767064701138",
+      "template": "default",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "999"
+    },
+    {
+      "id": "120004",
+      "title": "Block Test Page",
+      "slug": "block-test-1767064688986",
+      "template": "default",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "999"
+    },
+    {
+      "id": "90013",
+      "title": "Block Test Page",
+      "slug": "block-test-1766918034207",
+      "template": "default",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "999"
+    },
+    {
+      "id": "90010",
+      "title": "Block Test Page",
+      "slug": "block-test-1766917981826",
+      "template": "default",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "999"
+    },
+    {
+      "id": "90008",
+      "title": "Block Test Page",
+      "slug": "block-test-1766917940948",
+      "template": "default",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "999"
+    },
+    {
+      "id": "90001",
+      "title": "Block Test Page",
+      "slug": "block-test-1766917901923",
+      "template": "default",
+      "published": "1",
+      "showInNav": "0",
+      "navOrder": "999"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\ttitle\tslug\ttemplate\tpublished\tshowInNav\tnavOrder\n210005\tBlock Test Page\tblock-test-1767427475756\tdefault\t1\t0\t999\n210003\tBlock Test Page\tblock-test-1767427459956\tdefault\t1\t0\t999\n180001\tTest Save Workflow Page\tt\tpage-builder\t1\t0\t100\n150001\tTest Navigation Page\ttest-nav-page\tpage-builder\t1\t0\t100\n120008\tBlock Test Page\tblock-test-1767064701138\tdefault\t1\t0\t999\n120004\tBlock Test Page\tblock-test-1767064688986\tdefault\t1\t0\t999\n90013\tBlock Test Page\tblock-test-1766918034207\tdefault\t1\t0\t999\n90010\tBlock Test Page\tblock-test-1766917981826\tdefault\t1\t0\t999\n90008\tBlock Test Page\tblock-test-1766917940948\tdefault\t1\t0\t999\n90001\tBlock Test Page\tblock-test-1766917901923\tdefault\t1\t0\t999\n",
+  "stderr": "",
+  "execution_time_ms": 208
+}

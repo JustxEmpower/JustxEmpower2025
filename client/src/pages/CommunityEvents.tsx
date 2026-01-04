@@ -6,6 +6,9 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EventCalendar from '@/components/EventCalendar';
 import { Link } from 'wouter';
+import { usePageContent } from '@/hooks/usePageContent';
+import { getMediaUrl } from '@/lib/media';
+import AutoplayVideo from '@/components/AutoplayVideo';
 import {
   Calendar,
   List,
@@ -31,6 +34,24 @@ const eventTypeColors: Record<string, { bg: string; text: string }> = {
 export default function CommunityEvents() {
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
   const [statusFilter, setStatusFilter] = useState<'upcoming' | 'past' | 'all'>('upcoming');
+  
+  // Get hero content from CMS
+  const { getContent, isLoading: contentLoading } = usePageContent('community-events');
+  
+  const heroTitle = getContent('hero', 'title') || 'Community Events';
+  const heroSubtitle = getContent('hero', 'subtitle') || 'In-person and virtual gatherings for collective healing';
+  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
+  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  
+  // Determine which media to use (video takes priority)
+  const heroMediaUrl = heroVideoUrl || heroImageUrl;
+  const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
+  
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
 
   // Fetch events for list view
   const eventsQuery = trpc.events.list.useQuery({
@@ -57,13 +78,32 @@ export default function CommunityEvents() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900 text-white py-20">
-        <div className="container mx-auto px-4">
+      {/* Hero Section - Now reads from CMS */}
+      <section className="relative overflow-hidden text-white py-20">
+        {/* Background Media */}
+        <div className="absolute inset-0">
+          {heroMediaUrl && isVideo ? (
+            <AutoplayVideo
+              src={getProperMediaUrl(heroMediaUrl)}
+              className="w-full h-full object-cover"
+            />
+          ) : heroMediaUrl ? (
+            <div 
+              className="w-full h-full bg-cover bg-center"
+              style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900" />
+          )}
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-serif mb-6">Community Events</h1>
+            <h1 className="text-4xl md:text-5xl font-serif mb-6">{heroTitle}</h1>
             <p className="text-xl text-stone-300 mb-8">
-              Join us for workshops, retreats, and gatherings designed to inspire and empower
+              {heroSubtitle}
             </p>
             <div className="flex justify-center gap-4">
               <Button

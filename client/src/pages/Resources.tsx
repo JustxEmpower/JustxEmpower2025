@@ -1,5 +1,8 @@
 import { useState } from 'react';
 import { trpc } from '@/lib/trpc';
+import { usePageContent } from '@/hooks/usePageContent';
+import { getMediaUrl } from '@/lib/media';
+import AutoplayVideo from '@/components/AutoplayVideo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -113,6 +116,24 @@ export default function Resources() {
   // Purchase state
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const [purchaseResource, setPurchaseResource] = useState<any>(null);
+
+  // Get hero content from CMS
+  const { getContent, isLoading: contentLoading } = usePageContent('resources');
+  
+  const heroTitle = getContent('hero', 'title') || 'Resources';
+  const heroSubtitle = getContent('hero', 'subtitle') || 'Download guides, templates, and materials to support your empowerment journey';
+  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
+  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  
+  // Determine which media to use (video takes priority)
+  const heroMediaUrl = heroVideoUrl || heroImageUrl;
+  const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
+  
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
 
   // Queries
   const resourcesQuery = trpc.resources.list.useQuery({
@@ -331,13 +352,32 @@ export default function Resources() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900 text-white py-20">
-        <div className="container mx-auto px-4">
+      {/* Hero Section - Now reads from CMS */}
+      <section className="relative overflow-hidden text-white py-20">
+        {/* Background Media */}
+        <div className="absolute inset-0">
+          {heroMediaUrl && isVideo ? (
+            <AutoplayVideo
+              src={getProperMediaUrl(heroMediaUrl)}
+              className="w-full h-full object-cover"
+            />
+          ) : heroMediaUrl ? (
+            <div 
+              className="w-full h-full bg-cover bg-center"
+              style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900" />
+          )}
+          {/* Overlay */}
+          <div className="absolute inset-0 bg-black/40" />
+        </div>
+        
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-serif mb-6">Resources</h1>
+            <h1 className="text-4xl md:text-5xl font-serif mb-6">{heroTitle}</h1>
             <p className="text-xl text-stone-300 mb-8">
-              Download guides, templates, and materials to support your empowerment journey
+              {heroSubtitle}
             </p>
             <div className="relative max-w-md mx-auto">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />

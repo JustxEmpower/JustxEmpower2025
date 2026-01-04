@@ -213,16 +213,27 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
   };
 
   const handleSaveConfirm = async () => {
+    console.log('handleSaveConfirm called');
+    console.log('onSave exists:', !!onSave);
+    console.log('blocks:', blocks);
+    console.log('pageTitle:', pageTitle);
+    console.log('pageSlug:', pageSlug);
+    console.log('showInNav:', showInNav);
+    
     if (onSave) {
       setSaving(true);
       try {
+        console.log('Calling onSave...');
         await onSave(blocks, pageTitle, pageSlug, showInNav);
+        console.log('onSave completed successfully');
         setShowSaveDialog(false);
       } catch (error) {
         console.error('Save failed:', error);
       } finally {
         setSaving(false);
       }
+    } else {
+      console.error('onSave prop is not provided!');
     }
   };
 

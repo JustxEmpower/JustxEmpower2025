@@ -1,0 +1,100 @@
+{
+  "query": "SELECT * FROM siteContent WHERE page = 'community-events' OR page = 'communityEvents' OR page = 'events';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT * FROM siteContent WHERE page = 'community-events' OR page = 'communityEvents' OR page = 'events';",
+  "rows": [
+    {
+      "id": "58",
+      "page": "events",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "JOIN US",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:46:25"
+    },
+    {
+      "id": "59",
+      "page": "events",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Upcoming Events",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:46:25"
+    },
+    {
+      "id": "60",
+      "page": "events",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Transformative gatherings and experiences for conscious leaders.",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:46:25"
+    },
+    {
+      "id": "30086",
+      "page": "community-events",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "GATHER WITH US",
+      "altText": "NULL",
+      "updatedAt": "2025-12-28 09:29:29"
+    },
+    {
+      "id": "30087",
+      "page": "community-events",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Community Events",
+      "altText": "NULL",
+      "updatedAt": "2025-12-28 09:29:29"
+    },
+    {
+      "id": "30088",
+      "page": "community-events",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Local gatherings and community-led experiences",
+      "altText": "NULL",
+      "updatedAt": "2025-12-28 09:29:29"
+    },
+    {
+      "id": "30089",
+      "page": "community-events",
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg",
+      "altText": "NULL",
+      "updatedAt": "2025-12-28 09:29:29"
+    },
+    {
+      "id": "30090",
+      "page": "community-events",
+      "section": "overview",
+      "contentKey": "title",
+      "contentValue": "About Community Events",
+      "altText": "NULL",
+      "updatedAt": "2025-12-28 09:29:29"
+    },
+    {
+      "id": "30091",
+      "page": "community-events",
+      "section": "overview",
+      "contentKey": "paragraph1",
+      "contentValue": "Community events are grassroots gatherings organized by members of our extended community.",
+      "altText": "NULL",
+      "updatedAt": "2025-12-28 09:29:29"
+    },
+    {
+      "id": "30092",
+      "page": "community-events",
+      "section": "overview",
+      "contentKey": "paragraph2",
+      "contentValue": "These events create opportunities for connection, learning, and collective transformation in your local area.",
+      "altText": "NULL",
+      "updatedAt": "2025-12-28 09:29:29"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpage\tsection\tcontentKey\tcontentValue\taltText\tupdatedAt\n58\tevents\thero\tsubtitle\tJOIN US\tNULL\t2025-12-24 11:46:25\n59\tevents\thero\ttitle\tUpcoming Events\tNULL\t2025-12-24 11:46:25\n60\tevents\thero\tdescription\tTransformative gatherings and experiences for conscious leaders.\tNULL\t2025-12-24 11:46:25\n30086\tcommunity-events\thero\tsubtitle\tGATHER WITH US\tNULL\t2025-12-28 09:29:29\n30087\tcommunity-events\thero\ttitle\tCommunity Events\tNULL\t2025-12-28 09:29:29\n30088\tcommunity-events\thero\tdescription\tLocal gatherings and community-led experiences\tNULL\t2025-12-28 09:29:29\n30089\tcommunity-events\thero\timageUrl\t/media/11/Fam.jpg\tNULL\t2025-12-28 09:29:29\n30090\tcommunity-events\toverview\ttitle\tAbout Community Events\tNULL\t2025-12-28 09:29:29\n30091\tcommunity-events\toverview\tparagraph1\tCommunity events are grassroots gatherings organized by members of our extended community.\tNULL\t2025-12-28 09:29:29\n30092\tcommunity-events\toverview\tparagraph2\tThese events create opportunities for connection, learning, and collective transformation in your local area.\tNULL\t2025-12-28 09:29:29\n",
+  "stderr": "",
+  "execution_time_ms": 213
+}
