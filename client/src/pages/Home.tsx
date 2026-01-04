@@ -39,14 +39,6 @@ export default function Home() {
     };
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <p className="text-neutral-500">Loading...</p>
-      </div>
-    );
-  }
-
   const philosophySection = getSection('philosophy');
   const communitySection = getSection('community');
   const rootedUnitySection = getSection('rootedUnity');
