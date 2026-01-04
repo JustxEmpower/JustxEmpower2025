@@ -771,14 +771,14 @@ export default function AdminResources() {
               <div>
                 <Label>Category</Label>
                 <Select
-                  value={selectedResource.categoryId?.toString() || ''}
-                  onValueChange={(value) => setSelectedResource({ ...selectedResource, categoryId: value ? parseInt(value) : null })}
+                  value={selectedResource.categoryId?.toString() || 'uncategorized'}
+                  onValueChange={(value) => setSelectedResource({ ...selectedResource, categoryId: value === 'uncategorized' ? null : parseInt(value) })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Uncategorized</SelectItem>
+                    <SelectItem value="uncategorized">Uncategorized</SelectItem>
                     {categoriesQuery.data?.map(cat => (
                       <SelectItem key={cat.id} value={cat.id.toString()}>
                         {cat.name}

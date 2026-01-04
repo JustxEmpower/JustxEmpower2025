@@ -1554,3 +1554,8 @@ NODE_ENV=production
 - [x] Fixed "TypeError: Invalid URL" error on page-builder (added fallback for missing VITE env vars)
 - [x] Fixed AWS region configuration for S3 operations
 - [x] Added all image format conversions support (jpeg, png, webp, heic, heif, tiff, bmp)
+
+
+## Bug Fix: Resources Edit Error (Jan 4, 2026)
+
+- [ ] Fix error when clicking Edit on an uploaded resource
