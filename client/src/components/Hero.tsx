@@ -1,10 +1,8 @@
-'use client';
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
 import { usePageContent } from '@/hooks/usePageContent';
-import { getMediaUrl } from '@/lib/media';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -12,9 +10,8 @@ export default function Hero() {
   const heroRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
   
-  const { getContent, isLoading } = usePageContent('home');
+  const { getContent } = usePageContent('home');
   
   // Get all hero content from database
   const videoUrl = getContent('hero', 'videoUrl') || '';
@@ -30,70 +27,12 @@ export default function Hero() {
   // Determine if we have a video or image
   const isVideo = videoUrl && /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(?:[?#]|$)/i.test(videoUrl);
   const heroMediaUrl = videoUrl || imageUrl;
-  
-  console.log('Hero Component - videoUrl:', videoUrl);
-  console.log('Hero Component - isVideo:', isVideo);
-  console.log('Hero Component - heroMediaUrl:', heroMediaUrl);
-  console.log('Hero Component - isLoading:', isLoading);
-
-  useEffect(() => {
-    // Ensure video plays when component mounts
-    if (videoRef.current && isVideo && videoUrl) {
-      // Try to play immediately
-      const playPromise = videoRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            console.log('✅ Video autoplay succeeded');
-          })
-          .catch(err => {
-            console.log('⚠️ Video autoplay failed:', err.message);
-            // Try again after a short delay
-            setTimeout(() => {
-              videoRef.current?.play().catch(e => {
-                console.log('❌ Video play retry failed:', e.message);
-              });
-            }, 500);
-          });
-      }
-    }
-  }, [heroMediaUrl, isVideo, videoUrl]);
-
-  // Handle video element ready state
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    const handleCanPlay = () => {
-      console.log('Video can play');
-      video.play().catch(err => console.log('Play on canplay failed:', err));
-    };
-
-    const handleLoadedMetadata = () => {
-      console.log('Video metadata loaded');
-    };
-
-    video.addEventListener('canplay', handleCanPlay);
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-
-    return () => {
-      video.removeEventListener('canplay', handleCanPlay);
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-    };
-  }, []);
 
   useEffect(() => {
     if (!heroRef.current) return;
 
     const ctx = gsap.context(() => {
-      // Animate overlay fade
-      gsap.fromTo(overlayRef.current,
-        { opacity: 0.5 },
-        { opacity: 0.3, duration: 2, ease: 'power2.inOut' }
-      );
-
-      // Animate text elements on scroll
+      // Scroll animations
       gsap.to('.hero-subtitle', {
         scrollTrigger: {
           trigger: heroRef.current,
@@ -102,7 +41,7 @@ export default function Hero() {
           scrub: true
         },
         opacity: 0,
-        y: -50,
+        y: -30,
         duration: 1
       });
 
@@ -114,8 +53,7 @@ export default function Hero() {
           scrub: true
         },
         opacity: 0,
-        y: -100,
-        stagger: 0.2,
+        y: -50,
         duration: 1
       });
 
@@ -127,7 +65,7 @@ export default function Hero() {
           scrub: true
         },
         opacity: 0,
-        y: -50,
+        y: 30,
         duration: 1
       });
 
@@ -154,39 +92,49 @@ export default function Hero() {
     return () => ctx.revert();
   }, []);
 
+  // Handle video autoplay
+  useEffect(() => {
+    if (videoRef.current && isVideo) {
+      videoRef.current.play().catch(err => {
+        console.log('Video autoplay failed:', err);
+      });
+    }
+  }, [isVideo]);
+
   return (
     <div ref={heroRef} className="hero-section relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
-      {/* Video/Image Background */}
+      {/* Background Media Container */}
       <div className="absolute inset-0 w-full h-full">
-        {/* Overlay for text readability */}
-        <div ref={overlayRef} className="absolute inset-0 bg-black/40 z-5" />
-        
         {/* Video Background */}
-        {isVideo && videoUrl ? (
+        {isVideo && videoUrl && (
           <video
             ref={videoRef}
             autoPlay
             muted
             loop
             playsInline
-            className="w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover"
             onError={(e) => console.log('Video error:', e)}
           >
-            <source 
-              src={videoUrl} 
-              type="video/mp4" 
-            />
+            <source src={videoUrl} type="video/mp4" />
           </video>
-        ) : heroMediaUrl ? (
-          /* Image Background */
-          <div 
-            className="w-full h-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${heroMediaUrl})` }}
-          />
-        ) : (
-          /* Fallback Gradient */
-          <div className="w-full h-full bg-gradient-to-br from-neutral-700 to-neutral-900" />
         )}
+        
+        {/* Image Background */}
+        {!isVideo && imageUrl && (
+          <div 
+            className="absolute inset-0 w-full h-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${imageUrl})` }}
+          />
+        )}
+        
+        {/* Fallback - show nothing if no media */}
+        {!heroMediaUrl && (
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900" />
+        )}
+
+        {/* Dark Overlay for Text Readability */}
+        <div className="absolute inset-0 w-full h-full bg-black/30" />
       </div>
 
       {/* Content */}
@@ -226,8 +174,12 @@ export default function Hero() {
 
       {/* Scroll Indicator */}
       <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
-        <div className="text-white/50 text-xs uppercase tracking-widest mb-4">Scroll</div>
-        <div className="w-px h-8 bg-gradient-to-b from-white/50 to-transparent mx-auto animate-pulse" />
+        <div className="flex flex-col items-center gap-3">
+          <span className="text-white/50 text-xs uppercase tracking-[0.2em]">SCROLL</span>
+          <div className="w-6 h-10 border border-white/30 rounded-full flex items-start justify-center p-2">
+            <div className="w-1 h-2 bg-white/50 rounded-full animate-bounce" />
+          </div>
+        </div>
       </div>
     </div>
   );
