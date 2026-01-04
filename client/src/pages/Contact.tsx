@@ -68,6 +68,14 @@ export default function Contact() {
   const heroVideoUrl = getContent('hero', 'videoUrl') || '';
   const heroImageUrl = getContent('hero', 'imageUrl') || '';
   
+  // Get contact info from CMS (using 'info' section as per seed script)
+  const contactTitle = getContent('info', 'heading') || 'Get in Touch';
+  const contactDescription = getContent('info', 'description') || 'Contact us to learn more';
+  const contactLocation = getContent('info', 'location') || '';
+  const contactEmail = getContent('info', 'email') || '';
+  const contactInstagram = getContent('info', 'instagramUrl') || '';
+  const contactLinkedin = getContent('info', 'linkedinUrl') || '';
+  
   // Determine which media to use (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;
   const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
@@ -124,26 +132,30 @@ export default function Contact() {
           {/* Contact Info */}
           <div className="space-y-12">
             <div>
-              <h2 className="font-serif text-4xl italic mb-6 text-foreground">Get in Touch</h2>
+              <h2 className="font-serif text-4xl italic mb-6 text-foreground">{contactTitle}</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                Whether you are interested in partnership, coaching, or simply have a question, we invite you to reach out. Our team is dedicated to supporting your journey of empowerment and transformation.
+                {contactDescription}
               </p>
             </div>
 
             <div className="space-y-6">
               <div>
                 <h3 className="font-sans text-sm tracking-widest uppercase mb-2 text-foreground">Location</h3>
-                <p className="text-muted-foreground">Austin, Texas</p>
+                <p className="text-muted-foreground">{contactLocation}</p>
               </div>
               <div>
                 <h3 className="font-sans text-sm tracking-widest uppercase mb-2 text-foreground">Email</h3>
-                <p className="text-muted-foreground">connect@justxempower.com</p>
+                <p className="text-muted-foreground">{contactEmail}</p>
               </div>
               <div>
                 <h3 className="font-sans text-sm tracking-widest uppercase mb-2 text-foreground">Social</h3>
                 <div className="flex gap-4">
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">Instagram</a>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">LinkedIn</a>
+                  {contactInstagram && contactInstagram !== '#' && (
+                    <a href={contactInstagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Instagram</a>
+                  )}
+                  {contactLinkedin && contactLinkedin !== '#' && (
+                    <a href={contactLinkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">LinkedIn</a>
+                  )}
                 </div>
               </div>
             </div>

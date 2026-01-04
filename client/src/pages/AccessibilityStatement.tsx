@@ -1,26 +1,18 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { trpc } from '@/lib/trpc';
+import { usePageContent } from '@/hooks/usePageContent';
 
 export default function AccessibilityStatement() {
   const [location] = useLocation();
-  
-  // Fetch content from database
-  const { data: contentData, isLoading } = trpc.content.getByPage.useQuery({ page: 'accessibility' });
+  const { getContent, isLoading } = usePageContent('accessibility');
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
 
-  // Helper to get content value by key
-  const getContent = (key: string, defaultValue: string = '') => {
-    const item = contentData?.find((c: any) => c.contentKey === key);
-    return item?.contentValue || defaultValue;
-  };
-
-  // Default values
-  const title = getContent('title', 'Accessibility Statement');
-  const lastUpdated = getContent('lastUpdated', 'December 2024');
+  // Get content from CMS with minimal fallbacks
+  const title = getContent('hero', 'title') || 'Accessibility Statement';
+  const lastUpdated = getContent('hero', 'lastUpdated') || '';
 
   if (isLoading) {
     return (
@@ -34,20 +26,20 @@ export default function AccessibilityStatement() {
     <div className="min-h-screen bg-background">
       <div className="py-24 px-6 md:px-12 max-w-4xl mx-auto">
         <h1 className="font-serif text-4xl md:text-5xl italic mb-8 text-foreground">{title}</h1>
-        <p className="text-sm text-muted-foreground mb-12">Last updated: {lastUpdated}</p>
+        {lastUpdated && <p className="text-sm text-muted-foreground mb-12">Last updated: {lastUpdated}</p>}
 
         <div className="prose prose-lg max-w-none text-foreground/80 space-y-8">
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Our Commitment</h2>
             <p>
-              {getContent('commitment', 'Just Empower is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying the relevant accessibility standards to ensure we provide equal access to all users.')}
+              {getContent('commitment', 'content') || 'Just Empower is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying the relevant accessibility standards to ensure we provide equal access to all users.'}
             </p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Conformance Status</h2>
             <p>
-              {getContent('conformance', 'We strive to conform to the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. These guidelines explain how to make web content more accessible for people with disabilities and more user-friendly for everyone.')}
+              {getContent('conformance', 'content') || 'We strive to conform to the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. These guidelines explain how to make web content more accessible for people with disabilities and more user-friendly for everyone.'}
             </p>
           </section>
 
@@ -98,7 +90,7 @@ export default function AccessibilityStatement() {
               We welcome your feedback on the accessibility of the Just Empower website. Please let us know if you encounter accessibility barriers:
             </p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Email: {getContent('feedbackEmail', 'connect@justxempower.com')}</li>
+              <li>Email: {getContent('feedback', 'email') || 'contact@justxempower.com'}</li>
               <li>Subject line: "Accessibility Feedback"</li>
             </ul>
             <p className="mt-4">
@@ -126,8 +118,8 @@ export default function AccessibilityStatement() {
             </p>
             <p className="mt-4">
               <strong>Just Empower</strong><br />
-              Email: {getContent('contactEmail', 'connect@justxempower.com')}<br />
-              {getContent('location', 'Austin, Texas')}
+              Email: {getContent('contact', 'email') || 'contact@justxempower.com'}<br />
+              {getContent('contact', 'location') && getContent('contact', 'location')}
             </p>
           </section>
         </div>

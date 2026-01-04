@@ -1505,3 +1505,13 @@ NODE_ENV=production
 - [ ] Test text visibility across different browsers (Safari, Chrome, Firefox, Edge)
 - [ ] Test text visibility on different devices (mobile, tablet, desktop)
 - [ ] Verify CMS data is being loaded correctly (currently showing test value)
+
+
+## Critical Issue: Hardcoded Content Overriding CMS (Jan 4, 2026)
+
+- [ ] Identify all pages with hardcoded content (Contact, Philosophy, Offerings, etc.)
+- [ ] Remove hardcoded fallback values from all page components
+- [ ] Ensure CMS data is the single source of truth
+- [ ] Test Contact page email changes persist
+- [ ] Test all page content edits persist through page reload
+- [ ] Deploy fixes to production
