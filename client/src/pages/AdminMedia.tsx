@@ -5,9 +5,23 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { Upload, Trash2, Image as ImageIcon, Video, FolderOpen, Sparkles, Music, X } from 'lucide-react';
+import { Upload, Trash2, Image as ImageIcon, Video, FolderOpen, Sparkles, Music, X, Zap } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { getMediaUrl } from '@/lib/media';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface MediaItem {
   id: number;
@@ -37,6 +51,10 @@ export default function AdminMedia() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImages, setSelectedImages] = useState<Set<number>>(new Set());
   const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+  const [conversionDialogOpen, setConversionDialogOpen] = useState(false);
+  const [selectedMediaForConversion, setSelectedMediaForConversion] = useState<MediaItem | null>(null);
+  const [selectedTargetFormat, setSelectedTargetFormat] = useState<string>('');
+  const [isConverting, setIsConverting] = useState(false);
 
   const { data: mediaList, isLoading, refetch } = trpc.admin.media.list.useQuery(
     undefined,
@@ -86,6 +104,43 @@ export default function AdminMedia() {
       toast.error(error.message || 'Failed to generate bulk alt text');
     },
   });
+
+  const getConversionFormatsMutation = trpc.admin.media.getConversionFormats.useQuery(
+    { id: selectedMediaForConversion?.id || 0 },
+    { enabled: !!selectedMediaForConversion }
+  );
+
+  const convertMediaMutation = trpc.admin.media.convertMedia.useMutation({
+    onSuccess: (data) => {
+      setIsConverting(false);
+      setConversionDialogOpen(false);
+      setSelectedMediaForConversion(null);
+      setSelectedTargetFormat('');
+      toast.success(`Media converted successfully to ${data.format}`);
+      navigator.clipboard.writeText(data.url);
+      toast.info('Converted file URL copied to clipboard!', { duration: 5000 });
+      refetch();
+    },
+    onError: (error) => {
+      setIsConverting(false);
+      toast.error(error.message || 'Failed to convert media');
+    },
+  });
+
+  const handleOpenConversionDialog = (item: MediaItem) => {
+    setSelectedMediaForConversion(item);
+    setConversionDialogOpen(true);
+    setSelectedTargetFormat('');
+  };
+
+  const handleConvertMedia = () => {
+    if (!selectedMediaForConversion || !selectedTargetFormat) return;
+    setIsConverting(true);
+    convertMediaMutation.mutate({
+      id: selectedMediaForConversion.id,
+      targetFormat: selectedTargetFormat,
+    });
+  };
 
   const handleGenerateAltText = (imageUrl: string, filename: string) => {
     generateAltTextMutation.mutate({ 
@@ -481,6 +536,14 @@ export default function AdminMedia() {
                         <Button
                           size="sm"
                           variant="outline"
+                          className="bg-blue-500/90 hover:bg-blue-600 text-white border-blue-500"
+                          onClick={() => handleOpenConversionDialog(item)}
+                        >
+                          <Zap className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
                           className="bg-red-500/90 hover:bg-red-600 text-white border-red-500"
                           onClick={() => handleDelete(item.id, item.originalName)}
                           disabled={deleteMutation.isPending}
@@ -524,6 +587,59 @@ export default function AdminMedia() {
             )}
           </div>
         </div>
+
+        {/* Conversion Dialog */}
+        <Dialog open={conversionDialogOpen} onOpenChange={setConversionDialogOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Convert Media</DialogTitle>
+              <DialogDescription>
+                Convert {selectedMediaForConversion?.originalName} to a different format
+              </DialogDescription>
+            </DialogHeader>
+            {getConversionFormatsMutation.data && (
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Current Format: {getConversionFormatsMutation.data.currentFormat}
+                  </label>
+                </div>
+                <div>
+                  <label className="text-sm font-medium mb-2 block">
+                    Convert To:
+                  </label>
+                  <Select value={selectedTargetFormat} onValueChange={setSelectedTargetFormat}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select target format" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getConversionFormatsMutation.data.availableFormats.map((format) => (
+                        <SelectItem key={format} value={format}>
+                          {format}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => setConversionDialogOpen(false)}
+                    disabled={isConverting}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleConvertMedia}
+                    disabled={isConverting || !selectedTargetFormat}
+                  >
+                    {isConverting ? 'Converting...' : 'Convert'}
+                  </Button>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
       </main>
     </div>
   );

@@ -579,6 +579,95 @@ export const adminRouter = router({
         await deleteMedia(input.id);
         return { success: true };
       }),
+    
+    // Get available conversion formats for a media file
+    getConversionFormats: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const media = await getMediaById(input.id);
+        if (!media) {
+          throw new Error('Media not found');
+        }
+        
+        const { getAvailableOutputFormats } = await import('./mediaConversionService');
+        const formats = getAvailableOutputFormats(media.mimeType);
+        
+        return {
+          currentFormat: media.mimeType,
+          availableFormats: formats,
+          mediaId: media.id,
+          filename: media.originalName,
+        };
+      }),
+    
+    // Convert media to a different format
+    convertMedia: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        targetFormat: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const media = await getMediaById(input.id);
+        if (!media) {
+          throw new Error('Media not found');
+        }
+        
+        try {
+          // Download media from S3
+          const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3');
+          const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+          
+          const getCommand = new GetObjectCommand({
+            Bucket: 'justxempower-assets',
+            Key: media.s3Key,
+          });
+          
+          const response = await s3Client.send(getCommand);
+          const mediaBuffer = await response.Body?.transformToByteArray();
+          
+          if (!mediaBuffer) {
+            throw new Error('Failed to download media from S3');
+          }
+          
+          // Convert media
+          const { convertMedia: convertMediaFn } = await import('./mediaConversionService');
+          const conversionResult = await convertMediaFn(Buffer.from(mediaBuffer), media.mimeType, input.targetFormat);
+          
+          if (!conversionResult.success || !conversionResult.outputBuffer) {
+            throw new Error(conversionResult.error || 'Conversion failed');
+          }
+          
+          // Upload converted file to S3
+          const ext = conversionResult.outputExtension || 'bin';
+          const convertedFilename = `${media.originalName.split('.')[0]}-converted.${ext}`;
+          const convertedS3Key = `media/conversions/${nanoid()}.${ext}`;
+          
+          const { storagePut } = await import('./storage');
+          const uploadResult = await storagePut(convertedS3Key, conversionResult.outputBuffer, input.targetFormat);
+          
+          // Save converted file to database
+          await createMedia({
+            filename: `${nanoid()}.${ext}`,
+            originalName: convertedFilename,
+            mimeType: input.targetFormat,
+            fileSize: conversionResult.outputBuffer.length,
+            s3Key: convertedS3Key,
+            url: uploadResult.url,
+            type: input.targetFormat.startsWith('video/') ? 'video' : 'image',
+            uploadedBy: ctx.adminUsername,
+          });
+          
+          return {
+            success: true,
+            url: uploadResult.url,
+            filename: convertedFilename,
+            format: input.targetFormat,
+          };
+        } catch (error) {
+          console.error('Media conversion error:', error);
+          throw new Error(error instanceof Error ? error.message : 'Conversion failed');
+        }
+      }),
   }),
   
   // Theme Settings
