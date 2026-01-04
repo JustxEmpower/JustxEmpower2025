@@ -1,3 +1,4 @@
+'use client';
 import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -15,146 +16,115 @@ export default function Hero() {
   
   const { getContent, isLoading } = usePageContent('home');
   
-  // Helper to get proper media URL
-  const getProperMediaUrl = (url: string) => {
-    if (!url) return '';
-    return url.startsWith('http') ? url : getMediaUrl(url);
-  };
-  
-  // Get all hero content from database - no hardcoded fallbacks for media
+  // Get all hero content from database
   const videoUrl = getContent('hero', 'videoUrl') || '';
   const imageUrl = getContent('hero', 'imageUrl') || '';
-  const heroMediaUrl = videoUrl || imageUrl;
-  
-  // Improved video detection - check MIME type from media library or file extension
-  const isVideo = heroMediaUrl ? (
-    // Check if URL contains video MIME type indicators
-    heroMediaUrl.includes('video/') ||
-    // Check file extension (handle URLs with query params)
-    /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(?:[?#]|$)/i.test(heroMediaUrl)
-  ) : false;
-  
   const subtitle = getContent('hero', 'subtitle') || 'Welcome to Just Empower';
-  // Title can be stored as single 'title' field or split into 'titleLine1'/'titleLine2'
   const fullTitle = getContent('hero', 'title') || '';
   const titleLine1 = getContent('hero', 'titleLine1') || (fullTitle ? fullTitle.split(' ').slice(0, 2).join(' ') : 'Catalyzing the');
   const titleLine2 = getContent('hero', 'titleLine2') || (fullTitle ? fullTitle.split(' ').slice(2).join(' ') : 'Rise of Her');
-  // Use subDescription for the main description text, fall back to description
   const description = getContent('hero', 'subDescription') || getContent('hero', 'description') || 'Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.';
-  // CMS uses buttonText/buttonLink, also check ctaText/ctaLink for backwards compatibility
   const ctaText = getContent('hero', 'ctaText') || getContent('hero', 'buttonText') || 'Discover More';
   const ctaLink = getContent('hero', 'ctaLink') || getContent('hero', 'buttonLink') || '/about';
   
-  // Debug logging for video URL
-  console.log('Hero videoUrl from CMS:', videoUrl);
-  console.log('Hero heroMediaUrl:', heroMediaUrl);
-  console.log('Hero isVideo:', isVideo);
-  console.log('Hero isLoading:', isLoading);
+  // Determine if we have a video or image
+  const isVideo = videoUrl && /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(?:[?#]|$)/i.test(videoUrl);
+  const heroMediaUrl = videoUrl || imageUrl;
+  
+  console.log('Hero Component - videoUrl:', videoUrl);
+  console.log('Hero Component - isVideo:', isVideo);
+  console.log('Hero Component - heroMediaUrl:', heroMediaUrl);
+  console.log('Hero Component - isLoading:', isLoading);
 
   useEffect(() => {
     // Ensure video plays when component mounts
     if (videoRef.current) {
-      videoRef.current.play().catch(error => {
-        console.log("Video autoplay failed:", error);
+      videoRef.current.play().catch(err => {
+        console.log('Video autoplay failed:', err);
       });
     }
+  }, [heroMediaUrl]);
+
+  useEffect(() => {
+    if (!heroRef.current) return;
 
     const ctx = gsap.context(() => {
-      // Reset initial states to ensure visibility if animation fails
-      gsap.set('.hero-subtitle', { opacity: 0, y: 20 });
-      gsap.set('.hero-title-line', { opacity: 0, y: 100, rotateX: -10, filter: 'blur(10px)' });
-      gsap.set('.hero-desc', { opacity: 0, y: 30 });
-      gsap.set('.hero-btn', { opacity: 0, y: 20 });
-      gsap.set(overlayRef.current, { opacity: 1 }); // Start black
+      // Animate overlay fade
+      gsap.fromTo(overlayRef.current,
+        { opacity: 0.5 },
+        { opacity: 0.3, duration: 2, ease: 'power2.inOut' }
+      );
 
-      // Cinematic Opening Sequence
-      const tl = gsap.timeline({ delay: 0.5 });
-
-      // 1. Fade in video from black
-      tl.to(overlayRef.current, {
-        opacity: 0.3,
-        duration: 2.5,
-        ease: 'power2.inOut'
-      })
-      
-      // 2. Reveal text elements with staggered, elegant motion
-      .to('.hero-subtitle', {
-        y: 0, 
-        opacity: 1, 
-        letterSpacing: '0.3em', 
-        duration: 1.5, 
-        ease: 'power3.out' 
-      }, '-=1.5')
-      .to('.hero-title-line', {
-        y: 0, 
-        opacity: 1, 
-        rotateX: 0, 
-        filter: 'blur(0px)', 
-        duration: 1.5, 
-        stagger: 0.2, 
-        ease: 'power4.out' 
-      }, '-=1.2')
-      .to('.hero-desc', {
-        y: 0, 
-        opacity: 0.9, 
-        duration: 1.2, 
-        ease: 'power3.out' 
-      }, '-=1')
-      .to('.hero-btn', {
-        y: 0, 
-        opacity: 1, 
-        duration: 1, 
-        ease: 'power2.out' 
-      }, '-=0.8');
-
-      // Parallax Scroll Effects
-      gsap.to(videoRef.current, {
-        yPercent: 20,
-        scale: 1.1,
-        ease: 'none',
+      // Animate text elements on scroll
+      gsap.to('.hero-subtitle', {
         scrollTrigger: {
           trigger: heroRef.current,
-          start: 'top top',
-          end: 'bottom top',
+          start: 'top center',
+          end: 'center center',
           scrub: true
-        }
-      });
-
-      gsap.to(textRef.current, {
-        yPercent: -30,
+        },
         opacity: 0,
-        filter: 'blur(10px)',
-        ease: 'none',
+        y: -50,
+        duration: 1
+      });
+
+      gsap.to('.hero-title-line', {
         scrollTrigger: {
           trigger: heroRef.current,
-          start: 'top top',
-          end: '60% top',
+          start: 'top center',
+          end: 'center center',
           scrub: true
-        }
+        },
+        opacity: 0,
+        y: -100,
+        stagger: 0.2,
+        duration: 1
       });
+
+      gsap.to('.hero-desc', {
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top center',
+          end: 'center center',
+          scrub: true
+        },
+        opacity: 0,
+        y: -50,
+        duration: 1
+      });
+
+      gsap.to('.hero-btn', {
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top center',
+          end: 'center center',
+          scrub: true
+        },
+        opacity: 0,
+        y: 50,
+        duration: 1
+      });
+
+      // Initial animations
+      gsap.fromTo('.hero-subtitle', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.2 });
+      gsap.fromTo('.hero-title-line', { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: 0.15, duration: 0.8, delay: 0.4 });
+      gsap.fromTo('.hero-desc', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.8, delay: 0.6 });
+      gsap.fromTo('.hero-btn', { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.8, delay: 0.8 });
 
     }, heroRef);
 
     return () => ctx.revert();
   }, []);
 
-  // Don't render video until CMS data is loaded
-  if (isLoading && !heroMediaUrl) {
-    return (
-      <div className="hero-section relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
-        <div className="absolute inset-0 bg-gradient-to-br from-neutral-700 to-neutral-900" />
-      </div>
-    );
-  }
-
   return (
     <div ref={heroRef} className="hero-section relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
       {/* Video/Image Background */}
-      <div className="absolute inset-0 w-full h-[120%] -top-[10%]">
+      <div className="absolute inset-0 w-full h-full">
+        {/* Overlay */}
         <div ref={overlayRef} className="absolute inset-0 bg-black z-10" />
         
-        {/* Video or Image Background */}
-        {heroMediaUrl && isVideo ? (
+        {/* Video Background */}
+        {isVideo && videoUrl ? (
           <video
             ref={videoRef}
             autoPlay
@@ -162,18 +132,21 @@ export default function Hero() {
             loop
             playsInline
             className="w-full h-full object-cover"
+            onError={(e) => console.log('Video error:', e)}
           >
             <source 
-              src={getProperMediaUrl(heroMediaUrl)} 
-              type={heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
+              src={videoUrl} 
+              type="video/mp4" 
             />
           </video>
         ) : heroMediaUrl ? (
+          /* Image Background */
           <div 
             className="w-full h-full bg-cover bg-center"
-            style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
+            style={{ backgroundImage: `url(${heroMediaUrl})` }}
           />
         ) : (
+          /* Fallback Gradient */
           <div className="w-full h-full bg-gradient-to-br from-neutral-700 to-neutral-900" />
         )}
       </div>
@@ -208,15 +181,15 @@ export default function Hero() {
             <span className="relative z-10 font-sans text-xs uppercase tracking-[0.25em] text-white group-hover:text-black transition-colors duration-500">
               {ctaText}
             </span>
-            <div className="absolute inset-0 bg-white transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left ease-[0.22,1,0.36,1]" />
+            <div className="absolute inset-0 bg-white transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500 rounded-full" />
           </div>
         </Link>
       </div>
 
       {/* Scroll Indicator */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center opacity-60 mix-blend-difference">
-        <span className="text-white text-[10px] uppercase tracking-[0.2em] mb-4 animate-pulse">Scroll</span>
-        <div className="w-[1px] h-16 bg-gradient-to-b from-white via-white/50 to-transparent" />
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20">
+        <div className="text-white/50 text-xs uppercase tracking-widest mb-4">Scroll</div>
+        <div className="w-px h-8 bg-gradient-to-b from-white/50 to-transparent mx-auto animate-pulse" />
       </div>
     </div>
   );
