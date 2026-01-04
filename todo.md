@@ -1482,3 +1482,9 @@ NODE_ENV=production
   - Page Builder saves blocks correctly to database
   - Pages are accessible via dynamic routing when published Page Builder back to admin sidebar menu
 - [x] Fix admin sidebar scroll issue
+
+
+## Bug: Media Library Videos Not Playing (Jan 3, 2026)
+- [ ] Videos selected from media library in Content Editor not playing on frontend
+- [ ] Need to debug URL storage and retrieval from media library
+- [ ] Fix video playback for all pages using CMS-selected videos

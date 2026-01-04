@@ -25,7 +25,14 @@ export default function Hero() {
   const videoUrl = getContent('hero', 'videoUrl') || '';
   const imageUrl = getContent('hero', 'imageUrl') || '';
   const heroMediaUrl = videoUrl || imageUrl;
-  const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
+  
+  // Improved video detection - check MIME type from media library or file extension
+  const isVideo = heroMediaUrl ? (
+    // Check if URL contains video MIME type indicators
+    heroMediaUrl.includes('video/') ||
+    // Check file extension (handle URLs with query params)
+    /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(?:[?#]|$)/i.test(heroMediaUrl)
+  ) : false;
   
   const subtitle = getContent('hero', 'subtitle') || 'Welcome to Just Empower';
   // Title can be stored as single 'title' field or split into 'titleLine1'/'titleLine2'
