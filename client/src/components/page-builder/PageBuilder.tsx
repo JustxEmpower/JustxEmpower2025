@@ -454,7 +454,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                     </TabsTrigger>
                   </TabsList>
                   <div className="flex-1 overflow-hidden flex flex-col">
-                    <TabsContent value="blocks" className="h-full m-0 overflow-hidden flex-1">
+                    <TabsContent value="blocks" className="h-full m-0 overflow-auto flex-1">
                       <BlockLibrary />
                     </TabsContent>
                     <TabsContent value="layers" className="h-full m-0 overflow-hidden flex-1">
