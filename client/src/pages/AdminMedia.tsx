@@ -513,7 +513,7 @@ export default function AdminMedia() {
                       )}
                       
                       {/* Overlay on hover */}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <div className="absolute inset-0 bg-black/60 opacity-0 hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                         <Button
                           size="sm"
                           variant="outline"
