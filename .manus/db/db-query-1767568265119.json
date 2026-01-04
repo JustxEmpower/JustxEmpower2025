@@ -1,0 +1,9 @@
+{
+  "query": "-- NEWSLETTER POPUP\nINSERT INTO siteContent (page, section, contentKey, contentValue) VALUES\n('global', 'newsletter_popup', 'title', 'Join Our Community'),\n('global', 'newsletter_popup', 'description', 'Subscribe for insights on conscious leadership and transformation.'),\n('global', 'newsletter_popup', 'ctaText', 'Subscribe')\nON DUPLICATE KEY UPDATE contentValue = VALUES(contentValue);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute -- NEWSLETTER POPUP\nINSERT INTO siteContent (page, section, contentKey, contentValue) VALUES\n('global', 'newsletter_popup', 'title', 'Join Our Community'),\n('global', 'newsletter_popup', 'description', 'Subscribe for insights on conscious leadership and transformation.'),\n('global', 'newsletter_popup', 'ctaText', 'Subscribe')\nON DUPLICATE KEY UPDATE contentValue = VALUES(contentValue);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 63
+}

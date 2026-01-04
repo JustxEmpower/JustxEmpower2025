@@ -1559,3 +1559,110 @@ NODE_ENV=production
 ## Bug Fix: Resources Edit Error (Jan 4, 2026)
 
 - [ ] Fix error when clicking Edit on an uploaded resource
+
+
+## CMS Specification Implementation (Jan 4, 2026) - 100% Database-Driven Content
+
+### Phase 1: Create Database Hooks
+- [ ] Create `useNavigation.ts` hook - fetch navigation from database with tree structure
+- [ ] Create `useCarousel.ts` hook - fetch carousel items from carouselOfferings table
+- [ ] Create `useGlobalContent.ts` hook - fetch global content (footer, preloader, newsletter_popup)
+
+### Phase 2: Add API Routes
+- [ ] Add `navigationRouter` to adminRouters.ts (public getByLocation)
+- [ ] Add `adminNavigationRouter` to adminRouters.ts (CRUD + reorder operations)
+- [ ] Verify/add carousel router with getAll method
+- [ ] Register routes in routers.ts
+
+### Phase 3: Update Header Component
+- [ ] Remove hardcoded NAV_LINKS array from Header.tsx
+- [ ] Add useNavigation('header') hook
+- [ ] Replace all NAV_LINKS references with database items
+- [ ] Support dropdown children from database (parentId relationship)
+
+### Phase 4: Update Footer Component
+- [ ] Remove hardcoded footer links from Footer.tsx
+- [ ] Add useNavigation('footer') hook
+- [ ] Add useGlobalContent() hook for tagline, social URLs, copyright
+- [ ] Fetch logo from brandAssets table
+
+### Phase 5: Update Carousel Component
+- [ ] Add useCarousel() hook to Carousel.tsx
+- [ ] Fetch offerings from carouselOfferings table
+- [ ] Support isActive filtering
+- [ ] Support order sorting
+
+### Phase 6: Seed Database with All Required Content
+- [ ] Insert siteContent rows for home page (hero, philosophy, community, rootedUnity)
+- [ ] Insert siteContent rows for global content (footer, preloader, newsletter_popup)
+- [ ] Insert navigation items for header (About dropdown, Philosophy dropdown, etc.)
+- [ ] Insert navigation items for footer
+- [ ] Insert carousel offerings (5+ items)
+
+### Phase 7: Add JE Block Types to Page Builder
+- [ ] Add je-hero block type (full-screen video/image, GSAP animations)
+- [ ] Add je-section block type (two-column with parallax)
+- [ ] Add je-carousel block type (fetches from database)
+- [ ] Add je-newsletter block type
+- [ ] Add je-quote block type
+- [ ] Add je-pillar-grid block type
+
+### Phase 8: Create JE Block Renderers
+- [ ] Create JEBlockRenderers.tsx with all JE block renderers
+- [ ] Update BlockRenderer.tsx to include JE renderers
+- [ ] Create JEBlockSettings.tsx for JE block configuration
+- [ ] Update BlockSettings.tsx to handle JE blocks
+
+### Phase 9: Create Page Templates
+- [ ] Create templates.ts with pre-built page templates
+- [ ] Add JE Landing Page template
+- [ ] Add JE About Page template
+- [ ] Add Templates tab to BlockLibrary
+
+### Phase 10: Build and Deploy
+- [ ] Build project
+- [ ] Push to GitHub
+- [ ] Deploy to EC2 via SSM
+- [ ] Verify all content is database-driven on live site
+
+### Verification Checklist
+- [ ] Home hero content editable via admin → displays on site
+- [ ] Header nav editable via admin → updates on site
+- [ ] Footer content editable via admin → updates on site
+- [ ] Carousel items editable via admin → updates on site
+- [ ] Page Builder JE blocks render like actual site components
+
+
+## CMS Specification Implementation (Jan 2025)
+
+### Database Seeding
+- [x] Seed header navigation items (Philosophy, Offerings, Journal, Shop, Events, Contact, Walk With Us)
+- [x] Seed Philosophy dropdown children (Founder, Vision & Ethos)
+- [x] Seed footer navigation items (About, Philosophy, Offerings, Journal)
+- [x] Seed carousel offerings (Living Codex, MOM VI•X, BloomXFlight, She Writes, Workshops)
+- [x] Seed global footer content (tagline, column titles, newsletter text, copyright, social URLs)
+- [x] Seed newsletter popup content (title, description, CTA text)
+
+### Hooks Implementation
+- [x] Create useNavigation hook for fetching navigation from database
+- [x] Create useCarousel hook for fetching carousel offerings from database
+- [x] Create useGlobalContent hook for fetching global content from database
+
+### Page Builder JustEmpower Blocks
+- [x] Add 'justempower' category to block types
+- [x] Create JE Hero Section block type
+- [x] Create JE Content Section block type
+- [x] Create JE Offerings Carousel block type
+- [x] Create JE Newsletter Section block type
+- [x] Create JE Quote Block type
+- [x] Create JE Pillar Grid block type
+- [x] Create JE Community Section block type
+- [x] Create JE Rooted Unity Section block type
+- [x] Create JEBlockRenderers.tsx with all JE block renderers
+- [x] Integrate JE block renderers into BlockRenderer.tsx
+
+### Component Updates
+- [x] Update Header.tsx to use useNavigation hook
+- [x] Update Footer.tsx to use useNavigation hook
+- [x] Update Carousel.tsx to use useCarousel hook (already using database)
+

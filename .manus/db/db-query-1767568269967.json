@@ -1,0 +1,153 @@
+{
+  "query": "SELECT * FROM navigation ORDER BY location, `order`;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT * FROM navigation ORDER BY location, `order`;",
+  "rows": [
+    {
+      "id": "1",
+      "location": "header",
+      "label": "Philosophy",
+      "url": "/philosophy",
+      "order": "1",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "NULL",
+      "createdAt": "2026-01-04 23:10:35"
+    },
+    {
+      "id": "8",
+      "location": "header",
+      "label": "Founder",
+      "url": "/about",
+      "order": "1",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "1",
+      "createdAt": "2026-01-04 23:10:40"
+    },
+    {
+      "id": "9",
+      "location": "header",
+      "label": "Vision & Ethos",
+      "url": "/philosophy",
+      "order": "2",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "1",
+      "createdAt": "2026-01-04 23:10:40"
+    },
+    {
+      "id": "2",
+      "location": "header",
+      "label": "Offerings",
+      "url": "/offerings",
+      "order": "2",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "NULL",
+      "createdAt": "2026-01-04 23:10:35"
+    },
+    {
+      "id": "3",
+      "location": "header",
+      "label": "Journal",
+      "url": "/journal",
+      "order": "3",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "NULL",
+      "createdAt": "2026-01-04 23:10:35"
+    },
+    {
+      "id": "4",
+      "location": "header",
+      "label": "Shop",
+      "url": "/shop",
+      "order": "4",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "NULL",
+      "createdAt": "2026-01-04 23:10:35"
+    },
+    {
+      "id": "5",
+      "location": "header",
+      "label": "Events",
+      "url": "/events",
+      "order": "5",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "NULL",
+      "createdAt": "2026-01-04 23:10:35"
+    },
+    {
+      "id": "6",
+      "location": "header",
+      "label": "Contact",
+      "url": "/contact",
+      "order": "6",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "NULL",
+      "createdAt": "2026-01-04 23:10:35"
+    },
+    {
+      "id": "7",
+      "location": "header",
+      "label": "Walk With Us [button]",
+      "url": "/walk-with-us",
+      "order": "7",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "NULL",
+      "createdAt": "2026-01-04 23:10:35"
+    },
+    {
+      "id": "10",
+      "location": "footer",
+      "label": "About",
+      "url": "/about",
+      "order": "1",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "NULL",
+      "createdAt": "2026-01-04 23:10:45"
+    },
+    {
+      "id": "11",
+      "location": "footer",
+      "label": "Philosophy",
+      "url": "/philosophy",
+      "order": "2",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "NULL",
+      "createdAt": "2026-01-04 23:10:45"
+    },
+    {
+      "id": "12",
+      "location": "footer",
+      "label": "Offerings",
+      "url": "/offerings",
+      "order": "3",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "NULL",
+      "createdAt": "2026-01-04 23:10:45"
+    },
+    {
+      "id": "13",
+      "location": "footer",
+      "label": "Journal",
+      "url": "/journal",
+      "order": "4",
+      "isExternal": "0",
+      "openInNewTab": "0",
+      "parentId": "NULL",
+      "createdAt": "2026-01-04 23:10:45"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tlocation\tlabel\turl\torder\tisExternal\topenInNewTab\tparentId\tcreatedAt\n1\theader\tPhilosophy\t/philosophy\t1\t0\t0\tNULL\t2026-01-04 23:10:35\n8\theader\tFounder\t/about\t1\t0\t0\t1\t2026-01-04 23:10:40\n9\theader\tVision & Ethos\t/philosophy\t2\t0\t0\t1\t2026-01-04 23:10:40\n2\theader\tOfferings\t/offerings\t2\t0\t0\tNULL\t2026-01-04 23:10:35\n3\theader\tJournal\t/journal\t3\t0\t0\tNULL\t2026-01-04 23:10:35\n4\theader\tShop\t/shop\t4\t0\t0\tNULL\t2026-01-04 23:10:35\n5\theader\tEvents\t/events\t5\t0\t0\tNULL\t2026-01-04 23:10:35\n6\theader\tContact\t/contact\t6\t0\t0\tNULL\t2026-01-04 23:10:35\n7\theader\tWalk With Us [button]\t/walk-with-us\t7\t0\t0\tNULL\t2026-01-04 23:10:35\n10\tfooter\tAbout\t/about\t1\t0\t0\tNULL\t2026-01-04 23:10:45\n11\tfooter\tPhilosophy\t/philosophy\t2\t0\t0\tNULL\t2026-01-04 23:10:45\n12\tfooter\tOfferings\t/offerings\t3\t0\t0\tNULL\t2026-01-04 23:10:45\n13\tfooter\tJournal\t/journal\t4\t0\t0\tNULL\t2026-01-04 23:10:45\n",
+  "stderr": "",
+  "execution_time_ms": 254
+}

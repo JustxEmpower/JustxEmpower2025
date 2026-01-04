@@ -2710,6 +2710,26 @@ export const aiChatAnalyticsRouter = router({
 });
 
 
+// Public Navigation Router (for Header/Footer)
+export const publicNavigationRouter = router({
+  // Get navigation items by location (public - for header/footer)
+  getByLocation: publicProcedure
+    .input(z.object({ location: z.enum(['header', 'footer']) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      
+      const items = await db
+        .select()
+        .from(schema.navigation)
+        .where(eq(schema.navigation.location, input.location))
+        .orderBy(schema.navigation.order);
+      
+      return items;
+    }),
+});
+
+
 // Carousel Offerings Router
 export const carouselRouter = router({
   // Get all carousel offerings (public - for homepage)

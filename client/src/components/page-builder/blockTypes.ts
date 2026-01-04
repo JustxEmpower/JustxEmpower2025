@@ -67,9 +67,11 @@ export type BlockCategory =
   | 'data'
   | 'social'
   | 'commerce'
-  | 'forms';
+  | 'forms'
+  | 'justempower';
 
 export const blockCategories: { id: BlockCategory; name: string; icon: LucideIcon }[] = [
+  { id: 'justempower', name: 'JustEmpower', icon: Sparkles },
   { id: 'layout', name: 'Layout', icon: Layout },
   { id: 'content', name: 'Content', icon: Type },
   { id: 'media', name: 'Media', icon: Image },
@@ -81,6 +83,124 @@ export const blockCategories: { id: BlockCategory; name: string; icon: LucideIco
 ];
 
 export const blockTypes: BlockType[] = [
+  // JustEmpower Luxury Blocks
+  {
+    id: 'je-hero',
+    name: 'JE Hero Section',
+    description: 'Full-screen hero with video/image background, GSAP animations',
+    icon: Layout,
+    category: 'justempower',
+    defaultContent: {
+      videoUrl: '',
+      imageUrl: '',
+      subtitle: 'Welcome to Just Empower',
+      title: 'Catalyzing the Rise of Her',
+      description: 'Where Empowerment Becomes Embodiment.',
+      ctaText: 'Discover More',
+      ctaLink: '/about',
+      overlayOpacity: 40,
+    },
+  },
+  {
+    id: 'je-section',
+    name: 'JE Content Section',
+    description: 'Two-column section with image and text, parallax effects',
+    icon: Columns,
+    category: 'justempower',
+    defaultContent: {
+      title: 'Section Title',
+      subtitle: 'Label',
+      description: 'Your content description here...',
+      imageUrl: '',
+      imageAlt: 'Section image',
+      ctaText: 'Learn More',
+      ctaLink: '#',
+      reversed: false,
+      dark: false,
+    },
+  },
+  {
+    id: 'je-carousel',
+    name: 'JE Offerings Carousel',
+    description: 'Horizontal scroll carousel for offerings (fetches from database)',
+    icon: Images,
+    category: 'justempower',
+    defaultContent: {
+      useDatabase: true,
+      manualItems: [],
+    },
+  },
+  {
+    id: 'je-newsletter',
+    name: 'JE Newsletter Section',
+    description: 'Newsletter signup with brand styling',
+    icon: Mail,
+    category: 'justempower',
+    defaultContent: {
+      title: 'Stay Connected',
+      description: 'Join our community for updates.',
+      buttonText: 'Subscribe',
+      variant: 'stacked',
+    },
+  },
+  {
+    id: 'je-quote',
+    name: 'JE Quote Block',
+    description: 'Elegant quote with serif typography',
+    icon: Quote,
+    category: 'justempower',
+    defaultContent: {
+      quote: 'A meaningful quote that represents your brand.',
+      author: 'Author Name',
+      dark: false,
+    },
+  },
+  {
+    id: 'je-pillar-grid',
+    name: 'JE Pillar Grid',
+    description: 'Three-column grid for values or pillars',
+    icon: Grid3X3,
+    category: 'justempower',
+    defaultContent: {
+      title: 'Our Pillars',
+      pillars: [
+        { icon: 'heart', title: 'Embodiment', description: 'Description...' },
+        { icon: 'compass', title: 'Discernment', description: 'Description...' },
+        { icon: 'crown', title: 'Sovereignty', description: 'Description...' },
+      ],
+    },
+  },
+  {
+    id: 'je-community',
+    name: 'JE Community Section',
+    description: 'Community invitation section with image',
+    icon: Users,
+    category: 'justempower',
+    defaultContent: {
+      title: 'Emerge With Us',
+      subtitle: 'Community',
+      description: 'Join our community of conscious leaders.',
+      imageUrl: '',
+      ctaText: 'Walk With Us',
+      ctaLink: '/walk-with-us',
+    },
+  },
+  {
+    id: 'je-rooted-unity',
+    name: 'JE Rooted Unity Section',
+    description: 'Coming soon section for Rooted Unity',
+    icon: Globe,
+    category: 'justempower',
+    defaultContent: {
+      title: 'Rooted Unity',
+      subtitle: 'Coming 2026',
+      description: 'Ecological stewardship meets personal healing.',
+      imageUrl: '',
+      ctaText: 'Learn More',
+      ctaLink: '/offerings/rooted-unity',
+    },
+  },
+
   // Layout Blocks
   {
     id: 'hero',

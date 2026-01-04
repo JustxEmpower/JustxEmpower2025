@@ -1,0 +1,9 @@
+{
+  "query": "-- Get the ID of Philosophy and add children\nSET @philosophy_id = (SELECT id FROM navigation WHERE label = 'Philosophy' AND location = 'header' LIMIT 1);\n\n-- Philosophy dropdown children\nINSERT INTO navigation (location, label, url, `order`, isExternal, openInNewTab, parentId) VALUES\n('header', 'Founder', '/about', 1, 0, 0, @philosophy_id),\n('header', 'Vision & Ethos', '/philosophy', 2, 0, 0, @philosophy_id);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute -- Get the ID of Philosophy and add children\nSET @philosophy_id = (SELECT id FROM navigation WHERE label = 'Philosophy' AND location = 'header' LIMIT 1);\n\n-- Philosophy dropdown children\nINSERT INTO navigation (location, label, url, `order`, isExternal, openInNewTab, parentId) VALUES\n('header', 'Founder', '/about', 1, 0, 0, @philosophy_id),\n('header', 'Vision & Ethos', '/philosophy', 2, 0, 0, @philosophy_id);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 63
+}

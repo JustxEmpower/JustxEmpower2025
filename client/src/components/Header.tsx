@@ -5,21 +5,14 @@ import { ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
-
-interface NavPage {
-  id: number;
-  title: string;
-  slug: string;
-  published: number;
-  showInNav: number;
-  navOrder: number | null;
-  parentId: number | null;
-}
+import { useNavigation } from '@/hooks/useNavigation';
 
 interface NavItem {
   href: string;
   label: string;
   isButton?: boolean;
+  isExternal?: boolean;
+  openInNewTab?: boolean;
   children?: NavItem[];
 }
 
@@ -33,8 +26,8 @@ export default function Header() {
   const menuItemsRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch navigation pages from database - this is the ONLY source of truth
-  const { data: navPages, isLoading } = trpc.pages.getNavPages.useQuery();
+  // Fetch navigation from database using the useNavigation hook
+  const { headerItems, isLoading: navLoading } = useNavigation();
   
   // Fetch site settings for logo and brand
   const { data: siteSettings } = trpc.siteSettings.get.useQuery();
@@ -42,39 +35,43 @@ export default function Header() {
   // Fetch brand assets for logo
   const { data: brandAssets } = trpc.siteSettings.getBrandAssets.useQuery();
 
-  // Build navigation structure entirely from database pages
+  // Build navigation structure from database navigation items
   const allNavLinks: NavItem[] = useMemo(() => {
-    if (!navPages || navPages.length === 0) {
+    if (!headerItems || headerItems.length === 0) {
       return [];
     }
 
-    // Separate parent pages (no parentId) from child pages
-    const parentPages = navPages.filter(p => !p.parentId);
-    const childPages = navPages.filter(p => p.parentId);
+    // Separate parent items (no parentId) from child items
+    const parentItems = headerItems.filter(item => !item.parentId);
+    const childItems = headerItems.filter(item => item.parentId);
 
     // Build navigation items with children
-    const navItems: NavItem[] = parentPages.map(parent => {
-      const children = childPages
+    const navItems: NavItem[] = parentItems.map(parent => {
+      const children = childItems
         .filter(child => child.parentId === parent.id)
         .map(child => ({
-          href: `/${child.slug}`,
-          label: child.title,
+          href: child.url,
+          label: child.label,
+          isExternal: child.isExternal === 1,
+          openInNewTab: child.openInNewTab === 1,
         }));
 
-      // Check if this is a CTA button (slug contains 'walk-with' or title contains button indicator)
-      const isButton = parent.slug.includes('walk-with') || parent.title.toLowerCase().includes('[button]');
-      const label = parent.title.replace('[button]', '').replace('[Button]', '').trim();
+      // Check if this is a CTA button (label contains [button] indicator)
+      const isButton = parent.label.toLowerCase().includes('[button]');
+      const label = parent.label.replace('[button]', '').replace('[Button]', '').trim();
 
       return {
-        href: `/${parent.slug}`,
+        href: parent.url,
         label: label,
         isButton: isButton,
+        isExternal: parent.isExternal === 1,
+        openInNewTab: parent.openInNewTab === 1,
         children: children.length > 0 ? children : undefined,
       };
     });
 
     return navItems;
-  }, [navPages]);
+  }, [headerItems]);
 
   // Separate regular nav items from button items
   const regularNavItems = useMemo(() => allNavLinks.filter(item => !item.isButton), [allNavLinks]);
@@ -173,6 +170,27 @@ export default function Header() {
   const logoUrl = brandAssets?.logo_header || siteSettings?.logoUrl || getMediaUrl('/media/logo-white.png');
   const siteName = siteSettings?.siteName || 'Site Logo';
 
+  // Render link helper - handles external vs internal links
+  const renderLink = (item: NavItem, className: string, children: React.ReactNode) => {
+    if (item.isExternal) {
+      return (
+        <a 
+          href={item.href} 
+          className={className}
+          target={item.openInNewTab ? '_blank' : undefined}
+          rel={item.openInNewTab ? 'noopener noreferrer' : undefined}
+        >
+          {children}
+        </a>
+      );
+    }
+    return (
+      <Link href={item.href}>
+        <a className={className}>{children}</a>
+      </Link>
+    );
+  };
+
   return (
     <header 
       className={cn(
@@ -221,15 +239,15 @@ export default function Header() {
                 </button>
               ) : (
                 // Regular link
-                <Link href={link.href}>
-                  <a className={cn(
+                renderLink(
+                  link,
+                  cn(
                     "uppercase tracking-[0.15em] hover:opacity-70 transition-all duration-300",
                     navFontSize,
                     isScrolled ? "text-foreground" : "text-white"
-                  )}>
-                    {link.label}
-                  </a>
-                </Link>
+                  ),
+                  link.label
+                )
               )}
 
               {/* Dropdown Menu */}
@@ -241,11 +259,13 @@ export default function Header() {
                 >
                   {/* Child links */}
                   {link.children.map((child: NavItem) => (
-                    <Link key={child.href + child.label} href={child.href}>
-                      <a className="block px-4 py-2 text-sm text-foreground hover:bg-neutral-100 transition-colors">
-                        {child.label}
-                      </a>
-                    </Link>
+                    <div key={child.href + child.label}>
+                      {renderLink(
+                        child,
+                        "block px-4 py-2 text-sm text-foreground hover:bg-neutral-100 transition-colors",
+                        child.label
+                      )}
+                    </div>
                   ))}
                 </div>
               )}
@@ -254,17 +274,19 @@ export default function Header() {
           
           {/* Button Navigation Items (CTA buttons) */}
           {buttonNavItems.map((link) => (
-            <Link key={link.href + link.label} href={link.href}>
-              <a className={cn(
-                "px-6 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 border",
-                navFontSize,
-                isScrolled 
-                  ? "border-foreground text-foreground hover:bg-foreground hover:text-white" 
-                  : "border-white text-white hover:bg-white hover:text-foreground"
-              )}>
-                {link.label}
-              </a>
-            </Link>
+            <div key={link.href + link.label}>
+              {renderLink(
+                link,
+                cn(
+                  "px-6 py-2 rounded-full uppercase tracking-[0.15em] transition-all duration-300 border",
+                  navFontSize,
+                  isScrolled 
+                    ? "border-foreground text-foreground hover:bg-foreground hover:text-white" 
+                    : "border-white text-white hover:bg-white hover:text-foreground"
+                ),
+                link.label
+              )}
+            </div>
           ))}
         </nav>
 
@@ -317,33 +339,37 @@ export default function Header() {
                     {openMobileDropdown === link.label && (
                       <div className="flex flex-col items-center gap-3 mt-3 pl-4">
                         {link.children?.map((child: NavItem) => (
-                          <Link key={child.href + child.label} href={child.href}>
-                            <a className="text-xl text-foreground/80 hover:text-primary transition-colors">
-                              {child.label}
-                            </a>
-                          </Link>
+                          <div key={child.href + child.label}>
+                            {renderLink(
+                              child,
+                              "text-xl text-foreground/80 hover:text-primary transition-colors",
+                              child.label
+                            )}
+                          </div>
                         ))}
                       </div>
                     )}
                   </>
                 ) : (
                   // Regular link (mobile)
-                  <Link href={link.href}>
-                    <a className="text-3xl font-serif italic text-foreground hover:text-primary transition-colors font-light">
-                      {link.label}
-                    </a>
-                  </Link>
+                  renderLink(
+                    link,
+                    "text-3xl font-serif italic text-foreground hover:text-primary transition-colors font-light",
+                    link.label
+                  )
                 )}
               </div>
             ))}
             
             {/* Button Navigation Items (CTA buttons) - Mobile */}
             {buttonNavItems.map((link) => (
-              <Link key={link.href + link.label} href={link.href}>
-                <a className="mt-4 px-8 py-3 rounded-full border-2 border-foreground text-foreground hover:bg-foreground hover:text-white transition-all duration-300 text-xl">
-                  {link.label}
-                </a>
-              </Link>
+              <div key={link.href + link.label}>
+                {renderLink(
+                  link,
+                  "mt-4 px-8 py-3 rounded-full border-2 border-foreground text-foreground hover:bg-foreground hover:text-white transition-all duration-300 text-xl",
+                  link.label
+                )}
+              </div>
             ))}
           </nav>
         </div>
