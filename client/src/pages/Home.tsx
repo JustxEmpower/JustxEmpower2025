@@ -42,11 +42,23 @@ export default function Home() {
   const philosophySection = getSection('philosophy');
   const communitySection = getSection('community');
   const rootedUnitySection = getSection('rootedUnity');
+  
+  // Get hero section data
+  const heroSection = getSection('hero');
 
   return (
     <div className="min-h-screen bg-background selection:bg-primary selection:text-white">
       <main>
-        <Hero />
+        <Hero
+          videoUrl={heroSection.videoUrl}
+          imageUrl={heroSection.imageUrl}
+          subtitle={heroSection.subtitle}
+          title={heroSection.title}
+          description={heroSection.subDescription || heroSection.description}
+          ctaText={heroSection.ctaText || heroSection.buttonText}
+          ctaLink={heroSection.ctaLink || heroSection.buttonLink}
+          isLoading={isLoading}
+        />
         
         <Section 
           title={philosophySection.title || 'The Philosophy'}

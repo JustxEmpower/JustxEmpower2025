@@ -22,6 +22,20 @@
       "when": 1767420524918,
       "tag": "0002_sharp_medusa",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1767490340482,
+      "tag": "0003_new_ben_grimm",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1767490616582,
+      "tag": "0004_jazzy_skin",
+      "breakpoints": true
     }
   ]
 }

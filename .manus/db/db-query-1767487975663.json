@@ -1,0 +1,52 @@
+{
+  "query": "SELECT page, section, contentKey, contentValue FROM siteContent WHERE page = 'home' AND section = 'hero' ORDER BY contentKey;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT page, section, contentKey, contentValue FROM siteContent WHERE page = 'home' AND section = 'hero' ORDER BY contentKey;",
+  "rows": [
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "ctaLink",
+      "contentValue": "/about"
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "ctaText",
+      "contentValue": "DISCOVER MORE"
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Empowering Women Through Conscious Leadership"
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "subDescription",
+      "contentValue": "Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership."
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "Test Updated Value - 1767427478207"
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Catalyzing the Rise of Her."
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "videoUrl",
+      "contentValue": "https://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4"
+    }
+  ],
+  "messages": [],
+  "stdout": "page\tsection\tcontentKey\tcontentValue\nhome\thero\tctaLink\t/about\nhome\thero\tctaText\tDISCOVER MORE\nhome\thero\tdescription\tEmpowering Women Through Conscious Leadership\nhome\thero\tsubDescription\tWhere Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.\nhome\thero\tsubtitle\tTest Updated Value - 1767427478207\nhome\thero\ttitle\tCatalyzing the Rise of Her.\nhome\thero\tvideoUrl\thttps://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4\n",
+  "stderr": "",
+  "execution_time_ms": 58
+}

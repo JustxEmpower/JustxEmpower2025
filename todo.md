@@ -1488,3 +1488,20 @@ NODE_ENV=production
 - [ ] Videos selected from media library in Content Editor not playing on frontend
 - [ ] Need to debug URL storage and retrieval from media library
 - [ ] Fix video playback for all pages using CMS-selected videos
+
+
+## Hero Section Text Visibility Fix (Jan 3, 2026) ✅
+
+- [x] Identified root cause: GSAP scroll triggers setting opacity to 0 immediately
+- [x] Fixed Hero component by removing problematic scroll triggers
+- [x] Verified text is now visible with proper opacity and animations
+- [x] Text elements display correctly with fade-in animations on page load
+- [x] Hero video (lotus flower) displays correctly in background
+- [x] CTA button is visible and functional
+- [x] Tested on Manus dev server - all text visible and working
+
+## Known Issues to Address Later
+- [ ] Add scroll-triggered fade-out animations (currently removed to fix visibility)
+- [ ] Test text visibility across different browsers (Safari, Chrome, Firefox, Edge)
+- [ ] Test text visibility on different devices (mobile, tablet, desktop)
+- [ ] Verify CMS data is being loaded correctly (currently showing test value)

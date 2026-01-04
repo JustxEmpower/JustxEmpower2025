@@ -16,6 +16,7 @@ interface MediaItem {
   mimeType: string;
   fileSize: number;
   url: string;
+  thumbnailUrl?: string | null;
   type: 'image' | 'video';
   uploadedBy?: string | null;
   createdAt: Date | string;
@@ -444,6 +445,12 @@ export default function AdminMedia() {
                         <div className="w-full h-full flex items-center justify-center">
                           <Music className="w-12 h-12 text-neutral-400" />
                         </div>
+                      ) : item.type === 'video' && item.thumbnailUrl ? (
+                        <img
+                          src={getMediaUrl(item.thumbnailUrl)}
+                          alt={item.originalName}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">
                           <Video className="w-12 h-12 text-neutral-400" />

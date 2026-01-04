@@ -1,0 +1,73 @@
+{
+  "query": "SELECT * FROM siteContent WHERE page = 'home' AND section = 'hero' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT * FROM siteContent WHERE page = 'home' AND section = 'hero' LIMIT 10;",
+  "rows": [
+    {
+      "id": "1",
+      "page": "home",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "Test Updated Value - 1767427478207",
+      "altText": "NULL",
+      "updatedAt": "2026-01-03 08:04:38"
+    },
+    {
+      "id": "2",
+      "page": "home",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Catalyzing the Rise of Her.",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:45:37"
+    },
+    {
+      "id": "3",
+      "page": "home",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Empowering Women Through Conscious Leadership",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:45:37"
+    },
+    {
+      "id": "4",
+      "page": "home",
+      "section": "hero",
+      "contentKey": "subDescription",
+      "contentValue": "Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:45:37"
+    },
+    {
+      "id": "5",
+      "page": "home",
+      "section": "hero",
+      "contentKey": "videoUrl",
+      "contentValue": "https://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4",
+      "altText": "NULL",
+      "updatedAt": "2026-01-03 23:46:11"
+    },
+    {
+      "id": "6",
+      "page": "home",
+      "section": "hero",
+      "contentKey": "ctaText",
+      "contentValue": "DISCOVER MORE",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:45:37"
+    },
+    {
+      "id": "7",
+      "page": "home",
+      "section": "hero",
+      "contentKey": "ctaLink",
+      "contentValue": "/about",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:45:37"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpage\tsection\tcontentKey\tcontentValue\taltText\tupdatedAt\n1\thome\thero\tsubtitle\tTest Updated Value - 1767427478207\tNULL\t2026-01-03 08:04:38\n2\thome\thero\ttitle\tCatalyzing the Rise of Her.\tNULL\t2025-12-24 11:45:37\n3\thome\thero\tdescription\tEmpowering Women Through Conscious Leadership\tNULL\t2025-12-24 11:45:37\n4\thome\thero\tsubDescription\tWhere Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.\tNULL\t2025-12-24 11:45:37\n5\thome\thero\tvideoUrl\thttps://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4\tNULL\t2026-01-03 23:46:11\n6\thome\thero\tctaText\tDISCOVER MORE\tNULL\t2025-12-24 11:45:37\n7\thome\thero\tctaLink\t/about\tNULL\t2025-12-24 11:45:37\n",
+  "stderr": "",
+  "execution_time_ms": 682
+}

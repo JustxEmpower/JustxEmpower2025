@@ -1,0 +1,360 @@
+{
+  "query": "SELECT section, contentKey, contentValue FROM siteContent WHERE section = 'hero' ORDER BY contentKey;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT section, contentKey, contentValue FROM siteContent WHERE section = 'hero' ORDER BY contentKey;",
+  "rows": [
+    {
+      "section": "hero",
+      "contentKey": "ctaLink",
+      "contentValue": "/about"
+    },
+    {
+      "section": "hero",
+      "contentKey": "ctaText",
+      "contentValue": "DISCOVER MORE"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Curated products to support your journey of transformation"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "A collection of reflections, wisdom, and transformative writings"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Ways to connect, contribute, and become part of our community"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Empowering Women Through Conscious Leadership"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Steward of Embodied Change & Energetic Coherence"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Free resources to support your journey of embodied empowerment"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "We would love to hear from you. Reach out to learn more about our programs and community."
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Founded with a vision to catalyze the rise of feminine leadership, Just Empower creates transformative spaces for women to discover their authentic power."
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Reflections, wisdom, and stories from our community of conscious leaders"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Local gatherings and community-led experiences"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Immersive journeys designed to awaken your authentic power"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Just Empower operates at the intersection of personal healing and systemic change, recognizing that true transformation begins within and ripples outward."
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Embodiment Over Intellectualization"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Steward of Embodied Change & Energetic Coherence"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Reflections, wisdom, and stories from our community of conscious leaders."
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Transformative programs and experiences designed to support your journey of embodied empowerment."
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Transformative gatherings and experiences for conscious leaders."
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Lavender1.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/IMG_3018.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Lavender1.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Lavender1.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Lavender1.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Lavender1.jpg"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subDescription",
+      "contentValue": "Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership."
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "OUR APPROACH"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "GATHER WITH US"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "OUR VISION"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "GET IN TOUCH"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "TRANSFORMATIVE EXPERIENCES"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "APRIL GAMBARDELLA"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "JOIN US"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "WHAT WE OFFER"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "THE WRITTEN WORD"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "INSIGHTS"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "JOIN THE JOURNEY"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "OUR STORY"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "SHE WRITES"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "TOOLS FOR TRANSFORMATION"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "APRIL GAMBARDELLA"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "Test Updated Value - 1767427478207"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "SACRED OFFERINGS"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "VI • X Journal Trilogy"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "About Just Empower"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Our Offerings"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Blog"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Resources"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "The Founder"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Journal"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Contact Us"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Catalyzing the Rise of Her."
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Walk With Us"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Community Events"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Vision & Ethos"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Shop"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Upcoming Events"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "The Philosophy"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Workshops & Programs"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "The Founder"
+    },
+    {
+      "section": "hero",
+      "contentKey": "videoUrl",
+      "contentValue": "https://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4"
+    },
+    {
+      "section": "hero",
+      "contentKey": "videoUrl",
+      "contentValue": "/media/founder-hero.mp4"
+    },
+    {
+      "section": "hero",
+      "contentKey": "videoUrl",
+      "contentValue": "/media/founder-hero.mp4"
+    }
+  ],
+  "messages": [],
+  "stdout": "section\tcontentKey\tcontentValue\nhero\tctaLink\t/about\nhero\tctaText\tDISCOVER MORE\nhero\tdescription\tCurated products to support your journey of transformation\nhero\tdescription\tA collection of reflections, wisdom, and transformative writings\nhero\tdescription\tWays to connect, contribute, and become part of our community\nhero\tdescription\tEmpowering Women Through Conscious Leadership\nhero\tdescription\tSteward of Embodied Change & Energetic Coherence\nhero\tdescription\tFree resources to support your journey of embodied empowerment\nhero\tdescription\tWe would love to hear from you. Reach out to learn more about our programs and community.\nhero\tdescription\tFounded with a vision to catalyze the rise of feminine leadership, Just Empower creates transformative spaces for women to discover their authentic power.\nhero\tdescription\tReflections, wisdom, and stories from our community of conscious leaders\nhero\tdescription\tLocal gatherings and community-led experiences\nhero\tdescription\tImmersive journeys designed to awaken your authentic power\nhero\tdescription\tJust Empower operates at the intersection of personal healing and systemic change, recognizing that true transformation begins within and ripples outward.\nhero\tdescription\tEmbodiment Over Intellectualization\nhero\tdescription\tSteward of Embodied Change & Energetic Coherence\nhero\tdescription\tReflections, wisdom, and stories from our community of conscious leaders.\nhero\tdescription\tTransformative programs and experiences designed to support your journey of embodied empowerment.\nhero\tdescription\tTransformative gatherings and experiences for conscious leaders.\nhero\timageUrl\t/media/11/Lavender1.jpg\nhero\timageUrl\t/media/11/IMG_3018.jpg\nhero\timageUrl\t/media/11/Fam.jpg\nhero\timageUrl\t/media/11/Fam.jpg\nhero\timageUrl\t/media/11/Fam.jpg\nhero\timageUrl\t/media/11/Lavender1.jpg\nhero\timageUrl\t/media/11/Lavender1.jpg\nhero\timageUrl\t/media/11/Fam.jpg\nhero\timageUrl\t/media/11/Lavender1.jpg\nhero\timageUrl\t/media/11/Fam.jpg\nhero\timageUrl\t/media/11/Fam.jpg\nhero\timageUrl\t/media/11/Fam.jpg\nhero\timageUrl\t/media/11/Lavender1.jpg\nhero\tsubDescription\tWhere Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.\nhero\tsubtitle\tOUR APPROACH\nhero\tsubtitle\tGATHER WITH US\nhero\tsubtitle\tOUR VISION\nhero\tsubtitle\tGET IN TOUCH\nhero\tsubtitle\tTRANSFORMATIVE EXPERIENCES\nhero\tsubtitle\tAPRIL GAMBARDELLA\nhero\tsubtitle\tJOIN US\nhero\tsubtitle\tWHAT WE OFFER\nhero\tsubtitle\tTHE WRITTEN WORD\nhero\tsubtitle\tINSIGHTS\nhero\tsubtitle\tJOIN THE JOURNEY\nhero\tsubtitle\tOUR STORY\nhero\tsubtitle\tSHE WRITES\nhero\tsubtitle\tTOOLS FOR TRANSFORMATION\nhero\tsubtitle\tAPRIL GAMBARDELLA\nhero\tsubtitle\tTest Updated Value - 1767427478207\nhero\tsubtitle\tSACRED OFFERINGS\nhero\ttitle\tVI • X Journal Trilogy\nhero\ttitle\tAbout Just Empower\nhero\ttitle\tOur Offerings\nhero\ttitle\tBlog\nhero\ttitle\tResources\nhero\ttitle\tThe Founder\nhero\ttitle\tJournal\nhero\ttitle\tContact Us\nhero\ttitle\tCatalyzing the Rise of Her.\nhero\ttitle\tWalk With Us\nhero\ttitle\tCommunity Events\nhero\ttitle\tVision & Ethos\nhero\ttitle\tShop\nhero\ttitle\tUpcoming Events\nhero\ttitle\tThe Philosophy\nhero\ttitle\tWorkshops & Programs\nhero\ttitle\tThe Founder\nhero\tvideoUrl\thttps://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4\nhero\tvideoUrl\t/media/founder-hero.mp4\nhero\tvideoUrl\t/media/founder-hero.mp4\n",
+  "stderr": "",
+  "execution_time_ms": 1230
+}

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo } from "./aiService";
+import { generateVideoThumbnail } from "./mediaConversionService";
 import { publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import {
@@ -480,6 +481,40 @@ export const adminRouter = router({
         const type = input.mimeType.startsWith('video/') ? 'video' : 
                      input.mimeType.startsWith('audio/') ? 'video' : 'image';
         
+        // Generate thumbnail for videos asynchronously
+        let thumbnailUrl: string | undefined;
+        if (type === 'video') {
+          try {
+            // Download video from S3
+            const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3');
+            const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+            
+            const getCommand = new GetObjectCommand({
+              Bucket: 'justxempower-assets',
+              Key: input.s3Key,
+            });
+            
+            const response = await s3Client.send(getCommand);
+            const videoBuffer = await response.Body?.transformToByteArray();
+            
+            if (videoBuffer) {
+              // Generate thumbnail
+              const thumbnailResult = await generateVideoThumbnail(Buffer.from(videoBuffer), input.mimeType, 1);
+              
+              if (thumbnailResult.success && thumbnailResult.outputBuffer) {
+                // Upload thumbnail to S3
+                const thumbnailKey = `media/thumbnails/${nanoid()}.jpg`;
+                const { storagePut } = await import('./storage');
+                const uploadResult = await storagePut(thumbnailKey, thumbnailResult.outputBuffer, 'image/jpeg');
+                thumbnailUrl = uploadResult.url;
+              }
+            }
+          } catch (error) {
+            console.error('Failed to generate video thumbnail:', error);
+            // Continue without thumbnail - not a critical failure
+          }
+        }
+        
         // Save to database
         await createMedia({
           filename: input.uniqueFilename,
@@ -492,7 +527,10 @@ export const adminRouter = router({
           uploadedBy: ctx.adminUsername,
         });
         
-        return { success: true, url: input.publicUrl };
+        // Note: Thumbnail URL is returned but not persisted to DB yet
+        // This would require adding thumbnailUrl to the media table schema
+        
+        return { success: true, url: input.publicUrl, thumbnailUrl };
       }),
     
     // Legacy upload (for small files via base64)

@@ -1,0 +1,60 @@
+{
+  "query": "SELECT section, contentKey, contentValue FROM siteContent WHERE section = 'hero' LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT section, contentKey, contentValue FROM siteContent WHERE section = 'hero' LIMIT 10;",
+  "rows": [
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "Test Updated Value - 1767427478207"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Catalyzing the Rise of Her."
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Empowering Women Through Conscious Leadership"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subDescription",
+      "contentValue": "Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership."
+    },
+    {
+      "section": "hero",
+      "contentKey": "videoUrl",
+      "contentValue": "https://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4"
+    },
+    {
+      "section": "hero",
+      "contentKey": "ctaText",
+      "contentValue": "DISCOVER MORE"
+    },
+    {
+      "section": "hero",
+      "contentKey": "ctaLink",
+      "contentValue": "/about"
+    },
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "OUR STORY"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "About Just Empower"
+    },
+    {
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Founded with a vision to catalyze the rise of feminine leadership, Just Empower creates transformative spaces for women to discover their authentic power."
+    }
+  ],
+  "messages": [],
+  "stdout": "section\tcontentKey\tcontentValue\nhero\tsubtitle\tTest Updated Value - 1767427478207\nhero\ttitle\tCatalyzing the Rise of Her.\nhero\tdescription\tEmpowering Women Through Conscious Leadership\nhero\tsubDescription\tWhere Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.\nhero\tvideoUrl\thttps://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4\nhero\tctaText\tDISCOVER MORE\nhero\tctaLink\t/about\nhero\tsubtitle\tOUR STORY\nhero\ttitle\tAbout Just Empower\nhero\tdescription\tFounded with a vision to catalyze the rise of feminine leadership, Just Empower creates transformative spaces for women to discover their authentic power.\n",
+  "stderr": "",
+  "execution_time_ms": 930
+}
