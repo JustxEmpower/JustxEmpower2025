@@ -19,12 +19,14 @@ interface ConversionResult {
  * Supported conversion formats
  */
 export const SUPPORTED_CONVERSIONS = {
-  // Image conversions
-  'image/heic': ['image/jpeg', 'image/png'],
-  'image/heif': ['image/jpeg', 'image/png'],
-  'image/webp': ['image/jpeg', 'image/png'],
-  'image/tiff': ['image/jpeg', 'image/png'],
-  'image/bmp': ['image/jpeg', 'image/png'],
+  // Image conversions - all image types can be converted to all other image types
+  'image/jpeg': ['image/png', 'image/webp', 'image/heic', 'image/heif', 'image/tiff', 'image/bmp'],
+  'image/png': ['image/jpeg', 'image/webp', 'image/heic', 'image/heif', 'image/tiff', 'image/bmp'],
+  'image/webp': ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/tiff', 'image/bmp'],
+  'image/heic': ['image/jpeg', 'image/png', 'image/webp', 'image/heif', 'image/tiff', 'image/bmp'],
+  'image/heif': ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/tiff', 'image/bmp'],
+  'image/tiff': ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/bmp'],
+  'image/bmp': ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif', 'image/tiff'],
   
   // Video conversions
   'video/quicktime': ['video/mp4', 'video/webm'],  // MOV

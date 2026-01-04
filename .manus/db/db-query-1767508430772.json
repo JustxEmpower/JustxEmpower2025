@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO media (filename, originalName, mimeType, fileSize, s3Key, url, type, uploadedBy, createdAt) VALUES \n('test1.jpg', 'test_image.jpg', 'image/jpeg', 5000, 'media/test1.jpg', 'https://justxempower-assets.s3.us-east-1.amazonaws.com/media/test1.jpg', 'image', 'admin', NOW()),\n('test2.mov', 'test_video.mov', 'video/quicktime', 50000, 'media/test2.mov', 'https://justxempower-assets.s3.us-east-1.amazonaws.com/media/test2.mov', 'video', 'admin', NOW()),\n('test3.png', 'test_image.png', 'image/png', 8000, 'media/test3.png', 'https://justxempower-assets.s3.us-east-1.amazonaws.com/media/test3.png', 'image', 'admin', NOW());",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute INSERT INTO media (filename, originalName, mimeType, fileSize, s3Key, url, type, uploadedBy, createdAt) VALUES \n('test1.jpg', 'test_image.jpg', 'image/jpeg', 5000, 'media/test1.jpg', 'https://justxempower-assets.s3.us-east-1.amazonaws.com/media/test1.jpg', 'image', 'admin', NOW()),\n('test2.mov', 'test_video.mov', 'video/quicktime', 50000, 'media/test2.mov', 'https://justxempower-assets.s3.us-east-1.amazonaws.com/media/test2.mov', 'video', 'admin', NOW()),\n('test3.png', 'test_image.png', 'image/png', 8000, 'media/test3.png', 'https://justxempower-assets.s3.us-east-1.amazonaws.com/media/test3.png', 'image', 'admin', NOW());",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 90
+}

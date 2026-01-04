@@ -615,7 +615,16 @@ export const adminRouter = router({
         try {
           // Download media from S3
           const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3');
-          const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+          // Extract valid region from AWS_REGION env var (handle cases like "USEast(N.Virginia)us-east-1")
+          let region = process.env.AWS_REGION || 'us-east-1';
+          if (region.includes('us-east-1')) {
+            region = 'us-east-1';
+          } else if (region.includes('us-west-2')) {
+            region = 'us-west-2';
+          } else if (region.includes('eu-west-1')) {
+            region = 'eu-west-1';
+          }
+          const s3Client = new S3Client({ region });
           
           const getCommand = new GetObjectCommand({
             Bucket: 'justxempower-assets',

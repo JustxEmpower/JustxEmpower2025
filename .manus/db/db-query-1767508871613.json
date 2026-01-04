@@ -1,0 +1,31 @@
+{
+  "query": "SELECT id, filename, originalName, s3Key, url FROM media LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT id, filename, originalName, s3Key, url FROM media LIMIT 5;",
+  "rows": [
+    {
+      "id": "1",
+      "filename": "test1.jpg",
+      "originalName": "test_image.jpg",
+      "s3Key": "media/test1.jpg",
+      "url": "https://justxempower-assets.s3.us-east-1.amazonaws.com/media/test1.jpg"
+    },
+    {
+      "id": "2",
+      "filename": "test2.mov",
+      "originalName": "test_video.mov",
+      "s3Key": "media/test2.mov",
+      "url": "https://justxempower-assets.s3.us-east-1.amazonaws.com/media/test2.mov"
+    },
+    {
+      "id": "3",
+      "filename": "test3.png",
+      "originalName": "test_image.png",
+      "s3Key": "media/test3.png",
+      "url": "https://justxempower-assets.s3.us-east-1.amazonaws.com/media/test3.png"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tfilename\toriginalName\ts3Key\turl\n1\ttest1.jpg\ttest_image.jpg\tmedia/test1.jpg\thttps://justxempower-assets.s3.us-east-1.amazonaws.com/media/test1.jpg\n2\ttest2.mov\ttest_video.mov\tmedia/test2.mov\thttps://justxempower-assets.s3.us-east-1.amazonaws.com/media/test2.mov\n3\ttest3.png\ttest_image.png\tmedia/test3.png\thttps://justxempower-assets.s3.us-east-1.amazonaws.com/media/test3.png\n",
+  "stderr": "",
+  "execution_time_ms": 174
+}

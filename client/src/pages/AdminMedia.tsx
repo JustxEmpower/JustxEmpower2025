@@ -597,6 +597,16 @@ export default function AdminMedia() {
                 Convert {selectedMediaForConversion?.originalName} to a different format
               </DialogDescription>
             </DialogHeader>
+            {getConversionFormatsMutation.isLoading && (
+              <div className="space-y-4">
+                <p className="text-sm text-neutral-600 dark:text-neutral-400">Loading available formats...</p>
+              </div>
+            )}
+            {getConversionFormatsMutation.error && (
+              <div className="space-y-4">
+                <p className="text-sm text-red-600 dark:text-red-400">Error: {getConversionFormatsMutation.error.message}</p>
+              </div>
+            )}
             {getConversionFormatsMutation.data && (
               <div className="space-y-4">
                 <div>
