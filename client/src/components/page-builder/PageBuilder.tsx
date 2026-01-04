@@ -453,14 +453,14 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                       Templates
                     </TabsTrigger>
                   </TabsList>
-                  <div className="flex-1 overflow-hidden">
-                    <TabsContent value="blocks" className="h-full m-0 overflow-hidden">
+                  <div className="flex-1 overflow-hidden flex flex-col">
+                    <TabsContent value="blocks" className="h-full m-0 overflow-hidden flex-1">
                       <BlockLibrary />
                     </TabsContent>
-                    <TabsContent value="layers" className="h-full m-0 overflow-hidden">
+                    <TabsContent value="layers" className="h-full m-0 overflow-hidden flex-1">
                       <LayersPanel />
                     </TabsContent>
-                    <TabsContent value="templates" className="h-full m-0 p-4 overflow-auto">
+                    <TabsContent value="templates" className="h-full m-0 p-4 overflow-auto flex-1">
                       <p className="text-sm text-neutral-500">Templates coming soon...</p>
                     </TabsContent>
                   </div>

@@ -31,13 +31,13 @@ export default function Philosophy() {
   const principle1Desc = getContent('principles', 'principle1_description');
   const principle2Title = getContent('principles', 'principle2_title');
   const principle2Desc = getContent('principles', 'principle2_description');
-  const principle3Title = getContent('principles', 'principle3_title') || "Nature's Intelligence";
-  const principle3Desc = getContent('principles', 'principle3_description') || "Rather than replicating outdated systems, Just Empower roots its work in nature's original intelligence—adaptive, regenerative, and quietly revolutionary.";
+  const principle3Title = getContent('principles', 'principle3_title');
+  const principle3Desc = getContent('principles', 'principle3_description');
 
   // Get pillars content from CMS
   const pillarsTitle = getContent('pillars', 'title');
   const pillarsSubtitle = getContent('pillars', 'subtitle');
-  const pillarsDescription = getContent('pillars', 'description') || "Just Empower's mission is realized through three integrated pillars: Personal Empowerment, Community & Cultural Initiatives, and Systemic Regeneration. Together, these pillars foster measurable transformation across individual, relational, and cultural levels.";
+  const pillarsDescription = getContent('pillars', 'description');
   const pillarsImageUrl = getContent('pillars', 'imageUrl');
 
   // Get newsletter content from CMS

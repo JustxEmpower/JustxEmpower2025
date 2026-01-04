@@ -1,0 +1,64 @@
+{
+  "query": "SELECT * FROM siteContent WHERE page = 'contact' ORDER BY section, contentKey;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT * FROM siteContent WHERE page = 'contact' ORDER BY section, contentKey;",
+  "rows": [
+    {
+      "id": "120045",
+      "page": "contact",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "Begin the Conversation",
+      "altText": "NULL",
+      "updatedAt": "2026-01-04 03:46:34"
+    },
+    {
+      "id": "120044",
+      "page": "contact",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Connect",
+      "altText": "NULL",
+      "updatedAt": "2026-01-04 03:46:34"
+    },
+    {
+      "id": "120047",
+      "page": "contact",
+      "section": "info",
+      "contentKey": "description",
+      "contentValue": "Whether you are interested in partnership, coaching, or simply have a question, we invite you to reach out. Our team is dedicated to supporting your journey of empowerment and transformation.",
+      "altText": "NULL",
+      "updatedAt": "2026-01-04 03:46:34"
+    },
+    {
+      "id": "120049",
+      "page": "contact",
+      "section": "info",
+      "contentKey": "email",
+      "contentValue": "partners@justxempower.com",
+      "altText": "NULL",
+      "updatedAt": "2026-01-04 03:46:34"
+    },
+    {
+      "id": "120046",
+      "page": "contact",
+      "section": "info",
+      "contentKey": "heading",
+      "contentValue": "Get in Touch",
+      "altText": "NULL",
+      "updatedAt": "2026-01-04 03:46:34"
+    },
+    {
+      "id": "120048",
+      "page": "contact",
+      "section": "info",
+      "contentKey": "location",
+      "contentValue": "Austin, Texas",
+      "altText": "NULL",
+      "updatedAt": "2026-01-04 03:46:34"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpage\tsection\tcontentKey\tcontentValue\taltText\tupdatedAt\n120045\tcontact\thero\tsubtitle\tBegin the Conversation\tNULL\t2026-01-04 03:46:34\n120044\tcontact\thero\ttitle\tConnect\tNULL\t2026-01-04 03:46:34\n120047\tcontact\tinfo\tdescription\tWhether you are interested in partnership, coaching, or simply have a question, we invite you to reach out. Our team is dedicated to supporting your journey of empowerment and transformation.\tNULL\t2026-01-04 03:46:34\n120049\tcontact\tinfo\temail\tpartners@justxempower.com\tNULL\t2026-01-04 03:46:34\n120046\tcontact\tinfo\theading\tGet in Touch\tNULL\t2026-01-04 03:46:34\n120048\tcontact\tinfo\tlocation\tAustin, Texas\tNULL\t2026-01-04 03:46:34\n",
+  "stderr": "",
+  "execution_time_ms": 1102
+}

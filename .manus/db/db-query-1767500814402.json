@@ -1,0 +1,40 @@
+{
+  "query": "SELECT section, contentKey, contentValue FROM siteContent WHERE page = 'contact' ORDER BY section, contentKey;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT section, contentKey, contentValue FROM siteContent WHERE page = 'contact' ORDER BY section, contentKey;",
+  "rows": [
+    {
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "Begin the Conversation"
+    },
+    {
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Connect"
+    },
+    {
+      "section": "info",
+      "contentKey": "description",
+      "contentValue": "Whether you are interested in partnership, coaching, or simply have a question, we invite you to reach out. Our team is dedicated to supporting your journey of empowerment and transformation."
+    },
+    {
+      "section": "info",
+      "contentKey": "email",
+      "contentValue": "partners@justxempower.com"
+    },
+    {
+      "section": "info",
+      "contentKey": "heading",
+      "contentValue": "Get in Touch"
+    },
+    {
+      "section": "info",
+      "contentKey": "location",
+      "contentValue": "Austin, Texas"
+    }
+  ],
+  "messages": [],
+  "stdout": "section\tcontentKey\tcontentValue\nhero\tsubtitle\tBegin the Conversation\nhero\ttitle\tConnect\ninfo\tdescription\tWhether you are interested in partnership, coaching, or simply have a question, we invite you to reach out. Our team is dedicated to supporting your journey of empowerment and transformation.\ninfo\temail\tpartners@justxempower.com\ninfo\theading\tGet in Touch\ninfo\tlocation\tAustin, Texas\n",
+  "stderr": "",
+  "execution_time_ms": 52
+}

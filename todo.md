@@ -1515,3 +1515,15 @@ NODE_ENV=production
 - [ ] Test Contact page email changes persist
 - [ ] Test all page content edits persist through page reload
 - [ ] Deploy fixes to production
+
+
+## Page Builder - Full Functionality (CURRENT PRIORITY)
+
+- [ ] Fix left side panel scrolling issue in block editor
+- [ ] Verify all block features work (text, images, buttons, etc.)
+- [ ] Test save functionality and CMS persistence
+- [ ] Ensure site map updates when pages are created/edited
+- [ ] Ensure navigation bar updates automatically
+- [ ] Test all page builder tools end-to-end
+- [ ] Verify changes appear on live site immediately
+- [ ] Deploy fully functional page builder to production

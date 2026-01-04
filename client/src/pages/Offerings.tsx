@@ -32,7 +32,7 @@ export default function Offerings() {
   // Get seeds section content from CMS
   const seedsTitle = getContent('seeds', 'title');
   const seedsSubtitle = getContent('seeds', 'subtitle');
-  const seedsDescription = getContent('seeds', 'description') || "This was the heart of regeneration: coherence as creation's remembering, and humanity as the soil through which it blooms. Just Empower was not merely a platform; it was a living ecosystem of renewal, resilience, and reclamation.";
+  const seedsDescription = getContent('seeds', 'description');
   const seedsImage = getContent('seeds', 'imageUrl');
 
   // Get sheWrites section content from CMS

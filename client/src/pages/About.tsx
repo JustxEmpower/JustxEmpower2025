@@ -48,7 +48,7 @@ export default function About() {
 
   // Get remembrance section content from CMS
   const remembranceTitle = getContent('remembrance', 'title');
-  const remembranceQuote = getContent('remembrance', 'quote') || "There is a beauty only those who've crossed the underworld can name—a beauty born from witnessing the fragility of the human spirit... and the brilliance of its capacity to rebuild, rewire, and rise.";
+  const remembranceQuote = getContent('remembrance', 'quote');
   const remembranceParagraph1 = getContent('remembrance', 'paragraph1');
   const remembranceParagraph2 = getContent('remembrance', 'paragraph2');
   const remembranceParagraph3 = getContent('remembrance', 'paragraph3');
@@ -61,9 +61,9 @@ export default function About() {
 
   // Get future section content from CMS
   const futureTitle = getContent('future', 'title');
-  const futureParagraph1 = getContent('future', 'paragraph1') || "The future isn't something we wait for; it's something we restore and embody.";
+  const futureParagraph1 = getContent('future', 'paragraph1');
   const futureParagraph2 = getContent('future', 'paragraph2');
-  const futureParagraph3 = getContent('future', 'paragraph3') || "It's for those who refuse stagnation—who know that reality isn't inherited, but rewritten.";
+  const futureParagraph3 = getContent('future', 'paragraph3');
   const futureParagraph4 = getContent('future', 'paragraph4');
 
   // Get newsletter section content from CMS
