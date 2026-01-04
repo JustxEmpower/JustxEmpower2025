@@ -120,10 +120,10 @@ export default function Resources() {
   // Get hero content from CMS
   const { getContent, isLoading: contentLoading } = usePageContent('resources');
   
-  const heroTitle = getContent('hero', 'title') || 'Resources';
-  const heroSubtitle = getContent('hero', 'subtitle') || 'Download guides, templates, and materials to support your empowerment journey';
-  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
-  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
   
   // Determine which media to use (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;

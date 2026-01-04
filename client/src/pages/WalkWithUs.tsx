@@ -27,34 +27,34 @@ export default function WalkWithUs() {
   }
 
   // Get hero section content from CMS
-  const heroTitle = getContent('hero', 'title') || 'Walk With Us';
-  const heroSubtitle = getContent('hero', 'subtitle') || 'A Collective Invocation';
-  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
-  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
   
   // Determine which media to use for hero (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;
   const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
   // Get main content section from CMS
-  const mainTitle = getContent('main', 'title') || 'Join the Movement';
-  const mainDescription = getContent('main', 'description') || 'This is not a solitary endeavor; it is a collective invocation. We call forth aligned professionals: policy strategists, environmental scientists, systems thinkers, legal advocates, planners, and community organizers who carry both vision and skill. Equally, we seek those who may not have borne formal titles yet held within them the heart, conviction, and devotion to move purpose into form.';
+  const mainTitle = getContent('main', 'title');
+  const mainDescription = getContent('main', 'description');
 
   // Get partner card content from CMS
-  const partnerTitle = getContent('partners', 'title') || 'For Partners';
-  const partnerDescription = getContent('partners', 'description') || 'Collaborate on initiatives that restore coherence between people, purpose, and planet.';
-  const partnerCtaText = getContent('partners', 'ctaText') || 'Partner With Us';
-  const partnerCtaLink = getContent('partners', 'ctaLink') || '/contact';
+  const partnerTitle = getContent('partners', 'title');
+  const partnerDescription = getContent('partners', 'description');
+  const partnerCtaText = getContent('partners', 'ctaText');
+  const partnerCtaLink = getContent('partners', 'ctaLink');
 
   // Get individual card content from CMS
-  const individualTitle = getContent('individuals', 'title') || 'For Individuals';
-  const individualDescription = getContent('individuals', 'description') || 'Join our community of awakened women reclaiming sovereignty and embodied truth.';
-  const individualCtaText = getContent('individuals', 'ctaText') || 'Join Community';
-  const individualCtaLink = getContent('individuals', 'ctaLink') || '/community-events';
+  const individualTitle = getContent('individuals', 'title');
+  const individualDescription = getContent('individuals', 'description');
+  const individualCtaText = getContent('individuals', 'ctaText');
+  const individualCtaLink = getContent('individuals', 'ctaLink');
 
   // Get quote section from CMS
-  const quoteText = getContent('quote', 'text') || '"In protecting what flourishes, we protect the right of all beings to rise, to renew, and to remain free."';
-  const quoteImageUrl = getContent('quote', 'imageUrl') || '';
+  const quoteText = getContent('quote', 'text');
+  const quoteImageUrl = getContent('quote', 'imageUrl');
 
   return (
     <div className="min-h-screen bg-background">

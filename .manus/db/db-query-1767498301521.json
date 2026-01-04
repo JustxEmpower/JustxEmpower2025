@@ -1,0 +1,28 @@
+{
+  "query": "SELECT page, section, contentKey, contentValue FROM siteContent WHERE page = 'contact' ORDER BY section, contentKey;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT page, section, contentKey, contentValue FROM siteContent WHERE page = 'contact' ORDER BY section, contentKey;",
+  "rows": [
+    {
+      "page": "contact",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "We would love to hear from you. Reach out to learn more about our programs and community."
+    },
+    {
+      "page": "contact",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "GET IN TOUCH"
+    },
+    {
+      "page": "contact",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Contact Us"
+    }
+  ],
+  "messages": [],
+  "stdout": "page\tsection\tcontentKey\tcontentValue\ncontact\thero\tdescription\tWe would love to hear from you. Reach out to learn more about our programs and community.\ncontact\thero\tsubtitle\tGET IN TOUCH\ncontact\thero\ttitle\tContact Us\n",
+  "stderr": "",
+  "execution_time_ms": 137
+}

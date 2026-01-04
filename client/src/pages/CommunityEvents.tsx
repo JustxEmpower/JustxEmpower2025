@@ -38,10 +38,10 @@ export default function CommunityEvents() {
   // Get hero content from CMS
   const { getContent, isLoading: contentLoading } = usePageContent('community-events');
   
-  const heroTitle = getContent('hero', 'title') || 'Community Events';
-  const heroSubtitle = getContent('hero', 'subtitle') || 'In-person and virtual gatherings for collective healing';
-  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
-  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
   
   // Determine which media to use (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;

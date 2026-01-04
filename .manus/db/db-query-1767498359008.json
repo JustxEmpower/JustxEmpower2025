@@ -1,0 +1,610 @@
+{
+  "query": "SELECT page, section, contentKey, contentValue FROM siteContent ORDER BY page, section, contentKey LIMIT 100;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT page, section, contentKey, contentValue FROM siteContent ORDER BY page, section, contentKey LIMIT 100;",
+  "rows": [
+    {
+      "page": "about",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Founded with a vision to catalyze the rise of feminine leadership, Just Empower creates transformative spaces for women to discover their authentic power."
+    },
+    {
+      "page": "about",
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "page": "about",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "OUR STORY"
+    },
+    {
+      "page": "about",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "About Just Empower"
+    },
+    {
+      "page": "blog",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Reflections, wisdom, and stories from our community of conscious leaders"
+    },
+    {
+      "page": "blog",
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Lavender1.jpg"
+    },
+    {
+      "page": "blog",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "SHE WRITES"
+    },
+    {
+      "page": "blog",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Blog"
+    },
+    {
+      "page": "blog",
+      "section": "overview",
+      "contentKey": "paragraph1",
+      "contentValue": "Welcome to She Writes, a sacred space for reflection, wisdom, and storytelling."
+    },
+    {
+      "page": "blog",
+      "section": "overview",
+      "contentKey": "paragraph2",
+      "contentValue": "Here you will find articles, insights, and musings from April and our community of conscious leaders."
+    },
+    {
+      "page": "blog",
+      "section": "overview",
+      "contentKey": "title",
+      "contentValue": "Latest Posts"
+    },
+    {
+      "page": "community-events",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Local gatherings and community-led experiences"
+    },
+    {
+      "page": "community-events",
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "page": "community-events",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "GATHER WITH US"
+    },
+    {
+      "page": "community-events",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Community Events"
+    },
+    {
+      "page": "community-events",
+      "section": "overview",
+      "contentKey": "paragraph1",
+      "contentValue": "Community events are grassroots gatherings organized by members of our extended community."
+    },
+    {
+      "page": "community-events",
+      "section": "overview",
+      "contentKey": "paragraph2",
+      "contentValue": "These events create opportunities for connection, learning, and collective transformation in your local area."
+    },
+    {
+      "page": "community-events",
+      "section": "overview",
+      "contentKey": "title",
+      "contentValue": "About Community Events"
+    },
+    {
+      "page": "contact",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "Begin the Conversation"
+    },
+    {
+      "page": "contact",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Connect"
+    },
+    {
+      "page": "contact",
+      "section": "info",
+      "contentKey": "description",
+      "contentValue": "Whether you are interested in partnership, coaching, or simply have a question, we invite you to reach out. Our team is dedicated to supporting your journey of empowerment and transformation."
+    },
+    {
+      "page": "contact",
+      "section": "info",
+      "contentKey": "email",
+      "contentValue": "partners@justxempower.com"
+    },
+    {
+      "page": "contact",
+      "section": "info",
+      "contentKey": "heading",
+      "contentValue": "Get in Touch"
+    },
+    {
+      "page": "contact",
+      "section": "info",
+      "contentKey": "location",
+      "contentValue": "Austin, Texas"
+    },
+    {
+      "page": "events",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Transformative gatherings and experiences for conscious leaders."
+    },
+    {
+      "page": "events",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "JOIN US"
+    },
+    {
+      "page": "events",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Upcoming Events"
+    },
+    {
+      "page": "founder",
+      "section": "depth",
+      "contentKey": "paragraph1",
+      "contentValue": "The path of embodied empowerment requires us to descend into the depths of our being."
+    },
+    {
+      "page": "founder",
+      "section": "depth",
+      "contentKey": "paragraph1",
+      "contentValue": "My understanding of trauma, healing, and transformation is not theoretical; it was forged through lived experience."
+    },
+    {
+      "page": "founder",
+      "section": "depth",
+      "contentKey": "paragraph2",
+      "contentValue": "April guides this journey with compassion, wisdom, and unwavering presence."
+    },
+    {
+      "page": "founder",
+      "section": "depth",
+      "contentKey": "paragraph2",
+      "contentValue": "I was not taught—I was tempered. Not by intellect, but by initiation."
+    },
+    {
+      "page": "founder",
+      "section": "depth",
+      "contentKey": "title",
+      "contentValue": "Going Deeper"
+    },
+    {
+      "page": "founder",
+      "section": "depth",
+      "contentKey": "title",
+      "contentValue": "Going Deeper"
+    },
+    {
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Steward of Embodied Change & Energetic Coherence"
+    },
+    {
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Steward of Embodied Change & Energetic Coherence"
+    },
+    {
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "APRIL GAMBARDELLA"
+    },
+    {
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "APRIL GAMBARDELLA"
+    },
+    {
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "The Founder"
+    },
+    {
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "The Founder"
+    },
+    {
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "videoUrl",
+      "contentValue": "/media/founder-hero.mp4"
+    },
+    {
+      "page": "founder",
+      "section": "hero",
+      "contentKey": "videoUrl",
+      "contentValue": "/media/founder-hero.mp4"
+    },
+    {
+      "page": "founder",
+      "section": "opening",
+      "contentKey": "paragraph1",
+      "contentValue": "From the moment my eyes opened to this world, I have been drawn to truth—not from a need to know, but from a need to understand."
+    },
+    {
+      "page": "founder",
+      "section": "opening",
+      "contentKey": "paragraph1",
+      "contentValue": "April Gambardella is a visionary leader dedicated to catalyzing the rise of feminine leadership and embodied empowerment."
+    },
+    {
+      "page": "founder",
+      "section": "opening",
+      "contentKey": "paragraph2",
+      "contentValue": "Her journey began with a deep calling to bridge the gap between personal transformation and systemic change."
+    },
+    {
+      "page": "founder",
+      "section": "opening",
+      "contentKey": "paragraph2",
+      "contentValue": "That ethos of restoration and responsibility became the ground of my devotion. Over time, it expanded beyond personal integrity into a greater mission."
+    },
+    {
+      "page": "founder",
+      "section": "opening",
+      "contentKey": "paragraph3",
+      "contentValue": "Through Just Empower, she creates transformative spaces where women discover their authentic power."
+    },
+    {
+      "page": "founder",
+      "section": "opening",
+      "contentKey": "paragraph3",
+      "contentValue": "Just as we are responsible for the spaces we inhabit, we are stewards of the Earth, entrusted with its vitality."
+    },
+    {
+      "page": "founder",
+      "section": "truth",
+      "contentKey": "paragraph1",
+      "contentValue": "April believes that true transformation begins with radical honesty—with ourselves and with the world."
+    },
+    {
+      "page": "founder",
+      "section": "truth",
+      "contentKey": "paragraph1",
+      "contentValue": "Real change is both individual and collective—an energetic imprint that reverberates through humanity."
+    },
+    {
+      "page": "founder",
+      "section": "truth",
+      "contentKey": "paragraph2",
+      "contentValue": "Just Empower is built on this truth."
+    },
+    {
+      "page": "founder",
+      "section": "truth",
+      "contentKey": "paragraph2",
+      "contentValue": "Her work invites women to shed the layers of conditioning and step into their sovereign selves."
+    },
+    {
+      "page": "founder",
+      "section": "truth",
+      "contentKey": "title",
+      "contentValue": "Speaking Truth"
+    },
+    {
+      "page": "founder",
+      "section": "truth",
+      "contentKey": "title",
+      "contentValue": "Speaking Truth"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item1_description",
+      "contentValue": "Cultivating consciousness for future generations."
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item1_imageUrl",
+      "contentValue": "/media/09/seeds-of-video.mp4_snapshot_00.00.000.jpg"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item1_link",
+      "contentValue": "/offerings/seeds"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item1_title",
+      "contentValue": "Seeds of a New Paradigm"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item2_description",
+      "contentValue": "A journey of collective transformation."
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item2_imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item2_link",
+      "contentValue": "/offerings/emerge"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item2_title",
+      "contentValue": "Emerge With Us"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item3_description",
+      "contentValue": "Connecting deeply with nature and self."
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item3_imageUrl",
+      "contentValue": "/media/11/Lavender1.jpg"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item3_link",
+      "contentValue": "/offerings/rooted-unity"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item3_title",
+      "contentValue": "Rooted Unity"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item4_description",
+      "contentValue": "Empowering mothers as leaders of change."
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item4_imageUrl",
+      "contentValue": "/media/11/IMG_3018.jpg"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item4_link",
+      "contentValue": "/offerings/mom"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "contentKey": "item4_title",
+      "contentValue": "MOM VI-X"
+    },
+    {
+      "page": "home",
+      "section": "community",
+      "contentKey": "ctaLink",
+      "contentValue": "/offerings"
+    },
+    {
+      "page": "home",
+      "section": "community",
+      "contentKey": "ctaText",
+      "contentValue": "EXPLORE"
+    },
+    {
+      "page": "home",
+      "section": "community",
+      "contentKey": "description",
+      "contentValue": "We are planting seeds for a new paradigm rooted in consciousness, compassion, and sacred reciprocity."
+    },
+    {
+      "page": "home",
+      "section": "community",
+      "contentKey": "imageUrl",
+      "contentValue": "/media/11/Fam.jpg"
+    },
+    {
+      "page": "home",
+      "section": "community",
+      "contentKey": "label",
+      "contentValue": "Community"
+    },
+    {
+      "page": "home",
+      "section": "community",
+      "contentKey": "title",
+      "contentValue": "Emerge With Us"
+    },
+    {
+      "page": "home",
+      "section": "footer",
+      "contentKey": "copyright",
+      "contentValue": "© 2025 Just Empower. All rights reserved."
+    },
+    {
+      "page": "home",
+      "section": "footer",
+      "contentKey": "socialFacebook",
+      "contentValue": "https://facebook.com/justxempower"
+    },
+    {
+      "page": "home",
+      "section": "footer",
+      "contentKey": "socialInstagram",
+      "contentValue": "https://instagram.com/justxempower"
+    },
+    {
+      "page": "home",
+      "section": "footer",
+      "contentKey": "socialLinkedin",
+      "contentValue": "https://linkedin.com/company/justxempower"
+    },
+    {
+      "page": "home",
+      "section": "footer",
+      "contentKey": "tagline",
+      "contentValue": "Empowering women to lead from wholeness, authenticity, and embodied wisdom."
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "ctaLink",
+      "contentValue": "/about"
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "ctaText",
+      "contentValue": "DISCOVER MORE"
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "Empowering Women Through Conscious Leadership"
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "subDescription",
+      "contentValue": "Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership."
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "Test Updated Value - 1767427478207"
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Catalyzing the Rise of Her."
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "contentKey": "videoUrl",
+      "contentValue": "https://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4"
+    },
+    {
+      "page": "home",
+      "section": "offerings",
+      "contentKey": "title",
+      "contentValue": "Our Offerings"
+    },
+    {
+      "page": "home",
+      "section": "offeringsCarousel",
+      "contentKey": "card1_description",
+      "contentValue": "A foundational program for women ready to plant the seeds of conscious leadership."
+    },
+    {
+      "page": "home",
+      "section": "offeringsCarousel",
+      "contentKey": "card1_link",
+      "contentValue": "/offerings/seeds-of-new-paradigm"
+    },
+    {
+      "page": "home",
+      "section": "offeringsCarousel",
+      "contentKey": "card1_title",
+      "contentValue": "Seeds of New Paradigm"
+    },
+    {
+      "page": "home",
+      "section": "offeringsCarousel",
+      "contentKey": "card2_description",
+      "contentValue": "An immersive experience of collective transformation and community building."
+    },
+    {
+      "page": "home",
+      "section": "offeringsCarousel",
+      "contentKey": "card2_link",
+      "contentValue": "/offerings/emerge-with-us"
+    },
+    {
+      "page": "home",
+      "section": "offeringsCarousel",
+      "contentKey": "card2_title",
+      "contentValue": "Emerge With Us"
+    },
+    {
+      "page": "home",
+      "section": "offeringsCarousel",
+      "contentKey": "card3_description",
+      "contentValue": "Ecological stewardship meets personal healing in this regenerative journey."
+    },
+    {
+      "page": "home",
+      "section": "offeringsCarousel",
+      "contentKey": "card3_link",
+      "contentValue": "/offerings/rooted-unity"
+    },
+    {
+      "page": "home",
+      "section": "offeringsCarousel",
+      "contentKey": "card3_title",
+      "contentValue": "Rooted Unity"
+    },
+    {
+      "page": "home",
+      "section": "offeringsCarousel",
+      "contentKey": "card4_description",
+      "contentValue": "A sacred container for mothers walking the path of embodied leadership."
+    }
+  ],
+  "messages": [],
+  "stdout": "page\tsection\tcontentKey\tcontentValue\nabout\thero\tdescription\tFounded with a vision to catalyze the rise of feminine leadership, Just Empower creates transformative spaces for women to discover their authentic power.\nabout\thero\timageUrl\t/media/11/Fam.jpg\nabout\thero\tsubtitle\tOUR STORY\nabout\thero\ttitle\tAbout Just Empower\nblog\thero\tdescription\tReflections, wisdom, and stories from our community of conscious leaders\nblog\thero\timageUrl\t/media/11/Lavender1.jpg\nblog\thero\tsubtitle\tSHE WRITES\nblog\thero\ttitle\tBlog\nblog\toverview\tparagraph1\tWelcome to She Writes, a sacred space for reflection, wisdom, and storytelling.\nblog\toverview\tparagraph2\tHere you will find articles, insights, and musings from April and our community of conscious leaders.\nblog\toverview\ttitle\tLatest Posts\ncommunity-events\thero\tdescription\tLocal gatherings and community-led experiences\ncommunity-events\thero\timageUrl\t/media/11/Fam.jpg\ncommunity-events\thero\tsubtitle\tGATHER WITH US\ncommunity-events\thero\ttitle\tCommunity Events\ncommunity-events\toverview\tparagraph1\tCommunity events are grassroots gatherings organized by members of our extended community.\ncommunity-events\toverview\tparagraph2\tThese events create opportunities for connection, learning, and collective transformation in your local area.\ncommunity-events\toverview\ttitle\tAbout Community Events\ncontact\thero\tsubtitle\tBegin the Conversation\ncontact\thero\ttitle\tConnect\ncontact\tinfo\tdescription\tWhether you are interested in partnership, coaching, or simply have a question, we invite you to reach out. Our team is dedicated to supporting your journey of empowerment and transformation.\ncontact\tinfo\temail\tpartners@justxempower.com\ncontact\tinfo\theading\tGet in Touch\ncontact\tinfo\tlocation\tAustin, Texas\nevents\thero\tdescription\tTransformative gatherings and experiences for conscious leaders.\nevents\thero\tsubtitle\tJOIN US\nevents\thero\ttitle\tUpcoming Events\nfounder\tdepth\tparagraph1\tThe path of embodied empowerment requires us to descend into the depths of our being.\nfounder\tdepth\tparagraph1\tMy understanding of trauma, healing, and transformation is not theoretical; it was forged through lived experience.\nfounder\tdepth\tparagraph2\tApril guides this journey with compassion, wisdom, and unwavering presence.\nfounder\tdepth\tparagraph2\tI was not taught—I was tempered. Not by intellect, but by initiation.\nfounder\tdepth\ttitle\tGoing Deeper\nfounder\tdepth\ttitle\tGoing Deeper\nfounder\thero\tdescription\tSteward of Embodied Change & Energetic Coherence\nfounder\thero\tdescription\tSteward of Embodied Change & Energetic Coherence\nfounder\thero\timageUrl\t/media/11/Fam.jpg\nfounder\thero\timageUrl\t/media/11/Fam.jpg\nfounder\thero\tsubtitle\tAPRIL GAMBARDELLA\nfounder\thero\tsubtitle\tAPRIL GAMBARDELLA\nfounder\thero\ttitle\tThe Founder\nfounder\thero\ttitle\tThe Founder\nfounder\thero\tvideoUrl\t/media/founder-hero.mp4\nfounder\thero\tvideoUrl\t/media/founder-hero.mp4\nfounder\topening\tparagraph1\tFrom the moment my eyes opened to this world, I have been drawn to truth—not from a need to know, but from a need to understand.\nfounder\topening\tparagraph1\tApril Gambardella is a visionary leader dedicated to catalyzing the rise of feminine leadership and embodied empowerment.\nfounder\topening\tparagraph2\tHer journey began with a deep calling to bridge the gap between personal transformation and systemic change.\nfounder\topening\tparagraph2\tThat ethos of restoration and responsibility became the ground of my devotion. Over time, it expanded beyond personal integrity into a greater mission.\nfounder\topening\tparagraph3\tThrough Just Empower, she creates transformative spaces where women discover their authentic power.\nfounder\topening\tparagraph3\tJust as we are responsible for the spaces we inhabit, we are stewards of the Earth, entrusted with its vitality.\nfounder\ttruth\tparagraph1\tApril believes that true transformation begins with radical honesty—with ourselves and with the world.\nfounder\ttruth\tparagraph1\tReal change is both individual and collective—an energetic imprint that reverberates through humanity.\nfounder\ttruth\tparagraph2\tJust Empower is built on this truth.\nfounder\ttruth\tparagraph2\tHer work invites women to shed the layers of conditioning and step into their sovereign selves.\nfounder\ttruth\ttitle\tSpeaking Truth\nfounder\ttruth\ttitle\tSpeaking Truth\nhome\tcarousel\titem1_description\tCultivating consciousness for future generations.\nhome\tcarousel\titem1_imageUrl\t/media/09/seeds-of-video.mp4_snapshot_00.00.000.jpg\nhome\tcarousel\titem1_link\t/offerings/seeds\nhome\tcarousel\titem1_title\tSeeds of a New Paradigm\nhome\tcarousel\titem2_description\tA journey of collective transformation.\nhome\tcarousel\titem2_imageUrl\t/media/11/Fam.jpg\nhome\tcarousel\titem2_link\t/offerings/emerge\nhome\tcarousel\titem2_title\tEmerge With Us\nhome\tcarousel\titem3_description\tConnecting deeply with nature and self.\nhome\tcarousel\titem3_imageUrl\t/media/11/Lavender1.jpg\nhome\tcarousel\titem3_link\t/offerings/rooted-unity\nhome\tcarousel\titem3_title\tRooted Unity\nhome\tcarousel\titem4_description\tEmpowering mothers as leaders of change.\nhome\tcarousel\titem4_imageUrl\t/media/11/IMG_3018.jpg\nhome\tcarousel\titem4_link\t/offerings/mom\nhome\tcarousel\titem4_title\tMOM VI-X\nhome\tcommunity\tctaLink\t/offerings\nhome\tcommunity\tctaText\tEXPLORE\nhome\tcommunity\tdescription\tWe are planting seeds for a new paradigm rooted in consciousness, compassion, and sacred reciprocity.\nhome\tcommunity\timageUrl\t/media/11/Fam.jpg\nhome\tcommunity\tlabel\tCommunity\nhome\tcommunity\ttitle\tEmerge With Us\nhome\tfooter\tcopyright\t© 2025 Just Empower. All rights reserved.\nhome\tfooter\tsocialFacebook\thttps://facebook.com/justxempower\nhome\tfooter\tsocialInstagram\thttps://instagram.com/justxempower\nhome\tfooter\tsocialLinkedin\thttps://linkedin.com/company/justxempower\nhome\tfooter\ttagline\tEmpowering women to lead from wholeness, authenticity, and embodied wisdom.\nhome\thero\tctaLink\t/about\nhome\thero\tctaText\tDISCOVER MORE\nhome\thero\tdescription\tEmpowering Women Through Conscious Leadership\nhome\thero\tsubDescription\tWhere Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.\nhome\thero\tsubtitle\tTest Updated Value - 1767427478207\nhome\thero\ttitle\tCatalyzing the Rise of Her.\nhome\thero\tvideoUrl\thttps://justxempower-assets.s3.us-east-1.amazonaws.com/media/OWq_P7pPl7FcH6xEaM2mb.mp4\nhome\tofferings\ttitle\tOur Offerings\nhome\tofferingsCarousel\tcard1_description\tA foundational program for women ready to plant the seeds of conscious leadership.\nhome\tofferingsCarousel\tcard1_link\t/offerings/seeds-of-new-paradigm\nhome\tofferingsCarousel\tcard1_title\tSeeds of New Paradigm\nhome\tofferingsCarousel\tcard2_description\tAn immersive experience of collective transformation and community building.\nhome\tofferingsCarousel\tcard2_link\t/offerings/emerge-with-us\nhome\tofferingsCarousel\tcard2_title\tEmerge With Us\nhome\tofferingsCarousel\tcard3_description\tEcological stewardship meets personal healing in this regenerative journey.\nhome\tofferingsCarousel\tcard3_link\t/offerings/rooted-unity\nhome\tofferingsCarousel\tcard3_title\tRooted Unity\nhome\tofferingsCarousel\tcard4_description\tA sacred container for mothers walking the path of embodied leadership.\n",
+  "stderr": "",
+  "execution_time_ms": 49
+}

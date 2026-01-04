@@ -63,18 +63,18 @@ export default function Contact() {
   };
 
   // Get hero content from CMS
-  const heroTitle = getContent('hero', 'title') || 'Connect';
-  const heroSubtitle = getContent('hero', 'subtitle') || 'Begin the Conversation';
-  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
-  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
   
   // Get contact info from CMS (using 'info' section as per seed script)
-  const contactTitle = getContent('info', 'heading') || 'Get in Touch';
-  const contactDescription = getContent('info', 'description') || 'Contact us to learn more';
-  const contactLocation = getContent('info', 'location') || '';
-  const contactEmail = getContent('info', 'email') || '';
-  const contactInstagram = getContent('info', 'instagramUrl') || '';
-  const contactLinkedin = getContent('info', 'linkedinUrl') || '';
+  const contactTitle = getContent('info', 'heading');
+  const contactDescription = getContent('info', 'description');
+  const contactLocation = getContent('info', 'location');
+  const contactEmail = getContent('info', 'email');
+  const contactInstagram = getContent('info', 'instagramUrl');
+  const contactLinkedin = getContent('info', 'linkedinUrl');
   
   // Determine which media to use (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;

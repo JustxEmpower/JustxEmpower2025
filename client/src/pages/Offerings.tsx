@@ -19,39 +19,39 @@ export default function Offerings() {
   };
 
   // Get hero content from CMS
-  const heroTitle = getContent('hero', 'title') || 'Our Offerings';
-  const heroSubtitle = getContent('hero', 'subtitle') || 'TRANSFORMATIVE EXPERIENCES';
-  const heroDescription = getContent('hero', 'description') || 'Seeds of a New Paradigm';
-  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
-  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroDescription = getContent('hero', 'description');
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
   
   // Determine which media to use for hero (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;
   const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
   // Get seeds section content from CMS
-  const seedsTitle = getContent('seeds', 'title') || 'Seeds of a New Paradigm';
-  const seedsSubtitle = getContent('seeds', 'subtitle') || 'Coherence as Creation';
+  const seedsTitle = getContent('seeds', 'title');
+  const seedsSubtitle = getContent('seeds', 'subtitle');
   const seedsDescription = getContent('seeds', 'description') || "This was the heart of regeneration: coherence as creation's remembering, and humanity as the soil through which it blooms. Just Empower was not merely a platform; it was a living ecosystem of renewal, resilience, and reclamation.";
-  const seedsImage = getContent('seeds', 'imageUrl') || '';
+  const seedsImage = getContent('seeds', 'imageUrl');
 
   // Get sheWrites section content from CMS
-  const sheWritesTitle = getContent('sheWrites', 'title') || 'She Writes';
-  const sheWritesSubtitle = getContent('sheWrites', 'subtitle') || 'Lessons from the Living Codex';
-  const sheWritesDescription = getContent('sheWrites', 'description') || 'A living journal—a chamber of remembrance where experience and wisdom converged. The blog explored Universal Laws, Archetypes, Consciousness, Transformation, and Alchemy—transforming wound into wisdom.';
-  const sheWritesImage = getContent('sheWrites', 'imageUrl') || '';
+  const sheWritesTitle = getContent('sheWrites', 'title');
+  const sheWritesSubtitle = getContent('sheWrites', 'subtitle');
+  const sheWritesDescription = getContent('sheWrites', 'description');
+  const sheWritesImage = getContent('sheWrites', 'imageUrl');
 
   // Get emerge section content from CMS
-  const emergeTitle = getContent('emerge', 'title') || 'Emerge with Us';
-  const emergeSubtitle = getContent('emerge', 'subtitle') || 'Partnerships Rooted in Reciprocity';
-  const emergeDescription = getContent('emerge', 'description') || 'Partnership with Just Empower was not transactional; it was transformational. To collaborate was to invest in the renewal of culture itself—through aligned initiatives that restored coherence between people, purpose, and planet.';
-  const emergeImage = getContent('emerge', 'imageUrl') || '';
+  const emergeTitle = getContent('emerge', 'title');
+  const emergeSubtitle = getContent('emerge', 'subtitle');
+  const emergeDescription = getContent('emerge', 'description');
+  const emergeImage = getContent('emerge', 'imageUrl');
 
   // Get rootedUnity section content from CMS
-  const rootedUnityTitle = getContent('rootedUnity', 'title') || 'Rooted Unity';
-  const rootedUnitySubtitle = getContent('rootedUnity', 'subtitle') || 'A Movement for the Earth';
-  const rootedUnityDescription = getContent('rootedUnity', 'description') || 'Rooted Unity cultivated ecological stewardship and collective renewal through conscious policy, regenerative design, and the principles of living reciprocity. A living bridge between the wild intelligence of nature and the thoughtful evolution of shared systems.';
-  const rootedUnityImage = getContent('rootedUnity', 'imageUrl') || '';
+  const rootedUnityTitle = getContent('rootedUnity', 'title');
+  const rootedUnitySubtitle = getContent('rootedUnity', 'subtitle');
+  const rootedUnityDescription = getContent('rootedUnity', 'description');
+  const rootedUnityImage = getContent('rootedUnity', 'imageUrl');
 
   if (isLoading) {
     return (

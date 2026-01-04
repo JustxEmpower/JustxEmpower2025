@@ -1,0 +1,37 @@
+{
+  "query": "SELECT * FROM siteContent WHERE page = 'contact';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT * FROM siteContent WHERE page = 'contact';",
+  "rows": [
+    {
+      "id": "55",
+      "page": "contact",
+      "section": "hero",
+      "contentKey": "subtitle",
+      "contentValue": "GET IN TOUCH",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:46:25"
+    },
+    {
+      "id": "56",
+      "page": "contact",
+      "section": "hero",
+      "contentKey": "title",
+      "contentValue": "Contact Us",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:46:25"
+    },
+    {
+      "id": "57",
+      "page": "contact",
+      "section": "hero",
+      "contentKey": "description",
+      "contentValue": "We would love to hear from you. Reach out to learn more about our programs and community.",
+      "altText": "NULL",
+      "updatedAt": "2025-12-24 11:46:25"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tpage\tsection\tcontentKey\tcontentValue\taltText\tupdatedAt\n55\tcontact\thero\tsubtitle\tGET IN TOUCH\tNULL\t2025-12-24 11:46:25\n56\tcontact\thero\ttitle\tContact Us\tNULL\t2025-12-24 11:46:25\n57\tcontact\thero\tdescription\tWe would love to hear from you. Reach out to learn more about our programs and community.\tNULL\t2025-12-24 11:46:25\n",
+  "stderr": "",
+  "execution_time_ms": 169
+}

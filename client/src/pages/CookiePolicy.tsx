@@ -11,8 +11,8 @@ export default function CookiePolicy() {
   }, [location]);
 
   // Get content from CMS with minimal fallbacks
-  const title = getContent('hero', 'title') || 'Cookie Policy';
-  const lastUpdated = getContent('hero', 'lastUpdated') || '';
+  const title = getContent('hero', 'title');
+  const lastUpdated = getContent('hero', 'lastUpdated');
 
   if (isLoading) {
     return (
@@ -32,7 +32,7 @@ export default function CookiePolicy() {
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">What Are Cookies?</h2>
             <p>
-              {getContent('whatAreCookies', 'content') || 'Cookies are small files that are stored on your device when you visit a website. They are widely used to make websites work more efficiently and to provide information to the website owners.'}
+              {getContent('whatAreCookies', 'content')}
             </p>
           </section>
 
@@ -75,7 +75,7 @@ export default function CookiePolicy() {
             </p>
             <p className="mt-4">
               <strong>Just Empower</strong><br />
-              Email: {getContent('contact', 'email') || 'contact@justxempower.com'}<br />
+              Email: {getContent('contact', 'email')}<br />
               {getContent('contact', 'location') && getContent('contact', 'location')}
             </p>
           </section>

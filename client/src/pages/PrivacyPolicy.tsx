@@ -11,8 +11,8 @@ export default function PrivacyPolicy() {
   }, [location]);
 
   // Get content from CMS with minimal fallbacks
-  const title = getContent('hero', 'title') || 'Privacy Policy';
-  const lastUpdated = getContent('hero', 'lastUpdated') || '';
+  const title = getContent('hero', 'title');
+  const lastUpdated = getContent('hero', 'lastUpdated');
 
   if (isLoading) {
     return (
@@ -32,7 +32,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Introduction</h2>
             <p>
-              {getContent('introduction', 'content') || 'Just Empower ("we," "our," or "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website justxempower.com, including any other media form, media channel, mobile website, or mobile application related or connected thereto.'}
+              {getContent('introduction', 'content')}
             </p>
           </section>
 
@@ -87,7 +87,7 @@ export default function PrivacyPolicy() {
             </p>
             <p className="mt-4">
               <strong>Just Empower</strong><br />
-              Email: {getContent('contact', 'email') || 'contact@justxempower.com'}<br />
+              Email: {getContent('contact', 'email')}<br />
               {getContent('contact', 'location') && getContent('contact', 'location')}
             </p>
           </section>

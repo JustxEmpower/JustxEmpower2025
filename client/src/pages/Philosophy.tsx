@@ -14,35 +14,35 @@ export default function Philosophy() {
   }, [location]);
 
   // Get hero content from CMS
-  const heroTitle = getContent('hero', 'title') || 'Our Philosophy';
-  const heroSubtitle = getContent('hero', 'subtitle') || 'OUR APPROACH';
-  const heroDescription = getContent('hero', 'description') || 'Embodiment Over Intellectualization';
-  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
-  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroDescription = getContent('hero', 'description');
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
   
   // Determine which media to use for hero (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;
   const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
   // Get principles content from CMS
-  const principlesTitle = getContent('principles', 'title') || 'Foundational Principles';
-  const principlesImageUrl = getContent('principles', 'imageUrl') || '';
-  const principle1Title = getContent('principles', 'principle1_title') || 'Embodiment';
-  const principle1Desc = getContent('principles', 'principle1_description') || 'Truth begins where intellect ends—within the lived intelligence of the body and breath. Transformation moves from concept into experience, as the nervous system becomes the gateway to sovereignty.';
-  const principle2Title = getContent('principles', 'principle2_title') || 'Wholeness';
-  const principle2Desc = getContent('principles', 'principle2_description') || 'Wholeness is not something to achieve or restore—it is something to reclaim. The work is not about fixing what is broken, but remembering what endures: clarity, sovereignty, embodied truth.';
+  const principlesTitle = getContent('principles', 'title');
+  const principlesImageUrl = getContent('principles', 'imageUrl');
+  const principle1Title = getContent('principles', 'principle1_title');
+  const principle1Desc = getContent('principles', 'principle1_description');
+  const principle2Title = getContent('principles', 'principle2_title');
+  const principle2Desc = getContent('principles', 'principle2_description');
   const principle3Title = getContent('principles', 'principle3_title') || "Nature's Intelligence";
   const principle3Desc = getContent('principles', 'principle3_description') || "Rather than replicating outdated systems, Just Empower roots its work in nature's original intelligence—adaptive, regenerative, and quietly revolutionary.";
 
   // Get pillars content from CMS
-  const pillarsTitle = getContent('pillars', 'title') || 'The Three Pillars';
-  const pillarsSubtitle = getContent('pillars', 'subtitle') || 'Integrated Transformation';
+  const pillarsTitle = getContent('pillars', 'title');
+  const pillarsSubtitle = getContent('pillars', 'subtitle');
   const pillarsDescription = getContent('pillars', 'description') || "Just Empower's mission is realized through three integrated pillars: Personal Empowerment, Community & Cultural Initiatives, and Systemic Regeneration. Together, these pillars foster measurable transformation across individual, relational, and cultural levels.";
-  const pillarsImageUrl = getContent('pillars', 'imageUrl') || '';
+  const pillarsImageUrl = getContent('pillars', 'imageUrl');
 
   // Get newsletter content from CMS
-  const newsletterTitle = getContent('newsletter', 'title') || 'Deepen Your Practice';
-  const newsletterDesc = getContent('newsletter', 'description') || 'Receive monthly insights on embodiment, conscious leadership, and the philosophy of transformation.';
+  const newsletterTitle = getContent('newsletter', 'title');
+  const newsletterDesc = getContent('newsletter', 'description');
 
   // Helper to get proper media URL
   const getProperMediaUrl = (url: string) => {

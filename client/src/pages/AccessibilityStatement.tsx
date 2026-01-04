@@ -11,8 +11,8 @@ export default function AccessibilityStatement() {
   }, [location]);
 
   // Get content from CMS with minimal fallbacks
-  const title = getContent('hero', 'title') || 'Accessibility Statement';
-  const lastUpdated = getContent('hero', 'lastUpdated') || '';
+  const title = getContent('hero', 'title');
+  const lastUpdated = getContent('hero', 'lastUpdated');
 
   if (isLoading) {
     return (
@@ -32,14 +32,14 @@ export default function AccessibilityStatement() {
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Our Commitment</h2>
             <p>
-              {getContent('commitment', 'content') || 'Just Empower is committed to ensuring digital accessibility for people with disabilities. We are continually improving the user experience for everyone and applying the relevant accessibility standards to ensure we provide equal access to all users.'}
+              {getContent('commitment', 'content')}
             </p>
           </section>
 
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Conformance Status</h2>
             <p>
-              {getContent('conformance', 'content') || 'We strive to conform to the Web Content Accessibility Guidelines (WCAG) 2.1 Level AA. These guidelines explain how to make web content more accessible for people with disabilities and more user-friendly for everyone.'}
+              {getContent('conformance', 'content')}
             </p>
           </section>
 
@@ -90,7 +90,7 @@ export default function AccessibilityStatement() {
               We welcome your feedback on the accessibility of the Just Empower website. Please let us know if you encounter accessibility barriers:
             </p>
             <ul className="list-disc pl-6 space-y-2">
-              <li>Email: {getContent('feedback', 'email') || 'contact@justxempower.com'}</li>
+              <li>Email: {getContent('feedback', 'email')}</li>
               <li>Subject line: "Accessibility Feedback"</li>
             </ul>
             <p className="mt-4">
@@ -118,7 +118,7 @@ export default function AccessibilityStatement() {
             </p>
             <p className="mt-4">
               <strong>Just Empower</strong><br />
-              Email: {getContent('contact', 'email') || 'contact@justxempower.com'}<br />
+              Email: {getContent('contact', 'email')}<br />
               {getContent('contact', 'location') && getContent('contact', 'location')}
             </p>
           </section>

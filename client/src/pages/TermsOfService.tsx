@@ -11,8 +11,8 @@ export default function TermsOfService() {
   }, [location]);
 
   // Get content from CMS with minimal fallbacks
-  const title = getContent('hero', 'title') || 'Terms of Service';
-  const lastUpdated = getContent('hero', 'lastUpdated') || '';
+  const title = getContent('hero', 'title');
+  const lastUpdated = getContent('hero', 'lastUpdated');
 
   if (isLoading) {
     return (
@@ -32,7 +32,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="font-serif text-2xl italic mb-4 text-foreground">Agreement to Terms</h2>
             <p>
-              {getContent('agreement', 'content') || 'By accessing and using this website, you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service.'}
+              {getContent('agreement', 'content')}
             </p>
           </section>
 
@@ -99,7 +99,7 @@ export default function TermsOfService() {
             </p>
             <p className="mt-4">
               <strong>Just Empower</strong><br />
-              Email: {getContent('contact', 'email') || 'contact@justxempower.com'}<br />
+              Email: {getContent('contact', 'email')}<br />
               {getContent('contact', 'location') && getContent('contact', 'location')}
             </p>
           </section>

@@ -48,23 +48,23 @@ export default function Journal() {
   };
 
   // Get hero content from CMS
-  const heroTitle = getContent('hero', 'title') || 'She Writes';
-  const heroSubtitle = getContent('hero', 'subtitle') || 'SHE WRITES';
-  const heroDescription = getContent('hero', 'description') || 'Lessons from the Living Codex';
-  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
-  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroDescription = getContent('hero', 'description');
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
   
   // Determine which media to use for hero (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;
   const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
   // Get overview content from database
-  const overviewTitle = getContent('overview', 'title') || 'Latest Posts';
-  const overviewParagraph1 = getContent('overview', 'paragraph1') || 'Welcome to She Writes, a sacred space for reflection, wisdom, and storytelling.';
-  const overviewParagraph2 = getContent('overview', 'paragraph2') || 'Here you will find articles, insights, and musings from April and our community of conscious leaders.';
+  const overviewTitle = getContent('overview', 'title');
+  const overviewParagraph1 = getContent('overview', 'paragraph1');
+  const overviewParagraph2 = getContent('overview', 'paragraph2');
 
   // Get fallback image for articles from CMS
-  const articleFallbackImage = getContent('articles', 'fallbackImageUrl') || '';
+  const articleFallbackImage = getContent('articles', 'fallbackImageUrl');
 
   if (contentLoading) {
     return (

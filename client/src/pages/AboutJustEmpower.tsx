@@ -19,24 +19,24 @@ export default function AboutJustEmpower() {
   }
 
   // Get content from CMS with minimal fallbacks
-  const heroTitle = getContent('hero', 'title') || 'About Just Empower';
-  const heroSubtitle = getContent('hero', 'subtitle') || 'Restoring Alignment · Reimagining Culture · Empowering Her Voice';
-  const heroImageUrl = getContent('hero', 'imageUrl') || 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2088';
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroImageUrl = getContent('hero', 'imageUrl');
 
-  const introText = getContent('intro', 'content') || 'Just Empower™ is a women-centered initiative devoted to restoring inner alignment and advancing cultural regeneration. We operate at the intersection of personal transformation and systemic change—helping women rebuild from the inside out so their clarity and leadership ripple through families, organizations, and communities.';
+  const introText = getContent('intro', 'content');
 
-  const missionTitle = getContent('mission', 'title') || 'Our Mission';
-  const missionDescription = getContent('mission', 'description') || 'Through somatic restoration, subconscious re-patterning, and collective empowerment, we dissolve inherited limitations and reimagine systems rooted in equity, coherence, and sustainable change.';
-  const missionIntro = getContent('mission', 'intro') || 'Our mission is realized through three integrated pillars:';
+  const missionTitle = getContent('mission', 'title');
+  const missionDescription = getContent('mission', 'description');
+  const missionIntro = getContent('mission', 'intro');
 
-  const pillar1Title = getContent('pillar1', 'title') || 'Personal Empowerment';
-  const pillar1Desc = getContent('pillar1', 'description') || 'Somatic restoration and embodied leadership development for individual transformation.';
+  const pillar1Title = getContent('pillar1', 'title');
+  const pillar1Desc = getContent('pillar1', 'description');
 
-  const pillar2Title = getContent('pillar2', 'title') || 'Collective Empowerment';
-  const pillar2Desc = getContent('pillar2', 'description') || 'Community-based initiatives that strengthen networks and amplify women\'s voices.';
+  const pillar2Title = getContent('pillar2', 'title');
+  const pillar2Desc = getContent('pillar2', 'description');
 
-  const pillar3Title = getContent('pillar3', 'title') || 'Systemic Change';
-  const pillar3Desc = getContent('pillar3', 'description') || 'Strategic partnerships and advocacy to reshape organizational and cultural systems.';
+  const pillar3Title = getContent('pillar3', 'title');
+  const pillar3Desc = getContent('pillar3', 'description');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-stone-50 to-stone-100">
@@ -70,11 +70,11 @@ export default function AboutJustEmpower() {
             </p>
 
             <p className="text-lg leading-relaxed text-stone-600 mb-8">
-              {getContent('intro', 'content2') || 'Rooted in trauma-informed and research-supported frameworks, we honor the regenerative capacity and intuitive intelligence within every woman. Our work bridges psychology, embodiment, and social innovation to create sustainable models of empowerment that endure beyond inspiration.'}
+              {getContent('intro', 'content2')}
             </p>
 
             <p className="text-lg leading-relaxed text-stone-600 mb-12">
-              {getContent('intro', 'content3') || 'Through guided empowerment, transformational education, and community initiatives, we reconnect women to their voice, agency, and power to create lasting change.'}
+              {getContent('intro', 'content3')}
             </p>
           </div>
         </div>

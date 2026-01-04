@@ -92,7 +92,7 @@ async function seed() {
       { page: 'contact', section: 'info', contentKey: 'heading', contentValue: 'Get in Touch' },
       { page: 'contact', section: 'info', contentKey: 'description', contentValue: 'Whether you are interested in partnership, coaching, or simply have a question, we invite you to reach out. Our team is dedicated to supporting your journey of empowerment and transformation.' },
       { page: 'contact', section: 'info', contentKey: 'location', contentValue: 'Austin, Texas' },
-      { page: 'contact', section: 'info', contentKey: 'email', contentValue: 'connect@justxempower.com' },
+      { page: 'contact', section: 'info', contentKey: 'email', contentValue: 'partners@justxempower.com' },
       
       // Walk With Us page
       { page: 'walk-with-us', section: 'hero', contentKey: 'title', contentValue: 'Walk With Us' },

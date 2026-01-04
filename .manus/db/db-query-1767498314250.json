@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO siteContent (page, section, contentKey, contentValue) VALUES \n('contact', 'hero', 'title', 'Connect'),\n('contact', 'hero', 'subtitle', 'Begin the Conversation'),\n('contact', 'info', 'heading', 'Get in Touch'),\n('contact', 'info', 'description', 'Whether you are interested in partnership, coaching, or simply have a question, we invite you to reach out. Our team is dedicated to supporting your journey of empowerment and transformation.'),\n('contact', 'info', 'location', 'Austin, Texas'),\n('contact', 'info', 'email', 'partners@justxempower.com')\nON DUPLICATE KEY UPDATE contentValue = VALUES(contentValue);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute INSERT INTO siteContent (page, section, contentKey, contentValue) VALUES \n('contact', 'hero', 'title', 'Connect'),\n('contact', 'hero', 'subtitle', 'Begin the Conversation'),\n('contact', 'info', 'heading', 'Get in Touch'),\n('contact', 'info', 'description', 'Whether you are interested in partnership, coaching, or simply have a question, we invite you to reach out. Our team is dedicated to supporting your journey of empowerment and transformation.'),\n('contact', 'info', 'location', 'Austin, Texas'),\n('contact', 'info', 'email', 'partners@justxempower.com')\nON DUPLICATE KEY UPDATE contentValue = VALUES(contentValue);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 61
+}

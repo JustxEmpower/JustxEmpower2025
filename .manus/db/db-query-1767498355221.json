@@ -1,0 +1,240 @@
+{
+  "query": "SELECT page, section, COUNT(*) as count FROM siteContent GROUP BY page, section ORDER BY page, section;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 4LjqDmVpjTdU4x3.f803f9e43b11 --database nfjRiEndnKWe5mynUDANL9 --execute SELECT page, section, COUNT(*) as count FROM siteContent GROUP BY page, section ORDER BY page, section;",
+  "rows": [
+    {
+      "page": "about",
+      "section": "hero",
+      "count": "4"
+    },
+    {
+      "page": "blog",
+      "section": "hero",
+      "count": "4"
+    },
+    {
+      "page": "blog",
+      "section": "overview",
+      "count": "3"
+    },
+    {
+      "page": "community-events",
+      "section": "hero",
+      "count": "4"
+    },
+    {
+      "page": "community-events",
+      "section": "overview",
+      "count": "3"
+    },
+    {
+      "page": "contact",
+      "section": "hero",
+      "count": "2"
+    },
+    {
+      "page": "contact",
+      "section": "info",
+      "count": "4"
+    },
+    {
+      "page": "events",
+      "section": "hero",
+      "count": "3"
+    },
+    {
+      "page": "founder",
+      "section": "depth",
+      "count": "6"
+    },
+    {
+      "page": "founder",
+      "section": "hero",
+      "count": "10"
+    },
+    {
+      "page": "founder",
+      "section": "opening",
+      "count": "6"
+    },
+    {
+      "page": "founder",
+      "section": "truth",
+      "count": "6"
+    },
+    {
+      "page": "home",
+      "section": "carousel",
+      "count": "16"
+    },
+    {
+      "page": "home",
+      "section": "community",
+      "count": "6"
+    },
+    {
+      "page": "home",
+      "section": "footer",
+      "count": "5"
+    },
+    {
+      "page": "home",
+      "section": "hero",
+      "count": "7"
+    },
+    {
+      "page": "home",
+      "section": "offerings",
+      "count": "1"
+    },
+    {
+      "page": "home",
+      "section": "offeringsCarousel",
+      "count": "13"
+    },
+    {
+      "page": "home",
+      "section": "philosophy",
+      "count": "6"
+    },
+    {
+      "page": "home",
+      "section": "rootedUnity",
+      "count": "6"
+    },
+    {
+      "page": "home",
+      "section": "rootedUnitySection",
+      "count": "6"
+    },
+    {
+      "page": "journal",
+      "section": "hero",
+      "count": "3"
+    },
+    {
+      "page": "offerings",
+      "section": "emerge",
+      "count": "6"
+    },
+    {
+      "page": "offerings",
+      "section": "hero",
+      "count": "4"
+    },
+    {
+      "page": "offerings",
+      "section": "rootedUnity",
+      "count": "6"
+    },
+    {
+      "page": "offerings",
+      "section": "seeds",
+      "count": "6"
+    },
+    {
+      "page": "offerings",
+      "section": "sheWrites",
+      "count": "6"
+    },
+    {
+      "page": "philosophy",
+      "section": "hero",
+      "count": "4"
+    },
+    {
+      "page": "philosophy",
+      "section": "newsletter",
+      "count": "4"
+    },
+    {
+      "page": "philosophy",
+      "section": "principles",
+      "count": "7"
+    },
+    {
+      "page": "resources",
+      "section": "hero",
+      "count": "4"
+    },
+    {
+      "page": "resources",
+      "section": "overview",
+      "count": "3"
+    },
+    {
+      "page": "shop",
+      "section": "hero",
+      "count": "4"
+    },
+    {
+      "page": "shop",
+      "section": "overview",
+      "count": "3"
+    },
+    {
+      "page": "vision-ethos",
+      "section": "ethos",
+      "count": "4"
+    },
+    {
+      "page": "vision-ethos",
+      "section": "hero",
+      "count": "4"
+    },
+    {
+      "page": "vision-ethos",
+      "section": "vision",
+      "count": "3"
+    },
+    {
+      "page": "vix-journal-trilogy",
+      "section": "hero",
+      "count": "4"
+    },
+    {
+      "page": "vix-journal-trilogy",
+      "section": "overview",
+      "count": "3"
+    },
+    {
+      "page": "vix-journal-trilogy",
+      "section": "volumes",
+      "count": "10"
+    },
+    {
+      "page": "walk-with-us",
+      "section": "hero",
+      "count": "4"
+    },
+    {
+      "page": "walk-with-us",
+      "section": "options",
+      "count": "7"
+    },
+    {
+      "page": "walk-with-us",
+      "section": "overview",
+      "count": "3"
+    },
+    {
+      "page": "workshops-programs",
+      "section": "hero",
+      "count": "4"
+    },
+    {
+      "page": "workshops-programs",
+      "section": "offerings",
+      "count": "7"
+    },
+    {
+      "page": "workshops-programs",
+      "section": "overview",
+      "count": "3"
+    }
+  ],
+  "messages": [],
+  "stdout": "page\tsection\tcount\nabout\thero\t4\nblog\thero\t4\nblog\toverview\t3\ncommunity-events\thero\t4\ncommunity-events\toverview\t3\ncontact\thero\t2\ncontact\tinfo\t4\nevents\thero\t3\nfounder\tdepth\t6\nfounder\thero\t10\nfounder\topening\t6\nfounder\ttruth\t6\nhome\tcarousel\t16\nhome\tcommunity\t6\nhome\tfooter\t5\nhome\thero\t7\nhome\tofferings\t1\nhome\tofferingsCarousel\t13\nhome\tphilosophy\t6\nhome\trootedUnity\t6\nhome\trootedUnitySection\t6\njournal\thero\t3\nofferings\temerge\t6\nofferings\thero\t4\nofferings\trootedUnity\t6\nofferings\tseeds\t6\nofferings\tsheWrites\t6\nphilosophy\thero\t4\nphilosophy\tnewsletter\t4\nphilosophy\tprinciples\t7\nresources\thero\t4\nresources\toverview\t3\nshop\thero\t4\nshop\toverview\t3\nvision-ethos\tethos\t4\nvision-ethos\thero\t4\nvision-ethos\tvision\t3\nvix-journal-trilogy\thero\t4\nvix-journal-trilogy\toverview\t3\nvix-journal-trilogy\tvolumes\t10\nwalk-with-us\thero\t4\nwalk-with-us\toptions\t7\nwalk-with-us\toverview\t3\nworkshops-programs\thero\t4\nworkshops-programs\tofferings\t7\nworkshops-programs\toverview\t3\n",
+  "stderr": "",
+  "execution_time_ms": 50
+}

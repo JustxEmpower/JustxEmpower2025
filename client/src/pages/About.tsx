@@ -19,56 +19,56 @@ export default function About() {
   };
 
   // Get hero content from CMS
-  const heroTitle = getContent('hero', 'title') || 'The Founder';
-  const heroSubtitle = getContent('hero', 'subtitle') || 'April Gambardella';
-  const heroDescription = getContent('hero', 'description') || 'Steward of Embodied Change & Energetic Coherence';
-  const heroVideoUrl = getContent('hero', 'videoUrl') || '';
-  const heroImageUrl = getContent('hero', 'imageUrl') || '';
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroDescription = getContent('hero', 'description');
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
   
   // Determine which media to use for hero (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;
   const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
   // Get opening section content from CMS
-  const openingParagraph1 = getContent('opening', 'paragraph1') || 'From the moment my eyes opened to this world, I have been drawn to truth—not from a need to know, but from a need to understand. This inclination was nurtured by my mother, who taught me that true stewardship means leaving everything better than we found it: a space, a system, or the Earth itself.';
-  const openingParagraph2 = getContent('opening', 'paragraph2') || 'That ethos of restoration and responsibility became the ground of my devotion. Over time, it expanded beyond personal integrity into a greater mission: empowering visionaries, reimagining inherited systems, and contributing to planetary regeneration.';
-  const openingParagraph3 = getContent('opening', 'paragraph3') || 'Just as we are responsible for the spaces we inhabit, we are stewards of the Earth, entrusted with its vitality.';
+  const openingParagraph1 = getContent('opening', 'paragraph1');
+  const openingParagraph2 = getContent('opening', 'paragraph2');
+  const openingParagraph3 = getContent('opening', 'paragraph3');
 
   // Get truth section content from CMS
-  const truthTitle = getContent('truth', 'title') || 'Just Empower is Built on This Truth';
-  const truthDescription = getContent('truth', 'description') || 'Real change is both individual and collective—an energetic imprint that reverberates through humanity and the living world alike.';
+  const truthTitle = getContent('truth', 'title');
+  const truthDescription = getContent('truth', 'description');
 
   // Get depth section content from CMS
-  const depthTitle = getContent('depth', 'title') || 'The Depth Beneath the Framework';
-  const depthParagraph1 = getContent('depth', 'paragraph1') || 'Though my roots first took hold in Southern California, I have since grounded in the vibrant soils of Austin, Texas, a sanctuary that attuned my rhythm, mirrored my reinvention, and revealed the sacred nature of emergence.';
-  const depthParagraph2 = getContent('depth', 'paragraph2') || 'My understanding of trauma, healing, and transformation is not theoretical; it was forged through lived experience.';
-  const depthParagraph3 = getContent('depth', 'paragraph3') || 'With a degree in Communication Studies and a background in law, I came to know the mechanics of language, perception, and influence. Ongoing studies in consciousness, energy dynamics, and systemic change offered the scaffolding, but it was the descent itself that transmuted knowledge into truth.';
-  const depthParagraph4 = getContent('depth', 'paragraph4') || 'I was not taught—I was tempered. Not by intellect, but by initiation.';
-  const depthParagraph5 = getContent('depth', 'paragraph5') || 'The truths I carry were etched into the language of my body as knowing. What emerged now lives within our offerings and through the field of Just Empower.';
+  const depthTitle = getContent('depth', 'title');
+  const depthParagraph1 = getContent('depth', 'paragraph1');
+  const depthParagraph2 = getContent('depth', 'paragraph2');
+  const depthParagraph3 = getContent('depth', 'paragraph3');
+  const depthParagraph4 = getContent('depth', 'paragraph4');
+  const depthParagraph5 = getContent('depth', 'paragraph5');
 
   // Get remembrance section content from CMS
-  const remembranceTitle = getContent('remembrance', 'title') || 'The Thread of Remembrance';
+  const remembranceTitle = getContent('remembrance', 'title');
   const remembranceQuote = getContent('remembrance', 'quote') || "There is a beauty only those who've crossed the underworld can name—a beauty born from witnessing the fragility of the human spirit... and the brilliance of its capacity to rebuild, rewire, and rise.";
-  const remembranceParagraph1 = getContent('remembrance', 'paragraph1') || 'My work emerged through direct immersion in the complexity of this human experience. I have known despair, but more importantly, I understand what it reveals: The intricacies of trauma. The intelligence of the body. The language of energy. The architecture of reality itself.';
-  const remembranceParagraph2 = getContent('remembrance', 'paragraph2') || 'What remains is not conceptual; it is cellular. It moves like memory through the body—quiet, rhythmic, alive—restoring what was scattered into harmony once more.';
-  const remembranceParagraph3 = getContent('remembrance', 'paragraph3') || 'I have known the devastation life can impose on the spirit—but I have also witnessed the extraordinary beauty of existence, and the indomitable power of the human soul.';
-  const remembranceParagraph4 = getContent('remembrance', 'paragraph4') || 'I live by this truth: Until we break from the systems that shaped our suffering—the wounds inflicted, the identities imposed, the weight that was never ours to carry—we cannot reclaim our sovereign power.';
+  const remembranceParagraph1 = getContent('remembrance', 'paragraph1');
+  const remembranceParagraph2 = getContent('remembrance', 'paragraph2');
+  const remembranceParagraph3 = getContent('remembrance', 'paragraph3');
+  const remembranceParagraph4 = getContent('remembrance', 'paragraph4');
 
   // Get renewal section content from CMS
-  const renewalTitle = getContent('renewal', 'title') || 'Just Empower is That Renewal';
-  const renewalParagraph1 = getContent('renewal', 'paragraph1') || 'It is not simply about healing. It is a return—to memory, to frequency, to the feminine blueprint reactivated from within.';
-  const renewalParagraph2 = getContent('renewal', 'paragraph2') || 'Not the version that adapted to survive, but the one that creates, remembers, and leads.';
+  const renewalTitle = getContent('renewal', 'title');
+  const renewalParagraph1 = getContent('renewal', 'paragraph1');
+  const renewalParagraph2 = getContent('renewal', 'paragraph2');
 
   // Get future section content from CMS
-  const futureTitle = getContent('future', 'title') || 'Just Empower: The Future is Ours to Shape';
+  const futureTitle = getContent('future', 'title');
   const futureParagraph1 = getContent('future', 'paragraph1') || "The future isn't something we wait for; it's something we restore and embody.";
-  const futureParagraph2 = getContent('future', 'paragraph2') || 'Just Empower is a catalytic framework where personal evolution becomes the foundation for collective change.';
+  const futureParagraph2 = getContent('future', 'paragraph2');
   const futureParagraph3 = getContent('future', 'paragraph3') || "It's for those who refuse stagnation—who know that reality isn't inherited, but rewritten.";
-  const futureParagraph4 = getContent('future', 'paragraph4') || 'This is crossing through time. A sacred reclamation. A restoration, for ourselves, for every woman who came before, and every daughter yet to rise.';
+  const futureParagraph4 = getContent('future', 'paragraph4');
 
   // Get newsletter section content from CMS
-  const newsletterTitle = getContent('newsletter', 'title') || 'Stay Connected';
-  const newsletterDescription = getContent('newsletter', 'description') || 'Join our monthly mailing list for insights on embodied transformation and conscious leadership.';
+  const newsletterTitle = getContent('newsletter', 'title');
+  const newsletterDescription = getContent('newsletter', 'description');
 
   useEffect(() => {
     if (videoRef.current) {
