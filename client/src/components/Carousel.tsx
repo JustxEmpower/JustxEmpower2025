@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
 import { getMediaUrl } from '@/lib/media';
-import { useCarousel } from '@/hooks/useCarousel';
+import { trpc } from '@/lib/trpc';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -50,8 +50,8 @@ export default function Carousel() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
 
-  // Fetch carousel offerings from database using the useCarousel hook
-  const { offerings: dbOfferings, isLoading } = useCarousel();
+  // Fetch carousel offerings from database
+  const { data: dbOfferings, isLoading } = trpc.carousel.getAll.useQuery();
 
   // Use database offerings if available, otherwise use fallback
   const offerings = dbOfferings && dbOfferings.length > 0 

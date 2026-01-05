@@ -2,7 +2,11 @@
  * Seed script for pageSections via tRPC API
  */
 
-const BASE_URL = 'https://3000-ie80pjmorydyx4i21n5ry-44913c53.us2.manus.computer';
+// BASE_URL must be set via environment variable - no hardcoded URLs
+const BASE_URL = process.env.BASE_URL || 'http://localhost:8080';
+if (!process.env.BASE_URL) {
+  console.log('Warning: BASE_URL not set, using localhost:8080');
+}
 
 // Define sections for each page type
 const pageSectionDefinitions = {

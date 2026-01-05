@@ -1,15 +1,5 @@
 import React from 'react';
 import { PageBlock } from './usePageBuilderStore';
-import {
-  JEHeroRenderer,
-  JESectionRenderer,
-  JECarouselRenderer,
-  JENewsletterRenderer,
-  JEQuoteRenderer,
-  JEPillarGridRenderer,
-  JECommunityRenderer,
-  JERootedUnityRenderer,
-} from './renderers/JEBlockRenderers';
 import { getBlockById } from './blockTypes';
 import {
   Layout,
@@ -655,23 +645,6 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
         return <CodeBlock content={content} />;
       case 'html':
         return <HTMLBlock content={content} />;
-      // JustEmpower Blocks
-      case 'je-hero':
-        return <JEHeroRenderer block={block} />;
-      case 'je-section':
-        return <JESectionRenderer block={block} />;
-      case 'je-carousel':
-        return <JECarouselRenderer block={block} />;
-      case 'je-newsletter':
-        return <JENewsletterRenderer block={block} />;
-      case 'je-quote':
-        return <JEQuoteRenderer block={block} />;
-      case 'je-pillar-grid':
-        return <JEPillarGridRenderer block={block} />;
-      case 'je-community':
-        return <JECommunityRenderer block={block} />;
-      case 'je-rooted-unity':
-        return <JERootedUnityRenderer block={block} />;
       default:
         return <PlaceholderBlock block={block} />;
     }

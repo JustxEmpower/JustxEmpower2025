@@ -1,10 +1,10 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { usePageSectionContent } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 
 export default function AboutJustEmpower() {
   const [location] = useLocation();
-  const { getSection, isLoading } = usePageSectionContent('about-justxempower');
+  const { getContent, isLoading } = usePageContent('about-just-empower');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -18,29 +18,25 @@ export default function AboutJustEmpower() {
     );
   }
 
-  // Get content from CMS
-  const heroContent = getSection('hero');
-  const heroTitle = heroContent.title || 'About JustxEmpower';
-  const heroSubtitle = heroContent.subtitle || 'The Organization';
-  const heroImageUrl = heroContent.imageUrl || '';
+  // Get content from CMS with minimal fallbacks
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroImageUrl = getContent('hero', 'imageUrl');
 
-  const contentSection = getSection('content');
-  const introText = contentSection.description || '';
-  const introText2 = contentSection.content2 || '';
-  const introText3 = contentSection.content3 || '';
+  const introText = getContent('intro', 'content');
 
-  const missionTitle = contentSection.title || 'Our Mission';
-  const missionDescription = contentSection.missionDescription || '';
-  const missionIntro = contentSection.missionIntro || '';
+  const missionTitle = getContent('mission', 'title');
+  const missionDescription = getContent('mission', 'description');
+  const missionIntro = getContent('mission', 'intro');
 
-  const pillar1Title = contentSection.pillar1Title || '';
-  const pillar1Desc = contentSection.pillar1Description || '';
+  const pillar1Title = getContent('pillar1', 'title');
+  const pillar1Desc = getContent('pillar1', 'description');
 
-  const pillar2Title = contentSection.pillar2Title || '';
-  const pillar2Desc = contentSection.pillar2Description || '';
+  const pillar2Title = getContent('pillar2', 'title');
+  const pillar2Desc = getContent('pillar2', 'description');
 
-  const pillar3Title = contentSection.pillar3Title || '';
-  const pillar3Desc = contentSection.pillar3Description || '';
+  const pillar3Title = getContent('pillar3', 'title');
+  const pillar3Desc = getContent('pillar3', 'description');
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-stone-50 to-stone-100">
@@ -49,8 +45,7 @@ export default function AboutJustEmpower() {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: heroImageUrl ? `url('${heroImageUrl}')` : undefined,
-            backgroundColor: !heroImageUrl ? '#1c1917' : undefined,
+            backgroundImage: `url('${heroImageUrl}')`,
           }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70" />
@@ -70,89 +65,69 @@ export default function AboutJustEmpower() {
       <section className="py-20 px-6">
         <div className="container max-w-4xl">
           <div className="prose prose-lg prose-stone mx-auto">
-            {introText && (
-              <p className="text-xl leading-relaxed text-stone-700 mb-8">
-                {introText}
-              </p>
-            )}
+            <p className="text-xl leading-relaxed text-stone-700 mb-8">
+              {introText}
+            </p>
 
-            {introText2 && (
-              <p className="text-lg leading-relaxed text-stone-600 mb-8">
-                {introText2}
-              </p>
-            )}
+            <p className="text-lg leading-relaxed text-stone-600 mb-8">
+              {getContent('intro', 'content2')}
+            </p>
 
-            {introText3 && (
-              <p className="text-lg leading-relaxed text-stone-600 mb-12">
-                {introText3}
-              </p>
-            )}
+            <p className="text-lg leading-relaxed text-stone-600 mb-12">
+              {getContent('intro', 'content3')}
+            </p>
           </div>
         </div>
       </section>
 
       {/* Mission Section */}
-      {(missionTitle || pillar1Title || pillar2Title || pillar3Title) && (
-        <section className="py-20 px-6 bg-stone-900 text-stone-100">
-          <div className="container max-w-5xl">
-            {missionTitle && (
-              <h2 className="font-serif text-4xl md:text-5xl text-center mb-12">
-                {missionTitle}
-              </h2>
-            )}
+      <section className="py-20 px-6 bg-stone-900 text-stone-100">
+        <div className="container max-w-5xl">
+          <h2 className="font-serif text-4xl md:text-5xl text-center mb-12">
+            {missionTitle}
+          </h2>
 
-            {missionDescription && (
-              <p className="text-xl leading-relaxed text-center mb-12 max-w-3xl mx-auto">
-                {missionDescription}
+          <p className="text-xl leading-relaxed text-center mb-12 max-w-3xl mx-auto">
+            {missionDescription}
+          </p>
+
+          <p className="text-lg text-center mb-12 text-stone-300">
+            {missionIntro}
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {/* Pillar 1 */}
+            <div className="bg-stone-800/50 p-8 rounded-lg border border-stone-700">
+              <h3 className="font-serif text-2xl mb-4 text-amber-200">
+                {pillar1Title}
+              </h3>
+              <p className="text-stone-300 leading-relaxed">
+                {pillar1Desc}
               </p>
-            )}
+            </div>
 
-            {missionIntro && (
-              <p className="text-lg text-center mb-12 text-stone-300">
-                {missionIntro}
+            {/* Pillar 2 */}
+            <div className="bg-stone-800/50 p-8 rounded-lg border border-stone-700">
+              <h3 className="font-serif text-2xl mb-4 text-amber-200">
+                {pillar2Title}
+              </h3>
+              <p className="text-stone-300 leading-relaxed">
+                {pillar2Desc}
               </p>
-            )}
+            </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              {/* Pillar 1 */}
-              {pillar1Title && (
-                <div className="bg-stone-800/50 p-8 rounded-lg border border-stone-700">
-                  <h3 className="font-serif text-2xl mb-4 text-amber-200">
-                    {pillar1Title}
-                  </h3>
-                  <p className="text-stone-300 leading-relaxed">
-                    {pillar1Desc}
-                  </p>
-                </div>
-              )}
-
-              {/* Pillar 2 */}
-              {pillar2Title && (
-                <div className="bg-stone-800/50 p-8 rounded-lg border border-stone-700">
-                  <h3 className="font-serif text-2xl mb-4 text-amber-200">
-                    {pillar2Title}
-                  </h3>
-                  <p className="text-stone-300 leading-relaxed">
-                    {pillar2Desc}
-                  </p>
-                </div>
-              )}
-
-              {/* Pillar 3 */}
-              {pillar3Title && (
-                <div className="bg-stone-800/50 p-8 rounded-lg border border-stone-700">
-                  <h3 className="font-serif text-2xl mb-4 text-amber-200">
-                    {pillar3Title}
-                  </h3>
-                  <p className="text-stone-300 leading-relaxed">
-                    {pillar3Desc}
-                  </p>
-                </div>
-              )}
+            {/* Pillar 3 */}
+            <div className="bg-stone-800/50 p-8 rounded-lg border border-stone-700">
+              <h3 className="font-serif text-2xl mb-4 text-amber-200">
+                {pillar3Title}
+              </h3>
+              <p className="text-stone-300 leading-relaxed">
+                {pillar3Desc}
+              </p>
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
     </div>
   );
 }

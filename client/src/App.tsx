@@ -39,7 +39,6 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import About from "./pages/About";
-import Founder from "./pages/Founder";
 import AboutJustEmpower from "./pages/AboutJustEmpower";
 import Philosophy from "./pages/Philosophy";
 import Offerings from "./pages/Offerings";
@@ -112,7 +111,7 @@ function Router() {
       <Route path="/offerings" component={Offerings} />
       <Route path="/journal" component={Journal} />
       <Route path="/contact" component={Contact} />
-      <Route path="/founder" component={Founder} />
+      <Route path="/founder" component={About} />
       <Route path="/vision-ethos" component={Philosophy} />
       <Route path="/workshops-programs" component={Offerings} />
       <Route path="/vix-journal-trilogy" component={Journal} />

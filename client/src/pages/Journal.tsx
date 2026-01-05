@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useLocation, Link } from 'wouter';
 import { cn } from '@/lib/utils';
+import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
-import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 
 export default function Journal() {
   const [location] = useLocation();
@@ -11,20 +12,8 @@ export default function Journal() {
   const [offset, setOffset] = useState(0);
   const [allArticles, setAllArticles] = useState<any[]>([]);
   
-  // Get page content from database - 100% database driven
-  const { sections, isLoading: contentLoading } = usePageSectionContent('blog');
-  
-  // Get section by sectionType
-  const getSectionByType = (sectionType: string) => {
-    const section = sections.find(s => s.sectionType === sectionType);
-    return section?.content || {};
-  };
-  
-  // Get sections by their sectionId in content
-  const getSectionBySectionId = (sectionId: string) => {
-    const section = sections.find(s => s.content?.sectionId === sectionId);
-    return section?.content || {};
-  };
+  // Get page content from database
+  const { getContent, isLoading: contentLoading } = usePageContent('blog');
 
   const { data: articles, isLoading, refetch } = trpc.articles.list.useQuery({
     limit,
@@ -52,25 +41,30 @@ export default function Journal() {
   const featuredPost = allArticles[0] || null;
   const regularPosts = allArticles.slice(1);
 
-  // Get hero content from CMS - 100% database driven
-  const heroSection = getSectionByType('hero');
-  const heroTitle = heroSection.title || '';
-  const heroSubtitle = heroSection.subtitle || '';
-  const heroDescription = heroSection.description || '';
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
+
+  // Get hero content from CMS
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroDescription = getContent('hero', 'description');
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
   
   // Determine which media to use for hero (video takes priority)
-  const heroMediaUrl = heroSection.videoUrl || heroSection.imageUrl || '';
+  const heroMediaUrl = heroVideoUrl || heroImageUrl;
   const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
   // Get overview content from database
-  const overviewSection = getSectionBySectionId('overview') || getSectionByType('articles');
-  const overviewTitle = overviewSection.title || '';
-  const overviewParagraph1 = overviewSection.paragraph1 || overviewSection.description || '';
-  const overviewParagraph2 = overviewSection.paragraph2 || '';
+  const overviewTitle = getContent('overview', 'title');
+  const overviewParagraph1 = getContent('overview', 'paragraph1');
+  const overviewParagraph2 = getContent('overview', 'paragraph2');
 
   // Get fallback image for articles from CMS
-  const articlesSection = getSectionByType('articles');
-  const articleFallbackImage = articlesSection.fallbackImageUrl || '';
+  const articleFallbackImage = getContent('articles', 'fallbackImageUrl');
 
   if (contentLoading) {
     return (

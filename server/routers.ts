@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
-import { adminRouter, publicArticlesRouter, publicContentRouter, publicPagesRouter, aiChatAnalyticsRouter, publicThemeRouter, publicSiteSettingsRouter, carouselRouter, publicNavigationRouter, pageSectionsRouter } from "./adminRouters";
+import { adminRouter, publicArticlesRouter, publicContentRouter, publicPagesRouter, aiChatAnalyticsRouter, publicThemeRouter, publicSiteSettingsRouter, carouselRouter } from "./adminRouters";
 import { shopRouter } from "./shopRouter";
 import { eventsRouter } from "./eventsRouter";
 import { adminResourcesRouter, publicResourcesRouter } from "./resourcesRouter";
@@ -68,12 +68,6 @@ export const appRouter = router({
   
   // Carousel offerings for homepage
   carousel: carouselRouter,
-  
-  // Navigation for header/footer
-  navigation: publicNavigationRouter,
-  
-  // Page sections for section-based content management
-  pageSections: pageSectionsRouter,
 });
 
 export type AppRouter = typeof appRouter;

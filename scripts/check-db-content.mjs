@@ -4,7 +4,12 @@
 
 import mysql from 'mysql2/promise';
 
-const DATABASE_URL = process.env.DATABASE_URL || 'mysql://admin:JustEmpower2024!@justxempower-mysql.cjuq6qmqkgfq.us-east-1.rds.amazonaws.com:3306/justxempower';
+// DATABASE_URL must be set via environment variable - no hardcoded URLs
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  console.error('ERROR: DATABASE_URL environment variable is required');
+  process.exit(1);
+}
 
 // Parse DATABASE_URL
 const url = new URL(DATABASE_URL.replace('mysql://', 'http://'));

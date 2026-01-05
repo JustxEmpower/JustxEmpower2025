@@ -20,6 +20,10 @@ export default function Philosophy() {
   const heroVideoUrl = getContent('hero', 'videoUrl');
   const heroImageUrl = getContent('hero', 'imageUrl');
 
+  // Determine which media to use for hero (video takes priority)
+  const heroMediaUrl = heroVideoUrl || heroImageUrl || '';
+  const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
+
   // Get principles content from CMS
   const principlesTitle = getContent('principles', 'title');
   const principlesImageUrl = getContent('principles', 'imageUrl');
@@ -45,10 +49,6 @@ export default function Philosophy() {
     if (!url) return '';
     return url.startsWith('http') ? url : getMediaUrl(url);
   };
-
-  // Determine which media to use for hero (video takes priority)
-  const heroMediaUrl = heroVideoUrl || heroImageUrl || '';
-  const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
   if (isLoading) {
     return (
