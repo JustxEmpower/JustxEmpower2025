@@ -11,7 +11,7 @@ import pg from 'pg';
 const { Client } = pg;
 
 // Use the live PostgreSQL database connection
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://justxempower:Disney187@justxempower-db.cpac6eiq8jzi.us-east-2.rds.amazonaws.com:5432/justxempower?sslmode=require';
+const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://justxempower:JustEmpower2025Secure@justxempower-db.cg7k02qmmmt6.us-east-1.rds.amazonaws.com:5432/justxempower';
 
 async function restore() {
   console.log('🔧 Starting content restoration from commit 62d36e4...\n');
