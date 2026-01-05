@@ -46,7 +46,7 @@ async function restore() {
     // First, hide all footer/legal pages from nav
     for (const slug of hiddenFromNav) {
       await client.query(
-        'UPDATE pages SET "showInNav" = false, "navOrder" = 999 WHERE slug = $1',
+        'UPDATE pages SET "showInNav" = 0, "navOrder" = 999 WHERE slug = $1',
         [slug]
       );
       console.log(`  ✓ Hidden from nav: ${slug}`);
@@ -66,7 +66,7 @@ async function restore() {
     // Set main nav pages
     for (const page of mainNavPages) {
       await client.query(
-        'UPDATE pages SET "showInNav" = true, "navOrder" = $1 WHERE slug = $2',
+        'UPDATE pages SET "showInNav" = 1, "navOrder" = $1 WHERE slug = $2',
         [page.navOrder, page.slug]
       );
       console.log(`  ✓ Main nav: ${page.slug} (order: ${page.navOrder})`);
@@ -88,7 +88,7 @@ async function restore() {
     
     for (const slug of subPages) {
       await client.query(
-        'UPDATE pages SET "showInNav" = false, "navOrder" = 999 WHERE slug = $1',
+        'UPDATE pages SET "showInNav" = 0, "navOrder" = 999 WHERE slug = $1',
         [slug]
       );
       console.log(`  ✓ Sub-page hidden: ${slug}`);
