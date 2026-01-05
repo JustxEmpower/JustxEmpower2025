@@ -1771,3 +1771,29 @@ NODE_ENV=production
 - [ ] Missing hero videos on Offerings page  
 - [ ] Missing hero image on Founder page
 - [ ] Gray placeholder images on multiple pages
+
+
+## CMS Content Display Fix (Jan 4, 2026) ✅
+
+- [x] Fix Founder page to read from CMS database instead of hardcoded values
+- [x] Create dedicated Founder.tsx component that queries 'founder' content
+- [x] Audit all pages to ensure they read from siteContent database
+- [x] Verify Philosophy page reads from 'philosophy' content ✅
+- [x] Verify Offerings page reads from 'offerings' content ✅
+- [x] Verify Contact page reads from 'contact' content ✅
+- [x] Verify Home page reads from 'home' content ✅
+- [x] Deploy fixes to EC2 production
+- [x] Verify Founder page displays "APRIL GAMBARDELLA" from CMS on production ✅
+
+
+## Content Migration from Commit 62d36e4 (Jan 4, 2026)
+
+- [ ] Read commit 62d36e4 to extract original correct content
+- [ ] Extract Home page content (correct lava video, hero text, all sections)
+- [ ] Extract Founder page content (correct images, biography, journey text)
+- [ ] Extract Philosophy page content
+- [ ] Extract Offerings page content
+- [ ] Extract all other pages content
+- [ ] Update CMS siteContent database with correct content
+- [ ] Deploy to EC2 production
+- [ ] Verify all pages display correct content
