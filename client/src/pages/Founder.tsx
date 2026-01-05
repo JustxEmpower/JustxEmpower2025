@@ -8,7 +8,6 @@ import { usePageContent } from '@/hooks/usePageContent';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Founder() {
-  // Query 'founder' content from CMS database
   const { getContent, isLoading } = usePageContent('founder');
   const heroRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -20,9 +19,9 @@ export default function Founder() {
   };
 
   // Get hero content from CMS
-  const heroTitle = getContent('hero', 'title', 'The Founder');
-  const heroSubtitle = getContent('hero', 'subtitle', 'APRIL GAMBARDELLA');
-  const heroDescription = getContent('hero', 'description', 'Steward of Embodied Change & Energetic Coherence');
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroDescription = getContent('hero', 'description');
   const heroVideoUrl = getContent('hero', 'videoUrl');
   const heroImageUrl = getContent('hero', 'imageUrl');
   
@@ -30,30 +29,46 @@ export default function Founder() {
   const heroMediaUrl = heroVideoUrl || heroImageUrl;
   const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
-  // Get biography section content from CMS
-  const biographyTitle = getContent('biography', 'title', 'Biography');
-  const biographyParagraph1 = getContent('biography', 'paragraph1');
-  const biographyParagraph2 = getContent('biography', 'paragraph2');
-  const biographyParagraph3 = getContent('biography', 'paragraph3');
+  // Get opening section content from CMS
+  const openingParagraph1 = getContent('opening', 'paragraph1');
+  const openingParagraph2 = getContent('opening', 'paragraph2');
+  const openingParagraph3 = getContent('opening', 'paragraph3');
 
-  // Get journey section content from CMS
-  const journeyTitle = getContent('journey', 'title', 'The Journey');
-  const journeyParagraph1 = getContent('journey', 'paragraph1');
-  const journeyParagraph2 = getContent('journey', 'paragraph2');
-  const journeyParagraph3 = getContent('journey', 'paragraph3');
+  // Get truth section content from CMS
+  const truthTitle = getContent('truth', 'title');
+  const truthDescription = getContent('truth', 'description');
 
-  // Get personal quote section from CMS
-  const quoteText = getContent('quote', 'text');
-  const quoteAuthor = getContent('quote', 'author', 'April Gambardella');
+  // Get depth section content from CMS
+  const depthTitle = getContent('depth', 'title');
+  const depthParagraph1 = getContent('depth', 'paragraph1');
+  const depthParagraph2 = getContent('depth', 'paragraph2');
+  const depthParagraph3 = getContent('depth', 'paragraph3');
+  const depthParagraph4 = getContent('depth', 'paragraph4');
+  const depthParagraph5 = getContent('depth', 'paragraph5');
 
-  // Get social links from CMS
-  const socialInstagram = getContent('social', 'instagram');
-  const socialLinkedIn = getContent('social', 'linkedin');
-  const socialTwitter = getContent('social', 'twitter');
+  // Get remembrance section content from CMS
+  const remembranceTitle = getContent('remembrance', 'title');
+  const remembranceQuote = getContent('remembrance', 'quote');
+  const remembranceParagraph1 = getContent('remembrance', 'paragraph1');
+  const remembranceParagraph2 = getContent('remembrance', 'paragraph2');
+  const remembranceParagraph3 = getContent('remembrance', 'paragraph3');
+  const remembranceParagraph4 = getContent('remembrance', 'paragraph4');
+
+  // Get renewal section content from CMS
+  const renewalTitle = getContent('renewal', 'title');
+  const renewalParagraph1 = getContent('renewal', 'paragraph1');
+  const renewalParagraph2 = getContent('renewal', 'paragraph2');
+
+  // Get future section content from CMS
+  const futureTitle = getContent('future', 'title');
+  const futureParagraph1 = getContent('future', 'paragraph1');
+  const futureParagraph2 = getContent('future', 'paragraph2');
+  const futureParagraph3 = getContent('future', 'paragraph3');
+  const futureParagraph4 = getContent('future', 'paragraph4');
 
   // Get newsletter section content from CMS
-  const newsletterTitle = getContent('newsletter', 'title', 'Stay Connected');
-  const newsletterDescription = getContent('newsletter', 'description', 'Join our community for updates on workshops, events, and new offerings.');
+  const newsletterTitle = getContent('newsletter', 'title');
+  const newsletterDescription = getContent('newsletter', 'description');
 
   useEffect(() => {
     if (videoRef.current) {
@@ -64,7 +79,7 @@ export default function Founder() {
 
     const ctx = gsap.context(() => {
       // Fade in hero text
-      gsap.from('.founder-hero-text', {
+      gsap.from('.about-hero-text', {
         y: 50,
         opacity: 0,
         duration: 1.5,
@@ -72,20 +87,18 @@ export default function Founder() {
         delay: 0.3
       });
 
-      // Parallax video/image
-      if (heroRef.current) {
-        gsap.to(videoRef.current || heroRef.current.querySelector('.hero-bg'), {
-          yPercent: 20,
-          scale: 1.1,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: heroRef.current,
-            start: 'top top',
-            end: 'bottom top',
-            scrub: true
-          }
-        });
-      }
+      // Parallax video
+      gsap.to(videoRef.current, {
+        yPercent: 20,
+        scale: 1.1,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: heroRef.current,
+          start: 'top top',
+          end: 'bottom top',
+          scrub: true
+        }
+      });
 
       // Fade in content sections
       gsap.utils.toArray('.content-section').forEach((section: any) => {
@@ -117,9 +130,9 @@ export default function Founder() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section with Video/Image Background */}
+      {/* Hero Section with Video Background */}
       <div ref={heroRef} className="relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
-        {/* Video/Image Background */}
+        {/* Video Background */}
         <div className="absolute inset-0 w-full h-[120%] -top-[10%]">
           <div className="absolute inset-0 bg-black/40 z-10" />
           
@@ -140,7 +153,7 @@ export default function Founder() {
             </video>
           ) : heroMediaUrl ? (
             <div 
-              className="hero-bg w-full h-full bg-cover bg-center"
+              className="w-full h-full bg-cover bg-center"
               style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
             />
           ) : (
@@ -150,7 +163,7 @@ export default function Founder() {
 
         {/* Hero Content */}
         <div className="relative z-20 h-full flex flex-col items-center justify-center text-center px-4">
-          <div className="founder-hero-text">
+          <div className="about-hero-text">
             <h2 className="font-sans text-white text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 opacity-90">
               {heroSubtitle}
             </h2>
@@ -168,110 +181,104 @@ export default function Founder() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-24 md:py-32">
-        {/* Biography Section */}
-        {(biographyParagraph1 || biographyParagraph2 || biographyParagraph3) && (
-          <section className="content-section max-w-4xl mx-auto mb-24">
-            {biographyTitle && (
-              <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
-                {biographyTitle}
-              </h2>
-            )}
-            {biographyParagraph1 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-                {biographyParagraph1}
-              </p>
-            )}
-            {biographyParagraph2 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-                {biographyParagraph2}
-              </p>
-            )}
-            {biographyParagraph3 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
-                {biographyParagraph3}
-              </p>
-            )}
-          </section>
-        )}
+        {/* Opening Section */}
+        <section className="content-section max-w-4xl mx-auto mb-24">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {openingParagraph1}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {openingParagraph2}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+            {openingParagraph3}
+          </p>
+        </section>
 
-        {/* Personal Quote Section */}
-        {quoteText && (
-          <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
-            <blockquote className="text-xl md:text-2xl text-foreground/90 leading-relaxed font-light italic text-center">
-              "{quoteText}"
-            </blockquote>
-            {quoteAuthor && (
-              <p className="text-center mt-6 text-foreground/60 font-sans uppercase tracking-wider text-sm">
-                — {quoteAuthor}
-              </p>
-            )}
-          </section>
-        )}
+        {/* Just Empower Truth Section */}
+        <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center">
+            {truthTitle}
+          </h2>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center">
+            {truthDescription}
+          </p>
+        </section>
 
-        {/* Journey Section */}
-        {(journeyParagraph1 || journeyParagraph2 || journeyParagraph3) && (
-          <section className="content-section max-w-4xl mx-auto mb-24">
-            {journeyTitle && (
-              <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
-                {journeyTitle}
-              </h2>
-            )}
-            {journeyParagraph1 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-                {journeyParagraph1}
-              </p>
-            )}
-            {journeyParagraph2 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-                {journeyParagraph2}
-              </p>
-            )}
-            {journeyParagraph3 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
-                {journeyParagraph3}
-              </p>
-            )}
-          </section>
-        )}
+        {/* Depth Beneath Section */}
+        <section className="content-section max-w-4xl mx-auto mb-24">
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+            {depthTitle}
+          </h2>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {depthParagraph1}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {depthParagraph2}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {depthParagraph3}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {depthParagraph4}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+            {depthParagraph5}
+          </p>
+        </section>
 
-        {/* Social Links Section */}
-        {(socialInstagram || socialLinkedIn || socialTwitter) && (
-          <section className="content-section max-w-4xl mx-auto mb-24 text-center">
-            <h3 className="font-serif text-2xl text-foreground font-light mb-8">Connect</h3>
-            <div className="flex justify-center gap-8">
-              {socialInstagram && (
-                <a 
-                  href={socialInstagram} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-foreground/60 hover:text-foreground transition-colors"
-                >
-                  Instagram
-                </a>
-              )}
-              {socialLinkedIn && (
-                <a 
-                  href={socialLinkedIn} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-foreground/60 hover:text-foreground transition-colors"
-                >
-                  LinkedIn
-                </a>
-              )}
-              {socialTwitter && (
-                <a 
-                  href={socialTwitter} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-foreground/60 hover:text-foreground transition-colors"
-                >
-                  Twitter
-                </a>
-              )}
-            </div>
-          </section>
-        )}
+        {/* Thread of Remembrance Section */}
+        <section className="content-section max-w-4xl mx-auto mb-24">
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+            {remembranceTitle}
+          </h2>
+          <blockquote className="text-xl md:text-2xl text-foreground/90 leading-relaxed font-light italic mb-12 pl-8 border-l-2 border-primary">
+            {remembranceQuote}
+          </blockquote>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {remembranceParagraph1}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {remembranceParagraph2}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {remembranceParagraph3}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+            {remembranceParagraph4}
+          </p>
+        </section>
+
+        {/* Renewal Section */}
+        <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center">
+            {renewalTitle}
+          </h2>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center mb-8">
+            {renewalParagraph1}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center">
+            {renewalParagraph2}
+          </p>
+        </section>
+
+        {/* Future Section */}
+        <section className="content-section max-w-4xl mx-auto mb-24">
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+            {futureTitle}
+          </h2>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {futureParagraph1}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {futureParagraph2}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+            {futureParagraph3}
+          </p>
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+            {futureParagraph4}
+          </p>
+        </section>
 
         {/* Newsletter CTA */}
         <section className="content-section max-w-2xl mx-auto">
