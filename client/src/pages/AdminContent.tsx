@@ -35,27 +35,31 @@ interface CompletenessData {
   }>;
 }
 
-// Page ID mapping - ALL pages must be here
+// Page ID mapping - ALL pages must be here (LIVE DATABASE IDs)
 const PAGE_ID_MAP: Record<string, number> = {
-  'home': 1,
-  'philosophy': 60001,
-  'founder': 60002,
-  'vision-ethos': 60003,
-  'offerings': 60004,
-  'workshops-programs': 60005,
-  'vix-journal-trilogy': 60006,
-  'blog': 60007,
-  'shop': 60008,
-  'community-events': 60009,
-  'resources': 60010,
-  'walk-with-us': 60011,
-  'contact': 60012,
-  'about': 60013,
-  'about-justxempower': 60014,
-  'accessibility': 60015,
-  'privacy-policy': 60016,
-  'terms-of-service': 60017,
-  'cookie-policy': 60018,
+  'home': 18,
+  'philosophy': 2,
+  'founder': 3,
+  'vision-ethos': 5,
+  'offerings': 6,
+  'workshops-programs': 7,
+  'vix-journal-trilogy': 8,
+  'vi-x-journal-trilogy': 19,
+  'blog': 20,
+  'blog-she-writes': 9,
+  'shop': 10,
+  'community-events': 1,
+  'resources': 12,
+  'walk-with-us': 13,
+  'contact': 14,
+  'rooted-unity': 15,
+  'overview': 16,
+  'about': 21,
+  'about-justxempower': 22,
+  'accessibility': 23,
+  'privacy-policy': 24,
+  'terms-of-service': 25,
+  'cookie-policy': 26,
 };
 
 // All available pages for the editor
@@ -204,11 +208,24 @@ export default function AdminContent() {
   };
 
   // Get current value for a field (edited or original)
+  // Handles object values by stringifying them
   const getFieldValue = (section: RawSection, fieldKey: string): string => {
+    let value;
     if (editedSections[section.id]?.[fieldKey] !== undefined) {
-      return editedSections[section.id][fieldKey];
+      value = editedSections[section.id][fieldKey];
+    } else {
+      value = section.content?.[fieldKey];
     }
-    return section.content?.[fieldKey] || '';
+    
+    // Handle null/undefined
+    if (value === null || value === undefined) return '';
+    
+    // Handle objects - stringify them for display
+    if (typeof value === 'object') {
+      return JSON.stringify(value, null, 2);
+    }
+    
+    return String(value);
   };
 
   // Check if a field has been modified
