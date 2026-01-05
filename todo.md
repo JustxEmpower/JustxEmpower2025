@@ -1763,3 +1763,11 @@ NODE_ENV=production
 - [x] Write vitest tests for pageSections router
 - [x] Test auto-sync functionality
 - [x] Test section CRUD operations
+
+
+## Bugs to Fix (Jan 4, 2026)
+- [ ] Admin Content page crashes with React error #310
+- [ ] Missing hero videos on Workshops page
+- [ ] Missing hero videos on Offerings page  
+- [ ] Missing hero image on Founder page
+- [ ] Gray placeholder images on multiple pages
