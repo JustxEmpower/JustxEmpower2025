@@ -1,74 +1,41 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import NewsletterSignup from '@/components/NewsletterSignup';
-import { getMediaUrl } from '@/lib/media';
-import { usePageContent } from '@/hooks/usePageContent';
+import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Founder() {
-  const { getContent, isLoading } = usePageContent('founder');
+  const { sections, isLoading } = usePageSectionContent('founder');
   const heroRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Helper to get proper media URL
-  const getProperMediaUrl = (url: string) => {
-    if (!url) return '';
-    return url.startsWith('http') ? url : getMediaUrl(url);
+  // Get sections by their sectionId in content (for content sections with specific IDs)
+  const getSectionBySectionId = (sectionId: string) => {
+    const section = sections.find(s => s.content?.sectionId === sectionId);
+    return section?.content || {};
   };
 
-  // Get hero content from CMS
-  const heroTitle = getContent('hero', 'title');
-  const heroSubtitle = getContent('hero', 'subtitle');
-  const heroDescription = getContent('hero', 'description');
-  const heroVideoUrl = getContent('hero', 'videoUrl');
-  const heroImageUrl = getContent('hero', 'imageUrl');
-  
+  // Get section by sectionType
+  const getSectionByType = (sectionType: string) => {
+    const section = sections.find(s => s.sectionType === sectionType);
+    return section?.content || {};
+  };
+
+  // Get all section content from database - 100% database driven
+  const heroSection = getSectionByType('hero');
+  const openingSection = getSectionBySectionId('opening');
+  const truthSection = getSectionBySectionId('truth');
+  const depthSection = getSectionBySectionId('depth');
+  const remembranceSection = getSectionBySectionId('remembrance') || getSectionByType('quote');
+  const renewalSection = getSectionBySectionId('renewal');
+  const futureSection = getSectionBySectionId('future');
+  const newsletterSection = getSectionByType('newsletter');
+
   // Determine which media to use for hero (video takes priority)
-  const heroMediaUrl = heroVideoUrl || heroImageUrl;
+  const heroMediaUrl = heroSection.videoUrl || heroSection.imageUrl || '';
   const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
-
-  // Get opening section content from CMS
-  const openingParagraph1 = getContent('opening', 'paragraph1');
-  const openingParagraph2 = getContent('opening', 'paragraph2');
-  const openingParagraph3 = getContent('opening', 'paragraph3');
-
-  // Get truth section content from CMS
-  const truthTitle = getContent('truth', 'title');
-  const truthDescription = getContent('truth', 'description');
-
-  // Get depth section content from CMS
-  const depthTitle = getContent('depth', 'title');
-  const depthParagraph1 = getContent('depth', 'paragraph1');
-  const depthParagraph2 = getContent('depth', 'paragraph2');
-  const depthParagraph3 = getContent('depth', 'paragraph3');
-  const depthParagraph4 = getContent('depth', 'paragraph4');
-  const depthParagraph5 = getContent('depth', 'paragraph5');
-
-  // Get remembrance section content from CMS
-  const remembranceTitle = getContent('remembrance', 'title');
-  const remembranceQuote = getContent('remembrance', 'quote');
-  const remembranceParagraph1 = getContent('remembrance', 'paragraph1');
-  const remembranceParagraph2 = getContent('remembrance', 'paragraph2');
-  const remembranceParagraph3 = getContent('remembrance', 'paragraph3');
-  const remembranceParagraph4 = getContent('remembrance', 'paragraph4');
-
-  // Get renewal section content from CMS
-  const renewalTitle = getContent('renewal', 'title');
-  const renewalParagraph1 = getContent('renewal', 'paragraph1');
-  const renewalParagraph2 = getContent('renewal', 'paragraph2');
-
-  // Get future section content from CMS
-  const futureTitle = getContent('future', 'title');
-  const futureParagraph1 = getContent('future', 'paragraph1');
-  const futureParagraph2 = getContent('future', 'paragraph2');
-  const futureParagraph3 = getContent('future', 'paragraph3');
-  const futureParagraph4 = getContent('future', 'paragraph4');
-
-  // Get newsletter section content from CMS
-  const newsletterTitle = getContent('newsletter', 'title');
-  const newsletterDescription = getContent('newsletter', 'description');
 
   useEffect(() => {
     if (videoRef.current) {
@@ -118,7 +85,7 @@ export default function Founder() {
     }, heroRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isLoading]);
 
   if (isLoading) {
     return (
@@ -130,7 +97,7 @@ export default function Founder() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section with Video Background */}
+      {/* Hero Section with Video Background - 100% database driven */}
       <div ref={heroRef} className="relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
         {/* Video Background */}
         <div className="absolute inset-0 w-full h-[120%] -top-[10%]">
@@ -165,15 +132,15 @@ export default function Founder() {
         <div className="relative z-20 h-full flex flex-col items-center justify-center text-center px-4">
           <div className="about-hero-text">
             <h2 className="font-sans text-white text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 opacity-90">
-              {heroSubtitle}
+              {heroSection.subtitle || ''}
             </h2>
             
             <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-white font-light italic tracking-wide leading-[1.1] mb-8">
-              {heroTitle}
+              {heroSection.title || ''}
             </h1>
             
             <p className="font-sans text-white/90 text-lg md:text-xl font-light tracking-wide max-w-3xl leading-relaxed">
-              {heroDescription}
+              {heroSection.description || ''}
             </p>
           </div>
         </div>
@@ -181,117 +148,169 @@ export default function Founder() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-24 md:py-32">
-        {/* Opening Section */}
-        <section className="content-section max-w-4xl mx-auto mb-24">
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {openingParagraph1}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {openingParagraph2}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
-            {openingParagraph3}
-          </p>
-        </section>
+        {/* Opening Section - 100% database driven */}
+        {(openingSection.paragraph1 || openingSection.paragraph2) && (
+          <section className="content-section max-w-4xl mx-auto mb-24">
+            {openingSection.paragraph1 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {openingSection.paragraph1}
+              </p>
+            )}
+            {openingSection.paragraph2 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {openingSection.paragraph2}
+              </p>
+            )}
+            {openingSection.paragraph3 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+                {openingSection.paragraph3}
+              </p>
+            )}
+          </section>
+        )}
 
-        {/* Just Empower Truth Section */}
-        <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
-          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center">
-            {truthTitle}
-          </h2>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center">
-            {truthDescription}
-          </p>
-        </section>
-
-        {/* Depth Beneath Section */}
-        <section className="content-section max-w-4xl mx-auto mb-24">
-          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
-            {depthTitle}
-          </h2>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {depthParagraph1}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {depthParagraph2}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {depthParagraph3}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {depthParagraph4}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
-            {depthParagraph5}
-          </p>
-        </section>
-
-        {/* Thread of Remembrance Section */}
-        <section className="content-section max-w-4xl mx-auto mb-24">
-          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
-            {remembranceTitle}
-          </h2>
-          <blockquote className="text-xl md:text-2xl text-foreground/90 leading-relaxed font-light italic mb-12 pl-8 border-l-2 border-primary">
-            {remembranceQuote}
-          </blockquote>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {remembranceParagraph1}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {remembranceParagraph2}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {remembranceParagraph3}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
-            {remembranceParagraph4}
-          </p>
-        </section>
-
-        {/* Renewal Section */}
-        <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
-          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center">
-            {renewalTitle}
-          </h2>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center mb-8">
-            {renewalParagraph1}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center">
-            {renewalParagraph2}
-          </p>
-        </section>
-
-        {/* Future Section */}
-        <section className="content-section max-w-4xl mx-auto mb-24">
-          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
-            {futureTitle}
-          </h2>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {futureParagraph1}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {futureParagraph2}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
-            {futureParagraph3}
-          </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
-            {futureParagraph4}
-          </p>
-        </section>
-
-        {/* Newsletter CTA */}
-        <section className="content-section max-w-2xl mx-auto">
-          <div className="bg-card rounded-3xl p-12 md:p-16 text-center border border-border">
-            <h3 className="font-serif text-2xl md:text-3xl text-card-foreground font-light italic mb-6">
-              {newsletterTitle}
-            </h3>
-            <p className="text-base md:text-lg text-card-foreground/70 mb-8 leading-relaxed">
-              {newsletterDescription}
+        {/* Just Empower Truth Section - 100% database driven */}
+        {(truthSection.title || truthSection.description) && (
+          <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
+            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center">
+              {truthSection.title || ''}
+            </h2>
+            <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center">
+              {truthSection.description || ''}
             </p>
-            <NewsletterSignup variant="inline" />
-          </div>
-        </section>
+          </section>
+        )}
+
+        {/* Depth Beneath Section - 100% database driven */}
+        {(depthSection.title || depthSection.paragraph1) && (
+          <section className="content-section max-w-4xl mx-auto mb-24">
+            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+              {depthSection.title || ''}
+            </h2>
+            {depthSection.paragraph1 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {depthSection.paragraph1}
+              </p>
+            )}
+            {depthSection.paragraph2 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {depthSection.paragraph2}
+              </p>
+            )}
+            {depthSection.paragraph3 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {depthSection.paragraph3}
+              </p>
+            )}
+            {depthSection.paragraph4 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {depthSection.paragraph4}
+              </p>
+            )}
+            {depthSection.paragraph5 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+                {depthSection.paragraph5}
+              </p>
+            )}
+          </section>
+        )}
+
+        {/* Thread of Remembrance Section - 100% database driven */}
+        {(remembranceSection.title || remembranceSection.quote) && (
+          <section className="content-section max-w-4xl mx-auto mb-24">
+            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+              {remembranceSection.title || ''}
+            </h2>
+            {remembranceSection.quote && (
+              <blockquote className="text-xl md:text-2xl text-foreground/90 leading-relaxed font-light italic mb-12 pl-8 border-l-2 border-primary">
+                {remembranceSection.quote}
+              </blockquote>
+            )}
+            {remembranceSection.paragraph1 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {remembranceSection.paragraph1}
+              </p>
+            )}
+            {remembranceSection.paragraph2 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {remembranceSection.paragraph2}
+              </p>
+            )}
+            {remembranceSection.paragraph3 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {remembranceSection.paragraph3}
+              </p>
+            )}
+            {remembranceSection.paragraph4 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+                {remembranceSection.paragraph4}
+              </p>
+            )}
+          </section>
+        )}
+
+        {/* Renewal Section - 100% database driven */}
+        {(renewalSection.title || renewalSection.paragraph1) && (
+          <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
+            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center">
+              {renewalSection.title || ''}
+            </h2>
+            {renewalSection.paragraph1 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center mb-8">
+                {renewalSection.paragraph1}
+              </p>
+            )}
+            {renewalSection.paragraph2 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center">
+                {renewalSection.paragraph2}
+              </p>
+            )}
+          </section>
+        )}
+
+        {/* Future Section - 100% database driven */}
+        {(futureSection.title || futureSection.paragraph1) && (
+          <section className="content-section max-w-4xl mx-auto mb-24">
+            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+              {futureSection.title || ''}
+            </h2>
+            {futureSection.paragraph1 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {futureSection.paragraph1}
+              </p>
+            )}
+            {futureSection.paragraph2 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {futureSection.paragraph2}
+              </p>
+            )}
+            {futureSection.paragraph3 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+                {futureSection.paragraph3}
+              </p>
+            )}
+            {futureSection.paragraph4 && (
+              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+                {futureSection.paragraph4}
+              </p>
+            )}
+          </section>
+        )}
+
+        {/* Newsletter CTA - 100% database driven */}
+        {(newsletterSection.title || newsletterSection.description) && (
+          <section className="content-section max-w-2xl mx-auto">
+            <div className="bg-card rounded-3xl p-12 md:p-16 text-center border border-border">
+              <h3 className="font-serif text-2xl md:text-3xl text-card-foreground font-light italic mb-6">
+                {newsletterSection.title || ''}
+              </h3>
+              <p className="text-base md:text-lg text-card-foreground/70 mb-8 leading-relaxed">
+                {newsletterSection.description || ''}
+              </p>
+              <NewsletterSignup variant="inline" />
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

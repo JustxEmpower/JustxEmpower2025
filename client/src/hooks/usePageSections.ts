@@ -45,23 +45,29 @@ export function usePageSections(pageSlug: string, pageId?: number) {
         
         // Try to fetch by pageId first
         if (pageId && pageId > 0) {
-          const response = await fetch(`/api/trpc/pageSections.getByPage?input=${encodeURIComponent(JSON.stringify({ pageId }))}`);
+          const response = await fetch(`/api/trpc/pageSections.getByPage?input=${encodeURIComponent(JSON.stringify({ json: { pageId } }))}`);
           const data = await response.json();
-          if (data.result?.data) {
+          if (data.result?.data?.json) {
+            sections = data.result.data.json;
+          } else if (data.result?.data) {
             sections = data.result.data;
           }
           
           // Also fetch completeness data
-          const completenessResponse = await fetch(`/api/trpc/pageSections.getPageCompleteness?input=${encodeURIComponent(JSON.stringify({ pageId }))}`);
+          const completenessResponse = await fetch(`/api/trpc/pageSections.getPageCompleteness?input=${encodeURIComponent(JSON.stringify({ json: { pageId } }))}`);
           const completenessResult = await completenessResponse.json();
-          if (completenessResult.result?.data) {
+          if (completenessResult.result?.data?.json) {
+            setCompletenessData(completenessResult.result.data.json);
+          } else if (completenessResult.result?.data) {
             setCompletenessData(completenessResult.result.data);
           }
         } else if (pageSlug) {
           // Fallback to slug
-          const response = await fetch(`/api/trpc/pageSections.getByPageSlug?input=${encodeURIComponent(JSON.stringify({ slug: pageSlug }))}`);
+          const response = await fetch(`/api/trpc/pageSections.getByPageSlug?input=${encodeURIComponent(JSON.stringify({ json: { slug: pageSlug } }))}`);
           const data = await response.json();
-          if (data.result?.data) {
+          if (data.result?.data?.json) {
+            sections = data.result.data.json;
+          } else if (data.result?.data) {
             sections = data.result.data;
           }
         }
@@ -128,9 +134,11 @@ export function usePageSection(sectionId: number) {
       setError(null);
       
       try {
-        const response = await fetch(`/api/trpc/pageSections.getById?input=${encodeURIComponent(JSON.stringify({ id: sectionId }))}`);
+        const response = await fetch(`/api/trpc/pageSections.getById?input=${encodeURIComponent(JSON.stringify({ json: { id: sectionId } }))}`);
         const data = await response.json();
-        if (data.result?.data) {
+        if (data.result?.data?.json) {
+          setSection(data.result.data.json);
+        } else if (data.result?.data) {
           setSection(data.result.data);
         }
       } catch (err) {

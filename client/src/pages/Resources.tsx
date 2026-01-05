@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { trpc } from '@/lib/trpc';
-import { usePageContent } from '@/hooks/usePageContent';
-import { getMediaUrl } from '@/lib/media';
+import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
 import AutoplayVideo from '@/components/AutoplayVideo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -117,23 +116,22 @@ export default function Resources() {
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const [purchaseResource, setPurchaseResource] = useState<any>(null);
 
-  // Get hero content from CMS
-  const { getContent, isLoading: contentLoading } = usePageContent('resources');
+  // Get hero content from CMS - 100% database driven
+  const { sections, isLoading: contentLoading } = usePageSectionContent('resources');
   
-  const heroTitle = getContent('hero', 'title');
-  const heroSubtitle = getContent('hero', 'subtitle');
-  const heroVideoUrl = getContent('hero', 'videoUrl');
-  const heroImageUrl = getContent('hero', 'imageUrl');
+  // Get section by sectionType
+  const getSectionByType = (sectionType: string) => {
+    const section = sections.find(s => s.sectionType === sectionType);
+    return section?.content || {};
+  };
+  
+  const heroSection = getSectionByType('hero');
+  const heroTitle = heroSection.title || '';
+  const heroSubtitle = heroSection.subtitle || '';
   
   // Determine which media to use (video takes priority)
-  const heroMediaUrl = heroVideoUrl || heroImageUrl;
+  const heroMediaUrl = heroSection.videoUrl || heroSection.imageUrl || '';
   const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
-  
-  // Helper to get proper media URL
-  const getProperMediaUrl = (url: string) => {
-    if (!url) return '';
-    return url.startsWith('http') ? url : getMediaUrl(url);
-  };
 
   // Queries
   const resourcesQuery = trpc.resources.list.useQuery({

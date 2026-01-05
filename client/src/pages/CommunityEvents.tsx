@@ -6,8 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EventCalendar from '@/components/EventCalendar';
 import { Link } from 'wouter';
-import { usePageContent } from '@/hooks/usePageContent';
-import { getMediaUrl } from '@/lib/media';
+import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
 import AutoplayVideo from '@/components/AutoplayVideo';
 import {
   Calendar,
@@ -35,23 +34,22 @@ export default function CommunityEvents() {
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
   const [statusFilter, setStatusFilter] = useState<'upcoming' | 'past' | 'all'>('upcoming');
   
-  // Get hero content from CMS
-  const { getContent, isLoading: contentLoading } = usePageContent('community-events');
+  // Get hero content from CMS - 100% database driven
+  const { sections, isLoading: contentLoading } = usePageSectionContent('community-events');
   
-  const heroTitle = getContent('hero', 'title');
-  const heroSubtitle = getContent('hero', 'subtitle');
-  const heroVideoUrl = getContent('hero', 'videoUrl');
-  const heroImageUrl = getContent('hero', 'imageUrl');
+  // Get section by sectionType
+  const getSectionByType = (sectionType: string) => {
+    const section = sections.find(s => s.sectionType === sectionType);
+    return section?.content || {};
+  };
+  
+  const heroSection = getSectionByType('hero');
+  const heroTitle = heroSection.title || '';
+  const heroSubtitle = heroSection.subtitle || '';
   
   // Determine which media to use (video takes priority)
-  const heroMediaUrl = heroVideoUrl || heroImageUrl;
+  const heroMediaUrl = heroSection.videoUrl || heroSection.imageUrl || '';
   const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
-  
-  // Helper to get proper media URL
-  const getProperMediaUrl = (url: string) => {
-    if (!url) return '';
-    return url.startsWith('http') ? url : getMediaUrl(url);
-  };
 
   // Fetch events for list view
   const eventsQuery = trpc.events.list.useQuery({
