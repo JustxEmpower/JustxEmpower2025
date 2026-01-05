@@ -18,6 +18,12 @@ export const PAGE_IDS = {
   resources: 60010,
   'walk-with-us': 60011,
   contact: 60012,
+  about: 60013,
+  'about-justxempower': 60014,
+  accessibility: 60015,
+  'privacy-policy': 60016,
+  'terms-of-service': 60017,
+  'cookie-policy': 60018,
 } as const;
 
 export type PageSlug = keyof typeof PAGE_IDS;
