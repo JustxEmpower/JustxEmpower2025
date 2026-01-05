@@ -46,7 +46,7 @@ async function restore() {
     // First, hide all footer/legal pages from nav
     for (const slug of hiddenFromNav) {
       await client.query(
-        'UPDATE pages SET "showInNav" = 0, "navOrder" = 999 WHERE slug = $1',
+        'UPDATE pages SET "showInNav" = false, "navOrder" = 999 WHERE slug = $1',
         [slug]
       );
       console.log(`  ✓ Hidden from nav: ${slug}`);
@@ -66,7 +66,7 @@ async function restore() {
     // Set main nav pages
     for (const page of mainNavPages) {
       await client.query(
-        'UPDATE pages SET "showInNav" = 1, "navOrder" = $1, "parentId" = NULL WHERE slug = $2',
+        'UPDATE pages SET "showInNav" = true, "navOrder" = $1 WHERE slug = $2',
         [page.navOrder, page.slug]
       );
       console.log(`  ✓ Main nav: ${page.slug} (order: ${page.navOrder})`);
@@ -80,41 +80,18 @@ async function restore() {
     const offeringsResult = await client.query('SELECT id FROM pages WHERE slug = $1', ['offerings']);
     const offeringsId = offeringsResult.rows[0]?.id;
     
-    // Sub-pages under Philosophy dropdown
-    const philosophySubPages = [
-      { slug: 'founder', navOrder: 1 },
-      { slug: 'vision-ethos', navOrder: 2 },
+    // Sub-pages - hide from main nav (they appear in dropdowns via navigation table)
+    const subPages = [
+      'founder', 'vision-ethos', 'workshops-programs', 
+      'vix-journal-trilogy', 'vi-x-journal-trilogy', 'journal', 'blog'
     ];
     
-    // Sub-pages under Offerings dropdown
-    const offeringsSubPages = [
-      { slug: 'workshops-programs', navOrder: 1 },
-      { slug: 'vix-journal-trilogy', navOrder: 2 },
-      { slug: 'vi-x-journal-trilogy', navOrder: 2 },
-      { slug: 'journal', navOrder: 3 },
-      { slug: 'blog', navOrder: 3 },
-    ];
-    
-    // Set philosophy sub-pages
-    if (philosophyId) {
-      for (const page of philosophySubPages) {
-        await client.query(
-          'UPDATE pages SET "showInNav" = 1, "navOrder" = $1, "parentId" = $2 WHERE slug = $3',
-          [page.navOrder, philosophyId, page.slug]
-        );
-        console.log(`  ✓ Philosophy sub-page: ${page.slug} (order: ${page.navOrder})`);
-      }
-    }
-    
-    // Set offerings sub-pages
-    if (offeringsId) {
-      for (const page of offeringsSubPages) {
-        await client.query(
-          'UPDATE pages SET "showInNav" = 1, "navOrder" = $1, "parentId" = $2 WHERE slug = $3',
-          [page.navOrder, offeringsId, page.slug]
-        );
-        console.log(`  ✓ Offerings sub-page: ${page.slug} (order: ${page.navOrder})`);
-      }
+    for (const slug of subPages) {
+      await client.query(
+        'UPDATE pages SET "showInNav" = false, "navOrder" = 999 WHERE slug = $1',
+        [slug]
+      );
+      console.log(`  ✓ Sub-page hidden: ${slug}`);
     }
 
     // ============================================
