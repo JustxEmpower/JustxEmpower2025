@@ -43,8 +43,8 @@ async function main() {
     if (!existingSlugs.has(page.slug)) {
       console.log(`Creating page: ${page.title} (${page.slug})`);
       const [result] = await conn.execute(
-        'INSERT INTO pages (slug, title, status, isPublished) VALUES (?, ?, ?, ?)',
-        [page.slug, page.title, 'published', 1]
+        'INSERT INTO pages (slug, title) VALUES (?, ?)',
+        [page.slug, page.title]
       );
       slugToId[page.slug] = result.insertId;
       console.log(`  Created with id: ${result.insertId}`);
