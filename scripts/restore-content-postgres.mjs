@@ -18,7 +18,10 @@ async function restore() {
   
   const client = new Client({
     connectionString: DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+    ssl: {
+      rejectUnauthorized: false,
+      ca: undefined
+    }
   });
   
   await client.connect();
