@@ -10,6 +10,7 @@ import { LogOut, FileText, Settings, Layout, Save, ChevronDown, ChevronUp, Folde
 import MediaPicker from '@/components/MediaPicker';
 import AdminSidebar from '@/components/AdminSidebar';
 import { PageSectionMapper, getDefaultSections, PageSection } from '@/components/admin/PageSectionMapper';
+import { usePageSections } from '@/hooks/usePageSections';
 
 interface ContentItem {
   id: number;
@@ -142,6 +143,29 @@ export default function AdminContent() {
     );
   }
 
+  // Page ID mapping for section queries
+  const pageIdMap: Record<string, number> = {
+    'home': 1,
+    'philosophy': 60001,
+    'founder': 60002,
+    'vision-ethos': 60003,
+    'offerings': 60004,
+    'workshops-programs': 60005,
+    'vix-journal-trilogy': 60006,
+    'blog': 60007,
+    'shop': 60008,
+    'community-events': 60009,
+    'resources': 60010,
+    'walk-with-us': 60011,
+    'contact': 60012,
+  };
+
+  // Fetch page sections from API
+  const { sections: pageSections, isLoading: sectionsLoading, hasDbSections, completenessData } = usePageSections(
+    selectedPage,
+    pageIdMap[selectedPage]
+  );
+
   const pages = [
     // Core pages
     { id: 'home', label: 'Home' },
@@ -269,7 +293,7 @@ export default function AdminContent() {
               {/* Left: Page Section Mapper */}
               <div className="w-64 flex-shrink-0 sticky top-8 self-start">
                 <PageSectionMapper
-                  sections={getDefaultSections(selectedPage)}
+                  sections={pageSections}
                   activeSection={Object.keys(expandedSections).find(s => expandedSections[s])}
                   onSectionClick={(sectionId) => {
                     // Find matching section in content and expand it
