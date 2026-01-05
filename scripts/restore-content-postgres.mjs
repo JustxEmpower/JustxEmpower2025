@@ -10,8 +10,12 @@
 import pg from 'pg';
 const { Client } = pg;
 
-// Use the live PostgreSQL database connection
-const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://justxempower:JustEmpower2025Secure@justxempower-db.cg7k02qmmmt6.us-east-1.rds.amazonaws.com:5432/justxempower';
+// DATABASE_URL must be set via environment variable - no hardcoded URLs
+const DATABASE_URL = process.env.DATABASE_URL;
+if (!DATABASE_URL) {
+  console.error('ERROR: DATABASE_URL environment variable is required');
+  process.exit(1);
+}
 
 async function restore() {
   console.log('🔧 Starting content restoration from commit 62d36e4...\n');
