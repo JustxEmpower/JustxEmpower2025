@@ -2883,6 +2883,63 @@ export const carouselRouter = router({
 // ============================================
 
 export const pageSectionsRouter = router({
+  // Initialize sections for ALL pages that don't have them
+  initializeAllPages: adminProcedure
+    .mutation(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Get all pages
+      const pages = await db.select().from(schema.pages).orderBy(schema.pages.id);
+      const results: string[] = [];
+      
+      for (const page of pages) {
+        // Check if page has sections
+        const existingSections = await db
+          .select()
+          .from(schema.pageSections)
+          .where(eq(schema.pageSections.pageId, page.id));
+        
+        if (existingSections.length === 0) {
+          // Create default sections
+          await db.insert(schema.pageSections).values([
+            {
+              pageId: page.id,
+              sectionType: 'hero',
+              sectionOrder: 0,
+              title: 'Hero Section',
+              content: JSON.stringify({ title: page.title || 'Page Title', subtitle: 'Subtitle', description: 'Description for ' + (page.title || page.slug) }),
+              requiredFields: JSON.stringify(['title', 'subtitle', 'description']),
+              isVisible: 1,
+            },
+            {
+              pageId: page.id,
+              sectionType: 'content',
+              sectionOrder: 1,
+              title: 'Main Content',
+              content: JSON.stringify({ title: 'Content', description: 'Main content for ' + (page.title || page.slug) }),
+              requiredFields: JSON.stringify(['title', 'description']),
+              isVisible: 1,
+            },
+            {
+              pageId: page.id,
+              sectionType: 'footer',
+              sectionOrder: 2,
+              title: 'Footer',
+              content: '{}',
+              requiredFields: '[]',
+              isVisible: 1,
+            },
+          ]);
+          results.push(`Created sections for: ${page.title || page.slug} (id: ${page.id})`);
+        } else {
+          results.push(`${page.title || page.slug} already has ${existingSections.length} sections`);
+        }
+      }
+      
+      return { success: true, results };
+    }),
+
   // Get all sections for a page
   getByPage: publicProcedure
     .input(z.object({ pageId: z.number() }))
