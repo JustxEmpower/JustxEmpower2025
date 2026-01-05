@@ -727,7 +727,7 @@ async function fixAllContent() {
     let sectionsInserted = 0;
     for (const section of pageSectionsData) {
       await connection.execute(
-        'INSERT INTO pageSections (pageId, sectionType, title, `order`, content, isActive) VALUES (?, ?, ?, ?, ?, 1)',
+        'INSERT INTO pageSections (pageId, sectionType, title, sectionOrder, content, isVisible) VALUES (?, ?, ?, ?, ?, 1)',
         [section.pageId, section.sectionType, section.title, section.order, JSON.stringify(section.content)]
       );
       sectionsInserted++;
