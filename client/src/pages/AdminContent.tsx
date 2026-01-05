@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { LogOut, FileText, Settings, Layout, Save, ChevronDown, ChevronUp, FolderOpen, Image, Palette, Files, BarChart3 } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
 import AdminSidebar from '@/components/AdminSidebar';
+import { PageSectionMapper, getDefaultSections, PageSection } from '@/components/admin/PageSectionMapper';
 
 interface ContentItem {
   id: number;
@@ -263,11 +264,39 @@ export default function AdminContent() {
               ))}
             </div>
 
-            {/* Content Sections */}
-            <div className="space-y-4">
+            {/* Two-column layout: Section Mapper + Content Editor */}
+            <div className="flex gap-6">
+              {/* Left: Page Section Mapper */}
+              <div className="w-64 flex-shrink-0 sticky top-8 self-start">
+                <PageSectionMapper
+                  sections={getDefaultSections(selectedPage)}
+                  activeSection={Object.keys(expandedSections).find(s => expandedSections[s])}
+                  onSectionClick={(sectionId) => {
+                    // Find matching section in content and expand it
+                    const matchingSection = Object.keys(groupedContent).find(
+                      s => s.toLowerCase().includes(sectionId.toLowerCase()) ||
+                           sectionId.toLowerCase().includes(s.toLowerCase())
+                    );
+                    if (matchingSection) {
+                      setExpandedSections(prev => ({
+                        ...Object.keys(prev).reduce((acc, key) => ({ ...acc, [key]: false }), {}),
+                        [matchingSection]: true
+                      }));
+                      // Scroll to section
+                      const element = document.getElementById(`section-${matchingSection}`);
+                      element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }}
+                  className="dark:bg-neutral-900 dark:border-neutral-800"
+                />
+              </div>
+
+              {/* Right: Content Sections */}
+              <div className="flex-1 space-y-4">
               {Object.entries(groupedContent).map(([section, items]) => (
                 <div
                   key={section}
+                  id={`section-${section}`}
                   className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden"
                 >
                   {/* Section Header */}
@@ -351,6 +380,7 @@ export default function AdminContent() {
                   No content sections found for this page.
                 </div>
               )}
+              </div>
             </div>
 
             {/* Sticky Save Button */}

@@ -1704,3 +1704,24 @@ NODE_ENV=production
 - [x] Create PRODUCTION_DEPLOYMENT.md with EC2 commands
 - [x] Create PRODUCTION_RDS_SEED.sql with all seed data
 - [x] Push documentation to GitHub
+
+## Content Audit & Visual Section Mapper (NEW)
+- [ ] Audit Homepage content by sections
+- [ ] Audit Philosophy page content
+- [ ] Audit Founder page content
+- [ ] Audit Vision & Ethos page content
+- [ ] Audit Offerings page content
+- [ ] Audit Overview page content
+- [ ] Audit Workshops & Programs page content
+- [ ] Audit VI•X Journal Trilogy page content
+- [ ] Audit Blog - She Writes page content
+- [ ] Audit Rooted Unity page content
+- [ ] Audit Shop page content
+- [ ] Audit Community Events page content
+- [ ] Audit Resources page content
+- [ ] Audit Contact page content
+- [ ] Audit Walk With Us page content
+- [ ] Compile complete content transcript document
+- [ ] Build visual section mapper component
+- [ ] Integrate section mapper into Content Editor
+- [ ] Test and deploy to production
