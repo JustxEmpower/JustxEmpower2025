@@ -3,15 +3,12 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { getMediaUrl } from '@/lib/media';
-import { usePageSectionContent, PAGE_IDS } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function About() {
-  const { getSection, getField, isLoading } = usePageSectionContent('about');
-
-  // Add 'about' to PAGE_IDS if not already there
-  // PAGE_IDS.about = 60013;
+  const { getContent, isLoading } = usePageContent('about');
   const heroRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -22,64 +19,56 @@ export default function About() {
   };
 
   // Get hero content from CMS
-  const heroContent = getSection('hero');
-  const heroTitle = heroContent.title || 'About Just Empower';
-  const heroSubtitle = heroContent.subtitle || 'Our Story';
-  const heroDescription = heroContent.description || '';
-  const heroVideoUrl = heroContent.videoUrl || '';
-  const heroImageUrl = heroContent.imageUrl || '';
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroDescription = getContent('hero', 'description');
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
   
   // Determine which media to use for hero (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;
   const isHeroVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
-  // Get content section from CMS
-  const contentSection = getSection('content');
-  const openingParagraph1 = contentSection.paragraph1 || contentSection.description || '';
-  const openingParagraph2 = contentSection.paragraph2 || '';
-  const openingParagraph3 = contentSection.paragraph3 || '';
+  // Get opening section content from CMS
+  const openingParagraph1 = getContent('opening', 'paragraph1');
+  const openingParagraph2 = getContent('opening', 'paragraph2');
+  const openingParagraph3 = getContent('opening', 'paragraph3');
 
   // Get truth section content from CMS
-  const truthSection = getSection('truth');
-  const truthTitle = truthSection.title || contentSection.title || 'Our Mission';
-  const truthDescription = truthSection.description || '';
+  const truthTitle = getContent('truth', 'title');
+  const truthDescription = getContent('truth', 'description');
 
   // Get depth section content from CMS
-  const depthSection = getSection('depth');
-  const depthTitle = depthSection.title || '';
-  const depthParagraph1 = depthSection.paragraph1 || '';
-  const depthParagraph2 = depthSection.paragraph2 || '';
-  const depthParagraph3 = depthSection.paragraph3 || '';
-  const depthParagraph4 = depthSection.paragraph4 || '';
-  const depthParagraph5 = depthSection.paragraph5 || '';
+  const depthTitle = getContent('depth', 'title');
+  const depthParagraph1 = getContent('depth', 'paragraph1');
+  const depthParagraph2 = getContent('depth', 'paragraph2');
+  const depthParagraph3 = getContent('depth', 'paragraph3');
+  const depthParagraph4 = getContent('depth', 'paragraph4');
+  const depthParagraph5 = getContent('depth', 'paragraph5');
 
   // Get remembrance section content from CMS
-  const remembranceSection = getSection('remembrance');
-  const remembranceTitle = remembranceSection.title || '';
-  const remembranceQuote = remembranceSection.quote || '';
-  const remembranceParagraph1 = remembranceSection.paragraph1 || '';
-  const remembranceParagraph2 = remembranceSection.paragraph2 || '';
-  const remembranceParagraph3 = remembranceSection.paragraph3 || '';
-  const remembranceParagraph4 = remembranceSection.paragraph4 || '';
+  const remembranceTitle = getContent('remembrance', 'title');
+  const remembranceQuote = getContent('remembrance', 'quote');
+  const remembranceParagraph1 = getContent('remembrance', 'paragraph1');
+  const remembranceParagraph2 = getContent('remembrance', 'paragraph2');
+  const remembranceParagraph3 = getContent('remembrance', 'paragraph3');
+  const remembranceParagraph4 = getContent('remembrance', 'paragraph4');
 
   // Get renewal section content from CMS
-  const renewalSection = getSection('renewal');
-  const renewalTitle = renewalSection.title || '';
-  const renewalParagraph1 = renewalSection.paragraph1 || '';
-  const renewalParagraph2 = renewalSection.paragraph2 || '';
+  const renewalTitle = getContent('renewal', 'title');
+  const renewalParagraph1 = getContent('renewal', 'paragraph1');
+  const renewalParagraph2 = getContent('renewal', 'paragraph2');
 
   // Get future section content from CMS
-  const futureSection = getSection('future');
-  const futureTitle = futureSection.title || '';
-  const futureParagraph1 = futureSection.paragraph1 || '';
-  const futureParagraph2 = futureSection.paragraph2 || '';
-  const futureParagraph3 = futureSection.paragraph3 || '';
-  const futureParagraph4 = futureSection.paragraph4 || '';
+  const futureTitle = getContent('future', 'title');
+  const futureParagraph1 = getContent('future', 'paragraph1');
+  const futureParagraph2 = getContent('future', 'paragraph2');
+  const futureParagraph3 = getContent('future', 'paragraph3');
+  const futureParagraph4 = getContent('future', 'paragraph4');
 
   // Get newsletter section content from CMS
-  const newsletterSection = getSection('newsletter');
-  const newsletterTitle = newsletterSection.title || 'Stay Connected';
-  const newsletterDescription = newsletterSection.description || 'Join our community for updates and insights.';
+  const newsletterTitle = getContent('newsletter', 'title');
+  const newsletterDescription = getContent('newsletter', 'description');
 
   useEffect(() => {
     if (videoRef.current) {

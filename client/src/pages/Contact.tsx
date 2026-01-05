@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'wouter';
+import { getMediaUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -11,7 +12,7 @@ import { MapView } from '@/components/Map';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
-import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 
 const contactSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -27,7 +28,7 @@ export default function Contact() {
   const [location] = useLocation();
   const mapRef = useRef<google.maps.Map | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { sections, isLoading } = usePageSectionContent('contact');
+  const { getContent, isLoading } = usePageContent('contact');
 
   const {
     register,
@@ -61,25 +62,22 @@ export default function Contact() {
     }
   };
 
-  // Get sections by their sectionId in content
-  const getSectionBySectionId = (sectionId: string) => {
-    const section = sections.find(s => s.content?.sectionId === sectionId);
-    return section?.content || {};
-  };
-
-  // Get section by sectionType
-  const getSectionByType = (sectionType: string) => {
-    const section = sections.find(s => s.sectionType === sectionType);
-    return section?.content || {};
-  };
-
-  // Get all section content from database - 100% database driven
-  const heroSection = getSectionByType('hero');
-  const infoSection = getSectionBySectionId('info') || getSectionByType('content');
-  const formSection = getSectionByType('form');
-
+  // Get hero content from CMS
+  const heroTitle = getContent('hero', 'title');
+  const heroSubtitle = getContent('hero', 'subtitle');
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
+  
+  // Get contact info from CMS (using 'info' section as per seed script)
+  const contactTitle = getContent('info', 'heading');
+  const contactDescription = getContent('info', 'description');
+  const contactLocation = getContent('info', 'location');
+  const contactEmail = getContent('info', 'email');
+  const contactInstagram = getContent('info', 'instagramUrl');
+  const contactLinkedin = getContent('info', 'linkedinUrl');
+  
   // Determine which media to use (video takes priority)
-  const heroMediaUrl = heroSection.videoUrl || heroSection.imageUrl || '';
+  const heroMediaUrl = heroVideoUrl || heroImageUrl;
   const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
 
   if (isLoading) {
@@ -92,7 +90,7 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Hero Section - 100% database driven */}
+      {/* Hero Section */}
       <div className="relative h-[50vh] w-full overflow-hidden rounded-b-[2.5rem]">
         <div className="absolute inset-0 bg-black/30 z-10" />
         
@@ -106,14 +104,14 @@ export default function Contact() {
             className="absolute inset-0 w-full h-full object-cover"
           >
             <source 
-              src={getProperMediaUrl(heroMediaUrl)} 
+              src={heroMediaUrl.startsWith('http') ? heroMediaUrl : getMediaUrl(heroMediaUrl)} 
               type={heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
             />
           </video>
         ) : heroMediaUrl ? (
           <div 
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
+            style={{ backgroundImage: `url(${heroMediaUrl.startsWith('http') ? heroMediaUrl : getMediaUrl(heroMediaUrl)})` }}
           />
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
@@ -121,59 +119,45 @@ export default function Contact() {
         
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
           <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
-            {heroSection.title || ''}
+            {heroTitle}
           </h1>
           <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90">
-            {heroSection.subtitle || ''}
+            {heroSubtitle}
           </p>
         </div>
       </div>
 
       <div className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
-          {/* Contact Info - 100% database driven */}
+          {/* Contact Info */}
           <div className="space-y-12">
             <div>
-              <h2 className="font-serif text-4xl italic mb-6 text-foreground">
-                {infoSection.heading || infoSection.title || ''}
-              </h2>
+              <h2 className="font-serif text-4xl italic mb-6 text-foreground">{contactTitle}</h2>
               <p className="text-lg text-muted-foreground leading-relaxed">
-                {infoSection.description || ''}
+                {contactDescription}
               </p>
             </div>
 
             <div className="space-y-6">
-              {infoSection.location && (
-                <div>
-                  <h3 className="font-sans text-sm tracking-widest uppercase mb-2 text-foreground">Location</h3>
-                  <p className="text-muted-foreground">{infoSection.location}</p>
+              <div>
+                <h3 className="font-sans text-sm tracking-widest uppercase mb-2 text-foreground">Location</h3>
+                <p className="text-muted-foreground">{contactLocation}</p>
+              </div>
+              <div>
+                <h3 className="font-sans text-sm tracking-widest uppercase mb-2 text-foreground">Email</h3>
+                <p className="text-muted-foreground">{contactEmail}</p>
+              </div>
+              <div>
+                <h3 className="font-sans text-sm tracking-widest uppercase mb-2 text-foreground">Social</h3>
+                <div className="flex gap-4">
+                  {contactInstagram && contactInstagram !== '#' && (
+                    <a href={contactInstagram} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Instagram</a>
+                  )}
+                  {contactLinkedin && contactLinkedin !== '#' && (
+                    <a href={contactLinkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">LinkedIn</a>
+                  )}
                 </div>
-              )}
-              {infoSection.email && (
-                <div>
-                  <h3 className="font-sans text-sm tracking-widest uppercase mb-2 text-foreground">Email</h3>
-                  <p className="text-muted-foreground">{infoSection.email}</p>
-                </div>
-              )}
-              {infoSection.phone && (
-                <div>
-                  <h3 className="font-sans text-sm tracking-widest uppercase mb-2 text-foreground">Phone</h3>
-                  <p className="text-muted-foreground">{infoSection.phone}</p>
-                </div>
-              )}
-              {(infoSection.instagramUrl || infoSection.linkedinUrl) && (
-                <div>
-                  <h3 className="font-sans text-sm tracking-widest uppercase mb-2 text-foreground">Social</h3>
-                  <div className="flex gap-4">
-                    {infoSection.instagramUrl && infoSection.instagramUrl !== '#' && (
-                      <a href={infoSection.instagramUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Instagram</a>
-                    )}
-                    {infoSection.linkedinUrl && infoSection.linkedinUrl !== '#' && (
-                      <a href={infoSection.linkedinUrl} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">LinkedIn</a>
-                    )}
-                  </div>
-                </div>
-              )}
+              </div>
             </div>
 
             {/* Map Integration */}
@@ -195,7 +179,7 @@ export default function Contact() {
             </div>
           </div>
 
-          {/* Contact Form - 100% database driven */}
+          {/* Contact Form */}
           <div className="bg-muted/30 p-8 md:p-12 rounded-[1.5rem]">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -271,7 +255,7 @@ export default function Contact() {
                     Sending...
                   </>
                 ) : (
-                  formSection.submitText || "Send Message"
+                  "Send Message"
                 )}
               </Button>
             </form>

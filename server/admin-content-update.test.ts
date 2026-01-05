@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { appRouter } from './routers';
 import type { Context } from './_core/trpc';
 import { getDb } from './db';
@@ -26,32 +26,15 @@ describe('Admin Content Update', () => {
 
     adminToken = token;
 
-    // Create a dedicated test content item to avoid modifying production data
-    const testKey = 'test-content-key-' + Date.now();
-    const [result] = await db.insert(schema.siteContent).values({
-      page: 'test-page',
-      section: 'test-section',
-      contentKey: testKey,
-      contentValue: 'Initial test value',
-      contentType: 'text',
-    });
-    testContentId = result.insertId;
-  });
-
-  afterAll(async () => {
-    // Clean up test data
-    const db = await getDb();
-    if (!db) return;
-
-    // Delete test content
-    if (testContentId) {
-      await db.delete(schema.siteContent).where(eq(schema.siteContent.id, testContentId));
-    }
-
-    // Delete test session
-    if (adminToken) {
-      await db.delete(schema.adminSessions).where(eq(schema.adminSessions.token, adminToken));
-    }
+    // Get a test content item ID
+    const [content] = await db
+      .select()
+      .from(schema.siteContent)
+      .where(eq(schema.siteContent.page, 'home'))
+      .limit(1);
+    
+    if (!content) throw new Error('No test content found');
+    testContentId = content.id;
   });
 
   it('should update content with valid admin session', async () => {
