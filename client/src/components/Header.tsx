@@ -5,7 +5,7 @@ import { ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
-import { useNavigation } from '@/hooks/useNavigation';
+// Navigation is now fetched from pages table via trpc.pages.getNavPages
 
 interface NavItem {
   href: string;
@@ -26,8 +26,8 @@ export default function Header() {
   const menuItemsRef = useRef<HTMLDivElement>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Fetch navigation from database using the useNavigation hook
-  const { headerItems, isLoading: navLoading } = useNavigation();
+  // Fetch navigation from pages table (pages with showInNav=1)
+  const { data: navPages, isLoading: navLoading } = trpc.pages.getNavPages.useQuery();
   
   // Fetch site settings for logo and brand
   const { data: siteSettings } = trpc.siteSettings.get.useQuery();
@@ -35,43 +35,39 @@ export default function Header() {
   // Fetch brand assets for logo
   const { data: brandAssets } = trpc.siteSettings.getBrandAssets.useQuery();
 
-  // Build navigation structure from database navigation items
+  // Build navigation structure from pages table
   const allNavLinks: NavItem[] = useMemo(() => {
-    if (!headerItems || headerItems.length === 0) {
+    if (!navPages || navPages.length === 0) {
       return [];
     }
 
     // Separate parent items (no parentId) from child items
-    const parentItems = headerItems.filter(item => !item.parentId);
-    const childItems = headerItems.filter(item => item.parentId);
+    const parentItems = navPages.filter(item => !item.parentId);
+    const childItems = navPages.filter(item => item.parentId);
 
     // Build navigation items with children
     const navItems: NavItem[] = parentItems.map(parent => {
       const children = childItems
         .filter(child => child.parentId === parent.id)
         .map(child => ({
-          href: child.url,
-          label: child.label,
-          isExternal: child.isExternal === 1,
-          openInNewTab: child.openInNewTab === 1,
+          href: `/${child.slug}`,
+          label: child.title,
         }));
 
-      // Check if this is a CTA button (label contains [button] indicator)
-      const isButton = parent.label.toLowerCase().includes('[button]');
-      const label = parent.label.replace('[button]', '').replace('[Button]', '').trim();
+      // Check if this is a CTA button (title contains [button] indicator)
+      const isButton = parent.title.toLowerCase().includes('[button]');
+      const label = parent.title.replace('[button]', '').replace('[Button]', '').trim();
 
       return {
-        href: parent.url,
+        href: `/${parent.slug}`,
         label: label,
         isButton: isButton,
-        isExternal: parent.isExternal === 1,
-        openInNewTab: parent.openInNewTab === 1,
         children: children.length > 0 ? children : undefined,
       };
     });
 
     return navItems;
-  }, [headerItems]);
+  }, [navPages]);
 
   // Separate regular nav items from button items
   const regularNavItems = useMemo(() => allNavLinks.filter(item => !item.isButton), [allNavLinks]);

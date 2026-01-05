@@ -1699,3 +1699,8 @@ NODE_ENV=production
 - [ ] Seed carouselOfferings table with offerings data
 - [ ] Seed siteContent table with global content (footer, newsletter popup)
 
+
+### Documentation Delivered
+- [x] Create PRODUCTION_DEPLOYMENT.md with EC2 commands
+- [x] Create PRODUCTION_RDS_SEED.sql with all seed data
+- [x] Push documentation to GitHub
