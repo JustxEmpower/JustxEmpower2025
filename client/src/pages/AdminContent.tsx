@@ -166,6 +166,29 @@ export default function AdminContent() {
     );
   }
 
+  // Page ID mapping for section queries
+  const pageIdMap: Record<string, number> = {
+    'home': 1,
+    'philosophy': 60001,
+    'founder': 60002,
+    'vision-ethos': 60003,
+    'offerings': 60004,
+    'workshops-programs': 60005,
+    'vix-journal-trilogy': 60006,
+    'blog': 60007,
+    'shop': 60008,
+    'community-events': 60009,
+    'resources': 60010,
+    'walk-with-us': 60011,
+    'contact': 60012,
+  };
+
+  // Fetch page sections from API
+  const { sections: pageSections, isLoading: sectionsLoading, hasDbSections, completenessData } = usePageSections(
+    selectedPage,
+    pageIdMap[selectedPage]
+  );
+
   const pages = [
     // Core pages
     { id: 'home', label: 'Home' },
