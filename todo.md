@@ -1797,3 +1797,63 @@ NODE_ENV=production
 - [ ] Update CMS siteContent database with correct content
 - [ ] Deploy to EC2 production
 - [ ] Verify all pages display correct content
+
+
+## Content Editor Dynamic Sections (Jan 5, 2026)
+- [ ] Update usePageSections hook to prioritize database sections over static defaults
+- [ ] Update PageSectionMapper to support dynamic section rendering from database
+- [ ] Update AdminContent.tsx to use dynamic sections from database
+- [ ] Fix Philosophy page Founder Quote section to show as complete
+- [ ] Deploy and verify all pages show accurate completion status
+
+
+## Content Editor Button Links (Jan 5, 2026)
+- [ ] Add ctaLink field to Philosophy section (Learn More button)
+- [ ] Add ctaLink field to Community section (Walk With Us button)
+- [ ] Add ctaLink field to Rooted Unity section (Learn More button)
+- [ ] Add link field to carousel offering items
+- [ ] Update Content Editor UI to show link input fields for buttons
+- [ ] Ensure links are saved to database and rendered on frontend
+
+## Page Builder Enhancements - JE Luxury Blocks (Jan 5, 2026)
+- [ ] Add JE Hero - Video block type
+- [ ] Add JE Hero - Image block type
+- [ ] Add JE Hero - Split Screen block type
+- [ ] Add JE Section - Two Column block type
+- [ ] Add JE Section - Full Width block type
+- [ ] Add JE Carousel block type
+- [ ] Add JE Quote block type
+- [ ] Add JE Button block type
+- [ ] Add JE Accordion block type
+- [ ] Add JE Tabs block type
+- [ ] Add JE Image block type with reveal animation
+- [ ] Add JE Video block type
+- [ ] Add JE Gallery block type
+- [ ] Add JE Newsletter Signup block type
+- [ ] Add JE Contact Form block type
+- [ ] Organize blocks into JE-specific categories
+
+
+## Page Link Selector Dropdown (Jan 5, 2026)
+- [ ] Create PageLinkSelector component with dropdown of existing pages
+- [ ] Update Content Editor to use PageLinkSelector for link fields
+- [ ] Deploy and verify changes
+
+
+## Critical Issues - Jan 5, 2026
+
+### Issue 1: Carousel Item 404 Errors
+- [ ] Fix carousel item links that return 404 (e.g., /offerings/she-writes)
+- [ ] Create missing offering pages or update links to existing pages
+
+### Issue 2: Media Converter Not Working
+- [ ] Install FFmpeg on EC2 server for video conversion
+- [ ] Verify media conversion works after FFmpeg installation
+
+### Issue 3: Content Editor Changes Not Updating Live Site
+- [ ] Make frontend 100% database-driven with ZERO hardcoded content
+- [ ] Update Home.tsx to fetch all content from database
+- [ ] Update OfferingsCarousel component to use database content
+- [ ] Update all section components to use database content
+- [ ] Remove all hardcoded text, images, and links from frontend
+- [ ] Verify Content Editor changes immediately reflect on live site
