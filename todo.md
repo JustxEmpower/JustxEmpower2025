@@ -1666,3 +1666,36 @@ NODE_ENV=production
 - [x] Update Footer.tsx to use useNavigation hook
 - [x] Update Carousel.tsx to use useCarousel hook (already using database)
 
+
+
+## CMS Specification Implementation - Production Deployment (NEW)
+
+### Database Hooks (Code Changes)
+- [ ] Create useNavigation.ts hook for fetching navigation from database
+- [ ] Create useCarousel.ts hook for fetching carousel offerings from database
+- [ ] Create useGlobalContent.ts hook for fetching global content from database
+
+### API Routes (Code Changes)
+- [ ] Add public navigationRouter to server/routers.ts
+- [ ] Verify carouselRouter exists with getAll method
+
+### Component Updates (Code Changes)
+- [ ] Update Header.tsx to use useNavigation hook instead of hardcoded links
+- [ ] Update Footer.tsx to use useNavigation and useGlobalContent hooks
+- [ ] Update Carousel.tsx to use useCarousel hook
+
+### Page Builder JustEmpower Blocks (Code Changes)
+- [ ] Add JE block types to blockTypes.ts (je-hero, je-section, je-carousel, je-newsletter, je-quote, je-pillar-grid)
+- [ ] Create JEBlockRenderers.tsx with all JE block renderers
+- [ ] Update BlockRenderer.tsx to include JE block renderers
+
+### Production Deployment
+- [ ] Push all code changes to GitHub
+- [ ] Deploy to EC2 server (git pull, pnpm build, pm2 restart)
+- [ ] Run database migrations on AWS RDS MySQL
+
+### Production Database Seeding (AWS RDS MySQL)
+- [ ] Seed navigation table with header and footer items
+- [ ] Seed carouselOfferings table with offerings data
+- [ ] Seed siteContent table with global content (footer, newsletter popup)
+
