@@ -1725,3 +1725,41 @@ NODE_ENV=production
 - [ ] Build visual section mapper component
 - [ ] Integrate section mapper into Content Editor
 - [ ] Test and deploy to production
+
+## Section Mapper Backend Integration (NEW)
+- [ ] Create pageSections database table schema
+- [ ] Create API endpoints for section content CRUD
+- [ ] Update Section Mapper to fetch real data from database
+- [ ] Create section content editor forms for each section type
+- [ ] Implement completeness calculation logic
+- [ ] Seed database with initial section content from Content Audit
+- [ ] Test complete integration
+- [ ] Deploy to production
+
+
+## Visual Section Mapper CMS System (NEW)
+
+### Database & API
+- [x] Create pageSections database table with schema
+- [x] Build pageSections tRPC router with CRUD operations
+- [x] Implement getPageCompleteness API for section status
+- [x] Seed initial section data for home page
+- [x] Seed initial section data for philosophy and offerings pages
+
+### Auto-Sync Functionality
+- [x] Add syncSectionsForPage procedure to auto-generate sections for new pages
+- [x] Add scanAndSyncAllPages procedure to ensure all pages have sections
+- [x] Hook into page creation flow to auto-generate sections
+- [ ] Add "Scan & Sync Sections" button in admin UI
+- [x] Create default section templates for different page types
+
+### Frontend Integration
+- [x] Create usePageSections hook for fetching section data
+- [x] Update AdminContent to use real API data instead of static defaults
+- [ ] Add visual indicator when sections are from database vs defaults
+- [ ] Add section management UI in admin (add/remove/reorder sections)
+
+### Testing
+- [x] Write vitest tests for pageSections router
+- [x] Test auto-sync functionality
+- [x] Test section CRUD operations
