@@ -292,7 +292,48 @@ export async function createPage(data: {
   if (!db) throw new Error("Database not available");
   
   const [result] = await db.insert(pages).values(data);
-  return { id: result.insertId };
+  const pageId = result.insertId;
+  
+  // Auto-create default siteContent sections for the new page
+  // This ensures the page appears in the Content Editor with editable sections
+  const defaultSections = [
+    // Hero Section
+    { section: 'hero', contentKey: 'title', contentValue: data.title },
+    { section: 'hero', contentKey: 'subtitle', contentValue: '' },
+    { section: 'hero', contentKey: 'description', contentValue: '' },
+    { section: 'hero', contentKey: 'imageUrl', contentValue: '' },
+    { section: 'hero', contentKey: 'videoUrl', contentValue: '' },
+    { section: 'hero', contentKey: 'ctaText', contentValue: '' },
+    { section: 'hero', contentKey: 'ctaLink', contentValue: '' },
+    // Main Content Section
+    { section: 'main', contentKey: 'title', contentValue: '' },
+    { section: 'main', contentKey: 'description', contentValue: '' },
+    { section: 'main', contentKey: 'paragraph1', contentValue: '' },
+    { section: 'main', contentKey: 'paragraph2', contentValue: '' },
+    { section: 'main', contentKey: 'imageUrl', contentValue: '' },
+    // Newsletter Section
+    { section: 'newsletter', contentKey: 'title', contentValue: 'Stay Connected' },
+    { section: 'newsletter', contentKey: 'description', contentValue: 'Subscribe to receive updates and insights.' },
+    { section: 'newsletter', contentKey: 'buttonText', contentValue: 'Subscribe' },
+    { section: 'newsletter', contentKey: 'placeholder', contentValue: 'Enter your email' },
+  ];
+  
+  try {
+    for (const section of defaultSections) {
+      await db.insert(siteContent).values({
+        page: data.slug,
+        section: section.section,
+        contentKey: section.contentKey,
+        contentValue: section.contentValue,
+      });
+    }
+    console.log(`Created default siteContent sections for page: ${data.slug}`);
+  } catch (error) {
+    console.error('Failed to create default siteContent sections:', error);
+    // Don't throw - page creation should still succeed even if section creation fails
+  }
+  
+  return { id: pageId };
 }
 
 export async function updatePage(id: number, data: Partial<{

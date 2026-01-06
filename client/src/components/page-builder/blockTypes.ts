@@ -47,6 +47,11 @@ import {
   LayoutGrid,
   Newspaper,
   LucideIcon,
+  Feather,
+  Flower2,
+  Leaf,
+  Mountain,
+  Sun,
 } from 'lucide-react';
 
 export interface BlockType {
@@ -57,9 +62,15 @@ export interface BlockType {
   category: BlockCategory;
   defaultContent: Record<string, unknown>;
   previewImage?: string;
+  isJustEmpower?: boolean;  // Flag for JE-specific blocks
+  premium?: boolean;        // Premium/advanced blocks
 }
 
 export type BlockCategory =
+  | 'je-hero'        // JE hero sections
+  | 'je-content'     // JE content blocks
+  | 'je-media'       // JE media blocks
+  | 'je-interactive' // JE interactive blocks
   | 'layout'
   | 'content'
   | 'media'
@@ -69,18 +80,339 @@ export type BlockCategory =
   | 'commerce'
   | 'forms';
 
-export const blockCategories: { id: BlockCategory; name: string; icon: LucideIcon }[] = [
-  { id: 'layout', name: 'Layout', icon: Layout },
-  { id: 'content', name: 'Content', icon: Type },
-  { id: 'media', name: 'Media', icon: Image },
-  { id: 'interactive', name: 'Interactive', icon: MousePointer },
-  { id: 'data', name: 'Data & Charts', icon: BarChart3 },
-  { id: 'social', name: 'Social', icon: Share2 },
-  { id: 'commerce', name: 'Commerce', icon: DollarSign },
-  { id: 'forms', name: 'Forms', icon: FileText },
+export const blockCategories: { id: BlockCategory; name: string; icon: LucideIcon; description?: string }[] = [
+  { id: 'je-hero', name: '✦ JE Hero', icon: Flower2, description: 'JustEmpower hero sections' },
+  { id: 'je-content', name: '✦ JE Content', icon: Feather, description: 'Brand-styled content blocks' },
+  { id: 'je-media', name: '✦ JE Media', icon: Leaf, description: 'JustEmpower media blocks' },
+  { id: 'je-interactive', name: '✦ JE Interactive', icon: Sun, description: 'JustEmpower interactive elements' },
+  { id: 'layout', name: 'Layout', icon: Layout, description: 'Page structure blocks' },
+  { id: 'content', name: 'Content', icon: Type, description: 'Text and content blocks' },
+  { id: 'media', name: 'Media', icon: Image, description: 'Images, videos, and galleries' },
+  { id: 'interactive', name: 'Interactive', icon: MousePointer, description: 'Buttons and interactive elements' },
+  { id: 'data', name: 'Data & Charts', icon: BarChart3, description: 'Data visualization blocks' },
+  { id: 'social', name: 'Social', icon: Share2, description: 'Social media integration' },
+  { id: 'commerce', name: 'Commerce', icon: DollarSign, description: 'E-commerce blocks' },
+  { id: 'forms', name: 'Forms', icon: FileText, description: 'Form and input blocks' },
 ];
 
 export const blockTypes: BlockType[] = [
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ✦ JUSTXEMPOWER HERO BLOCKS
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'je-hero-video',
+    name: 'JE Hero Video',
+    description: 'Full-screen video hero with overlay content',
+    icon: Play,
+    category: 'je-hero',
+    isJustEmpower: true,
+    defaultContent: {
+      videoUrl: '',
+      posterImage: '',
+      title: 'Catalyzing the Rise of Her.',
+      subtitle: 'Welcome to Just Empower',
+      description: 'Where Empowerment Becomes Embodiment.',
+      ctaText: 'Discover More',
+      ctaLink: '/founder',
+      overlayOpacity: 40,
+      textAlignment: 'center',
+      minHeight: '100vh',
+    },
+  },
+  {
+    id: 'je-hero-image',
+    name: 'JE Hero Image',
+    description: 'Full-screen image hero with elegant typography',
+    icon: Image,
+    category: 'je-hero',
+    isJustEmpower: true,
+    defaultContent: {
+      imageUrl: '',
+      title: 'Our Philosophy',
+      subtitle: 'EMBODIMENT OVER INTELLECTUALIZATION',
+      description: 'Truth begins where intellect ends—within the lived intelligence of the body and breath.',
+      ctaText: '',
+      ctaLink: '',
+      overlayOpacity: 30,
+      textAlignment: 'center',
+      minHeight: '80vh',
+    },
+  },
+  {
+    id: 'je-hero-split',
+    name: 'JE Hero Split',
+    description: 'Split hero with image and content side by side',
+    icon: Columns,
+    category: 'je-hero',
+    isJustEmpower: true,
+    defaultContent: {
+      imageUrl: '',
+      imagePosition: 'right',
+      title: 'Meet the Founder',
+      subtitle: 'APRIL GAMBARDELLA',
+      description: 'A visionary leader dedicated to feminine empowerment...',
+      ctaText: 'Learn More',
+      ctaLink: '/founder',
+    },
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ✦ JUSTXEMPOWER CONTENT BLOCKS
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'je-section-standard',
+    name: 'JE Section Standard',
+    description: 'Standard content section with JE styling',
+    icon: Box,
+    category: 'je-content',
+    isJustEmpower: true,
+    defaultContent: {
+      label: 'OUR APPROACH',
+      title: 'The Philosophy',
+      description: 'Just Empower operates at the intersection of personal reclamation and collective influence.',
+      imageUrl: '',
+      imagePosition: 'right',
+      ctaText: 'Learn More',
+      ctaLink: '/philosophy',
+      backgroundColor: 'cream',
+    },
+  },
+  {
+    id: 'je-section-fullwidth',
+    name: 'JE Section Full Width',
+    description: 'Full-width section with background image/video',
+    icon: Layout,
+    category: 'je-content',
+    isJustEmpower: true,
+    defaultContent: {
+      backgroundType: 'image',
+      backgroundUrl: '',
+      overlayOpacity: 50,
+      label: 'COMMUNITY',
+      title: 'Emerge With Us',
+      description: 'We are planting seeds for a new paradigm—one rooted in consciousness, compassion, and sacred reciprocity.',
+      ctaText: 'Walk With Us',
+      ctaLink: '/walk-with-us',
+      textColor: 'light',
+    },
+  },
+  {
+    id: 'je-pillars',
+    name: 'JE Three Pillars',
+    description: 'Display the three foundational pillars',
+    icon: Mountain,
+    category: 'je-content',
+    isJustEmpower: true,
+    defaultContent: {
+      label: 'FOUNDATION OF OUR WORK',
+      title: 'The Three Pillars',
+      description: 'Our work is built upon three interconnected pillars that guide everything we do.',
+      pillars: [
+        { title: 'Embodiment', description: 'Living wisdom through the body', icon: 'heart' },
+        { title: 'Sacred Reciprocity', description: 'Honoring the give and take of life', icon: 'leaf' },
+        { title: 'Feminine Wisdom', description: 'Reclaiming ancient knowing', icon: 'moon' },
+      ],
+      imageUrl: '',
+    },
+  },
+  {
+    id: 'je-principles',
+    name: 'JE Foundational Principles',
+    description: 'Display numbered principles with descriptions',
+    icon: List,
+    category: 'je-content',
+    isJustEmpower: true,
+    defaultContent: {
+      title: 'Foundational Principles',
+      principles: [
+        { number: '01', title: 'Embodiment', description: 'Real change happens not in the mind alone, but in the body...', imageUrl: '' },
+        { number: '02', title: 'Sacred Reciprocity', description: 'We honor the give and take of life...', imageUrl: '' },
+        { number: '03', title: 'Feminine Wisdom', description: 'We honor the intelligence of the feminine...', imageUrl: '' },
+      ],
+    },
+  },
+  {
+    id: 'je-heading',
+    name: 'JE Heading',
+    description: 'Elegant heading with optional label',
+    icon: Type,
+    category: 'je-content',
+    isJustEmpower: true,
+    defaultContent: {
+      label: 'SECTION LABEL',
+      title: 'Section Title',
+      alignment: 'center',
+      size: 'large',
+      fontFamily: 'serif',
+    },
+  },
+  {
+    id: 'je-paragraph',
+    name: 'JE Paragraph',
+    description: 'Styled paragraph with JE typography',
+    icon: Type,
+    category: 'je-content',
+    isJustEmpower: true,
+    defaultContent: {
+      content: 'Your paragraph content here. This block supports rich text formatting.',
+      alignment: 'left',
+      maxWidth: '65ch',
+      fontSize: 'base',
+    },
+  },
+  {
+    id: 'je-blockquote',
+    name: 'JE Blockquote',
+    description: 'Elegant quote with decorative styling',
+    icon: Quote,
+    category: 'je-content',
+    isJustEmpower: true,
+    defaultContent: {
+      quote: 'A meaningful quote to emphasize...',
+      author: '',
+      style: 'elegant',
+      alignment: 'center',
+    },
+  },
+  {
+    id: 'je-newsletter',
+    name: 'JE Newsletter',
+    description: 'Newsletter signup with JE styling',
+    icon: Mail,
+    category: 'je-content',
+    isJustEmpower: true,
+    defaultContent: {
+      title: 'Deepen Your Practice',
+      description: 'Subscribe to receive wisdom, offerings, and invitations to sacred gatherings.',
+      buttonText: 'Subscribe',
+      placeholder: 'Enter your email',
+      backgroundColor: 'dark',
+    },
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ✦ JUSTXEMPOWER MEDIA BLOCKS
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'je-image',
+    name: 'JE Image',
+    description: 'Image with reveal animation and JE styling',
+    icon: Image,
+    category: 'je-media',
+    isJustEmpower: true,
+    defaultContent: {
+      imageUrl: '',
+      alt: '',
+      caption: '',
+      width: 'large',
+      alignment: 'center',
+      rounded: true,
+      shadow: 'medium',
+      revealAnimation: true,
+    },
+  },
+  {
+    id: 'je-video',
+    name: 'JE Video',
+    description: 'Video player with custom controls',
+    icon: Video,
+    category: 'je-media',
+    isJustEmpower: true,
+    defaultContent: {
+      videoUrl: '',
+      posterImage: '',
+      autoplay: false,
+      loop: false,
+      muted: false,
+      controls: true,
+      width: 'large',
+      aspectRatio: '16/9',
+    },
+  },
+  {
+    id: 'je-gallery',
+    name: 'JE Image Gallery',
+    description: 'Masonry or grid gallery with lightbox',
+    icon: Images,
+    category: 'je-media',
+    isJustEmpower: true,
+    defaultContent: {
+      images: [],
+      layout: 'grid',
+      columns: 3,
+      gap: 'medium',
+      lightbox: true,
+    },
+  },
+  {
+    id: 'je-carousel',
+    name: 'JE Carousel',
+    description: 'Image/content carousel with elegant transitions',
+    icon: Images,
+    category: 'je-media',
+    isJustEmpower: true,
+    defaultContent: {
+      slides: [],
+      autoplay: true,
+      interval: 5000,
+      showDots: true,
+      showArrows: true,
+      transition: 'fade',
+    },
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ✦ JUSTXEMPOWER INTERACTIVE BLOCKS
+  // ═══════════════════════════════════════════════════════════════════════════
+  {
+    id: 'je-button',
+    name: 'JE Button',
+    description: 'Luxury styled button with multiple variants',
+    icon: MousePointer,
+    category: 'je-interactive',
+    isJustEmpower: true,
+    defaultContent: {
+      text: 'Learn More',
+      link: '/',
+      variant: 'primary',
+      size: 'medium',
+      fullWidth: false,
+    },
+  },
+  {
+    id: 'je-offerings-grid',
+    name: 'JE Offerings Grid',
+    description: 'Display offerings in a styled grid',
+    icon: Grid3X3,
+    category: 'je-interactive',
+    isJustEmpower: true,
+    defaultContent: {
+      title: 'Our Offerings',
+      subtitle: 'PATHWAYS TO TRANSFORMATION',
+      offerings: [],
+      columns: 3,
+      showPrices: false,
+    },
+  },
+  {
+    id: 'je-testimonial',
+    name: 'JE Testimonial',
+    description: 'Elegant testimonial with JE styling',
+    icon: Quote,
+    category: 'je-interactive',
+    isJustEmpower: true,
+    defaultContent: {
+      quote: 'This experience transformed my life...',
+      author: 'Jane Doe',
+      role: 'Workshop Participant',
+      imageUrl: '',
+      style: 'elegant',
+    },
+  },
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STANDARD LAYOUT BLOCKS
+  // ═══════════════════════════════════════════════════════════════════════════
   // Layout Blocks
   {
     id: 'hero',
