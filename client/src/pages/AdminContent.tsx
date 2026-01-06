@@ -344,6 +344,13 @@ export default function AdminContent() {
                              section.toLowerCase().includes('newsletter') ? 'newsletter' :
                              section.toLowerCase().includes('footer') ? 'footer' :
                              section.toLowerCase().includes('form') ? 'form' :
+                             section.toLowerCase().includes('carousel') ? 'carousel' :
+                             section.toLowerCase().includes('community') || section.toLowerCase().includes('emerge') ? 'community' :
+                             section.toLowerCase().includes('rooted') || section.toLowerCase().includes('unity') ? 'rooted-unity' :
+                             section.toLowerCase().includes('quote') ? 'quote' :
+                             section.toLowerCase().includes('cta') ? 'cta' :
+                             section.toLowerCase().includes('video') ? 'video' :
+                             section.toLowerCase().includes('grid') ? 'grid' :
                              'content'}
                           </span>
                         </div>

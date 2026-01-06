@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutGrid, CheckCircle2, AlertCircle, Circle } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 
 interface ContentItem {
   id: number;
@@ -16,47 +16,63 @@ interface SectionVisualizerProps {
   onSectionClick: (section: string) => void;
 }
 
-// Section type definitions with colors
-const sectionTypes: Record<string, { color: string; bgColor: string; borderColor: string; label: string }> = {
-  hero: { color: 'text-emerald-700', bgColor: 'bg-emerald-100', borderColor: 'border-emerald-300', label: 'Hero' },
-  header: { color: 'text-blue-700', bgColor: 'bg-blue-100', borderColor: 'border-blue-300', label: 'Header' },
-  content: { color: 'text-amber-700', bgColor: 'bg-amber-100', borderColor: 'border-amber-300', label: 'Content' },
-  main: { color: 'text-orange-700', bgColor: 'bg-orange-100', borderColor: 'border-orange-300', label: 'Content' },
-  carousel: { color: 'text-purple-700', bgColor: 'bg-purple-100', borderColor: 'border-purple-300', label: 'Carousel' },
-  grid: { color: 'text-indigo-700', bgColor: 'bg-indigo-100', borderColor: 'border-indigo-300', label: 'Grid' },
-  form: { color: 'text-pink-700', bgColor: 'bg-pink-100', borderColor: 'border-pink-300', label: 'Form' },
-  video: { color: 'text-red-700', bgColor: 'bg-red-100', borderColor: 'border-red-300', label: 'Video' },
-  quote: { color: 'text-teal-700', bgColor: 'bg-teal-100', borderColor: 'border-teal-300', label: 'Quote' },
-  cta: { color: 'text-rose-700', bgColor: 'bg-rose-100', borderColor: 'border-rose-300', label: 'Cta' },
-  newsletter: { color: 'text-cyan-700', bgColor: 'bg-cyan-100', borderColor: 'border-cyan-300', label: 'Newsletter' },
-  community: { color: 'text-lime-700', bgColor: 'bg-lime-100', borderColor: 'border-lime-300', label: 'Community' },
-  footer: { color: 'text-gray-700', bgColor: 'bg-gray-100', borderColor: 'border-gray-300', label: 'Footer' },
-  principles: { color: 'text-violet-700', bgColor: 'bg-violet-100', borderColor: 'border-violet-300', label: 'Content' },
-  pillars: { color: 'text-fuchsia-700', bgColor: 'bg-fuchsia-100', borderColor: 'border-fuchsia-300', label: 'Content' },
-  philosophy: { color: 'text-sky-700', bgColor: 'bg-sky-100', borderColor: 'border-sky-300', label: 'Content' },
-  offerings: { color: 'text-yellow-700', bgColor: 'bg-yellow-100', borderColor: 'border-yellow-300', label: 'Content' },
-  rootedUnity: { color: 'text-green-700', bgColor: 'bg-green-100', borderColor: 'border-green-300', label: 'Content' },
-  rooted: { color: 'text-green-700', bgColor: 'bg-green-100', borderColor: 'border-green-300', label: 'Content' },
+// Section type definitions with colors matching production
+const sectionTypeStyles: Record<string, { borderColor: string; bgColor: string; textColor: string }> = {
+  hero: { borderColor: 'border-red-400', bgColor: 'bg-red-50', textColor: 'text-red-700' },
+  header: { borderColor: 'border-blue-400', bgColor: 'bg-blue-50', textColor: 'text-blue-700' },
+  content: { borderColor: 'border-orange-400', bgColor: 'bg-orange-50', textColor: 'text-orange-700' },
+  carousel: { borderColor: 'border-orange-400', bgColor: 'bg-orange-50', textColor: 'text-orange-700' },
+  community: { borderColor: 'border-green-400', bgColor: 'bg-green-50', textColor: 'text-green-700' },
+  grid: { borderColor: 'border-indigo-400', bgColor: 'bg-indigo-50', textColor: 'text-indigo-700' },
+  form: { borderColor: 'border-pink-400', bgColor: 'bg-pink-50', textColor: 'text-pink-700' },
+  video: { borderColor: 'border-purple-400', bgColor: 'bg-purple-50', textColor: 'text-purple-700' },
+  quote: { borderColor: 'border-teal-400', bgColor: 'bg-teal-50', textColor: 'text-teal-700' },
+  cta: { borderColor: 'border-rose-400', bgColor: 'bg-rose-50', textColor: 'text-rose-700' },
+  newsletter: { borderColor: 'border-cyan-400', bgColor: 'bg-cyan-50', textColor: 'text-cyan-700' },
+  footer: { borderColor: 'border-gray-400', bgColor: 'bg-gray-50', textColor: 'text-gray-700' },
+  'rooted-unity': { borderColor: 'border-yellow-400', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
+  rootedUnity: { borderColor: 'border-yellow-400', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
+  rooted: { borderColor: 'border-yellow-400', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
+  principles: { borderColor: 'border-violet-400', bgColor: 'bg-violet-50', textColor: 'text-violet-700' },
+  pillars: { borderColor: 'border-fuchsia-400', bgColor: 'bg-fuchsia-50', textColor: 'text-fuchsia-700' },
+  philosophy: { borderColor: 'border-sky-400', bgColor: 'bg-sky-50', textColor: 'text-sky-700' },
+  offerings: { borderColor: 'border-amber-400', bgColor: 'bg-amber-50', textColor: 'text-amber-700' },
+  main: { borderColor: 'border-orange-400', bgColor: 'bg-orange-50', textColor: 'text-orange-700' },
+  info: { borderColor: 'border-blue-400', bgColor: 'bg-blue-50', textColor: 'text-blue-700' },
+  overview: { borderColor: 'border-slate-400', bgColor: 'bg-slate-50', textColor: 'text-slate-700' },
 };
 
-// Get section type styling
-const getSectionStyle = (sectionName: string) => {
+// Determine section type from section name
+const getSectionType = (sectionName: string): string => {
   const lowerSection = sectionName.toLowerCase();
   
-  // Check for exact match first
-  if (sectionTypes[lowerSection]) {
-    return sectionTypes[lowerSection];
-  }
+  if (lowerSection.includes('hero')) return 'hero';
+  if (lowerSection.includes('header')) return 'header';
+  if (lowerSection.includes('newsletter')) return 'newsletter';
+  if (lowerSection.includes('footer')) return 'footer';
+  if (lowerSection.includes('form')) return 'form';
+  if (lowerSection.includes('carousel')) return 'carousel';
+  if (lowerSection.includes('community') || lowerSection.includes('emerge')) return 'community';
+  if (lowerSection.includes('rooted') || lowerSection.includes('unity')) return 'rooted-unity';
+  if (lowerSection.includes('principles')) return 'principles';
+  if (lowerSection.includes('pillars')) return 'pillars';
+  if (lowerSection.includes('quote')) return 'quote';
+  if (lowerSection.includes('cta')) return 'cta';
+  if (lowerSection.includes('video')) return 'video';
+  if (lowerSection.includes('grid')) return 'grid';
+  if (lowerSection.includes('offerings')) return 'carousel';
+  if (lowerSection.includes('philosophy')) return 'content';
+  if (lowerSection.includes('overview')) return 'content';
+  if (lowerSection.includes('info')) return 'content';
+  if (lowerSection.includes('main')) return 'content';
   
-  // Check for partial matches
-  for (const [key, value] of Object.entries(sectionTypes)) {
-    if (lowerSection.includes(key)) {
-      return value;
-    }
-  }
-  
-  // Default styling
-  return { color: 'text-neutral-700', bgColor: 'bg-neutral-100', borderColor: 'border-neutral-300', label: 'Content' };
+  return 'content';
+};
+
+// Get section styling
+const getSectionStyle = (sectionName: string) => {
+  const sectionType = getSectionType(sectionName);
+  return sectionTypeStyles[sectionType] || sectionTypeStyles.content;
 };
 
 // Calculate completion percentage for a section
@@ -71,19 +87,21 @@ const getSectionDisplayTitle = (sectionName: string, items: ContentItem[]): stri
   // Try to find a title field in the section
   const titleItem = items.find(item => 
     item.contentKey === 'title' || 
-    item.contentKey.endsWith('_title') ||
+    item.contentKey.endsWith('Title') ||
     item.contentKey === 'heading'
   );
   
-  if (titleItem && titleItem.contentValue) {
-    return titleItem.contentValue;
+  if (titleItem && titleItem.contentValue && titleItem.contentValue.trim()) {
+    // Truncate long titles
+    const title = titleItem.contentValue;
+    return title.length > 30 ? title.substring(0, 30) + '...' : title;
   }
   
   // Format section name as fallback
   return sectionName
-    .split(/(?=[A-Z])/)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+    .replace(/([A-Z])/g, ' $1')
+    .replace(/^./, str => str.toUpperCase())
+    .trim();
 };
 
 export default function SectionVisualizer({ 
@@ -108,79 +126,97 @@ export default function SectionVisualizer({
   const totalItems = content.length;
   const filledItems = content.filter(item => item.contentValue && item.contentValue.trim() !== '').length;
   const overallCompletion = totalItems > 0 ? Math.round((filledItems / totalItems) * 100) : 0;
+  const filledSections = sections.filter(s => calculateCompletion(groupedContent[s]) > 0).length;
 
   return (
-    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-4 sticky top-4">
+    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
       {/* Header */}
-      <div className="flex items-center gap-2 mb-4">
-        <LayoutGrid className="w-5 h-5 text-neutral-500" />
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">
-            PAGE STRUCTURE
-          </h3>
-          <p className="text-xs text-neutral-500">
-            {sections.length}/{sections.length} sections
-          </p>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <LayoutGrid className="w-4 h-4 text-neutral-500" />
+          <div>
+            <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wide">
+              PAGE STRUCTURE
+            </span>
+          </div>
         </div>
-        <div className={`px-2 py-1 rounded text-xs font-medium ${
-          overallCompletion >= 80 ? 'bg-emerald-100 text-emerald-700' :
-          overallCompletion >= 50 ? 'bg-amber-100 text-amber-700' :
-          'bg-red-100 text-red-700'
-        }`}>
-          {overallCompletion}%
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-neutral-500">
+            {filledSections}/{sections.length} sections
+          </span>
+          <span className={`text-sm font-bold px-2 py-0.5 rounded ${
+            overallCompletion >= 90 ? 'bg-emerald-100 text-emerald-700' :
+            overallCompletion >= 50 ? 'bg-amber-100 text-amber-700' :
+            'bg-red-100 text-red-700'
+          }`}>
+            {overallCompletion}%
+          </span>
         </div>
       </div>
 
       {/* Traffic Light Indicator */}
-      <div className="flex gap-1.5 mb-4">
-        <div className={`w-3 h-3 rounded-full ${overallCompletion >= 30 ? 'bg-red-500' : 'bg-red-200'}`} />
-        <div className={`w-3 h-3 rounded-full ${overallCompletion >= 60 ? 'bg-amber-500' : 'bg-amber-200'}`} />
-        <div className={`w-3 h-3 rounded-full ${overallCompletion >= 90 ? 'bg-emerald-500' : 'bg-emerald-200'}`} />
+      <div className="flex gap-1 mb-4">
+        <div className={`w-3 h-3 rounded-full transition-colors ${
+          overallCompletion < 50 ? 'bg-red-500' : 'bg-red-200'
+        }`} />
+        <div className={`w-3 h-3 rounded-full transition-colors ${
+          overallCompletion >= 50 && overallCompletion < 90 ? 'bg-amber-500' : 'bg-amber-200'
+        }`} />
+        <div className={`w-3 h-3 rounded-full transition-colors ${
+          overallCompletion >= 90 ? 'bg-emerald-500' : 'bg-emerald-200'
+        }`} />
       </div>
 
       {/* Section List */}
-      <div className="space-y-2 max-h-[400px] overflow-y-auto">
-        {sections.map((section, index) => {
+      <div className="space-y-1.5 max-h-[500px] overflow-y-auto pr-1">
+        {sections.map((section) => {
           const items = groupedContent[section];
           const completion = calculateCompletion(items);
           const style = getSectionStyle(section);
           const displayTitle = getSectionDisplayTitle(section, items);
           const isActive = activeSection === section;
           const isEmpty = completion === 0;
+          const sectionType = getSectionType(section);
 
           return (
             <button
               key={section}
               onClick={() => onSectionClick(section)}
-              className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
+              className={`w-full text-left p-2.5 rounded-lg border-2 border-l-4 transition-all ${
                 isActive 
-                  ? `${style.bgColor} ${style.borderColor} ring-2 ring-offset-1 ring-${style.color.replace('text-', '')}`
-                  : `bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300`
+                  ? `${style.bgColor} ${style.borderColor} shadow-sm`
+                  : `bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 border-l-neutral-300`
               }`}
+              style={{
+                borderLeftColor: isActive ? undefined : (
+                  sectionType === 'hero' ? '#f87171' :
+                  sectionType === 'content' || sectionType === 'carousel' ? '#fb923c' :
+                  sectionType === 'community' ? '#4ade80' :
+                  sectionType === 'rooted-unity' ? '#facc15' :
+                  sectionType === 'newsletter' ? '#22d3ee' :
+                  sectionType === 'footer' ? '#9ca3af' :
+                  '#d1d5db'
+                )
+              }}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                    completion === 100 ? 'bg-emerald-500' :
-                    completion > 0 ? 'bg-amber-500' :
-                    'bg-neutral-300'
-                  }`} />
-                  <span className={`text-sm font-medium truncate ${
-                    isActive ? style.color : 'text-neutral-700 dark:text-neutral-300'
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <span className={`text-xs font-medium truncate ${
+                    isActive ? style.textColor : 'text-neutral-700 dark:text-neutral-300'
                   }`}>
                     {displayTitle}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1.5 flex-shrink-0">
                   {isActive && (
-                    <span className="px-1.5 py-0.5 bg-orange-500 text-white text-[10px] font-bold rounded">
-                      EDITING
+                    <span className="px-1.5 py-0.5 bg-green-500 text-white text-[9px] font-bold rounded uppercase">
+                      Editing
                     </span>
                   )}
-                  <span className={`text-xs px-1.5 py-0.5 rounded ${
+                  <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                    isEmpty ? 'bg-neutral-200 text-neutral-500' :
                     completion === 100 ? 'bg-emerald-100 text-emerald-700' :
-                    completion > 0 ? 'bg-amber-100 text-amber-700' :
-                    'bg-neutral-100 text-neutral-500'
+                    'bg-amber-100 text-amber-700'
                   }`}>
                     {isEmpty ? 'EMPTY' : `${completion}%`}
                   </span>
@@ -192,44 +228,45 @@ export default function SectionVisualizer({
       </div>
 
       {/* Section Types Legend */}
-      <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
-        <h4 className="text-xs font-semibold text-neutral-500 mb-2">Section Types</h4>
-        <div className="grid grid-cols-3 gap-1.5 text-[10px]">
+      <div className="mt-4 pt-3 border-t border-neutral-200 dark:border-neutral-700">
+        <h4 className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide mb-2">Section Types</h4>
+        <div className="grid grid-cols-4 gap-x-2 gap-y-1">
           {[
-            { key: 'header', label: 'Header' },
-            { key: 'hero', label: 'Hero' },
-            { key: 'content', label: 'Content' },
-            { key: 'carousel', label: 'Carousel' },
-            { key: 'grid', label: 'Grid' },
-            { key: 'form', label: 'Form' },
-            { key: 'video', label: 'Video' },
-            { key: 'quote', label: 'Quote' },
-            { key: 'cta', label: 'Cta' },
-            { key: 'newsletter', label: 'Newsletter' },
-            { key: 'community', label: 'Community' },
-            { key: 'footer', label: 'Footer' },
-          ].map(({ key, label }) => {
-            const style = sectionTypes[key];
-            return (
-              <div key={key} className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${style.bgColor} ${style.borderColor} border`} />
-                <span className="text-neutral-600 dark:text-neutral-400">{label}</span>
-              </div>
-            );
-          })}
+            { key: 'header', label: 'header', color: 'bg-blue-400' },
+            { key: 'hero', label: 'hero', color: 'bg-red-400' },
+            { key: 'content', label: 'content', color: 'bg-orange-400' },
+            { key: 'carousel', label: 'carousel', color: 'bg-orange-400' },
+            { key: 'grid', label: 'grid', color: 'bg-indigo-400' },
+            { key: 'form', label: 'form', color: 'bg-pink-400' },
+            { key: 'video', label: 'video', color: 'bg-purple-400' },
+            { key: 'quote', label: 'quote', color: 'bg-teal-400' },
+            { key: 'cta', label: 'cta', color: 'bg-rose-400' },
+            { key: 'newsletter', label: 'newsletter', color: 'bg-cyan-400' },
+            { key: 'community', label: 'community', color: 'bg-green-400' },
+            { key: 'footer', label: 'footer', color: 'bg-gray-400' },
+          ].map(({ key, label, color }) => (
+            <div key={key} className="flex items-center gap-1">
+              <div className={`w-2 h-2 rounded-sm ${color}`} />
+              <span className="text-[9px] text-neutral-500">{label}</span>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Currently Editing Indicator */}
       {activeSection && (
-        <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-700">
-          <h4 className="text-xs font-semibold text-neutral-500 mb-1">Currently Editing</h4>
+        <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-700">
+          <h4 className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide mb-1">Currently Editing</h4>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
-              {activeSection}
+            <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
+              {getSectionDisplayTitle(activeSection, groupedContent[activeSection] || [])}
             </span>
           </div>
+          <p className="text-[10px] text-neutral-400 mt-1">
+            Fields: {(groupedContent[activeSection] || []).map(i => i.contentKey).slice(0, 5).join(', ')}
+            {(groupedContent[activeSection] || []).length > 5 && '...'}
+          </p>
         </div>
       )}
     </div>
