@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { LogOut, FileText, Settings, Layout, Save, ChevronDown, ChevronUp, FolderOpen, Image, Palette, Files, BarChart3 } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
 import AdminSidebar from '@/components/AdminSidebar';
+import SectionVisualizer from '@/components/SectionVisualizer';
 
 interface ContentItem {
   id: number;
@@ -32,6 +33,10 @@ export default function AdminContent() {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [selectedFieldId, setSelectedFieldId] = useState<number | null>(null);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+  
+  // Refs for scrolling to sections
+  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const { data: contentData, isLoading, refetch } = trpc.admin.content.getByPage.useQuery(
     { page: selectedPage },
@@ -59,6 +64,11 @@ export default function AdminContent() {
       setExpandedSections(sections);
       // Clear any edited content when page data changes
       setEditedContent({});
+      // Set first section as active
+      const firstSection = contentData[0]?.section;
+      if (firstSection && !activeSection) {
+        setActiveSection(firstSection);
+      }
     }
   }, [contentData, selectedPage]);
 
@@ -74,7 +84,7 @@ export default function AdminContent() {
     setContent(prev => prev.map(item => item.id === id ? { ...item, contentValue: value } : item));
   };
 
-    const handleSaveAll = async () => {
+  const handleSaveAll = async () => {
     if (Object.keys(editedContent).length === 0) {
       toast.info('No changes to save');
       return;
@@ -116,9 +126,22 @@ export default function AdminContent() {
     setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
   };
 
+  // Handle section click from visualizer
+  const handleSectionClick = (section: string) => {
+    setActiveSection(section);
+    // Expand the section if collapsed
+    setExpandedSections(prev => ({ ...prev, [section]: true }));
+    // Scroll to the section
+    const sectionElement = sectionRefs.current[section];
+    if (sectionElement) {
+      sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   // When selected page changes, refetch content
   useEffect(() => {
     refetch();
+    setActiveSection(null);
   }, [selectedPage, refetch]);
 
   if (isChecking) {
@@ -218,158 +241,196 @@ export default function AdminContent() {
       {/* Sidebar */}
       <AdminSidebar variant="light" />
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <div className="p-8">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex items-center justify-between mb-6">
-              {hasUnsavedChanges && (
-                <Button
-                  onClick={handleSaveAll}
-                  disabled={updateMutation.isPending}
-                  className="gap-2"
-                >
-                  <Save className="w-4 h-4" />
-                  {updateMutation.isPending ? 'Saving...' : `Save All Changes (${Object.keys(editedContent).length})`}
-                </Button>
-              )}
-            </div>
+      {/* Main Content Area with Section Visualizer */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Section Visualizer - Left Panel */}
+        <div className="w-64 flex-shrink-0 p-4 overflow-y-auto border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950">
+          <SectionVisualizer
+            content={content}
+            selectedPage={selectedPage}
+            activeSection={activeSection}
+            onSectionClick={handleSectionClick}
+          />
+        </div>
 
-            <h1 className="text-3xl font-light text-neutral-900 dark:text-neutral-100 mb-2">
-              Content Editor
-            </h1>
-            <p className="text-neutral-600 dark:text-neutral-400 mb-8">
-              Edit all text content, images, and videos across your website
-            </p>
-
-            {/* Page Tabs */}
-            <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-              {pages.map((page) => (
-                <button
-                  key={page.id}
-                  onClick={() => {
-                    setSelectedPage(page.id);
-                    // Update URL without full page reload
-                    window.history.pushState({}, '', `/admin/content?page=${page.id}`);
-                  }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
-                    selectedPage === page.id
-                      ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900'
-                      : 'bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-800'
-                  }`}
-                >
-                  {page.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Content Sections */}
-            <div className="space-y-4">
-              {Object.entries(groupedContent).map(([section, items]) => (
-                <div
-                  key={section}
-                  className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden"
-                >
-                  {/* Section Header */}
-                  <button
-                    onClick={() => toggleSection(section)}
-                    className="w-full flex items-center justify-between p-6 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
+        {/* Content Editor - Right Panel */}
+        <main className="flex-1 overflow-auto">
+          <div className="p-8">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center justify-between mb-6">
+                {hasUnsavedChanges && (
+                  <Button
+                    onClick={handleSaveAll}
+                    disabled={updateMutation.isPending}
+                    className="gap-2"
                   >
-                    <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100">
-                      {formatSectionName(section)}
-                    </h2>
-                    {expandedSections[section] ? (
-                      <ChevronUp className="w-5 h-5 text-neutral-400" />
-                    ) : (
-                      <ChevronDown className="w-5 h-5 text-neutral-400" />
-                    )}
+                    <Save className="w-4 h-4" />
+                    {updateMutation.isPending ? 'Saving...' : `Save All Changes (${Object.keys(editedContent).length})`}
+                  </Button>
+                )}
+              </div>
+
+              <h1 className="text-3xl font-light text-neutral-900 dark:text-neutral-100 mb-2">
+                Content Editor
+              </h1>
+              <p className="text-neutral-600 dark:text-neutral-400 mb-8">
+                Edit all text content, images, and videos across your website
+              </p>
+
+              {/* Page Tabs */}
+              <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+                {pages.map((page) => (
+                  <button
+                    key={page.id}
+                    onClick={() => {
+                      setSelectedPage(page.id);
+                      // Update URL without full page reload
+                      window.history.pushState({}, '', `/admin/content?page=${page.id}`);
+                    }}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                      selectedPage === page.id
+                        ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900'
+                        : 'bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-800'
+                    }`}
+                  >
+                    {page.label}
                   </button>
+                ))}
+              </div>
 
-                  {/* Section Content */}
-                  {expandedSections[section] && (
-                    <div className="px-6 pb-6 space-y-4 border-t border-neutral-100 dark:border-neutral-800">
-                      {items.map((item) => {
-                        const currentValue = editedContent[item.id] ?? item.contentValue;
-                        const isModified = editedContent[item.id] !== undefined;
-                        const inputType = getInputType(item.contentKey);
-                        const useTextarea = isLongText(item.contentKey, currentValue);
+              {/* Content Sections */}
+              <div className="space-y-4">
+                {Object.entries(groupedContent).map(([section, items]) => (
+                  <div
+                    key={section}
+                    ref={(el) => { sectionRefs.current[section] = el; }}
+                    className={`bg-white dark:bg-neutral-900 rounded-xl border-2 overflow-hidden transition-all ${
+                      activeSection === section 
+                        ? 'border-orange-400 ring-2 ring-orange-200' 
+                        : 'border-neutral-200 dark:border-neutral-800'
+                    }`}
+                    onClick={() => setActiveSection(section)}
+                  >
+                    {/* Section Header */}
+                    <button
+                      onClick={() => toggleSection(section)}
+                      className="w-full flex items-center justify-between p-6 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100">
+                          {formatSectionName(section)}
+                        </h2>
+                        {activeSection === section && (
+                          <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-bold rounded">
+                            EDITING
+                          </span>
+                        )}
+                      </div>
+                      {expandedSections[section] ? (
+                        <ChevronUp className="w-5 h-5 text-neutral-400" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-neutral-400" />
+                      )}
+                    </button>
 
-                        return (
-                          <div key={item.id} className="pt-4">
-                            <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                              {formatSectionName(item.contentKey)}
-                              {isModified && (
-                                <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">
-                                  (Modified)
-                                </span>
-                              )}
-                            </label>
-                            {useTextarea ? (
-                              <Textarea
-                                value={currentValue}
-                                onChange={(e) => handleContentChange(item.id, e.target.value)}
-                                className={`min-h-[100px] ${isModified ? 'border-amber-400 dark:border-amber-600' : ''}`}
-                                placeholder={`Enter ${item.contentKey}...`}
-                              />
-                            ) : (
-                              <div className="flex gap-2">
-                                <Input
-                                  type={inputType}
+                    {/* Section Content */}
+                    {expandedSections[section] && (
+                      <div className="px-6 pb-6 space-y-4 border-t border-neutral-100 dark:border-neutral-800">
+                        {/* Section Type Badge */}
+                        <div className="pt-4 flex items-center gap-2">
+                          <span className="text-xs text-neutral-500">Section Type:</span>
+                          <span className="text-xs px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-600 dark:text-neutral-400">
+                            {section.toLowerCase().includes('hero') ? 'hero' :
+                             section.toLowerCase().includes('newsletter') ? 'newsletter' :
+                             section.toLowerCase().includes('footer') ? 'footer' :
+                             section.toLowerCase().includes('form') ? 'form' :
+                             'content'}
+                          </span>
+                        </div>
+                        
+                        {items.map((item) => {
+                          const currentValue = editedContent[item.id] ?? item.contentValue;
+                          const isModified = editedContent[item.id] !== undefined;
+                          const inputType = getInputType(item.contentKey);
+                          const useTextarea = isLongText(item.contentKey, currentValue);
+
+                          return (
+                            <div key={item.id} className="pt-4">
+                              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                                {formatSectionName(item.contentKey)}
+                                {isModified && (
+                                  <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">
+                                    (Modified)
+                                  </span>
+                                )}
+                              </label>
+                              {useTextarea ? (
+                                <Textarea
                                   value={currentValue}
                                   onChange={(e) => handleContentChange(item.id, e.target.value)}
-                                  className={`h-11 flex-1 ${isModified ? 'border-amber-400 dark:border-amber-600' : ''}`}
+                                  className={`min-h-[100px] ${isModified ? 'border-amber-400 dark:border-amber-600' : ''}`}
                                   placeholder={`Enter ${item.contentKey}...`}
                                 />
-                                {(item.contentKey.includes('Url') || item.contentKey.includes('Image') || item.contentKey.includes('Video')) && (
-                                  <Button
-                                    type="button"
-                                    onClick={() => handleOpenMediaPicker(item.id)}
-                                    variant="outline"
-                                    size="icon"
-                                    className="h-11 w-11 flex-shrink-0"
-                                  >
-                                    <Image className="w-4 h-4" />
-                                  </Button>
-                                )}
-                              </div>
-                            )}
-                            {item.contentKey.includes('Url') && currentValue && (
-                              <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                                Preview: <a href={currentValue} target="_blank" rel="noopener noreferrer" className="underline">{currentValue}</a>
-                              </p>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              ))}
+                              ) : (
+                                <div className="flex gap-2">
+                                  <Input
+                                    type={inputType}
+                                    value={currentValue}
+                                    onChange={(e) => handleContentChange(item.id, e.target.value)}
+                                    className={`h-11 flex-1 ${isModified ? 'border-amber-400 dark:border-amber-600' : ''}`}
+                                    placeholder={`Enter ${item.contentKey}...`}
+                                  />
+                                  {(item.contentKey.includes('Url') || item.contentKey.includes('Image') || item.contentKey.includes('Video')) && (
+                                    <Button
+                                      type="button"
+                                      onClick={() => handleOpenMediaPicker(item.id)}
+                                      variant="outline"
+                                      size="icon"
+                                      className="h-11 w-11 flex-shrink-0"
+                                    >
+                                      <Image className="w-4 h-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              )}
+                              {item.contentKey.includes('Url') && currentValue && (
+                                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                                  Preview: <a href={currentValue} target="_blank" rel="noopener noreferrer" className="underline">{currentValue}</a>
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ))}
 
-              {content.length === 0 && (
-                <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
-                  No content sections found for this page.
+                {content.length === 0 && (
+                  <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
+                    No content sections found for this page.
+                  </div>
+                )}
+              </div>
+
+              {/* Sticky Save Button */}
+              {hasUnsavedChanges && (
+                <div className="fixed bottom-8 right-8">
+                  <Button
+                    onClick={handleSaveAll}
+                    disabled={updateMutation.isPending}
+                    size="lg"
+                    className="gap-2 shadow-lg"
+                  >
+                    <Save className="w-5 h-5" />
+                    {updateMutation.isPending ? 'Saving...' : `Save All Changes (${Object.keys(editedContent).length})`}
+                  </Button>
                 </div>
               )}
             </div>
-
-            {/* Sticky Save Button */}
-            {hasUnsavedChanges && (
-              <div className="fixed bottom-8 right-8">
-                <Button
-                  onClick={handleSaveAll}
-                  disabled={updateMutation.isPending}
-                  size="lg"
-                  className="gap-2 shadow-lg"
-                >
-                  <Save className="w-5 h-5" />
-                  {updateMutation.isPending ? 'Saving...' : `Save All Changes (${Object.keys(editedContent).length})`}
-                </Button>
-              </div>
-            )}
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
 
       {/* Media Picker Modal */}
       <MediaPicker
