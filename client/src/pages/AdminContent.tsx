@@ -38,15 +38,57 @@ export default function AdminContent() {
   // Refs for scrolling to sections
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
+  // Fetch pages dynamically from database - MUST be before any conditional returns
+  const { data: pagesData } = trpc.admin.pages.list.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+
+  // Build pages list from database, with fallback to hardcoded list
+  // MUST be before any conditional returns to avoid React hooks error
+  const pages = React.useMemo(() => {
+    if (pagesData && pagesData.length > 0) {
+      // Sort pages: published first, then by title
+      return pagesData
+        .sort((a, b) => {
+          // Published pages first
+          if (a.published !== b.published) return b.published - a.published;
+          // Then alphabetically by title
+          return a.title.localeCompare(b.title);
+        })
+        .map(page => ({
+          id: page.slug,
+          label: page.title,
+          published: page.published === 1,
+          showInNav: page.showInNav === 1,
+          template: page.template,
+        }));
+    }
+    // Fallback to hardcoded list if database fetch fails
+    return [
+      { id: 'home', label: 'Home', published: true, showInNav: false, template: 'default' },
+      { id: 'philosophy', label: 'Philosophy', published: true, showInNav: true, template: 'default' },
+      { id: 'founder', label: 'Founder', published: true, showInNav: true, template: 'default' },
+      { id: 'vision-ethos', label: 'Vision & Ethos', published: true, showInNav: true, template: 'default' },
+      { id: 'offerings', label: 'Offerings', published: true, showInNav: true, template: 'default' },
+      { id: 'workshops-programs', label: 'Workshops & Programs', published: true, showInNav: true, template: 'default' },
+      { id: 'vix-journal-trilogy', label: 'VI • X Journal Trilogy', published: true, showInNav: true, template: 'default' },
+      { id: 'blog', label: 'Blog (She Writes)', published: true, showInNav: true, template: 'default' },
+      { id: 'shop', label: 'Shop', published: true, showInNav: true, template: 'default' },
+      { id: 'community-events', label: 'Community Events', published: true, showInNav: true, template: 'default' },
+      { id: 'resources', label: 'Resources', published: true, showInNav: true, template: 'default' },
+      { id: 'walk-with-us', label: 'Walk With Us', published: true, showInNav: true, template: 'default' },
+      { id: 'contact', label: 'Contact', published: true, showInNav: true, template: 'default' },
+      { id: 'accessibility', label: 'Accessibility', published: true, showInNav: false, template: 'default' },
+      { id: 'privacy-policy', label: 'Privacy Policy', published: true, showInNav: false, template: 'default' },
+      { id: 'terms-of-service', label: 'Terms of Service', published: true, showInNav: false, template: 'default' },
+      { id: 'cookie-policy', label: 'Cookie Policy', published: true, showInNav: false, template: 'default' },
+    ];
+  }, [pagesData]);
+
   const { data: contentData, isLoading, refetch } = trpc.admin.content.getByPage.useQuery(
     { page: selectedPage },
     { enabled: isAuthenticated }
   );
-
-  // Fetch pages dynamically from database
-  const { data: pagesData } = trpc.admin.pages.list.useQuery(undefined, {
-    enabled: isAuthenticated,
-  });
 
   const utils = trpc.useUtils();
   const updateMutation = trpc.admin.content.update.useMutation({
@@ -168,47 +210,6 @@ export default function AdminContent() {
       </div>
     );
   }
-
-  // Build pages list from database, with fallback to hardcoded list
-  const pages = React.useMemo(() => {
-    if (pagesData && pagesData.length > 0) {
-      // Sort pages: published first, then by title
-      return pagesData
-        .sort((a, b) => {
-          // Published pages first
-          if (a.published !== b.published) return b.published - a.published;
-          // Then alphabetically by title
-          return a.title.localeCompare(b.title);
-        })
-        .map(page => ({
-          id: page.slug,
-          label: page.title,
-          published: page.published === 1,
-          showInNav: page.showInNav === 1,
-          template: page.template,
-        }));
-    }
-    // Fallback to hardcoded list if database fetch fails
-    return [
-      { id: 'home', label: 'Home', published: true, showInNav: false, template: 'default' },
-      { id: 'philosophy', label: 'Philosophy', published: true, showInNav: true, template: 'default' },
-      { id: 'founder', label: 'Founder', published: true, showInNav: true, template: 'default' },
-      { id: 'vision-ethos', label: 'Vision & Ethos', published: true, showInNav: true, template: 'default' },
-      { id: 'offerings', label: 'Offerings', published: true, showInNav: true, template: 'default' },
-      { id: 'workshops-programs', label: 'Workshops & Programs', published: true, showInNav: true, template: 'default' },
-      { id: 'vix-journal-trilogy', label: 'VI • X Journal Trilogy', published: true, showInNav: true, template: 'default' },
-      { id: 'blog', label: 'Blog (She Writes)', published: true, showInNav: true, template: 'default' },
-      { id: 'shop', label: 'Shop', published: true, showInNav: true, template: 'default' },
-      { id: 'community-events', label: 'Community Events', published: true, showInNav: true, template: 'default' },
-      { id: 'resources', label: 'Resources', published: true, showInNav: true, template: 'default' },
-      { id: 'walk-with-us', label: 'Walk With Us', published: true, showInNav: true, template: 'default' },
-      { id: 'contact', label: 'Contact', published: true, showInNav: true, template: 'default' },
-      { id: 'accessibility', label: 'Accessibility', published: true, showInNav: false, template: 'default' },
-      { id: 'privacy-policy', label: 'Privacy Policy', published: true, showInNav: false, template: 'default' },
-      { id: 'terms-of-service', label: 'Terms of Service', published: true, showInNav: false, template: 'default' },
-      { id: 'cookie-policy', label: 'Cookie Policy', published: true, showInNav: false, template: 'default' },
-    ];
-  }, [pagesData]);
 
   const handleOpenMediaPicker = (fieldId: number) => {
     setSelectedFieldId(fieldId);
