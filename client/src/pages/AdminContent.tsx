@@ -10,6 +10,8 @@ import { LogOut, FileText, Settings, Layout, Save, ChevronDown, ChevronUp, Folde
 import MediaPicker from '@/components/MediaPicker';
 import AdminSidebar from '@/components/AdminSidebar';
 import SectionVisualizer from '@/components/SectionVisualizer';
+import FontSelector from '@/components/FontSelector';
+import TextFormatToolbar from '@/components/TextFormatToolbar';
 
 interface ContentItem {
   id: number;
@@ -294,6 +296,11 @@ export default function AdminContent() {
             activeSection={activeSection}
             onSectionClick={handleSectionClick}
           />
+          
+          {/* Font Typography Settings */}
+          <div className="mt-4">
+            <FontSelector />
+          </div>
         </div>
 
         {/* Content Editor - Right Panel */}
@@ -414,14 +421,20 @@ export default function AdminContent() {
 
                           return (
                             <div key={item.id} className="pt-4">
-                              <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                                {formatSectionName(item.contentKey)}
-                                {isModified && (
-                                  <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">
-                                    (Modified)
-                                  </span>
+                              <div className="flex items-center justify-between mb-2">
+                                <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                  {formatSectionName(item.contentKey)}
+                                  {isModified && (
+                                    <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">
+                                      (Modified)
+                                    </span>
+                                  )}
+                                </label>
+                                {/* Text formatting toolbar for text fields */}
+                                {!item.contentKey.includes('Url') && !item.contentKey.includes('Image') && !item.contentKey.includes('Video') && (
+                                  <TextFormatToolbar size="sm" />
                                 )}
-                              </label>
+                              </div>
                               {useTextarea ? (
                                 <Textarea
                                   value={currentValue}

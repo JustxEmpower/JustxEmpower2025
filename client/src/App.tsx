@@ -51,6 +51,7 @@ import Preloader from "@/components/Preloader";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import { AIChatAssistant } from "@/components/AIChatAssistant";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
+import FontProvider from "@/components/FontProvider";
 import { CartProvider } from "@/contexts/CartContext";
 import Shop from "@/pages/Shop";
 import ProductDetail from "@/pages/ProductDetail";
@@ -156,6 +157,7 @@ function App() {
     <ErrorBoundary>
       <CartProvider>
       <ThemeProvider defaultTheme="light">
+        <FontProvider>
         <TooltipProvider>
           <Toaster />
           {isLoading && !isAdminPage && <Preloader onComplete={() => setIsLoading(false)} />}
@@ -169,6 +171,7 @@ function App() {
             {!isAdminPage && <AnalyticsTracker />}
           </div>
         </TooltipProvider>
+        </FontProvider>
       </ThemeProvider>
       </CartProvider>
     </ErrorBoundary>

@@ -2843,3 +2843,188 @@ export const carouselRouter = router({
       return { success: true };
     }),
 });
+
+
+// Font Settings Router for site-wide typography management
+export const fontSettingsRouter = router({
+  // Get current font settings
+  get: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return null;
+    
+    const settings = await db.select().from(schema.fontSettings).limit(1);
+    return settings[0] || null;
+  }),
+
+  // Update font settings (admin only)
+  update: adminProcedure
+    .input(z.object({
+      headingFont: z.string().optional(),
+      bodyFont: z.string().optional(),
+      accentFont: z.string().optional(),
+      headingWeight: z.string().optional(),
+      bodyWeight: z.string().optional(),
+      headingBaseSize: z.string().optional(),
+      bodyBaseSize: z.string().optional(),
+      headingLineHeight: z.string().optional(),
+      bodyLineHeight: z.string().optional(),
+      headingLetterSpacing: z.string().optional(),
+      bodyLetterSpacing: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Check if settings exist
+      const existing = await db.select().from(schema.fontSettings).limit(1);
+      
+      if (existing.length === 0) {
+        // Insert new settings
+        await db.insert(schema.fontSettings).values(input);
+      } else {
+        // Update existing settings
+        const filteredData = Object.fromEntries(
+          Object.entries(input).filter(([_, v]) => v !== undefined)
+        );
+        
+        if (Object.keys(filteredData).length > 0) {
+          await db
+            .update(schema.fontSettings)
+            .set(filteredData)
+            .where(eq(schema.fontSettings.id, existing[0].id));
+        }
+      }
+      
+      return { success: true };
+    }),
+
+  // Get available fonts list
+  availableFonts: publicProcedure.query(() => {
+    return [
+      // Elegant Serif Fonts
+      { name: "Cormorant Garamond", category: "serif", googleFont: true, style: "elegant" },
+      { name: "Playfair Display", category: "serif", googleFont: true, style: "elegant" },
+      { name: "Libre Baskerville", category: "serif", googleFont: true, style: "classic" },
+      { name: "Lora", category: "serif", googleFont: true, style: "elegant" },
+      { name: "Crimson Text", category: "serif", googleFont: true, style: "classic" },
+      { name: "EB Garamond", category: "serif", googleFont: true, style: "classic" },
+      { name: "Merriweather", category: "serif", googleFont: true, style: "readable" },
+      { name: "Source Serif Pro", category: "serif", googleFont: true, style: "modern" },
+      { name: "Spectral", category: "serif", googleFont: true, style: "elegant" },
+      { name: "Noto Serif", category: "serif", googleFont: true, style: "universal" },
+      { name: "Bitter", category: "serif", googleFont: true, style: "modern" },
+      { name: "Vollkorn", category: "serif", googleFont: true, style: "classic" },
+      { name: "Cardo", category: "serif", googleFont: true, style: "classic" },
+      { name: "Sorts Mill Goudy", category: "serif", googleFont: true, style: "elegant" },
+      { name: "Cormorant", category: "serif", googleFont: true, style: "elegant" },
+      
+      // Sophisticated Sans-Serif Fonts
+      { name: "Inter", category: "sans-serif", googleFont: true, style: "modern" },
+      { name: "Montserrat", category: "sans-serif", googleFont: true, style: "geometric" },
+      { name: "Raleway", category: "sans-serif", googleFont: true, style: "elegant" },
+      { name: "Poppins", category: "sans-serif", googleFont: true, style: "modern" },
+      { name: "Nunito Sans", category: "sans-serif", googleFont: true, style: "friendly" },
+      { name: "Work Sans", category: "sans-serif", googleFont: true, style: "professional" },
+      { name: "DM Sans", category: "sans-serif", googleFont: true, style: "modern" },
+      { name: "Outfit", category: "sans-serif", googleFont: true, style: "geometric" },
+      { name: "Plus Jakarta Sans", category: "sans-serif", googleFont: true, style: "modern" },
+      { name: "Jost", category: "sans-serif", googleFont: true, style: "geometric" },
+      { name: "Josefin Sans", category: "sans-serif", googleFont: true, style: "elegant" },
+      { name: "Quicksand", category: "sans-serif", googleFont: true, style: "rounded" },
+      { name: "Karla", category: "sans-serif", googleFont: true, style: "grotesque" },
+      { name: "Manrope", category: "sans-serif", googleFont: true, style: "modern" },
+      { name: "Space Grotesk", category: "sans-serif", googleFont: true, style: "geometric" },
+    ];
+  }),
+});
+
+// Content Text Styles Router for per-field formatting
+export const contentTextStylesRouter = router({
+  // Get text style for a content item
+  get: adminProcedure
+    .input(z.object({ contentId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return null;
+      
+      const styles = await db
+        .select()
+        .from(schema.contentTextStyles)
+        .where(eq(schema.contentTextStyles.contentId, input.contentId))
+        .limit(1);
+      
+      return styles[0] || { isBold: 0, isItalic: 0, isUnderline: 0, fontOverride: null };
+    }),
+
+  // Get all text styles for a page
+  getByPage: adminProcedure
+    .input(z.object({ page: z.string() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      
+      // Get content IDs for this page
+      const pageContent = await db
+        .select({ id: schema.siteContent.id })
+        .from(schema.siteContent)
+        .where(eq(schema.siteContent.page, input.page));
+      
+      const contentIds = pageContent.map(c => c.id);
+      if (contentIds.length === 0) return [];
+      
+      // Get styles for these content items
+      const styles = await db
+        .select()
+        .from(schema.contentTextStyles);
+      
+      return styles.filter(s => contentIds.includes(s.contentId));
+    }),
+
+  // Update or create text style
+  upsert: adminProcedure
+    .input(z.object({
+      contentId: z.number(),
+      isBold: z.number().optional(),
+      isItalic: z.number().optional(),
+      isUnderline: z.number().optional(),
+      fontOverride: z.string().nullable().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const { contentId, ...styleData } = input;
+      
+      // Check if style exists
+      const existing = await db
+        .select()
+        .from(schema.contentTextStyles)
+        .where(eq(schema.contentTextStyles.contentId, contentId))
+        .limit(1);
+      
+      if (existing.length === 0) {
+        // Insert new style
+        await db.insert(schema.contentTextStyles).values({
+          contentId,
+          isBold: styleData.isBold ?? 0,
+          isItalic: styleData.isItalic ?? 0,
+          isUnderline: styleData.isUnderline ?? 0,
+          fontOverride: styleData.fontOverride ?? null,
+        });
+      } else {
+        // Update existing style
+        const filteredData = Object.fromEntries(
+          Object.entries(styleData).filter(([_, v]) => v !== undefined)
+        );
+        
+        if (Object.keys(filteredData).length > 0) {
+          await db
+            .update(schema.contentTextStyles)
+            .set(filteredData)
+            .where(eq(schema.contentTextStyles.contentId, contentId));
+        }
+      }
+      
+      return { success: true };
+    }),
+});

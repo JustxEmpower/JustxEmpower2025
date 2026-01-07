@@ -1016,3 +1016,47 @@ export const carouselOfferings = mysqlTable("carouselOfferings", {
 
 export type CarouselOffering = typeof carouselOfferings.$inferSelect;
 export type InsertCarouselOffering = typeof carouselOfferings.$inferInsert;
+
+
+/**
+ * Site-wide font settings for typography management
+ */
+export const fontSettings = mysqlTable("fontSettings", {
+  id: int("id").autoincrement().primaryKey(),
+  // Primary fonts for headings and body
+  headingFont: varchar("headingFont", { length: 255 }).default("Cormorant Garamond").notNull(),
+  bodyFont: varchar("bodyFont", { length: 255 }).default("Inter").notNull(),
+  accentFont: varchar("accentFont", { length: 255 }).default("Cormorant Garamond"), // For special elements
+  // Font weights
+  headingWeight: varchar("headingWeight", { length: 10 }).default("400"),
+  bodyWeight: varchar("bodyWeight", { length: 10 }).default("400"),
+  // Font sizes (base sizes, can be scaled)
+  headingBaseSize: varchar("headingBaseSize", { length: 20 }).default("3rem"),
+  bodyBaseSize: varchar("bodyBaseSize", { length: 20 }).default("1rem"),
+  // Line heights
+  headingLineHeight: varchar("headingLineHeight", { length: 10 }).default("1.2"),
+  bodyLineHeight: varchar("bodyLineHeight", { length: 10 }).default("1.6"),
+  // Letter spacing
+  headingLetterSpacing: varchar("headingLetterSpacing", { length: 20 }).default("0"),
+  bodyLetterSpacing: varchar("bodyLetterSpacing", { length: 20 }).default("0"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type FontSettings = typeof fontSettings.$inferSelect;
+export type InsertFontSettings = typeof fontSettings.$inferInsert;
+
+/**
+ * Content text styling for individual content items
+ */
+export const contentTextStyles = mysqlTable("contentTextStyles", {
+  id: int("id").autoincrement().primaryKey(),
+  contentId: int("contentId").notNull(), // References siteContent.id
+  isBold: int("isBold").default(0).notNull(),
+  isItalic: int("isItalic").default(0).notNull(),
+  isUnderline: int("isUnderline").default(0).notNull(),
+  fontOverride: varchar("fontOverride", { length: 255 }), // Optional per-field font override
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type ContentTextStyle = typeof contentTextStyles.$inferSelect;
+export type InsertContentTextStyle = typeof contentTextStyles.$inferInsert;

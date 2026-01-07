@@ -290,7 +290,7 @@ export default function Header() {
         <div 
           ref={menuRef}
           className="fixed top-0 left-0 right-0 bottom-0 w-full h-full bg-[#f5f5f0] z-40 flex flex-col items-center justify-center translate-x-full md:hidden overflow-y-auto"
-          style={{ minHeight: '100vh', minHeight: '100dvh' }}
+          style={{ minHeight: '100dvh' }}
         >
           {/* Decorative Background Element */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-5">
