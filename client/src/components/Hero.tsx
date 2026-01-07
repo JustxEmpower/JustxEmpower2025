@@ -67,22 +67,25 @@ export default function Hero(props: HeroProps = {}) {
     return () => ctx.revert();
   }, []);
 
-  // Handle video autoplay
+  // Handle video autoplay when video URL changes
   useEffect(() => {
     if (videoRef.current && isVideo) {
+      // Reset and reload video when URL changes
+      videoRef.current.load();
       videoRef.current.play().catch(err => {
         console.log('Video autoplay failed:', err);
       });
     }
-  }, [isVideo]);
+  }, [isVideo, videoUrl]); // Re-run when videoUrl changes
 
   return (
     <div ref={heroRef} className="hero-section relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
       {/* Background Media Container */}
       <div className="absolute inset-0 w-full h-full">
-        {/* Video Background */}
+        {/* Video Background - key prop forces re-render when URL changes */}
         {isVideo && videoUrl && (
           <video
+            key={videoUrl} // Force re-render when URL changes
             ref={videoRef}
             autoPlay
             muted
@@ -100,9 +103,10 @@ export default function Hero(props: HeroProps = {}) {
           </video>
         )}
         
-        {/* Image Background */}
+        {/* Image Background - key prop forces re-render when URL changes */}
         {!isVideo && imageUrl && (
           <div 
+            key={imageUrl} // Force re-render when URL changes
             className="absolute inset-0 w-full h-full bg-cover bg-center"
             style={{ backgroundImage: `url(${imageUrl})` }}
           />

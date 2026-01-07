@@ -6,7 +6,15 @@ import { trpc } from '@/lib/trpc';
  */
 export function usePageContent(page: string) {
   // Use the public content route instead of admin route
-  const { data: contentData, isLoading } = trpc.content.getByPage.useQuery({ page });
+  // Disable caching to ensure fresh content is always fetched
+  const { data: contentData, isLoading } = trpc.content.getByPage.useQuery(
+    { page },
+    {
+      staleTime: 0, // Always consider data stale
+      refetchOnMount: 'always', // Always refetch on mount
+      refetchOnWindowFocus: true, // Refetch when window regains focus
+    }
+  );
 
   // Helper function to get a specific content value
   const getContent = (section: string, key: string, defaultValue: string = ''): string => {

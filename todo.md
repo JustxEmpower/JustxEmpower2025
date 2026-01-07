@@ -1559,3 +1559,14 @@ NODE_ENV=production
 ## Bug Fix: Resources Edit Error (Jan 4, 2026)
 
 - [ ] Fix error when clicking Edit on an uploaded resource
+
+
+## Video Persistence Fix (COMPLETED)
+
+- [x] Investigate video persistence issue in Content Editor
+- [x] Add key prop to video element in Hero component to force re-render when URL changes
+- [x] Set staleTime: 0 in usePageContent hook to always fetch fresh data
+- [x] Set refetchOnMount: 'always' to ensure data is fetched on component mount
+- [x] Verify video changes save to database correctly
+- [x] Verify frontend displays new video after change
+- [x] Test complete video change workflow end-to-end
