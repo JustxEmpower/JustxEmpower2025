@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image } from 'lucide-react';
+import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -172,27 +172,50 @@ function renderField(
     );
   }
 
-  // Image/URL fields with MediaPicker
+  // Image fields with MediaPicker
   if (
     key.toLowerCase().includes('image') ||
     key.toLowerCase().includes('src') ||
-    key.toLowerCase().includes('background')
+    key.toLowerCase().includes('background') ||
+    key.toLowerCase().includes('poster') ||
+    key.toLowerCase().includes('thumbnail') ||
+    key.toLowerCase().includes('avatar') ||
+    key.toLowerCase().includes('photo') ||
+    key.toLowerCase().includes('picture')
   ) {
     return (
-      <ImageFieldWithPicker
+      <MediaFieldWithPicker
         key={key}
         fieldKey={key}
         label={label}
         value={value as string}
         onChange={onChange}
+        mediaType="image"
       />
     );
   }
 
-  // URL/Link fields (non-image)
+  // Video URL fields with MediaPicker
   if (
-    key.toLowerCase().includes('url') ||
-    key.toLowerCase().includes('link')
+    key.toLowerCase().includes('video') ||
+    key.toLowerCase().includes('media')
+  ) {
+    return (
+      <MediaFieldWithPicker
+        key={key}
+        fieldKey={key}
+        label={label}
+        value={value as string}
+        onChange={onChange}
+        mediaType="video"
+      />
+    );
+  }
+
+  // Regular URL/Link fields (non-media) - for things like ctaLink, buttonLink, etc.
+  if (
+    key.toLowerCase().includes('link') ||
+    (key.toLowerCase().includes('url') && !key.toLowerCase().includes('video') && !key.toLowerCase().includes('image'))
   ) {
     return (
       <div key={key} className="space-y-2">
@@ -294,19 +317,22 @@ function renderField(
   return null;
 }
 
-// Image field component with MediaPicker integration
-function ImageFieldWithPicker({
+// Unified Media field component with MediaPicker integration for both images and videos
+function MediaFieldWithPicker({
   fieldKey,
   label,
   value,
   onChange,
+  mediaType = 'image',
 }: {
   fieldKey: string;
   label: string;
   value: string;
   onChange: (key: string, value: unknown) => void;
+  mediaType?: 'image' | 'video';
 }) {
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const isVideo = mediaType === 'video' || (value && /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(?:[?#]|$)/i.test(value));
 
   return (
     <div className="space-y-2">
@@ -328,20 +354,32 @@ function ImageFieldWithPicker({
           size="sm"
           onClick={() => setMediaPickerOpen(true)}
           className="px-3"
+          title={`Select from Media Library`}
         >
-          <Image className="w-4 h-4" />
+          {isVideo ? <Video className="w-4 h-4" /> : <Image className="w-4 h-4" />}
         </Button>
       </div>
       {value && (
         <div className="relative w-full h-24 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-          <img
-            src={value}
-            alt="Preview"
-            className="w-full h-full object-cover"
-            onError={(e) => {
-              e.currentTarget.style.display = 'none';
-            }}
-          />
+          {isVideo ? (
+            <div className="w-full h-full flex items-center justify-center bg-neutral-200 dark:bg-neutral-700">
+              <div className="flex flex-col items-center gap-1">
+                <Play className="w-8 h-8 text-neutral-500" />
+                <span className="text-xs text-neutral-500 truncate max-w-[200px]">
+                  {value.split('/').pop()}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <img
+              src={value}
+              alt="Preview"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          )}
         </div>
       )}
       <MediaPicker
@@ -351,6 +389,7 @@ function ImageFieldWithPicker({
           onChange(fieldKey, url);
           setMediaPickerOpen(false);
         }}
+        mediaType={mediaType}
       />
     </div>
   );
