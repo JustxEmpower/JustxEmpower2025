@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
+'use client';
+
+import { useState, useRef, useEffect } from 'react';
 import { trpc } from '@/lib/trpc';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -6,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Image as ImageIcon, Video, Upload, Search, X, FolderOpen, Cloud } from 'lucide-react';
+import { Image as ImageIcon, Video, Upload, Search, X, FolderOpen, Cloud, CheckCircle2 } from 'lucide-react';
 
 interface MediaItem {
   id: number;
@@ -152,47 +154,30 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
         return newMap;
       });
 
-      toast.success(`${file.name} uploaded successfully`);
-      
-      // Remove from progress after a delay
-      setTimeout(() => {
-        setUploadProgress(prev => {
-          const newMap = new Map(prev);
-          newMap.delete(fileId);
-          return newMap;
-        });
-      }, 2000);
-
       return uploadData.publicUrl;
-
     } catch (error) {
-      console.error('Upload error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed';
       setUploadProgress(prev => {
         const newMap = new Map(prev);
-        newMap.set(fileId, { 
-          ...newMap.get(fileId)!, 
-          status: 'error', 
-          error: error instanceof Error ? error.message : 'Upload failed' 
-        });
+        newMap.set(fileId, { ...newMap.get(fileId)!, status: 'error', error: errorMessage });
         return newMap;
       });
-      toast.error(`Failed to upload ${file.name}`);
+      toast.error(`Failed to upload ${file.name}: ${errorMessage}`);
       return null;
     }
   };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
+    const files = e.currentTarget.files;
     if (!files || files.length === 0) return;
 
     setUploading(true);
     let lastUploadedUrl: string | null = null;
 
     for (const file of Array.from(files)) {
-      // Validate file type
       const isImage = file.type.startsWith('image/');
       const isVideo = file.type.startsWith('video/');
-      
+
       if (mediaType === 'image' && !isImage) {
         toast.error(`${file.name} is not an image`);
         continue;
@@ -251,15 +236,19 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-light">
-            Select {mediaType === 'all' ? 'Media' : mediaType === 'image' ? 'Image' : 'Video'}
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-5xl h-[90vh] overflow-hidden flex flex-col gap-0 p-0">
+        {/* Header */}
+        <div className="px-8 pt-8 pb-6 border-b border-neutral-200 dark:border-neutral-800">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-light">
+              Select {mediaType === 'all' ? 'Media' : mediaType === 'image' ? 'Image' : 'Video'}
+            </DialogTitle>
+          </DialogHeader>
+        </div>
 
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'library' | 'upload')} className="flex-1 flex flex-col">
-          <TabsList className="grid w-full grid-cols-2">
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'library' | 'upload')} className="flex-1 flex flex-col overflow-hidden px-8 pt-6">
+          <TabsList className="grid w-full grid-cols-2 mb-6 w-fit">
             <TabsTrigger value="library" className="flex items-center gap-2">
               <FolderOpen className="w-4 h-4" />
               Media Library
@@ -270,7 +259,8 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="library" className="flex-1 flex flex-col mt-4 space-y-4">
+          {/* Library Tab */}
+          <TabsContent value="library" className="flex-1 flex flex-col gap-4 overflow-hidden">
             {/* Search Bar */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
@@ -278,18 +268,18 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search media files..."
-                className="pl-10"
+                className="pl-10 h-11"
               />
             </div>
 
             {/* Media Grid */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto pr-2">
               {isLoading ? (
                 <div className="flex items-center justify-center h-64">
                   <p className="text-neutral-500">Loading media...</p>
                 </div>
               ) : filteredMedia.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-4">
                   {filteredMedia.map((item: MediaItem) => (
                     <button
                       key={item.id}
@@ -309,8 +299,8 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
                             className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Video className="w-8 h-8 text-neutral-400" />
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800">
+                            <Video className="w-8 h-8 text-neutral-500" />
                           </div>
                         )}
                       </div>
@@ -318,10 +308,8 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
                       {/* Selected Indicator */}
                       {selectedMedia?.id === item.id && (
                         <div className="absolute inset-0 bg-neutral-900/20 dark:bg-neutral-100/20 flex items-center justify-center">
-                          <div className="w-8 h-8 rounded-full bg-neutral-900 dark:bg-neutral-100 flex items-center justify-center">
-                            <svg className="w-5 h-5 text-white dark:text-neutral-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                            </svg>
+                          <div className="w-8 h-8 rounded-full bg-neutral-900 dark:bg-neutral-100 flex items-center justify-center shadow-lg">
+                            <CheckCircle2 className="w-5 h-5 text-white dark:text-neutral-900" />
                           </div>
                         </div>
                       )}
@@ -341,7 +329,7 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
                     {searchQuery ? 'No media files match your search' : 'No media files uploaded yet'}
                   </p>
                   {!searchQuery && (
-                    <Button variant="outline" onClick={() => setActiveTab('upload')}>
+                    <Button variant="outline" onClick={() => setActiveTab('upload')} className="mt-4">
                       <Upload className="w-4 h-4 mr-2" />
                       Upload Media
                     </Button>
@@ -351,7 +339,8 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
             </div>
           </TabsContent>
 
-          <TabsContent value="upload" className="flex-1 flex flex-col mt-4">
+          {/* Upload Tab */}
+          <TabsContent value="upload" className="flex-1 flex flex-col gap-4 overflow-hidden">
             {/* Upload Area */}
             <div
               onDrop={handleDrop}
@@ -391,7 +380,7 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
 
             {/* Upload Progress */}
             {uploadProgress.size > 0 && (
-              <div className="mt-4 space-y-2">
+              <div className="space-y-2 max-h-48 overflow-y-auto">
                 {Array.from(uploadProgress.entries()).map(([id, progress]) => (
                   <div key={id} className="bg-neutral-50 dark:bg-neutral-900 rounded-lg p-3">
                     <div className="flex items-center justify-between mb-2">
@@ -414,40 +403,46 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
           </TabsContent>
         </Tabs>
 
-        {/* Selected Media Info */}
-        {selectedMedia && activeTab === 'library' && (
-          <div className="border-t border-neutral-200 dark:border-neutral-800 pt-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
+        {/* Footer with Selected Media Info and Actions */}
+        <div className="border-t border-neutral-200 dark:border-neutral-800 px-8 py-6 space-y-4">
+          {/* Selected Media Info */}
+          {selectedMedia && activeTab === 'library' && (
+            <div className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-900 rounded-lg">
               {selectedMedia.type === 'image' ? (
-                <ImageIcon className="w-5 h-5 text-neutral-400" />
+                <ImageIcon className="w-5 h-5 text-neutral-400 flex-shrink-0" />
               ) : (
-                <Video className="w-5 h-5 text-neutral-400" />
+                <Video className="w-5 h-5 text-neutral-400 flex-shrink-0" />
               )}
-              <div>
-                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
                   {selectedMedia.originalName}
                 </p>
                 <p className="text-xs text-neutral-500 dark:text-neutral-400">
                   {formatFileSize(selectedMedia.fileSize)} • {selectedMedia.type}
                 </p>
               </div>
+              <Button onClick={() => setSelectedMedia(null)} variant="ghost" size="sm" className="flex-shrink-0">
+                <X className="w-4 h-4" />
+              </Button>
             </div>
-            <Button onClick={() => setSelectedMedia(null)} variant="ghost" size="sm">
-              <X className="w-4 h-4" />
-            </Button>
-          </div>
-        )}
-
-        {/* Actions */}
-        <div className="flex gap-3 justify-end border-t border-neutral-200 dark:border-neutral-800 pt-4">
-          <Button onClick={onClose} variant="outline">
-            Cancel
-          </Button>
-          {activeTab === 'library' && (
-            <Button onClick={handleSelect} disabled={!selectedMedia}>
-              Select Media
-            </Button>
           )}
+
+          {/* Action Buttons */}
+          <div className="flex gap-3 justify-end">
+            <Button onClick={onClose} variant="outline" className="px-6">
+              Cancel
+            </Button>
+            {activeTab === 'library' && (
+              <Button 
+                onClick={handleSelect} 
+                disabled={!selectedMedia}
+                className="px-6 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900"
+              >
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Select Media
+              </Button>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>
