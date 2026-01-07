@@ -548,3 +548,153 @@ export async function addPageToSeoSettings(
 
   return { success: true, created: true };
 }
+
+
+// ============= PAGE BUILDER TO SITE CONTENT SYNC =============
+
+/**
+ * Syncs Page Builder blocks to siteContent table for Content Editor access
+ * This allows Content Editor to edit Page Builder page content
+ */
+export async function syncPageBlocksToSiteContent(pageId: number, pageSlug: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get all blocks for this page
+  const blocks = await db
+    .select()
+    .from(pageBlocks)
+    .where(eq(pageBlocks.pageId, pageId))
+    .orderBy(pageBlocks.order);
+
+  // Delete existing siteContent entries for this page
+  await db
+    .delete(siteContent)
+    .where(eq(siteContent.page, pageSlug));
+
+  // Create siteContent entries for each block's content fields
+  for (const block of blocks) {
+    let content: Record<string, unknown> = {};
+    try {
+      content = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
+    } catch (e) {
+      content = {};
+    }
+
+    // Get the original block type (stored in content._originalType)
+    const blockType = (content._originalType as string) || block.type;
+    const sectionName = `${blockType}-${block.order}`;
+
+    // Extract text fields from the block content and save to siteContent
+    const textFields = ['title', 'subtitle', 'description', 'headline', 'subheadline', 
+                        'ctaText', 'ctaLink', 'buttonText', 'buttonLink', 'text', 'content',
+                        'videoUrl', 'imageUrl', 'backgroundImage', 'posterImage', 'src',
+                        'quote', 'author', 'authorTitle', 'label', 'heading'];
+
+    for (const field of textFields) {
+      if (content[field] !== undefined && content[field] !== null && content[field] !== '') {
+        await db.insert(siteContent).values({
+          page: pageSlug,
+          section: sectionName,
+          contentKey: field,
+          contentValue: String(content[field]),
+        });
+      }
+    }
+
+    // Handle nested arrays like features, items, testimonials, etc.
+    const arrayFields = ['features', 'items', 'testimonials', 'pillars', 'cards', 'buttons'];
+    for (const arrayField of arrayFields) {
+      if (Array.isArray(content[arrayField])) {
+        await db.insert(siteContent).values({
+          page: pageSlug,
+          section: sectionName,
+          contentKey: arrayField,
+          contentValue: JSON.stringify(content[arrayField]),
+        });
+      }
+    }
+  }
+
+  return { success: true, blocksCount: blocks.length };
+}
+
+/**
+ * Updates siteContent from Content Editor back to Page Builder blocks
+ */
+export async function syncSiteContentToPageBlocks(pageSlug: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get the page by slug
+  const [page] = await db
+    .select()
+    .from(pages)
+    .where(eq(pages.slug, pageSlug))
+    .limit(1);
+
+  if (!page) {
+    return { success: false, error: 'Page not found' };
+  }
+
+  // Get all siteContent for this page
+  const contentEntries = await db
+    .select()
+    .from(siteContent)
+    .where(eq(siteContent.page, pageSlug));
+
+  // Group content by section
+  const sectionContent: Record<string, Record<string, string>> = {};
+  for (const entry of contentEntries) {
+    if (!sectionContent[entry.section]) {
+      sectionContent[entry.section] = {};
+    }
+    sectionContent[entry.section][entry.contentKey] = entry.contentValue;
+  }
+
+  // Get all blocks for this page
+  const blocks = await db
+    .select()
+    .from(pageBlocks)
+    .where(eq(pageBlocks.pageId, page.id))
+    .orderBy(pageBlocks.order);
+
+  // Update each block with its corresponding siteContent
+  for (const block of blocks) {
+    let content: Record<string, unknown> = {};
+    try {
+      content = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
+    } catch (e) {
+      content = {};
+    }
+
+    const blockType = (content._originalType as string) || block.type;
+    const sectionName = `${blockType}-${block.order}`;
+    const sectionData = sectionContent[sectionName];
+
+    if (sectionData) {
+      // Update content fields from siteContent
+      for (const [key, value] of Object.entries(sectionData)) {
+        // Try to parse JSON for array fields
+        try {
+          const parsed = JSON.parse(value);
+          if (Array.isArray(parsed)) {
+            content[key] = parsed;
+          } else {
+            content[key] = value;
+          }
+        } catch {
+          content[key] = value;
+        }
+      }
+
+      // Update the block
+      await db
+        .update(pageBlocks)
+        .set({ content: JSON.stringify(content) })
+        .where(eq(pageBlocks.id, block.id));
+    }
+  }
+
+  return { success: true, blocksUpdated: blocks.length };
+}

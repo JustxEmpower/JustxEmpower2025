@@ -36,6 +36,7 @@ import {
   updatePageBlock,
   deletePageBlock,
   reorderPageBlocks,
+  syncPageBlocksToSiteContent,
 } from "./adminDb";
 import { storagePut, getPresignedUploadUrl } from "./storage";
 import { getDb } from "./db";
@@ -914,7 +915,26 @@ export const adminRouter = router({
           })
         )
         .mutation(async ({ input }) => {
-          return await createPageBlock(input);
+          const result = await createPageBlock(input);
+          
+          // Sync to siteContent for Content Editor access
+          try {
+            const db = await getDb();
+            if (db) {
+              const [page] = await db
+                .select()
+                .from(schema.pages)
+                .where(eq(schema.pages.id, input.pageId))
+                .limit(1);
+              if (page) {
+                await syncPageBlocksToSiteContent(input.pageId, page.slug);
+              }
+            }
+          } catch (error) {
+            console.error('Failed to sync blocks to siteContent:', error);
+          }
+          
+          return result;
         }),
 
       update: adminProcedure
@@ -930,7 +950,34 @@ export const adminRouter = router({
         )
         .mutation(async ({ input }) => {
           const { id, ...data } = input;
-          return await updatePageBlock(id, data);
+          const result = await updatePageBlock(id, data);
+          
+          // Sync to siteContent for Content Editor access
+          try {
+            const db = await getDb();
+            if (db) {
+              // Get the block to find its pageId
+              const [block] = await db
+                .select()
+                .from(schema.pageBlocks)
+                .where(eq(schema.pageBlocks.id, id))
+                .limit(1);
+              if (block) {
+                const [page] = await db
+                  .select()
+                  .from(schema.pages)
+                  .where(eq(schema.pages.id, block.pageId))
+                  .limit(1);
+                if (page) {
+                  await syncPageBlocksToSiteContent(block.pageId, page.slug);
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Failed to sync blocks to siteContent:', error);
+          }
+          
+          return result;
         }),
 
       delete: adminProcedure
