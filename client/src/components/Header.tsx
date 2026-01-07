@@ -112,21 +112,21 @@ export default function Header() {
       const ctx = gsap.context(() => {
         gsap.to(menuRef.current, {
           x: '0%',
-          duration: 0.8,
-          ease: 'power3.inOut'
+          duration: 0.4,
+          ease: 'power2.out'
         });
 
         const links = menuItemsRef.current?.querySelectorAll('a, button');
         if (links) {
           gsap.fromTo(links, 
-            { y: 50, opacity: 0 },
+            { y: 30, opacity: 0 },
             { 
               y: 0, 
               opacity: 1, 
-              duration: 0.8, 
-              stagger: 0.1, 
-              ease: 'power3.out',
-              delay: 0.3 
+              duration: 0.4, 
+              stagger: 0.05, 
+              ease: 'power2.out',
+              delay: 0.15 
             }
           );
         }
@@ -138,8 +138,8 @@ export default function Header() {
       const ctx = gsap.context(() => {
         gsap.to(menuRef.current, {
           x: '100%',
-          duration: 0.8,
-          ease: 'power3.inOut'
+          duration: 0.35,
+          ease: 'power2.in'
         });
       });
       return () => ctx.revert();
@@ -289,7 +289,8 @@ export default function Header() {
         {/* Mobile Navigation Overlay */}
         <div 
           ref={menuRef}
-          className="fixed inset-0 bg-[#f5f5f0] z-40 flex flex-col items-center justify-center translate-x-full md:hidden overflow-y-auto"
+          className="fixed top-0 left-0 right-0 bottom-0 w-full h-full bg-[#f5f5f0] z-40 flex flex-col items-center justify-center translate-x-full md:hidden overflow-y-auto"
+          style={{ minHeight: '100vh', minHeight: '100dvh' }}
         >
           {/* Decorative Background Element */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none opacity-5">
