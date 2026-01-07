@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo } from "./aiService";
+import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo, generatePageBlocks } from "./aiService";
 import { generateVideoThumbnail } from "./mediaConversionService";
 import { publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
@@ -238,6 +238,16 @@ export const adminRouter = router({
       .mutation(async ({ input }) => {
         const results = await generateBulkAltText(input.imageUrls);
         return { results };
+      }),
+
+    generatePageBlocks: adminProcedure
+      .input(z.object({
+        description: z.string().min(10, "Description must be at least 10 characters"),
+        pageType: z.enum(['landing', 'about', 'services', 'contact', 'blog', 'custom']).default('custom')
+      }))
+      .mutation(async ({ input }) => {
+        const result = await generatePageBlocks(input.description, input.pageType);
+        return result;
       }),
   }),
 

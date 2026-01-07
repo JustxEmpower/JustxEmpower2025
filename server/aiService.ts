@@ -654,3 +654,136 @@ async function fetchImageAsBase64(url: string): Promise<string> {
   const base64 = Buffer.from(buffer).toString('base64');
   return base64;
 }
+
+
+/**
+ * Generate page blocks based on a description
+ * Returns an array of block configurations for the Page Builder
+ */
+export async function generatePageBlocks(
+  description: string,
+  pageType: 'landing' | 'about' | 'services' | 'contact' | 'blog' | 'custom' = 'custom'
+): Promise<{
+  title: string;
+  blocks: Array<{
+    type: string;
+    props: Record<string, unknown>;
+  }>;
+}> {
+  if (!genAI) {
+    throw new Error("Gemini AI not initialized");
+  }
+
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
+
+  const blockTypes = `
+Available block types and their props:
+1. "hero" - Hero section with title, subtitle, background
+   Props: { title: string, subtitle: string, backgroundType: "color"|"gradient"|"image", backgroundColor: string, backgroundGradient: string, backgroundImage: string, textAlign: "left"|"center"|"right", ctaText: string, ctaLink: string }
+
+2. "text" - Text content block
+   Props: { content: string (HTML), textAlign: "left"|"center"|"right" }
+
+3. "image" - Image block
+   Props: { src: string, alt: string, caption: string, aspectRatio: "auto"|"16:9"|"4:3"|"1:1"|"3:4" }
+
+4. "two-column" - Two column layout
+   Props: { leftContent: string (HTML), rightContent: string (HTML), leftWidth: number (1-11), gap: "sm"|"md"|"lg" }
+
+5. "gallery" - Image gallery
+   Props: { images: Array<{src: string, alt: string}>, columns: 2|3|4, gap: "sm"|"md"|"lg" }
+
+6. "cta" - Call to action block
+   Props: { title: string, description: string, buttonText: string, buttonLink: string, variant: "primary"|"secondary"|"outline" }
+
+7. "testimonial" - Testimonial/quote block
+   Props: { quote: string, author: string, role: string, avatar: string }
+
+8. "features" - Features grid
+   Props: { title: string, features: Array<{icon: string, title: string, description: string}>, columns: 2|3|4 }
+
+9. "accordion" - FAQ/Accordion block
+   Props: { title: string, items: Array<{question: string, answer: string}> }
+
+10. "video" - Video embed block
+    Props: { url: string, title: string, autoplay: boolean }
+
+11. "spacer" - Vertical spacing
+    Props: { height: "sm"|"md"|"lg"|"xl" }
+
+12. "divider" - Horizontal divider
+    Props: { style: "solid"|"dashed"|"dotted", color: string }
+`;
+
+  const prompt = `You are a web page designer for Just Empower, a women's empowerment and leadership organization.
+
+Generate a page structure based on this description: "${description}"
+Page type: ${pageType}
+
+${blockTypes}
+
+Brand guidelines:
+- Colors: Use warm, earthy tones (amber, terracotta, sage green) with deep neutrals
+- Tone: Empowering, sophisticated, warm, transformative
+- Style: Clean, modern, with organic flowing elements
+
+Return ONLY valid JSON in this exact format:
+{
+  "title": "Page Title Here",
+  "blocks": [
+    {
+      "type": "hero",
+      "props": { ... }
+    },
+    ...more blocks
+  ]
+}
+
+Generate 4-8 blocks that create a cohesive, professional page. Use placeholder image URLs like "/placeholder/hero.jpg" for images.
+Include appropriate content that matches the Just Empower brand voice - empowering, transformative, and sophisticated.`;
+
+  const result = await model.generateContent(prompt);
+  const response = result.response.text();
+
+  try {
+    // Extract JSON from response
+    const jsonMatch = response.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("No JSON found in response");
+    }
+    
+    const parsed = JSON.parse(jsonMatch[0]);
+    
+    // Validate structure
+    if (!parsed.title || !Array.isArray(parsed.blocks)) {
+      throw new Error("Invalid response structure");
+    }
+    
+    return parsed;
+  } catch (error) {
+    console.error("Failed to parse AI page generation response:", error);
+    // Return a default structure
+    return {
+      title: "New Page",
+      blocks: [
+        {
+          type: "hero",
+          props: {
+            title: "Welcome",
+            subtitle: description,
+            backgroundType: "gradient",
+            backgroundGradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
+            textAlign: "center"
+          }
+        },
+        {
+          type: "text",
+          props: {
+            content: "<p>Content will be added here based on your description.</p>",
+            textAlign: "center"
+          }
+        }
+      ]
+    };
+  }
+}

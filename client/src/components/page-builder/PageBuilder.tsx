@@ -31,6 +31,8 @@ import {
   MoreHorizontal,
   Loader2,
   ArrowLeft,
+  Sparkles,
+  Wand2,
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -39,11 +41,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { trpc } from '@/lib/trpc';
+import { toast } from 'sonner';
 import { usePageBuilderStore, PageBlock } from './usePageBuilderStore';
 import { BlockType } from './blockTypes';
 import BlockLibrary from './panels/BlockLibrary';
 import LayersPanel from './panels/LayersPanel';
 import BlockSettings from './panels/BlockSettings';
+import PageLibrary from './panels/PageLibrary';
 import Canvas from './Canvas';
 import {
   Dialog,
@@ -100,6 +107,11 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
     canRedo,
     addBlock,
     setDragging,
+    hasUnsavedChanges,
+    lastAutoSave,
+    loadAutoSave,
+    clearAutoSave,
+    markAsSaved,
   } = usePageBuilderStore();
 
   const [viewportSize, setViewportSize] = React.useState<'desktop' | 'tablet' | 'mobile'>('desktop');
@@ -107,8 +119,62 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
   const [showSaveDialog, setShowSaveDialog] = React.useState(false);
   const [pageSlug, setPageSlug] = React.useState('');
   const [showInNav, setShowInNav] = React.useState(false);
+  const [showRecoveryDialog, setShowRecoveryDialog] = React.useState(false);
+  const [recoveryData, setRecoveryData] = React.useState<{
+    pageTitle: string;
+    blocks: PageBlock[];
+    timestamp: number;
+  } | null>(null);
   const blocksInitializedRef = React.useRef(false);
   const prevInitialTitleRef = React.useRef<string | undefined>(undefined);
+  const recoveryCheckedRef = React.useRef(false);
+
+  // AI Page Generation state
+  const [showAIDialog, setShowAIDialog] = React.useState(false);
+  const [aiPrompt, setAiPrompt] = React.useState('');
+  const [aiPageType, setAiPageType] = React.useState<'landing' | 'about' | 'services' | 'contact' | 'blog' | 'custom'>('custom');
+  const [isGenerating, setIsGenerating] = React.useState(false);
+
+  // AI Generation mutation
+  const generatePageMutation = trpc.admin.ai.generatePageBlocks.useMutation({
+    onSuccess: (data) => {
+      // Convert AI-generated blocks to PageBuilder format
+      const newBlocks: PageBlock[] = data.blocks.map((block, index) => ({
+        id: `ai-${Date.now()}-${index}`,
+        type: block.type,
+        content: block.props as Record<string, unknown>,
+        order: index,
+      }));
+      
+      // Set the page title and blocks
+      setPageTitle(data.title);
+      setBlocks(newBlocks, false);
+      
+      toast.success('Page generated successfully!');
+      setShowAIDialog(false);
+      setAiPrompt('');
+    },
+    onError: (error) => {
+      toast.error(`Failed to generate page: ${error.message}`);
+    },
+  });
+
+  const handleAIGenerate = async () => {
+    if (!aiPrompt.trim()) {
+      toast.error('Please describe what you want to create');
+      return;
+    }
+    
+    setIsGenerating(true);
+    try {
+      await generatePageMutation.mutateAsync({
+        description: aiPrompt,
+        pageType: aiPageType,
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
   
   // Resizable panel widths
   const [leftPanelWidth, setLeftPanelWidth] = React.useState(280);
@@ -154,6 +220,41 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
       setPageId(pageId);
     }
   }, [pageId, setPageId]);
+
+  // Check for auto-saved data on mount
+  useEffect(() => {
+    if (recoveryCheckedRef.current) return;
+    recoveryCheckedRef.current = true;
+    
+    const savedData = loadAutoSave();
+    if (savedData && savedData.blocks.length > 0) {
+      // Check if the saved data is more recent than 1 hour
+      const oneHourAgo = Date.now() - (60 * 60 * 1000);
+      if (savedData.timestamp > oneHourAgo) {
+        setRecoveryData(savedData);
+        setShowRecoveryDialog(true);
+      } else {
+        // Clear old auto-save data
+        clearAutoSave();
+      }
+    }
+  }, [loadAutoSave, clearAutoSave]);
+
+  const handleRecoverAutoSave = () => {
+    if (recoveryData) {
+      setPageTitle(recoveryData.pageTitle);
+      setBlocks(recoveryData.blocks, true);
+      blocksInitializedRef.current = true;
+    }
+    setShowRecoveryDialog(false);
+    setRecoveryData(null);
+  };
+
+  const handleDiscardAutoSave = () => {
+    clearAutoSave();
+    setShowRecoveryDialog(false);
+    setRecoveryData(null);
+  };
 
   // Initialize blocks only once when they first become available
   useEffect(() => {
@@ -226,6 +327,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
         console.log('Calling onSave...');
         await onSave(blocks, pageTitle, pageSlug, showInNav);
         console.log('onSave completed successfully');
+        markAsSaved(); // Clear auto-save and mark as saved
         setShowSaveDialog(false);
       } catch (error) {
         console.error('Save failed:', error);
@@ -386,6 +488,21 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
               <TooltipContent>{isPreviewMode ? 'Exit preview' : 'Preview page'}</TooltipContent>
             </Tooltip>
 
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowAIDialog(true)}
+                  className="h-9 px-3 gap-2 bg-gradient-to-r from-purple-500/10 to-pink-500/10 border-purple-300 dark:border-purple-700 hover:from-purple-500/20 hover:to-pink-500/20"
+                >
+                  <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <span className="text-purple-700 dark:text-purple-300">AI Generate</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Generate page with AI</TooltipContent>
+            </Tooltip>
+
             <Button
               size="sm"
               onClick={handleSaveClick}
@@ -438,7 +555,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                 >
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-neutral-300 dark:bg-neutral-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <Tabs value={activeLeftTab} onValueChange={(v) => setActiveLeftTab(v as 'blocks' | 'layers' | 'templates')} className="flex flex-col h-full">
+                <Tabs value={activeLeftTab} onValueChange={(v) => setActiveLeftTab(v as 'blocks' | 'layers' | 'pages')} className="flex flex-col h-full">
                   <TabsList className="w-full justify-start rounded-none border-b border-neutral-200 dark:border-neutral-800 bg-transparent h-12 px-2 flex-shrink-0">
                     <TabsTrigger value="blocks" className="gap-2">
                       <LayoutGrid className="w-4 h-4" />
@@ -448,9 +565,9 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                       <Layers className="w-4 h-4" />
                       Layers
                     </TabsTrigger>
-                    <TabsTrigger value="templates" className="gap-2">
+                    <TabsTrigger value="pages" className="gap-2">
                       <FileText className="w-4 h-4" />
-                      Templates
+                      Pages
                     </TabsTrigger>
                   </TabsList>
                   <div className="flex-1 overflow-hidden flex flex-col">
@@ -460,8 +577,8 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                     <TabsContent value="layers" className="h-full m-0 overflow-hidden flex-1">
                       <LayersPanel />
                     </TabsContent>
-                    <TabsContent value="templates" className="h-full m-0 p-4 overflow-auto flex-1">
-                      <p className="text-sm text-neutral-500">Templates coming soon...</p>
+                    <TabsContent value="pages" className="h-full m-0 overflow-auto flex-1">
+                      <PageLibrary />
                     </TabsContent>
                   </div>
                 </Tabs>
@@ -585,6 +702,121 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
           </div>
         )}
       </DragOverlay>
+
+      {/* Auto-save Recovery Dialog */}
+      <Dialog open={showRecoveryDialog} onOpenChange={setShowRecoveryDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Recover Unsaved Work?</DialogTitle>
+            <DialogDescription>
+              We found auto-saved work from {recoveryData ? new Date(recoveryData.timestamp).toLocaleString() : 'earlier'}.
+              Would you like to recover it?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="bg-neutral-100 dark:bg-neutral-800 rounded-lg p-4">
+              <p className="text-sm font-medium">{recoveryData?.pageTitle || 'Untitled Page'}</p>
+              <p className="text-xs text-neutral-500 mt-1">
+                {recoveryData?.blocks.length || 0} blocks
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={handleDiscardAutoSave}>
+              Discard
+            </Button>
+            <Button onClick={handleRecoverAutoSave}>
+              Recover
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Auto-save Status Indicator */}
+      {hasUnsavedChanges && (
+        <div className="fixed bottom-4 left-4 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 px-3 py-2 rounded-lg shadow-lg text-xs flex items-center gap-2 z-50">
+          <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
+          <span>Unsaved changes</span>
+          {lastAutoSave && (
+            <span className="text-amber-600 dark:text-amber-400">
+              (auto-saved {new Date(lastAutoSave).toLocaleTimeString()})
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* AI Page Generation Dialog */}
+      <Dialog open={showAIDialog} onOpenChange={setShowAIDialog}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-purple-600" />
+              Generate Page with AI
+            </DialogTitle>
+            <DialogDescription>
+              Describe the page you want to create and AI will generate the structure and content for you.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="ai-page-type">Page Type</Label>
+              <Select value={aiPageType} onValueChange={(v) => setAiPageType(v as typeof aiPageType)}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select page type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="landing">Landing Page</SelectItem>
+                  <SelectItem value="about">About Page</SelectItem>
+                  <SelectItem value="services">Services Page</SelectItem>
+                  <SelectItem value="contact">Contact Page</SelectItem>
+                  <SelectItem value="blog">Blog/Article Page</SelectItem>
+                  <SelectItem value="custom">Custom Page</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="ai-prompt">Describe Your Page</Label>
+              <Textarea
+                id="ai-prompt"
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder="E.g., A page about our women's leadership workshops with sections for program overview, benefits, testimonials, and a sign-up form..."
+                className="min-h-[120px] resize-none"
+              />
+              <p className="text-xs text-neutral-500">
+                Be specific about sections, content themes, and any special features you want.
+              </p>
+            </div>
+            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3 border border-purple-200 dark:border-purple-800">
+              <p className="text-xs text-purple-700 dark:text-purple-300">
+                <strong>Tip:</strong> The AI will generate blocks based on your description. You can edit, rearrange, or delete any generated blocks afterwards.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAIDialog(false)} disabled={isGenerating}>
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAIGenerate}
+              disabled={isGenerating || !aiPrompt.trim()}
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Wand2 className="w-4 h-4 mr-2" />
+                  Generate Page
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </DndContext>
   );
 }

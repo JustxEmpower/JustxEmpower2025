@@ -43,6 +43,11 @@ export default function AdminContent() {
     { enabled: isAuthenticated }
   );
 
+  // Fetch pages dynamically from database
+  const { data: pagesData } = trpc.admin.pages.list.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+
   const utils = trpc.useUtils();
   const updateMutation = trpc.admin.content.update.useMutation({
     onSuccess: async () => {
@@ -164,30 +169,46 @@ export default function AdminContent() {
     );
   }
 
-  const pages = [
-    // Core pages
-    { id: 'home', label: 'Home' },
-    // Philosophy section
-    { id: 'philosophy', label: 'Philosophy' },
-    { id: 'founder', label: 'Founder' },
-    { id: 'vision-ethos', label: 'Vision & Ethos' },
-    // Offerings section
-    { id: 'offerings', label: 'Offerings' },
-    { id: 'workshops-programs', label: 'Workshops & Programs' },
-    { id: 'vix-journal-trilogy', label: 'VI • X Journal Trilogy' },
-    { id: 'blog', label: 'Blog (She Writes)' },
-    // Other main pages
-    { id: 'shop', label: 'Shop' },
-    { id: 'community-events', label: 'Community Events' },
-    { id: 'resources', label: 'Resources' },
-    { id: 'walk-with-us', label: 'Walk With Us' },
-    { id: 'contact', label: 'Contact' },
-    // Footer/Legal pages
-    { id: 'accessibility', label: 'Accessibility' },
-    { id: 'privacy-policy', label: 'Privacy Policy' },
-    { id: 'terms-of-service', label: 'Terms of Service' },
-    { id: 'cookie-policy', label: 'Cookie Policy' },
-  ];
+  // Build pages list from database, with fallback to hardcoded list
+  const pages = React.useMemo(() => {
+    if (pagesData && pagesData.length > 0) {
+      // Sort pages: published first, then by title
+      return pagesData
+        .sort((a, b) => {
+          // Published pages first
+          if (a.published !== b.published) return b.published - a.published;
+          // Then alphabetically by title
+          return a.title.localeCompare(b.title);
+        })
+        .map(page => ({
+          id: page.slug,
+          label: page.title,
+          published: page.published === 1,
+          showInNav: page.showInNav === 1,
+          template: page.template,
+        }));
+    }
+    // Fallback to hardcoded list if database fetch fails
+    return [
+      { id: 'home', label: 'Home', published: true, showInNav: false, template: 'default' },
+      { id: 'philosophy', label: 'Philosophy', published: true, showInNav: true, template: 'default' },
+      { id: 'founder', label: 'Founder', published: true, showInNav: true, template: 'default' },
+      { id: 'vision-ethos', label: 'Vision & Ethos', published: true, showInNav: true, template: 'default' },
+      { id: 'offerings', label: 'Offerings', published: true, showInNav: true, template: 'default' },
+      { id: 'workshops-programs', label: 'Workshops & Programs', published: true, showInNav: true, template: 'default' },
+      { id: 'vix-journal-trilogy', label: 'VI • X Journal Trilogy', published: true, showInNav: true, template: 'default' },
+      { id: 'blog', label: 'Blog (She Writes)', published: true, showInNav: true, template: 'default' },
+      { id: 'shop', label: 'Shop', published: true, showInNav: true, template: 'default' },
+      { id: 'community-events', label: 'Community Events', published: true, showInNav: true, template: 'default' },
+      { id: 'resources', label: 'Resources', published: true, showInNav: true, template: 'default' },
+      { id: 'walk-with-us', label: 'Walk With Us', published: true, showInNav: true, template: 'default' },
+      { id: 'contact', label: 'Contact', published: true, showInNav: true, template: 'default' },
+      { id: 'accessibility', label: 'Accessibility', published: true, showInNav: false, template: 'default' },
+      { id: 'privacy-policy', label: 'Privacy Policy', published: true, showInNav: false, template: 'default' },
+      { id: 'terms-of-service', label: 'Terms of Service', published: true, showInNav: false, template: 'default' },
+      { id: 'cookie-policy', label: 'Cookie Policy', published: true, showInNav: false, template: 'default' },
+    ];
+  }, [pagesData]);
 
   const handleOpenMediaPicker = (fieldId: number) => {
     setSelectedFieldId(fieldId);
@@ -308,13 +329,21 @@ export default function AdminContent() {
                       // Update URL without full page reload
                       window.history.pushState({}, '', `/admin/content?page=${page.id}`);
                     }}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-2 ${
                       selectedPage === page.id
                         ? 'bg-neutral-900 dark:bg-neutral-100 text-white dark:text-neutral-900'
                         : 'bg-white dark:bg-neutral-900 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-neutral-800 border border-neutral-200 dark:border-neutral-800'
                     }`}
                   >
                     {page.label}
+                    {page.template === 'page-builder' && (
+                      <span className="px-1.5 py-0.5 text-[10px] rounded bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+                        PB
+                      </span>
+                    )}
+                    {page.showInNav && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500" title="In Navigation" />
+                    )}
                   </button>
                 ))}
               </div>
