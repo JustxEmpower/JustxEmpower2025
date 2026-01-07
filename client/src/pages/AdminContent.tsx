@@ -194,9 +194,30 @@ export default function AdminContent() {
     setMediaPickerOpen(true);
   };
 
-  const handleMediaSelect = (url: string) => {
+  const handleMediaSelect = async (url: string) => {
     if (selectedFieldId !== null) {
+      // Update local state immediately for UI feedback
       handleContentChange(selectedFieldId, url);
+      
+      // Auto-save to database immediately
+      try {
+        await updateMutation.mutateAsync({
+          id: selectedFieldId,
+          contentValue: url,
+        });
+        // Remove from editedContent since it's already saved
+        setEditedContent(prev => {
+          const newState = { ...prev };
+          delete newState[selectedFieldId];
+          return newState;
+        });
+        toast.success('Media saved successfully');
+        // Refetch to ensure data is in sync
+        await refetch();
+      } catch (error) {
+        console.error('Failed to save media:', error);
+        toast.error('Failed to save media. Please try again.');
+      }
     }
     setMediaPickerOpen(false);
     setSelectedFieldId(null);

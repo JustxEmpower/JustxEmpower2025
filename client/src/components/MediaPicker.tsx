@@ -1,14 +1,13 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { trpc } from '@/lib/trpc';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from 'sonner';
-import { Image as ImageIcon, Video, Upload, Search, X, FolderOpen, Cloud, CheckCircle2 } from 'lucide-react';
+import { Image as ImageIcon, Video, Upload, Search, X, Cloud, Check } from 'lucide-react';
 
 interface MediaItem {
   id: number;
@@ -59,13 +58,14 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
     return matchesType && matchesSearch;
   }) || [];
 
-  const handleSelect = () => {
+  const handleSelectMedia = () => {
     if (selectedMedia) {
+      console.log('Selecting media:', selectedMedia.url);
       onSelect(selectedMedia.url);
+      toast.success('Media selected successfully');
       setSelectedMedia(null);
       setSearchQuery('');
       onClose();
-      toast.success('Media selected');
     }
   };
 
@@ -79,7 +79,6 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
   const uploadFileDirectToS3 = async (file: File): Promise<string | null> => {
     const fileId = `${file.name}-${Date.now()}`;
     
-    // Update progress state
     setUploadProgress(prev => new Map(prev).set(fileId, {
       filename: file.name,
       progress: 0,
@@ -87,7 +86,6 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
     }));
 
     try {
-      // Step 1: Get presigned URL from server
       setUploadProgress(prev => {
         const newMap = new Map(prev);
         newMap.set(fileId, { ...newMap.get(fileId)!, status: 'uploading', progress: 5 });
@@ -100,7 +98,6 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
         fileSize: file.size,
       });
 
-      // Step 2: Upload directly to S3 using presigned URL
       const xhr = new XMLHttpRequest();
       
       await new Promise<void>((resolve, reject) => {
@@ -131,7 +128,6 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
         xhr.send(file);
       });
 
-      // Step 3: Confirm upload with server
       setUploadProgress(prev => {
         const newMap = new Map(prev);
         newMap.set(fileId, { ...newMap.get(fileId)!, status: 'confirming', progress: 95 });
@@ -147,7 +143,6 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
         publicUrl: uploadData.publicUrl,
       });
 
-      // Success!
       setUploadProgress(prev => {
         const newMap = new Map(prev);
         newMap.set(fileId, { ...newMap.get(fileId)!, status: 'complete', progress: 100 });
@@ -200,16 +195,13 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
     setUploading(false);
     refetch();
 
-    // If only one file was uploaded, auto-select it
     if (files.length === 1 && lastUploadedUrl) {
       onSelect(lastUploadedUrl);
       onClose();
     } else {
-      // Switch to library tab to see uploaded files
       setActiveTab('library');
     }
 
-    // Reset file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -220,13 +212,12 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
     const files = e.dataTransfer.files;
     if (!files || files.length === 0) return;
 
-    // Create a synthetic event to reuse handleFileSelect logic
     const input = fileInputRef.current;
     if (input) {
       const dataTransfer = new DataTransfer();
       Array.from(files).forEach(file => dataTransfer.items.add(file));
       input.files = dataTransfer.files;
-      handleFileSelect({ target: input } as React.ChangeEvent<HTMLInputElement>);
+      handleFileSelect({ target: input, currentTarget: input } as React.ChangeEvent<HTMLInputElement>);
     }
   };
 
@@ -236,116 +227,111 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-5xl h-[90vh] overflow-hidden flex flex-col gap-0 p-0">
-        {/* Header */}
-        <div className="px-8 pt-8 pb-6 border-b border-neutral-200 dark:border-neutral-800">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-light">
-              Select {mediaType === 'all' ? 'Media' : mediaType === 'image' ? 'Image' : 'Video'}
-            </DialogTitle>
-          </DialogHeader>
+      <DialogContent className="max-w-4xl w-full p-0 gap-0 overflow-hidden" style={{ maxHeight: '85vh', height: '85vh' }}>
+        {/* Fixed Header */}
+        <div className="p-6 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+          <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
+            Select {mediaType === 'all' ? 'Media' : mediaType === 'image' ? 'Image' : 'Video'}
+          </h2>
+          
+          {/* Tab Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab('library')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === 'library'
+                  ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
+                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700'
+              }`}
+            >
+              Media Library
+            </button>
+            <button
+              onClick={() => setActiveTab('upload')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === 'upload'
+                  ? 'bg-neutral-900 text-white dark:bg-neutral-100 dark:text-neutral-900'
+                  : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-neutral-400 dark:hover:bg-neutral-700'
+              }`}
+            >
+              Upload New
+            </button>
+          </div>
         </div>
 
-        {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'library' | 'upload')} className="flex-1 flex flex-col overflow-hidden px-8 pt-6">
-          <TabsList className="grid w-full grid-cols-2 mb-6 w-fit">
-            <TabsTrigger value="library" className="flex items-center gap-2">
-              <FolderOpen className="w-4 h-4" />
-              Media Library
-            </TabsTrigger>
-            <TabsTrigger value="upload" className="flex items-center gap-2">
-              <Upload className="w-4 h-4" />
-              Upload New
-            </TabsTrigger>
-          </TabsList>
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto p-6" style={{ maxHeight: 'calc(85vh - 200px)' }}>
+          {activeTab === 'library' ? (
+            <>
+              {/* Search Bar */}
+              <div className="relative mb-4">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                <Input
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search media files..."
+                  className="pl-10"
+                />
+              </div>
 
-          {/* Library Tab */}
-          <TabsContent value="library" className="flex-1 flex flex-col gap-4 overflow-hidden">
-            {/* Search Bar */}
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-              <Input
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search media files..."
-                className="pl-10 h-11"
-              />
-            </div>
-
-            {/* Media Grid */}
-            <div className="flex-1 overflow-y-auto pr-2">
+              {/* Media Grid */}
               {isLoading ? (
-                <div className="flex items-center justify-center h-64">
+                <div className="flex items-center justify-center h-48">
                   <p className="text-neutral-500">Loading media...</p>
                 </div>
               ) : filteredMedia.length > 0 ? (
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 pb-4">
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
                   {filteredMedia.map((item: MediaItem) => (
                     <button
                       key={item.id}
                       onClick={() => setSelectedMedia(item)}
-                      className={`group relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
+                      className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all hover:opacity-90 ${
                         selectedMedia?.id === item.id
-                          ? 'border-neutral-900 dark:border-neutral-100 ring-2 ring-neutral-900 dark:ring-neutral-100'
-                          : 'border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600'
+                          ? 'border-blue-500 ring-2 ring-blue-500 ring-offset-2'
+                          : 'border-neutral-200 dark:border-neutral-700 hover:border-neutral-400'
                       }`}
                     >
-                      {/* Media Preview */}
-                      <div className="w-full h-full bg-neutral-100 dark:bg-neutral-800">
-                        {item.type === 'image' ? (
-                          <img
-                            src={item.url}
-                            alt={item.originalName}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800">
-                            <Video className="w-8 h-8 text-neutral-500" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Selected Indicator */}
-                      {selectedMedia?.id === item.id && (
-                        <div className="absolute inset-0 bg-neutral-900/20 dark:bg-neutral-100/20 flex items-center justify-center">
-                          <div className="w-8 h-8 rounded-full bg-neutral-900 dark:bg-neutral-100 flex items-center justify-center shadow-lg">
-                            <CheckCircle2 className="w-5 h-5 text-white dark:text-neutral-900" />
-                          </div>
+                      {item.type === 'image' ? (
+                        <img
+                          src={item.url}
+                          alt={item.originalName}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-neutral-100 dark:bg-neutral-800">
+                          <Video className="w-8 h-8 text-neutral-400" />
                         </div>
                       )}
-
-                      {/* Hover Info */}
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      
+                      {/* Selected Checkmark */}
+                      {selectedMedia?.id === item.id && (
+                        <div className="absolute top-2 right-2 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                          <Check className="w-4 h-4 text-white" />
+                        </div>
+                      )}
+                      
+                      {/* File Name Overlay */}
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/60 p-1">
                         <p className="text-xs text-white truncate">{item.originalName}</p>
-                        <p className="text-xs text-neutral-300">{formatFileSize(item.fileSize)}</p>
                       </div>
                     </button>
                   ))}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center h-64 text-center">
-                  <ImageIcon className="w-12 h-12 text-neutral-300 dark:text-neutral-700 mb-3" />
-                  <p className="text-neutral-500 dark:text-neutral-400 mb-2">
+                <div className="flex flex-col items-center justify-center h-48 text-center">
+                  <ImageIcon className="w-12 h-12 text-neutral-300 mb-3" />
+                  <p className="text-neutral-500">
                     {searchQuery ? 'No media files match your search' : 'No media files uploaded yet'}
                   </p>
-                  {!searchQuery && (
-                    <Button variant="outline" onClick={() => setActiveTab('upload')} className="mt-4">
-                      <Upload className="w-4 h-4 mr-2" />
-                      Upload Media
-                    </Button>
-                  )}
                 </div>
               )}
-            </div>
-          </TabsContent>
-
-          {/* Upload Tab */}
-          <TabsContent value="upload" className="flex-1 flex flex-col gap-4 overflow-hidden">
-            {/* Upload Area */}
+            </>
+          ) : (
+            /* Upload Tab */
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
-              className="flex-1 border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl p-8 flex flex-col items-center justify-center hover:border-neutral-400 dark:hover:border-neutral-600 transition-colors cursor-pointer"
+              className="border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl p-8 flex flex-col items-center justify-center min-h-[300px] hover:border-neutral-400 transition-colors cursor-pointer"
               onClick={() => fileInputRef.current?.click()}
             >
               <input
@@ -364,84 +350,87 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
               <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-2">
                 Drop files here or click to upload
               </h3>
-              <p className="text-sm text-neutral-500 dark:text-neutral-400 text-center max-w-sm">
+              <p className="text-sm text-neutral-500 text-center max-w-sm mb-4">
                 {mediaType === 'image' 
-                  ? 'Supports JPG, PNG, GIF, WebP, and other image formats'
+                  ? 'Supports JPG, PNG, GIF, WebP'
                   : mediaType === 'video'
-                  ? 'Supports MP4, MOV, WebM, and other video formats'
-                  : 'Supports images (JPG, PNG, GIF) and videos (MP4, MOV, WebM)'}
+                  ? 'Supports MP4, MOV, WebM'
+                  : 'Supports images and videos'}
               </p>
               
-              <Button variant="outline" className="mt-4" disabled={uploading}>
+              <Button variant="outline" disabled={uploading}>
                 <Upload className="w-4 h-4 mr-2" />
                 {uploading ? 'Uploading...' : 'Choose Files'}
               </Button>
             </div>
+          )}
 
-            {/* Upload Progress */}
-            {uploadProgress.size > 0 && (
-              <div className="space-y-2 max-h-48 overflow-y-auto">
-                {Array.from(uploadProgress.entries()).map(([id, progress]) => (
-                  <div key={id} className="bg-neutral-50 dark:bg-neutral-900 rounded-lg p-3">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium truncate flex-1">{progress.filename}</span>
-                      <span className="text-xs text-neutral-500 ml-2">
-                        {progress.status === 'complete' ? '✓ Complete' : 
-                         progress.status === 'error' ? '✗ Failed' :
-                         progress.status === 'confirming' ? 'Confirming...' :
-                         `${progress.progress}%`}
-                      </span>
-                    </div>
-                    <Progress value={progress.progress} className="h-1" />
-                    {progress.error && (
-                      <p className="text-xs text-red-500 mt-1">{progress.error}</p>
-                    )}
+          {/* Upload Progress */}
+          {uploadProgress.size > 0 && (
+            <div className="mt-4 space-y-2">
+              {Array.from(uploadProgress.entries()).map(([id, progress]) => (
+                <div key={id} className="bg-neutral-50 dark:bg-neutral-900 rounded-lg p-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium truncate flex-1">{progress.filename}</span>
+                    <span className="text-xs text-neutral-500 ml-2">
+                      {progress.status === 'complete' ? '✓ Complete' : 
+                       progress.status === 'error' ? '✗ Failed' :
+                       progress.status === 'confirming' ? 'Confirming...' :
+                       `${progress.progress}%`}
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+                  <Progress value={progress.progress} className="h-1" />
+                  {progress.error && (
+                    <p className="text-xs text-red-500 mt-1">{progress.error}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-        {/* Footer with Selected Media Info and Actions */}
-        <div className="border-t border-neutral-200 dark:border-neutral-800 px-8 py-6 space-y-4">
-          {/* Selected Media Info */}
-          {selectedMedia && activeTab === 'library' && (
-            <div className="flex items-center gap-3 p-4 bg-neutral-50 dark:bg-neutral-900 rounded-lg">
+        {/* Fixed Footer with Action Buttons - ALWAYS VISIBLE */}
+        <div className="p-6 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+          {/* Selected Media Preview */}
+          {selectedMedia && (
+            <div className="flex items-center gap-3 mb-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
               {selectedMedia.type === 'image' ? (
-                <ImageIcon className="w-5 h-5 text-neutral-400 flex-shrink-0" />
+                <img src={selectedMedia.url} alt="" className="w-12 h-12 object-cover rounded" />
               ) : (
-                <Video className="w-5 h-5 text-neutral-400 flex-shrink-0" />
+                <div className="w-12 h-12 bg-neutral-200 dark:bg-neutral-700 rounded flex items-center justify-center">
+                  <Video className="w-6 h-6 text-neutral-500" />
+                </div>
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
                   {selectedMedia.originalName}
                 </p>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                <p className="text-xs text-neutral-500">
                   {formatFileSize(selectedMedia.fileSize)} • {selectedMedia.type}
                 </p>
               </div>
-              <Button onClick={() => setSelectedMedia(null)} variant="ghost" size="sm" className="flex-shrink-0">
-                <X className="w-4 h-4" />
-              </Button>
+              <button
+                onClick={() => setSelectedMedia(null)}
+                className="p-1 hover:bg-neutral-200 dark:hover:bg-neutral-700 rounded"
+              >
+                <X className="w-4 h-4 text-neutral-500" />
+              </button>
             </div>
           )}
-
+          
           {/* Action Buttons */}
           <div className="flex gap-3 justify-end">
-            <Button onClick={onClose} variant="outline" className="px-6">
+            <Button variant="outline" onClick={onClose}>
               Cancel
             </Button>
-            {activeTab === 'library' && (
-              <Button 
-                onClick={handleSelect} 
-                disabled={!selectedMedia}
-                className="px-6 bg-neutral-900 hover:bg-neutral-800 dark:bg-neutral-100 dark:hover:bg-neutral-200 dark:text-neutral-900"
-              >
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Select Media
-              </Button>
-            )}
+            <Button 
+              onClick={handleSelectMedia}
+              disabled={!selectedMedia}
+              className="bg-blue-600 hover:bg-blue-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Check className="w-4 h-4 mr-2" />
+              Select Media
+            </Button>
           </div>
         </div>
       </DialogContent>
