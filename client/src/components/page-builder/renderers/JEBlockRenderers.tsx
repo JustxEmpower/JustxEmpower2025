@@ -4,6 +4,7 @@ import { PageBlock } from '../usePageBuilderStore';
 import Carousel from '@/components/Carousel';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { Heart, Compass, Crown, Leaf, Star, Sparkles } from 'lucide-react';
+import { getMediaUrl } from '@/lib/media';
 
 // Icon mapping for pillar grid
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -33,7 +34,10 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
 
   const overlayOpacity = content.overlayOpacity ?? 40;
   const minHeight = content.minHeight || '100vh';
-  const hasMedia = content.videoUrl || content.imageUrl;
+  const videoUrl = content.videoUrl ? getMediaUrl(content.videoUrl) : undefined;
+  const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
+  const posterImageUrl = content.posterImage ? getMediaUrl(content.posterImage) : undefined;
+  const hasMedia = videoUrl || imageUrl;
 
   return (
     <section 
@@ -41,26 +45,26 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
       style={{ minHeight: minHeight === '100vh' ? '500px' : minHeight }}
     >
       {/* Video Background */}
-      {content.videoUrl && (
+      {videoUrl && (
         <video
           autoPlay
           muted
           loop
           playsInline
-          poster={content.posterImage}
+          poster={posterImageUrl}
           className="absolute inset-0 w-full h-full object-cover"
         >
-          <source src={content.videoUrl} type="video/mp4" />
-          <source src={content.videoUrl} type="video/webm" />
+          <source src={videoUrl} type="video/mp4" />
+          <source src={videoUrl} type="video/webm" />
           Your browser does not support the video tag.
         </video>
       )}
       
       {/* Image Background (fallback) */}
-      {!content.videoUrl && content.imageUrl && (
+      {!videoUrl && imageUrl && (
         <div 
           className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${content.imageUrl})` }}
+          style={{ backgroundImage: `url(${imageUrl})` }}
         />
       )}
       
@@ -164,7 +168,7 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
           {content.imageUrl ? (
             <div className="relative overflow-hidden rounded-[2rem]">
               <img
-                src={content.imageUrl}
+                src={getMediaUrl(content.imageUrl)}
                 alt={content.imageAlt || 'Section image'}
                 className="w-full h-auto object-cover"
               />
@@ -293,7 +297,7 @@ export function JECommunityRenderer({ block }: { block: PageBlock }) {
           {content.imageUrl ? (
             <div className="relative overflow-hidden rounded-[2rem]">
               <img
-                src={content.imageUrl}
+                src={getMediaUrl(content.imageUrl)}
                 alt="Community"
                 className="w-full h-auto object-cover"
               />
@@ -382,7 +386,7 @@ export function JERootedUnityRenderer({ block }: { block: PageBlock }) {
           {content.imageUrl ? (
             <div className="relative overflow-hidden rounded-[2rem]">
               <img
-                src={content.imageUrl}
+                src={getMediaUrl(content.imageUrl)}
                 alt="Rooted Unity"
                 className="w-full h-auto object-cover"
               />

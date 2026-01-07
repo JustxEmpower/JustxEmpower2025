@@ -1,6 +1,7 @@
 import React from 'react';
 import { PageBlock } from './usePageBuilderStore';
 import { getBlockById } from './blockTypes';
+import { getMediaUrl } from '@/lib/media';
 import {
   JEHeroRenderer,
   JESectionRenderer,
@@ -343,10 +344,12 @@ function ImageBlock({ content }: { content: Record<string, unknown> }) {
     );
   }
   
+  const imageUrl = getMediaUrl(src);
+  
   return (
     <figure className={`p-4 text-${alignment}`}>
       <img 
-        src={src} 
+        src={imageUrl} 
         alt={content.alt as string || ''} 
         className="max-w-full h-auto rounded-lg mx-auto"
       />
@@ -371,20 +374,23 @@ function VideoBlock({ content }: { content: Record<string, unknown> }) {
     );
   }
   
+  const videoUrl = getMediaUrl(url);
+  const posterUrl = poster ? getMediaUrl(poster) : undefined;
+  
   // Check if it's a direct video file (mp4, webm, mov, etc.)
-  const isDirectVideo = /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(\?|$)/i.test(url);
+  const isDirectVideo = /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(\?|$)/i.test(videoUrl);
   
   if (isDirectVideo) {
     return (
       <div className="p-4 aspect-video">
         <video
-          src={url}
-          poster={poster}
+          src={videoUrl}
+          poster={posterUrl}
           controls
           className="w-full h-full rounded-lg object-cover"
           playsInline
         >
-          <source src={url} type="video/mp4" />
+          <source src={videoUrl} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
       </div>
