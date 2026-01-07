@@ -36,6 +36,7 @@ export default function AdminContent() {
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [selectedFieldId, setSelectedFieldId] = useState<number | null>(null);
   const [activeSection, setActiveSection] = useState<string | null>(null);
+  const [textStyles, setTextStyles] = useState<Record<number, { isBold: boolean; isItalic: boolean; isUnderline: boolean }>>({});
   
   // Refs for scrolling to sections
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -92,6 +93,12 @@ export default function AdminContent() {
     { enabled: isAuthenticated }
   );
 
+  // Fetch text styles for the current page
+  const { data: pageTextStyles } = trpc.contentTextStyles.getByPage.useQuery(
+    { page: selectedPage },
+    { enabled: isAuthenticated }
+  );
+
   const utils = trpc.useUtils();
   const updateMutation = trpc.admin.content.update.useMutation({
     onSuccess: async () => {
@@ -120,6 +127,21 @@ export default function AdminContent() {
       }
     }
   }, [contentData, selectedPage]);
+
+  // Process text styles into a map for easy lookup
+  useEffect(() => {
+    if (pageTextStyles) {
+      const stylesMap: Record<number, { isBold: boolean; isItalic: boolean; isUnderline: boolean }> = {};
+      pageTextStyles.forEach((style: any) => {
+        stylesMap[style.contentId] = {
+          isBold: style.isBold === 1,
+          isItalic: style.isItalic === 1,
+          isUnderline: style.isUnderline === 1,
+        };
+      });
+      setTextStyles(stylesMap);
+    }
+  }, [pageTextStyles]);
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) {
@@ -422,6 +444,12 @@ export default function AdminContent() {
                           const isModified = editedContent[item.id] !== undefined;
                           const inputType = getInputType(item.contentKey);
                           const useTextarea = isLongText(item.contentKey, currentValue);
+                          const itemStyles = textStyles[item.id] || { isBold: false, isItalic: false, isUnderline: false };
+                          const styleClasses = [
+                            itemStyles.isBold ? 'font-bold' : '',
+                            itemStyles.isItalic ? 'italic' : '',
+                            itemStyles.isUnderline ? 'underline' : '',
+                          ].filter(Boolean).join(' ');
 
                           return (
                             <div key={item.id} className="pt-4">
@@ -436,14 +464,23 @@ export default function AdminContent() {
                                 </label>
                                 {/* Text formatting toolbar for text fields */}
                                 {!item.contentKey.includes('Url') && !item.contentKey.includes('Image') && !item.contentKey.includes('Video') && (
-                                  <TextFormatToolbar size="sm" />
+                                  <TextFormatToolbar 
+                                    contentId={item.id} 
+                                    size="sm"
+                                    onStyleChange={(styles) => {
+                                      setTextStyles(prev => ({
+                                        ...prev,
+                                        [item.id]: styles
+                                      }));
+                                    }}
+                                  />
                                 )}
                               </div>
                               {useTextarea ? (
                                 <Textarea
                                   value={currentValue}
                                   onChange={(e) => handleContentChange(item.id, e.target.value)}
-                                  className={`min-h-[100px] ${isModified ? 'border-amber-400 dark:border-amber-600' : ''}`}
+                                  className={`min-h-[100px] ${isModified ? 'border-amber-400 dark:border-amber-600' : ''} ${styleClasses}`}
                                   placeholder={`Enter ${item.contentKey}...`}
                                 />
                               ) : (
@@ -452,7 +489,7 @@ export default function AdminContent() {
                                     type={inputType}
                                     value={currentValue}
                                     onChange={(e) => handleContentChange(item.id, e.target.value)}
-                                    className={`h-11 flex-1 ${isModified ? 'border-amber-400 dark:border-amber-600' : ''}`}
+                                    className={`h-11 flex-1 ${isModified ? 'border-amber-400 dark:border-amber-600' : ''} ${styleClasses}`}
                                     placeholder={`Enter ${item.contentKey}...`}
                                   />
                                   {(item.contentKey.includes('Url') || item.contentKey.includes('Image') || item.contentKey.includes('Video')) && (

@@ -2953,7 +2953,13 @@ export const contentTextStylesRouter = router({
         .where(eq(schema.contentTextStyles.contentId, input.contentId))
         .limit(1);
       
-      return styles[0] || { isBold: 0, isItalic: 0, isUnderline: 0, fontOverride: null };
+      const style = styles[0];
+      return {
+        isBold: style ? style.isBold === 1 : false,
+        isItalic: style ? style.isItalic === 1 : false,
+        isUnderline: style ? style.isUnderline === 1 : false,
+        fontOverride: style?.fontOverride || null,
+      };
     }),
 
   // Get all text styles for a page
@@ -2978,6 +2984,50 @@ export const contentTextStylesRouter = router({
         .from(schema.contentTextStyles);
       
       return styles.filter(s => contentIds.includes(s.contentId));
+    }),
+
+  // Save text style (used by TextFormatToolbar)
+  save: adminProcedure
+    .input(z.object({
+      contentId: z.number(),
+      isBold: z.boolean(),
+      isItalic: z.boolean(),
+      isUnderline: z.boolean(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const { contentId, isBold, isItalic, isUnderline } = input;
+      
+      // Check if style exists
+      const existing = await db
+        .select()
+        .from(schema.contentTextStyles)
+        .where(eq(schema.contentTextStyles.contentId, contentId))
+        .limit(1);
+      
+      if (existing.length === 0) {
+        // Insert new style
+        await db.insert(schema.contentTextStyles).values({
+          contentId,
+          isBold: isBold ? 1 : 0,
+          isItalic: isItalic ? 1 : 0,
+          isUnderline: isUnderline ? 1 : 0,
+        });
+      } else {
+        // Update existing style
+        await db
+          .update(schema.contentTextStyles)
+          .set({
+            isBold: isBold ? 1 : 0,
+            isItalic: isItalic ? 1 : 0,
+            isUnderline: isUnderline ? 1 : 0,
+          })
+          .where(eq(schema.contentTextStyles.contentId, contentId));
+      }
+      
+      return { success: true };
     }),
 
   // Update or create text style
