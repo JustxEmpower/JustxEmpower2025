@@ -33,6 +33,9 @@ import {
   ArrowLeft,
   Sparkles,
   Wand2,
+  Navigation,
+  Globe,
+  Check,
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { Button } from '@/components/ui/button';
@@ -43,6 +46,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+} from '@/components/ui/dropdown-menu';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { usePageBuilderStore, PageBlock } from './usePageBuilderStore';
@@ -502,6 +514,39 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
               </TooltipTrigger>
               <TooltipContent>Generate page with AI</TooltipContent>
             </Tooltip>
+
+            {/* Page Settings Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={`h-9 px-3 gap-2 ${showInNav ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : ''}`}
+                >
+                  <Settings className="w-4 h-4" />
+                  <span className="text-sm">Page Settings</span>
+                  {showInNav && <Navigation className="w-3 h-3 text-green-600" />}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Page Visibility</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuCheckboxItem
+                  checked={showInNav}
+                  onCheckedChange={(checked) => setShowInNav(checked)}
+                >
+                  <Navigation className="w-4 h-4 mr-2" />
+                  Show in Navigation
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-xs text-neutral-500">
+                  {showInNav 
+                    ? '✓ This page will appear in the site navigation menu'
+                    : 'This page will not appear in navigation'
+                  }
+                </DropdownMenuLabel>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             <Button
               size="sm"
