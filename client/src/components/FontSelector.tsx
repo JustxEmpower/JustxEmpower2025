@@ -1,65 +1,109 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { Check, Type, Loader2, Sparkles, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface FontOption {
-  name: string;
-  category: string;
-  googleFont: boolean;
-  style: string;
+interface ContentItem {
+  id: number;
+  page: string;
+  section: string;
+  contentKey: string;
+  contentValue: string;
 }
 
-// Font category colors matching the SectionVisualizer style
-const categoryStyles = {
-  serif: { 
-    borderColor: 'border-purple-400', 
-    bgColor: 'bg-purple-50', 
-    textColor: 'text-purple-700',
-    accentColor: 'bg-purple-400',
-    hoverBg: 'hover:bg-purple-50',
-    selectedBg: 'bg-purple-100',
-    selectedBorder: 'border-purple-500'
-  },
-  'sans-serif': { 
-    borderColor: 'border-indigo-400', 
-    bgColor: 'bg-indigo-50', 
-    textColor: 'text-indigo-700',
-    accentColor: 'bg-indigo-400',
-    hoverBg: 'hover:bg-indigo-50',
-    selectedBg: 'bg-indigo-100',
-    selectedBorder: 'border-indigo-500'
-  },
-};
+interface FontSelectorProps {
+  content: ContentItem[];
+  selectedPage: string;
+  activeSection: string | null;
+}
 
-export default function FontSelector() {
+export default function FontSelector({ content, selectedPage, activeSection }: FontSelectorProps) {
   const [selectedHeadingFont, setSelectedHeadingFont] = useState('Cormorant Garamond');
   const [selectedBodyFont, setSelectedBodyFont] = useState('Inter');
   const [hasChanges, setHasChanges] = useState(false);
 
   // Fetch current font settings
-  const { data: fontSettings, isLoading: loadingSettings } = trpc.fontSettings.get.useQuery();
+  const { data: fontSettings, isLoading: loadingSettings, refetch: refetchFontSettings } = trpc.fontSettings.get.useQuery();
   
   // Fetch available fonts
   const { data: availableFonts } = trpc.fontSettings.availableFonts.useQuery();
   
   // Update mutation
+  const utils = trpc.useUtils();
   const updateMutation = trpc.fontSettings.update.useMutation({
     onSuccess: () => {
-      toast.success('Typography settings saved!');
+      toast.success('Typography settings saved! Fonts updated site-wide.');
       setHasChanges(false);
+      // Invalidate and refetch to ensure sync
+      utils.fontSettings.get.invalidate();
+      refetchFontSettings();
+      // Apply fonts immediately to the document
+      applyFontsToDocument(selectedHeadingFont, selectedBodyFont);
     },
     onError: (error) => {
       toast.error('Failed to save: ' + error.message);
     },
   });
 
+  // Extract preview content from the current page
+  const previewContent = useMemo(() => {
+    if (!content || content.length === 0) {
+      return {
+        heading: 'Page Title',
+        body: 'Page content will appear here when you select a page.',
+        pageName: selectedPage,
+      };
+    }
+
+    // Get content from the active section, or first section with content
+    const sectionContent = activeSection 
+      ? content.filter(c => c.section === activeSection)
+      : content;
+
+    // Find heading content (title, heading, etc.)
+    const headingItem = sectionContent.find(item => 
+      item.contentKey.toLowerCase().includes('title') ||
+      item.contentKey.toLowerCase().includes('heading')
+    ) || content.find(item => 
+      item.contentKey.toLowerCase().includes('title') ||
+      item.contentKey.toLowerCase().includes('heading')
+    );
+
+    // Find body content (description, subtitle, text, etc.)
+    const bodyItem = sectionContent.find(item => 
+      item.contentKey.toLowerCase().includes('description') ||
+      item.contentKey.toLowerCase().includes('subtitle') ||
+      item.contentKey.toLowerCase().includes('text') ||
+      item.contentKey.toLowerCase().includes('content')
+    ) || content.find(item => 
+      item.contentKey.toLowerCase().includes('description') ||
+      item.contentKey.toLowerCase().includes('subtitle') ||
+      item.contentKey.toLowerCase().includes('text')
+    );
+
+    const heading = headingItem?.contentValue || 'Page Title';
+    const body = bodyItem?.contentValue || 'Page content preview';
+
+    // Truncate for display
+    const truncatedHeading = heading.length > 40 ? heading.substring(0, 40) + '...' : heading;
+    const truncatedBody = body.length > 100 ? body.substring(0, 100) + '...' : body;
+
+    return {
+      heading: truncatedHeading,
+      body: truncatedBody,
+      pageName: selectedPage,
+      sectionName: activeSection,
+    };
+  }, [content, selectedPage, activeSection]);
+
   // Update local state when settings load
   useEffect(() => {
     if (fontSettings) {
       setSelectedHeadingFont(fontSettings.headingFont);
       setSelectedBodyFont(fontSettings.bodyFont);
+      // Apply fonts to document on load
+      applyFontsToDocument(fontSettings.headingFont, fontSettings.bodyFont);
     }
   }, [fontSettings]);
 
@@ -85,11 +129,50 @@ export default function FontSelector() {
     }
   }, [availableFonts]);
 
+  // Function to apply fonts to the entire document
+  const applyFontsToDocument = (headingFont: string, bodyFont: string) => {
+    const styleId = 'site-font-styles-admin';
+    let style = document.getElementById(styleId) as HTMLStyleElement;
+
+    if (!style) {
+      style = document.createElement('style');
+      style.id = styleId;
+      document.head.appendChild(style);
+    }
+
+    style.textContent = `
+      /* Site-wide typography - Applied from Admin */
+      :root {
+        --font-heading: "${headingFont}", serif;
+        --font-body: "${bodyFont}", sans-serif;
+      }
+
+      /* Apply heading font to all headings */
+      h1, h2, h3, h4, h5, h6,
+      .font-serif,
+      .font-heading {
+        font-family: var(--font-heading) !important;
+      }
+
+      /* Apply body font to body text */
+      body,
+      p,
+      .font-sans,
+      .font-body {
+        font-family: var(--font-body);
+      }
+    `;
+  };
+
   const handleFontChange = (type: 'heading' | 'body', fontName: string) => {
     if (type === 'heading') {
       setSelectedHeadingFont(fontName);
+      // Apply immediately for preview
+      applyFontsToDocument(fontName, selectedBodyFont);
     } else {
       setSelectedBodyFont(fontName);
+      // Apply immediately for preview
+      applyFontsToDocument(selectedHeadingFont, fontName);
     }
     setHasChanges(true);
   };
@@ -104,12 +187,20 @@ export default function FontSelector() {
   const serifFonts = availableFonts?.filter(f => f.category === 'serif') || [];
   const sansFonts = availableFonts?.filter(f => f.category === 'sans-serif') || [];
 
+  // Format page name for display
+  const formatPageName = (name: string) => {
+    return name
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   if (loadingSettings) {
     return (
       <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
         <div className="flex items-center gap-2 text-neutral-500">
           <Loader2 className="w-4 h-4 animate-spin" />
-          <span className="text-sm">Loading typography settings...</span>
+          <span className="text-sm">Loading typography...</span>
         </div>
       </div>
     );
@@ -165,23 +256,29 @@ export default function FontSelector() {
         )} title="Body Font" />
       </div>
 
-      {/* Live Preview */}
+      {/* Dynamic Live Preview - Shows actual page content */}
       <div className="mb-4 p-4 rounded-lg bg-gradient-to-br from-neutral-50 to-neutral-100 dark:from-neutral-800 dark:to-neutral-900 border border-neutral-200 dark:border-neutral-700">
-        <div className="flex items-center gap-1 mb-2">
-          <Sparkles className="w-3 h-3 text-amber-500" />
-          <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide">Live Preview</span>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-1">
+            <Sparkles className="w-3 h-3 text-amber-500" />
+            <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide">Live Preview</span>
+          </div>
+          <span className="text-[9px] px-1.5 py-0.5 bg-neutral-200 dark:bg-neutral-700 rounded text-neutral-600 dark:text-neutral-400">
+            {formatPageName(previewContent.pageName)}
+            {previewContent.sectionName && ` › ${previewContent.sectionName}`}
+          </span>
         </div>
         <h3 
-          className="text-xl mb-1 text-neutral-800 dark:text-neutral-200 italic" 
+          className="text-lg mb-1 text-neutral-800 dark:text-neutral-200 italic leading-tight" 
           style={{ fontFamily: `"${selectedHeadingFont}", serif` }}
         >
-          Catalyzing the Rise of Her
+          {previewContent.heading}
         </h3>
         <p 
-          className="text-sm text-neutral-600 dark:text-neutral-400"
+          className="text-xs text-neutral-600 dark:text-neutral-400 leading-relaxed"
           style={{ fontFamily: `"${selectedBodyFont}", sans-serif` }}
         >
-          Where empowerment becomes embodiment. Discover your potential.
+          {previewContent.body}
         </p>
       </div>
 
@@ -192,13 +289,13 @@ export default function FontSelector() {
           <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide">Heading Font</span>
           <span className="text-[10px] text-purple-600 font-medium ml-auto">{selectedHeadingFont}</span>
         </div>
-        <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">
+        <div className="grid grid-cols-2 gap-1.5 max-h-32 overflow-y-auto pr-1">
           {serifFonts.map((font) => (
             <button
               key={font.name}
               onClick={() => handleFontChange('heading', font.name)}
               className={cn(
-                "w-full text-left p-2 rounded-lg border-2 border-l-4 transition-all text-sm",
+                "w-full text-left p-1.5 rounded-lg border-2 border-l-4 transition-all",
                 selectedHeadingFont === font.name
                   ? "bg-purple-50 border-purple-300 border-l-purple-500 shadow-sm"
                   : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 border-l-purple-300 hover:bg-purple-50/50"
@@ -207,7 +304,7 @@ export default function FontSelector() {
             >
               <div className="flex items-center justify-between">
                 <span className={cn(
-                  "truncate text-xs",
+                  "truncate text-[11px]",
                   selectedHeadingFont === font.name ? "text-purple-700 font-medium" : "text-neutral-700 dark:text-neutral-300"
                 )}>
                   {font.name}
@@ -228,13 +325,13 @@ export default function FontSelector() {
           <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide">Body Font</span>
           <span className="text-[10px] text-indigo-600 font-medium ml-auto">{selectedBodyFont}</span>
         </div>
-        <div className="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto pr-1">
+        <div className="grid grid-cols-2 gap-1.5 max-h-32 overflow-y-auto pr-1">
           {sansFonts.map((font) => (
             <button
               key={font.name}
               onClick={() => handleFontChange('body', font.name)}
               className={cn(
-                "w-full text-left p-2 rounded-lg border-2 border-l-4 transition-all text-sm",
+                "w-full text-left p-1.5 rounded-lg border-2 border-l-4 transition-all",
                 selectedBodyFont === font.name
                   ? "bg-indigo-50 border-indigo-300 border-l-indigo-500 shadow-sm"
                   : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-neutral-300 border-l-indigo-300 hover:bg-indigo-50/50"
@@ -243,7 +340,7 @@ export default function FontSelector() {
             >
               <div className="flex items-center justify-between">
                 <span className={cn(
-                  "truncate text-xs",
+                  "truncate text-[11px]",
                   selectedBodyFont === font.name ? "text-indigo-700 font-medium" : "text-neutral-700 dark:text-neutral-300"
                 )}>
                   {font.name}
@@ -257,40 +354,28 @@ export default function FontSelector() {
         </div>
       </div>
 
-      {/* Font Categories Legend */}
+      {/* Currently Active */}
       <div className="pt-3 border-t border-neutral-200 dark:border-neutral-700">
-        <h4 className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide mb-2">Font Categories</h4>
-        <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-sm bg-purple-400" />
-            <span className="text-[9px] text-neutral-500">Serif (Headings)</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2 h-2 rounded-sm bg-indigo-400" />
-            <span className="text-[9px] text-neutral-500">Sans-Serif (Body)</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Currently Selected */}
-      <div className="mt-3 pt-3 border-t border-neutral-200 dark:border-neutral-700">
         <h4 className="text-[10px] font-bold text-neutral-500 uppercase tracking-wide mb-1">Active Typography</h4>
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-purple-500" />
+            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
             <span className="text-xs text-neutral-700 dark:text-neutral-300" style={{ fontFamily: `"${selectedHeadingFont}", serif` }}>
               {selectedHeadingFont}
             </span>
             <span className="text-[9px] text-neutral-400">headings</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-indigo-500" />
+            <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
             <span className="text-xs text-neutral-700 dark:text-neutral-300" style={{ fontFamily: `"${selectedBodyFont}", sans-serif` }}>
               {selectedBodyFont}
             </span>
             <span className="text-[9px] text-neutral-400">body text</span>
           </div>
         </div>
+        <p className="text-[9px] text-neutral-400 mt-2">
+          Changes apply to all pages site-wide
+        </p>
       </div>
     </div>
   );

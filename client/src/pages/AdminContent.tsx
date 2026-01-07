@@ -299,7 +299,11 @@ export default function AdminContent() {
           
           {/* Font Typography Settings */}
           <div className="mt-4">
-            <FontSelector />
+            <FontSelector 
+              content={content}
+              selectedPage={selectedPage}
+              activeSection={activeSection}
+            />
           </div>
         </div>
 
