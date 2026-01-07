@@ -11,7 +11,8 @@ interface VideoThumbnailProps {
 
 /**
  * VideoThumbnail component generates a thumbnail preview from a video file
- * It captures a frame from the video at 1 second mark
+ * Uses the video element's poster or first frame as thumbnail
+ * Falls back to video icon if thumbnail generation fails
  */
 export default function VideoThumbnail({ 
   src, 
@@ -20,9 +21,7 @@ export default function VideoThumbnail({
   showPlayIcon = true 
 }: VideoThumbnailProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [thumbnail, setThumbnail] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState(false);
 
   // Get the proper URL
@@ -31,80 +30,57 @@ export default function VideoThumbnail({
   useEffect(() => {
     if (!videoUrl) {
       setError(true);
-      setLoading(false);
       return;
     }
 
     const video = videoRef.current;
-    const canvas = canvasRef.current;
-    
-    if (!video || !canvas) return;
-
-    const generateThumbnail = () => {
-      try {
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          setError(true);
-          setLoading(false);
-          return;
-        }
-
-        // Set canvas dimensions to match video
-        canvas.width = video.videoWidth || 320;
-        canvas.height = video.videoHeight || 180;
-
-        // Draw the video frame to canvas
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        // Convert to data URL
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-        setThumbnail(dataUrl);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error generating video thumbnail:', err);
-        setError(true);
-        setLoading(false);
-      }
-    };
+    if (!video) return;
 
     const handleLoadedData = () => {
-      // Seek to 1 second to get a better thumbnail (not just the first frame)
-      video.currentTime = 1;
+      // Seek to 0.5 seconds to get a better thumbnail (not just black frame)
+      video.currentTime = 0.5;
     };
 
     const handleSeeked = () => {
-      generateThumbnail();
+      setIsReady(true);
     };
 
     const handleError = () => {
       setError(true);
-      setLoading(false);
+    };
+
+    // Also handle loadedmetadata for faster response
+    const handleLoadedMetadata = () => {
+      if (video.duration > 0) {
+        video.currentTime = Math.min(0.5, video.duration * 0.1);
+      }
     };
 
     video.addEventListener('loadeddata', handleLoadedData);
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
     video.addEventListener('seeked', handleSeeked);
     video.addEventListener('error', handleError);
 
-    // Load the video
-    video.src = videoUrl;
+    // Start loading
     video.load();
 
     return () => {
       video.removeEventListener('loadeddata', handleLoadedData);
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
       video.removeEventListener('seeked', handleSeeked);
       video.removeEventListener('error', handleError);
     };
   }, [videoUrl]);
 
-  // Fallback display when no thumbnail available
+  // Fallback display when no video URL or error
   if (error || !videoUrl) {
     return (
-      <div className={`relative flex items-center justify-center bg-neutral-800 ${className}`}>
-        <Video className="w-12 h-12 text-neutral-400" />
+      <div className={`relative flex items-center justify-center bg-neutral-200 dark:bg-neutral-800 ${className}`}>
+        <Video className="w-8 h-8 text-neutral-400" />
         {showPlayIcon && (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center">
-              <Play className="w-6 h-6 text-white ml-1" />
+            <div className="w-10 h-10 rounded-full bg-black/40 flex items-center justify-center">
+              <Play className="w-5 h-5 text-white ml-0.5" />
             </div>
           </div>
         )}
@@ -113,43 +89,31 @@ export default function VideoThumbnail({
   }
 
   return (
-    <div className={`relative ${className}`}>
-      {/* Hidden video element for thumbnail generation */}
+    <div className={`relative overflow-hidden ${className}`}>
+      {/* Video element that shows the frame directly */}
       <video
         ref={videoRef}
-        className="hidden"
+        src={videoUrl}
+        className={`w-full h-full object-cover ${isReady ? 'opacity-100' : 'opacity-0'}`}
         muted
         playsInline
         preload="metadata"
-        crossOrigin="anonymous"
+        style={{ pointerEvents: 'none' }}
       />
       
-      {/* Hidden canvas for drawing */}
-      <canvas ref={canvasRef} className="hidden" />
-      
-      {/* Display thumbnail or loading state */}
-      {loading ? (
-        <div className="w-full h-full flex items-center justify-center bg-neutral-800 animate-pulse">
-          <Video className="w-12 h-12 text-neutral-500" />
+      {/* Loading state */}
+      {!isReady && !error && (
+        <div className="absolute inset-0 flex items-center justify-center bg-neutral-200 dark:bg-neutral-800 animate-pulse">
+          <Video className="w-8 h-8 text-neutral-400" />
         </div>
-      ) : thumbnail ? (
-        <>
-          <img
-            src={thumbnail}
-            alt={alt}
-            className="w-full h-full object-cover"
-          />
-          {showPlayIcon && (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-12 h-12 rounded-full bg-black/50 flex items-center justify-center">
-                <Play className="w-6 h-6 text-white ml-1" />
-              </div>
-            </div>
-          )}
-        </>
-      ) : (
-        <div className="w-full h-full flex items-center justify-center bg-neutral-800">
-          <Video className="w-12 h-12 text-neutral-400" />
+      )}
+      
+      {/* Play icon overlay */}
+      {showPlayIcon && isReady && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-black/40 flex items-center justify-center">
+            <Play className="w-5 h-5 text-white ml-0.5" />
+          </div>
         </div>
       )}
     </div>

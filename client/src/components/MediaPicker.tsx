@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { Image as ImageIcon, Video, Upload, Search, X, Cloud, Check } from 'lucide-react';
+import VideoThumbnail from './VideoThumbnail';
 
 interface MediaItem {
   id: number;
@@ -298,9 +299,12 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center bg-neutral-100 dark:bg-neutral-800">
-                          <Video className="w-8 h-8 text-neutral-400" />
-                        </div>
+                        <VideoThumbnail
+                          src={item.url}
+                          alt={item.originalName}
+                          className="w-full h-full"
+                          showPlayIcon={true}
+                        />
                       )}
                       
                       {/* Selected Checkmark */}
@@ -397,9 +401,12 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
               {selectedMedia.type === 'image' ? (
                 <img src={selectedMedia.url} alt="" className="w-12 h-12 object-cover rounded" />
               ) : (
-                <div className="w-12 h-12 bg-neutral-200 dark:bg-neutral-700 rounded flex items-center justify-center">
-                  <Video className="w-6 h-6 text-neutral-500" />
-                </div>
+                <VideoThumbnail
+                  src={selectedMedia.url}
+                  alt={selectedMedia.originalName}
+                  className="w-12 h-12 rounded"
+                  showPlayIcon={false}
+                />
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100 truncate">
