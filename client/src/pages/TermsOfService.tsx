@@ -4,7 +4,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 
 export default function TermsOfService() {
   const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent('terms-of-service');
+  const { getContent, getTextStyle, isLoading } = usePageContent('terms-of-service');
 
   useEffect(() => {
     window.scrollTo(0, 0);

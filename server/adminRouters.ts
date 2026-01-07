@@ -2516,6 +2516,44 @@ export const publicContentRouter = router({
     .query(async ({ input }) => {
       return await getSiteContentByPage(input.page);
     }),
+  
+  // Get text styles for a page (public)
+  getTextStylesByPage: publicProcedure
+    .input(z.object({ page: z.string() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      
+      // Get content IDs for this page
+      const pageContent = await db
+        .select({ id: schema.siteContent.id, contentKey: schema.siteContent.contentKey })
+        .from(schema.siteContent)
+        .where(eq(schema.siteContent.page, input.page));
+      
+      const contentIds = pageContent.map(c => c.id);
+      if (contentIds.length === 0) return [];
+      
+      // Get styles for these content items
+      const styles = await db
+        .select()
+        .from(schema.contentTextStyles);
+      
+      // Map styles with content keys for easier lookup on frontend
+      const stylesWithKeys = styles
+        .filter(s => contentIds.includes(s.contentId))
+        .map(s => {
+          const content = pageContent.find(c => c.id === s.contentId);
+          return {
+            contentId: s.contentId,
+            contentKey: content?.contentKey || '',
+            isBold: s.isBold === 1,
+            isItalic: s.isItalic === 1,
+            isUnderline: s.isUnderline === 1,
+          };
+        });
+      
+      return stylesWithKeys;
+    }),
 });
 
 

@@ -28,7 +28,7 @@ export default function Contact() {
   const [location] = useLocation();
   const mapRef = useRef<google.maps.Map | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getContent, isLoading } = usePageContent('contact');
+  const { getContent, getTextStyle, isLoading } = usePageContent('contact');
 
   const {
     register,

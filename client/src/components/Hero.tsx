@@ -2,9 +2,15 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
-
+import { cn } from '@/lib/utils';
 
 gsap.registerPlugin(ScrollTrigger);
+
+interface TextStyle {
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+}
 
 interface HeroProps {
   videoUrl?: string;
@@ -15,6 +21,33 @@ interface HeroProps {
   ctaText?: string;
   ctaLink?: string;
   isLoading?: boolean;
+  // Text styles from RDS
+  textStyles?: {
+    title?: TextStyle;
+    subtitle?: TextStyle;
+    description?: TextStyle;
+    ctaText?: TextStyle;
+  };
+}
+
+// Helper to convert TextStyle to CSS classes
+function getStyleClasses(style?: TextStyle): string {
+  if (!style) return '';
+  const classes = [];
+  if (style.isBold) classes.push('font-bold');
+  if (style.isItalic) classes.push('italic');
+  if (style.isUnderline) classes.push('underline');
+  return classes.join(' ');
+}
+
+// Helper to convert TextStyle to inline styles
+function getInlineStyles(style?: TextStyle): React.CSSProperties {
+  if (!style) return {};
+  return {
+    fontWeight: style.isBold ? 'bold' : undefined,
+    fontStyle: style.isItalic ? 'italic' : undefined,
+    textDecoration: style.isUnderline ? 'underline' : undefined,
+  };
 }
 
 export default function Hero(props: HeroProps = {}) {
@@ -32,6 +65,7 @@ export default function Hero(props: HeroProps = {}) {
   const description = props.description || 'Where Empowerment Becomes Embodiment. Discover your potential in a new paradigm of conscious leadership.';
   const ctaText = props.ctaText || 'Discover More';
   const ctaLink = props.ctaLink || '/about';
+  const textStyles = props.textStyles || {};
   
   // Determine if we have a video or image
   const isVideo = videoUrl && /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(?:[?#]|$)/i.test(videoUrl);
@@ -126,29 +160,59 @@ export default function Hero(props: HeroProps = {}) {
         ref={textRef}
         className="absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-4"
       >
-        <h2 className="hero-subtitle font-sans text-white text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 drop-shadow-lg">
+        <h2 
+          className={cn(
+            "hero-subtitle font-sans text-white text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 drop-shadow-lg",
+            getStyleClasses(textStyles.subtitle)
+          )}
+          style={getInlineStyles(textStyles.subtitle)}
+        >
           {subtitle}
         </h2>
         
         <div className="overflow-hidden mb-2">
-          <h1 className="hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light italic tracking-wide leading-[1.1] drop-shadow-lg">
+          <h1 
+            className={cn(
+              "hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light tracking-wide leading-[1.1] drop-shadow-lg",
+              getStyleClasses(textStyles.title)
+            )}
+            style={getInlineStyles(textStyles.title)}
+          >
             {titleLine1}
           </h1>
         </div>
         
         <div className="overflow-hidden mb-8 md:mb-12">
-          <h1 className="hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light tracking-wide leading-[1.1] drop-shadow-lg">
+          <h1 
+            className={cn(
+              "hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light tracking-wide leading-[1.1] drop-shadow-lg",
+              getStyleClasses(textStyles.title)
+            )}
+            style={getInlineStyles(textStyles.title)}
+          >
             {titleLine2}
           </h1>
         </div>
         
-        <p className="hero-desc font-sans text-white/90 text-lg md:text-xl font-light tracking-wide max-w-2xl mb-12 leading-relaxed drop-shadow-lg">
+        <p 
+          className={cn(
+            "hero-desc font-sans text-white/90 text-lg md:text-xl font-light tracking-wide max-w-2xl mb-12 leading-relaxed drop-shadow-lg",
+            getStyleClasses(textStyles.description)
+          )}
+          style={getInlineStyles(textStyles.description)}
+        >
           {description}
         </p>
         
         <Link href={ctaLink}>
           <div className="hero-btn group relative px-12 py-6 overflow-hidden rounded-full border border-white/30 hover:border-white transition-all duration-500 cursor-pointer">
-            <span className="relative z-10 font-sans text-xs uppercase tracking-[0.25em] text-white group-hover:text-black transition-colors duration-500">
+            <span 
+              className={cn(
+                "relative z-10 font-sans text-xs uppercase tracking-[0.25em] text-white group-hover:text-black transition-colors duration-500",
+                getStyleClasses(textStyles.ctaText)
+              )}
+              style={getInlineStyles(textStyles.ctaText)}
+            >
               {ctaText}
             </span>
             <div className="absolute inset-0 bg-white transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500 rounded-full" />

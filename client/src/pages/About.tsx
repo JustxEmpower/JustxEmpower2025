@@ -8,7 +8,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 gsap.registerPlugin(ScrollTrigger);
 
 export default function About() {
-  const { getContent, isLoading } = usePageContent('about');
+  const { getContent, getTextStyle, isLoading } = usePageContent('about');
   const heroRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 

@@ -6,7 +6,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 
 export default function WalkWithUs() {
   const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent('walk-with-us');
+  const { getContent, getTextStyle, isLoading } = usePageContent('walk-with-us');
 
   useEffect(() => {
     window.scrollTo(0, 0);

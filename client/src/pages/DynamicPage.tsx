@@ -40,7 +40,7 @@ export default function DynamicPage() {
         {page.ogImage && <meta property="og:image" content={page.ogImage} />}
       </Helmet>
 
-      <div className="min-h-screen py-20">
+      <div className="min-h-screen py-20" data-dynamic-page="true" data-page-builder="true">
         <div className="container max-w-4xl mx-auto px-4">
           <h1 className="text-5xl font-light mb-8 text-center">{page.title}</h1>
           

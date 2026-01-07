@@ -6,6 +6,12 @@ import { cn } from '@/lib/utils';
 
 gsap.registerPlugin(ScrollTrigger);
 
+interface TextStyle {
+  isBold: boolean;
+  isItalic: boolean;
+  isUnderline: boolean;
+}
+
 interface SectionProps {
   title: string;
   subtitle?: string;
@@ -16,6 +22,33 @@ interface SectionProps {
   dark?: boolean;
   ctaText?: string;
   ctaLink?: string;
+  // Text styles from RDS
+  textStyles?: {
+    title?: TextStyle;
+    subtitle?: TextStyle;
+    description?: TextStyle;
+    ctaText?: TextStyle;
+  };
+}
+
+// Helper to convert TextStyle to CSS classes
+function getStyleClasses(style?: TextStyle): string {
+  if (!style) return '';
+  const classes = [];
+  if (style.isBold) classes.push('font-bold');
+  if (style.isItalic) classes.push('italic');
+  if (style.isUnderline) classes.push('underline');
+  return classes.join(' ');
+}
+
+// Helper to convert TextStyle to inline styles
+function getInlineStyles(style?: TextStyle): React.CSSProperties {
+  if (!style) return {};
+  return {
+    fontWeight: style.isBold ? 'bold' : undefined,
+    fontStyle: style.isItalic ? 'italic' : undefined,
+    textDecoration: style.isUnderline ? 'underline' : undefined,
+  };
 }
 
 export default function Section({ 
@@ -27,7 +60,8 @@ export default function Section({
   reversed = false,
   dark = false,
   ctaText = 'Discover More',
-  ctaLink = '#'
+  ctaLink = '#',
+  textStyles = {}
 }: SectionProps) {
   const sectionRef = useRef<HTMLDivElement>(null);
   const imageWrapperRef = useRef<HTMLDivElement>(null);
@@ -164,18 +198,36 @@ export default function Section({
             <div className="absolute -top-20 -left-20 w-64 h-64 bg-primary/5 rounded-full blur-3xl -z-10" />
 
             {subtitle && (
-              <span className="subtitle font-sans text-xs uppercase tracking-[0.3em] text-primary/80 mb-8 block pl-1">
+              <span 
+                className={cn(
+                  "subtitle font-sans text-xs uppercase tracking-[0.3em] text-primary/80 mb-8 block pl-1",
+                  getStyleClasses(textStyles.subtitle)
+                )}
+                style={getInlineStyles(textStyles.subtitle)}
+              >
                 {subtitle}
               </span>
             )}
             
-            <h2 className="font-serif text-5xl md:text-6xl lg:text-7xl font-light mb-8 leading-[1.1] text-foreground tracking-tight">
+            <h2 
+              className={cn(
+                "font-serif text-5xl md:text-6xl lg:text-7xl font-light mb-8 leading-[1.1] text-foreground tracking-tight",
+                getStyleClasses(textStyles.title)
+              )}
+              style={getInlineStyles(textStyles.title)}
+            >
               {title}
             </h2>
 
             <div ref={lineRef} className="w-24 h-[1px] bg-primary/30 mb-10" />
             
-            <p className="font-sans text-muted-foreground text-lg md:text-xl leading-relaxed mb-12 max-w-xl font-light">
+            <p 
+              className={cn(
+                "font-sans text-muted-foreground text-lg md:text-xl leading-relaxed mb-12 max-w-xl font-light",
+                getStyleClasses(textStyles.description)
+              )}
+              style={getInlineStyles(textStyles.description)}
+            >
               {description}
             </p>
             
@@ -184,10 +236,14 @@ export default function Section({
                 "cta-button self-start group relative px-10 py-5 overflow-hidden rounded-full transition-all duration-500 cursor-pointer",
                 "border border-foreground/10 hover:border-transparent"
               )}>
-                <span className={cn(
-                  "relative z-10 font-sans text-xs uppercase tracking-[0.25em] transition-colors duration-500",
-                  "text-foreground group-hover:text-white"
-                )}>
+                <span 
+                  className={cn(
+                    "relative z-10 font-sans text-xs uppercase tracking-[0.25em] transition-colors duration-500",
+                    "text-foreground group-hover:text-white",
+                    getStyleClasses(textStyles.ctaText)
+                  )}
+                  style={getInlineStyles(textStyles.ctaText)}
+                >
                   {ctaText}
                 </span>
                 <div className="absolute inset-0 bg-foreground transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left ease-[0.22,1,0.36,1]" />

@@ -7,7 +7,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 import { getMediaUrl } from '@/lib/media';
 
 export default function Home() {
-  const { getContent, getSection, isLoading } = usePageContent('home');
+  const { getContent, getSection, getTextStyle, isLoading } = usePageContent('home');
 
   // Helper to get proper media URL
   const getProperMediaUrl = (url: string) => {
@@ -58,6 +58,13 @@ export default function Home() {
           ctaText={heroSection.ctaText || heroSection.buttonText}
           ctaLink={heroSection.ctaLink || heroSection.buttonLink}
           isLoading={isLoading}
+          // Pass text styles from RDS
+          textStyles={{
+            title: getTextStyle('title'),
+            subtitle: getTextStyle('subtitle'),
+            description: getTextStyle('subDescription') || getTextStyle('description'),
+            ctaText: getTextStyle('ctaText') || getTextStyle('buttonText'),
+          }}
         />
         
         <Section 
@@ -68,6 +75,13 @@ export default function Home() {
           imageAlt="Ocean waves representing depth and flow"
           ctaText={philosophySection.ctaText || 'Discover More'}
           ctaLink={philosophySection.ctaLink || '/philosophy/vision-ethos'}
+          // Pass text styles from RDS
+          textStyles={{
+            title: getTextStyle('title'),
+            subtitle: getTextStyle('label'),
+            description: getTextStyle('description'),
+            ctaText: getTextStyle('ctaText'),
+          }}
         />
 
         <Carousel />
@@ -82,6 +96,13 @@ export default function Home() {
           dark
           ctaText={communitySection.ctaText || 'Walk With Us'}
           ctaLink={communitySection.ctaLink || '/walk-with-us'}
+          // Pass text styles from RDS
+          textStyles={{
+            title: getTextStyle('title'),
+            subtitle: getTextStyle('label'),
+            description: getTextStyle('description'),
+            ctaText: getTextStyle('ctaText'),
+          }}
         />
 
         <Section 
@@ -92,6 +113,13 @@ export default function Home() {
           imageAlt="Forest sunlight representing growth"
           ctaText={rootedUnitySection.ctaText || 'Learn More'}
           ctaLink={rootedUnitySection.ctaLink || '/offerings/rooted-unity'}
+          // Pass text styles from RDS
+          textStyles={{
+            title: getTextStyle('title'),
+            subtitle: getTextStyle('label'),
+            description: getTextStyle('description'),
+            ctaText: getTextStyle('ctaText'),
+          }}
         />
       </main>
     </div>

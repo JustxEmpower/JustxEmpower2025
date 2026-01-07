@@ -4,7 +4,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 
 export default function AboutJustEmpower() {
   const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent('about-just-empower');
+  const { getContent, getTextStyle, isLoading } = usePageContent('about-just-empower');
 
   useEffect(() => {
     window.scrollTo(0, 0);

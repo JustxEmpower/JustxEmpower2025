@@ -4,7 +4,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 
 export default function CookiePolicy() {
   const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent('cookie-policy');
+  const { getContent, getTextStyle, isLoading } = usePageContent('cookie-policy');
 
   useEffect(() => {
     window.scrollTo(0, 0);

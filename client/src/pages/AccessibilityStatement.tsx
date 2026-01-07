@@ -4,7 +4,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 
 export default function AccessibilityStatement() {
   const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent('accessibility');
+  const { getContent, getTextStyle, isLoading } = usePageContent('accessibility');
 
   useEffect(() => {
     window.scrollTo(0, 0);

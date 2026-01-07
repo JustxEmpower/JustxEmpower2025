@@ -4,7 +4,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 
 export default function PrivacyPolicy() {
   const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent('privacy-policy');
+  const { getContent, getTextStyle, isLoading } = usePageContent('privacy-policy');
 
   useEffect(() => {
     window.scrollTo(0, 0);

@@ -7,7 +7,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 
 export default function Philosophy() {
   const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent('philosophy');
+  const { getContent, getTextStyle, isLoading } = usePageContent('philosophy');
 
   useEffect(() => {
     window.scrollTo(0, 0);

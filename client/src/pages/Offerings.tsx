@@ -6,7 +6,7 @@ import { usePageContent } from '@/hooks/usePageContent';
 
 export default function Offerings() {
   const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent('offerings');
+  const { getContent, getTextStyle, isLoading } = usePageContent('offerings');
 
   useEffect(() => {
     window.scrollTo(0, 0);
