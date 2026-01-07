@@ -49,12 +49,38 @@ export default function AdminContent() {
   // Build pages list from database, with fallback to hardcoded list
   // MUST be before any conditional returns to avoid React hooks error
   const pages = React.useMemo(() => {
+    // Define priority order for pages (lower number = higher priority)
+    const pageOrder: Record<string, number> = {
+      'home': 1,
+      'about': 2,
+      'about-justxempower': 3,
+      'philosophy': 4,
+      'founder': 5,
+      'vision-ethos': 6,
+      'offerings': 7,
+      'workshops-programs': 8,
+      'vix-journal-trilogy': 9,
+      'blog': 10,
+      'blog-she-writes': 11,
+      'shop': 12,
+      'community-events': 13,
+      'resources': 14,
+      'walk-with-us': 15,
+      'contact': 16,
+      'overview': 17,
+      'accessibility': 90,
+      'privacy-policy': 91,
+      'terms-of-service': 92,
+      'cookie-policy': 93,
+    };
+
     if (pagesData && pagesData.length > 0) {
-      // Sort pages: published first, then by title
+      // Sort pages: by priority order, then alphabetically
       return pagesData
         .sort((a, b) => {
-          // Published pages first
-          if (a.published !== b.published) return b.published - a.published;
+          const orderA = pageOrder[a.slug] || 50; // Default to middle if not in list
+          const orderB = pageOrder[b.slug] || 50;
+          if (orderA !== orderB) return orderA - orderB;
           // Then alphabetically by title
           return a.title.localeCompare(b.title);
         })
