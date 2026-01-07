@@ -2,6 +2,16 @@ import React from 'react';
 import { PageBlock } from './usePageBuilderStore';
 import { getBlockById } from './blockTypes';
 import {
+  JEHeroRenderer,
+  JESectionRenderer,
+  JECarouselRenderer,
+  JENewsletterRenderer,
+  JEQuoteRenderer,
+  JEPillarGridRenderer,
+  JECommunityRenderer,
+  JERootedUnityRenderer,
+} from './renderers/JEBlockRenderers';
+import {
   Layout,
   Type,
   Image as ImageIcon,
@@ -350,12 +360,33 @@ function ImageBlock({ content }: { content: Record<string, unknown> }) {
 // Video Block
 function VideoBlock({ content }: { content: Record<string, unknown> }) {
   const url = content.url as string;
+  const poster = content.poster as string;
   
   if (!url) {
     return (
       <div className="p-6 border-2 border-dashed border-neutral-300 dark:border-neutral-700 rounded-xl text-center">
         <Video className="w-12 h-12 text-neutral-400 mx-auto mb-2" />
         <p className="text-neutral-500">Add a video URL in the settings</p>
+      </div>
+    );
+  }
+  
+  // Check if it's a direct video file (mp4, webm, mov, etc.)
+  const isDirectVideo = /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(\?|$)/i.test(url);
+  
+  if (isDirectVideo) {
+    return (
+      <div className="p-4 aspect-video">
+        <video
+          src={url}
+          poster={poster}
+          controls
+          className="w-full h-full rounded-lg object-cover"
+          playsInline
+        >
+          <source src={url} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
       </div>
     );
   }
@@ -368,6 +399,9 @@ function VideoBlock({ content }: { content: Record<string, unknown> }) {
   } else if (url.includes('youtu.be/')) {
     const videoId = url.split('youtu.be/')[1]?.split('?')[0];
     embedUrl = `https://www.youtube.com/embed/${videoId}`;
+  } else if (url.includes('vimeo.com/')) {
+    const videoId = url.split('vimeo.com/')[1]?.split('?')[0];
+    embedUrl = `https://player.vimeo.com/video/${videoId}`;
   }
   
   return (
@@ -645,6 +679,28 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
         return <CodeBlock content={content} />;
       case 'html':
         return <HTMLBlock content={content} />;
+      // JE Hero blocks
+      case 'je-hero-video':
+      case 'je-hero-image':
+      case 'je-hero-split':
+        return <JEHeroRenderer block={block} />;
+      // JE Content blocks
+      case 'je-section-standard':
+      case 'je-section-full-width':
+        return <JESectionRenderer block={block} />;
+      case 'je-carousel':
+        return <JECarouselRenderer block={block} />;
+      case 'je-newsletter':
+        return <JENewsletterRenderer block={block} />;
+      case 'je-quote':
+        return <JEQuoteRenderer block={block} />;
+      case 'je-pillar-grid':
+      case 'je-three-pillars':
+        return <JEPillarGridRenderer block={block} />;
+      case 'je-community':
+        return <JECommunityRenderer block={block} />;
+      case 'je-rooted-unity':
+        return <JERootedUnityRenderer block={block} />;
       default:
         return <PlaceholderBlock block={block} />;
     }
