@@ -2,6 +2,16 @@ import { Link } from 'wouter';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
+import { useGlobalContent } from '@/hooks/useGlobalContent';
+
+interface NavItem {
+  id: number;
+  label: string;
+  url: string;
+  order: number;
+  isExternal: number;
+  openInNewTab: number;
+}
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -9,8 +19,63 @@ export default function Footer() {
   // Fetch brand assets from database
   const { data: brandAssets } = trpc.siteSettings.getBrandAssets.useQuery();
   
+  // Fetch footer navigation from database
+  const { data: footerNav } = trpc.navigation.getByLocation.useQuery({ location: 'footer' });
+  
+  // Fetch global content (footer section)
+  const { footer, isLoading: contentLoading } = useGlobalContent();
+  
   // Get footer logo URL from brand assets or use fallback
   const logoUrl = brandAssets?.logo_footer || brandAssets?.logo_header || getMediaUrl('/media/logo-white.png');
+  
+  // Split footer navigation into columns
+  const exploreLinks = footerNav?.filter((item: NavItem) => 
+    ['/about', '/philosophy', '/offerings', '/journal', '/blog'].some(path => item.url.includes(path))
+  ) || [];
+  
+  const connectLinks = footerNav?.filter((item: NavItem) => 
+    ['/contact', '/walk-with-us', '/events', '/shop', '/community'].some(path => item.url.includes(path))
+  ) || [];
+  
+  const legalLinks = footerNav?.filter((item: NavItem) => 
+    ['/privacy', '/terms', '/cookie', '/accessibility'].some(path => item.url.includes(path))
+  ) || [];
+
+  // Fallback links if database is empty
+  const defaultExploreLinks = [
+    { label: 'About', url: '/about' },
+    { label: 'Philosophy', url: '/philosophy' },
+    { label: 'Offerings', url: '/offerings' },
+    { label: 'Journal', url: '/journal' }
+  ];
+  
+  const defaultConnectLinks = [
+    { label: 'Contact', url: '/contact' },
+    { label: 'Walk With Us', url: '/walk-with-us' }
+  ];
+  
+  const defaultLegalLinks = [
+    { label: 'Accessibility', url: '/accessibility' },
+    { label: 'Privacy Policy', url: '/privacy-policy' },
+    { label: 'Terms of Service', url: '/terms-of-service' },
+    { label: 'Cookie Policy', url: '/cookie-policy' }
+  ];
+
+  const displayExploreLinks = exploreLinks.length > 0 ? exploreLinks : defaultExploreLinks;
+  const displayConnectLinks = connectLinks.length > 0 ? connectLinks : defaultConnectLinks;
+  const displayLegalLinks = legalLinks.length > 0 ? legalLinks : defaultLegalLinks;
+
+  // Get content from database with fallbacks
+  const tagline = footer.tagline || 'Catalyzing the rise of her through embodied transformation and conscious leadership.';
+  const copyright = footer.copyright || `© ${currentYear} Just Empower™. All Rights Reserved.`;
+  const instagramUrl = footer.instagramUrl || '#';
+  const linkedinUrl = footer.linkedinUrl || '#';
+  const facebookUrl = footer.facebookUrl || '#';
+  const youtubeUrl = footer.youtubeUrl || '#';
+  const newsletterTitle = footer.newsletterTitle || 'Stay Connected';
+  const newsletterDescription = footer.newsletterDescription || 'Join our monthly mailing list for insights and updates.';
+  const column1Title = footer.column1Title || 'Explore';
+  const column2Title = footer.column2Title || 'Connect';
 
   return (
     <footer className="bg-[#1a1a1a] text-white pt-24 pb-12">
@@ -29,26 +94,66 @@ export default function Footer() {
             </a>
             </Link>
             <p className="font-sans text-white/60 text-sm leading-relaxed max-w-xs mb-8">
-              Catalyzing the rise of her through embodied transformation and conscious leadership.
+              {tagline}
             </p>
             <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300">IG</a>
-              <a href="#" className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300">LI</a>
+              {instagramUrl && instagramUrl !== '#' && (
+                <a 
+                  href={instagramUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300"
+                >
+                  IG
+                </a>
+              )}
+              {linkedinUrl && linkedinUrl !== '#' && (
+                <a 
+                  href={linkedinUrl}
+                  target="_blank"
+                  rel="noopener noreferrer" 
+                  className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300"
+                >
+                  LI
+                </a>
+              )}
+              {facebookUrl && facebookUrl !== '#' && (
+                <a 
+                  href={facebookUrl}
+                  target="_blank"
+                  rel="noopener noreferrer" 
+                  className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300"
+                >
+                  FB
+                </a>
+              )}
+              {youtubeUrl && youtubeUrl !== '#' && (
+                <a 
+                  href={youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer" 
+                  className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300"
+                >
+                  YT
+                </a>
+              )}
+              {/* Show default social icons if none are set */}
+              {(!instagramUrl || instagramUrl === '#') && (!linkedinUrl || linkedinUrl === '#') && (
+                <>
+                  <a href="#" className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300">IG</a>
+                  <a href="#" className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300">LI</a>
+                </>
+              )}
             </div>
           </div>
 
-          {/* Links Column 1 */}
+          {/* Links Column 1 - Explore */}
           <div className="md:col-span-2 md:col-start-7">
-            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">Explore</h3>
+            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">{column1Title}</h3>
             <ul className="space-y-4">
-              {[
-                { label: 'About', href: '/about' },
-                { label: 'Philosophy', href: '/philosophy' },
-                { label: 'Offerings', href: '/offerings' },
-                { label: 'Journal', href: '/journal' }
-              ].map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href}>
+              {displayExploreLinks.map((item: any) => (
+                <li key={item.url}>
+                  <Link href={item.url}>
                     <a className="font-serif text-lg text-white/80 hover:text-white hover:italic transition-all duration-300">
                       {item.label}
                     </a>
@@ -58,16 +163,13 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Links Column 2 */}
+          {/* Links Column 2 - Connect */}
           <div className="md:col-span-2">
-            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">Connect</h3>
+            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">{column2Title}</h3>
             <ul className="space-y-4">
-              {[
-                { label: 'Contact', href: '/contact' },
-                { label: 'Walk With Us', href: '/walk-with-us' }
-              ].map((item) => (
-                <li key={item.href}>
-                  <Link href={item.href}>
+              {displayConnectLinks.map((item: any) => (
+                <li key={item.url}>
+                  <Link href={item.url}>
                     <a className="font-serif text-lg text-white/80 hover:text-white hover:italic transition-all duration-300">
                       {item.label}
                     </a>
@@ -79,9 +181,9 @@ export default function Footer() {
 
           {/* Newsletter Column */}
           <div className="md:col-span-2">
-            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">Stay Connected</h3>
+            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">{newsletterTitle}</h3>
             <p className="font-sans text-white/60 text-sm mb-4">
-              Join our monthly mailing list for insights and updates.
+              {newsletterDescription}
             </p>
             <NewsletterSignup variant="footer" />
           </div>
@@ -91,21 +193,16 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40">
-            © {currentYear} Just Empower™. All Rights Reserved.
+            {copyright}
           </p>
           <div className="flex flex-wrap justify-center gap-4 md:gap-8">
-            <Link href="/accessibility">
-              <a className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">Accessibility</a>
-            </Link>
-            <Link href="/privacy-policy">
-              <a className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">Privacy Policy</a>
-            </Link>
-            <Link href="/terms-of-service">
-              <a className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">Terms of Service</a>
-            </Link>
-            <Link href="/cookie-policy">
-              <a className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">Cookie Policy</a>
-            </Link>
+            {displayLegalLinks.map((item: any) => (
+              <Link key={item.url} href={item.url}>
+                <a className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">
+                  {item.label}
+                </a>
+              </Link>
+            ))}
           </div>
         </div>
       </div>

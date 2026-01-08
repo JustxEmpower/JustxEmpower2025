@@ -2706,6 +2706,24 @@ export const publicSiteSettingsRouter = router({
     }),
 });
 
+// Public navigation router for footer and header navigation
+export const publicNavigationRouter = router({
+  getByLocation: publicProcedure
+    .input(z.object({ location: z.enum(["header", "footer"]) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      
+      const items = await db
+        .select()
+        .from(schema.navigation)
+        .where(eq(schema.navigation.location, input.location))
+        .orderBy(schema.navigation.order);
+      
+      return items;
+    }),
+});
+
 // AI Chat Analytics Router
 export const aiChatAnalyticsRouter = router({
   // Get topic distribution
