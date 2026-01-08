@@ -1783,3 +1783,63 @@ NODE_ENV=production
 - [x] Removed orphan sections from Philosophy page
 - [x] Removed duplicate "Our Offerings" sections from Home page
 - [x] Cleaned up test data from accessibility page
+
+
+## Shop Page Fixes (Jan 8, 2026)
+
+- [x] Fix invisible header covering Home and category navigation
+- [x] Fix category filtering to use categoryId instead of slug
+- [x] Adjust header positioning from top-20 to top-[88px] to sit below main header
+- [x] Fix z-index from z-40 to z-30 to prevent overlap with main header
+- [x] Add backdrop blur and proper styling to category bar
+- [x] Fix content padding from pt-32 to pt-[140px] to account for both headers
+- [x] Categories now properly filter products when clicked
+
+
+## Media Rendering Fixes (Jan 8, 2026)
+
+- [x] Fix BlockSettings MediaFieldWithPicker to use VideoThumbnail for video previews
+- [x] Fix JEHeroRenderer with proper video playback using useRef and useEffect
+- [x] Add video loading states and error handling
+- [x] Add proper z-index layering for video, overlay, and content
+- [x] Support video/quicktime MIME type for .mov files
+
+
+## CMS Error-Proofing Fixes (January 2026)
+
+### Server-Side Fixes
+- [x] Add safeParseJSON utility function to adminDb.ts for safe JSON parsing
+- [x] Update getPageBlocks with error handling and JSON validation
+- [x] Update syncPageBlocksToSiteContent with improved error handling
+- [x] Update syncSiteContentToPageBlocks with better JSON parsing
+- [x] Update reorderPageBlocks route to include pageId and sync to siteContent
+
+### Frontend Fixes - JEBlockRenderers.tsx
+- [x] Add MediaRenderer component with CORS-safe video handling
+- [x] Add retry logic for video loading (exponential backoff)
+- [x] Add graceful fallbacks for failed media
+
+### Frontend Fixes - BlockSettings.tsx
+- [x] Add media type detection utilities (VIDEO_FIELD_PATTERNS, IMAGE_FIELD_PATTERNS)
+- [x] Add block-type specific field overrides (BLOCK_TYPE_OVERRIDES)
+- [x] Update MediaFieldWithPicker with smart media type detection
+- [x] Add video preview on hover in media fields
+
+### Frontend Fixes - Canvas.tsx / usePageBuilderStore.ts
+- [x] Update moveBlock to persist order to database immediately
+- [x] Add API call to reorder endpoint when blocks are dragged
+
+### Auto-Save System Fixes
+- [x] Add getAllAutoSaveKeys helper function
+- [x] Add cleanupOldAutoSaves helper function
+- [x] Enhance autoSave with localStorage availability check
+- [x] Add size limit check before saving (4MB)
+- [x] Add quota exceeded error handling with cleanup and retry
+
+### Error Boundaries and VideoThumbnail
+- [x] Create BlockErrorBoundary component for graceful block error handling
+- [x] Update VideoThumbnail with retry logic and CORS handling
+- [x] Add thumbnail caching system
+- [x] Add black frame detection and retry
+- [x] Wrap BlockRenderer with BlockErrorBoundary
+

@@ -1,5 +1,6 @@
 import React from 'react';
 import { PageBlock } from './usePageBuilderStore';
+import BlockErrorBoundary from './BlockErrorBoundary';
 import { getBlockById } from './blockTypes';
 import { getMediaUrl } from '@/lib/media';
 import {
@@ -782,15 +783,17 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
   };
   
   return (
-    <div 
-      className={wrapperClasses}
-      style={customStyles}
-      id={content.customId as string || undefined}
-    >
-      {content.customCss ? (
-        <style>{String(content.customCss)}</style>
-      ) : null}
-      {renderBlock()}
-    </div>
+    <BlockErrorBoundary blockId={block.id} blockType={block.type}>
+      <div 
+        className={wrapperClasses}
+        style={customStyles}
+        id={content.customId as string || undefined}
+      >
+        {content.customCss ? (
+          <style>{String(content.customCss)}</style>
+        ) : null}
+        {renderBlock()}
+      </div>
+    </BlockErrorBoundary>
   );
 }

@@ -94,6 +94,48 @@ const getAutoSaveKey = (pageId: string | null) => {
   return pageId ? `${AUTO_SAVE_KEY}_${pageId}` : `${AUTO_SAVE_KEY}_new`;
 };
 
+// Helper to get all auto-save keys from localStorage
+const getAllAutoSaveKeys = (): string[] => {
+  try {
+    return Object.keys(localStorage).filter(key => key.startsWith(AUTO_SAVE_KEY));
+  } catch {
+    return [];
+  }
+};
+
+// Helper to cleanup old auto-saves, keeping the most recent N
+const cleanupOldAutoSaves = (keepCount: number = 10): void => {
+  try {
+    const keys = getAllAutoSaveKeys();
+    if (keys.length <= keepCount) return;
+    
+    // Get timestamps for each key
+    const keysWithTimestamp = keys.map(key => {
+      try {
+        const data = localStorage.getItem(key);
+        if (data) {
+          const parsed = JSON.parse(data);
+          return { key, timestamp: parsed.timestamp || 0 };
+        }
+      } catch {
+        // Invalid data
+      }
+      return { key, timestamp: 0 };
+    });
+    
+    // Sort by timestamp (newest first) and remove oldest
+    keysWithTimestamp.sort((a, b) => b.timestamp - a.timestamp);
+    const toDelete = keysWithTimestamp.slice(keepCount);
+    
+    for (const { key } of toDelete) {
+      localStorage.removeItem(key);
+      console.log('[AutoSave] Cleaned up old save:', key);
+    }
+  } catch (error) {
+    console.warn('[AutoSave] Cleanup failed:', error);
+  }
+};
+
 export const usePageBuilderStore = create<PageBuilderState>((set, get) => ({
   // Initial state
   pageId: null,
@@ -205,7 +247,7 @@ export const usePageBuilderStore = create<PageBuilderState>((set, get) => ({
   },
   
   moveBlock: (fromIndex, toIndex) => {
-    const { blocks, saveToHistory, autoSave } = get();
+    const { blocks, pageId, saveToHistory, autoSave } = get();
     const newBlocks = [...blocks];
     const [movedBlock] = newBlocks.splice(fromIndex, 1);
     newBlocks.splice(toIndex, 0, movedBlock);
@@ -218,6 +260,36 @@ export const usePageBuilderStore = create<PageBuilderState>((set, get) => ({
     set({ blocks: reorderedBlocks, hasUnsavedChanges: true });
     saveToHistory();
     autoSave();
+    
+    // Persist block order to database immediately
+    // This ensures block order is saved even if the user doesn't click Save
+    if (pageId) {
+      const blockOrders = reorderedBlocks
+        .filter(b => b.id && !b.id.startsWith('block_')) // Only persist blocks that exist in DB
+        .map(b => ({
+          id: parseInt(b.id, 10),
+          order: b.order,
+        }))
+        .filter(b => !isNaN(b.id));
+      
+      if (blockOrders.length > 0) {
+        // Use fetch to call the reorder API
+        fetch('/api/trpc/admin.pages.blocks.reorder', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            json: {
+              pageId: parseInt(pageId, 10),
+              blocks: blockOrders,
+            },
+          }),
+        }).catch(err => {
+          console.error('[moveBlock] Failed to persist order:', err);
+        });
+      }
+    }
   },
   
   selectBlock: (id) => set({ selectedBlockId: id }),
@@ -290,37 +362,93 @@ export const usePageBuilderStore = create<PageBuilderState>((set, get) => ({
     return blocks.find((b) => b.id === selectedBlockId) || null;
   },
   
-  // Auto-save implementation
+  // Auto-save implementation with enhanced error handling
   autoSave: () => {
-    const { pageId, pageTitle, blocks, autoSaveEnabled, lastAutoSave } = get();
+    const { pageId, pageTitle, blocks, autoSaveEnabled, lastAutoSave, hasUnsavedChanges } = get();
     
-    if (!autoSaveEnabled) return;
+    // Skip if disabled, no changes, or no blocks
+    if (!autoSaveEnabled || !hasUnsavedChanges || blocks.length === 0) {
+      return;
+    }
     
-    // Debounce auto-save to avoid too frequent saves
+    // Check localStorage availability
+    try {
+      const testKey = '__test_storage__';
+      localStorage.setItem(testKey, 'test');
+      localStorage.removeItem(testKey);
+    } catch {
+      console.warn('[AutoSave] localStorage not available');
+      return;
+    }
+    
+    // Debounce: minimum 3 seconds between saves
     const now = Date.now();
-    if (lastAutoSave && now - lastAutoSave < 5000) {
-      // Schedule a save for later if we're saving too frequently
+    if (lastAutoSave && now - lastAutoSave < 3000) {
+      // Schedule retry
       setTimeout(() => {
-        get().autoSave();
-      }, 5000);
+        const currentState = get();
+        if (currentState.hasUnsavedChanges) {
+          currentState.autoSave();
+        }
+      }, 3000 - (now - lastAutoSave));
       return;
     }
     
     try {
       const autoSaveData: AutoSaveData = {
         pageId,
-        pageTitle,
-        blocks,
+        pageTitle: pageTitle || 'Untitled Page',
+        blocks: blocks.map((block) => ({
+          ...block,
+          // Ensure ID is preserved
+          id: block.id,
+          // Strip any circular references
+          content: JSON.parse(JSON.stringify(block.content || {})),
+        })),
         timestamp: now,
       };
       
       const key = getAutoSaveKey(pageId);
-      localStorage.setItem(key, JSON.stringify(autoSaveData));
+      const dataString = JSON.stringify(autoSaveData);
+      
+      // Check size before saving (5MB limit for localStorage)
+      if (dataString.length > 4 * 1024 * 1024) {
+        console.warn('[AutoSave] Data too large, skipping auto-save');
+        return;
+      }
+      
+      localStorage.setItem(key, dataString);
       set({ lastAutoSave: now });
       
-      console.log('[AutoSave] Saved at', new Date(now).toLocaleTimeString());
+      console.log(`[AutoSave] Saved at ${new Date(now).toISOString()} (${dataString.length} bytes)`);
+      
+      // Cleanup old saves periodically (every 10 saves)
+      cleanupOldAutoSaves();
+      
     } catch (error) {
       console.error('[AutoSave] Failed to save:', error);
+      
+      // If quota exceeded, try to cleanup and retry
+      if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+        cleanupOldAutoSaves(5);
+        // Retry once after cleanup
+        setTimeout(() => {
+          try {
+            const key = getAutoSaveKey(pageId);
+            const autoSaveData: AutoSaveData = {
+              pageId,
+              pageTitle,
+              blocks,
+              timestamp: now,
+            };
+            localStorage.setItem(key, JSON.stringify(autoSaveData));
+            set({ lastAutoSave: now });
+            console.log('[AutoSave] Retry successful after cleanup');
+          } catch (retryError) {
+            console.error('[AutoSave] Retry failed:', retryError);
+          }
+        }, 100);
+      }
     }
   },
   

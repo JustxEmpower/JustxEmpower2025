@@ -991,6 +991,7 @@ export const adminRouter = router({
       reorder: adminProcedure
         .input(
           z.object({
+            pageId: z.number().optional(),
             blocks: z.array(
               z.object({
                 id: z.number(),
@@ -1000,7 +1001,75 @@ export const adminRouter = router({
           })
         )
         .mutation(async ({ input }) => {
-          return await reorderPageBlocks(input.blocks);
+          console.log(`[blocks.reorder] Reordering ${input.blocks.length} blocks`);
+          
+          // Reorder the blocks
+          await reorderPageBlocks(input.blocks);
+          
+          // Sync to siteContent if pageId is provided
+          if (input.pageId) {
+            try {
+              const db = await getDb();
+              if (db) {
+                const [page] = await db
+                  .select()
+                  .from(schema.pages)
+                  .where(eq(schema.pages.id, input.pageId))
+                  .limit(1);
+                if (page) {
+                  await syncPageBlocksToSiteContent(input.pageId, page.slug);
+                  console.log(`[blocks.reorder] Synced to siteContent for page ${page.slug}`);
+                }
+              }
+            } catch (error) {
+              console.error('[blocks.reorder] Failed to sync to siteContent:', error);
+            }
+          }
+          
+          return { success: true, reordered: input.blocks.length };
+        }),
+
+      // Normalize block orders (fix gaps and duplicates)
+      normalizeOrders: adminProcedure
+        .input(z.object({ pageId: z.number() }))
+        .mutation(async ({ input }) => {
+          const db = await getDb();
+          if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+          
+          console.log(`[blocks.normalizeOrders] Normalizing orders for page ${input.pageId}`);
+          
+          // Get all blocks ordered by current order
+          const allBlocks = await db
+            .select()
+            .from(schema.pageBlocks)
+            .where(eq(schema.pageBlocks.pageId, input.pageId))
+            .orderBy(schema.pageBlocks.order);
+          
+          // Reassign sequential orders
+          let updated = 0;
+          for (let i = 0; i < allBlocks.length; i++) {
+            if (allBlocks[i].order !== i) {
+              await db
+                .update(schema.pageBlocks)
+                .set({ order: i })
+                .where(eq(schema.pageBlocks.id, allBlocks[i].id));
+              updated++;
+            }
+          }
+          
+          // Sync to siteContent
+          if (updated > 0) {
+            const [page] = await db
+              .select()
+              .from(schema.pages)
+              .where(eq(schema.pages.id, input.pageId))
+              .limit(1);
+            if (page) {
+              await syncPageBlocksToSiteContent(input.pageId, page.slug);
+            }
+          }
+          
+          return { success: true, totalBlocks: allBlocks.length, updated };
         }),
 
       // Block version history endpoints

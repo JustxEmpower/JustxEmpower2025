@@ -7,14 +7,14 @@ import CartSlideout from "@/components/CartSlideout";
 
 export default function Shop() {
   const [, setLocation] = useLocation();
-  const [category, setCategory] = useState<string>("all");
+  const [categoryId, setCategoryId] = useState<number | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   
   const { cart } = useCart();
   const cartItemCount = cart.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0);
   
   const { data, isLoading } = trpc.shop.products.list.useQuery({
-    categoryId: category === "all" ? undefined : parseInt(category) || undefined,
+    categoryId: categoryId ?? undefined,
     sortBy: "newest",
     limit: 50,
   });
@@ -26,11 +26,11 @@ export default function Shop() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Minimal Header Bar */}
-      <div className="fixed top-20 left-0 right-0 z-40 bg-white border-b border-neutral-100">
+      {/* Shop Category Navigation Bar - positioned below main header */}
+      <div className="fixed top-[88px] left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-b border-neutral-100">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Back to Home + Category Navigation - Yeezy Style */}
-          <nav className="flex items-center gap-8">
+          <nav className="flex items-center gap-6 flex-wrap">
             <button
               type="button"
               onClick={() => setLocation("/")}
@@ -42,9 +42,9 @@ export default function Shop() {
             <span className="text-neutral-200">|</span>
             <button
               type="button"
-              onClick={() => setCategory("all")}
+              onClick={() => setCategoryId(null)}
               className={`text-[11px] uppercase tracking-[0.2em] transition-colors ${
-                category === "all" ? "text-black" : "text-neutral-400 hover:text-black"
+                categoryId === null ? "text-black font-medium" : "text-neutral-400 hover:text-black"
               }`}
             >
               All
@@ -53,9 +53,9 @@ export default function Shop() {
               <button
                 type="button"
                 key={cat.id}
-                onClick={() => setCategory(cat.slug)}
+                onClick={() => setCategoryId(cat.id)}
                 className={`text-[11px] uppercase tracking-[0.2em] transition-colors ${
-                  category === cat.slug ? "text-black" : "text-neutral-400 hover:text-black"
+                  categoryId === cat.id ? "text-black font-medium" : "text-neutral-400 hover:text-black"
                 }`}
               >
                 {cat.name}
@@ -71,14 +71,14 @@ export default function Shop() {
           >
             <ShoppingBag className="w-4 h-4" />
             {cartItemCount > 0 && (
-              <span className="text-black">{cartItemCount}</span>
+              <span className="text-black font-medium">{cartItemCount}</span>
             )}
           </button>
         </div>
       </div>
 
       {/* Products Grid - Yeezy Style */}
-      <main className="pt-32 pb-20">
+      <main className="pt-[140px] pb-20">
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {[...Array(10)].map((_, i) => (

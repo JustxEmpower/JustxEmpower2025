@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
+import VideoThumbnail from '@/components/VideoThumbnail';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -324,27 +325,187 @@ function renderField(
   return null;
 }
 
+// ==========================================
+// MEDIA TYPE DETECTION UTILITIES
+// ==========================================
+
+/**
+ * Video-specific field patterns - these fields should ONLY show videos
+ */
+const VIDEO_FIELD_PATTERNS = [
+  'videourl', 'video', 'backgroundvideo', 'herovideo',
+  'videosrc', 'videosource', 'mp4url', 'webmurl', 'movurl',
+];
+
+/**
+ * Image-specific field patterns - these fields should ONLY show images
+ */
+const IMAGE_FIELD_PATTERNS = [
+  'imageurl', 'image', 'backgroundimage', 'heroimage',
+  'thumbnail', 'thumbnailurl', 'poster', 'posterimage',
+  'avatar', 'avatarurl', 'logo', 'logourl', 'icon', 'iconurl',
+  'photo', 'photourl', 'picture', 'pictureurl',
+  'banner', 'bannerurl', 'cover', 'coverurl', 'ogimage', 'favicon',
+];
+
+/**
+ * Block-type specific field overrides for media type
+ */
+const BLOCK_TYPE_OVERRIDES: Record<string, Record<string, 'video' | 'image' | 'all'>> = {
+  'je-hero-video': {
+    'backgroundurl': 'video',
+    'mediaurl': 'video',
+    'src': 'video',
+    'url': 'video',
+    'posterimage': 'image',
+    'fallbackimage': 'image',
+  },
+  'je-hero-image': {
+    'backgroundurl': 'image',
+    'mediaurl': 'image',
+    'src': 'image',
+    'url': 'image',
+  },
+  'je-video': {
+    'url': 'video',
+    'src': 'video',
+    'source': 'video',
+    'posterimage': 'image',
+  },
+  'je-image': {
+    'url': 'image',
+    'src': 'image',
+    'source': 'image',
+  },
+  'je-section-fullwidth': {
+    'backgroundimage': 'image',
+    'backgroundvideo': 'video',
+  },
+  'video': {
+    'src': 'video',
+    'url': 'video',
+    'poster': 'image',
+  },
+  'image': {
+    'src': 'image',
+    'url': 'image',
+  },
+};
+
+/**
+ * Determine the media type for a field based on its key and block type
+ */
+function getMediaTypeForField(key: string, blockType: string): 'video' | 'image' | 'all' {
+  const lowerKey = key.toLowerCase();
+  
+  // Priority 1: Check block-type specific overrides
+  const blockOverrides = BLOCK_TYPE_OVERRIDES[blockType];
+  if (blockOverrides) {
+    for (const [pattern, type] of Object.entries(blockOverrides)) {
+      if (lowerKey.includes(pattern.toLowerCase())) {
+        return type;
+      }
+    }
+  }
+  
+  // Priority 2: Check explicit video patterns
+  for (const pattern of VIDEO_FIELD_PATTERNS) {
+    if (lowerKey.includes(pattern)) {
+      return 'video';
+    }
+  }
+  
+  // Priority 3: Check explicit image patterns
+  for (const pattern of IMAGE_FIELD_PATTERNS) {
+    if (lowerKey.includes(pattern)) {
+      // Double-check it's not a video field misnamed
+      if (!lowerKey.includes('video')) {
+        return 'image';
+      }
+    }
+  }
+  
+  // Priority 4: Default to all
+  return 'all';
+}
+
+/**
+ * Detect media type from URL/filename
+ */
+function detectMediaTypeFromUrl(url: string): 'image' | 'video' | 'unknown' {
+  if (!url) return 'unknown';
+  
+  const lowerUrl = url.toLowerCase();
+  
+  // Video extensions
+  if (
+    lowerUrl.endsWith('.mp4') ||
+    lowerUrl.endsWith('.webm') ||
+    lowerUrl.endsWith('.mov') ||
+    lowerUrl.endsWith('.avi') ||
+    lowerUrl.endsWith('.mkv') ||
+    lowerUrl.includes('/video/') ||
+    lowerUrl.includes('video/')
+  ) {
+    return 'video';
+  }
+  
+  // Image extensions
+  if (
+    lowerUrl.endsWith('.jpg') ||
+    lowerUrl.endsWith('.jpeg') ||
+    lowerUrl.endsWith('.png') ||
+    lowerUrl.endsWith('.gif') ||
+    lowerUrl.endsWith('.webp') ||
+    lowerUrl.endsWith('.svg') ||
+    lowerUrl.endsWith('.bmp') ||
+    lowerUrl.includes('/image/') ||
+    lowerUrl.includes('image/')
+  ) {
+    return 'image';
+  }
+  
+  return 'unknown';
+}
+
 // Unified Media field component with MediaPicker integration for both images and videos
 function MediaFieldWithPicker({
   fieldKey,
   label,
   value,
   onChange,
-  mediaType = 'image',
+  mediaType = 'all',
+  blockType = '',
 }: {
   fieldKey: string;
   label: string;
   value: string;
   onChange: (key: string, value: unknown) => void;
-  mediaType?: 'image' | 'video';
+  mediaType?: 'image' | 'video' | 'all';
+  blockType?: string;
 }) {
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
-  const isVideo = mediaType === 'video' || (value && /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(?:[?#]|$)/i.test(value));
+  
+  // Determine expected media type based on field key and block type
+  const expectedMediaType = blockType ? getMediaTypeForField(fieldKey, blockType) : mediaType;
+  
+  // Detect actual media type of current value
+  const actualMediaType = detectMediaTypeFromUrl(value);
+  
+  // Determine if we should show video preview
+  const showVideoPreview = actualMediaType === 'video' || (
+    actualMediaType === 'unknown' && expectedMediaType === 'video'
+  );
+  
+  // Get media type label for UI
+  const mediaTypeLabel = expectedMediaType === 'video' ? 'Video' : 
+                         expectedMediaType === 'image' ? 'Image' : 'Media';
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={fieldKey} className="text-sm font-medium">
+      <Label htmlFor={fieldKey} className="text-sm font-medium flex items-center gap-2">
         {label}
+        <span className="text-xs text-neutral-400 font-normal">({mediaTypeLabel})</span>
       </Label>
       <div className="flex gap-2">
         <Input
@@ -361,20 +522,29 @@ function MediaFieldWithPicker({
           size="sm"
           onClick={() => setMediaPickerOpen(true)}
           className="px-3"
-          title={`Select from Media Library`}
+          title={`Select ${mediaTypeLabel} from Media Library`}
         >
-          {isVideo ? <Video className="w-4 h-4" /> : <Image className="w-4 h-4" />}
+          {showVideoPreview ? <Video className="w-4 h-4" /> : <Image className="w-4 h-4" />}
         </Button>
       </div>
       {value && (
         <div className="relative w-full h-24 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-          {isVideo ? (
-            <div className="w-full h-full flex items-center justify-center bg-neutral-200 dark:bg-neutral-700">
-              <div className="flex flex-col items-center gap-1">
-                <Play className="w-8 h-8 text-neutral-500" />
-                <span className="text-xs text-neutral-500 truncate max-w-[200px]">
-                  {value.split('/').pop()}
-                </span>
+          {showVideoPreview ? (
+            <div className="relative w-full h-full">
+              <video 
+                src={value} 
+                className="w-full h-full object-cover"
+                muted
+                playsInline
+                loop
+                onMouseEnter={(e) => e.currentTarget.play()}
+                onMouseLeave={(e) => {
+                  e.currentTarget.pause();
+                  e.currentTarget.currentTime = 0;
+                }}
+              />
+              <div className="absolute bottom-1 left-1 px-2 py-0.5 bg-black/60 rounded text-xs text-white">
+                Video
               </div>
             </div>
           ) : (
@@ -396,7 +566,7 @@ function MediaFieldWithPicker({
           onChange(fieldKey, url);
           setMediaPickerOpen(false);
         }}
-        mediaType={mediaType}
+        mediaType={expectedMediaType === 'all' ? undefined : expectedMediaType}
       />
     </div>
   );

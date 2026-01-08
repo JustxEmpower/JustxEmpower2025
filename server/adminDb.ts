@@ -23,6 +23,48 @@ import {
 import { getDb } from "./db";
 import crypto from "crypto";
 
+// ==========================================
+// SAFE JSON PARSING UTILITY
+// ==========================================
+
+/**
+ * Safely parses JSON with fallback value
+ * Handles malformed JSON, plain strings, and null values
+ */
+function safeParseJSON<T>(value: string | null | undefined, fallback: T): T {
+  if (!value) return fallback;
+  
+  // Already an object (shouldn't happen but defensive)
+  if (typeof value === 'object') return value as T;
+  
+  // Trim whitespace
+  const trimmed = value.trim();
+  
+  // Empty string
+  if (trimmed === '') return fallback;
+  
+  // Check if it looks like JSON
+  if (
+    (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+    (trimmed.startsWith('[') && trimmed.endsWith(']'))
+  ) {
+    try {
+      const parsed = JSON.parse(trimmed);
+      return parsed ?? fallback;
+    } catch (e) {
+      console.warn('[safeParseJSON] Failed to parse:', e, 'Value:', trimmed.substring(0, 100));
+      return fallback;
+    }
+  }
+  
+  // Plain text - wrap in object
+  if (typeof value === 'string' && value.trim()) {
+    return { html: value, text: value } as unknown as T;
+  }
+  
+  return fallback;
+}
+
 // Password hashing
 export function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password).digest("hex");
@@ -387,30 +429,52 @@ export async function reorderPages(pageOrders: { id: number; navOrder: number; p
 export async function getPageBlocks(pageId: number): Promise<ParsedPageBlock[]> {
   const db = await getDb();
   if (!db) return [];
-  const blocks = await db
-    .select()
-    .from(pageBlocks)
-    .where(eq(pageBlocks.pageId, pageId))
-    .orderBy(pageBlocks.order);
   
-  // Parse JSON fields - handle both JSON strings and plain strings
-  return blocks.map(block => {
-    let content = {};
-    try {
-      content = block.content ? JSON.parse(block.content) : {};
-    } catch {
-      // If content is not valid JSON, treat it as plain HTML text
-      content = { html: block.content };
-    }
+  try {
+    const blocks = await db
+      .select()
+      .from(pageBlocks)
+      .where(eq(pageBlocks.pageId, pageId))
+      .orderBy(pageBlocks.order);
     
-    return {
-      ...block,
-      content,
-      settings: block.settings ? JSON.parse(block.settings) : {},
-      animation: block.animation ? JSON.parse(block.animation) : {},
-      visibility: block.visibility ? JSON.parse(block.visibility) : {},
-    };
-  });
+    // Parse JSON fields with safe fallbacks
+    return blocks.map(block => {
+      try {
+        return {
+          ...block,
+          content: safeParseJSON(block.content, {}),
+          settings: safeParseJSON(block.settings, {
+            fullWidth: false,
+            paddingTop: 0,
+            paddingBottom: 0,
+          }),
+          visibility: safeParseJSON(block.visibility, {
+            desktop: true,
+            tablet: true,
+            mobile: true,
+          }),
+          animation: safeParseJSON(block.animation, {
+            type: 'none',
+            duration: 0.5,
+            delay: 0,
+          }),
+        };
+      } catch (parseError) {
+        console.error(`[getPageBlocks] Error parsing block ${block.id}:`, parseError);
+        // Return block with empty content rather than failing entirely
+        return {
+          ...block,
+          content: {},
+          settings: { fullWidth: false, paddingTop: 0, paddingBottom: 0 },
+          visibility: { desktop: true, tablet: true, mobile: true },
+          animation: { type: 'none' as const, duration: 0.5, delay: 0 },
+        };
+      }
+    });
+  } catch (error) {
+    console.error(`[getPageBlocks] Failed to fetch blocks for page ${pageId}:`, error);
+    return [];
+  }
 }
 
 export async function createPageBlock(data: {
@@ -563,145 +627,258 @@ export async function addPageToSeoSettings(
  * Syncs Page Builder blocks to siteContent table for Content Editor access
  * This allows Content Editor to edit Page Builder page content
  */
-export async function syncPageBlocksToSiteContent(pageId: number, pageSlug: string) {
+export async function syncPageBlocksToSiteContent(
+  pageId: number, 
+  pageSlug: string,
+  options: { fullSync?: boolean; deleteExisting?: boolean } = {}
+): Promise<{ synced: number; errors: string[] }> {
+  const errors: string[] = [];
+  let syncedCount = 0;
+
+  console.log(`[syncPageBlocksToSiteContent] Starting sync for page ${pageId} (${pageSlug})`);
+
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Get all blocks for this page
-  const blocks = await db
-    .select()
-    .from(pageBlocks)
-    .where(eq(pageBlocks.pageId, pageId))
-    .orderBy(pageBlocks.order);
-
-  // Delete existing siteContent entries for this page
-  await db
-    .delete(siteContent)
-    .where(eq(siteContent.page, pageSlug));
-
-  // Create siteContent entries for each block's content fields
-  for (const block of blocks) {
-    let content: Record<string, unknown> = {};
-    try {
-      content = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
-    } catch (e) {
-      content = {};
+  try {
+    // Get all blocks for this page using the improved function
+    const blocks = await getPageBlocks(pageId);
+    
+    if (blocks.length === 0) {
+      console.log(`[syncPageBlocksToSiteContent] No blocks found for page ${pageId}`);
+      return { synced: 0, errors: [] };
     }
 
-    // Get the original block type (stored in content._originalType)
-    const blockType = (content._originalType as string) || block.type;
-    const sectionName = `${blockType}-${block.order}`;
+    // Get existing content for this page
+    const existingContent = await db
+      .select()
+      .from(siteContent)
+      .where(eq(siteContent.page, pageSlug));
 
-    // Extract text fields from the block content and save to siteContent
-    const textFields = ['title', 'subtitle', 'description', 'headline', 'subheadline', 
-                        'ctaText', 'ctaLink', 'buttonText', 'buttonLink', 'text', 'content',
-                        'videoUrl', 'imageUrl', 'backgroundImage', 'posterImage', 'src',
-                        'quote', 'author', 'authorTitle', 'label', 'heading'];
+    const existingMap = new Map(
+      existingContent.map(c => [`${c.section}:${c.contentKey}`, c])
+    );
 
-    for (const field of textFields) {
-      if (content[field] !== undefined && content[field] !== null && content[field] !== '') {
-        await db.insert(siteContent).values({
-          page: pageSlug,
-          section: sectionName,
-          contentKey: field,
-          contentValue: String(content[field]),
-        });
+    // Define which fields to sync for each block type
+    const syncableFields: Record<string, string[]> = {
+      'je-hero-video': [
+        'title', 'subtitle', 'description', 'ctaText', 'ctaLink',
+        'videoUrl', 'imageUrl', 'posterImage', 'overlayOpacity',
+        'minHeight', 'textAlign'
+      ],
+      'je-hero-image': [
+        'title', 'subtitle', 'description', 'ctaText', 'ctaLink',
+        'imageUrl', 'overlayOpacity', 'minHeight', 'textAlign'
+      ],
+      'je-hero-split': [
+        'title', 'subtitle', 'description', 'ctaText', 'ctaLink',
+        'imageUrl', 'imagePosition'
+      ],
+      'je-section-standard': [
+        'title', 'subtitle', 'content', 'imageUrl', 'imagePosition',
+        'ctaText', 'ctaLink'
+      ],
+      'je-section-fullwidth': [
+        'title', 'subtitle', 'content', 'backgroundImage',
+        'backgroundVideo', 'overlayOpacity', 'ctaText', 'ctaLink'
+      ],
+      'je-pillars': ['title', 'subtitle', 'pillars'],
+      'je-principles': ['title', 'subtitle', 'principles'],
+      'je-image': ['imageUrl', 'alt', 'caption', 'fullWidth'],
+      'je-video': ['videoUrl', 'posterImage', 'title', 'autoplay', 'loop', 'muted'],
+      'je-gallery': ['images', 'columns', 'gap'],
+      'je-faq': ['title', 'subtitle', 'faqs'],
+      'je-contact': ['title', 'subtitle', 'email', 'phone', 'address'],
+      'je-newsletter': ['title', 'subtitle', 'placeholder', 'buttonText', 'backgroundColor'],
+      // Generic blocks
+      'hero': ['title', 'subtitle', 'description', 'ctaText', 'ctaLink', 'backgroundImage', 'backgroundVideo'],
+      'text': ['content', 'html'],
+      'heading': ['text', 'level'],
+      'image': ['src', 'alt', 'caption'],
+      'video': ['src', 'poster', 'autoplay'],
+      'quote': ['text', 'author', 'source'],
+      'spacer': ['height'],
+    };
+
+    // Track which sections we've updated (for cleanup)
+    const updatedSections = new Set<string>();
+
+    // Process each block
+    for (const block of blocks) {
+      // Create human-readable section name: "hero_video_1", "section_standard_2"
+      const blockTypeName = block.type
+        .replace('je-', '')
+        .replace(/-/g, '_');
+      const sectionName = `${blockTypeName}_${block.order + 1}`;
+      
+      updatedSections.add(sectionName);
+
+      // Get fields to sync - use defined list or all content keys
+      const content = block.content as Record<string, unknown> || {};
+      const fieldsToSync = syncableFields[block.type] || Object.keys(content);
+      
+      for (const field of fieldsToSync) {
+        const value = content[field];
+        
+        // Skip undefined values unless doing full sync
+        if (value === undefined) {
+          if (!options.fullSync) continue;
+        }
+
+        const key = `${sectionName}:${field}`;
+        
+        // Convert value to string, handling objects/arrays
+        let stringValue: string;
+        if (value === null || value === undefined) {
+          stringValue = '';
+        } else if (typeof value === 'object') {
+          stringValue = JSON.stringify(value);
+        } else {
+          stringValue = String(value);
+        }
+        
+        try {
+          const existing = existingMap.get(key);
+          
+          if (existing) {
+            // Only update if value actually changed
+            if (existing.contentValue !== stringValue) {
+              await db
+                .update(siteContent)
+                .set({ contentValue: stringValue })
+                .where(eq(siteContent.id, existing.id));
+              syncedCount++;
+            }
+          } else {
+            // Insert new
+            await db.insert(siteContent).values({
+              page: pageSlug,
+              section: sectionName,
+              contentKey: field,
+              contentValue: stringValue,
+            });
+            syncedCount++;
+          }
+        } catch (fieldError) {
+          const errorMsg = `Failed to sync field ${field} for block ${block.id}: ${fieldError}`;
+          console.error(`[syncPageBlocksToSiteContent] ${errorMsg}`);
+          errors.push(errorMsg);
+        }
       }
     }
 
-    // Handle nested arrays like features, items, testimonials, etc.
-    const arrayFields = ['features', 'items', 'testimonials', 'pillars', 'cards', 'buttons'];
-    for (const arrayField of arrayFields) {
-      if (Array.isArray(content[arrayField])) {
-        await db.insert(siteContent).values({
-          page: pageSlug,
-          section: sectionName,
-          contentKey: arrayField,
-          contentValue: JSON.stringify(content[arrayField]),
-        });
+    // Optionally clean up orphaned sections
+    if (options.deleteExisting) {
+      const orphanedContent = existingContent.filter(c => !updatedSections.has(c.section));
+      for (const orphan of orphanedContent) {
+        await db.delete(siteContent).where(eq(siteContent.id, orphan.id));
       }
     }
+
+    console.log(`[syncPageBlocksToSiteContent] Synced ${syncedCount} fields for page ${pageSlug}`);
+    return { synced: syncedCount, errors };
+
+  } catch (error) {
+    console.error('[syncPageBlocksToSiteContent] Fatal error:', error);
+    throw error;
   }
-
-  return { success: true, blocksCount: blocks.length };
 }
 
 /**
  * Updates siteContent from Content Editor back to Page Builder blocks
  */
-export async function syncSiteContentToPageBlocks(pageSlug: string) {
+export async function syncSiteContentToPageBlocks(
+  pageSlug: string,
+  pageId?: number
+): Promise<{ success: boolean; blocksUpdated: number; errors: string[] }> {
+  const errors: string[] = [];
+  let updatedCount = 0;
+
+  console.log(`[syncSiteContentToPageBlocks] Starting reverse sync for ${pageSlug}`);
+
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  // Get the page by slug
-  const [page] = await db
-    .select()
-    .from(pages)
-    .where(eq(pages.slug, pageSlug))
-    .limit(1);
+  try {
+    // Get the page by slug if pageId not provided
+    let targetPageId = pageId;
+    if (!targetPageId) {
+      const [page] = await db
+        .select()
+        .from(pages)
+        .where(eq(pages.slug, pageSlug))
+        .limit(1);
 
-  if (!page) {
-    return { success: false, error: 'Page not found' };
-  }
-
-  // Get all siteContent for this page
-  const contentEntries = await db
-    .select()
-    .from(siteContent)
-    .where(eq(siteContent.page, pageSlug));
-
-  // Group content by section
-  const sectionContent: Record<string, Record<string, string>> = {};
-  for (const entry of contentEntries) {
-    if (!sectionContent[entry.section]) {
-      sectionContent[entry.section] = {};
-    }
-    sectionContent[entry.section][entry.contentKey] = entry.contentValue;
-  }
-
-  // Get all blocks for this page
-  const blocks = await db
-    .select()
-    .from(pageBlocks)
-    .where(eq(pageBlocks.pageId, page.id))
-    .orderBy(pageBlocks.order);
-
-  // Update each block with its corresponding siteContent
-  for (const block of blocks) {
-    let content: Record<string, unknown> = {};
-    try {
-      content = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
-    } catch (e) {
-      content = {};
+      if (!page) {
+        return { success: false, blocksUpdated: 0, errors: ['Page not found'] };
+      }
+      targetPageId = page.id;
     }
 
-    const blockType = (content._originalType as string) || block.type;
-    const sectionName = `${blockType}-${block.order}`;
-    const sectionData = sectionContent[sectionName];
+    // Get all siteContent for this page
+    const contentEntries = await db
+      .select()
+      .from(siteContent)
+      .where(eq(siteContent.page, pageSlug));
 
-    if (sectionData) {
-      // Update content fields from siteContent
-      for (const [key, value] of Object.entries(sectionData)) {
-        // Try to parse JSON for array fields
-        try {
-          const parsed = JSON.parse(value);
-          if (Array.isArray(parsed)) {
-            content[key] = parsed;
+    // Group content by section
+    const sectionContent: Record<string, Record<string, string>> = {};
+    for (const entry of contentEntries) {
+      if (!sectionContent[entry.section]) {
+        sectionContent[entry.section] = {};
+      }
+      sectionContent[entry.section][entry.contentKey] = entry.contentValue;
+    }
+
+    // Get all blocks for this page
+    const blocks = await getPageBlocks(targetPageId);
+
+    // Update each block with its corresponding siteContent
+    for (const block of blocks) {
+      const content = block.content as Record<string, unknown> || {};
+      
+      // Try both naming conventions for section matching
+      const blockTypeName = block.type.replace('je-', '').replace(/-/g, '_');
+      const sectionNameNew = `${blockTypeName}_${block.order + 1}`;
+      const sectionNameOld = `${block.type}-${block.order}`;
+      
+      const sectionData = sectionContent[sectionNameNew] || sectionContent[sectionNameOld];
+
+      if (sectionData) {
+        // Update content fields from siteContent
+        for (const [key, value] of Object.entries(sectionData)) {
+          // Try to parse JSON for array fields and objects
+          if (value.startsWith('[') || value.startsWith('{')) {
+            try {
+              content[key] = JSON.parse(value);
+            } catch {
+              content[key] = value;
+            }
           } else {
             content[key] = value;
           }
-        } catch {
-          content[key] = value;
+        }
+
+        // Update the block
+        try {
+          await db
+            .update(pageBlocks)
+            .set({ content: JSON.stringify(content) })
+            .where(eq(pageBlocks.id, block.id));
+          updatedCount++;
+        } catch (updateError) {
+          const errorMsg = `Failed to update block ${block.id}`;
+          errors.push(errorMsg);
+          console.error(`[syncSiteContentToPageBlocks] ${errorMsg}:`, updateError);
         }
       }
-
-      // Update the block
-      await db
-        .update(pageBlocks)
-        .set({ content: JSON.stringify(content) })
-        .where(eq(pageBlocks.id, block.id));
     }
-  }
 
-  return { success: true, blocksUpdated: blocks.length };
+    console.log(`[syncSiteContentToPageBlocks] Updated ${updatedCount} blocks`);
+    return { success: true, blocksUpdated: updatedCount, errors };
+
+  } catch (error) {
+    console.error('[syncSiteContentToPageBlocks] Fatal error:', error);
+    throw error;
+  }
 }
