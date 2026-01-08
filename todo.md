@@ -1632,3 +1632,24 @@ NODE_ENV=production
 - [ ] Test Page Builder JE blocks rendering
 - [ ] Recreate pages using Page Builder for visual verification
 - [ ] Deploy to EC2 production server
+
+## AI Page Generator Enhancements (NEW)
+
+- [x] Fix AI Generate dialog layout - make textarea scrollable with max height
+- [x] Enhance AI Generator to prioritize JE blocks ONLY
+- [x] Add comprehensive JE block type definitions to AI prompt
+- [x] Add page type guidelines for different page templates
+- [x] Add block validation to filter out non-JE blocks
+- [x] Improve prompt precision with detailed prop specifications
+- [ ] Test AI page generator with various prompts
+- [ ] Verify generated pages render correctly
+
+## JE Block Fixes (COMPLETED)
+
+- [x] Fix JE block rendering - all 34 JE block types now render
+- [x] Add font size and color controls to typography system
+- [x] Fix pageBlocks.type column - changed from ENUM to VARCHAR(100)
+- [x] Fix Media Library to support both images and videos for hero fields
+- [x] Add video auto-detection in JE Hero blocks
+- [x] Fix Footer to fetch content from database
+- [x] Clean up orphaned database sections

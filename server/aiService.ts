@@ -676,77 +676,138 @@ export async function generatePageBlocks(
 
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-exp" });
 
-  const blockTypes = `
-Available block types and their props:
-1. "hero" - Hero section with title, subtitle, background
-   Props: { title: string, subtitle: string, backgroundType: "color"|"gradient"|"image", backgroundColor: string, backgroundGradient: string, backgroundImage: string, textAlign: "left"|"center"|"right", ctaText: string, ctaLink: string }
+  // Comprehensive JE block types - ONLY JE BLOCKS
+  const jeBlockTypes = `
+IMPORTANT: You MUST ONLY use JE (Just Empower) block types. Do NOT use generic blocks.
 
-2. "text" - Text content block
-   Props: { content: string (HTML), textAlign: "left"|"center"|"right" }
+Available JE Block Types:
 
-3. "image" - Image block
-   Props: { src: string, alt: string, caption: string, aspectRatio: "auto"|"16:9"|"4:3"|"1:1"|"3:4" }
+=== HERO BLOCKS ===
+1. "je-hero-video" - Full-screen video hero
+   Props: { videoUrl: string, posterImage: string, title: string, subtitle: string, description: string, ctaText: string, ctaLink: string, overlayOpacity: number (0-100), textAlignment: "left"|"center"|"right", minHeight: string }
 
-4. "two-column" - Two column layout
-   Props: { leftContent: string (HTML), rightContent: string (HTML), leftWidth: number (1-11), gap: "sm"|"md"|"lg" }
+2. "je-hero-image" - Full-screen image hero
+   Props: { imageUrl: string, title: string, subtitle: string, description: string, ctaText: string, ctaLink: string, overlayOpacity: number, textAlignment: string, minHeight: string }
 
-5. "gallery" - Image gallery
-   Props: { images: Array<{src: string, alt: string}>, columns: 2|3|4, gap: "sm"|"md"|"lg" }
+3. "je-hero-split" - Split hero with image and content
+   Props: { imageUrl: string, imagePosition: "left"|"right", title: string, subtitle: string, description: string, ctaText: string, ctaLink: string }
 
-6. "cta" - Call to action block
-   Props: { title: string, description: string, buttonText: string, buttonLink: string, variant: "primary"|"secondary"|"outline" }
+=== CONTENT BLOCKS ===
+4. "je-section-standard" - Standard content section
+   Props: { title: string, subtitle: string, content: string, backgroundColor: string, textAlignment: string }
 
-7. "testimonial" - Testimonial/quote block
-   Props: { quote: string, author: string, role: string, avatar: string }
+5. "je-pillars" - Three foundational pillars
+   Props: { title: string, pillars: [{ icon: "heart"|"compass"|"crown", title: string, description: string }] }
 
-8. "features" - Features grid
-   Props: { title: string, features: Array<{icon: string, title: string, description: string}>, columns: 2|3|4 }
+6. "je-principles" - Numbered principles
+   Props: { title: string, principles: [{ number: string, title: string, description: string }] }
 
-9. "accordion" - FAQ/Accordion block
-   Props: { title: string, items: Array<{question: string, answer: string}> }
+7. "je-heading" - Elegant heading
+   Props: { text: string, level: "h1"|"h2"|"h3"|"h4", label: string, alignment: string }
 
-10. "video" - Video embed block
-    Props: { url: string, title: string, autoplay: boolean }
+8. "je-paragraph" - Styled paragraph
+   Props: { content: string, alignment: string, maxWidth: string, fontSize: "sm"|"base"|"lg"|"xl" }
 
-11. "spacer" - Vertical spacing
+9. "je-blockquote" - Elegant quote
+   Props: { quote: string, author: string, role: string, style: "simple"|"decorative"|"large" }
+
+10. "je-two-column" - Two column layout
+    Props: { imageUrl: string, imagePosition: "left"|"right", title: string, content: string, ctaText: string, ctaLink: string }
+
+=== MEDIA BLOCKS ===
+11. "je-image" - Image with JE styling
+    Props: { src: string, alt: string, caption: string, aspectRatio: string }
+
+12. "je-video" - Video player
+    Props: { src: string, poster: string, title: string, autoplay: boolean }
+
+13. "je-gallery" - Image gallery
+    Props: { images: [{ src: string, alt: string, caption: string }], layout: "grid"|"masonry", columns: number }
+
+14. "je-carousel" - Content carousel
+    Props: { items: [{ imageUrl: string, title: string, description: string, link: string }], autoplay: boolean }
+
+=== INTERACTIVE BLOCKS ===
+15. "je-button" - Styled button
+    Props: { text: string, link: string, variant: "primary"|"secondary"|"outline", size: "sm"|"md"|"lg", alignment: string }
+
+16. "je-offerings-grid" - Offerings grid
+    Props: { title: string, offerings: [{ title: string, description: string, imageUrl: string, link: string }], columns: number }
+
+17. "je-testimonial" - Testimonial
+    Props: { quote: string, author: string, role: string, avatar: string, style: "card"|"simple"|"featured" }
+
+18. "je-newsletter" - Newsletter signup
+    Props: { title: string, description: string, buttonText: string, backgroundColor: string }
+
+19. "je-community-section" - Community section
+    Props: { title: string, description: string, backgroundImage: string, ctaText: string, ctaLink: string }
+
+20. "je-faq" - FAQ accordion
+    Props: { title: string, items: [{ question: string, answer: string }] }
+
+21. "je-contact-form" - Contact form
+    Props: { title: string, description: string, fields: ["name", "email", "message"], submitText: string }
+
+22. "je-team-member" - Team profile
+    Props: { name: string, role: string, bio: string, imageUrl: string }
+
+23. "je-footer" - Site footer
+    Props: { tagline: string, copyright: string }
+
+=== UTILITY BLOCKS ===
+24. "je-divider" - Decorative divider
+    Props: { style: "line"|"dots"|"ornament", color: string }
+
+25. "je-spacer" - Vertical spacing
     Props: { height: "sm"|"md"|"lg"|"xl" }
-
-12. "divider" - Horizontal divider
-    Props: { style: "solid"|"dashed"|"dotted", color: string }
 `;
 
-  const prompt = `You are a web page designer for Just Empower, a women's empowerment and leadership organization.
+  const pageTypeGuidelines: Record<string, string> = {
+    landing: "Include: je-hero-image/video, je-pillars or je-principles, je-offerings-grid, je-testimonial, je-newsletter, je-footer",
+    about: "Include: je-hero-image, je-two-column for story, je-principles, je-team-member, je-blockquote, je-footer",
+    services: "Include: je-hero-image, je-offerings-grid, je-two-column, je-testimonial, je-faq, je-newsletter, je-footer",
+    contact: "Include: je-hero-image (minimal), je-contact-form, je-two-column with info, je-faq, je-footer",
+    blog: "Include: je-hero-image, je-heading, je-paragraph blocks, je-blockquote, je-image, je-newsletter, je-footer",
+    custom: "Analyze description and select appropriate JE blocks. Always start with hero and end with je-footer."
+  };
 
-Generate a page structure based on this description: "${description}"
-Page type: ${pageType}
+  const prompt = `You are a web page designer for Just Empower, a premium women's empowerment organization.
 
-${blockTypes}
+USER REQUEST: "${description}"
+PAGE TYPE: ${pageType}
 
-Brand guidelines:
-- Colors: Use warm, earthy tones (amber, terracotta, sage green) with deep neutrals
-- Tone: Empowering, sophisticated, warm, transformative
-- Style: Clean, modern, with organic flowing elements
+${jeBlockTypes}
 
-Return ONLY valid JSON in this exact format:
+GUIDELINES FOR ${pageType.toUpperCase()} PAGE:
+${pageTypeGuidelines[pageType]}
+
+BRAND VOICE:
+- Empowering, sophisticated, warm, transformative
+- Colors: amber #D4A574, terracotta #C4A77D, sage #8B9A7D, cream #FAF8F5, charcoal #2D2D2D
+
+CRITICAL RULES:
+1. ONLY use JE block types (je-hero-video, je-hero-image, je-paragraph, etc.)
+2. NEVER use generic blocks like "hero", "text", "cta"
+3. Start with a hero block, end with je-footer
+4. Generate 5-10 blocks
+5. Use "/placeholder/hero.jpg" for images
+6. Be PRECISE - match the user's specific requests exactly
+7. Write compelling, on-brand content
+
+Return ONLY valid JSON:
 {
-  "title": "Page Title Here",
+  "title": "Page Title",
   "blocks": [
-    {
-      "type": "hero",
-      "props": { ... }
-    },
-    ...more blocks
+    { "type": "je-hero-image", "props": { ... } },
+    ...more JE blocks
   ]
-}
-
-Generate 4-8 blocks that create a cohesive, professional page. Use placeholder image URLs like "/placeholder/hero.jpg" for images.
-Include appropriate content that matches the Just Empower brand voice - empowering, transformative, and sophisticated.`;
-
-  const result = await model.generateContent(prompt);
-  const response = result.response.text();
+}`;
 
   try {
-    // Extract JSON from response
+    const result = await model.generateContent(prompt);
+    const response = result.response.text();
+
     const jsonMatch = response.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
       throw new Error("No JSON found in response");
@@ -754,33 +815,66 @@ Include appropriate content that matches the Just Empower brand voice - empoweri
     
     const parsed = JSON.parse(jsonMatch[0]);
     
-    // Validate structure
     if (!parsed.title || !Array.isArray(parsed.blocks)) {
       throw new Error("Invalid response structure");
     }
     
-    return parsed;
+    // Filter to only JE blocks
+    const validatedBlocks = parsed.blocks.filter((block: { type: string }) => {
+      if (!block.type.startsWith('je-')) {
+        console.warn(`Filtered out non-JE block: ${block.type}`);
+        return false;
+      }
+      return true;
+    });
+    
+    if (validatedBlocks.length === 0) {
+      throw new Error("No valid JE blocks generated");
+    }
+    
+    return { title: parsed.title, blocks: validatedBlocks };
   } catch (error) {
     console.error("Failed to parse AI page generation response:", error);
-    // Return a default structure
     return {
       title: "New Page",
       blocks: [
         {
-          type: "hero",
+          type: "je-hero-image",
           props: {
+            imageUrl: "/placeholder/hero.jpg",
             title: "Welcome",
-            subtitle: description,
-            backgroundType: "gradient",
-            backgroundGradient: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)",
-            textAlign: "center"
+            subtitle: "Just Empower",
+            description: description,
+            ctaText: "Learn More",
+            ctaLink: "/about",
+            overlayOpacity: 40,
+            textAlignment: "center",
+            minHeight: "80vh"
           }
         },
         {
-          type: "text",
+          type: "je-paragraph",
           props: {
-            content: "<p>Content will be added here based on your description.</p>",
-            textAlign: "center"
+            content: "Content will be added here based on your description.",
+            alignment: "center",
+            maxWidth: "65ch",
+            fontSize: "lg"
+          }
+        },
+        {
+          type: "je-newsletter",
+          props: {
+            title: "Stay Connected",
+            description: "Join our community.",
+            buttonText: "Subscribe",
+            backgroundColor: "#FAF8F5"
+          }
+        },
+        {
+          type: "je-footer",
+          props: {
+            tagline: "Where Empowerment Becomes Embodiment",
+            copyright: "© 2025 Just Empower. All rights reserved."
           }
         }
       ]

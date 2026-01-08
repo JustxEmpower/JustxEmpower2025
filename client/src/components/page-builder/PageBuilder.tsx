@@ -802,7 +802,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
               Describe the page you want to create and AI will generate the structure and content for you.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
             <div className="space-y-2">
               <Label htmlFor="ai-page-type">Page Type</Label>
               <Select value={aiPageType} onValueChange={(v) => setAiPageType(v as typeof aiPageType)}>
@@ -826,7 +826,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
                 placeholder="E.g., A page about our women's leadership workshops with sections for program overview, benefits, testimonials, and a sign-up form..."
-                className="min-h-[120px] resize-none"
+                className="min-h-[120px] max-h-[200px] resize-none overflow-y-auto"
               />
               <p className="text-xs text-neutral-500">
                 Be specific about sections, content themes, and any special features you want.
@@ -834,7 +834,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
             </div>
             <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3 border border-purple-200 dark:border-purple-800">
               <p className="text-xs text-purple-700 dark:text-purple-300">
-                <strong>Tip:</strong> The AI will generate blocks based on your description. You can edit, rearrange, or delete any generated blocks afterwards.
+                <strong>Tip:</strong> The AI will generate JE-styled blocks based on your description. You can edit, rearrange, or delete any generated blocks afterwards.
               </p>
             </div>
           </div>
