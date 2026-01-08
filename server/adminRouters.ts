@@ -527,7 +527,10 @@ export const adminRouter = router({
         }
         
         // Save to database
-        await createMedia({
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        await db.insert(schema.media).values({
           filename: input.uniqueFilename,
           originalName: input.originalName,
           mimeType: input.mimeType,
@@ -536,10 +539,8 @@ export const adminRouter = router({
           url: input.publicUrl,
           type,
           uploadedBy: ctx.adminUsername,
+          thumbnailUrl: thumbnailUrl,
         });
-        
-        // Note: Thumbnail URL is returned but not persisted to DB yet
-        // This would require adding thumbnailUrl to the media table schema
         
         return { success: true, url: input.publicUrl, thumbnailUrl };
       }),
@@ -2596,6 +2597,8 @@ export const publicContentRouter = router({
             isBold: s.isBold === 1,
             isItalic: s.isItalic === 1,
             isUnderline: s.isUnderline === 1,
+            fontSize: s.fontSize || null,
+            fontColor: s.fontColor || null,
           };
         });
       
@@ -3044,6 +3047,8 @@ export const contentTextStylesRouter = router({
         isItalic: style ? style.isItalic === 1 : false,
         isUnderline: style ? style.isUnderline === 1 : false,
         fontOverride: style?.fontOverride || null,
+        fontSize: style?.fontSize || null,
+        fontColor: style?.fontColor || null,
       };
     }),
 
@@ -3078,12 +3083,14 @@ export const contentTextStylesRouter = router({
       isBold: z.boolean(),
       isItalic: z.boolean(),
       isUnderline: z.boolean(),
+      fontSize: z.string().optional(),
+      fontColor: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
-      const { contentId, isBold, isItalic, isUnderline } = input;
+      const { contentId, isBold, isItalic, isUnderline, fontSize, fontColor } = input;
       
       // Check if style exists
       const existing = await db
@@ -3099,6 +3106,8 @@ export const contentTextStylesRouter = router({
           isBold: isBold ? 1 : 0,
           isItalic: isItalic ? 1 : 0,
           isUnderline: isUnderline ? 1 : 0,
+          fontSize: fontSize || null,
+          fontColor: fontColor || null,
         });
       } else {
         // Update existing style
@@ -3108,6 +3117,8 @@ export const contentTextStylesRouter = router({
             isBold: isBold ? 1 : 0,
             isItalic: isItalic ? 1 : 0,
             isUnderline: isUnderline ? 1 : 0,
+            fontSize: fontSize || null,
+            fontColor: fontColor || null,
           })
           .where(eq(schema.contentTextStyles.contentId, contentId));
       }
@@ -3123,6 +3134,8 @@ export const contentTextStylesRouter = router({
       isItalic: z.number().optional(),
       isUnderline: z.number().optional(),
       fontOverride: z.string().nullable().optional(),
+      fontSize: z.string().nullable().optional(),
+      fontColor: z.string().nullable().optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
@@ -3145,6 +3158,8 @@ export const contentTextStylesRouter = router({
           isItalic: styleData.isItalic ?? 0,
           isUnderline: styleData.isUnderline ?? 0,
           fontOverride: styleData.fontOverride ?? null,
+          fontSize: styleData.fontSize ?? null,
+          fontColor: styleData.fontColor ?? null,
         });
       } else {
         // Update existing style

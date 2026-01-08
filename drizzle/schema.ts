@@ -1055,6 +1055,8 @@ export const contentTextStyles = mysqlTable("contentTextStyles", {
   isItalic: int("isItalic").default(0).notNull(),
   isUnderline: int("isUnderline").default(0).notNull(),
   fontOverride: varchar("fontOverride", { length: 255 }), // Optional per-field font override
+  fontSize: varchar("fontSize", { length: 50 }), // Font size (e.g., "16px", "1.2rem", "small", "large")
+  fontColor: varchar("fontColor", { length: 50 }), // Font color (e.g., "#000000", "rgb(0,0,0)")
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 

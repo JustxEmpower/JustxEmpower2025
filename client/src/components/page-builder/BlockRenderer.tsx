@@ -11,6 +11,25 @@ import {
   JEPillarGridRenderer,
   JECommunityRenderer,
   JERootedUnityRenderer,
+  JEHeadingRenderer,
+  JEParagraphRenderer,
+  JEImageRenderer,
+  JEVideoRenderer,
+  JEButtonRenderer,
+  JETwoColumnRenderer,
+  JEDividerRenderer,
+  JESpacerRenderer,
+  JEFAQRenderer,
+  JEContactFormRenderer,
+  JETestimonialRenderer,
+  JEOfferingsGridRenderer,
+  JEComingSoonRenderer,
+  JEGalleryRenderer,
+  JETeamMemberRenderer,
+  JEPrinciplesRenderer,
+  JEFooterRenderer,
+  JEVolumesRenderer,
+  JEFeatureCardRenderer,
 } from './renderers/JEBlockRenderers';
 import {
   Layout,
@@ -686,27 +705,77 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
       case 'html':
         return <HTMLBlock content={content} />;
       // JE Hero blocks
+      case 'je-hero':
       case 'je-hero-video':
       case 'je-hero-image':
       case 'je-hero-split':
         return <JEHeroRenderer block={block} />;
-      // JE Content blocks
+      // JE Section blocks
       case 'je-section-standard':
+      case 'je-section-fullwidth':
       case 'je-section-full-width':
         return <JESectionRenderer block={block} />;
+      // JE Text blocks
+      case 'je-heading':
+        return <JEHeadingRenderer block={block} />;
+      case 'je-paragraph':
+        return <JEParagraphRenderer block={block} />;
+      case 'je-quote':
+      case 'je-blockquote':
+        return <JEQuoteRenderer block={block} />;
+      // JE Media blocks
+      case 'je-image':
+        return <JEImageRenderer block={block} />;
+      case 'je-video':
+        return <JEVideoRenderer block={block} />;
+      case 'je-gallery':
+        return <JEGalleryRenderer block={block} />;
       case 'je-carousel':
+      case 'je-offerings-carousel':
         return <JECarouselRenderer block={block} />;
+      // JE Interactive blocks
+      case 'je-button':
+        return <JEButtonRenderer block={block} />;
       case 'je-newsletter':
         return <JENewsletterRenderer block={block} />;
-      case 'je-quote':
-        return <JEQuoteRenderer block={block} />;
+      case 'je-contact-form':
+        return <JEContactFormRenderer block={block} />;
+      case 'je-faq':
+        return <JEFAQRenderer block={block} />;
+      case 'je-testimonial':
+        return <JETestimonialRenderer block={block} />;
+      // JE Layout blocks
+      case 'je-two-column':
+        return <JETwoColumnRenderer block={block} />;
       case 'je-pillar-grid':
+      case 'je-pillars':
       case 'je-three-pillars':
         return <JEPillarGridRenderer block={block} />;
+      case 'je-principles':
+        return <JEPrinciplesRenderer block={block} />;
+      case 'je-offerings-grid':
+        return <JEOfferingsGridRenderer block={block} />;
+      // JE Special sections
       case 'je-community':
+      case 'je-community-section':
         return <JECommunityRenderer block={block} />;
       case 'je-rooted-unity':
         return <JERootedUnityRenderer block={block} />;
+      case 'je-coming-soon':
+        return <JEComingSoonRenderer block={block} />;
+      case 'je-team-member':
+        return <JETeamMemberRenderer block={block} />;
+      case 'je-feature-card':
+        return <JEFeatureCardRenderer block={block} />;
+      case 'je-volumes':
+        return <JEVolumesRenderer block={block} />;
+      // JE Utility blocks
+      case 'je-divider':
+        return <JEDividerRenderer block={block} />;
+      case 'je-spacer':
+        return <JESpacerRenderer block={block} />;
+      case 'je-footer':
+        return <JEFooterRenderer block={block} />;
       default:
         return <PlaceholderBlock block={block} />;
     }

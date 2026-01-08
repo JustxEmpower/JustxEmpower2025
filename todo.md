@@ -1580,3 +1580,36 @@ NODE_ENV=production
 - [x] AI Page Generation - generate page structure with Gemini AI
 - [x] Content Editor dynamic pages - fetches pages from database instead of hardcoded list
 - [x] Page status badges in Content Editor - shows PB (Page Builder) and In Nav indicators
+
+## JE Block Rendering & Typography Fixes (Jan 8, 2026)
+
+### Phase 1: JE Block Rendering in Page Builder ✅
+- [x] Created comprehensive JE block renderers (18 new renderers)
+- [x] Updated BlockRenderer switch statement with all 34 JE block type cases
+- [x] Fixed je-hero-image, je-paragraph, and other "Unknown block type" errors
+
+### Phase 2: Font Size and Color Controls ✅
+- [x] Added fontSize and fontColor columns to contentTextStyles table
+- [x] Updated TextFormatToolbar with font size dropdown (15 sizes)
+- [x] Updated TextFormatToolbar with color picker (16 preset colors + custom)
+- [x] Updated server routes to save/retrieve fontSize and fontColor
+- [x] Updated usePageContent hook to apply fontSize and fontColor styles
+- [x] Ran database migration on production RDS
+
+### Phase 3: Media Upload and Display Fixes ✅
+- [x] Updated MediaItem interface to include thumbnailUrl
+- [x] Updated MediaPicker to use stored thumbnailUrl for video previews
+- [ ] Test video thumbnail display in media library
+- [ ] Verify video uploads generate and save thumbnails
+
+### Phase 4: Content Editor Orphaned Sections
+- [ ] Remove orphaned "Rooted Unity Section" from home page
+- [ ] Audit and fix mismatched content editor entries
+- [ ] Ensure all sections have proper page/section mappings
+
+### Phase 5: Page Builder Full Test
+- [ ] Recreate Home page using JE blocks
+- [ ] Recreate About page using JE blocks
+- [ ] Recreate Philosophy page using JE blocks
+- [ ] Recreate all remaining pages using JE blocks
+- [ ] Visual verification of all recreated pages

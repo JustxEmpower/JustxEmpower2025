@@ -17,6 +17,7 @@ interface MediaItem {
   mimeType: string;
   fileSize: number;
   url: string;
+  thumbnailUrl?: string | null;
   type: 'image' | 'video';
   uploadedBy?: string | null;
   createdAt: Date | string;
@@ -298,7 +299,22 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
                           alt={item.originalName}
                           className="w-full h-full object-cover"
                         />
+                      ) : item.thumbnailUrl ? (
+                        // Use stored thumbnail if available
+                        <div className="relative w-full h-full">
+                          <img
+                            src={item.thumbnailUrl}
+                            alt={item.originalName}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-full bg-black/40 flex items-center justify-center">
+                              <Video className="w-5 h-5 text-white" />
+                            </div>
+                          </div>
+                        </div>
                       ) : (
+                        // Fall back to VideoThumbnail component for on-the-fly generation
                         <VideoThumbnail
                           src={item.url}
                           alt={item.originalName}
@@ -400,6 +416,8 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
             <div className="flex items-center gap-3 mb-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
               {selectedMedia.type === 'image' ? (
                 <img src={selectedMedia.url} alt="" className="w-12 h-12 object-cover rounded" />
+              ) : selectedMedia.thumbnailUrl ? (
+                <img src={selectedMedia.thumbnailUrl} alt="" className="w-12 h-12 object-cover rounded" />
               ) : (
                 <VideoThumbnail
                   src={selectedMedia.url}

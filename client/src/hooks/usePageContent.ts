@@ -5,6 +5,8 @@ interface TextStyle {
   isBold: boolean;
   isItalic: boolean;
   isUnderline: boolean;
+  fontSize?: string | null;
+  fontColor?: string | null;
 }
 
 /**
@@ -42,6 +44,8 @@ export function usePageContent(page: string) {
         isBold: style.isBold,
         isItalic: style.isItalic,
         isUnderline: style.isUnderline,
+        fontSize: style.fontSize,
+        fontColor: style.fontColor,
       });
     });
   }
@@ -72,13 +76,15 @@ export function usePageContent(page: string) {
     return classes.join(' ');
   };
 
-  // Helper to get inline styles for text styling (for elements that don't support classes well)
+  // Helper to get inline styles for text styling (includes font size and color)
   const getInlineStyles = (key: string): React.CSSProperties => {
     const style = getTextStyle(key);
     return {
       fontWeight: style.isBold ? 'bold' : undefined,
       fontStyle: style.isItalic ? 'italic' : undefined,
       textDecoration: style.isUnderline ? 'underline' : undefined,
+      fontSize: style.fontSize || undefined,
+      color: style.fontColor || undefined,
     };
   };
 
