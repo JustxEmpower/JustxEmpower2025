@@ -1731,3 +1731,10 @@ NODE_ENV=production
 - [x] Added "Publish immediately" checkbox to save dialog
 - [x] Pages can now be saved as drafts (published: 0)
 - [x] Draft pages appear in "Drafts Only" filter in Page Library
+
+## Color Picker Fix - January 8, 2026
+- [x] Expanded color palette from 16 to 48 colors
+- [x] Organized colors by category (Grayscale, Warm, Cool, Brand)
+- [x] Fixed dropdown cut-off issue using React Portal
+- [x] Added color names as tooltips
+- [x] Added custom color picker with hex input
