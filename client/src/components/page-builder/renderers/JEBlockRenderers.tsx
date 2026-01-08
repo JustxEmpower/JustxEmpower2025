@@ -111,32 +111,25 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
       style={{ minHeight: minHeight === '100vh' ? '500px' : minHeight }}
     >
       {/* Video Background */}
-      {videoUrl && !videoError && (
+      {videoUrl && (
         <video
-          src={videoUrl}
           ref={videoRef}
+          src={videoUrl}
           autoPlay
           muted
           loop
           playsInline
           poster={posterImageUrl}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
-          style={{ zIndex: 1 }} />
+          className="absolute inset-0 w-full h-full object-cover"
+          style={{ zIndex: 1 }}
+        />
       )}
       
-      {/* Image Background (fallback or primary) */}
-      {((!videoUrl && imageUrl) || (videoUrl && !videoLoaded && imageUrl) || (videoError && imageUrl)) && (
+      {/* Image Background (when no video) */}
+      {!videoUrl && imageUrl && (
         <div 
           className="absolute inset-0 w-full h-full bg-cover bg-center"
           style={{ backgroundImage: `url(${imageUrl})`, zIndex: 1 }}
-        />
-      )}
-
-      {/* Poster Image while video loads */}
-      {videoUrl && !videoLoaded && posterImageUrl && !videoError && (
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${posterImageUrl})`, zIndex: 1 }}
         />
       )}
       
