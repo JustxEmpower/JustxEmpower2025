@@ -134,7 +134,6 @@ export default function VideoThumbnail({
         muted
         playsInline
         preload="auto"
-        crossOrigin=""
         style={{ pointerEvents: 'none' }}
       />
       
