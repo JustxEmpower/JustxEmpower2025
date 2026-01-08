@@ -90,18 +90,18 @@ export default function AutoplayVideo({
   return (
     <video
       ref={videoRef}
+      src={videoUrl}
       autoPlay
       loop
       muted
       playsInline
+      crossOrigin="anonymous"
+      preload="auto"
       poster={poster}
       className={className}
       onLoadedData={onLoadedData}
       onError={onError}
-    >
-      <source src={videoUrl} type={getVideoType(videoUrl)} />
-      Your browser does not support the video tag.
-    </video>
+    />
   );
 }
 

@@ -407,12 +407,11 @@ function VideoBlock({ content }: { content: Record<string, unknown> }) {
           src={videoUrl}
           poster={posterUrl}
           controls
+          crossOrigin="anonymous"
           className="w-full h-full rounded-lg object-cover"
           playsInline
-        >
-          <source src={videoUrl} type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
+          preload="auto"
+        />
       </div>
     );
   }

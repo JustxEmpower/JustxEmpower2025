@@ -211,18 +211,16 @@ export const MediaRenderer = memo(function MediaRenderer({
 
       <video
         ref={videoRef}
+        src={resolvedSrc}
         className={`w-full h-full ${objectFitClass} ${className} transition-opacity duration-500 ${isLoaded ? 'opacity-100' : 'opacity-0'}`}
         autoPlay={autoPlay}
         muted={muted}
         loop={loop}
         playsInline={playsInline}
+        crossOrigin="anonymous"
         poster={resolvedPoster}
         preload="auto"
-      >
-        <source src={resolvedSrc} type="video/mp4" />
-        <source src={resolvedSrc.replace('.mp4', '.webm')} type="video/webm" />
-        Your browser does not support the video tag.
-      </video>
+      />
     </div>
   );
 });
@@ -333,18 +331,17 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
       {videoUrl && !videoError && (
         <video
           ref={videoRef}
+          src={videoUrl}
           autoPlay
           muted
           loop
           playsInline
+          crossOrigin="anonymous"
           poster={posterImageUrl}
+          preload="auto"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
           style={{ zIndex: 1 }}
-        >
-          <source src={videoUrl} type="video/mp4" />
-          <source src={videoUrl} type="video/webm" />
-          <source src={videoUrl} type="video/quicktime" />
-        </video>
+        />
       )}
       
       {/* Image Background (fallback or primary) */}
@@ -888,6 +885,8 @@ export function JEVideoRenderer({ block }: { block: PageBlock }) {
             loop={content.loop !== false}
             muted={isMuted}
             playsInline
+            crossOrigin="anonymous"
+            preload="auto"
             className="w-full h-auto"
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}

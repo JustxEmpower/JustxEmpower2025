@@ -121,20 +121,16 @@ export default function Hero(props: HeroProps = {}) {
           <video
             key={videoUrl} // Force re-render when URL changes
             ref={videoRef}
+            src={videoUrl}
             autoPlay
             muted
             loop
             playsInline
+            crossOrigin="anonymous"
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
             onError={(e) => console.log('Video error:', e)}
-          >
-            {/* MP4 format for most browsers */}
-            <source src={videoUrl} type="video/mp4" />
-            {/* WebM format for better compatibility */}
-            <source src={videoUrl.replace(/\.mp4$/i, '.webm')} type="video/webm" />
-            {/* Fallback message */}
-            Your browser does not support the video tag.
-          </video>
+          />
         )}
         
         {/* Image Background - key prop forces re-render when URL changes */}

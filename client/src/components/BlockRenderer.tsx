@@ -180,16 +180,16 @@ function RenderBlock({ block }: { block: BlockData }) {
             {/* Video Background */}
             {isVideo && bgMedia && (
               <video
+                src={bgMedia}
                 autoPlay
                 muted
                 loop
                 playsInline
+                crossOrigin="anonymous"
+                preload="auto"
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ zIndex: 0 }}
-              >
-                <source src={bgMedia} type={bgMedia.endsWith('.mov') ? 'video/quicktime' : bgMedia.endsWith('.webm') ? 'video/webm' : 'video/mp4'} />
-                Your browser does not support the video tag.
-              </video>
+              />
             )}
             {/* Overlay */}
             {cleanContent.overlay && (cleanContent.backgroundImage || isVideo) && (

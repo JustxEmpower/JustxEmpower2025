@@ -323,6 +323,8 @@ export function MediaFieldWithPicker({
                 muted
                 playsInline
                 loop
+                crossOrigin="anonymous"
+                preload="metadata"
                 onMouseEnter={(e) => e.currentTarget.play()}
                 onMouseLeave={(e) => {
                   e.currentTarget.pause();
