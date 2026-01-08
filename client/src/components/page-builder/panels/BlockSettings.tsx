@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
+import VideoThumbnail from '@/components/VideoThumbnail';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -369,14 +370,12 @@ function MediaFieldWithPicker({
       {value && (
         <div className="relative w-full h-24 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800">
           {isVideo ? (
-            <div className="w-full h-full flex items-center justify-center bg-neutral-200 dark:bg-neutral-700">
-              <div className="flex flex-col items-center gap-1">
-                <Play className="w-8 h-8 text-neutral-500" />
-                <span className="text-xs text-neutral-500 truncate max-w-[200px]">
-                  {value.split('/').pop()}
-                </span>
-              </div>
-            </div>
+            <VideoThumbnail
+              src={value}
+              alt="Video preview"
+              className="w-full h-full"
+              showPlayIcon={true}
+            />
           ) : (
             <img
               src={value}

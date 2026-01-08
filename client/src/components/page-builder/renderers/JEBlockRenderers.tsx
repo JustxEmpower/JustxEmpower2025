@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { Link } from 'wouter';
 import { PageBlock } from '../usePageBuilderStore';
 import Carousel from '@/components/Carousel';
@@ -20,6 +20,10 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 // JE Hero Block Renderer (handles je-hero-video, je-hero-image, je-hero-split, je-hero)
 export function JEHeroRenderer({ block }: { block: PageBlock }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+
   const content = block.content as {
     videoUrl?: string;
     imageUrl?: string;
@@ -56,10 +60,50 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
 
   // Debug logging
   console.log('[JEHeroRenderer] Block type:', block.type);
-  console.log('[JEHeroRenderer] Video URL input:', content.videoUrl);
-  console.log('[JEHeroRenderer] Video URL resolved:', videoUrl);
-  console.log('[JEHeroRenderer] Image URL input:', content.imageUrl);
-  console.log('[JEHeroRenderer] Image URL resolved:', imageUrl);
+  console.log('[JEHeroRenderer] Video URL:', videoUrl);
+  console.log('[JEHeroRenderer] Image URL:', imageUrl);
+  console.log('[JEHeroRenderer] Has media:', hasMedia);
+
+  // Effect to handle video playback
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video || !videoUrl) return;
+
+    setVideoLoaded(false);
+    setVideoError(false);
+
+    const handleCanPlay = () => {
+      console.log('[JEHeroRenderer] Video can play');
+      setVideoLoaded(true);
+      // Try to play the video
+      video.play().catch(err => {
+        console.warn('[JEHeroRenderer] Autoplay blocked:', err);
+      });
+    };
+
+    const handleError = (e: Event) => {
+      console.error('[JEHeroRenderer] Video error:', e);
+      setVideoError(true);
+    };
+
+    const handleLoadedData = () => {
+      console.log('[JEHeroRenderer] Video data loaded');
+      setVideoLoaded(true);
+    };
+
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('loadeddata', handleLoadedData);
+    video.addEventListener('error', handleError);
+
+    // Force load the video
+    video.load();
+
+    return () => {
+      video.removeEventListener('canplay', handleCanPlay);
+      video.removeEventListener('loadeddata', handleLoadedData);
+      video.removeEventListener('error', handleError);
+    };
+  }, [videoUrl]);
 
   return (
     <section 
@@ -67,34 +111,42 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
       style={{ minHeight: minHeight === '100vh' ? '500px' : minHeight }}
     >
       {/* Video Background */}
-      {videoUrl && (
+      {videoUrl && !videoError && (
         <video
+          ref={videoRef}
           autoPlay
           muted
           loop
           playsInline
           poster={posterImageUrl}
-          className="absolute inset-0 w-full h-full object-cover"
-          onError={(e) => console.error('[JEHeroRenderer] Video error:', e)}
-          onLoadedData={() => console.log('[JEHeroRenderer] Video loaded successfully')}
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+          style={{ zIndex: 1 }}
         >
           <source src={videoUrl} type="video/mp4" />
           <source src={videoUrl} type="video/webm" />
-          Your browser does not support the video tag.
+          <source src={videoUrl} type="video/quicktime" />
         </video>
       )}
       
-      {/* Image Background (fallback) */}
-      {!videoUrl && imageUrl && (
+      {/* Image Background (fallback or primary) */}
+      {((!videoUrl && imageUrl) || (videoUrl && !videoLoaded && imageUrl) || (videoError && imageUrl)) && (
         <div 
           className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${imageUrl})` }}
+          style={{ backgroundImage: `url(${imageUrl})`, zIndex: 1 }}
+        />
+      )}
+
+      {/* Poster Image while video loads */}
+      {videoUrl && !videoLoaded && posterImageUrl && !videoError && (
+        <div 
+          className="absolute inset-0 w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: `url(${posterImageUrl})`, zIndex: 1 }}
         />
       )}
       
       {/* Placeholder when no media */}
       {!hasMedia && (
-        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center">
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center" style={{ zIndex: 1 }}>
           <div className="text-center text-white/40">
             <svg className="w-16 h-16 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -107,11 +159,11 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
       {/* Overlay */}
       <div 
         className="absolute inset-0 bg-black"
-        style={{ opacity: overlayOpacity / 100 }}
+        style={{ opacity: overlayOpacity / 100, zIndex: 2 }}
       />
       
       {/* Content */}
-      <div className={`relative z-10 h-full min-h-[500px] flex flex-col items-center justify-center text-center text-white px-6 py-16`}>
+      <div className="relative h-full min-h-[500px] flex flex-col items-center justify-center text-center text-white px-6 py-16" style={{ zIndex: 10 }}>
         {content.subtitle && (
           <p className="font-sans text-xs uppercase tracking-[0.3em] text-white/80 mb-6">
             {content.subtitle}
