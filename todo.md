@@ -1726,3 +1726,8 @@ NODE_ENV=production
 - [x] Fixed drag-and-drop to update parentId when moving pages between parents
 - [x] Updated reorder mutation to accept parentId parameter
 - [x] Updated reorderPages function to update parentId in database
+
+## Page Builder Save as Draft Feature - January 8, 2026
+- [x] Added "Publish immediately" checkbox to save dialog
+- [x] Pages can now be saved as drafts (published: 0)
+- [x] Draft pages appear in "Drafts Only" filter in Page Library

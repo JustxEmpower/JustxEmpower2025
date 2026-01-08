@@ -225,7 +225,8 @@ export default function PageBuilderPage() {
     }>,
     title: string,
     slug: string,
-    showInNav: boolean
+    showInNav: boolean,
+    published: boolean = true
   ) => {
     try {
       let savedPageId = currentPageId;
@@ -237,7 +238,7 @@ export default function PageBuilderPage() {
           title,
           slug: slug || title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
           template: 'page-builder',
-          published: 1,
+          published: published ? 1 : 0,
           showInNav: showInNav ? 1 : 0,
           navOrder: 100,
         });

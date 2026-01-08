@@ -91,7 +91,8 @@ interface PageBuilderProps {
     }>,
     title: string,
     slug: string,
-    showInNav: boolean
+    showInNav: boolean,
+    published: boolean
   ) => Promise<void>;
 }
 
@@ -131,6 +132,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
   const [showSaveDialog, setShowSaveDialog] = React.useState(false);
   const [pageSlug, setPageSlug] = React.useState('');
   const [showInNav, setShowInNav] = React.useState(false);
+  const [isPublished, setIsPublished] = React.useState(true);
   const [showRecoveryDialog, setShowRecoveryDialog] = React.useState(false);
   const [recoveryData, setRecoveryData] = React.useState<{
     pageTitle: string;
@@ -332,12 +334,13 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
     console.log('pageTitle:', pageTitle);
     console.log('pageSlug:', pageSlug);
     console.log('showInNav:', showInNav);
+    console.log('isPublished:', isPublished);
     
     if (onSave) {
       setSaving(true);
       try {
         console.log('Calling onSave...');
-        await onSave(blocks, pageTitle, pageSlug, showInNav);
+        await onSave(blocks, pageTitle, pageSlug, showInNav, isPublished);
         console.log('onSave completed successfully');
         markAsSaved(); // Clear auto-save and mark as saved
         setShowSaveDialog(false);
@@ -720,6 +723,21 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                 Show in navigation menu
               </Label>
             </div>
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="is-published"
+                checked={isPublished}
+                onCheckedChange={(checked) => setIsPublished(checked as boolean)}
+              />
+              <Label htmlFor="is-published" className="text-sm font-normal">
+                Publish immediately
+              </Label>
+            </div>
+            {!isPublished && (
+              <p className="text-xs text-amber-600 dark:text-amber-400">
+                Page will be saved as draft and won't be visible to visitors
+              </p>
+            )}
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
