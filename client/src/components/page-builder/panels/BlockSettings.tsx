@@ -172,7 +172,7 @@ function renderField(
     );
   }
 
-  // Image fields with MediaPicker
+  // Image fields with MediaPicker - allow both images and videos for hero/background fields
   if (
     key.toLowerCase().includes('image') ||
     key.toLowerCase().includes('src') ||
@@ -183,6 +183,13 @@ function renderField(
     key.toLowerCase().includes('photo') ||
     key.toLowerCase().includes('picture')
   ) {
+    // For hero/background fields, allow both images and videos
+    const allowBothMediaTypes = 
+      key.toLowerCase().includes('hero') ||
+      key.toLowerCase().includes('background') ||
+      key === 'imageUrl' || // JE Hero blocks use imageUrl for both
+      key === 'backgroundImage';
+    
     return (
       <MediaFieldWithPicker
         key={key}
@@ -190,7 +197,7 @@ function renderField(
         label={label}
         value={value as string}
         onChange={onChange}
-        mediaType="image"
+        mediaType={allowBothMediaTypes ? 'all' : 'image'}
       />
     );
   }
