@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,9 +7,14 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, MapPin, Users, Clock, DollarSign } from "lucide-react";
+import { usePageContent } from "@/hooks/usePageContent";
 
 export default function Events() {
+  const [location] = useLocation();
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
+  
+  // Get hero content from CMS
+  const { getContent, isLoading: contentLoading } = usePageContent('events');
   
   const { data: upcomingData, isLoading: loadingUpcoming } = trpc.events.list.useQuery({
     status: "upcoming",
@@ -21,19 +26,31 @@ export default function Events() {
     limit: 20,
   });
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
   const upcomingEvents = upcomingData?.events || [];
   const pastEvents = pastData?.events || [];
   const isLoading = tab === "upcoming" ? loadingUpcoming : loadingPast;
   const events = tab === "upcoming" ? upcomingEvents : pastEvents;
+
+  // Get hero content from CMS with fallbacks
+  const heroTitle = getContent('hero', 'title') || 'Events';
+  const heroSubtitle = getContent('hero', 'subtitle') || '';
+  const heroDescription = getContent('hero', 'description') || 'Join us for transformative experiences designed to empower and inspire your journey.';
 
   return (
     <div className="min-h-screen bg-[var(--theme-background)]">
       {/* Hero Section */}
       <section className="relative py-20 bg-gradient-to-b from-black to-stone-900">
         <div className="container mx-auto px-4 text-center">
-          <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">Events</h1>
+          {heroSubtitle && (
+            <p className="text-sm uppercase tracking-widest text-stone-400 mb-4">{heroSubtitle}</p>
+          )}
+          <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">{heroTitle}</h1>
           <p className="text-lg text-stone-300 max-w-2xl mx-auto">
-            Join us for transformative experiences designed to empower and inspire your journey.
+            {heroDescription}
           </p>
         </div>
       </section>
