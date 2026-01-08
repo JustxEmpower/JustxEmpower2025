@@ -7,6 +7,100 @@ import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { usePageBuilderStore } from '@/components/page-builder/usePageBuilderStore';
 
+// Demo blocks for new pages - defined outside component to avoid recreation
+const DEMO_BLOCKS = [
+  {
+    id: 'demo-hero',
+    type: 'hero',
+    content: {
+      headline: 'Build Beautiful Pages',
+      subheadline: 'Drag and drop blocks to create stunning pages in minutes',
+      ctaText: 'Get Started',
+      ctaLink: '#',
+      variant: 'centered',
+      overlay: false,
+    },
+    order: 0,
+  },
+  {
+    id: 'demo-features',
+    type: 'feature-grid',
+    content: {
+      heading: 'Why Choose Our Builder?',
+      features: [
+        { icon: 'zap', title: 'Fast & Easy', description: 'Build pages in minutes with drag and drop' },
+        { icon: 'shield', title: 'No Code Required', description: 'Visual editing for everyone' },
+        { icon: 'sparkles', title: '50+ Blocks', description: 'Everything you need to build any page' },
+      ],
+      columns: 3,
+    },
+    order: 1,
+  },
+  {
+    id: 'demo-cta',
+    type: 'cta',
+    content: {
+      heading: 'Ready to Get Started?',
+      description: 'Start building your page today with our visual builder.',
+      primaryButton: { text: 'Start Building', link: '#' },
+      secondaryButton: { text: 'Learn More', link: '#' },
+      variant: 'centered',
+    },
+    order: 2,
+  },
+];
+
+// Map Page Builder block types to database block types
+const mapBlockType = (type: string): "text" | "image" | "video" | "quote" | "cta" | "spacer" => {
+  const typeMap: Record<string, "text" | "image" | "video" | "quote" | "cta" | "spacer"> = {
+    'hero': 'text',
+    'text': 'text',
+    'heading': 'text',
+    'quote': 'quote',
+    'feature-grid': 'text',
+    'testimonials': 'text',
+    'team': 'text',
+    'timeline': 'text',
+    'accordion': 'text',
+    'tabs': 'text',
+    'stats': 'text',
+    'cta': 'cta',
+    'alert': 'text',
+    'list': 'text',
+    'checklist': 'text',
+    'code': 'text',
+    'html': 'text',
+    'image': 'image',
+    'gallery': 'image',
+    'video': 'video',
+    'video-background': 'video',
+    'audio': 'video',
+    'carousel': 'image',
+    'embed': 'video',
+    'button': 'cta',
+    'button-group': 'cta',
+    'countdown': 'text',
+    'progress': 'text',
+    'map': 'text',
+    'table': 'text',
+    'pricing': 'text',
+    'social-links': 'text',
+    'share': 'text',
+    'product': 'text',
+    'product-grid': 'text',
+    'contact-form': 'text',
+    'newsletter': 'text',
+    'search': 'text',
+    'logo-grid': 'image',
+    'section': 'text',
+    'columns': 'text',
+    'grid': 'text',
+    'spacer': 'spacer',
+    'divider': 'spacer',
+  };
+  return typeMap[type] || 'text';
+};
+
 export default function PageBuilderPage() {
   const { user, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
@@ -20,7 +114,7 @@ export default function PageBuilderPage() {
   const [pageTitle, setPageTitle] = useState('Untitled Page');
   const [pageSlug, setPageSlug] = useState('');
   
-  const { setBlocks, setPageId: setStorePageId, setPageTitle: setStorePageTitle, clearAutoSave } = usePageBuilderStore();
+  const { clearAutoSave } = usePageBuilderStore();
 
   // Sync currentPageId with URL param when it changes
   useEffect(() => {
@@ -37,7 +131,6 @@ export default function PageBuilderPage() {
     { id: currentPageId! },
     { 
       enabled: !!currentPageId,
-      // Refetch when currentPageId changes
       refetchOnMount: true,
     }
   );
@@ -47,7 +140,6 @@ export default function PageBuilderPage() {
     { pageId: currentPageId! },
     { 
       enabled: !!currentPageId,
-      // Refetch when currentPageId changes
       refetchOnMount: true,
     }
   );
@@ -68,13 +160,47 @@ export default function PageBuilderPage() {
     }
   }, [existingPage]);
 
-  // Mutations
+  // Mutations - must be called before any early returns
   const createPageMutation = trpc.admin.pages.create.useMutation();
   const updatePageMutation = trpc.admin.pages.update.useMutation();
   const createBlockMutation = trpc.admin.pages.blocks.create.useMutation();
   const updateBlockMutation = trpc.admin.pages.blocks.update.useMutation();
   const deleteBlockMutation = trpc.admin.pages.blocks.delete.useMutation();
   const utils = trpc.useUtils();
+
+  // Convert existing blocks to Page Builder format - memoized to prevent unnecessary recalculations
+  // MUST be called before early return to maintain hook order
+  const initialBlocks = useMemo(() => {
+    if (existingBlocks && existingBlocks.length > 0) {
+      return existingBlocks.map(block => {
+        let content: Record<string, unknown> = {};
+        try {
+          content = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
+        } catch (e) {
+          content = {};
+        }
+        
+        // Get the original block type from the content if stored
+        const originalType = (content._originalType as string) || block.type;
+        const { _originalType, ...cleanContent } = content;
+        
+        return {
+          id: String(block.id),
+          type: originalType,
+          content: cleanContent,
+          order: block.order,
+        };
+      });
+    }
+    
+    // Demo blocks for new pages only
+    return DEMO_BLOCKS;
+  }, [existingBlocks]);
+
+  // Use a unique key to force PageBuilder to remount when editing different pages
+  const builderKey = useMemo(() => {
+    return currentPageId ? `page-${currentPageId}` : 'new-page';
+  }, [currentPageId]);
 
   // Show loading state while fetching existing page data
   const isLoadingExistingPage = currentPageId && (pageLoading || blocksLoading);
@@ -193,129 +319,6 @@ export default function PageBuilderPage() {
       throw error;
     }
   };
-
-  // Map Page Builder block types to database block types
-  const mapBlockType = (type: string): "text" | "image" | "video" | "quote" | "cta" | "spacer" => {
-    const typeMap: Record<string, "text" | "image" | "video" | "quote" | "cta" | "spacer"> = {
-      'hero': 'text',
-      'text': 'text',
-      'heading': 'text',
-      'quote': 'quote',
-      'feature-grid': 'text',
-      'testimonials': 'text',
-      'team': 'text',
-      'timeline': 'text',
-      'accordion': 'text',
-      'tabs': 'text',
-      'stats': 'text',
-      'cta': 'cta',
-      'alert': 'text',
-      'list': 'text',
-      'checklist': 'text',
-      'code': 'text',
-      'html': 'text',
-      'image': 'image',
-      'gallery': 'image',
-      'video': 'video',
-      'video-background': 'video',
-      'audio': 'video',
-      'carousel': 'image',
-      'embed': 'video',
-      'button': 'cta',
-      'button-group': 'cta',
-      'countdown': 'text',
-      'progress': 'text',
-      'map': 'text',
-      'table': 'text',
-      'pricing': 'text',
-      'social-links': 'text',
-      'share': 'text',
-      'product': 'text',
-      'product-grid': 'text',
-      'contact-form': 'text',
-      'newsletter': 'text',
-      'search': 'text',
-      'logo-grid': 'image',
-      'section': 'text',
-      'columns': 'text',
-      'grid': 'text',
-      'spacer': 'spacer',
-      'divider': 'spacer',
-    };
-    return typeMap[type] || 'text';
-  };
-
-  // Convert existing blocks to Page Builder format - memoized to prevent unnecessary recalculations
-  const initialBlocks = useMemo(() => {
-    if (existingBlocks && existingBlocks.length > 0) {
-      return existingBlocks.map(block => {
-        let content: Record<string, unknown> = {};
-        try {
-          content = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
-        } catch (e) {
-          content = {};
-        }
-        
-        // Get the original block type from the content if stored
-        const originalType = (content._originalType as string) || block.type;
-        const { _originalType, ...cleanContent } = content;
-        
-        return {
-          id: String(block.id),
-          type: originalType,
-          content: cleanContent,
-          order: block.order,
-        };
-      });
-    }
-    
-    // Demo blocks for new pages only
-    return [
-      {
-        id: 'demo-hero',
-        type: 'hero',
-        content: {
-          headline: 'Build Beautiful Pages',
-          subheadline: 'Drag and drop blocks to create stunning pages in minutes',
-          ctaText: 'Get Started',
-          ctaLink: '#',
-          variant: 'centered',
-          overlay: false,
-        },
-        order: 0,
-      },
-      {
-        id: 'demo-features',
-        type: 'feature-grid',
-        content: {
-          heading: 'Why Choose Our Builder?',
-          features: [
-            { icon: 'zap', title: 'Fast & Easy', description: 'Build pages in minutes with drag and drop' },
-            { icon: 'shield', title: 'No Code Required', description: 'Visual editing for everyone' },
-            { icon: 'sparkles', title: '50+ Blocks', description: 'Everything you need to build any page' },
-          ],
-          columns: 3,
-        },
-        order: 1,
-      },
-      {
-        id: 'demo-cta',
-        type: 'cta',
-        content: {
-          heading: 'Ready to Get Started?',
-          description: 'Start building your page today with our visual builder.',
-          primaryButton: { text: 'Start Building', link: '#' },
-          secondaryButton: { text: 'Learn More', link: '#' },
-          variant: 'centered',
-        },
-        order: 2,
-      },
-    ];
-  }, [existingBlocks]);
-
-  // Use a unique key to force PageBuilder to remount when editing different pages
-  // This ensures the blocksInitializedRef gets reset for each page
-  const builderKey = currentPageId ? `page-${currentPageId}` : 'new-page';
 
   return (
     <PageBuilder
