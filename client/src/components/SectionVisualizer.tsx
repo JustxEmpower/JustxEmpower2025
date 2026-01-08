@@ -33,6 +33,8 @@ const sectionTypeStyles: Record<string, { borderColor: string; bgColor: string; 
   'rooted-unity': { borderColor: 'border-yellow-400', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
   rootedUnity: { borderColor: 'border-yellow-400', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
   rooted: { borderColor: 'border-yellow-400', bgColor: 'bg-yellow-50', textColor: 'text-yellow-700' },
+  pointsOfAccess: { borderColor: 'border-lime-400', bgColor: 'bg-lime-50', textColor: 'text-lime-700' },
+  'points-of-access': { borderColor: 'border-lime-400', bgColor: 'bg-lime-50', textColor: 'text-lime-700' },
   principles: { borderColor: 'border-violet-400', bgColor: 'bg-violet-50', textColor: 'text-violet-700' },
   pillars: { borderColor: 'border-fuchsia-400', bgColor: 'bg-fuchsia-50', textColor: 'text-fuchsia-700' },
   philosophy: { borderColor: 'border-sky-400', bgColor: 'bg-sky-50', textColor: 'text-sky-700' },
@@ -53,6 +55,7 @@ const getSectionType = (sectionName: string): string => {
   if (lowerSection.includes('form')) return 'form';
   if (lowerSection.includes('carousel')) return 'carousel';
   if (lowerSection.includes('community') || lowerSection.includes('emerge')) return 'community';
+  if (lowerSection.includes('points') && lowerSection.includes('access')) return 'pointsOfAccess';
   if (lowerSection.includes('rooted') || lowerSection.includes('unity')) return 'rooted-unity';
   if (lowerSection.includes('principles')) return 'principles';
   if (lowerSection.includes('pillars')) return 'pillars';

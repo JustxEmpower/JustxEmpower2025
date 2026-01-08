@@ -41,7 +41,7 @@ export default function Home() {
 
   const philosophySection = getSection('philosophy');
   const communitySection = getSection('community');
-  const rootedUnitySection = getSection('rootedUnity');
+  const pointsOfAccessSection = getSection('pointsOfAccess');
   
   // Get hero section data
   const heroSection = getSection('hero');
@@ -106,13 +106,13 @@ export default function Home() {
         />
 
         <Section 
-          title={rootedUnitySection.title || 'Rooted Unity'}
-          subtitle={rootedUnitySection.label || 'Coming 2026'}
-          description={rootedUnitySection.description || 'Ecological stewardship meets personal healing. Recognizing that our internal landscape mirrors the external world, we embark on a journey of regenerative living and planetary care—understanding that tending the Earth is an extension of tending the self.'}
-          image={rootedUnitySection.imageUrl ? getProperMediaUrl(rootedUnitySection.imageUrl) : undefined}
-          imageAlt="Forest sunlight representing growth"
-          ctaText={rootedUnitySection.ctaText || 'Learn More'}
-          ctaLink={rootedUnitySection.ctaLink || '/offerings/rooted-unity'}
+          title={pointsOfAccessSection.title || 'Points of Access'}
+          subtitle={pointsOfAccessSection.subtitle || 'Ways to connect with the work'}
+          description={pointsOfAccessSection.description || 'Engagement happens through published works, ongoing essays, select gatherings, and updates as new initiatives launch.'}
+          image={pointsOfAccessSection.imageUrl ? getProperMediaUrl(pointsOfAccessSection.imageUrl) : undefined}
+          imageAlt="Connection and engagement"
+          ctaText={pointsOfAccessSection.ctaText || 'Learn More'}
+          ctaLink={pointsOfAccessSection.ctaLink || '/vision-ethos'}
           // Pass text styles from RDS
           textStyles={{
             title: getTextStyle('title'),
