@@ -1738,3 +1738,48 @@ NODE_ENV=production
 - [x] Fixed dropdown cut-off issue using React Portal
 - [x] Added color names as tooltips
 - [x] Added custom color picker with hex input
+
+## Comprehensive Content Audit & Fixes - January 8, 2026
+
+### Legal Pages CMS Integration
+- [x] Accessibility Statement - Fixed all 9 sections to render from CMS
+- [x] Privacy Policy - Fixed all 7 sections to render from CMS
+- [x] Terms of Service - Fixed all 9 sections to render from CMS
+- [x] Cookie Policy - Fixed all 7 sections to render from CMS
+- [x] Cleaned up duplicate/test data entries from database
+- [x] Created SQL fix scripts for all legal pages
+
+### Page Builder Fixes
+- [x] Fixed route parameter mismatch (:id → :pageId)
+- [x] Fixed page ID extraction from URL params
+- [x] Added URL param sync effect for proper page switching
+- [x] Added data refetch when page ID changes
+- [x] Added clearAutoSave after successful save
+- [x] Memoized initialBlocks to prevent recalculations
+- [x] Fixed useMemo hook order error (React #310)
+
+### Pages Manager Fixes
+- [x] Fixed drag-and-drop to update parentId when moving pages between parents
+- [x] Updated backend reorder mutation to accept and save parentId
+- [x] Pages can now be moved to different dropdown menus
+
+### Page Builder Save as Draft
+- [x] Added "Publish immediately" checkbox to save dialog
+- [x] Unchecking saves page as draft (published: 0)
+- [x] Draft pages appear in "Drafts Only" filter
+
+### Color Picker Fix
+- [x] Expanded from 16 to 48 colors
+- [x] Organized by category: Grayscale, Warm, Cool, Brand
+- [x] Fixed cut-off issue using React Portal
+- [x] Added color name tooltips on hover
+
+### Events Page CMS Integration
+- [x] Updated Events.tsx to use usePageContent('events')
+- [x] Created seed script for events page content
+
+### Database Cleanup
+- [x] Seeded 25 pages into pages table for Page Library
+- [x] Removed orphan sections from Philosophy page
+- [x] Removed duplicate "Our Offerings" sections from Home page
+- [x] Cleaned up test data from accessibility page
