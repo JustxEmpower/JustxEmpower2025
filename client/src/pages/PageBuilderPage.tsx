@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import PageBuilder from '@/components/page-builder/PageBuilder';
 import { useAuth } from '@/_core/hooks/useAuth';
 import { useLocation, useRoute } from 'wouter';
@@ -10,26 +10,55 @@ import { usePageBuilderStore } from '@/components/page-builder/usePageBuilderSto
 export default function PageBuilderPage() {
   const { user, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
-  const [, params] = useRoute('/admin/page-builder/:id');
-  const pageId = params?.id ? parseInt(params.id) : undefined;
+  const [, params] = useRoute('/admin/page-builder/:pageId');
   
-  const [currentPageId, setCurrentPageId] = useState<number | undefined>(pageId);
+  // Parse pageId from URL params - this will update when URL changes
+  const pageIdFromUrl = params?.pageId ? parseInt(params.pageId) : undefined;
+  
+  // Use the URL param directly instead of local state to ensure sync
+  const [currentPageId, setCurrentPageId] = useState<number | undefined>(pageIdFromUrl);
   const [pageTitle, setPageTitle] = useState('Untitled Page');
   const [pageSlug, setPageSlug] = useState('');
   
-  const { setBlocks, setPageId: setStorePageId, setPageTitle: setStorePageTitle } = usePageBuilderStore();
+  const { setBlocks, setPageId: setStorePageId, setPageTitle: setStorePageTitle, clearAutoSave } = usePageBuilderStore();
+
+  // Sync currentPageId with URL param when it changes
+  useEffect(() => {
+    if (pageIdFromUrl !== currentPageId) {
+      setCurrentPageId(pageIdFromUrl);
+      // Reset local state when switching pages
+      setPageTitle('Untitled Page');
+      setPageSlug('');
+    }
+  }, [pageIdFromUrl, currentPageId]);
 
   // Fetch page details if editing
-  const { data: existingPage, isLoading: pageLoading } = trpc.admin.pages.getById.useQuery(
+  const { data: existingPage, isLoading: pageLoading, refetch: refetchPage } = trpc.admin.pages.getById.useQuery(
     { id: currentPageId! },
-    { enabled: !!currentPageId }
+    { 
+      enabled: !!currentPageId,
+      // Refetch when currentPageId changes
+      refetchOnMount: true,
+    }
   );
 
   // Fetch page blocks if editing existing page
-  const { data: existingBlocks, isLoading: blocksLoading } = trpc.admin.pages.blocks.list.useQuery(
+  const { data: existingBlocks, isLoading: blocksLoading, refetch: refetchBlocks } = trpc.admin.pages.blocks.list.useQuery(
     { pageId: currentPageId! },
-    { enabled: !!currentPageId }
+    { 
+      enabled: !!currentPageId,
+      // Refetch when currentPageId changes
+      refetchOnMount: true,
+    }
   );
+
+  // Refetch data when page ID changes
+  useEffect(() => {
+    if (currentPageId) {
+      refetchPage();
+      refetchBlocks();
+    }
+  }, [currentPageId, refetchPage, refetchBlocks]);
 
   // Update state when page data is loaded
   useEffect(() => {
@@ -149,10 +178,13 @@ export default function PageBuilderPage() {
       utils.admin.navigation.list.invalidate({ location: 'header' });
       utils.admin.navigation.list.invalidate({ location: 'footer' });
 
+      // Clear auto-save after successful save
+      clearAutoSave();
+
       toast.success('Page saved successfully!');
       
       // Update URL if this was a new page
-      if (!pageId && savedPageId) {
+      if (!pageIdFromUrl && savedPageId) {
         setLocation(`/admin/page-builder/${savedPageId}`, { replace: true });
       }
     } catch (error) {
@@ -213,9 +245,10 @@ export default function PageBuilderPage() {
     return typeMap[type] || 'text';
   };
 
-  // Convert existing blocks to Page Builder format - only when data is loaded
-  const initialBlocks = (existingBlocks && existingBlocks.length > 0) 
-    ? existingBlocks.map(block => {
+  // Convert existing blocks to Page Builder format - memoized to prevent unnecessary recalculations
+  const initialBlocks = useMemo(() => {
+    if (existingBlocks && existingBlocks.length > 0) {
+      return existingBlocks.map(block => {
         let content: Record<string, unknown> = {};
         try {
           content = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
@@ -233,49 +266,52 @@ export default function PageBuilderPage() {
           content: cleanContent,
           order: block.order,
         };
-      })
-    : [
-        // Demo blocks for new pages only
-        {
-          id: 'demo-hero',
-          type: 'hero',
-          content: {
-            headline: 'Build Beautiful Pages',
-            subheadline: 'Drag and drop blocks to create stunning pages in minutes',
-            ctaText: 'Get Started',
-            ctaLink: '#',
-            variant: 'centered',
-            overlay: false,
-          },
-          order: 0,
+      });
+    }
+    
+    // Demo blocks for new pages only
+    return [
+      {
+        id: 'demo-hero',
+        type: 'hero',
+        content: {
+          headline: 'Build Beautiful Pages',
+          subheadline: 'Drag and drop blocks to create stunning pages in minutes',
+          ctaText: 'Get Started',
+          ctaLink: '#',
+          variant: 'centered',
+          overlay: false,
         },
-        {
-          id: 'demo-features',
-          type: 'feature-grid',
-          content: {
-            heading: 'Why Choose Our Builder?',
-            features: [
-              { icon: 'zap', title: 'Fast & Easy', description: 'Build pages in minutes with drag and drop' },
-              { icon: 'shield', title: 'No Code Required', description: 'Visual editing for everyone' },
-              { icon: 'sparkles', title: '50+ Blocks', description: 'Everything you need to build any page' },
-            ],
-            columns: 3,
-          },
-          order: 1,
+        order: 0,
+      },
+      {
+        id: 'demo-features',
+        type: 'feature-grid',
+        content: {
+          heading: 'Why Choose Our Builder?',
+          features: [
+            { icon: 'zap', title: 'Fast & Easy', description: 'Build pages in minutes with drag and drop' },
+            { icon: 'shield', title: 'No Code Required', description: 'Visual editing for everyone' },
+            { icon: 'sparkles', title: '50+ Blocks', description: 'Everything you need to build any page' },
+          ],
+          columns: 3,
         },
-        {
-          id: 'demo-cta',
-          type: 'cta',
-          content: {
-            heading: 'Ready to Get Started?',
-            description: 'Start building your page today with our visual builder.',
-            primaryButton: { text: 'Start Building', link: '#' },
-            secondaryButton: { text: 'Learn More', link: '#' },
-            variant: 'centered',
-          },
-          order: 2,
+        order: 1,
+      },
+      {
+        id: 'demo-cta',
+        type: 'cta',
+        content: {
+          heading: 'Ready to Get Started?',
+          description: 'Start building your page today with our visual builder.',
+          primaryButton: { text: 'Start Building', link: '#' },
+          secondaryButton: { text: 'Learn More', link: '#' },
+          variant: 'centered',
         },
-      ];
+        order: 2,
+      },
+    ];
+  }, [existingBlocks]);
 
   // Use a unique key to force PageBuilder to remount when editing different pages
   // This ensures the blocksInitializedRef gets reset for each page

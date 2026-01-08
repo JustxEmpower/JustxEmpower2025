@@ -1653,3 +1653,18 @@ NODE_ENV=production
 - [x] Add video auto-detection in JE Hero blocks
 - [x] Fix Footer to fetch content from database
 - [x] Clean up orphaned database sections
+
+## Page Builder Fixes - January 8, 2026
+
+### Issues Fixed:
+- [x] Fixed route parameter mismatch in PageBuilderPage.tsx (`:id` → `:pageId`)
+- [x] Fixed page ID extraction from URL params (`params.id` → `params.pageId`)
+- [x] Added URL param sync effect to properly update currentPageId when navigating between pages
+- [x] Added data refetch when page ID changes to ensure fresh data is loaded
+- [x] Added clearAutoSave call after successful save to prevent stale data
+- [x] Memoized initialBlocks to prevent unnecessary recalculations
+
+### Remaining Issues to Verify:
+- [ ] Media Library loading - may need to verify media files exist in production database
+- [ ] Test page loading from Pages tab on production
+- [ ] Test save and resume editing on production
