@@ -36,9 +36,22 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
 
   const overlayOpacity = content.overlayOpacity ?? 40;
   const minHeight = content.minHeight || '100vh';
-  const videoUrl = content.videoUrl ? getMediaUrl(content.videoUrl) : undefined;
-  const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
+  
+  // Helper to detect if URL is a video file
+  const isVideoUrl = (url: string | undefined): boolean => {
+    if (!url) return false;
+    return /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(?:[?#]|$)/i.test(url);
+  };
+  
+  // Get the resolved URLs
+  const rawVideoUrl = content.videoUrl ? getMediaUrl(content.videoUrl) : undefined;
+  const rawImageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
   const posterImageUrl = content.posterImage ? getMediaUrl(content.posterImage) : undefined;
+  
+  // If imageUrl is actually a video file, treat it as videoUrl
+  const imageIsVideo = isVideoUrl(rawImageUrl);
+  const videoUrl = rawVideoUrl || (imageIsVideo ? rawImageUrl : undefined);
+  const imageUrl = imageIsVideo ? undefined : rawImageUrl;
   const hasMedia = videoUrl || imageUrl;
 
   // Debug logging
