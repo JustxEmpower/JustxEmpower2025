@@ -115,7 +115,6 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
         <video
           src={videoUrl}
           ref={videoRef}
-            crossOrigin="anonymous"
           autoPlay
           muted
           loop
