@@ -119,7 +119,7 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
           muted
           loop
           playsInline
-          crossOrigin="anonymous"
+          crossOrigin=""
           poster={posterImageUrl}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
           style={{ zIndex: 1 }} />
@@ -660,7 +660,7 @@ export function JEVideoRenderer({ block }: { block: PageBlock }) {
         <div className="relative rounded-[2rem] overflow-hidden bg-black">
           <video
             ref={videoRef}
-            crossOrigin="anonymous"
+            crossOrigin=""
             src={videoUrl}
             poster={posterUrl}
             autoPlay={content.autoplay}
