@@ -1721,3 +1721,8 @@ NODE_ENV=production
 #### Media Library Fixes
 - [x] Media Library now loads all 29 media files
 - [x] Fixed admin token authentication issue
+
+## Pages Manager Parent Change Fix - January 8, 2026
+- [x] Fixed drag-and-drop to update parentId when moving pages between parents
+- [x] Updated reorder mutation to accept parentId parameter
+- [x] Updated reorderPages function to update parentId in database

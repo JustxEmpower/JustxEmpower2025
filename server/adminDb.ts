@@ -362,13 +362,20 @@ export async function deletePage(id: number) {
   return { success: true };
 }
 
-export async function reorderPages(pageOrders: { id: number; navOrder: number }[]) {
+export async function reorderPages(pageOrders: { id: number; navOrder: number; parentId?: number | null }[]) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  // Update each page's navOrder
+  // Update each page's navOrder and optionally parentId
   for (const page of pageOrders) {
-    await db.update(pages).set({ navOrder: page.navOrder }).where(eq(pages.id, page.id));
+    const updateData: { navOrder: number; parentId?: number | null } = { navOrder: page.navOrder };
+    
+    // Only update parentId if it's explicitly provided (including null to remove parent)
+    if (page.parentId !== undefined) {
+      updateData.parentId = page.parentId;
+    }
+    
+    await db.update(pages).set(updateData).where(eq(pages.id, page.id));
   }
   
   return { success: true };

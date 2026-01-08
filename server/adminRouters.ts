@@ -887,6 +887,7 @@ export const adminRouter = router({
             z.object({
               id: z.number(),
               navOrder: z.number(),
+              parentId: z.number().nullable().optional(),
             })
           ),
         })

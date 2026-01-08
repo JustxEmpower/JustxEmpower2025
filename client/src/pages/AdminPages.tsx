@@ -317,13 +317,52 @@ export default function AdminPages() {
     const newIndex = hierarchicalPages.findIndex((p) => p.page.id === over.id);
 
     const reorderedPages = arrayMove(hierarchicalPages, oldIndex, newIndex);
-    const pageOrders = reorderedPages.map((item, index) => ({
-      id: item.page.id,
-      navOrder: index,
-    }));
+    
+    // Determine new parent for each page based on its position in the reordered list
+    // A page becomes a child if it's placed immediately after a top-level page
+    // and before another top-level page (or end of list)
+    const pageUpdates: { id: number; navOrder: number; parentId: number | null }[] = [];
+    let currentParent: Page | null = null;
+    
+    reorderedPages.forEach((item, index) => {
+      const page = item.page;
+      let newParentId: number | null = null;
+      
+      // Check if this page was originally a child page
+      const wasChild = item.isChild;
+      
+      // Look at the previous item to determine if this should be a child
+      if (index > 0) {
+        const prevItem = reorderedPages[index - 1];
+        
+        // If previous item is a top-level page and current item was a child,
+        // make it a child of the previous top-level page
+        if (!prevItem.isChild) {
+          currentParent = prevItem.page;
+        }
+        
+        // If this item was originally a child, keep it as a child of the nearest parent above
+        if (wasChild && currentParent) {
+          newParentId = currentParent.id;
+        }
+      }
+      
+      // If this is a top-level page, reset currentParent
+      if (!wasChild) {
+        currentParent = page;
+        newParentId = null;
+      }
+      
+      pageUpdates.push({
+        id: page.id,
+        navOrder: index,
+        parentId: newParentId,
+      });
+    });
 
     try {
-      await reorderMutation.mutateAsync({ pageOrders });
+      // Update both order and parent for each page
+      await reorderMutation.mutateAsync({ pageOrders: pageUpdates });
       pagesQuery.refetch();
       toast.success("Pages reordered");
     } catch (error) {
