@@ -1,5 +1,4 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
 
 interface ResizableElementProps {
   children: React.ReactNode;
@@ -99,6 +98,9 @@ export default function ResizableElement({
   // Handle drag start for moving
   const handleDragStart = useCallback((e: React.MouseEvent) => {
     if (isResizing) return;
+    // Only start dragging if clicking on the element itself, not on handles
+    if ((e.target as HTMLElement).dataset.handle) return;
+    
     e.preventDefault();
     e.stopPropagation();
     
@@ -213,70 +215,106 @@ export default function ResizableElement({
     return <div className={className}>{children}</div>;
   }
 
-  const handleStyle = (pos: HandlePosition): React.CSSProperties => {
-    const base: React.CSSProperties = {
-      position: 'absolute',
-      width: pos.length === 1 ? '8px' : '10px',
-      height: pos.length === 1 ? '8px' : '10px',
-      backgroundColor: isSelected ? '#3b82f6' : '#94a3b8',
-      border: '2px solid white',
-      borderRadius: '2px',
-      zIndex: 50,
-      boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
-    };
+  const handles: HandlePosition[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
 
-    // Position handles
+  // Get cursor for each handle
+  const getCursor = (pos: HandlePosition): string => {
     switch (pos) {
       case 'n':
-        return { ...base, top: '-5px', left: '50%', transform: 'translateX(-50%)', cursor: 'ns-resize' };
       case 's':
-        return { ...base, bottom: '-5px', left: '50%', transform: 'translateX(-50%)', cursor: 'ns-resize' };
+        return 'ns-resize';
       case 'e':
-        return { ...base, right: '-5px', top: '50%', transform: 'translateY(-50%)', cursor: 'ew-resize' };
       case 'w':
-        return { ...base, left: '-5px', top: '50%', transform: 'translateY(-50%)', cursor: 'ew-resize' };
+        return 'ew-resize';
       case 'ne':
-        return { ...base, top: '-5px', right: '-5px', cursor: 'nesw-resize' };
-      case 'nw':
-        return { ...base, top: '-5px', left: '-5px', cursor: 'nwse-resize' };
-      case 'se':
-        return { ...base, bottom: '-5px', right: '-5px', cursor: 'nwse-resize' };
       case 'sw':
-        return { ...base, bottom: '-5px', left: '-5px', cursor: 'nesw-resize' };
+        return 'nesw-resize';
+      case 'nw':
+      case 'se':
+        return 'nwse-resize';
+      default:
+        return 'pointer';
     }
   };
 
-  const handles: HandlePosition[] = ['n', 's', 'e', 'w', 'ne', 'nw', 'se', 'sw'];
+  // Get position styles for each handle
+  const getHandlePosition = (pos: HandlePosition): React.CSSProperties => {
+    const size = 12;
+    const offset = -6;
+    
+    switch (pos) {
+      case 'n':
+        return { top: offset, left: '50%', transform: 'translateX(-50%)' };
+      case 's':
+        return { bottom: offset, left: '50%', transform: 'translateX(-50%)' };
+      case 'e':
+        return { right: offset, top: '50%', transform: 'translateY(-50%)' };
+      case 'w':
+        return { left: offset, top: '50%', transform: 'translateY(-50%)' };
+      case 'ne':
+        return { top: offset, right: offset };
+      case 'nw':
+        return { top: offset, left: offset };
+      case 'se':
+        return { bottom: offset, right: offset };
+      case 'sw':
+        return { bottom: offset, left: offset };
+      default:
+        return {};
+    }
+  };
 
   return (
-    <motion.div
+    <div
       ref={elementRef}
       className={`relative ${className}`}
       style={{
-        width: dimensions.width,
-        height: dimensions.height,
-        transform: `translate(${position.x}px, ${position.y}px)`,
+        width: dimensions.width !== 'auto' ? dimensions.width : undefined,
+        height: dimensions.height !== 'auto' ? dimensions.height : undefined,
+        transform: position.x !== 0 || position.y !== 0 ? `translate(${position.x}px, ${position.y}px)` : undefined,
         cursor: isDragging ? 'grabbing' : (isSelected ? 'grab' : 'pointer'),
-        outline: isSelected ? '2px solid #3b82f6' : (isEditing ? '1px dashed #94a3b8' : 'none'),
+        outline: isSelected ? '3px solid #3b82f6' : '2px dashed #94a3b8',
         outlineOffset: '2px',
+        boxSizing: 'border-box',
       }}
       onClick={handleClick}
       onMouseDown={isSelected ? handleDragStart : undefined}
-      whileHover={{ outlineColor: '#3b82f6' }}
     >
       {/* Content */}
-      <div className="w-full h-full overflow-hidden">
+      <div className="w-full h-full">
         {children}
       </div>
 
-      {/* Resize handles */}
-      {isSelected && showHandles && (
+      {/* Resize handles - Always show when editing, highlight when selected */}
+      {showHandles && (
         <>
           {handles.map((handle) => (
             <div
               key={handle}
-              style={handleStyle(handle)}
+              data-handle={handle}
+              style={{
+                position: 'absolute',
+                width: '14px',
+                height: '14px',
+                backgroundColor: isSelected ? '#3b82f6' : '#64748b',
+                border: '2px solid white',
+                borderRadius: '3px',
+                cursor: getCursor(handle),
+                zIndex: 9999,
+                boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                opacity: isSelected ? 1 : 0.7,
+                transition: 'opacity 0.15s, background-color 0.15s',
+                ...getHandlePosition(handle),
+              }}
               onMouseDown={(e) => handleResizeStart(e, handle)}
+              onMouseEnter={(e) => {
+                (e.target as HTMLElement).style.backgroundColor = '#2563eb';
+                (e.target as HTMLElement).style.transform = getHandlePosition(handle).transform || 'scale(1.1)';
+              }}
+              onMouseLeave={(e) => {
+                (e.target as HTMLElement).style.backgroundColor = isSelected ? '#3b82f6' : '#64748b';
+                (e.target as HTMLElement).style.transform = getHandlePosition(handle).transform || '';
+              }}
             />
           ))}
         </>
@@ -285,18 +323,45 @@ export default function ResizableElement({
       {/* Dimension tooltip */}
       {showDimensions && (
         <div 
-          className="absolute -top-8 left-1/2 -translate-x-1/2 bg-neutral-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-50"
+          style={{
+            position: 'absolute',
+            top: '-32px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#1e293b',
+            color: 'white',
+            fontSize: '12px',
+            padding: '4px 8px',
+            borderRadius: '4px',
+            whiteSpace: 'nowrap',
+            zIndex: 10000,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+          }}
         >
-          {Math.round(parseDimension(dimensions.width))} × {Math.round(parseDimension(dimensions.height))}
+          {Math.round(parseDimension(dimensions.width))} × {Math.round(parseDimension(dimensions.height))}px
         </div>
       )}
 
       {/* Element type label */}
       {isSelected && (
-        <div className="absolute -bottom-6 left-0 bg-blue-500 text-white text-xs px-2 py-0.5 rounded capitalize">
+        <div 
+          style={{
+            position: 'absolute',
+            bottom: '-24px',
+            left: '0',
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            fontSize: '11px',
+            padding: '2px 8px',
+            borderRadius: '4px',
+            textTransform: 'capitalize',
+            fontWeight: 500,
+            zIndex: 10000,
+          }}
+        >
           {elementType}
         </div>
       )}
-    </motion.div>
+    </div>
   );
 }
