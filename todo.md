@@ -1902,5 +1902,6 @@ NODE_ENV=production
 ## Page Builder Text Editing Fix (Jan 9, 2026)
 - [x] Fix JE Paragraph block type to use 'text' field instead of 'content'
 - [x] Add 'text' to long text fields list in renderField for textarea rendering
-- [ ] Fix resize/stretch functionality for all block elements
+- [x] Remove broken ResizableElement visual handles from JE blocks
+- [x] Style tab controls provide practical sizing (font size, image width/height, margins, etc.)
 - [ ] Add delete element functionality within blocks

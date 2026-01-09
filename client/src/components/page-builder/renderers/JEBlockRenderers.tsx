@@ -1,7 +1,6 @@
 import React, { memo, useState, useRef, useEffect } from 'react';
 import { Link } from 'wouter';
-import { PageBlock, usePageBuilderStore } from '../usePageBuilderStore';
-import ResizableElement from '../ResizableElement';
+import { PageBlock } from '../usePageBuilderStore';
 import Carousel from '@/components/Carousel';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { Heart, Compass, Crown, Leaf, Star, Sparkles, ChevronDown, Mail, Phone, MapPin, ArrowRight, Play, Pause, Volume2, VolumeX, AlertCircle, ImageIcon } from 'lucide-react';
@@ -241,9 +240,6 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
-  
-  // Get element edit mode from store
-  const { isElementEditMode, selectedElementId, selectElement, updateElementStyle } = usePageBuilderStore();
 
   const content = block.content as {
     videoUrl?: string;
@@ -485,118 +481,70 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
       >
         <div className={maxWidthClass}>
           {content.subtitle && (
-            <ResizableElement
-              elementId="subtitle"
-              elementType="subtitle"
-              isEditing={isElementEditMode}
-              isSelected={selectedElementId === `${block.id}-subtitle`}
-              onSelect={() => selectElement(`${block.id}-subtitle`)}
-              onResize={(width, height) => updateElementStyle(block.id, 'subtitle', { width, height })}
-              showHandles={isElementEditMode}
-              minWidth={100}
-              minHeight={20}
-            >
-              <p 
-                className="font-sans uppercase" 
-                style={{ 
-                  color: subtitleColor, 
-                  opacity: 0.9,
-                  fontSize: content.subtitleFontSize || '0.75rem',
-                  letterSpacing: content.subtitleLetterSpacing || '0.3em',
-                  marginBottom: content.subtitleMarginBottom || '1.5rem',
-                }}
-              >
-                {content.subtitle}
-              </p>
-            </ResizableElement>
-          )}
-          
-          <ResizableElement
-            elementId="title"
-            elementType="title"
-            isEditing={isElementEditMode}
-            isSelected={selectedElementId === `${block.id}-title`}
-            onSelect={() => selectElement(`${block.id}-title`)}
-            onResize={(width, height) => updateElementStyle(block.id, 'title', { width, height })}
-            showHandles={isElementEditMode}
-            minWidth={200}
-            minHeight={40}
-          >
-            <h1 
-              className="font-serif"
+            <p 
+              className="font-sans uppercase" 
               style={{ 
-                color: titleColor,
-                fontSize: content.titleFontSize || '5rem',
-                lineHeight: content.titleLineHeight || '1.1',
-                marginBottom: content.titleMarginBottom || '1.5rem',
-                fontWeight: content.titleFontWeight || '300',
-                fontStyle: content.titleFontStyle || 'italic',
+                color: subtitleColor, 
+                opacity: 0.9,
+                fontSize: content.subtitleFontSize || '0.75rem',
+                letterSpacing: content.subtitleLetterSpacing || '0.3em',
+                marginBottom: content.subtitleMarginBottom || '1.5rem',
               }}
             >
-              {content.title || 'Welcome to Just Empower'}
-            </h1>
-          </ResizableElement>
+              {content.subtitle}
+            </p>
+          )}
+          
+          <h1 
+            className="font-serif"
+            style={{ 
+              color: titleColor,
+              fontSize: content.titleFontSize || '5rem',
+              lineHeight: content.titleLineHeight || '1.1',
+              marginBottom: content.titleMarginBottom || '1.5rem',
+              fontWeight: content.titleFontWeight || '300',
+              fontStyle: content.titleFontStyle || 'italic',
+            }}
+          >
+            {content.title || 'Welcome to Just Empower'}
+          </h1>
           
           {content.description && (
-            <ResizableElement
-              elementId="description"
-              elementType="description"
-              isEditing={isElementEditMode}
-              isSelected={selectedElementId === `${block.id}-description`}
-              onSelect={() => selectElement(`${block.id}-description`)}
-              onResize={(width, height) => updateElementStyle(block.id, 'description', { width, height })}
-              showHandles={isElementEditMode}
-              minWidth={150}
-              minHeight={30}
+            <p 
+              className="font-sans" 
+              style={{ 
+                color: descriptionColor, 
+                opacity: 0.9,
+                fontSize: content.descriptionFontSize || '1.125rem',
+                lineHeight: content.descriptionLineHeight || '1.6',
+                marginBottom: content.descriptionMarginBottom || '3rem',
+                maxWidth: content.descriptionMaxWidth || '32rem',
+              }}
             >
-              <p 
-                className="font-sans" 
-                style={{ 
-                  color: descriptionColor, 
-                  opacity: 0.9,
-                  fontSize: content.descriptionFontSize || '1.125rem',
-                  lineHeight: content.descriptionLineHeight || '1.6',
-                  marginBottom: content.descriptionMarginBottom || '3rem',
-                  maxWidth: content.descriptionMaxWidth || '32rem',
-                }}
-              >
-                {content.description}
-              </p>
-            </ResizableElement>
+              {content.description}
+            </p>
           )}
           
           {content.ctaText && content.ctaLink && (
-            <ResizableElement
-              elementId="cta"
-              elementType="cta"
-              isEditing={isElementEditMode}
-              isSelected={selectedElementId === `${block.id}-cta`}
-              onSelect={() => selectElement(`${block.id}-cta`)}
-              onResize={(width, height) => updateElementStyle(block.id, 'cta', { width, height })}
-              showHandles={isElementEditMode}
-              minWidth={100}
-              minHeight={30}
-            >
-              <Link href={content.ctaLink}>
-                <a 
-                  className="inline-block border font-sans uppercase transition-all duration-500"
-                  style={{ 
-                    borderColor: ctaTextColor + '4D', 
-                    color: ctaTextColor,
-                    borderRadius: content.ctaBorderRadius || '9999px',
-                    paddingLeft: content.ctaPaddingX || '2rem',
-                    paddingRight: content.ctaPaddingX || '2rem',
-                    paddingTop: content.ctaPaddingY || '1rem',
-                    paddingBottom: content.ctaPaddingY || '1rem',
-                    fontSize: content.ctaFontSize || '0.875rem',
-                    letterSpacing: content.ctaLetterSpacing || '0.2em',
-                    borderWidth: content.ctaBorderWidth || '1px',
-                  }}
-                >
-                  {content.ctaText}
-                </a>
-              </Link>
-            </ResizableElement>
+            <Link href={content.ctaLink}>
+              <a 
+                className="inline-block border font-sans uppercase transition-all duration-500"
+                style={{ 
+                  borderColor: ctaTextColor + '4D', 
+                  color: ctaTextColor,
+                  borderRadius: content.ctaBorderRadius || '9999px',
+                  paddingLeft: content.ctaPaddingX || '2rem',
+                  paddingRight: content.ctaPaddingX || '2rem',
+                  paddingTop: content.ctaPaddingY || '1rem',
+                  paddingBottom: content.ctaPaddingY || '1rem',
+                  fontSize: content.ctaFontSize || '0.875rem',
+                  letterSpacing: content.ctaLetterSpacing || '0.2em',
+                  borderWidth: content.ctaBorderWidth || '1px',
+                }}
+              >
+                {content.ctaText}
+              </a>
+            </Link>
           )}
         </div>
       </div>
@@ -606,8 +554,6 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
 
 // JE Section Block Renderer (handles je-section-standard, je-section-fullwidth, je-section-full-width)
 export function JESectionRenderer({ block }: { block: PageBlock }) {
-  // Get element edit mode from store
-  const { isElementEditMode, selectedElementId, selectElement, updateElementStyle } = usePageBuilderStore();
   
   const content = block.content as {
     title?: string;
@@ -704,170 +650,109 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
         {/* Text Content */}
         <div className={content.reversed ? 'lg:order-2' : ''} style={{ textAlign: textAlign as any }}>
           {(content.subtitle || content.label) && (
-            <ResizableElement
-              elementId="subtitle"
-              elementType="subtitle"
-              isEditing={isElementEditMode}
-              isSelected={selectedElementId === `${block.id}-subtitle`}
-              onSelect={() => selectElement(`${block.id}-subtitle`)}
-              onResize={(width, height) => updateElementStyle(block.id, 'subtitle', { width, height })}
-              showHandles={isElementEditMode}
-              minWidth={80}
-              minHeight={16}
-            >
-              <p 
-                className="font-sans uppercase"
-                style={{ 
-                  color: subtitleColor || undefined,
-                  fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
-                  letterSpacing: content.subtitleLetterSpacing || '0.2em',
-                  marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
-                }}
-              >
-                {content.label || content.subtitle}
-              </p>
-            </ResizableElement>
-          )}
-          
-          <ResizableElement
-            elementId="title"
-            elementType="title"
-            isEditing={isElementEditMode}
-            isSelected={selectedElementId === `${block.id}-title`}
-            onSelect={() => selectElement(`${block.id}-title`)}
-            onResize={(width, height) => updateElementStyle(block.id, 'title', { width, height })}
-            showHandles={isElementEditMode}
-            minWidth={150}
-            minHeight={30}
-          >
-            <h2 
-              className="font-serif"
+            <p 
+              className="font-sans uppercase"
               style={{ 
-                color: titleColor,
-                fontSize: content.titleFontSize || '3rem',
-                lineHeight: content.titleLineHeight || '1.2',
-                marginBottom: content.titleMarginBottom || '2rem',
-                fontWeight: content.titleFontWeight || '300',
-                fontStyle: content.titleFontStyle || 'italic',
+                color: subtitleColor || undefined,
+                fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
+                letterSpacing: content.subtitleLetterSpacing || '0.2em',
+                marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
               }}
             >
-              {content.title || 'Section Title'}
-            </h2>
-          </ResizableElement>
+              {content.label || content.subtitle}
+            </p>
+          )}
+          
+          <h2 
+            className="font-serif"
+            style={{ 
+              color: titleColor,
+              fontSize: content.titleFontSize || '3rem',
+              lineHeight: content.titleLineHeight || '1.2',
+              marginBottom: content.titleMarginBottom || '2rem',
+              fontWeight: content.titleFontWeight || '300',
+              fontStyle: content.titleFontStyle || 'italic',
+            }}
+          >
+            {content.title || 'Section Title'}
+          </h2>
           
           {content.description && (
-            <ResizableElement
-              elementId="description"
-              elementType="description"
-              isEditing={isElementEditMode}
-              isSelected={selectedElementId === `${block.id}-description`}
-              onSelect={() => selectElement(`${block.id}-description`)}
-              onResize={(width, height) => updateElementStyle(block.id, 'description', { width, height })}
-              showHandles={isElementEditMode}
-              minWidth={100}
-              minHeight={20}
+            <p 
+              className="font-sans" 
+              style={{ 
+                color: descriptionColor, 
+                opacity: 0.8,
+                fontSize: content.descriptionFontSize || '1.125rem',
+                lineHeight: content.descriptionLineHeight || '1.75',
+                marginBottom: content.descriptionMarginBottom || '2rem',
+                maxWidth: content.descriptionMaxWidth || '100%',
+              }}
             >
-              <p 
-                className="font-sans" 
-                style={{ 
-                  color: descriptionColor, 
-                  opacity: 0.8,
-                  fontSize: content.descriptionFontSize || '1.125rem',
-                  lineHeight: content.descriptionLineHeight || '1.75',
-                  marginBottom: content.descriptionMarginBottom || '2rem',
-                  maxWidth: content.descriptionMaxWidth || '100%',
-                }}
-              >
-                {content.description}
-              </p>
-            </ResizableElement>
+              {content.description}
+            </p>
           )}
           
           {content.ctaText && content.ctaLink && (
-            <ResizableElement
-              elementId="cta"
-              elementType="cta"
-              isEditing={isElementEditMode}
-              isSelected={selectedElementId === `${block.id}-cta`}
-              onSelect={() => selectElement(`${block.id}-cta`)}
-              onResize={(width, height) => updateElementStyle(block.id, 'cta', { width, height })}
-              showHandles={isElementEditMode}
-              minWidth={80}
-              minHeight={24}
-            >
-              <Link href={content.ctaLink}>
-                <a 
-                  className="inline-block border font-sans uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
-                  style={{ 
-                    color: ctaTextColor, 
-                    borderColor: ctaTextColor,
-                    borderRadius: content.ctaBorderRadius || '9999px',
-                    paddingLeft: content.ctaPaddingX || '1.5rem',
-                    paddingRight: content.ctaPaddingX || '1.5rem',
-                    paddingTop: content.ctaPaddingY || '0.75rem',
-                    paddingBottom: content.ctaPaddingY || '0.75rem',
-                    fontSize: content.ctaFontSize || '0.875rem',
-                    letterSpacing: content.ctaLetterSpacing || '0.15em',
-                    borderWidth: content.ctaBorderWidth || '1px',
-                  }}
-                >
-                  {content.ctaText}
-                </a>
-              </Link>
-            </ResizableElement>
+            <Link href={content.ctaLink}>
+              <a 
+                className="inline-block border font-sans uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
+                style={{ 
+                  color: ctaTextColor, 
+                  borderColor: ctaTextColor,
+                  borderRadius: content.ctaBorderRadius || '9999px',
+                  paddingLeft: content.ctaPaddingX || '1.5rem',
+                  paddingRight: content.ctaPaddingX || '1.5rem',
+                  paddingTop: content.ctaPaddingY || '0.75rem',
+                  paddingBottom: content.ctaPaddingY || '0.75rem',
+                  fontSize: content.ctaFontSize || '0.875rem',
+                  letterSpacing: content.ctaLetterSpacing || '0.15em',
+                  borderWidth: content.ctaBorderWidth || '1px',
+                }}
+              >
+                {content.ctaText}
+              </a>
+            </Link>
           )}
         </div>
         
         {/* Image */}
-        <ResizableElement
-          elementId="image"
-          elementType="image"
-          isEditing={isElementEditMode}
-          isSelected={selectedElementId === `${block.id}-image`}
-          onSelect={() => selectElement(`${block.id}-image`)}
-          onResize={(width, height) => updateElementStyle(block.id, 'image', { width, height })}
-          showHandles={isElementEditMode}
-          minWidth={100}
-          minHeight={100}
-          lockAspectRatio={true}
+        <div 
           className={`relative ${content.reversed ? 'lg:order-1' : ''}`}
+          style={{
+            marginTop: content.imageMarginTop || '0',
+            marginBottom: content.imageMarginBottom || '0',
+          }}
         >
-          <div 
-            style={{
-              marginTop: content.imageMarginTop || '0',
-              marginBottom: content.imageMarginBottom || '0',
-            }}
-          >
-            {imageUrl ? (
-              <div 
-                className="relative overflow-hidden"
+          {imageUrl ? (
+            <div 
+              className="relative overflow-hidden"
+              style={{
+                borderRadius: content.imageBorderRadius || '2rem',
+                width: content.imageWidth || '100%',
+                maxWidth: content.imageMaxWidth || '100%',
+              }}
+            >
+              <img
+                src={imageUrl}
+                alt={content.imageAlt || 'Section image'}
                 style={{
-                  borderRadius: content.imageBorderRadius || '2rem',
-                  width: content.imageWidth || '100%',
-                  maxWidth: content.imageMaxWidth || '100%',
+                  width: '100%',
+                  height: content.imageHeight || 'auto',
+                  objectFit: (content.imageObjectFit as any) || 'cover',
                 }}
-              >
-                <img
-                  src={imageUrl}
-                  alt={content.imageAlt || 'Section image'}
-                  style={{
-                    width: '100%',
-                    height: content.imageHeight || 'auto',
-                    objectFit: (content.imageObjectFit as any) || 'cover',
-                  }}
-                  onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
-                />
-              </div>
-            ) : (
-              <div 
-                className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
-                style={{ borderRadius: content.imageBorderRadius || '2rem' }}
-              >
-                <span className="text-neutral-400">Add an image</span>
-              </div>
-            )}
-          </div>
-        </ResizableElement>
+                onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
+              />
+            </div>
+          ) : (
+            <div 
+              className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+              style={{ borderRadius: content.imageBorderRadius || '2rem' }}
+            >
+              <span className="text-neutral-400">Add an image</span>
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
