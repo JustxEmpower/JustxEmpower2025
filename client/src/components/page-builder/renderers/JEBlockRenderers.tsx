@@ -1509,3 +1509,292 @@ export function JEFeatureCardRenderer({ block }: { block: PageBlock }) {
     </div>
   );
 }
+
+
+// ==========================================
+// JE CALENDAR RENDERER
+// ==========================================
+
+interface CalendarEvent {
+  id: string;
+  title: string;
+  date: string;
+  type: string;
+  description?: string;
+  link?: string;
+}
+
+interface EventType {
+  id: string;
+  name: string;
+  color: string;
+}
+
+export function JECalendarRenderer({ block }: { block: PageBlock }) {
+  const content = block.content as {
+    title?: string;
+    subtitle?: string;
+    viewMode?: 'calendar' | 'list';
+    showFilters?: boolean;
+    eventTypes?: EventType[];
+    events?: CalendarEvent[];
+  };
+
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<'calendar' | 'list'>(content.viewMode || 'calendar');
+  const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
+
+  const eventTypes = content.eventTypes || [
+    { id: 'workshop', name: 'Workshop', color: '#FFD700' },
+    { id: 'retreat', name: 'Retreat', color: '#22C55E' },
+    { id: 'webinar', name: 'Webinar', color: '#14B8A6' },
+    { id: 'meetup', name: 'Meetup', color: '#3B82F6' },
+    { id: 'conference', name: 'Conference', color: '#EC4899' },
+    { id: 'other', name: 'Other', color: '#6B7280' },
+  ];
+
+  const events = content.events || [];
+
+  // Get days in month
+  const getDaysInMonth = (date: Date) => {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDay = firstDay.getDay();
+    return { daysInMonth, startingDay };
+  };
+
+  const { daysInMonth, startingDay } = getDaysInMonth(currentDate);
+
+  // Get events for a specific date
+  const getEventsForDate = (day: number) => {
+    const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    return events.filter(event => {
+      const eventDate = event.date?.split('T')[0];
+      const matchesDate = eventDate === dateStr;
+      const matchesFilter = !selectedFilter || event.type === selectedFilter;
+      return matchesDate && matchesFilter;
+    });
+  };
+
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+  const goToPrevMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+  };
+
+  const goToToday = () => {
+    setCurrentDate(new Date());
+  };
+
+  const isToday = (day: number) => {
+    const today = new Date();
+    return (
+      day === today.getDate() &&
+      currentDate.getMonth() === today.getMonth() &&
+      currentDate.getFullYear() === today.getFullYear()
+    );
+  };
+
+  return (
+    <section className="py-12 px-6 bg-white">
+      <div className="max-w-6xl mx-auto">
+        {/* View Toggle */}
+        <div className="flex justify-center gap-2 mb-8">
+          <button
+            onClick={() => setViewMode('calendar')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              viewMode === 'calendar'
+                ? 'bg-primary text-white'
+                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+            }`}
+          >
+            📅 Calendar View
+          </button>
+          <button
+            onClick={() => setViewMode('list')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              viewMode === 'list'
+                ? 'bg-primary text-white'
+                : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+            }`}
+          >
+            ☰ List View
+          </button>
+        </div>
+
+        {/* Calendar Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+            <h3 className="font-serif text-2xl">
+              {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
+            </h3>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={goToPrevMonth}
+                className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+              >
+                ‹
+              </button>
+              <button
+                onClick={goToToday}
+                className="px-3 py-1 text-sm hover:bg-neutral-100 rounded-full transition-colors"
+              >
+                Today
+              </button>
+              <button
+                onClick={goToNextMonth}
+                className="p-2 hover:bg-neutral-100 rounded-full transition-colors"
+              >
+                ›
+              </button>
+            </div>
+          </div>
+          {content.showFilters && (
+            <button
+              onClick={() => setSelectedFilter(null)}
+              className="flex items-center gap-2 px-3 py-1 text-sm hover:bg-neutral-100 rounded-full transition-colors"
+            >
+              🔽 Filter
+            </button>
+          )}
+        </div>
+
+        {viewMode === 'calendar' ? (
+          <>
+            {/* Calendar Grid */}
+            <div className="border border-neutral-200 rounded-lg overflow-hidden">
+              {/* Day Headers */}
+              <div className="grid grid-cols-7 bg-neutral-50 border-b border-neutral-200">
+                {dayNames.map(day => (
+                  <div key={day} className="p-3 text-center text-sm font-medium text-neutral-500">
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar Days */}
+              <div className="grid grid-cols-7">
+                {/* Empty cells for days before the 1st */}
+                {Array.from({ length: startingDay }).map((_, i) => (
+                  <div key={`empty-${i}`} className="min-h-[100px] p-2 border-b border-r border-neutral-100 bg-neutral-50" />
+                ))}
+
+                {/* Days of the month */}
+                {Array.from({ length: daysInMonth }).map((_, i) => {
+                  const day = i + 1;
+                  const dayEvents = getEventsForDate(day);
+                  const isTodayCell = isToday(day);
+
+                  return (
+                    <div
+                      key={day}
+                      className={`min-h-[100px] p-2 border-b border-r border-neutral-100 ${
+                        isTodayCell ? 'bg-primary/5 ring-2 ring-primary ring-inset' : ''
+                      }`}
+                    >
+                      <span className={`text-sm ${isTodayCell ? 'font-bold text-primary' : 'text-neutral-600'}`}>
+                        {day}
+                      </span>
+                      <div className="mt-1 space-y-1">
+                        {dayEvents.slice(0, 3).map((event, idx) => {
+                          const eventType = eventTypes.find(t => t.id === event.type);
+                          return (
+                            <div
+                              key={idx}
+                              className="text-xs px-1 py-0.5 rounded truncate"
+                              style={{ backgroundColor: eventType?.color + '30', color: eventType?.color }}
+                            >
+                              {event.title}
+                            </div>
+                          );
+                        })}
+                        {dayEvents.length > 3 && (
+                          <div className="text-xs text-neutral-400">+{dayEvents.length - 3} more</div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Event Type Legend */}
+            <div className="flex flex-wrap gap-4 mt-6 justify-center">
+              {eventTypes.map(type => (
+                <button
+                  key={type.id}
+                  onClick={() => setSelectedFilter(selectedFilter === type.id ? null : type.id)}
+                  className={`flex items-center gap-2 text-sm ${
+                    selectedFilter === type.id ? 'opacity-100' : 'opacity-60 hover:opacity-100'
+                  }`}
+                >
+                  <span
+                    className="w-3 h-3 rounded-full"
+                    style={{ backgroundColor: type.color }}
+                  />
+                  {type.name}
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          /* List View */
+          <div className="space-y-4">
+            {events.length === 0 ? (
+              <div className="text-center py-12 text-neutral-400">
+                No events scheduled
+              </div>
+            ) : (
+              events
+                .filter(event => !selectedFilter || event.type === selectedFilter)
+                .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+                .map((event, idx) => {
+                  const eventType = eventTypes.find(t => t.id === event.type);
+                  const eventDate = new Date(event.date);
+                  return (
+                    <div
+                      key={idx}
+                      className="flex items-start gap-4 p-4 border border-neutral-200 rounded-lg hover:shadow-md transition-shadow"
+                    >
+                      <div className="text-center min-w-[60px]">
+                        <div className="text-2xl font-bold text-primary">{eventDate.getDate()}</div>
+                        <div className="text-xs text-neutral-500 uppercase">
+                          {monthNames[eventDate.getMonth()].slice(0, 3)}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span
+                            className="w-2 h-2 rounded-full"
+                            style={{ backgroundColor: eventType?.color }}
+                          />
+                          <span className="text-xs text-neutral-500">{eventType?.name}</span>
+                        </div>
+                        <h4 className="font-medium">{event.title}</h4>
+                        {event.description && (
+                          <p className="text-sm text-neutral-600 mt-1">{event.description}</p>
+                        )}
+                      </div>
+                      {event.link && (
+                        <Link href={event.link}>
+                          <a className="text-primary text-sm hover:underline">View →</a>
+                        </Link>
+                      )}
+                    </div>
+                  );
+                })
+            )}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}

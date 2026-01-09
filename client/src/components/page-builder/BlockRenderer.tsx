@@ -31,6 +31,7 @@ import {
   JEFooterRenderer,
   JEVolumesRenderer,
   JEFeatureCardRenderer,
+  JECalendarRenderer,
 } from './renderers/JEBlockRenderers';
 import {
   Layout,
@@ -776,6 +777,8 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
         return <JESpacerRenderer block={block} />;
       case 'je-footer':
         return <JEFooterRenderer block={block} />;
+      case 'je-calendar':
+        return <JECalendarRenderer block={block} />;
       default:
         return <PlaceholderBlock block={block} />;
     }
