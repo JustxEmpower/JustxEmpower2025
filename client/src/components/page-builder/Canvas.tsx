@@ -212,6 +212,8 @@ export default function Canvas() {
     selectedBlockId,
     hoveredBlockId,
     isPreviewMode,
+    isElementEditMode,
+    selectedElementId,
     isDragging,
     selectBlock,
     hoverBlock,
@@ -220,6 +222,8 @@ export default function Canvas() {
     moveBlock,
     addBlock,
     setDragging,
+    selectElement,
+    updateElementStyle,
   } = usePageBuilderStore();
 
   const [activeId, setActiveId] = React.useState<string | null>(null);

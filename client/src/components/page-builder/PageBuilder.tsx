@@ -112,6 +112,8 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
     setActiveLeftTab,
     isPreviewMode,
     togglePreviewMode,
+    isElementEditMode,
+    toggleElementEditMode,
     isSaving,
     setSaving,
     undo,
@@ -501,6 +503,28 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                 </Button>
               </TooltipTrigger>
               <TooltipContent>{isPreviewMode ? 'Exit preview' : 'Preview page'}</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant={isElementEditMode ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={toggleElementEditMode}
+                  className={`h-9 px-3 gap-2 ${isElementEditMode ? 'bg-blue-600 hover:bg-blue-700 text-white' : ''}`}
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1" />
+                    <rect x="14" y="3" width="7" height="7" rx="1" />
+                    <rect x="3" y="14" width="7" height="7" rx="1" />
+                    <rect x="14" y="14" width="7" height="7" rx="1" />
+                    <circle cx="21" cy="21" r="2" fill="currentColor" />
+                    <circle cx="3" cy="3" r="2" fill="currentColor" />
+                  </svg>
+                  <span className="text-sm">Edit Elements</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{isElementEditMode ? 'Exit element edit mode' : 'Resize & move elements'}</TooltipContent>
             </Tooltip>
 
             <Tooltip>

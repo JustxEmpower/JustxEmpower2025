@@ -1882,3 +1882,18 @@ NODE_ENV=production
 - [x] Update JEHeroRenderer to apply all element-level styles
 - [x] Update JESectionRenderer to apply all element-level styles
 - [x] Build and verify changes compile successfully
+
+
+## Visual Drag Handles for Element Editing (NEW)
+
+- [x] Create ResizableElement component with drag handles
+- [x] Add resize handles on corners and edges (n, s, e, w, ne, nw, se, sw)
+- [x] Add drag-to-move functionality for repositioning elements
+- [x] Show dimension tooltip during resize
+- [x] Add element type label when selected
+- [x] Add element edit mode state to usePageBuilderStore
+- [x] Add "Edit Elements" toggle button in Page Builder toolbar
+- [x] Integrate ResizableElement into JEHeroRenderer (title, subtitle, description, cta)
+- [x] Integrate ResizableElement into JESectionRenderer (title, subtitle, description, cta, image)
+- [x] Connect resize actions to updateElementStyle for persisting changes
+- [x] Build and verify changes compile successfully

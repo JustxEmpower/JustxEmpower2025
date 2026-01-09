@@ -37,6 +37,10 @@ interface PageBuilderState {
   isPreviewMode: boolean;
   isSaving: boolean;
   
+  // Element editing state
+  isElementEditMode: boolean;
+  selectedElementId: string | null;
+  
   // Panel state
   leftPanelOpen: boolean;
   rightPanelOpen: boolean;
@@ -67,6 +71,12 @@ interface PageBuilderState {
   togglePreviewMode: () => void;
   setPreviewMode: (isPreview: boolean) => void;
   setSaving: (isSaving: boolean) => void;
+  
+  // Element editing actions
+  toggleElementEditMode: () => void;
+  setElementEditMode: (isEditing: boolean) => void;
+  selectElement: (elementId: string | null) => void;
+  updateElementStyle: (blockId: string, elementId: string, styles: Record<string, string>) => void;
   toggleLeftPanel: () => void;
   toggleRightPanel: () => void;
   setActiveLeftTab: (tab: 'blocks' | 'layers' | 'pages') => void;
@@ -146,6 +156,8 @@ export const usePageBuilderStore = create<PageBuilderState>((set, get) => ({
   isDragging: false,
   isPreviewMode: false,
   isSaving: false,
+  isElementEditMode: false,
+  selectedElementId: null,
   leftPanelOpen: true,
   rightPanelOpen: true,
   activeLeftTab: 'blocks',
@@ -303,6 +315,49 @@ export const usePageBuilderStore = create<PageBuilderState>((set, get) => ({
   setPreviewMode: (isPreview) => set({ isPreviewMode: isPreview }),
   
   setSaving: (isSaving) => set({ isSaving }),
+  
+  // Element editing actions
+  toggleElementEditMode: () => set((state) => ({ 
+    isElementEditMode: !state.isElementEditMode,
+    selectedElementId: state.isElementEditMode ? null : state.selectedElementId,
+  })),
+  
+  setElementEditMode: (isEditing) => set({ 
+    isElementEditMode: isEditing,
+    selectedElementId: isEditing ? null : null,
+  }),
+  
+  selectElement: (elementId) => set({ selectedElementId: elementId }),
+  
+  updateElementStyle: (blockId, elementId, styles) => {
+    const { blocks, saveToHistory, autoSave } = get();
+    const newBlocks = blocks.map((block) => {
+      if (block.id === blockId) {
+        // Map element IDs to content property names
+        const styleMapping: Record<string, Record<string, string>> = {
+          'title': { width: 'titleMaxWidth', fontSize: 'titleFontSize' },
+          'subtitle': { width: 'subtitleMaxWidth', fontSize: 'subtitleFontSize' },
+          'description': { width: 'descriptionMaxWidth', fontSize: 'descriptionFontSize' },
+          'image': { width: 'imageWidth', height: 'imageHeight', borderRadius: 'imageBorderRadius' },
+          'cta': { width: 'ctaWidth', borderRadius: 'ctaBorderRadius' },
+        };
+        
+        const mapping = styleMapping[elementId] || {};
+        const updatedContent = { ...block.content };
+        
+        Object.entries(styles).forEach(([key, value]) => {
+          const contentKey = mapping[key] || `${elementId}${key.charAt(0).toUpperCase() + key.slice(1)}`;
+          updatedContent[contentKey] = value;
+        });
+        
+        return { ...block, content: updatedContent };
+      }
+      return block;
+    });
+    set({ blocks: newBlocks, hasUnsavedChanges: true });
+    saveToHistory();
+    autoSave();
+  },
   
   toggleLeftPanel: () => set((state) => ({ leftPanelOpen: !state.leftPanelOpen })),
   
