@@ -858,14 +858,14 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
                   onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
                 />
               </div>
-          ) : (
-            <div 
-              className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
-              style={{ borderRadius: content.imageBorderRadius || '2rem' }}
-            >
-              <span className="text-neutral-400">Add an image</span>
-            </div>
-          )}
+            ) : (
+              <div 
+                className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+                style={{ borderRadius: content.imageBorderRadius || '2rem' }}
+              >
+                <span className="text-neutral-400">Add an image</span>
+              </div>
+            )}
           </div>
         </ResizableElement>
       </div>
