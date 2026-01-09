@@ -253,7 +253,13 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
     overlayOpacity?: number;
     minHeight?: string;
     textAlignment?: string;
+    textColor?: string;
+    backgroundColor?: string;
   };
+
+  // Get custom colors or use defaults
+  const textColor = content.textColor || '#ffffff';
+  const bgColor = content.backgroundColor;
 
   const overlayOpacity = content.overlayOpacity ?? 40;
   const minHeight = content.minHeight || '100vh';
@@ -379,9 +385,12 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
       />
       
       {/* Content */}
-      <div className="relative h-full min-h-[500px] flex flex-col items-center justify-center text-center text-white px-6 py-16" style={{ zIndex: 10 }}>
+      <div 
+        className="relative h-full min-h-[500px] flex flex-col items-center justify-center text-center px-6 py-16" 
+        style={{ zIndex: 10, color: textColor }}
+      >
         {content.subtitle && (
-          <p className="font-sans text-xs uppercase tracking-[0.3em] text-white/80 mb-6">
+          <p className="font-sans text-xs uppercase tracking-[0.3em] mb-6" style={{ opacity: 0.8 }}>
             {content.subtitle}
           </p>
         )}
@@ -391,14 +400,17 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
         </h1>
         
         {content.description && (
-          <p className="font-sans text-lg md:text-xl text-white/80 max-w-2xl mb-12">
+          <p className="font-sans text-lg md:text-xl max-w-2xl mb-12" style={{ opacity: 0.8 }}>
             {content.description}
           </p>
         )}
         
         {content.ctaText && content.ctaLink && (
           <Link href={content.ctaLink}>
-            <a className="inline-block px-8 py-4 border border-white/30 rounded-full font-sans text-sm uppercase tracking-[0.2em] hover:bg-white hover:text-black transition-all duration-500">
+            <a 
+              className="inline-block px-8 py-4 border rounded-full font-sans text-sm uppercase tracking-[0.2em] transition-all duration-500"
+              style={{ borderColor: textColor + '4D', color: textColor }}  /* 4D = 30% opacity */
+            >
               {content.ctaText}
             </a>
           </Link>
@@ -420,14 +432,24 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
     ctaLink?: string;
     reversed?: boolean;
     dark?: boolean;
+    textColor?: string;
+    backgroundColor?: string;
   };
 
-  const bgClass = content.dark ? 'bg-[#1a1a1a] text-white' : 'bg-[#f5f5f0]';
-  const textClass = content.dark ? 'text-white/70' : 'text-neutral-600';
+  // Custom colors override dark mode defaults
+  const hasCustomBg = content.backgroundColor && content.backgroundColor !== '';
+  const hasCustomText = content.textColor && content.textColor !== '';
+  const bgClass = hasCustomBg ? '' : (content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]');
+  const textClass = hasCustomText ? '' : (content.dark ? 'text-white/70' : 'text-neutral-600');
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
 
+  const sectionStyle: React.CSSProperties = {
+    backgroundColor: hasCustomBg ? content.backgroundColor : undefined,
+    color: hasCustomText ? content.textColor : undefined,
+  };
+
   return (
-    <section className={`py-24 px-6 ${bgClass}`}>
+    <section className={`py-24 px-6 ${bgClass}`} style={sectionStyle}>
       <div className={`max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${content.reversed ? 'lg:flex-row-reverse' : ''}`}>
         {/* Text Content */}
         <div className={content.reversed ? 'lg:order-2' : ''}>
@@ -442,7 +464,7 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
           </h2>
           
           {content.description && (
-            <p className={`font-sans text-lg leading-relaxed mb-8 ${textClass}`}>
+            <p className={`font-sans text-lg leading-relaxed mb-8 ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}>
               {content.description}
             </p>
           )}
@@ -970,20 +992,30 @@ export function JETwoColumnRenderer({ block }: { block: PageBlock }) {
     imageUrl?: string;
     imagePosition?: 'left' | 'right';
     dark?: boolean;
+    textColor?: string;
+    backgroundColor?: string;
   };
 
-  const bgClass = content.dark ? 'bg-[#1a1a1a] text-white' : 'bg-[#f5f5f0]';
-  const textClass = content.dark ? 'text-white/70' : 'text-neutral-600';
+  // Custom colors override dark mode defaults
+  const hasCustomBg = content.backgroundColor && content.backgroundColor !== '';
+  const hasCustomText = content.textColor && content.textColor !== '';
+  const bgClass = hasCustomBg ? '' : (content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]');
+  const textClass = hasCustomText ? '' : (content.dark ? 'text-white/70' : 'text-neutral-600');
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
 
+  const sectionStyle: React.CSSProperties = {
+    backgroundColor: hasCustomBg ? content.backgroundColor : undefined,
+    color: hasCustomText ? content.textColor : undefined,
+  };
+
   return (
-    <section className={`py-24 px-6 ${bgClass}`}>
+    <section className={`py-24 px-6 ${bgClass}`} style={sectionStyle}>
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div className={content.imagePosition === 'right' ? 'lg:order-1' : 'lg:order-2'}>
           {content.leftTitle && (
             <h3 className="font-serif text-3xl italic mb-6">{content.leftTitle}</h3>
           )}
-          <p className={`font-sans text-lg leading-relaxed ${textClass}`}>
+          <p className={`font-sans text-lg leading-relaxed ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}>
             {content.leftContent || 'Left column content...'}
           </p>
         </div>
@@ -995,7 +1027,7 @@ export function JETwoColumnRenderer({ block }: { block: PageBlock }) {
               {content.rightTitle && (
                 <h3 className="font-serif text-3xl italic mb-6">{content.rightTitle}</h3>
               )}
-              <p className={`font-sans text-lg leading-relaxed ${textClass}`}>
+              <p className={`font-sans text-lg leading-relaxed ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}>
                 {content.rightContent || 'Right column content...'}
               </p>
             </>
