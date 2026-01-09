@@ -9,6 +9,66 @@ import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 // ==========================================
+// STYLE HELPER FUNCTIONS
+// ==========================================
+
+// Convert Tailwind spacing scale to CSS rem values
+const spacingToRem: Record<string, string> = {
+  '0': '0',
+  '1': '0.25rem',
+  '2': '0.5rem',
+  '3': '0.75rem',
+  '4': '1rem',
+  '5': '1.25rem',
+  '6': '1.5rem',
+  '8': '2rem',
+  '10': '2.5rem',
+  '12': '3rem',
+  '16': '4rem',
+  '20': '5rem',
+  '24': '6rem',
+  '32': '8rem',
+  '40': '10rem',
+  '48': '12rem',
+  '56': '14rem',
+  '64': '16rem',
+};
+
+// Convert spacing value to CSS (handles both Tailwind scale and direct CSS values)
+function toSpacing(value: string | undefined): string | undefined {
+  if (!value || value === '0') return undefined;
+  // If it's a Tailwind spacing number, convert to rem
+  if (spacingToRem[value]) return spacingToRem[value];
+  // If it already has units (rem, px, em, %), return as-is
+  if (/\d+(rem|px|em|%)$/.test(value)) return value;
+  // Otherwise, assume it's a number and convert to rem
+  const num = parseFloat(value);
+  if (!isNaN(num)) return `${num * 0.25}rem`;
+  return value;
+}
+
+// Build common container styles from block content
+function buildContainerStyles(content: Record<string, unknown>): React.CSSProperties {
+  return {
+    backgroundColor: content.backgroundColor && content.backgroundColor !== '#ffffff' ? content.backgroundColor as string : undefined,
+    minHeight: content.minHeight && content.minHeight !== 'auto' ? content.minHeight as string : undefined,
+    maxWidth: content.maxWidth && content.maxWidth !== 'full' ? content.maxWidth as string : undefined,
+    borderRadius: content.borderRadius && content.borderRadius !== 'none' && content.borderRadius !== '0' ? content.borderRadius as string : undefined,
+    paddingTop: toSpacing(content.paddingTop as string),
+    paddingBottom: toSpacing(content.paddingBottom as string),
+    paddingLeft: toSpacing(content.paddingLeft as string),
+    paddingRight: toSpacing(content.paddingRight as string),
+  };
+}
+
+// Build text styles from block content
+function buildTextStyles(content: Record<string, unknown>): React.CSSProperties {
+  return {
+    color: content.textColor && content.textColor !== '#000000' ? content.textColor as string : undefined,
+  };
+}
+
+// ==========================================
 // MEDIA RENDERER COMPONENT (Error-proof)
 // ==========================================
 
@@ -1120,7 +1180,7 @@ export function JERootedUnityRenderer({ block }: { block: PageBlock }) {
 
 // JE Heading Renderer
 export function JEHeadingRenderer({ block }: { block: PageBlock }) {
-  const content = block.content as {
+  const content = block.content as Record<string, unknown> & {
     text?: string;
     label?: string;
     level?: 'h1' | 'h2' | 'h3' | 'h4';
@@ -1132,14 +1192,18 @@ export function JEHeadingRenderer({ block }: { block: PageBlock }) {
   const alignClass = content.alignment === 'center' ? 'text-center' : content.alignment === 'right' ? 'text-right' : 'text-left';
   const sizeClass = content.level === 'h1' ? 'text-5xl md:text-7xl' : content.level === 'h3' ? 'text-3xl md:text-4xl' : content.level === 'h4' ? 'text-2xl md:text-3xl' : 'text-4xl md:text-5xl';
 
+  // Build inline styles from Style tab using helper functions
+  const containerStyle = buildContainerStyles(content);
+  const textStyle = buildTextStyles(content);
+
   return (
-    <div className={`py-8 ${alignClass}`}>
+    <div className={`py-8 ${alignClass}`} style={containerStyle}>
       {content.label && (
         <p className="font-sans text-xs uppercase tracking-[0.2em] text-primary mb-4">
           {content.label}
         </p>
       )}
-      <HeadingTag className={`font-serif ${sizeClass} font-light italic`}>
+      <HeadingTag className={`font-serif ${sizeClass} font-light italic`} style={textStyle}>
         {content.text || 'Heading Text'}
       </HeadingTag>
     </div>
@@ -1148,22 +1212,11 @@ export function JEHeadingRenderer({ block }: { block: PageBlock }) {
 
 // JE Paragraph Renderer
 export function JEParagraphRenderer({ block }: { block: PageBlock }) {
-  const content = block.content as {
+  const content = block.content as Record<string, unknown> & {
     text?: string;
     alignment?: 'left' | 'center' | 'right';
     size?: 'small' | 'medium' | 'large';
     dark?: boolean;
-    // Style tab properties
-    backgroundColor?: string;
-    textColor?: string;
-    minHeight?: string;
-    maxWidth?: string;
-    borderRadius?: string;
-    paddingTop?: string;
-    paddingBottom?: string;
-    paddingLeft?: string;
-    paddingRight?: string;
-    fontSize?: string;
     maxWidthContent?: string;
   };
 
@@ -1171,20 +1224,10 @@ export function JEParagraphRenderer({ block }: { block: PageBlock }) {
   const sizeClass = content.size === 'small' ? 'text-base' : content.size === 'large' ? 'text-xl' : 'text-lg';
   const textClass = content.dark ? 'text-white/70' : 'text-neutral-600';
 
-  // Build inline styles from Style tab
-  const containerStyle: React.CSSProperties = {
-    backgroundColor: content.backgroundColor && content.backgroundColor !== '#ffffff' ? content.backgroundColor : undefined,
-    minHeight: content.minHeight && content.minHeight !== 'auto' ? content.minHeight : undefined,
-    maxWidth: content.maxWidth || undefined,
-    borderRadius: content.borderRadius && content.borderRadius !== '0' ? content.borderRadius : undefined,
-    paddingTop: content.paddingTop || undefined,
-    paddingBottom: content.paddingBottom || undefined,
-    paddingLeft: content.paddingLeft || undefined,
-    paddingRight: content.paddingRight || undefined,
-  };
-
+  // Build inline styles from Style tab using helper functions
+  const containerStyle = buildContainerStyles(content);
   const textStyle: React.CSSProperties = {
-    color: content.textColor && content.textColor !== '#000000' ? content.textColor : undefined,
+    ...buildTextStyles(content),
     maxWidth: content.maxWidthContent || '65ch',
   };
 
