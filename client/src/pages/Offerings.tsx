@@ -70,17 +70,15 @@ export default function Offerings() {
         {/* Video or Image Background */}
         {heroMediaUrl && isHeroVideo ? (
           <video
+            src={getProperMediaUrl(heroMediaUrl)}
             autoPlay
             loop
             muted
             playsInline
+            crossOrigin="anonymous"
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source 
-              src={getProperMediaUrl(heroMediaUrl)} 
-              type={heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
-            />
-          </video>
+          />
         ) : heroMediaUrl ? (
           <div 
             className="absolute inset-0 bg-cover bg-center"

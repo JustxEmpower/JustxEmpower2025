@@ -140,17 +140,15 @@ export default function About() {
           {heroMediaUrl && isHeroVideo ? (
             <video
               ref={videoRef}
+              src={getProperMediaUrl(heroMediaUrl)}
               autoPlay
               muted
               loop
               playsInline
+              crossOrigin="anonymous"
+              preload="auto"
               className="w-full h-full object-cover"
-            >
-              <source 
-                src={getProperMediaUrl(heroMediaUrl)} 
-                type={heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
-              />
-            </video>
+            />
           ) : heroMediaUrl ? (
             <div 
               className="w-full h-full bg-cover bg-center"

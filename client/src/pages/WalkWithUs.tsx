@@ -65,18 +65,15 @@ export default function WalkWithUs() {
         {/* Video or Image Background */}
         {heroMediaUrl && isVideo ? (
           <video
+            src={getProperMediaUrl(heroMediaUrl)}
             autoPlay
             muted
             loop
             playsInline
+            crossOrigin="anonymous"
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source 
-              src={getProperMediaUrl(heroMediaUrl)} 
-              type={heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
-            />
-            Your browser does not support the video tag.
-          </video>
+          />
         ) : heroMediaUrl ? (
           <div 
             className="absolute inset-0 bg-cover bg-center"

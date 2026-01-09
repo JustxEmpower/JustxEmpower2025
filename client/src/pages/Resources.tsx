@@ -252,10 +252,12 @@ export default function Resources() {
             src={fileUrl} 
             controls 
             autoPlay
+            muted
+            playsInline
+            crossOrigin="anonymous"
+            preload="auto"
             className="max-w-full max-h-[70vh]"
-          >
-            Your browser does not support the video tag.
-          </video>
+          />
         </div>
       );
     }

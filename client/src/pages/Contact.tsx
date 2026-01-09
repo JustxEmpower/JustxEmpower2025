@@ -97,17 +97,15 @@ export default function Contact() {
         {/* Video or Image Background */}
         {heroMediaUrl && isVideo ? (
           <video
+            src={heroMediaUrl.startsWith('http') ? heroMediaUrl : getMediaUrl(heroMediaUrl)}
             autoPlay
             loop
             muted
             playsInline
+            crossOrigin="anonymous"
+            preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
-          >
-            <source 
-              src={heroMediaUrl.startsWith('http') ? heroMediaUrl : getMediaUrl(heroMediaUrl)} 
-              type={heroMediaUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} 
-            />
-          </video>
+          />
         ) : heroMediaUrl ? (
           <div 
             className="absolute inset-0 bg-cover bg-center"
