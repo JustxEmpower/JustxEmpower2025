@@ -1153,15 +1153,44 @@ export function JEParagraphRenderer({ block }: { block: PageBlock }) {
     alignment?: 'left' | 'center' | 'right';
     size?: 'small' | 'medium' | 'large';
     dark?: boolean;
+    // Style tab properties
+    backgroundColor?: string;
+    textColor?: string;
+    minHeight?: string;
+    maxWidth?: string;
+    borderRadius?: string;
+    paddingTop?: string;
+    paddingBottom?: string;
+    paddingLeft?: string;
+    paddingRight?: string;
+    fontSize?: string;
+    maxWidthContent?: string;
   };
 
   const alignClass = content.alignment === 'center' ? 'text-center' : content.alignment === 'right' ? 'text-right' : 'text-left';
   const sizeClass = content.size === 'small' ? 'text-base' : content.size === 'large' ? 'text-xl' : 'text-lg';
   const textClass = content.dark ? 'text-white/70' : 'text-neutral-600';
 
+  // Build inline styles from Style tab
+  const containerStyle: React.CSSProperties = {
+    backgroundColor: content.backgroundColor && content.backgroundColor !== '#ffffff' ? content.backgroundColor : undefined,
+    minHeight: content.minHeight && content.minHeight !== 'auto' ? content.minHeight : undefined,
+    maxWidth: content.maxWidth || undefined,
+    borderRadius: content.borderRadius && content.borderRadius !== '0' ? content.borderRadius : undefined,
+    paddingTop: content.paddingTop || undefined,
+    paddingBottom: content.paddingBottom || undefined,
+    paddingLeft: content.paddingLeft || undefined,
+    paddingRight: content.paddingRight || undefined,
+  };
+
+  const textStyle: React.CSSProperties = {
+    color: content.textColor && content.textColor !== '#000000' ? content.textColor : undefined,
+    maxWidth: content.maxWidthContent || '65ch',
+  };
+
   return (
-    <div className={`py-4 ${alignClass}`}>
-      <p className={`font-sans ${sizeClass} leading-relaxed ${textClass}`}>
+    <div className={`py-4 ${alignClass}`} style={containerStyle}>
+      <p className={`font-sans ${sizeClass} leading-relaxed ${textClass}`} style={textStyle}>
         {content.text || 'Add your paragraph text here...'}
       </p>
     </div>
