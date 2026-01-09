@@ -1858,3 +1858,12 @@ NODE_ENV=production
 - [x] Add Carousel-specific controls (card border radius, card height, show title toggle)
 - [x] Add Curved Bottom Edge toggle for Hero blocks
 - [x] Update JEHeroRenderer to use all customization options
+
+
+## Per-Field Font Color Controls (NEW)
+
+- [x] Add per-field color properties to JE block type definitions (titleColor, subtitleColor, descriptionColor, ctaTextColor)
+- [x] Update BlockSettings renderField to detect *Color fields and render color pickers with Clear button
+- [x] Update JEHeroRenderer to apply per-field colors to each text element
+- [x] Update JESectionRenderer to apply per-field colors to each text element
+- [x] Build and verify changes compile successfully

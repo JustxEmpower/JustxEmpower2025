@@ -242,6 +242,49 @@ function renderField(
     );
   }
 
+  // Per-field color picker fields (titleColor, subtitleColor, descriptionColor, etc.)
+  if (key.endsWith('Color') && typeof value === 'string') {
+    // Get the field name this color applies to (e.g., "title" from "titleColor")
+    const fieldName = key.replace('Color', '');
+    const fieldLabel = fieldName
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, (str) => str.toUpperCase());
+    
+    return (
+      <div key={key} className="space-y-2">
+        <Label htmlFor={key} className="text-sm font-medium">
+          {fieldLabel} Color
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            type="color"
+            className="w-12 h-10 p-1 cursor-pointer rounded"
+            value={value || '#ffffff'}
+            onChange={(e) => onChange(key, e.target.value)}
+          />
+          <Input
+            id={key}
+            value={value}
+            onChange={(e) => onChange(key, e.target.value)}
+            placeholder="#ffffff or leave empty for default"
+            className="flex-1 bg-neutral-50 dark:bg-neutral-800"
+          />
+          {value && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="h-10 px-2 text-xs text-muted-foreground hover:text-destructive"
+              onClick={() => onChange(key, '')}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   // Default string fields
   if (typeof value === 'string') {
     return (

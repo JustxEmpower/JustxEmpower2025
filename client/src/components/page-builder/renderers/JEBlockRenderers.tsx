@@ -246,9 +246,13 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
     imageUrl?: string;
     posterImage?: string;
     subtitle?: string;
+    subtitleColor?: string;
     title?: string;
+    titleColor?: string;
     description?: string;
+    descriptionColor?: string;
     ctaText?: string;
+    ctaTextColor?: string;
     ctaLink?: string;
     overlayOpacity?: number;
     minHeight?: string;
@@ -272,6 +276,12 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
   // Get custom colors or use defaults
   const textColor = content.textColor || '#ffffff';
   const bgColor = content.backgroundColor;
+  
+  // Per-field colors (fallback to textColor if not set)
+  const titleColor = content.titleColor || textColor;
+  const subtitleColor = content.subtitleColor || textColor;
+  const descriptionColor = content.descriptionColor || textColor;
+  const ctaTextColor = content.ctaTextColor || textColor;
 
   const overlayOpacity = content.overlayOpacity ?? 40;
   const minHeight = content.minHeight || '100vh';
@@ -445,21 +455,30 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
       {/* Content */}
       <div 
         className={`relative h-full min-h-[500px] flex flex-col ${verticalAlignClass} ${horizontalAlignClass} pt-${paddingTop} pb-${paddingBottom} pl-${paddingLeft} pr-${paddingRight}`}
-        style={{ zIndex: 10, color: textColor }}
+        style={{ zIndex: 10 }}
       >
         <div className={maxWidthClass}>
           {content.subtitle && (
-            <p className="font-sans text-xs uppercase tracking-[0.3em] mb-6" style={{ opacity: 0.8 }}>
+            <p 
+              className="font-sans text-xs uppercase tracking-[0.3em] mb-6" 
+              style={{ color: subtitleColor, opacity: 0.9 }}
+            >
               {content.subtitle}
             </p>
           )}
           
-          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-light italic mb-6">
+          <h1 
+            className="font-serif text-5xl md:text-7xl lg:text-8xl font-light italic mb-6"
+            style={{ color: titleColor }}
+          >
             {content.title || 'Welcome to Just Empower'}
           </h1>
           
           {content.description && (
-            <p className="font-sans text-lg md:text-xl mb-12" style={{ opacity: 0.8 }}>
+            <p 
+              className="font-sans text-lg md:text-xl mb-12" 
+              style={{ color: descriptionColor, opacity: 0.9 }}
+            >
               {content.description}
             </p>
           )}
@@ -468,7 +487,7 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
             <Link href={content.ctaLink}>
               <a 
                 className="inline-block px-8 py-4 border rounded-full font-sans text-sm uppercase tracking-[0.2em] transition-all duration-500"
-                style={{ borderColor: textColor + '4D', color: textColor }}  /* 4D = 30% opacity */
+                style={{ borderColor: ctaTextColor + '4D', color: ctaTextColor }}
               >
                 {content.ctaText}
               </a>
@@ -484,11 +503,17 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
 export function JESectionRenderer({ block }: { block: PageBlock }) {
   const content = block.content as {
     title?: string;
+    titleColor?: string;
     subtitle?: string;
+    subtitleColor?: string;
+    label?: string;
+    labelColor?: string;
     description?: string;
+    descriptionColor?: string;
     imageUrl?: string;
     imageAlt?: string;
     ctaText?: string;
+    ctaTextColor?: string;
     ctaLink?: string;
     reversed?: boolean;
     dark?: boolean;
@@ -500,12 +525,18 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
   const hasCustomBg = content.backgroundColor && content.backgroundColor !== '';
   const hasCustomText = content.textColor && content.textColor !== '';
   const bgClass = hasCustomBg ? '' : (content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]');
-  const textClass = hasCustomText ? '' : (content.dark ? 'text-white/70' : 'text-neutral-600');
+  const defaultTextColor = content.dark ? '#ffffff' : '#1a1a1a';
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
+  
+  // Per-field colors (fallback to textColor or default)
+  const baseTextColor = content.textColor || defaultTextColor;
+  const titleColor = content.titleColor || baseTextColor;
+  const subtitleColor = content.subtitleColor || content.labelColor || undefined; // Let it use primary color if not set
+  const descriptionColor = content.descriptionColor || baseTextColor;
+  const ctaTextColor = content.ctaTextColor || baseTextColor;
 
   const sectionStyle: React.CSSProperties = {
     backgroundColor: hasCustomBg ? content.backgroundColor : undefined,
-    color: hasCustomText ? content.textColor : undefined,
   };
 
   return (
@@ -513,25 +544,37 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
       <div className={`max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${content.reversed ? 'lg:flex-row-reverse' : ''}`}>
         {/* Text Content */}
         <div className={content.reversed ? 'lg:order-2' : ''}>
-          {content.subtitle && (
-            <p className="font-sans text-xs uppercase tracking-[0.2em] text-primary mb-4">
-              {content.subtitle}
+          {(content.subtitle || content.label) && (
+            <p 
+              className="font-sans text-xs uppercase tracking-[0.2em] mb-4"
+              style={{ color: subtitleColor || undefined }}
+            >
+              {content.label || content.subtitle}
             </p>
           )}
           
-          <h2 className="font-serif text-4xl md:text-5xl font-light italic mb-8">
+          <h2 
+            className="font-serif text-4xl md:text-5xl font-light italic mb-8"
+            style={{ color: titleColor }}
+          >
             {content.title || 'Section Title'}
           </h2>
           
           {content.description && (
-            <p className={`font-sans text-lg leading-relaxed mb-8 ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}>
+            <p 
+              className="font-sans text-lg leading-relaxed mb-8" 
+              style={{ color: descriptionColor, opacity: 0.8 }}
+            >
               {content.description}
             </p>
           )}
           
           {content.ctaText && content.ctaLink && (
             <Link href={content.ctaLink}>
-              <a className="inline-block px-6 py-3 border border-current rounded-full font-sans text-sm uppercase tracking-[0.15em] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300">
+              <a 
+                className="inline-block px-6 py-3 border border-current rounded-full font-sans text-sm uppercase tracking-[0.15em] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
+                style={{ color: ctaTextColor, borderColor: ctaTextColor }}
+              >
                 {content.ctaText}
               </a>
             </Link>
