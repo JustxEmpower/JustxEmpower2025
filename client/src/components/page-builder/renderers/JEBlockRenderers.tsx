@@ -271,6 +271,28 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
     paddingBottom?: string;
     paddingLeft?: string;
     paddingRight?: string;
+    // Title Element Controls
+    titleFontSize?: string;
+    titleLineHeight?: string;
+    titleMarginBottom?: string;
+    titleFontWeight?: string;
+    titleFontStyle?: string;
+    // Subtitle Element Controls
+    subtitleFontSize?: string;
+    subtitleLetterSpacing?: string;
+    subtitleMarginBottom?: string;
+    // Description Element Controls
+    descriptionFontSize?: string;
+    descriptionLineHeight?: string;
+    descriptionMarginBottom?: string;
+    descriptionMaxWidth?: string;
+    // CTA Element Controls
+    ctaBorderRadius?: string;
+    ctaPaddingX?: string;
+    ctaPaddingY?: string;
+    ctaFontSize?: string;
+    ctaLetterSpacing?: string;
+    ctaBorderWidth?: string;
   };
 
   // Get custom colors or use defaults
@@ -460,24 +482,44 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
         <div className={maxWidthClass}>
           {content.subtitle && (
             <p 
-              className="font-sans text-xs uppercase tracking-[0.3em] mb-6" 
-              style={{ color: subtitleColor, opacity: 0.9 }}
+              className="font-sans uppercase" 
+              style={{ 
+                color: subtitleColor, 
+                opacity: 0.9,
+                fontSize: content.subtitleFontSize || '0.75rem',
+                letterSpacing: content.subtitleLetterSpacing || '0.3em',
+                marginBottom: content.subtitleMarginBottom || '1.5rem',
+              }}
             >
               {content.subtitle}
             </p>
           )}
           
           <h1 
-            className="font-serif text-5xl md:text-7xl lg:text-8xl font-light italic mb-6"
-            style={{ color: titleColor }}
+            className="font-serif"
+            style={{ 
+              color: titleColor,
+              fontSize: content.titleFontSize || '5rem',
+              lineHeight: content.titleLineHeight || '1.1',
+              marginBottom: content.titleMarginBottom || '1.5rem',
+              fontWeight: content.titleFontWeight || '300',
+              fontStyle: content.titleFontStyle || 'italic',
+            }}
           >
             {content.title || 'Welcome to Just Empower'}
           </h1>
           
           {content.description && (
             <p 
-              className="font-sans text-lg md:text-xl mb-12" 
-              style={{ color: descriptionColor, opacity: 0.9 }}
+              className="font-sans" 
+              style={{ 
+                color: descriptionColor, 
+                opacity: 0.9,
+                fontSize: content.descriptionFontSize || '1.125rem',
+                lineHeight: content.descriptionLineHeight || '1.6',
+                marginBottom: content.descriptionMarginBottom || '3rem',
+                maxWidth: content.descriptionMaxWidth || '32rem',
+              }}
             >
               {content.description}
             </p>
@@ -486,8 +528,19 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
           {content.ctaText && content.ctaLink && (
             <Link href={content.ctaLink}>
               <a 
-                className="inline-block px-8 py-4 border rounded-full font-sans text-sm uppercase tracking-[0.2em] transition-all duration-500"
-                style={{ borderColor: ctaTextColor + '4D', color: ctaTextColor }}
+                className="inline-block border font-sans uppercase transition-all duration-500"
+                style={{ 
+                  borderColor: ctaTextColor + '4D', 
+                  color: ctaTextColor,
+                  borderRadius: content.ctaBorderRadius || '9999px',
+                  paddingLeft: content.ctaPaddingX || '2rem',
+                  paddingRight: content.ctaPaddingX || '2rem',
+                  paddingTop: content.ctaPaddingY || '1rem',
+                  paddingBottom: content.ctaPaddingY || '1rem',
+                  fontSize: content.ctaFontSize || '0.875rem',
+                  letterSpacing: content.ctaLetterSpacing || '0.2em',
+                  borderWidth: content.ctaBorderWidth || '1px',
+                }}
               >
                 {content.ctaText}
               </a>
@@ -519,6 +572,44 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
     dark?: boolean;
     textColor?: string;
     backgroundColor?: string;
+    // Image Element Controls
+    imageWidth?: string;
+    imageHeight?: string;
+    imageMaxWidth?: string;
+    imageBorderRadius?: string;
+    imageObjectFit?: string;
+    imageMarginTop?: string;
+    imageMarginBottom?: string;
+    // Title Element Controls
+    titleFontSize?: string;
+    titleLineHeight?: string;
+    titleMarginBottom?: string;
+    titleFontWeight?: string;
+    titleFontStyle?: string;
+    // Subtitle/Label Element Controls
+    labelFontSize?: string;
+    labelMarginBottom?: string;
+    subtitleFontSize?: string;
+    subtitleLetterSpacing?: string;
+    subtitleMarginBottom?: string;
+    // Description Element Controls
+    descriptionFontSize?: string;
+    descriptionLineHeight?: string;
+    descriptionMarginBottom?: string;
+    descriptionMaxWidth?: string;
+    // CTA Element Controls
+    ctaBorderRadius?: string;
+    ctaPaddingX?: string;
+    ctaPaddingY?: string;
+    ctaFontSize?: string;
+    ctaLetterSpacing?: string;
+    ctaBorderWidth?: string;
+    // Layout Controls
+    contentGap?: string;
+    sectionPaddingY?: string;
+    sectionPaddingX?: string;
+    contentTextAlign?: string;
+    contentVerticalAlign?: string;
   };
 
   // Custom colors override dark mode defaults
@@ -535,35 +626,67 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
   const descriptionColor = content.descriptionColor || baseTextColor;
   const ctaTextColor = content.ctaTextColor || baseTextColor;
 
+  // Layout values
+  const sectionPaddingY = content.sectionPaddingY || '6rem';
+  const sectionPaddingX = content.sectionPaddingX || '1.5rem';
+  const contentGap = content.contentGap || '4rem';
+  const textAlign = content.contentTextAlign || 'left';
+
   const sectionStyle: React.CSSProperties = {
     backgroundColor: hasCustomBg ? content.backgroundColor : undefined,
+    paddingTop: sectionPaddingY,
+    paddingBottom: sectionPaddingY,
+    paddingLeft: sectionPaddingX,
+    paddingRight: sectionPaddingX,
   };
 
   return (
-    <section className={`py-24 px-6 ${bgClass}`} style={sectionStyle}>
-      <div className={`max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center ${content.reversed ? 'lg:flex-row-reverse' : ''}`}>
+    <section className={bgClass} style={sectionStyle}>
+      <div 
+        className={`max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 items-center ${content.reversed ? 'lg:flex-row-reverse' : ''}`}
+        style={{ gap: contentGap }}
+      >
         {/* Text Content */}
-        <div className={content.reversed ? 'lg:order-2' : ''}>
+        <div className={content.reversed ? 'lg:order-2' : ''} style={{ textAlign: textAlign as any }}>
           {(content.subtitle || content.label) && (
             <p 
-              className="font-sans text-xs uppercase tracking-[0.2em] mb-4"
-              style={{ color: subtitleColor || undefined }}
+              className="font-sans uppercase"
+              style={{ 
+                color: subtitleColor || undefined,
+                fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
+                letterSpacing: content.subtitleLetterSpacing || '0.2em',
+                marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
+              }}
             >
               {content.label || content.subtitle}
             </p>
           )}
           
           <h2 
-            className="font-serif text-4xl md:text-5xl font-light italic mb-8"
-            style={{ color: titleColor }}
+            className="font-serif"
+            style={{ 
+              color: titleColor,
+              fontSize: content.titleFontSize || '3rem',
+              lineHeight: content.titleLineHeight || '1.2',
+              marginBottom: content.titleMarginBottom || '2rem',
+              fontWeight: content.titleFontWeight || '300',
+              fontStyle: content.titleFontStyle || 'italic',
+            }}
           >
             {content.title || 'Section Title'}
           </h2>
           
           {content.description && (
             <p 
-              className="font-sans text-lg leading-relaxed mb-8" 
-              style={{ color: descriptionColor, opacity: 0.8 }}
+              className="font-sans" 
+              style={{ 
+                color: descriptionColor, 
+                opacity: 0.8,
+                fontSize: content.descriptionFontSize || '1.125rem',
+                lineHeight: content.descriptionLineHeight || '1.75',
+                marginBottom: content.descriptionMarginBottom || '2rem',
+                maxWidth: content.descriptionMaxWidth || '100%',
+              }}
             >
               {content.description}
             </p>
@@ -572,8 +695,19 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
           {content.ctaText && content.ctaLink && (
             <Link href={content.ctaLink}>
               <a 
-                className="inline-block px-6 py-3 border border-current rounded-full font-sans text-sm uppercase tracking-[0.15em] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
-                style={{ color: ctaTextColor, borderColor: ctaTextColor }}
+                className="inline-block border font-sans uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
+                style={{ 
+                  color: ctaTextColor, 
+                  borderColor: ctaTextColor,
+                  borderRadius: content.ctaBorderRadius || '9999px',
+                  paddingLeft: content.ctaPaddingX || '1.5rem',
+                  paddingRight: content.ctaPaddingX || '1.5rem',
+                  paddingTop: content.ctaPaddingY || '0.75rem',
+                  paddingBottom: content.ctaPaddingY || '0.75rem',
+                  fontSize: content.ctaFontSize || '0.875rem',
+                  letterSpacing: content.ctaLetterSpacing || '0.15em',
+                  borderWidth: content.ctaBorderWidth || '1px',
+                }}
               >
                 {content.ctaText}
               </a>
@@ -582,18 +716,38 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
         </div>
         
         {/* Image */}
-        <div className={`relative ${content.reversed ? 'lg:order-1' : ''}`}>
+        <div 
+          className={`relative ${content.reversed ? 'lg:order-1' : ''}`}
+          style={{
+            marginTop: content.imageMarginTop || '0',
+            marginBottom: content.imageMarginBottom || '0',
+          }}
+        >
           {imageUrl ? (
-            <div className="relative overflow-hidden rounded-[2rem]">
+            <div 
+              className="relative overflow-hidden"
+              style={{
+                borderRadius: content.imageBorderRadius || '2rem',
+                width: content.imageWidth || '100%',
+                maxWidth: content.imageMaxWidth || '100%',
+              }}
+            >
               <img
                 src={imageUrl}
                 alt={content.imageAlt || 'Section image'}
-                className="w-full h-auto object-cover"
+                style={{
+                  width: '100%',
+                  height: content.imageHeight || 'auto',
+                  objectFit: (content.imageObjectFit as any) || 'cover',
+                }}
                 onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
               />
             </div>
           ) : (
-            <div className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700 rounded-[2rem] flex items-center justify-center">
+            <div 
+              className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+              style={{ borderRadius: content.imageBorderRadius || '2rem' }}
+            >
               <span className="text-neutral-400">Add an image</span>
             </div>
           )}

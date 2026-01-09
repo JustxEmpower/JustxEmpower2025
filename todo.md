@@ -1867,3 +1867,18 @@ NODE_ENV=production
 - [x] Update JEHeroRenderer to apply per-field colors to each text element
 - [x] Update JESectionRenderer to apply per-field colors to each text element
 - [x] Build and verify changes compile successfully
+
+
+## Element-Level Customization Controls (NEW)
+
+- [x] Add element-level properties to JE block types (je-hero-video, je-hero-image, je-section-standard, je-section-fullwidth)
+- [x] Add Title Element Controls (font size, line height, margin, font weight, font style)
+- [x] Add Subtitle/Label Element Controls (font size, letter spacing, margin)
+- [x] Add Description Element Controls (font size, line height, margin, max width)
+- [x] Add CTA Button Element Controls (border radius, padding X/Y, font size, letter spacing, border width)
+- [x] Add Image Element Controls (width, height, max width, border radius, object fit, margins)
+- [x] Add Section Layout Controls (content gap, section padding Y/X, text align)
+- [x] Update BlockSettings Style tab with comprehensive element control panels
+- [x] Update JEHeroRenderer to apply all element-level styles
+- [x] Update JESectionRenderer to apply all element-level styles
+- [x] Build and verify changes compile successfully

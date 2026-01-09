@@ -1373,6 +1373,356 @@ export default function BlockSettings() {
                   </div>
                 </div>
               )}
+
+              {/* Title Element Controls - for JE blocks */}
+              {selectedBlock.type.startsWith('je-') && (
+                <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Title Element</h4>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Font Size</Label>
+                      <Input
+                        value={selectedBlock.content.titleFontSize as string || '3rem'}
+                        onChange={(e) => handleContentChange('titleFontSize', e.target.value)}
+                        placeholder="3rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Line Height</Label>
+                      <Input
+                        value={selectedBlock.content.titleLineHeight as string || '1.2'}
+                        onChange={(e) => handleContentChange('titleLineHeight', e.target.value)}
+                        placeholder="1.2"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Margin Bottom</Label>
+                      <Input
+                        value={selectedBlock.content.titleMarginBottom as string || '1.5rem'}
+                        onChange={(e) => handleContentChange('titleMarginBottom', e.target.value)}
+                        placeholder="1.5rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Font Weight</Label>
+                      <Select
+                        value={selectedBlock.content.titleFontWeight as string || '300'}
+                        onValueChange={(v) => handleContentChange('titleFontWeight', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="100">Thin (100)</SelectItem>
+                          <SelectItem value="200">Extra Light (200)</SelectItem>
+                          <SelectItem value="300">Light (300)</SelectItem>
+                          <SelectItem value="400">Normal (400)</SelectItem>
+                          <SelectItem value="500">Medium (500)</SelectItem>
+                          <SelectItem value="600">Semi Bold (600)</SelectItem>
+                          <SelectItem value="700">Bold (700)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Font Style</Label>
+                    <Select
+                      value={selectedBlock.content.titleFontStyle as string || 'italic'}
+                      onValueChange={(v) => handleContentChange('titleFontStyle', v)}
+                    >
+                      <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="italic">Italic</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+
+              {/* Subtitle Element Controls - for JE blocks */}
+              {selectedBlock.type.startsWith('je-') && (
+                <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Subtitle/Label Element</h4>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Font Size</Label>
+                      <Input
+                        value={selectedBlock.content.subtitleFontSize as string || selectedBlock.content.labelFontSize as string || '0.75rem'}
+                        onChange={(e) => {
+                          handleContentChange('subtitleFontSize', e.target.value);
+                          handleContentChange('labelFontSize', e.target.value);
+                        }}
+                        placeholder="0.75rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Letter Spacing</Label>
+                      <Input
+                        value={selectedBlock.content.subtitleLetterSpacing as string || '0.3em'}
+                        onChange={(e) => handleContentChange('subtitleLetterSpacing', e.target.value)}
+                        placeholder="0.3em"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2 col-span-2">
+                      <Label className="text-xs text-muted-foreground">Margin Bottom</Label>
+                      <Input
+                        value={selectedBlock.content.subtitleMarginBottom as string || selectedBlock.content.labelMarginBottom as string || '1rem'}
+                        onChange={(e) => {
+                          handleContentChange('subtitleMarginBottom', e.target.value);
+                          handleContentChange('labelMarginBottom', e.target.value);
+                        }}
+                        placeholder="1rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Description Element Controls - for JE blocks */}
+              {selectedBlock.type.startsWith('je-') && (
+                <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Description Element</h4>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Font Size</Label>
+                      <Input
+                        value={selectedBlock.content.descriptionFontSize as string || '1.125rem'}
+                        onChange={(e) => handleContentChange('descriptionFontSize', e.target.value)}
+                        placeholder="1.125rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Line Height</Label>
+                      <Input
+                        value={selectedBlock.content.descriptionLineHeight as string || '1.75'}
+                        onChange={(e) => handleContentChange('descriptionLineHeight', e.target.value)}
+                        placeholder="1.75"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Margin Bottom</Label>
+                      <Input
+                        value={selectedBlock.content.descriptionMarginBottom as string || '2rem'}
+                        onChange={(e) => handleContentChange('descriptionMarginBottom', e.target.value)}
+                        placeholder="2rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Max Width</Label>
+                      <Input
+                        value={selectedBlock.content.descriptionMaxWidth as string || '100%'}
+                        onChange={(e) => handleContentChange('descriptionMaxWidth', e.target.value)}
+                        placeholder="32rem or 100%"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* CTA Button Element Controls - for JE blocks */}
+              {selectedBlock.type.startsWith('je-') && (
+                <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">CTA Button Element</h4>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Border Radius</Label>
+                      <Input
+                        value={selectedBlock.content.ctaBorderRadius as string || '9999px'}
+                        onChange={(e) => handleContentChange('ctaBorderRadius', e.target.value)}
+                        placeholder="9999px (pill) or 0.5rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Font Size</Label>
+                      <Input
+                        value={selectedBlock.content.ctaFontSize as string || '0.875rem'}
+                        onChange={(e) => handleContentChange('ctaFontSize', e.target.value)}
+                        placeholder="0.875rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Padding X</Label>
+                      <Input
+                        value={selectedBlock.content.ctaPaddingX as string || '2rem'}
+                        onChange={(e) => handleContentChange('ctaPaddingX', e.target.value)}
+                        placeholder="2rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Padding Y</Label>
+                      <Input
+                        value={selectedBlock.content.ctaPaddingY as string || '1rem'}
+                        onChange={(e) => handleContentChange('ctaPaddingY', e.target.value)}
+                        placeholder="1rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Letter Spacing</Label>
+                      <Input
+                        value={selectedBlock.content.ctaLetterSpacing as string || '0.2em'}
+                        onChange={(e) => handleContentChange('ctaLetterSpacing', e.target.value)}
+                        placeholder="0.2em"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Border Width</Label>
+                      <Input
+                        value={selectedBlock.content.ctaBorderWidth as string || '1px'}
+                        onChange={(e) => handleContentChange('ctaBorderWidth', e.target.value)}
+                        placeholder="1px"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Image Element Controls - for JE section blocks */}
+              {(selectedBlock.type.includes('section') || selectedBlock.type.includes('split')) && selectedBlock.type.startsWith('je-') && (
+                <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Image Element</h4>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Width</Label>
+                      <Input
+                        value={selectedBlock.content.imageWidth as string || '100%'}
+                        onChange={(e) => handleContentChange('imageWidth', e.target.value)}
+                        placeholder="100% or 400px"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Height</Label>
+                      <Input
+                        value={selectedBlock.content.imageHeight as string || 'auto'}
+                        onChange={(e) => handleContentChange('imageHeight', e.target.value)}
+                        placeholder="auto or 300px"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Max Width</Label>
+                      <Input
+                        value={selectedBlock.content.imageMaxWidth as string || '100%'}
+                        onChange={(e) => handleContentChange('imageMaxWidth', e.target.value)}
+                        placeholder="100% or 500px"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Border Radius</Label>
+                      <Input
+                        value={selectedBlock.content.imageBorderRadius as string || '2rem'}
+                        onChange={(e) => handleContentChange('imageBorderRadius', e.target.value)}
+                        placeholder="2rem or 0"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Object Fit</Label>
+                      <Select
+                        value={selectedBlock.content.imageObjectFit as string || 'cover'}
+                        onValueChange={(v) => handleContentChange('imageObjectFit', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="cover">Cover</SelectItem>
+                          <SelectItem value="contain">Contain</SelectItem>
+                          <SelectItem value="fill">Fill</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Margin Top</Label>
+                      <Input
+                        value={selectedBlock.content.imageMarginTop as string || '0'}
+                        onChange={(e) => handleContentChange('imageMarginTop', e.target.value)}
+                        placeholder="0 or 2rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Layout Controls - for JE section blocks */}
+              {selectedBlock.type.includes('section') && selectedBlock.type.startsWith('je-') && (
+                <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Section Layout</h4>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Content Gap</Label>
+                      <Input
+                        value={selectedBlock.content.contentGap as string || '4rem'}
+                        onChange={(e) => handleContentChange('contentGap', e.target.value)}
+                        placeholder="4rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Section Padding Y</Label>
+                      <Input
+                        value={selectedBlock.content.sectionPaddingY as string || '6rem'}
+                        onChange={(e) => handleContentChange('sectionPaddingY', e.target.value)}
+                        placeholder="6rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Section Padding X</Label>
+                      <Input
+                        value={selectedBlock.content.sectionPaddingX as string || '1.5rem'}
+                        onChange={(e) => handleContentChange('sectionPaddingX', e.target.value)}
+                        placeholder="1.5rem"
+                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs text-muted-foreground">Text Align</Label>
+                      <Select
+                        value={selectedBlock.content.contentTextAlign as string || 'left'}
+                        onValueChange={(v) => handleContentChange('contentTextAlign', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="left">Left</SelectItem>
+                          <SelectItem value="center">Center</SelectItem>
+                          <SelectItem value="right">Right</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
 
