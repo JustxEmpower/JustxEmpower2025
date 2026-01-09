@@ -10,6 +10,8 @@ interface TextStyle {
   isBold: boolean;
   isItalic: boolean;
   isUnderline: boolean;
+  fontSize?: string | null;
+  fontColor?: string | null;
 }
 
 interface SectionProps {
@@ -41,13 +43,15 @@ function getStyleClasses(style?: TextStyle): string {
   return classes.join(' ');
 }
 
-// Helper to convert TextStyle to inline styles
+// Helper to convert TextStyle to inline styles (includes fontSize and fontColor)
 function getInlineStyles(style?: TextStyle): React.CSSProperties {
   if (!style) return {};
   return {
     fontWeight: style.isBold ? 'bold' : undefined,
     fontStyle: style.isItalic ? 'italic' : undefined,
     textDecoration: style.isUnderline ? 'underline' : undefined,
+    fontSize: style.fontSize || undefined,
+    color: style.fontColor || undefined,
   };
 }
 

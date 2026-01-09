@@ -7,6 +7,8 @@ interface TextStyle {
   isBold: boolean;
   isItalic: boolean;
   isUnderline: boolean;
+  fontSize?: string | null;
+  fontColor?: string | null;
 }
 
 interface TextStyleContextType {
@@ -35,7 +37,7 @@ interface TextStyleProviderProps {
 }
 
 /**
- * TextStyleProvider fetches and provides text styles (bold/italic/underline)
+ * TextStyleProvider fetches and provides text styles (bold/italic/underline/fontSize/fontColor)
  * for a specific page. Wrap page components with this to enable text styling.
  */
 export function TextStyleProvider({ page, children }: TextStyleProviderProps) {
@@ -78,11 +80,15 @@ export function TextStyleProvider({ page, children }: TextStyleProviderProps) {
     const style = stylesMap.get(contentKey);
     if (!style) return {};
     
-    return {
-      fontWeight: style.isBold ? 'bold' : undefined,
-      fontStyle: style.isItalic ? 'italic' : undefined,
-      textDecoration: style.isUnderline ? 'underline' : undefined,
-    };
+    const inlineStyles: React.CSSProperties = {};
+    
+    if (style.isBold) inlineStyles.fontWeight = 'bold';
+    if (style.isItalic) inlineStyles.fontStyle = 'italic';
+    if (style.isUnderline) inlineStyles.textDecoration = 'underline';
+    if (style.fontSize) inlineStyles.fontSize = style.fontSize;
+    if (style.fontColor) inlineStyles.color = style.fontColor;
+    
+    return inlineStyles;
   };
 
   const value: TextStyleContextType = {
