@@ -1897,3 +1897,10 @@ NODE_ENV=production
 - [x] Integrate ResizableElement into JESectionRenderer (title, subtitle, description, cta, image)
 - [x] Connect resize actions to updateElementStyle for persisting changes
 - [x] Build and verify changes compile successfully
+
+
+## Page Builder Text Editing Fix (Jan 9, 2026)
+- [x] Fix JE Paragraph block type to use 'text' field instead of 'content'
+- [x] Add 'text' to long text fields list in renderField for textarea rendering
+- [ ] Fix resize/stretch functionality for all block elements
+- [ ] Add delete element functionality within blocks

@@ -150,6 +150,7 @@ function renderField(
   // Long text fields
   if (
     key === 'content' ||
+    key === 'text' ||
     key === 'description' ||
     key === 'bio' ||
     key === 'quote' ||

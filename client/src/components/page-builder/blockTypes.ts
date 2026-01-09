@@ -397,7 +397,7 @@ export const blockTypes: BlockType[] = [
     category: 'je-content',
     isJustEmpower: true,
     defaultContent: {
-      content: 'Your paragraph content here. This block supports rich text formatting.',
+      text: 'Your paragraph content here. This block supports rich text formatting.',
       alignment: 'left',
       maxWidth: '65ch',
       fontSize: 'base',
