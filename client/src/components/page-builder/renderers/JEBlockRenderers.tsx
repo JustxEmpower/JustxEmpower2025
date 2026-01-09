@@ -7,6 +7,7 @@ import { Heart, Compass, Crown, Leaf, Star, Sparkles, ChevronDown, Mail, Phone, 
 import { getMediaUrl } from '@/lib/media';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { InlineEditableText } from '../InlineEditableText';
 
 // ==========================================
 // STYLE HELPER FUNCTIONS
@@ -1199,13 +1200,24 @@ export function JEHeadingRenderer({ block }: { block: PageBlock }) {
   return (
     <div className={`py-8 ${alignClass}`} style={containerStyle}>
       {content.label && (
-        <p className="font-sans text-xs uppercase tracking-[0.2em] text-primary mb-4">
-          {content.label}
-        </p>
+        <InlineEditableText
+          blockId={block.id}
+          fieldName="label"
+          value={content.label || ''}
+          placeholder="Add label..."
+          className="font-sans text-xs uppercase tracking-[0.2em] text-primary mb-4"
+          as="p"
+        />
       )}
-      <HeadingTag className={`font-serif ${sizeClass} font-light italic`} style={textStyle}>
-        {content.text || 'Heading Text'}
-      </HeadingTag>
+      <InlineEditableText
+        blockId={block.id}
+        fieldName="text"
+        value={content.text || ''}
+        placeholder="Heading Text"
+        className={`font-serif ${sizeClass} font-light italic`}
+        style={textStyle}
+        as={HeadingTag as 'h1' | 'h2' | 'h3' | 'h4'}
+      />
     </div>
   );
 }
@@ -1233,9 +1245,16 @@ export function JEParagraphRenderer({ block }: { block: PageBlock }) {
 
   return (
     <div className={`py-4 ${alignClass}`} style={containerStyle}>
-      <p className={`font-sans ${sizeClass} leading-relaxed ${textClass}`} style={textStyle}>
-        {content.text || 'Add your paragraph text here...'}
-      </p>
+      <InlineEditableText
+        blockId={block.id}
+        fieldName="text"
+        value={content.text || ''}
+        placeholder="Add your paragraph text here..."
+        className={`font-sans ${sizeClass} leading-relaxed ${textClass}`}
+        style={textStyle}
+        as="p"
+        multiline={true}
+      />
     </div>
   );
 }
