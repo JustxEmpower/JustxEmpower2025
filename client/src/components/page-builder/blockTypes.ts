@@ -117,6 +117,18 @@ export const blockTypes: BlockType[] = [
       overlayOpacity: 40,
       textAlignment: 'center',
       minHeight: '100vh',
+      // Shape & Size
+      borderRadius: '2.5rem',
+      bottomCurve: true,
+      // Content Position
+      contentVerticalAlign: 'center',
+      contentHorizontalAlign: 'center',
+      contentMaxWidth: '4xl',
+      // Spacing
+      paddingTop: '16',
+      paddingBottom: '16',
+      paddingLeft: '6',
+      paddingRight: '6',
     },
   },
   {
@@ -136,6 +148,18 @@ export const blockTypes: BlockType[] = [
       overlayOpacity: 30,
       textAlignment: 'center',
       minHeight: '80vh',
+      // Shape & Size
+      borderRadius: '2.5rem',
+      bottomCurve: true,
+      // Content Position
+      contentVerticalAlign: 'center',
+      contentHorizontalAlign: 'center',
+      contentMaxWidth: '4xl',
+      // Spacing
+      paddingTop: '16',
+      paddingBottom: '16',
+      paddingLeft: '6',
+      paddingRight: '6',
     },
   },
   {
@@ -419,6 +443,7 @@ export const blockTypes: BlockType[] = [
     defaultContent: {
       title: 'Our Offerings',
       subtitle: 'PATHWAYS TO TRANSFORMATION',
+      showTitle: true,
       items: [
         { title: 'Offering 1', description: 'Description...', imageUrl: '', link: '' },
         { title: 'Offering 2', description: 'Description...', imageUrl: '', link: '' },
@@ -430,6 +455,13 @@ export const blockTypes: BlockType[] = [
       autoplay: true,
       showArrows: true,
       showDots: true,
+      // Shape & Size
+      cardBorderRadius: '2rem',
+      cardHeight: '400px',
+      cardWidth: '30vw',
+      // Spacing
+      cardGap: '3rem',
+      sectionPadding: '6rem',
     },
   },
   {
@@ -513,6 +545,16 @@ export const blockTypes: BlockType[] = [
         { id: 'other', name: 'Other', color: '#6B7280' },
       ],
       events: [],
+      // Shape & Size
+      borderRadius: '1.5rem',
+      maxWidth: '6xl',
+      // Spacing
+      paddingTop: '24',
+      paddingBottom: '24',
+      paddingLeft: '6',
+      paddingRight: '6',
+      // Alignment
+      contentAlign: 'center',
     },
   },
   {
@@ -534,6 +576,19 @@ export const blockTypes: BlockType[] = [
       ],
       submitText: 'Send Message',
       successMessage: 'Thank you for reaching out. We\'ll be in touch soon.',
+      // Shape & Size
+      borderRadius: '1.5rem',
+      maxWidth: '2xl',
+      formWidth: '100%',
+      // Spacing
+      paddingTop: '24',
+      paddingBottom: '24',
+      paddingLeft: '6',
+      paddingRight: '6',
+      inputSpacing: '4',
+      // Alignment
+      contentAlign: 'center',
+      formAlign: 'center',
     },
   },
   {

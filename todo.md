@@ -1843,3 +1843,18 @@ NODE_ENV=production
 - [x] Add black frame detection and retry
 - [x] Wrap BlockRenderer with BlockErrorBoundary
 
+
+
+## JE Block Customization Enhancement (NEW)
+
+- [x] Add curved bottom edge to JE Hero block renderer (matching live site)
+- [x] Update JE Carousel renderer with curved image boxes
+- [x] Add image upload functionality to JE Carousel items
+- [x] Add CarouselItemsEditor component to BlockSettings
+- [x] Add comprehensive customization options to JE block types (size, position, shape)
+- [x] Add Size & Shape controls to BlockSettings Style tab (min height, max width, border radius)
+- [x] Add Spacing controls to BlockSettings Style tab (padding top/bottom/left/right)
+- [x] Add Content Position controls to BlockSettings Style tab (vertical/horizontal align, content max width)
+- [x] Add Carousel-specific controls (card border radius, card height, show title toggle)
+- [x] Add Curved Bottom Edge toggle for Hero blocks
+- [x] Update JEHeroRenderer to use all customization options

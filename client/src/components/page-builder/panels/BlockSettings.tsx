@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play } from 'lucide-react';
+import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play, Plus, ChevronDown, ChevronUp } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
 import VideoThumbnail from '@/components/VideoThumbnail';
 import { Input } from '@/components/ui/input';
@@ -321,6 +321,18 @@ function renderField(
     );
   }
 
+  // Handle carousel items array
+  if (key === 'items' && Array.isArray(value)) {
+    const items = value as Array<{ title: string; description?: string; imageUrl?: string; link?: string }>;
+    return (
+      <CarouselItemsEditor
+        key={key}
+        items={items}
+        onChange={(newItems) => onChange(key, newItems)}
+      />
+    );
+  }
+
   // Skip other complex objects/arrays for now (would need custom editors)
   return null;
 }
@@ -574,6 +586,262 @@ function MediaFieldWithPicker({
   );
 }
 
+// Carousel Items Editor Component
+interface CarouselItem {
+  title: string;
+  description?: string;
+  imageUrl?: string;
+  link?: string;
+}
+
+function CarouselItemsEditor({
+  items,
+  onChange,
+}: {
+  items: CarouselItem[];
+  onChange: (items: CarouselItem[]) => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(null);
+
+  const updateItem = (index: number, field: keyof CarouselItem, value: string) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    onChange(newItems);
+  };
+
+  const addItem = () => {
+    const newItems = [...items, { title: `Item ${items.length + 1}`, description: '', imageUrl: '', link: '' }];
+    onChange(newItems);
+    setExpandedIndex(newItems.length - 1);
+  };
+
+  const removeItem = (index: number) => {
+    if (items.length <= 1) return; // Keep at least one item
+    const newItems = items.filter((_, i) => i !== index);
+    onChange(newItems);
+    if (expandedIndex === index) {
+      setExpandedIndex(null);
+    } else if (expandedIndex !== null && expandedIndex > index) {
+      setExpandedIndex(expandedIndex - 1);
+    }
+  };
+
+  const moveItem = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= items.length) return;
+    const newItems = [...items];
+    const [removed] = newItems.splice(fromIndex, 1);
+    newItems.splice(toIndex, 0, removed);
+    onChange(newItems);
+    setExpandedIndex(toIndex);
+  };
+
+  const openMediaPicker = (index: number) => {
+    setSelectedItemIndex(index);
+    setMediaPickerOpen(true);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Carousel Items ({items.length})</Label>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={addItem}
+          className="h-7 px-2 text-xs"
+        >
+          <Plus className="w-3 h-3 mr-1" />
+          Add Item
+        </Button>
+      </div>
+
+      <div className="space-y-2">
+        {items.map((item, index) => (
+          <div
+            key={index}
+            className="border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden"
+          >
+            {/* Item Header */}
+            <div
+              className="flex items-center gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 cursor-pointer"
+              onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+            >
+              {/* Thumbnail */}
+              <div className="w-10 h-10 rounded bg-neutral-200 dark:bg-neutral-700 flex-shrink-0 overflow-hidden">
+                {item.imageUrl ? (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none';
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Image className="w-4 h-4 text-neutral-400" />
+                  </div>
+                )}
+              </div>
+
+              {/* Title */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{item.title || `Item ${index + 1}`}</p>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveItem(index, index - 1);
+                  }}
+                  disabled={index === 0}
+                >
+                  <ChevronUp className="w-4 h-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveItem(index, index + 1);
+                  }}
+                  disabled={index === items.length - 1}
+                >
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeItem(index);
+                  }}
+                  disabled={items.length <= 1}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                {expandedIndex === index ? (
+                  <ChevronUp className="w-4 h-4 text-neutral-400" />
+                ) : (
+                  <ChevronDown className="w-4 h-4 text-neutral-400" />
+                )}
+              </div>
+            </div>
+
+            {/* Expanded Content */}
+            {expandedIndex === index && (
+              <div className="p-3 space-y-3 border-t border-neutral-200 dark:border-neutral-700">
+                {/* Image Upload */}
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Image</Label>
+                  <div className="flex gap-2">
+                    {item.imageUrl && (
+                      <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
+                        <img
+                          src={item.imageUrl}
+                          alt={item.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 space-y-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="w-full h-8 text-xs"
+                        onClick={() => openMediaPicker(index)}
+                      >
+                        <Image className="w-3 h-3 mr-1" />
+                        {item.imageUrl ? 'Change Image' : 'Select Image'}
+                      </Button>
+                      {item.imageUrl && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="w-full h-7 text-xs text-destructive hover:text-destructive"
+                          onClick={() => updateItem(index, 'imageUrl', '')}
+                        >
+                          Remove Image
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Title */}
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Title</Label>
+                  <Input
+                    value={item.title}
+                    onChange={(e) => updateItem(index, 'title', e.target.value)}
+                    placeholder="Item title"
+                    className="h-8 text-sm bg-white dark:bg-neutral-900"
+                  />
+                </div>
+
+                {/* Description */}
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Description</Label>
+                  <Textarea
+                    value={item.description || ''}
+                    onChange={(e) => updateItem(index, 'description', e.target.value)}
+                    placeholder="Item description"
+                    rows={2}
+                    className="text-sm bg-white dark:bg-neutral-900"
+                  />
+                </div>
+
+                {/* Link */}
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Link</Label>
+                  <Input
+                    value={item.link || ''}
+                    onChange={(e) => updateItem(index, 'link', e.target.value)}
+                    placeholder="/page-link or https://..."
+                    className="h-8 text-sm bg-white dark:bg-neutral-900"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Media Picker Modal */}
+      <MediaPicker
+        open={mediaPickerOpen}
+        onClose={() => {
+          setMediaPickerOpen(false);
+          setSelectedItemIndex(null);
+        }}
+        onSelect={(url) => {
+          if (selectedItemIndex !== null) {
+            updateItem(selectedItemIndex, 'imageUrl', url);
+          }
+          setMediaPickerOpen(false);
+          setSelectedItemIndex(null);
+        }}
+        mediaType="image"
+      />
+    </div>
+  );
+}
+
 function getVariantsForBlock(blockType: string): string[] {
   const variantMap: Record<string, string[]> = {
     hero: ['centered', 'left-aligned', 'split', 'video-background'],
@@ -735,79 +1003,333 @@ export default function BlockSettings() {
 
           <TabsContent value="style" className="p-4 space-y-4 mt-0">
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Background Color</Label>
-                <div className="flex gap-2">
-                  <Input
-                    type="color"
-                    className="w-12 h-10 p-1 cursor-pointer"
-                    value={selectedBlock.content.backgroundColor as string || '#ffffff'}
-                    onChange={(e) => handleContentChange('backgroundColor', e.target.value)}
-                  />
-                  <Input
-                    value={selectedBlock.content.backgroundColor as string || ''}
-                    onChange={(e) => handleContentChange('backgroundColor', e.target.value)}
-                    placeholder="#ffffff or transparent"
-                    className="flex-1 bg-neutral-50 dark:bg-neutral-800"
-                  />
+              {/* Colors Section */}
+              <div className="space-y-3">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Colors</h4>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Background Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="color"
+                      className="w-12 h-10 p-1 cursor-pointer"
+                      value={selectedBlock.content.backgroundColor as string || '#ffffff'}
+                      onChange={(e) => handleContentChange('backgroundColor', e.target.value)}
+                    />
+                    <Input
+                      value={selectedBlock.content.backgroundColor as string || ''}
+                      onChange={(e) => handleContentChange('backgroundColor', e.target.value)}
+                      placeholder="#ffffff or transparent"
+                      className="flex-1 bg-neutral-50 dark:bg-neutral-800"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Text Color</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="color"
+                      className="w-12 h-10 p-1 cursor-pointer"
+                      value={selectedBlock.content.textColor as string || '#000000'}
+                      onChange={(e) => handleContentChange('textColor', e.target.value)}
+                    />
+                    <Input
+                      value={selectedBlock.content.textColor as string || ''}
+                      onChange={(e) => handleContentChange('textColor', e.target.value)}
+                      placeholder="#000000"
+                      className="flex-1 bg-neutral-50 dark:bg-neutral-800"
+                    />
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Text Color</Label>
-                <div className="flex gap-2">
-                  <Input
-                    type="color"
-                    className="w-12 h-10 p-1 cursor-pointer"
-                    value={selectedBlock.content.textColor as string || '#000000'}
-                    onChange={(e) => handleContentChange('textColor', e.target.value)}
-                  />
-                  <Input
-                    value={selectedBlock.content.textColor as string || ''}
-                    onChange={(e) => handleContentChange('textColor', e.target.value)}
-                    placeholder="#000000"
-                    className="flex-1 bg-neutral-50 dark:bg-neutral-800"
-                  />
+              {/* Size & Shape Section */}
+              <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Size & Shape</h4>
+                
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Min Height</Label>
+                  <Select
+                    value={selectedBlock.content.minHeight as string || 'auto'}
+                    onValueChange={(v) => handleContentChange('minHeight', v)}
+                  >
+                    <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="auto">Auto</SelectItem>
+                      <SelectItem value="300px">Small (300px)</SelectItem>
+                      <SelectItem value="500px">Medium (500px)</SelectItem>
+                      <SelectItem value="70vh">Large (70vh)</SelectItem>
+                      <SelectItem value="80vh">Extra Large (80vh)</SelectItem>
+                      <SelectItem value="100vh">Full Screen (100vh)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Max Width</Label>
+                  <Select
+                    value={selectedBlock.content.maxWidth as string || 'full'}
+                    onValueChange={(v) => handleContentChange('maxWidth', v)}
+                  >
+                    <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sm">Small (640px)</SelectItem>
+                      <SelectItem value="md">Medium (768px)</SelectItem>
+                      <SelectItem value="lg">Large (1024px)</SelectItem>
+                      <SelectItem value="xl">XL (1280px)</SelectItem>
+                      <SelectItem value="2xl">2XL (1536px)</SelectItem>
+                      <SelectItem value="4xl">4XL (896px)</SelectItem>
+                      <SelectItem value="6xl">6XL (1152px)</SelectItem>
+                      <SelectItem value="7xl">7XL (1280px)</SelectItem>
+                      <SelectItem value="full">Full Width</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Border Radius</Label>
+                  <Select
+                    value={selectedBlock.content.borderRadius as string || 'none'}
+                    onValueChange={(v) => handleContentChange('borderRadius', v)}
+                  >
+                    <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None (0)</SelectItem>
+                      <SelectItem value="0.5rem">Small (0.5rem)</SelectItem>
+                      <SelectItem value="1rem">Medium (1rem)</SelectItem>
+                      <SelectItem value="1.5rem">Large (1.5rem)</SelectItem>
+                      <SelectItem value="2rem">XL (2rem)</SelectItem>
+                      <SelectItem value="2.5rem">2XL (2.5rem)</SelectItem>
+                      <SelectItem value="3rem">3XL (3rem)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Bottom Curve Toggle for Hero blocks */}
+                {selectedBlock.type.includes('hero') && (
+                  <div className="flex items-center justify-between py-2">
+                    <Label className="text-sm font-medium">Curved Bottom Edge</Label>
+                    <Switch
+                      checked={selectedBlock.content.bottomCurve as boolean ?? true}
+                      onCheckedChange={(checked) => handleContentChange('bottomCurve', checked)}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Spacing Section */}
+              <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Spacing</h4>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Padding Top</Label>
+                    <Select
+                      value={selectedBlock.content.paddingTop as string || '16'}
+                      onValueChange={(v) => handleContentChange('paddingTop', v)}
+                    >
+                      <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">0</SelectItem>
+                        <SelectItem value="4">1rem</SelectItem>
+                        <SelectItem value="6">1.5rem</SelectItem>
+                        <SelectItem value="8">2rem</SelectItem>
+                        <SelectItem value="12">3rem</SelectItem>
+                        <SelectItem value="16">4rem</SelectItem>
+                        <SelectItem value="20">5rem</SelectItem>
+                        <SelectItem value="24">6rem</SelectItem>
+                        <SelectItem value="32">8rem</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Padding Bottom</Label>
+                    <Select
+                      value={selectedBlock.content.paddingBottom as string || '16'}
+                      onValueChange={(v) => handleContentChange('paddingBottom', v)}
+                    >
+                      <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">0</SelectItem>
+                        <SelectItem value="4">1rem</SelectItem>
+                        <SelectItem value="6">1.5rem</SelectItem>
+                        <SelectItem value="8">2rem</SelectItem>
+                        <SelectItem value="12">3rem</SelectItem>
+                        <SelectItem value="16">4rem</SelectItem>
+                        <SelectItem value="20">5rem</SelectItem>
+                        <SelectItem value="24">6rem</SelectItem>
+                        <SelectItem value="32">8rem</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Padding Left</Label>
+                    <Select
+                      value={selectedBlock.content.paddingLeft as string || '6'}
+                      onValueChange={(v) => handleContentChange('paddingLeft', v)}
+                    >
+                      <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">0</SelectItem>
+                        <SelectItem value="4">1rem</SelectItem>
+                        <SelectItem value="6">1.5rem</SelectItem>
+                        <SelectItem value="8">2rem</SelectItem>
+                        <SelectItem value="12">3rem</SelectItem>
+                        <SelectItem value="16">4rem</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Padding Right</Label>
+                    <Select
+                      value={selectedBlock.content.paddingRight as string || '6'}
+                      onValueChange={(v) => handleContentChange('paddingRight', v)}
+                    >
+                      <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">0</SelectItem>
+                        <SelectItem value="4">1rem</SelectItem>
+                        <SelectItem value="6">1.5rem</SelectItem>
+                        <SelectItem value="8">2rem</SelectItem>
+                        <SelectItem value="12">3rem</SelectItem>
+                        <SelectItem value="16">4rem</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Padding</Label>
-                <Select
-                  value={selectedBlock.content.padding as string || 'medium'}
-                  onValueChange={(v) => handleContentChange('padding', v)}
-                >
-                  <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="small">Small</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="large">Large</SelectItem>
-                    <SelectItem value="xlarge">Extra Large</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Content Alignment Section */}
+              <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Content Position</h4>
+                
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Vertical Align</Label>
+                  <Select
+                    value={selectedBlock.content.contentVerticalAlign as string || 'center'}
+                    onValueChange={(v) => handleContentChange('contentVerticalAlign', v)}
+                  >
+                    <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="start">Top</SelectItem>
+                      <SelectItem value="center">Center</SelectItem>
+                      <SelectItem value="end">Bottom</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Horizontal Align</Label>
+                  <Select
+                    value={selectedBlock.content.contentHorizontalAlign as string || 'center'}
+                    onValueChange={(v) => handleContentChange('contentHorizontalAlign', v)}
+                  >
+                    <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="start">Left</SelectItem>
+                      <SelectItem value="center">Center</SelectItem>
+                      <SelectItem value="end">Right</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Content Max Width</Label>
+                  <Select
+                    value={selectedBlock.content.contentMaxWidth as string || '4xl'}
+                    onValueChange={(v) => handleContentChange('contentMaxWidth', v)}
+                  >
+                    <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="sm">Small (640px)</SelectItem>
+                      <SelectItem value="md">Medium (768px)</SelectItem>
+                      <SelectItem value="lg">Large (1024px)</SelectItem>
+                      <SelectItem value="xl">XL (1280px)</SelectItem>
+                      <SelectItem value="2xl">2XL (1536px)</SelectItem>
+                      <SelectItem value="3xl">3XL (768px)</SelectItem>
+                      <SelectItem value="4xl">4XL (896px)</SelectItem>
+                      <SelectItem value="full">Full Width</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">Border Radius</Label>
-                <Select
-                  value={selectedBlock.content.borderRadius as string || 'none'}
-                  onValueChange={(v) => handleContentChange('borderRadius', v)}
-                >
-                  <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="small">Small</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="large">Large</SelectItem>
-                    <SelectItem value="full">Full</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Carousel-specific controls */}
+              {selectedBlock.type.includes('carousel') && (
+                <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Carousel Cards</h4>
+                  
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Card Border Radius</Label>
+                    <Select
+                      value={selectedBlock.content.cardBorderRadius as string || '2rem'}
+                      onValueChange={(v) => handleContentChange('cardBorderRadius', v)}
+                    >
+                      <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="0">None</SelectItem>
+                        <SelectItem value="0.5rem">Small</SelectItem>
+                        <SelectItem value="1rem">Medium</SelectItem>
+                        <SelectItem value="1.5rem">Large</SelectItem>
+                        <SelectItem value="2rem">XL (Curved)</SelectItem>
+                        <SelectItem value="2.5rem">2XL (More Curved)</SelectItem>
+                        <SelectItem value="3rem">3XL (Very Curved)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Card Height</Label>
+                    <Select
+                      value={selectedBlock.content.cardHeight as string || '400px'}
+                      onValueChange={(v) => handleContentChange('cardHeight', v)}
+                    >
+                      <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="300px">Small (300px)</SelectItem>
+                        <SelectItem value="350px">Medium (350px)</SelectItem>
+                        <SelectItem value="400px">Large (400px)</SelectItem>
+                        <SelectItem value="450px">XL (450px)</SelectItem>
+                        <SelectItem value="500px">2XL (500px)</SelectItem>
+                        <SelectItem value="60vh">60% Viewport</SelectItem>
+                        <SelectItem value="70vh">70% Viewport</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="flex items-center justify-between py-2">
+                    <Label className="text-sm font-medium">Show Section Title</Label>
+                    <Switch
+                      checked={selectedBlock.content.showTitle as boolean ?? true}
+                      onCheckedChange={(checked) => handleContentChange('showTitle', checked)}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </TabsContent>
 

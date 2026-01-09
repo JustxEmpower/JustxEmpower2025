@@ -255,6 +255,18 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
     textAlignment?: string;
     textColor?: string;
     backgroundColor?: string;
+    // Shape & Size
+    borderRadius?: string;
+    bottomCurve?: boolean;
+    // Content Position
+    contentVerticalAlign?: string;
+    contentHorizontalAlign?: string;
+    contentMaxWidth?: string;
+    // Spacing
+    paddingTop?: string;
+    paddingBottom?: string;
+    paddingLeft?: string;
+    paddingRight?: string;
   };
 
   // Get custom colors or use defaults
@@ -263,6 +275,45 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
 
   const overlayOpacity = content.overlayOpacity ?? 40;
   const minHeight = content.minHeight || '100vh';
+  
+  // Shape & Size options
+  const borderRadius = content.borderRadius || '2.5rem';
+  const bottomCurve = content.bottomCurve !== false; // Default true
+  
+  // Content position options
+  const verticalAlign = content.contentVerticalAlign || 'center';
+  const horizontalAlign = content.contentHorizontalAlign || 'center';
+  const contentMaxWidth = content.contentMaxWidth || '4xl';
+  
+  // Spacing options
+  const paddingTop = content.paddingTop || '16';
+  const paddingBottom = content.paddingBottom || '16';
+  const paddingLeft = content.paddingLeft || '6';
+  const paddingRight = content.paddingRight || '6';
+  
+  // Build dynamic classes
+  const verticalAlignClass = {
+    'start': 'justify-start',
+    'center': 'justify-center',
+    'end': 'justify-end',
+  }[verticalAlign] || 'justify-center';
+  
+  const horizontalAlignClass = {
+    'start': 'items-start text-left',
+    'center': 'items-center text-center',
+    'end': 'items-end text-right',
+  }[horizontalAlign] || 'items-center text-center';
+  
+  const maxWidthClass = {
+    'sm': 'max-w-sm',
+    'md': 'max-w-md',
+    'lg': 'max-w-lg',
+    'xl': 'max-w-xl',
+    '2xl': 'max-w-2xl',
+    '3xl': 'max-w-3xl',
+    '4xl': 'max-w-4xl',
+    'full': 'max-w-full',
+  }[contentMaxWidth] || 'max-w-4xl';
   
   // Helper to detect if URL is a video file
   const isVideoUrl = (url: string | undefined): boolean => {
@@ -328,10 +379,17 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
     };
   }, [videoUrl]);
 
+  // Build section style with dynamic border radius
+  const sectionStyle: React.CSSProperties = {
+    minHeight: minHeight === '100vh' ? '500px' : minHeight,
+    borderBottomLeftRadius: bottomCurve ? borderRadius : 0,
+    borderBottomRightRadius: bottomCurve ? borderRadius : 0,
+  };
+
   return (
     <section 
       className="relative w-full overflow-hidden bg-black"
-      style={{ minHeight: minHeight === '100vh' ? '500px' : minHeight }}
+      style={sectionStyle}
     >
       {/* Video Background */}
       {videoUrl && !videoError && (
@@ -386,35 +444,37 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
       
       {/* Content */}
       <div 
-        className="relative h-full min-h-[500px] flex flex-col items-center justify-center text-center px-6 py-16" 
+        className={`relative h-full min-h-[500px] flex flex-col ${verticalAlignClass} ${horizontalAlignClass} pt-${paddingTop} pb-${paddingBottom} pl-${paddingLeft} pr-${paddingRight}`}
         style={{ zIndex: 10, color: textColor }}
       >
-        {content.subtitle && (
-          <p className="font-sans text-xs uppercase tracking-[0.3em] mb-6" style={{ opacity: 0.8 }}>
-            {content.subtitle}
-          </p>
-        )}
-        
-        <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-light italic mb-6 max-w-4xl">
-          {content.title || 'Welcome to Just Empower'}
-        </h1>
-        
-        {content.description && (
-          <p className="font-sans text-lg md:text-xl max-w-2xl mb-12" style={{ opacity: 0.8 }}>
-            {content.description}
-          </p>
-        )}
-        
-        {content.ctaText && content.ctaLink && (
-          <Link href={content.ctaLink}>
-            <a 
-              className="inline-block px-8 py-4 border rounded-full font-sans text-sm uppercase tracking-[0.2em] transition-all duration-500"
-              style={{ borderColor: textColor + '4D', color: textColor }}  /* 4D = 30% opacity */
-            >
-              {content.ctaText}
-            </a>
-          </Link>
-        )}
+        <div className={maxWidthClass}>
+          {content.subtitle && (
+            <p className="font-sans text-xs uppercase tracking-[0.3em] mb-6" style={{ opacity: 0.8 }}>
+              {content.subtitle}
+            </p>
+          )}
+          
+          <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl font-light italic mb-6">
+            {content.title || 'Welcome to Just Empower'}
+          </h1>
+          
+          {content.description && (
+            <p className="font-sans text-lg md:text-xl mb-12" style={{ opacity: 0.8 }}>
+              {content.description}
+            </p>
+          )}
+          
+          {content.ctaText && content.ctaLink && (
+            <Link href={content.ctaLink}>
+              <a 
+                className="inline-block px-8 py-4 border rounded-full font-sans text-sm uppercase tracking-[0.2em] transition-all duration-500"
+                style={{ borderColor: textColor + '4D', color: textColor }}  /* 4D = 30% opacity */
+              >
+                {content.ctaText}
+              </a>
+            </Link>
+          )}
+        </div>
       </div>
     </section>
   );
@@ -503,47 +563,76 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
 // JE Carousel Block Renderer
 export function JECarouselRenderer({ block }: { block: PageBlock }) {
   const content = block.content as {
+    title?: string;
+    subtitle?: string;
     items?: Array<{
       title: string;
       description?: string;
       imageUrl?: string;
       link?: string;
     }>;
+    // Customization options
+    backgroundColor?: string;
+    cardBorderRadius?: string;
+    cardHeight?: string;
+    showTitle?: boolean;
   };
+
+  const bgColor = content.backgroundColor || '#f5f5f0';
+  const cardRadius = content.cardBorderRadius || '2rem';
+  const cardHeight = content.cardHeight || '400px';
+  const showTitle = content.showTitle !== false;
 
   // If items are provided in the block, render custom carousel
   if (content.items && content.items.length > 0) {
     return (
-      <section className="py-24 px-6 bg-[#f5f5f0]">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex gap-8 overflow-x-auto pb-8 snap-x snap-mandatory">
-            {content.items.map((item, index) => (
-              <div key={index} className="flex-shrink-0 w-80 snap-start">
-                <div className="bg-white rounded-2xl overflow-hidden shadow-lg">
-                  {item.imageUrl && (
-                    <img
-                      src={getMediaUrl(item.imageUrl)}
-                      alt={item.title}
-                      className="w-full h-48 object-cover"
-                    />
-                  )}
-                  <div className="p-6">
-                    <h3 className="font-serif text-xl italic mb-2">{item.title}</h3>
-                    {item.description && (
-                      <p className="text-neutral-600 text-sm">{item.description}</p>
-                    )}
-                    {item.link && (
-                      <Link href={item.link}>
-                        <a className="mt-4 inline-flex items-center text-primary text-sm font-medium">
-                          Learn More <ArrowRight className="w-4 h-4 ml-2" />
-                        </a>
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
+      <section 
+        className="relative py-24 overflow-hidden"
+        style={{ backgroundColor: bgColor }}
+      >
+        {/* Title Section */}
+        {showTitle && (
+          <div className="px-6 md:px-12 mb-12">
+            {content.subtitle && (
+              <p className="font-sans text-xs uppercase tracking-[0.3em] text-primary/80 mb-4">
+                {content.subtitle}
+              </p>
+            )}
+            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground font-light italic tracking-tight">
+              {content.title || 'Our Offerings'}
+            </h2>
           </div>
+        )}
+
+        {/* Carousel Track */}
+        <div className="flex gap-8 md:gap-12 px-6 md:px-12 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide">
+          {content.items.map((item, index) => (
+            <div key={index} className="flex-shrink-0 snap-start">
+              {item.link ? (
+                <Link href={item.link}>
+                  <a className="block">
+                    <CarouselCard 
+                      item={item} 
+                      cardRadius={cardRadius} 
+                      cardHeight={cardHeight} 
+                    />
+                  </a>
+                </Link>
+              ) : (
+                <CarouselCard 
+                  item={item} 
+                  cardRadius={cardRadius} 
+                  cardHeight={cardHeight} 
+                />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Scroll Indicator */}
+        <div className="px-6 md:px-12 mt-8 flex items-center gap-4">
+          <span className="font-sans text-xs uppercase tracking-[0.2em] text-muted-foreground">Scroll to Explore</span>
+          <div className="w-24 h-[1px] bg-muted-foreground/30" />
         </div>
       </section>
     );
@@ -551,6 +640,65 @@ export function JECarouselRenderer({ block }: { block: PageBlock }) {
 
   // Default: use the actual Carousel component which fetches from database
   return <Carousel />;
+}
+
+// Carousel Card Component with curved edges
+function CarouselCard({ 
+  item, 
+  cardRadius, 
+  cardHeight 
+}: { 
+  item: { title: string; description?: string; imageUrl?: string };
+  cardRadius: string;
+  cardHeight: string;
+}) {
+  return (
+    <div 
+      className="relative w-[80vw] md:w-[40vw] lg:w-[30vw] group overflow-hidden cursor-pointer shadow-2xl shadow-black/5 transition-all duration-500 hover:-translate-y-4 bg-gray-900"
+      style={{ 
+        borderRadius: cardRadius,
+        height: cardHeight,
+      }}
+    >
+      {/* Image Background */}
+      <div 
+        className="absolute inset-0 overflow-hidden"
+        style={{ borderRadius: cardRadius }}
+      >
+        {item.imageUrl ? (
+          <div 
+            className="absolute inset-0 w-full h-full bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
+            style={{ backgroundImage: `url(${getMediaUrl(item.imageUrl)})` }}
+          />
+        ) : (
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-neutral-700 to-neutral-900 flex items-center justify-center">
+            <span className="text-white/40 text-sm">Add an image</span>
+          </div>
+        )}
+      </div>
+      
+      {/* Gradient Overlay */}
+      <div 
+        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 transition-opacity duration-500"
+        style={{ borderRadius: cardRadius }}
+      />
+      
+      {/* Content */}
+      <div className="absolute bottom-0 left-0 p-8 md:p-10 w-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 z-20">
+        <span className="font-sans text-xs uppercase tracking-[0.2em] text-white/90 mb-4 block border-l-2 border-white/50 pl-3">
+          Explore
+        </span>
+        <h3 className="font-serif text-3xl md:text-4xl text-white mb-4 italic font-light leading-tight drop-shadow-lg">
+          {item.title}
+        </h3>
+        {item.description && (
+          <p className="font-sans text-white/90 text-sm tracking-wide opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 transform translate-y-4 group-hover:translate-y-0 drop-shadow-md">
+            {item.description}
+          </p>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // JE Newsletter Block Renderer
