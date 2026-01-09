@@ -2,6 +2,36 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Zap, Shield, Sparkles, Star, Heart, Award, Target, Users, Clock, CheckCircle } from "lucide-react";
+import {
+  JEHeroRenderer,
+  JESectionRenderer,
+  JECarouselRenderer,
+  JENewsletterRenderer,
+  JEQuoteRenderer,
+  JEPillarGridRenderer,
+  JECommunityRenderer,
+  JERootedUnityRenderer,
+  JEHeadingRenderer,
+  JEParagraphRenderer,
+  JEImageRenderer,
+  JEVideoRenderer,
+  JEButtonRenderer,
+  JETwoColumnRenderer,
+  JEDividerRenderer,
+  JESpacerRenderer,
+  JEFAQRenderer,
+  JEContactFormRenderer,
+  JETestimonialRenderer,
+  JEOfferingsGridRenderer,
+  JEComingSoonRenderer,
+  JEGalleryRenderer,
+  JETeamMemberRenderer,
+  JEPrinciplesRenderer,
+  JEFooterRenderer,
+  JEVolumesRenderer,
+  JEFeatureCardRenderer,
+  JECalendarRenderer,
+} from './page-builder/renderers/JEBlockRenderers';
 
 interface BlockData {
   id: number;
@@ -492,6 +522,82 @@ function RenderBlock({ block }: { block: BlockData }) {
 
       case "divider":
         return <hr className="border-neutral-200 dark:border-neutral-700 my-8" />;
+
+      // JE Block Types - Hero
+      case "je-hero-video":
+      case "je-hero-image":
+      case "je-hero-split":
+        return <JEHeroRenderer content={cleanContent} blockType={originalType} />;
+
+      // JE Block Types - Sections
+      case "je-section-standard":
+      case "je-section-fullwidth":
+        return <JESectionRenderer content={cleanContent} blockType={originalType} />;
+
+      // JE Block Types - Content
+      case "je-heading":
+        return <JEHeadingRenderer content={cleanContent} />;
+      case "je-paragraph":
+        return <JEParagraphRenderer content={cleanContent} />;
+      case "je-blockquote":
+        return <JEQuoteRenderer content={cleanContent} />;
+      case "je-image":
+        return <JEImageRenderer content={cleanContent} />;
+      case "je-video":
+        return <JEVideoRenderer content={cleanContent} />;
+      case "je-gallery":
+        return <JEGalleryRenderer content={cleanContent} />;
+      case "je-button":
+        return <JEButtonRenderer content={cleanContent} />;
+
+      // JE Block Types - Layout
+      case "je-two-column":
+        return <JETwoColumnRenderer content={cleanContent} />;
+      case "je-divider":
+        return <JEDividerRenderer content={cleanContent} />;
+      case "je-spacer":
+        return <JESpacerRenderer content={cleanContent} />;
+
+      // JE Block Types - Features
+      case "je-pillars":
+        return <JEPillarGridRenderer content={cleanContent} />;
+      case "je-principles":
+        return <JEPrinciplesRenderer content={cleanContent} />;
+      case "je-feature-card":
+        return <JEFeatureCardRenderer content={cleanContent} />;
+
+      // JE Block Types - Offerings
+      case "je-offerings-grid":
+        return <JEOfferingsGridRenderer content={cleanContent} />;
+      case "je-offerings-carousel":
+      case "je-carousel":
+        return <JECarouselRenderer content={cleanContent} blockType={originalType} />;
+      case "je-volumes":
+        return <JEVolumesRenderer content={cleanContent} />;
+
+      // JE Block Types - Community
+      case "je-community-section":
+        return <JECommunityRenderer content={cleanContent} />;
+      case "je-coming-soon":
+        return <JEComingSoonRenderer content={cleanContent} />;
+      case "je-testimonial":
+        return <JETestimonialRenderer content={cleanContent} />;
+      case "je-team-member":
+        return <JETeamMemberRenderer content={cleanContent} />;
+
+      // JE Block Types - Interactive
+      case "je-newsletter":
+        return <JENewsletterRenderer content={cleanContent} />;
+      case "je-contact-form":
+        return <JEContactFormRenderer content={cleanContent} />;
+      case "je-faq":
+        return <JEFAQRenderer content={cleanContent} />;
+      case "je-calendar":
+        return <JECalendarRenderer content={cleanContent} />;
+
+      // JE Block Types - Footer
+      case "je-footer":
+        return <JEFooterRenderer content={cleanContent} />;
 
       default:
         // For unknown types, try to render any text content
