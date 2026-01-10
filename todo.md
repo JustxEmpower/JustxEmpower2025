@@ -2120,3 +2120,10 @@ NODE_ENV=production
 - [x] Add GSAP scroll-triggered parallax and reveal animations to Section block
 - [x] Add GSAP horizontal scroll pinning to Carousel block
 
+
+## S3 Media Backup Integration (Jan 10, 2026)
+- [x] Add S3 media file listing functionality to backup system
+- [x] Include actual media files in backup (not just references)
+- [x] Update restore to restore media files from backup
+- [x] Update UI to show media backup progress and size
+

@@ -41,7 +41,7 @@ import {
   analyticsEvents, analyticsPageViews, analyticsSessions, visitorProfiles
 } from "../drizzle/schema";
 import { eq, sql, desc, asc, and, gte, lte } from "drizzle-orm";
-import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand, ListObjectsV2Command, CopyObjectCommand } from "@aws-sdk/client-s3";
 import { storagePut, storageGet } from "./storage";
 import { TRPCError } from "@trpc/server";
 
@@ -58,6 +58,13 @@ interface BackupOptions {
   createdBy?: string;
 }
 
+interface MediaFileInfo {
+  key: string;           // S3 key (path)
+  size: number;          // File size in bytes
+  lastModified: string;  // ISO timestamp
+  backupKey?: string;    // Key in backup folder after copy
+}
+
 interface BackupData {
   version: string;
   timestamp: string;
@@ -69,8 +76,12 @@ interface BackupData {
     tablesIncluded: string[];
     recordCounts: Record<string, number>;
     checksum?: string;
+    mediaFilesCount?: number;
+    mediaFilesSize?: number;  // Total size in bytes
+    mediaBackupFolder?: string;  // S3 folder where media files are copied
   };
   data: Record<string, any[]>;
+  mediaFiles?: MediaFileInfo[];  // List of media files included in backup
 }
 
 interface RestoreOptions {
@@ -264,6 +275,189 @@ function safeSerialize(data: any): any {
   return data;
 }
 
+// ============================================================================
+// S3 MEDIA FILE BACKUP FUNCTIONS
+// ============================================================================
+
+/**
+ * List all media files in S3 bucket (under media/ prefix)
+ */
+async function listAllMediaFiles(): Promise<MediaFileInfo[]> {
+  const mediaFiles: MediaFileInfo[] = [];
+  let continuationToken: string | undefined;
+  
+  const MEDIA_BUCKET = process.env.AWS_S3_BUCKET || "justxempower-assets";
+  
+  try {
+    do {
+      const command = new ListObjectsV2Command({
+        Bucket: MEDIA_BUCKET,
+        Prefix: "media/",
+        ContinuationToken: continuationToken,
+        MaxKeys: 1000,
+      });
+      
+      const response = await s3Client.send(command);
+      
+      if (response.Contents) {
+        for (const obj of response.Contents) {
+          if (obj.Key && obj.Size !== undefined) {
+            mediaFiles.push({
+              key: obj.Key,
+              size: obj.Size,
+              lastModified: obj.LastModified?.toISOString() || new Date().toISOString(),
+            });
+          }
+        }
+      }
+      
+      continuationToken = response.NextContinuationToken;
+    } while (continuationToken);
+    
+    console.log(`[Backup] Found ${mediaFiles.length} media files in S3`);
+    return mediaFiles;
+  } catch (error) {
+    console.error("[Backup] Error listing media files:", error);
+    return [];
+  }
+}
+
+/**
+ * Copy media files to backup folder in S3
+ */
+async function copyMediaFilesToBackup(
+  mediaFiles: MediaFileInfo[],
+  backupFolder: string
+): Promise<{ copied: number; failed: number; totalSize: number }> {
+  const MEDIA_BUCKET = process.env.AWS_S3_BUCKET || "justxempower-assets";
+  let copied = 0;
+  let failed = 0;
+  let totalSize = 0;
+  
+  console.log(`[Backup] Starting to copy ${mediaFiles.length} media files to ${backupFolder}`);
+  
+  // Process in batches to avoid overwhelming S3
+  const BATCH_SIZE = 50;
+  for (let i = 0; i < mediaFiles.length; i += BATCH_SIZE) {
+    const batch = mediaFiles.slice(i, i + BATCH_SIZE);
+    
+    await Promise.all(batch.map(async (file) => {
+      try {
+        // Create backup key by prepending backup folder
+        const backupKey = `${backupFolder}/${file.key}`;
+        
+        const command = new CopyObjectCommand({
+          Bucket: MEDIA_BUCKET,
+          CopySource: `${MEDIA_BUCKET}/${file.key}`,
+          Key: backupKey,
+        });
+        
+        await s3Client.send(command);
+        file.backupKey = backupKey;
+        copied++;
+        totalSize += file.size;
+      } catch (error) {
+        console.error(`[Backup] Failed to copy ${file.key}:`, error);
+        failed++;
+      }
+    }));
+    
+    // Log progress
+    console.log(`[Backup] Progress: ${Math.min(i + BATCH_SIZE, mediaFiles.length)}/${mediaFiles.length} files processed`);
+  }
+  
+  console.log(`[Backup] Media copy complete: ${copied} copied, ${failed} failed, ${(totalSize / 1024 / 1024).toFixed(2)} MB total`);
+  return { copied, failed, totalSize };
+}
+
+/**
+ * Restore media files from backup folder
+ */
+async function restoreMediaFilesFromBackup(
+  mediaFiles: MediaFileInfo[],
+  backupFolder: string
+): Promise<{ restored: number; failed: number }> {
+  const MEDIA_BUCKET = process.env.AWS_S3_BUCKET || "justxempower-assets";
+  let restored = 0;
+  let failed = 0;
+  
+  console.log(`[Restore] Starting to restore ${mediaFiles.length} media files from ${backupFolder}`);
+  
+  // Process in batches
+  const BATCH_SIZE = 50;
+  for (let i = 0; i < mediaFiles.length; i += BATCH_SIZE) {
+    const batch = mediaFiles.slice(i, i + BATCH_SIZE);
+    
+    await Promise.all(batch.map(async (file) => {
+      try {
+        const backupKey = file.backupKey || `${backupFolder}/${file.key}`;
+        
+        const command = new CopyObjectCommand({
+          Bucket: MEDIA_BUCKET,
+          CopySource: `${MEDIA_BUCKET}/${backupKey}`,
+          Key: file.key,
+        });
+        
+        await s3Client.send(command);
+        restored++;
+      } catch (error) {
+        console.error(`[Restore] Failed to restore ${file.key}:`, error);
+        failed++;
+      }
+    }));
+    
+    console.log(`[Restore] Progress: ${Math.min(i + BATCH_SIZE, mediaFiles.length)}/${mediaFiles.length} files processed`);
+  }
+  
+  console.log(`[Restore] Media restore complete: ${restored} restored, ${failed} failed`);
+  return { restored, failed };
+}
+
+/**
+ * Delete backup media folder from S3
+ */
+async function deleteBackupMediaFolder(backupFolder: string): Promise<void> {
+  const MEDIA_BUCKET = process.env.AWS_S3_BUCKET || "justxempower-assets";
+  
+  try {
+    // List all objects in the backup folder
+    let continuationToken: string | undefined;
+    const keysToDelete: string[] = [];
+    
+    do {
+      const listCommand = new ListObjectsV2Command({
+        Bucket: MEDIA_BUCKET,
+        Prefix: backupFolder,
+        ContinuationToken: continuationToken,
+      });
+      
+      const response = await s3Client.send(listCommand);
+      
+      if (response.Contents) {
+        for (const obj of response.Contents) {
+          if (obj.Key) {
+            keysToDelete.push(obj.Key);
+          }
+        }
+      }
+      
+      continuationToken = response.NextContinuationToken;
+    } while (continuationToken);
+    
+    // Delete in batches
+    for (let i = 0; i < keysToDelete.length; i += 1000) {
+      const batch = keysToDelete.slice(i, i + 1000);
+      await Promise.all(batch.map(key => 
+        s3Client.send(new DeleteObjectCommand({ Bucket: MEDIA_BUCKET, Key: key }))
+      ));
+    }
+    
+    console.log(`[Backup] Deleted ${keysToDelete.length} files from backup folder ${backupFolder}`);
+  } catch (error) {
+    console.error(`[Backup] Error deleting backup folder ${backupFolder}:`, error);
+  }
+}
+
 /**
  * Validate backup data before restore
  */
@@ -389,6 +583,8 @@ export async function createBackup(options: BackupOptions): Promise<{
 
     // Create backup structure
     const timestamp = new Date().toISOString();
+    const mediaBackupFolder = `backups/media/${timestamp.replace(/[:.]/g, "-")}_${backupName.toLowerCase().replace(/[^a-z0-9]/g, "-").slice(0, 30)}`;
+    
     const fullBackup: BackupData = {
       version: BACKUP_VERSION,
       timestamp,
@@ -399,9 +595,45 @@ export async function createBackup(options: BackupOptions): Promise<{
         createdBy,
         tablesIncluded: tablesToBackup,
         recordCounts,
+        mediaBackupFolder,
       },
       data: backupData,
     };
+
+    // Check if AWS credentials are configured
+    const hasAwsCredentials = process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY;
+
+    // Backup media files to S3 if credentials are available and media is included
+    if (hasAwsCredentials && includeMedia) {
+      console.log(`[Backup] Starting media files backup...`);
+      try {
+        // List all media files
+        const mediaFiles = await listAllMediaFiles();
+        
+        if (mediaFiles.length > 0) {
+          // Copy media files to backup folder
+          const copyResult = await copyMediaFilesToBackup(mediaFiles, mediaBackupFolder);
+          
+          // Add media info to backup metadata
+          fullBackup.mediaFiles = mediaFiles;
+          fullBackup.metadata.mediaFilesCount = copyResult.copied;
+          fullBackup.metadata.mediaFilesSize = copyResult.totalSize;
+          
+          console.log(`[Backup] Media backup complete: ${copyResult.copied} files, ${(copyResult.totalSize / 1024 / 1024).toFixed(2)} MB`);
+        } else {
+          console.log(`[Backup] No media files found to backup`);
+          fullBackup.metadata.mediaFilesCount = 0;
+          fullBackup.metadata.mediaFilesSize = 0;
+        }
+      } catch (mediaError) {
+        console.error("[Backup] Media backup failed, continuing with database backup:", mediaError);
+        fullBackup.metadata.mediaFilesCount = 0;
+        fullBackup.metadata.mediaFilesSize = 0;
+      }
+    } else {
+      fullBackup.metadata.mediaFilesCount = 0;
+      fullBackup.metadata.mediaFilesSize = 0;
+    }
 
     // Serialize backup
     const backupJson = JSON.stringify(fullBackup, null, 2);
@@ -410,14 +642,12 @@ export async function createBackup(options: BackupOptions): Promise<{
     // Add checksum
     fullBackup.metadata.checksum = calculateChecksum(backupJson);
 
-    console.log(`[Backup] Total size: ${(backupSize / 1024 / 1024).toFixed(2)} MB`);
+    const totalSize = backupSize + (fullBackup.metadata.mediaFilesSize || 0);
+    console.log(`[Backup] Database size: ${(backupSize / 1024 / 1024).toFixed(2)} MB, Media size: ${((fullBackup.metadata.mediaFilesSize || 0) / 1024 / 1024).toFixed(2)} MB, Total: ${(totalSize / 1024 / 1024).toFixed(2)} MB`);
 
     // Try to upload to S3 using the shared storage helper
     let s3Url: string | null = null;
     let s3Key: string | null = null;
-
-    // Check if AWS credentials are configured
-    const hasAwsCredentials = process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY;
     
     if (hasAwsCredentials) {
       try {
@@ -619,10 +849,37 @@ export async function restoreBackup(options: RestoreOptions): Promise<RestoreRes
       }
     }
 
+    // Restore media files if available and not a dry run
+    let mediaRestoreResult = { restored: 0, failed: 0 };
+    if (!dryRun && backupData.mediaFiles && backupData.mediaFiles.length > 0 && backupData.metadata.mediaBackupFolder) {
+      console.log(`[Restore] Starting media files restore...`);
+      try {
+        mediaRestoreResult = await restoreMediaFilesFromBackup(
+          backupData.mediaFiles,
+          backupData.metadata.mediaBackupFolder
+        );
+        
+        if (mediaRestoreResult.restored > 0) {
+          restored.push(`Media files: ${mediaRestoreResult.restored} files restored`);
+        }
+        if (mediaRestoreResult.failed > 0) {
+          errors.push(`Media files: ${mediaRestoreResult.failed} files failed to restore`);
+        }
+      } catch (mediaError) {
+        console.error("[Restore] Media restore failed:", mediaError);
+        errors.push(`Media restore failed: ${mediaError instanceof Error ? mediaError.message : "Unknown error"}`);
+      }
+    } else if (dryRun && backupData.mediaFiles && backupData.mediaFiles.length > 0) {
+      restored.push(`Media files: ${backupData.mediaFiles.length} files would be restored`);
+    }
+
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+    const mediaInfo = backupData.mediaFiles && backupData.mediaFiles.length > 0
+      ? ` + ${mediaRestoreResult.restored || backupData.mediaFiles.length} media files`
+      : "";
     const summary = dryRun
-      ? `Dry run complete. Would restore ${recordsRestored} records across ${restored.length} tables.`
-      : `Restore complete in ${duration}s. Restored ${recordsRestored} records across ${restored.length} tables.`;
+      ? `Dry run complete. Would restore ${recordsRestored} records across ${restored.length} tables${mediaInfo}.`
+      : `Restore complete in ${duration}s. Restored ${recordsRestored} records across ${restored.length} tables${mediaInfo}.`;
 
     console.log(`[Restore] ${summary}`);
 
@@ -754,9 +1011,9 @@ export async function listBackups(options?: {
 }
 
 /**
- * Delete a backup
+ * Delete a backup (including media files)
  */
-export async function deleteBackup(backupId: number): Promise<{ success: boolean }> {
+export async function deleteBackup(backupId: number, deleteMediaFiles: boolean = false): Promise<{ success: boolean }> {
   const db = await getDb();
   if (!db) {
     throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
@@ -771,17 +1028,31 @@ export async function deleteBackup(backupId: number): Promise<{ success: boolean
     });
   }
 
-  // Optionally delete from S3 (commented out to keep as archive)
-  // if (backup.s3Key) {
-  //   try {
-  //     await s3Client.send(new DeleteObjectCommand({
-  //       Bucket: S3_BUCKET,
-  //       Key: backup.s3Key,
-  //     }));
-  //   } catch (s3Error) {
-  //     console.error("[Delete] S3 delete failed:", s3Error);
-  //   }
-  // }
+  // Delete media backup folder if requested
+  if (deleteMediaFiles && backup.backupData) {
+    try {
+      const backupData: BackupData = JSON.parse(backup.backupData);
+      if (backupData.metadata?.mediaBackupFolder) {
+        console.log(`[Delete] Deleting media backup folder: ${backupData.metadata.mediaBackupFolder}`);
+        await deleteBackupMediaFolder(backupData.metadata.mediaBackupFolder);
+      }
+    } catch (parseError) {
+      console.error("[Delete] Failed to parse backup data for media deletion:", parseError);
+    }
+  }
+
+  // Delete backup JSON from S3 if exists
+  if (deleteMediaFiles && backup.s3Key) {
+    try {
+      await s3Client.send(new DeleteObjectCommand({
+        Bucket: S3_BUCKET,
+        Key: backup.s3Key,
+      }));
+      console.log(`[Delete] Deleted backup JSON from S3: ${backup.s3Key}`);
+    } catch (s3Error) {
+      console.error("[Delete] S3 delete failed:", s3Error);
+    }
+  }
 
   await db.delete(backups).where(eq(backups.id, backupId));
 
