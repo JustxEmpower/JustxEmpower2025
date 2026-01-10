@@ -50,10 +50,10 @@ export default function Events({ slug = 'events' }: EventsProps) {
       <section className="relative py-20 bg-gradient-to-b from-black to-stone-900">
         <div className="container mx-auto px-4 text-center">
           {heroSubtitle && (
-            <p className="text-sm uppercase tracking-widest text-stone-400 mb-4">{heroSubtitle}</p>
+            <p className="text-sm uppercase tracking-widest text-white/60 mb-4">{heroSubtitle}</p>
           )}
           <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">{heroTitle}</h1>
-          <p className="text-lg text-stone-300 max-w-2xl mx-auto">
+          <p className="text-lg text-white/70 max-w-2xl mx-auto">
             {heroDescription}
           </p>
         </div>
@@ -119,7 +119,7 @@ function EventCard({ event, isPast }: { event: any; isPast: boolean }) {
   return (
     <Link href={`/events/${event.slug}`}>
       <Card className="group overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
-        <div className="relative aspect-video overflow-hidden bg-stone-100">
+        <div className="relative aspect-video overflow-hidden bg-muted">
           {event.featuredImage ? (
             <img
               src={event.featuredImage}
@@ -127,8 +127,8 @@ function EventCard({ event, isPast }: { event: any; isPast: boolean }) {
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-stone-200 to-stone-300">
-              <Calendar className="h-12 w-12 text-stone-400" />
+            <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/80">
+              <Calendar className="h-12 w-12 text-muted-foreground" />
             </div>
           )}
           {isPast && (
@@ -149,7 +149,7 @@ function EventCard({ event, isPast }: { event: any; isPast: boolean }) {
         <CardContent className="p-6">
           <h3 className="font-semibold text-lg mb-2 line-clamp-2">{event.title}</h3>
           
-          <div className="space-y-2 text-sm text-stone-600 mb-4">
+          <div className="space-y-2 text-sm text-muted-foreground mb-4">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               <span>{new Date(event.startDate).toLocaleDateString()}</span>
@@ -166,11 +166,11 @@ function EventCard({ event, isPast }: { event: any; isPast: boolean }) {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-stone-400" />
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
               <span className="font-semibold">{event.formattedPrice}</span>
             </div>
             {event.capacity && !isPast && (
-              <div className="flex items-center gap-1 text-sm text-stone-500">
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Users className="h-4 w-4" />
                 <span>
                   {event.spotsRemaining !== null ? `${event.spotsRemaining} spots left` : `${event.capacity} capacity`}
@@ -211,9 +211,9 @@ function EventsLoading() {
 function EmptyState({ message }: { message: string }) {
   return (
     <div className="text-center py-16">
-      <Calendar className="h-16 w-16 mx-auto text-stone-300 mb-4" />
-      <h3 className="text-xl font-medium text-stone-600 mb-2">No Events</h3>
-      <p className="text-stone-500">{message}</p>
+      <Calendar className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+      <h3 className="text-xl font-medium text-foreground mb-2">No Events</h3>
+      <p className="text-muted-foreground">{message}</p>
     </div>
   );
 }

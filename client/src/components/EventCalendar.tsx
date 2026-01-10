@@ -32,12 +32,12 @@ interface EventCalendarProps {
 
 // Event type colors
 const eventTypeColors: Record<string, { bg: string; text: string; border: string }> = {
-  workshop: { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-300' },
-  retreat: { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-300' },
-  webinar: { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-300' },
-  meetup: { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-300' },
-  conference: { bg: 'bg-pink-100', text: 'text-pink-800', border: 'border-pink-300' },
-  other: { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-300' },
+  workshop: { bg: 'bg-amber-100 dark:bg-amber-900/50', text: 'text-amber-800 dark:text-amber-300', border: 'border-amber-300 dark:border-amber-700' },
+  retreat: { bg: 'bg-emerald-100 dark:bg-emerald-900/50', text: 'text-emerald-800 dark:text-emerald-300', border: 'border-emerald-300 dark:border-emerald-700' },
+  webinar: { bg: 'bg-blue-100 dark:bg-blue-900/50', text: 'text-blue-800 dark:text-blue-300', border: 'border-blue-300 dark:border-blue-700' },
+  meetup: { bg: 'bg-purple-100 dark:bg-purple-900/50', text: 'text-purple-800 dark:text-purple-300', border: 'border-purple-300 dark:border-purple-700' },
+  conference: { bg: 'bg-pink-100 dark:bg-pink-900/50', text: 'text-pink-800 dark:text-pink-300', border: 'border-pink-300 dark:border-pink-700' },
+  other: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-800 dark:text-gray-300', border: 'border-gray-300 dark:border-gray-600' },
 };
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];

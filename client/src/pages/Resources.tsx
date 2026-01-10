@@ -45,7 +45,7 @@ const getFileIcon = (fileType: string, size: 'sm' | 'lg' = 'sm') => {
   if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(type)) return <FileImage className={`${sizeClass} text-purple-500`} />;
   if (['zip', 'rar', '7z', 'tar', 'gz'].includes(type)) return <FileArchive className={`${sizeClass} text-amber-500`} />;
   if (['mp4', 'webm', 'mov', 'avi'].includes(type)) return <Play className={`${sizeClass} text-pink-500`} />;
-  return <File className={`${sizeClass} text-gray-500`} />;
+  return <File className={`${sizeClass} text-muted-foreground`} />;
 };
 
 // File type badge color
@@ -68,7 +68,7 @@ const getFileTypeBadge = (fileType: string) => {
     MOV: 'bg-pink-100 text-pink-700',
   };
   return (
-    <Badge className={`${colors[type] || 'bg-gray-100 text-gray-700'} hover:${colors[type] || 'bg-gray-100'}`}>
+    <Badge className={`${colors[type] || 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'} hover:${colors[type] || 'bg-gray-100 dark:bg-gray-800'}`}>
       {type}
     </Badge>
   );
@@ -536,7 +536,7 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
                           <div className="flex items-start justify-between gap-4">
                             <div>
                               <div className="flex items-center gap-2 mb-1">
-                                <h3 className="text-lg font-medium text-stone-900">
+                                <h3 className="text-lg font-medium text-foreground">
                                   {resource.title}
                                 </h3>
                                 {resource.isPremium && (resource.price ?? 0) > 0 && (
@@ -634,16 +634,16 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="font-medium text-stone-900">{purchaseResource?.title}</span>
+                <span className="font-medium text-foreground dark:text-white">{purchaseResource?.title}</span>
                 <span className="text-2xl font-bold text-amber-600">
                   {purchaseResource && formatPrice(purchaseResource.price)}
                 </span>
               </div>
-              <p className="text-sm text-stone-600">{purchaseResource?.description}</p>
+              <p className="text-sm text-muted-foreground">{purchaseResource?.description}</p>
             </div>
-            <div className="space-y-2 text-sm text-stone-600">
+            <div className="space-y-2 text-sm text-muted-foreground">
               <p className="flex items-center gap-2">
                 <Download className="w-4 h-4 text-green-500" />
                 Instant download after purchase

@@ -23,12 +23,12 @@ import {
 
 // Event type colors
 const eventTypeColors: Record<string, { bg: string; text: string }> = {
-  workshop: { bg: 'bg-amber-100', text: 'text-amber-800' },
-  retreat: { bg: 'bg-emerald-100', text: 'text-emerald-800' },
-  webinar: { bg: 'bg-blue-100', text: 'text-blue-800' },
-  meetup: { bg: 'bg-purple-100', text: 'text-purple-800' },
-  conference: { bg: 'bg-pink-100', text: 'text-pink-800' },
-  other: { bg: 'bg-gray-100', text: 'text-gray-800' },
+  workshop: { bg: 'bg-amber-100 dark:bg-amber-900/50', text: 'text-amber-800 dark:text-amber-300' },
+  retreat: { bg: 'bg-emerald-100 dark:bg-emerald-900/50', text: 'text-emerald-800 dark:text-emerald-300' },
+  webinar: { bg: 'bg-blue-100 dark:bg-blue-900/50', text: 'text-blue-800 dark:text-blue-300' },
+  meetup: { bg: 'bg-purple-100 dark:bg-purple-900/50', text: 'text-purple-800 dark:text-purple-300' },
+  conference: { bg: 'bg-pink-100 dark:bg-pink-900/50', text: 'text-pink-800 dark:text-pink-300' },
+  other: { bg: 'bg-gray-100 dark:bg-gray-800', text: 'text-gray-800 dark:text-gray-300' },
 };
 
 interface CommunityEventsProps {
@@ -200,7 +200,7 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
                               {event.eventType}
                             </Badge>
                             {event.isFree === 1 && (
-                              <Badge className="bg-green-100 text-green-700">Free</Badge>
+                              <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">Free</Badge>
                             )}
                           </div>
                         )}
@@ -286,12 +286,12 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
       </div>
 
       {/* CTA Section */}
-      <section className="bg-stone-100 py-16">
+      <section className="bg-stone-100 dark:bg-stone-900 py-16">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-serif text-stone-900 mb-4">
+          <h2 className="text-2xl font-serif text-foreground mb-4">
             Want to host an event with us?
           </h2>
-          <p className="text-stone-600 mb-6 max-w-xl mx-auto">
+          <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
             We're always looking for collaborators and partners to create meaningful experiences for our community.
           </p>
           <Link href="/contact">

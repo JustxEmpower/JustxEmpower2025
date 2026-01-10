@@ -2099,3 +2099,8 @@ NODE_ENV=production
 ## Page Builder Fix (Jan 10, 2026)
 - [x] Fix Page Builder right panel scrolling - settings panel gets cut off at bottom
 - [x] Fix drizzle migration snapshot collision (0003/0004 pointing to same parent)
+
+## Dark Mode Text Visibility Fixes (Jan 10, 2026)
+- [x] Fix Resources page dark mode text visibility
+- [x] Fix Community Events page dark mode text visibility
+- [x] Audit all pages for dark mode issues

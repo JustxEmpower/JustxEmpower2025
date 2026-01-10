@@ -65,15 +65,15 @@ export default function AboutJustEmpower() {
       <section className="py-20 px-6">
         <div className="container max-w-4xl">
           <div className="prose prose-lg prose-stone mx-auto">
-            <p className="text-xl leading-relaxed text-stone-700 mb-8">
+            <p className="text-xl leading-relaxed text-foreground/80 mb-8">
               {introText}
             </p>
 
-            <p className="text-lg leading-relaxed text-stone-600 mb-8">
+            <p className="text-lg leading-relaxed text-muted-foreground mb-8">
               {getContent('intro', 'content2')}
             </p>
 
-            <p className="text-lg leading-relaxed text-stone-600 mb-12">
+            <p className="text-lg leading-relaxed text-muted-foreground mb-12">
               {getContent('intro', 'content3')}
             </p>
           </div>
@@ -81,7 +81,7 @@ export default function AboutJustEmpower() {
       </section>
 
       {/* Mission Section */}
-      <section className="py-20 px-6 bg-stone-900 text-stone-100">
+      <section className="py-20 px-6 bg-stone-900 dark:bg-stone-950 text-stone-100">
         <div className="container max-w-5xl">
           <h2 className="font-serif text-4xl md:text-5xl text-center mb-12">
             {missionTitle}
@@ -91,7 +91,7 @@ export default function AboutJustEmpower() {
             {missionDescription}
           </p>
 
-          <p className="text-lg text-center mb-12 text-stone-300">
+          <p className="text-lg text-center mb-12 text-stone-300 dark:text-stone-400">
             {missionIntro}
           </p>
 

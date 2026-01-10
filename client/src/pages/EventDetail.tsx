@@ -177,9 +177,9 @@ function RegistrationDialog({ event, trigger }: { event: { id: number; title: st
           <div className="text-center py-6">
             <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
             <DialogTitle className="text-xl mb-2">Registration Complete!</DialogTitle>
-            <p className="text-stone-600 mb-2">Your confirmation number:</p>
+            <p className="text-muted-foreground mb-2">Your confirmation number:</p>
             <p className="text-2xl font-mono font-bold mb-4">{confirmationNumber}</p>
-            <p className="text-sm text-stone-500">A confirmation email has been sent to your email address.</p>
+            <p className="text-sm text-muted-foreground">A confirmation email has been sent to your email address.</p>
             <Button className="mt-6" onClick={() => setOpen(false)}>Close</Button>
           </div>
         ) : (
@@ -234,18 +234,18 @@ export default function EventDetail() {
   return (
     <div className="min-h-screen bg-[var(--theme-background)]">
       <div className="container mx-auto px-4 py-8">
-        <Link href="/events" className="inline-flex items-center text-stone-600 hover:text-stone-900 mb-8">
+        <Link href="/events" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8">
           <ChevronLeft className="h-4 w-4 mr-1" />Back to Events
         </Link>
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <div className="aspect-video rounded-lg overflow-hidden bg-stone-100">
+            <div className="aspect-video rounded-lg overflow-hidden bg-muted">
               {event.featuredImage ? (
                 <img src={event.featuredImage} alt={event.title} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-stone-200 to-stone-300">
-                  <Calendar className="h-16 w-16 text-stone-400" />
+                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/80">
+                  <Calendar className="h-16 w-16 text-muted-foreground" />
                 </div>
               )}
             </div>
@@ -262,7 +262,7 @@ export default function EventDetail() {
             </div>
 
             <div className="prose max-w-none">
-              {event.description ? <div dangerouslySetInnerHTML={{ __html: event.description }} /> : <p className="text-stone-600">No description available.</p>}
+              {event.description ? <div dangerouslySetInnerHTML={{ __html: event.description }} /> : <p className="text-muted-foreground">No description available.</p>}
             </div>
           </div>
 
@@ -277,25 +277,25 @@ export default function EventDetail() {
               <CardContent className="space-y-4">
                 <div className="space-y-3 text-sm">
                   <div className="flex items-center gap-3">
-                    <Calendar className="h-5 w-5 text-stone-400" />
+                    <Calendar className="h-5 w-5 text-muted-foreground" />
                     <div>
                       <p className="font-medium">{new Date(event.startDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Clock className="h-5 w-5 text-stone-400" />
+                    <Clock className="h-5 w-5 text-muted-foreground" />
                     <p className="font-medium">{new Date(event.startDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                   </div>
                   <div className="flex items-center gap-3">
-                    {event.locationType === "virtual" ? <Video className="h-5 w-5 text-stone-400" /> : <MapPin className="h-5 w-5 text-stone-400" />}
+                    {event.locationType === "virtual" ? <Video className="h-5 w-5 text-muted-foreground" /> : <MapPin className="h-5 w-5 text-muted-foreground" />}
                     <div>
                       <p className="font-medium">{location}</p>
-                      {event.city && event.state && <p className="text-stone-500">{event.city}, {event.state}</p>}
+                      {event.city && event.state && <p className="text-muted-foreground">{event.city}, {event.state}</p>}
                     </div>
                   </div>
                   {event.capacity && (
                     <div className="flex items-center gap-3">
-                      <Users className="h-5 w-5 text-stone-400" />
+                      <Users className="h-5 w-5 text-muted-foreground" />
                       <p className="font-medium">{event.spotsRemaining !== null ? `${event.spotsRemaining} spots remaining` : `${event.capacity} capacity`}</p>
                     </div>
                   )}
