@@ -203,11 +203,17 @@ export type InsertPage = typeof pages.$inferInsert;
 export const pageSections = mysqlTable("pageSections", {
   id: int("id").autoincrement().primaryKey(),
   pageId: int("pageId").notNull(),
-  sectionType: varchar("sectionType", { length: 100 }).notNull(),
+  sectionType: mysqlEnum("sectionType", [
+    "header", "hero", "content", "carousel", "grid", "form", "video", "quote", "cta",
+    "calendar", "footer", "newsletter", "community", "testimonials", "gallery", "map",
+    "products", "articles", "team", "faq", "pricing", "features", "stats", "social",
+    "rooted-unity", "pillar-grid", "pillars", "principles", "volumes", "options",
+    "mission", "vision", "ethos"
+  ]).notNull(),
   sectionOrder: int("sectionOrder").default(0).notNull(),
   title: varchar("title", { length: 255 }),
-  content: json("content").$type<Record<string, unknown>>().default({}),
-  requiredFields: json("requiredFields").$type<string[]>().default([]),
+  content: text("content"), // Stored as JSON string in text field
+  requiredFields: text("requiredFields"), // Stored as JSON string in text field
   isVisible: int("isVisible").default(1).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
