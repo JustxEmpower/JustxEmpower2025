@@ -198,6 +198,25 @@ export type Page = typeof pages.$inferSelect;
 export type InsertPage = typeof pages.$inferInsert;
 
 /**
+ * Page sections table for storing content sections per page
+ */
+export const pageSections = mysqlTable("pageSections", {
+  id: int("id").autoincrement().primaryKey(),
+  pageId: int("pageId").notNull(),
+  sectionType: varchar("sectionType", { length: 100 }).notNull(),
+  sectionOrder: int("sectionOrder").default(0).notNull(),
+  title: varchar("title", { length: 255 }),
+  content: json("content").$type<Record<string, unknown>>().default({}),
+  requiredFields: json("requiredFields").$type<string[]>().default([]),
+  isVisible: int("isVisible").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PageSection = typeof pageSections.$inferSelect;
+export type InsertPageSection = typeof pageSections.$inferInsert;
+
+/**
  * Navigation items table for menu management
  */
 export const navigation = mysqlTable("navigation", {
