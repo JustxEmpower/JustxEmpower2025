@@ -1805,7 +1805,7 @@ export const adminRouter = router({
         
         const backupData = JSON.parse(backupDataStr);
         
-        // Restore tables (skip sensitive tables like adminUsers, adminSessions)
+        // Validate backup has actual data before proceeding
         const tablesToRestore = [
           'articles', 'pages', 'pageBlocks', 'siteContent', 'media',
           'themeSettings', 'navigation', 'seoSettings', 'brandAssets',
@@ -1813,26 +1813,60 @@ export const adminRouter = router({
           'blockTemplates'
         ];
         
+        // Safety check: Count how many tables have data in the backup
+        let tablesWithData = 0;
+        let totalRecords = 0;
         for (const table of tablesToRestore) {
-          if (backupData[table] && Array.isArray(backupData[table])) {
+          if (backupData[table] && Array.isArray(backupData[table]) && backupData[table].length > 0) {
+            tablesWithData++;
+            totalRecords += backupData[table].length;
+          }
+        }
+        
+        // SAFETY: Refuse to restore if backup appears empty or corrupted
+        if (tablesWithData === 0 || totalRecords < 5) {
+          throw new TRPCError({ 
+            code: "BAD_REQUEST", 
+            message: `Backup appears empty or corrupted. Found ${tablesWithData} tables with ${totalRecords} total records. Restore aborted to protect your data.` 
+          });
+        }
+        
+        // Log what we're about to restore
+        console.log(`Restoring backup: ${tablesWithData} tables, ${totalRecords} records`);
+        
+        const restoredTables: string[] = [];
+        const errors: string[] = [];
+        
+        for (const table of tablesToRestore) {
+          if (backupData[table] && Array.isArray(backupData[table]) && backupData[table].length > 0) {
             try {
               const tableSchema = (schema as any)[table];
               if (tableSchema) {
-                // Delete existing data
+                // Only delete if we have data to restore
                 await db.delete(tableSchema);
                 
-                // Insert backup data
-                if (backupData[table].length > 0) {
-                  await db.insert(tableSchema).values(backupData[table]);
+                // Insert backup data in batches to avoid issues with large datasets
+                const batchSize = 100;
+                for (let i = 0; i < backupData[table].length; i += batchSize) {
+                  const batch = backupData[table].slice(i, i + batchSize);
+                  await db.insert(tableSchema).values(batch);
                 }
+                
+                restoredTables.push(`${table} (${backupData[table].length} records)`);
               }
             } catch (error) {
               console.error(`Error restoring table ${table}:`, error);
+              errors.push(`${table}: ${error instanceof Error ? error.message : 'Unknown error'}`);
             }
           }
         }
         
-        return { success: true };
+        return { 
+          success: true, 
+          restored: restoredTables,
+          errors: errors.length > 0 ? errors : undefined,
+          summary: `Restored ${restoredTables.length} tables with ${totalRecords} records`
+        };
       }),
 
     delete: adminProcedure

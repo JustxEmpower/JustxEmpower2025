@@ -2007,3 +2007,11 @@ NODE_ENV=production
 
 - [x] Fix updatePage to migrate siteContent when slug changes
 - [x] Ensure all content follows the page when slug is renamed
+
+## CRITICAL BUG: Backup Restore Deletes All Data (Jan 10, 2026)
+
+- [x] Fix backup restore to not delete existing data (added safety check)
+- [x] Restore now refuses to proceed if backup has < 5 records (prevents empty backup wipes)
+- [x] Added detailed logging and summary of restored tables
+- [ ] Add confirmation dialog before restore with clear warning (UI enhancement)
+- [ ] Add preview of what will be restored before executing (UI enhancement)
