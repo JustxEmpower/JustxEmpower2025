@@ -1258,51 +1258,72 @@ export function JECommunityRenderer({ block, isEditing = false, isBlockSelected 
     imageUrl?: string;
     ctaText?: string;
     ctaLink?: string;
+    dark?: boolean;
+    imageBorderRadius?: string;
+    reversed?: boolean;
   };
 
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
+  const bgClass = content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]';
+  const textClass = content.dark ? 'text-white' : 'text-foreground';
+  const descClass = content.dark ? 'text-white/70' : 'text-neutral-600';
+  const borderClass = content.dark ? 'border-white/30' : 'border-neutral-900';
+  const hoverClass = content.dark ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white';
+  const borderRadius = content.imageBorderRadius || '2rem';
 
   return (
-    <section className="py-24 px-6 bg-[#f5f5f0]">
+    <section className={`py-24 px-6 ${bgClass}`}>
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         {/* Image */}
-        <div className="relative">
+        <div className={`relative ${content.reversed ? 'lg:order-2' : ''}`}>
           {imageUrl ? (
-            <div className="relative overflow-hidden rounded-[2rem]">
+            <div 
+              className="relative overflow-hidden shadow-2xl shadow-black/10"
+              style={{ borderRadius: borderRadius }}
+            >
               <img
                 src={imageUrl}
                 alt="Community"
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-cover transition-transform duration-500 hover:scale-105"
+                style={{ borderRadius: borderRadius }}
+              />
+              {/* Artistic Overlay */}
+              <div 
+                className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 opacity-60 pointer-events-none"
+                style={{ borderRadius: borderRadius }}
               />
             </div>
           ) : (
-            <div className="aspect-[4/3] bg-neutral-200 rounded-[2rem] flex items-center justify-center">
+            <div 
+              className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+              style={{ borderRadius: borderRadius }}
+            >
               <span className="text-neutral-400">Add an image</span>
             </div>
           )}
         </div>
         
         {/* Text Content */}
-        <div>
+        <div className={content.reversed ? 'lg:order-1' : ''}>
           {content.subtitle && (
             <p className="font-sans text-xs uppercase tracking-[0.2em] text-primary mb-4">
               {content.subtitle}
             </p>
           )}
           
-          <h2 className="font-serif text-4xl md:text-5xl font-light italic mb-8">
+          <h2 className={`font-serif text-4xl md:text-5xl font-light italic mb-8 ${textClass}`}>
             {content.title || 'Join Our Community'}
           </h2>
           
           {content.description && (
-            <p className="font-sans text-lg text-neutral-600 leading-relaxed mb-8">
+            <p className={`font-sans text-lg leading-relaxed mb-8 ${descClass}`}>
               {content.description}
             </p>
           )}
           
           {content.ctaText && content.ctaLink && (
             <Link href={content.ctaLink}>
-              <a className="inline-block px-6 py-3 border border-neutral-900 rounded-full font-sans text-sm uppercase tracking-[0.15em] hover:bg-black hover:text-white transition-all duration-300">
+              <a className={`inline-block px-6 py-3 border ${borderClass} rounded-full font-sans text-sm uppercase tracking-[0.15em] ${hoverClass} transition-all duration-300`}>
                 {content.ctaText}
               </a>
             </Link>
@@ -1322,15 +1343,26 @@ export function JERootedUnityRenderer({ block, isEditing = false, isBlockSelecte
     imageUrl?: string;
     ctaText?: string;
     ctaLink?: string;
+    dark?: boolean;
+    imageBorderRadius?: string;
+    reversed?: boolean;
   };
 
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
+  // Default to dark theme for this block
+  const isDark = content.dark !== false;
+  const bgClass = isDark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]';
+  const textClass = isDark ? 'text-white' : 'text-foreground';
+  const descClass = isDark ? 'text-white/70' : 'text-neutral-600';
+  const borderClass = isDark ? 'border-white/30' : 'border-neutral-900';
+  const hoverClass = isDark ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white';
+  const borderRadius = content.imageBorderRadius || '2rem';
 
   return (
-    <section className="py-24 px-6 bg-[#1a1a1a] text-white">
+    <section className={`py-24 px-6 ${bgClass} ${textClass}`}>
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         {/* Text Content */}
-        <div>
+        <div className={content.reversed ? 'lg:order-2' : ''}>
           {content.subtitle && (
             <p className="font-sans text-xs uppercase tracking-[0.2em] text-primary mb-4">
               {content.subtitle}
@@ -1342,14 +1374,14 @@ export function JERootedUnityRenderer({ block, isEditing = false, isBlockSelecte
           </h2>
           
           {content.description && (
-            <p className="font-sans text-lg text-white/70 leading-relaxed mb-8">
+            <p className={`font-sans text-lg leading-relaxed mb-8 ${descClass}`}>
               {content.description}
             </p>
           )}
           
           {content.ctaText && content.ctaLink && (
             <Link href={content.ctaLink}>
-              <a className="inline-block px-6 py-3 border border-white/30 rounded-full font-sans text-sm uppercase tracking-[0.15em] hover:bg-white hover:text-black transition-all duration-300">
+              <a className={`inline-block px-6 py-3 border ${borderClass} rounded-full font-sans text-sm uppercase tracking-[0.15em] ${hoverClass} transition-all duration-300`}>
                 {content.ctaText}
               </a>
             </Link>
@@ -1357,17 +1389,29 @@ export function JERootedUnityRenderer({ block, isEditing = false, isBlockSelecte
         </div>
         
         {/* Image */}
-        <div className="relative">
+        <div className={`relative ${content.reversed ? 'lg:order-1' : ''}`}>
           {imageUrl ? (
-            <div className="relative overflow-hidden rounded-[2rem]">
+            <div 
+              className="relative overflow-hidden shadow-2xl shadow-black/10"
+              style={{ borderRadius: borderRadius }}
+            >
               <img
                 src={imageUrl}
                 alt="Rooted Unity"
-                className="w-full h-auto object-cover"
+                className="w-full h-auto object-cover transition-transform duration-500 hover:scale-105"
+                style={{ borderRadius: borderRadius }}
+              />
+              {/* Artistic Overlay */}
+              <div 
+                className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 opacity-60 pointer-events-none"
+                style={{ borderRadius: borderRadius }}
               />
             </div>
           ) : (
-            <div className="aspect-[4/3] bg-neutral-700 rounded-[2rem] flex items-center justify-center">
+            <div 
+              className="aspect-[4/3] bg-neutral-700 flex items-center justify-center"
+              style={{ borderRadius: borderRadius }}
+            >
               <span className="text-neutral-400">Add an image</span>
             </div>
           )}
@@ -1554,7 +1598,7 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
   return (
     <div className="py-8">
       {videoUrl ? (
-        <div className="relative rounded-[2rem] overflow-hidden bg-black">
+        <div className="relative rounded-[2rem] overflow-hidden bg-black shadow-2xl shadow-black/20">
           <video
             ref={videoRef}
             src={videoUrl}
@@ -1848,25 +1892,38 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
     role?: string;
     imageUrl?: string;
     dark?: boolean;
+    avatarSize?: string;
   };
 
   const bgClass = content.dark ? 'bg-[#1a1a1a] text-white' : 'bg-[#f5f5f0]';
+  const textClass = content.dark ? 'text-white' : 'text-foreground';
+  const roleClass = content.dark ? 'text-white/60' : 'text-neutral-500';
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
+  const avatarSize = content.avatarSize || '4rem'; // 64px default
 
   return (
     <section className={`py-24 px-6 ${bgClass}`}>
       <div className="max-w-4xl mx-auto text-center">
-        <blockquote className="font-serif text-3xl md:text-4xl italic leading-relaxed mb-8">
+        <blockquote className={`font-serif text-3xl md:text-4xl italic leading-relaxed mb-8 ${textClass}`}>
           "{content.quote || 'A powerful testimonial from a satisfied client.'}"
         </blockquote>
         <div className="flex items-center justify-center gap-4">
           {imageUrl && (
-            <img src={imageUrl} alt={content.author} className="w-16 h-16 rounded-full object-cover" />
+            <div 
+              className="relative overflow-hidden rounded-full shadow-lg shadow-black/10 flex-shrink-0"
+              style={{ width: avatarSize, height: avatarSize }}
+            >
+              <img 
+                src={imageUrl} 
+                alt={content.author} 
+                className="w-full h-full object-cover" 
+              />
+            </div>
           )}
           <div className="text-left">
-            <p className="font-sans font-medium">{content.author || 'Client Name'}</p>
+            <p className={`font-sans font-medium ${textClass}`}>{content.author || 'Client Name'}</p>
             {content.role && (
-              <p className={`font-sans text-sm ${content.dark ? 'text-white/60' : 'text-neutral-500'}`}>
+              <p className={`font-sans text-sm ${roleClass}`}>
                 {content.role}
               </p>
             )}
@@ -2035,32 +2092,50 @@ export function JETeamMemberRenderer({ block, isEditing = false, isBlockSelected
     bio?: string;
     imageUrl?: string;
     dark?: boolean;
+    imageSize?: string;
+    reversed?: boolean;
   };
 
   const bgClass = content.dark ? 'bg-[#1a1a1a] text-white' : 'bg-[#f5f5f0]';
+  const textClass = content.dark ? 'text-white' : 'text-foreground';
+  const descClass = content.dark ? 'text-white/70' : 'text-neutral-600';
+  const placeholderBg = content.dark ? 'bg-neutral-700' : 'bg-neutral-300';
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
+  const imageSize = content.imageSize || '16rem'; // 256px default
 
   return (
     <section className={`py-24 px-6 ${bgClass}`}>
       <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-12 items-center">
-        {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={content.name}
-            className="w-64 h-64 rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-64 h-64 rounded-full bg-neutral-300 flex items-center justify-center">
-            <span className="text-neutral-500">Add photo</span>
-          </div>
-        )}
-        <div>
-          <h3 className="font-serif text-3xl italic mb-2">{content.name || 'Team Member'}</h3>
+        <div className={`relative flex-shrink-0 ${content.reversed ? 'md:order-2' : ''}`}>
+          {imageUrl ? (
+            <div 
+              className="relative overflow-hidden rounded-full shadow-2xl shadow-black/10 group"
+              style={{ width: imageSize, height: imageSize }}
+            >
+              <img
+                src={imageUrl}
+                alt={content.name}
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+              />
+              {/* Subtle overlay on hover */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-full" />
+            </div>
+          ) : (
+            <div 
+              className={`rounded-full ${placeholderBg} flex items-center justify-center`}
+              style={{ width: imageSize, height: imageSize }}
+            >
+              <span className="text-neutral-500">Add photo</span>
+            </div>
+          )}
+        </div>
+        <div className={content.reversed ? 'md:order-1' : ''}>
+          <h3 className={`font-serif text-3xl italic mb-2 ${textClass}`}>{content.name || 'Team Member'}</h3>
           {content.role && (
             <p className="font-sans text-sm uppercase tracking-[0.2em] text-primary mb-6">{content.role}</p>
           )}
           {content.bio && (
-            <p className={`font-sans text-lg leading-relaxed ${content.dark ? 'text-white/70' : 'text-neutral-600'}`}>
+            <p className={`font-sans text-lg leading-relaxed ${descClass}`}>
               {content.bio}
             </p>
           )}

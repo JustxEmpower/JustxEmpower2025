@@ -2161,3 +2161,12 @@ NODE_ENV=production
 - [x] JETwoColumnRenderer - Images now have 2rem rounded corners with shadow
 - [x] Added dark mode support to JEOfferingsGridRenderer, JEGalleryRenderer, JEVolumesRenderer
 - [x] All blocks now use consistent borderRadius styling with overflow-hidden for proper clipping
+
+## Additional JE Block Image Enhancements (Jan 10, 2026) ✅
+- [x] JECommunityRenderer - Added shadow, hover effects, dark mode, reversed layout option
+- [x] JERootedUnityRenderer - Added shadow, hover effects, light/dark mode toggle, reversed layout option
+- [x] JETeamMemberRenderer - Added shadow, hover effects, customizable avatar size, reversed layout option
+- [x] JETestimonialRenderer - Added shadow on avatar, customizable avatar size
+- [x] JEVideoRenderer - Added shadow to video container
+- [x] CarouselCard - Already had proper styling (verified)
+- [x] MediaRenderer - Already passes through styling from parent (verified)
