@@ -106,7 +106,8 @@ export async function getAllArticles(limit?: number, offset?: number) {
   const db = await getDb();
   if (!db) return [];
   
-  let query = db.select().from(articles).orderBy(desc(articles.createdAt));
+  // Sort by displayOrder first (ascending), then by createdAt (descending) for articles with same order
+  let query = db.select().from(articles).orderBy(articles.displayOrder, desc(articles.createdAt));
   
   if (limit) {
     query = query.limit(limit) as any;

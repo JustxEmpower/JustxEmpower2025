@@ -6,6 +6,38 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Calendar, Clock, Share2, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Helper function to convert plain text with line breaks to HTML paragraphs
+function formatArticleContent(content: string): string {
+  if (!content) return '';
+  
+  // If content already contains HTML tags, return as-is
+  if (/<[a-z][\s\S]*>/i.test(content)) {
+    return content;
+  }
+  
+  // Split by double line breaks (paragraph breaks)
+  const paragraphs = content.split(/\n\n+/);
+  
+  // Process each paragraph
+  return paragraphs.map(paragraph => {
+    // Trim whitespace
+    const trimmed = paragraph.trim();
+    if (!trimmed) return '';
+    
+    // Check if it looks like a heading (short line, possibly with em dash or colon)
+    const isHeading = trimmed.length < 100 && 
+      (trimmed.includes('—') || trimmed.endsWith(':') || /^[A-Z][^.!?]*$/.test(trimmed));
+    
+    if (isHeading && !trimmed.includes('.')) {
+      return `<h3>${trimmed}</h3>`;
+    }
+    
+    // Convert single line breaks within paragraph to <br>
+    const withBreaks = trimmed.replace(/\n/g, '<br>');
+    return `<p>${withBreaks}</p>`;
+  }).filter(p => p).join('\n');
+}
+
 export default function ArticleDetail() {
   const [, params] = useRoute('/blog/:slug');
   const slug = params?.slug || '';
@@ -155,7 +187,9 @@ export default function ArticleDetail() {
             prose-a:text-primary prose-a:no-underline hover:prose-a:underline
             prose-blockquote:border-l-primary prose-blockquote:italic prose-blockquote:font-serif
             prose-img:rounded-2xl"
-          dangerouslySetInnerHTML={{ __html: article.content || '' }}
+          dangerouslySetInnerHTML={{ 
+            __html: formatArticleContent(article.content || '') 
+          }}
         />
       </article>
 

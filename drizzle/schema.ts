@@ -40,6 +40,7 @@ export const articles = mysqlTable("articles", {
   published: int("published").default(1).notNull(), // 1 = published, 0 = draft
   status: varchar("status", { length: 20 }).default("published").notNull(), // published, draft, scheduled
   publishDate: timestamp("publishDate"), // For scheduled publishing
+  displayOrder: int("displayOrder").default(0).notNull(), // For custom ordering in listings
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { LogOut, FileText, Settings, Layout, Plus, Edit, Trash2, Save, X, FolderOpen, Palette, Files, BarChart3, Sparkles, Loader2 } from 'lucide-react';
+import { LogOut, FileText, Settings, Layout, Plus, Edit, Trash2, Save, X, FolderOpen, Palette, Files, BarChart3, Sparkles, Loader2, ChevronUp, ChevronDown, Image } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -40,6 +40,7 @@ export default function AdminArticles() {
   const [contentSuggestions, setContentSuggestions] = useState<string[]>([]);
   const [status, setStatus] = useState<'published' | 'draft' | 'scheduled'>('published');
   const [publishDate, setPublishDate] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
 
   const { data: articles, isLoading, refetch } = trpc.admin.articles.list.useQuery(
     undefined,
@@ -67,6 +68,37 @@ export default function AdminArticles() {
       toast.error(error.message || 'Failed to update article');
     },
   });
+
+  const reorderMutation = trpc.admin.articles.reorder.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to reorder articles');
+    },
+  });
+
+  const handleMoveUp = (index: number) => {
+    if (!articles || index === 0) return;
+    const newOrder = [...articles];
+    [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+    const updates = newOrder.map((article: any, i: number) => ({
+      id: article.id,
+      displayOrder: i,
+    }));
+    reorderMutation.mutate({ articles: updates });
+  };
+
+  const handleMoveDown = (index: number) => {
+    if (!articles || index === articles.length - 1) return;
+    const newOrder = [...articles];
+    [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+    const updates = newOrder.map((article: any, i: number) => ({
+      id: article.id,
+      displayOrder: i,
+    }));
+    reorderMutation.mutate({ articles: updates });
+  };
 
   const deleteMutation = trpc.admin.articles.delete.useMutation({
     onSuccess: () => {
@@ -142,6 +174,7 @@ export default function AdminArticles() {
     setMetaDescription('');
     setStatus('published');
     setPublishDate('');
+    setImageUrl('');
   };
 
   const handleEdit = (article: any) => {
@@ -153,6 +186,7 @@ export default function AdminArticles() {
     setCategory(article.category || '');
     setMetaDescription(article.metaDescription || '');
     setStatus(article.status || 'published');
+    setImageUrl(article.imageUrl || '');
     if (article.publishDate) {
       const date = new Date(article.publishDate);
       const localDateTime = new Date(date.getTime() - date.getTimezoneOffset() * 60000)
@@ -179,6 +213,7 @@ export default function AdminArticles() {
       content,
       category,
       status,
+      imageUrl: imageUrl || null,
     };
 
     // Add publishDate - required for scheduled, optional for others
@@ -334,6 +369,38 @@ export default function AdminArticles() {
                       <option value="draft">Draft</option>
                       <option value="scheduled">Scheduled</option>
                     </select>
+                  </div>
+
+                  {/* Cover Photo URL */}
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                      <span className="flex items-center gap-2">
+                        <Image className="w-4 h-4" />
+                        Cover Photo URL
+                      </span>
+                    </label>
+                    <Input
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="https://... or paste image URL"
+                      className="h-11"
+                    />
+                    {imageUrl && (
+                      <div className="mt-2 relative rounded-lg overflow-hidden border border-neutral-200 dark:border-neutral-700">
+                        <img 
+                          src={imageUrl} 
+                          alt="Cover preview" 
+                          className="w-full h-32 object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
+                      </div>
+                    )}
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                      Enter a URL for the article cover image (displayed in hero section)
+                    </p>
                   </div>
 
                   {/* Date Published - shows for all statuses */}
@@ -526,7 +593,30 @@ export default function AdminArticles() {
                                 : 'No date set'}
                           </p>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-2">
+                          {/* Reorder buttons */}
+                          <div className="flex flex-col gap-1 mr-2">
+                            <Button
+                              onClick={() => handleMoveUp(articles.findIndex((a: any) => a.id === article.id))}
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              disabled={articles.findIndex((a: any) => a.id === article.id) === 0 || reorderMutation.isPending}
+                              title="Move up"
+                            >
+                              <ChevronUp className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              onClick={() => handleMoveDown(articles.findIndex((a: any) => a.id === article.id))}
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0"
+                              disabled={articles.findIndex((a: any) => a.id === article.id) === articles.length - 1 || reorderMutation.isPending}
+                              title="Move down"
+                            >
+                              <ChevronDown className="w-4 h-4" />
+                            </Button>
+                          </div>
                           <Button
                             onClick={() => handleEdit(article)}
                             variant="outline"

@@ -1953,3 +1953,30 @@ NODE_ENV=production
 - [ ] Add date picker to article edit form
 - [ ] Display published date in article listings
 - [ ] Test date published feature
+
+
+## Blog Article Fixes (Jan 10, 2026)
+
+- [ ] Fix paragraph breaks not showing in live articles (whitespace-pre-wrap)
+- [ ] Add published date display to live article pages
+- [ ] Add display order field and drag-to-reorder in admin
+- [ ] Add cover photo upload/edit field to article editor
+
+## Blog Article Fixes - COMPLETED (Jan 10, 2026)
+
+- [x] Fix paragraph breaks not showing in live articles (converted \n to <br> tags in Article.tsx)
+- [x] Add Date Published field to article edit form (shows for all statuses)
+- [x] Add displayOrder field to articles schema
+- [x] Add reorder mutation endpoint for articles
+- [x] Add up/down arrow buttons to article listing for reordering
+- [x] Update getAllArticles to sort by displayOrder first
+- [x] Add coverImage field to article edit form
+
+## Page Builder Enhancements - COMPLETED (Jan 10, 2026)
+
+- [x] Add visible blue resize handles to all blocks (16px corners, 32x12px edges)
+- [x] Implement EditableElement wrapper for inner elements (images, text)
+- [x] Update all JE renderers to accept isEditing and isBlockSelected props
+- [x] Remove blocking overlay in Canvas.tsx to allow clicking on inner elements
+- [x] Fix backgroundColor rendering on JE blocks (exclude color fields from media detection)
+- [x] Implement proper backgroundColor application in JEParagraphRenderer and JEHeadingRenderer

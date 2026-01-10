@@ -392,10 +392,25 @@ export const adminRouter = router({
         content: z.string().optional(),
         imageUrl: z.string().optional(),
         published: z.number().optional(),
+        displayOrder: z.number().optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...data } = input;
         await updateArticle(id, data);
+        return { success: true };
+      }),
+    
+    reorder: adminProcedure
+      .input(z.object({
+        articles: z.array(z.object({
+          id: z.number(),
+          displayOrder: z.number(),
+        })),
+      }))
+      .mutation(async ({ input }) => {
+        for (const article of input.articles) {
+          await updateArticle(article.id, { displayOrder: article.displayOrder });
+        }
         return { success: true };
       }),
     
