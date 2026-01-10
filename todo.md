@@ -1920,3 +1920,11 @@ NODE_ENV=production
 - [x] Test JE Heading block styling
 - [x] All JE blocks now have consistent Style tab controls (backgroundColor, textColor, padding, etc.)
 
+
+
+## Page Builder JE Block Issues (Reported Jan 10, 2026)
+
+- [ ] JE Heading text editing not working - "heading text" doesn't change
+- [ ] Element resizing not working
+- [ ] Element editing not working
+- [ ] Need to verify all JE block manipulation features on production

@@ -1182,12 +1182,16 @@ export function JERootedUnityRenderer({ block }: { block: PageBlock }) {
 // JE Heading Renderer
 export function JEHeadingRenderer({ block }: { block: PageBlock }) {
   const content = block.content as Record<string, unknown> & {
-    text?: string;
+    title?: string;
+    text?: string; // Legacy support
     label?: string;
     level?: 'h1' | 'h2' | 'h3' | 'h4';
     alignment?: 'left' | 'center' | 'right';
     dark?: boolean;
   };
+  
+  // Support both 'title' (from blockTypes) and 'text' (legacy) field names
+  const headingText = content.title || content.text || '';
 
   const HeadingTag = content.level || 'h2';
   const alignClass = content.alignment === 'center' ? 'text-center' : content.alignment === 'right' ? 'text-right' : 'text-left';
@@ -1211,8 +1215,8 @@ export function JEHeadingRenderer({ block }: { block: PageBlock }) {
       )}
       <InlineEditableText
         blockId={block.id}
-        fieldName="text"
-        value={content.text || ''}
+        fieldName="title"
+        value={headingText}
         placeholder="Heading Text"
         className={`font-serif ${sizeClass} font-light italic`}
         style={textStyle}
