@@ -20,6 +20,7 @@ import AdminForms from "@/pages/AdminForms";
 import AdminRedirects from "@/pages/AdminRedirects";
 import AdminCode from "@/pages/AdminCode";
 import AdminBackup from "@/pages/AdminBackup";
+import AdminBackupTimeMachine from "@/pages/AdminBackupTimeMachine";
 import AdminUsers from "@/pages/AdminUsers";
 import AdminProducts from "@/pages/AdminProducts";
 import AdminEvents from "@/pages/AdminEvents";
@@ -88,7 +89,7 @@ function Router() {
       <Route path="/admin/forms" component={AdminForms} />
       <Route path="/admin/redirects" component={AdminRedirects} />
       <Route path="/admin/code" component={AdminCode} />
-      <Route path="/admin/backup" component={AdminBackup} />
+      <Route path="/admin/backup" component={AdminBackupTimeMachine} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/products" component={AdminProducts} />
       <Route path="/admin/events" component={AdminEvents} />

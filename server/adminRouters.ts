@@ -1635,254 +1635,119 @@ export const adminRouter = router({
       }),
   }),
 
-  // Backup & Restore Management (with S3 storage)
+  // Backup & Restore Management - Time Machine Enhanced
   backups: router({
+    // List all backups with optional filtering
     list: adminProcedure
-      .query(async () => {
-        const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-        
-        const backups = await db
-          .select()
-          .from(schema.backups)
-          .orderBy(desc(schema.backups.createdAt));
-        
-        return backups;
+      .input(z.object({
+        limit: z.number().min(1).max(100).optional(),
+        offset: z.number().min(0).optional(),
+        type: z.enum(["manual", "auto", "scheduled"]).optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.listBackups(input);
+        return result.backups;
       }),
 
+    // Create a new backup
     create: adminProcedure
-      .input(z.object({ 
-        backupName: z.string(),
-        description: z.string().optional(),
-        backupType: z.enum(['manual', 'auto', 'scheduled']).default('manual')
+      .input(z.object({
+        backupName: z.string().min(1).max(255),
+        description: z.string().max(1000).optional(),
+        backupType: z.enum(["manual", "auto", "scheduled"]).default("manual"),
+        includeMedia: z.boolean().default(true),
+        includeConfig: z.boolean().default(true),
       }))
       .mutation(async ({ input, ctx }) => {
-        const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-        
-        // Export all tables to JSON
-        const tables = [
-          'articles', 'pages', 'pageBlocks', 'siteContent', 'media',
-          'themeSettings', 'navigation', 'seoSettings', 'brandAssets',
-          'formFields', 'formSubmissions', 'redirects', 'siteSettings',
-          'blockTemplates', 'users', 'aiSettings', 'aiChatConversations',
-          'products', 'productCategories', 'orders', 'events'
-        ];
-        
-        const backupData: any = {
-          metadata: {
-            createdAt: new Date().toISOString(),
-            backupName: input.backupName,
-            description: input.description,
-            tables: tables,
-            version: '2.0'
-          }
-        };
-        
-        for (const table of tables) {
-          try {
-            const tableSchema = (schema as any)[table];
-            if (tableSchema) {
-              const data = await db.select().from(tableSchema);
-              backupData[table] = data;
-            }
-          } catch (error) {
-            console.error(`Error backing up table ${table}:`, error);
-          }
-        }
-        
-        const backupJson = JSON.stringify(backupData, null, 2);
-        const fileSize = Buffer.byteLength(backupJson, 'utf8');
-        
-        // Upload to S3
-        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-        const s3Key = `backups/${timestamp}-${input.backupName.replace(/[^a-zA-Z0-9-_]/g, '_')}.json`;
-        
-        let s3Url = null;
-        try {
-          // Try Manus Forge API first (for Manus sandbox)
-          const { storagePut } = await import('./storage');
-          const result = await storagePut(s3Key, backupJson, 'application/json');
-          s3Url = result.url;
-        } catch (forgeError) {
-          console.log('Forge API not available, trying direct AWS S3...');
-          try {
-            // Fallback to direct AWS S3 (for AWS deployment)
-            const { uploadToS3, isAwsEnvironment } = await import('./awsStorage');
-            if (isAwsEnvironment()) {
-              const result = await uploadToS3(`media/${s3Key}`, backupJson, 'application/json');
-              s3Url = result.url;
-            }
-          } catch (awsError) {
-            console.error('Failed to upload backup to AWS S3:', awsError);
-            // Continue without S3 - store in database as fallback
-          }
-        }
-        
-        await db.insert(schema.backups).values({
-          backupName: input.backupName,
-          backupType: input.backupType,
-          backupData: s3Url ? null : backupJson, // Only store in DB if S3 fails
-          s3Key: s3Url ? s3Key : null,
-          s3Url: s3Url,
-          fileSize,
-          description: input.description,
-          tablesIncluded: JSON.stringify(tables),
-          createdBy: ctx.adminUsername || 'system',
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.createBackup({
+          ...input,
+          createdBy: ctx.user?.email || ctx.user?.username || ctx.adminUsername || "admin",
         });
-        
-        return { success: true, s3Url };
-      }),
-
-    download: adminProcedure
-      .input(z.object({ backupId: z.number() }))
-      .query(async ({ input }) => {
-        const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-        
-        const backup = await db
-          .select()
-          .from(schema.backups)
-          .where(eq(schema.backups.id, input.backupId))
-          .limit(1);
-        
-        if (!backup || backup.length === 0) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Backup not found" });
-        }
-        
-        // If backup is in S3, fetch it
-        if (backup[0].s3Url) {
-          try {
-            const response = await fetch(backup[0].s3Url);
-            if (response.ok) {
-              const backupData = await response.text();
-              return { backupData, s3Url: backup[0].s3Url };
-            }
-          } catch (error) {
-            console.error('Failed to fetch backup from S3:', error);
-          }
-        }
-        
-        // Fallback to database storage
-        return { backupData: backup[0].backupData || '{}', s3Url: null };
-      }),
-
-    restore: adminProcedure
-      .input(z.object({ backupId: z.number() }))
-      .mutation(async ({ input }) => {
-        const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-        
-        const backup = await db
-          .select()
-          .from(schema.backups)
-          .where(eq(schema.backups.id, input.backupId))
-          .limit(1);
-        
-        if (!backup || backup.length === 0) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Backup not found" });
-        }
-        
-        let backupDataStr = backup[0].backupData;
-        
-        // If backup is in S3, fetch it
-        if (backup[0].s3Url && !backupDataStr) {
-          try {
-            const response = await fetch(backup[0].s3Url);
-            if (response.ok) {
-              backupDataStr = await response.text();
-            } else {
-              throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to fetch backup from S3" });
-            }
-          } catch (error) {
-            throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to fetch backup from S3" });
-          }
-        }
-        
-        if (!backupDataStr) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Backup data not found" });
-        }
-        
-        const backupData = JSON.parse(backupDataStr);
-        
-        // Validate backup has actual data before proceeding
-        const tablesToRestore = [
-          'articles', 'pages', 'pageBlocks', 'siteContent', 'media',
-          'themeSettings', 'navigation', 'seoSettings', 'brandAssets',
-          'formFields', 'formSubmissions', 'redirects', 'siteSettings',
-          'blockTemplates'
-        ];
-        
-        // Safety check: Count how many tables have data in the backup
-        let tablesWithData = 0;
-        let totalRecords = 0;
-        for (const table of tablesToRestore) {
-          if (backupData[table] && Array.isArray(backupData[table]) && backupData[table].length > 0) {
-            tablesWithData++;
-            totalRecords += backupData[table].length;
-          }
-        }
-        
-        // SAFETY: Refuse to restore if backup appears empty or corrupted
-        if (tablesWithData === 0 || totalRecords < 5) {
-          throw new TRPCError({ 
-            code: "BAD_REQUEST", 
-            message: `Backup appears empty or corrupted. Found ${tablesWithData} tables with ${totalRecords} total records. Restore aborted to protect your data.` 
-          });
-        }
-        
-        // Log what we're about to restore
-        console.log(`Restoring backup: ${tablesWithData} tables, ${totalRecords} records`);
-        
-        const restoredTables: string[] = [];
-        const errors: string[] = [];
-        
-        for (const table of tablesToRestore) {
-          if (backupData[table] && Array.isArray(backupData[table]) && backupData[table].length > 0) {
-            try {
-              const tableSchema = (schema as any)[table];
-              if (tableSchema) {
-                // Only delete if we have data to restore
-                await db.delete(tableSchema);
-                
-                // Insert backup data in batches to avoid issues with large datasets
-                const batchSize = 100;
-                for (let i = 0; i < backupData[table].length; i += batchSize) {
-                  const batch = backupData[table].slice(i, i + batchSize);
-                  await db.insert(tableSchema).values(batch);
-                }
-                
-                restoredTables.push(`${table} (${backupData[table].length} records)`);
-              }
-            } catch (error) {
-              console.error(`Error restoring table ${table}:`, error);
-              errors.push(`${table}: ${error instanceof Error ? error.message : 'Unknown error'}`);
-            }
-          }
-        }
-        
-        return { 
-          success: true, 
-          restored: restoredTables,
-          errors: errors.length > 0 ? errors : undefined,
-          summary: `Restored ${restoredTables.length} tables with ${totalRecords} records`
+        return {
+          success: result.success,
+          s3Url: result.s3Url,
+          backupId: result.backupId,
+          size: result.size,
         };
       }),
 
-    delete: adminProcedure
-      .input(z.object({ backupId: z.number() }))
+    // Download backup data
+    download: adminProcedure
+      .input(z.object({
+        backupId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.downloadBackup(input.backupId);
+        return result;
+      }),
+
+    // Restore from backup
+    restore: adminProcedure
+      .input(z.object({
+        backupId: z.number(),
+        tables: z.array(z.string()).optional(),
+        dryRun: z.boolean().default(false),
+      }))
       .mutation(async ({ input }) => {
-        const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-        
-        // Note: We don't delete from S3 to keep a permanent archive
-        // The S3 lifecycle policy can handle cleanup if needed
-        
-        await db
-          .delete(schema.backups)
-          .where(eq(schema.backups.id, input.backupId));
-        
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.restoreBackup(input);
+        return result;
+      }),
+
+    // Delete backup
+    delete: adminProcedure
+      .input(z.object({
+        backupId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.deleteBackup(input.backupId);
+        return result;
+      }),
+
+    // Get backup statistics
+    stats: adminProcedure
+      .query(async () => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.getBackupStats();
+        return result;
+      }),
+
+    // Preview restore (dry run)
+    previewRestore: adminProcedure
+      .input(z.object({
+        backupId: z.number(),
+        tables: z.array(z.string()).optional(),
+      }))
+      .query(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.restoreBackup({
+          ...input,
+          dryRun: true,
+        });
+        return result;
+      }),
+
+    // Trigger scheduled backup manually
+    triggerScheduled: adminProcedure
+      .mutation(async () => {
+        const backupSystem = await import('./backupSystem');
+        await backupSystem.default.runScheduledBackup();
         return { success: true };
+      }),
+
+    // Cleanup old backups
+    cleanup: adminProcedure
+      .input(z.object({
+        retentionDays: z.number().min(1).max(365).default(30),
+      }))
+      .mutation(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const deleted = await backupSystem.default.cleanupOldBackups(input.retentionDays);
+        return { deleted };
       }),
   }),
 

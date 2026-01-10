@@ -2022,3 +2022,27 @@ NODE_ENV=production
 - [x] Create DynamicPageRouter component that routes based on template field
 - [x] Update special pages (Resources, Shop, Contact, Home, Journal, Events, etc.) to accept slug prop
 - [x] Allow slug changes while preserving page template and content
+
+
+## Time Machine Backup System Overhaul (Jan 10, 2026)
+
+- [ ] Install dependencies (framer-motion, date-fns)
+- [ ] Add backupSystem.ts to /server/
+- [ ] Add AdminBackupTimeMachine.tsx to /client/src/pages/
+- [ ] Merge backup router endpoints into adminRouters.ts
+- [ ] Update route configuration in App.tsx
+- [ ] Update admin navigation sidebar
+- [ ] Verify database schema has all required columns
+- [ ] Test all views (Timeline, List, Analytics)
+- [ ] Test create, restore, download, delete operations
+
+
+## Time Machine Backup System Implementation (Jan 10, 2026) ✅
+
+- [x] Install framer-motion and date-fns dependencies
+- [x] Add AdminBackupTimeMachine.tsx component with Apple-inspired UI
+- [x] Add backupSystem.ts server module with enhanced features
+- [x] Update adminRouters.ts with enhanced backup endpoints
+- [x] Update App.tsx route to use new backup component
+- [x] Fix all db imports to use async getDb() pattern
+- [x] Test build successfully
