@@ -1250,12 +1250,51 @@ export async function verifyBackup(backupId: number): Promise<VerificationResult
   let backupData: BackupData;
 
   // Parse backup data (column is 'backupData' not 'data')
-  if (backupRecord.backupData) {
-    backupData = typeof backupRecord.backupData === 'string' 
-      ? JSON.parse(backupRecord.backupData) 
-      : backupRecord.backupData as BackupData;
-  } else {
+  // First try to get from S3 if available, as database might have truncated data
+  let rawBackupData: string | null = null;
+  
+  if (backupRecord.s3Key && backupRecord.s3Url) {
+    try {
+      console.log(`[Verify] Fetching backup data from S3: ${backupRecord.s3Key}`);
+      const response = await s3Client.send(new GetObjectCommand({
+        Bucket: S3_BUCKET,
+        Key: backupRecord.s3Key,
+      }));
+      rawBackupData = await response.Body?.transformToString() || null;
+      console.log(`[Verify] S3 data length: ${rawBackupData?.length || 0} bytes`);
+    } catch (s3Error) {
+      console.error("[Verify] S3 fetch failed, falling back to database:", s3Error);
+    }
+  }
+  
+  // Fall back to database if S3 failed or not available
+  if (!rawBackupData && backupRecord.backupData) {
+    rawBackupData = typeof backupRecord.backupData === 'string' 
+      ? backupRecord.backupData 
+      : JSON.stringify(backupRecord.backupData);
+    console.log(`[Verify] Using database data, length: ${rawBackupData?.length || 0} bytes`);
+  }
+  
+  if (!rawBackupData) {
     throw new TRPCError({ code: "BAD_REQUEST", message: "Backup has no data" });
+  }
+  
+  // Parse the JSON with better error handling
+  try {
+    backupData = JSON.parse(rawBackupData);
+  } catch (parseError) {
+    const errorMsg = parseError instanceof Error ? parseError.message : 'Unknown parse error';
+    console.error(`[Verify] JSON parse failed: ${errorMsg}`);
+    console.error(`[Verify] Data preview: ${rawBackupData.substring(0, 500)}...`);
+    
+    // Check if data appears truncated
+    if (errorMsg.includes('position') || errorMsg.includes('Unterminated')) {
+      throw new TRPCError({ 
+        code: "BAD_REQUEST", 
+        message: `Backup data appears to be corrupted or truncated. The backup may need to be recreated. Error: ${errorMsg}` 
+      });
+    }
+    throw new TRPCError({ code: "BAD_REQUEST", message: `Failed to parse backup data: ${errorMsg}` });
   }
 
   // Get live database counts
