@@ -16,11 +16,29 @@
 
 import { getDb } from "./db";
 import { 
+  // Core content
   backups, articles, pages, pageBlocks, siteContent, media,
+  // Configuration
   themeSettings, navigation, seoSettings, brandAssets,
-  formFields, formSubmissions, redirects, siteSettings,
-  blockTemplates, users, aiSettings, aiChatConversations,
-  products, productCategories, orders, events
+  fontSettings, contentTextStyles, sectionBackgrounds,
+  // Forms
+  formFields, formSubmissions, contactSubmissions,
+  // System
+  redirects, siteSettings, blockTemplates, blockVersions,
+  users, adminUsers, adminSessions,
+  // AI
+  aiSettings, aiChatConversations, aiFeedback,
+  // E-commerce
+  products, productCategories, productVariants, orders, orderItems,
+  discountCodes, shoppingCarts,
+  // Events
+  events, eventAttendees, eventRegistrations, eventTicketTypes,
+  // Resources
+  resources, resourceCategories, resourceDownloads,
+  // Marketing
+  newsletterSubscribers, emailSettings, carouselOfferings,
+  // Analytics (optional - can be large)
+  analyticsEvents, analyticsPageViews, analyticsSessions, visitorProfiles
 } from "../drizzle/schema";
 import { eq, sql, desc, asc, and, gte, lte } from "drizzle-orm";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
@@ -85,44 +103,99 @@ const BACKUP_VERSION = "2.0.0";
 const BATCH_SIZE = 100;
 const MAX_BACKUP_SIZE_MB = 500;
 
-// Table registry with schema references
+// Table registry with schema references - COMPLETE LIST OF ALL TABLES
+// Priority levels: 1=Critical, 2=Important, 3=Settings, 4=Structure, 5=Business, 6=Features, 7=System, 8=Optional, 9=Analytics
 const TABLE_REGISTRY: Record<string, { schema: any; priority: number; category: string }> = {
-  // Core Content (Priority 1 - Critical)
+  // ============================================================================
+  // CORE CONTENT (Priority 1 - Critical) - Must be backed up first
+  // ============================================================================
   pages: { schema: pages, priority: 1, category: "content" },
   pageBlocks: { schema: pageBlocks, priority: 1, category: "content" },
   siteContent: { schema: siteContent, priority: 1, category: "content" },
   articles: { schema: articles, priority: 1, category: "content" },
+  carouselOfferings: { schema: carouselOfferings, priority: 1, category: "content" },
   
-  // Media & Assets (Priority 2 - Important)
+  // ============================================================================
+  // MEDIA & ASSETS (Priority 2 - Important)
+  // ============================================================================
   media: { schema: media, priority: 2, category: "media" },
   brandAssets: { schema: brandAssets, priority: 2, category: "media" },
   
-  // Configuration (Priority 3 - Settings)
+  // ============================================================================
+  // CONFIGURATION (Priority 3 - Settings)
+  // ============================================================================
   themeSettings: { schema: themeSettings, priority: 3, category: "config" },
   navigation: { schema: navigation, priority: 3, category: "config" },
   seoSettings: { schema: seoSettings, priority: 3, category: "config" },
   siteSettings: { schema: siteSettings, priority: 3, category: "config" },
+  fontSettings: { schema: fontSettings, priority: 3, category: "config" },
+  contentTextStyles: { schema: contentTextStyles, priority: 3, category: "config" },
+  sectionBackgrounds: { schema: sectionBackgrounds, priority: 3, category: "config" },
+  emailSettings: { schema: emailSettings, priority: 3, category: "config" },
   
-  // Templates & Forms (Priority 4 - Structure)
+  // ============================================================================
+  // TEMPLATES & FORMS (Priority 4 - Structure)
+  // ============================================================================
   blockTemplates: { schema: blockTemplates, priority: 4, category: "templates" },
+  blockVersions: { schema: blockVersions, priority: 4, category: "templates" },
   formFields: { schema: formFields, priority: 4, category: "forms" },
   formSubmissions: { schema: formSubmissions, priority: 4, category: "forms" },
+  contactSubmissions: { schema: contactSubmissions, priority: 4, category: "forms" },
   
-  // E-commerce (Priority 5 - Business)
+  // ============================================================================
+  // E-COMMERCE (Priority 5 - Business Critical)
+  // ============================================================================
   products: { schema: products, priority: 5, category: "ecommerce" },
   productCategories: { schema: productCategories, priority: 5, category: "ecommerce" },
+  productVariants: { schema: productVariants, priority: 5, category: "ecommerce" },
   orders: { schema: orders, priority: 5, category: "ecommerce" },
+  orderItems: { schema: orderItems, priority: 5, category: "ecommerce" },
+  discountCodes: { schema: discountCodes, priority: 5, category: "ecommerce" },
+  shoppingCarts: { schema: shoppingCarts, priority: 5, category: "ecommerce" },
   
-  // Events & Calendar (Priority 6 - Features)
-  events: { schema: events, priority: 6, category: "features" },
+  // ============================================================================
+  // EVENTS & CALENDAR (Priority 6 - Features)
+  // ============================================================================
+  events: { schema: events, priority: 6, category: "events" },
+  eventAttendees: { schema: eventAttendees, priority: 6, category: "events" },
+  eventRegistrations: { schema: eventRegistrations, priority: 6, category: "events" },
+  eventTicketTypes: { schema: eventTicketTypes, priority: 6, category: "events" },
   
-  // System (Priority 7 - Infrastructure)
+  // ============================================================================
+  // RESOURCES (Priority 6 - Features)
+  // ============================================================================
+  resources: { schema: resources, priority: 6, category: "resources" },
+  resourceCategories: { schema: resourceCategories, priority: 6, category: "resources" },
+  resourceDownloads: { schema: resourceDownloads, priority: 6, category: "resources" },
+  
+  // ============================================================================
+  // MARKETING (Priority 6 - Features)
+  // ============================================================================
+  newsletterSubscribers: { schema: newsletterSubscribers, priority: 6, category: "marketing" },
+  
+  // ============================================================================
+  // SYSTEM (Priority 7 - Infrastructure)
+  // ============================================================================
   users: { schema: users, priority: 7, category: "system" },
+  adminUsers: { schema: adminUsers, priority: 7, category: "system" },
+  adminSessions: { schema: adminSessions, priority: 7, category: "system" },
   redirects: { schema: redirects, priority: 7, category: "system" },
   
-  // AI Features (Priority 8 - Optional)
+  // ============================================================================
+  // AI FEATURES (Priority 8 - Optional)
+  // ============================================================================
   aiSettings: { schema: aiSettings, priority: 8, category: "ai" },
   aiChatConversations: { schema: aiChatConversations, priority: 8, category: "ai" },
+  aiFeedback: { schema: aiFeedback, priority: 8, category: "ai" },
+  
+  // ============================================================================
+  // ANALYTICS (Priority 9 - Optional, can be large)
+  // These are excluded by default to keep backups small
+  // ============================================================================
+  analyticsEvents: { schema: analyticsEvents, priority: 9, category: "analytics" },
+  analyticsPageViews: { schema: analyticsPageViews, priority: 9, category: "analytics" },
+  analyticsSessions: { schema: analyticsSessions, priority: 9, category: "analytics" },
+  visitorProfiles: { schema: visitorProfiles, priority: 9, category: "analytics" },
 };
 
 // ============================================================================
@@ -278,14 +351,21 @@ export async function createBackup(options: BackupOptions): Promise<{
 
   try {
     // Determine which tables to backup
+    // By default, exclude analytics tables (priority 9) as they can be very large
+    // Include everything else unless specifically excluded
     const tablesToBackup = Object.entries(TABLE_REGISTRY)
       .filter(([_, info]) => {
+        // Exclude analytics by default (can be millions of rows)
+        if (info.category === "analytics") return false;
+        // Optional exclusions based on backup options
         if (!includeMedia && info.category === "media") return false;
         if (!includeConfig && info.category === "config") return false;
         return true;
       })
       .sort((a, b) => a[1].priority - b[1].priority)
       .map(([name]) => name);
+    
+    console.log(`[Backup] Will backup ${tablesToBackup.length} tables: ${tablesToBackup.join(", ")}`);
 
     // Export all tables
     const backupData: Record<string, any[]> = {};
