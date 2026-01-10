@@ -84,11 +84,7 @@ function SortableBlock({
         ${isHovered && !isSelected ? 'ring-2 ring-primary/30 ring-offset-1' : ''}
       `}
       onClick={(e) => {
-        // Only select block if clicking on the wrapper itself, not on child elements
-        // This allows InlineEditableText to receive clicks
-        if (e.target === e.currentTarget || (e.target as HTMLElement).closest('[data-block-toolbar]')) {
-          e.stopPropagation();
-        }
+        e.stopPropagation();
         onSelect();
       }}
       onMouseEnter={onHover}

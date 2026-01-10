@@ -40,7 +40,7 @@ export function InlineEditableText({
     }
   }, [isEditing]);
 
-  const handleClick = (e: React.MouseEvent) => {
+  const handleDoubleClick = (e: React.MouseEvent) => {
     if (isPreviewMode) return;
     e.stopPropagation();
     setIsEditing(true);
@@ -122,8 +122,8 @@ export function InlineEditableText({
     <Component
       className={`${className} cursor-text hover:outline hover:outline-2 hover:outline-dashed hover:outline-blue-400 hover:outline-offset-2 transition-all`}
       style={style}
-      onClick={handleClick}
-      title="Click to edit"
+      onDoubleClick={handleDoubleClick}
+      title="Double-click to edit"
     >
       {value || <span className="text-neutral-400 italic">{placeholder}</span>}
     </Component>
