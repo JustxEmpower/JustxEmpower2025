@@ -2150,3 +2150,14 @@ NODE_ENV=production
 - [x] Add verified badge to backup cards after successful verification
 - [x] Add verified badge to timeline view backup cards
 - [x] Fix JE Section Standard block image to have curved/rounded corners
+- [ ] Apply curved/rounded image styling to ALL JE blocks (Hero, Carousel, Cards, etc.)
+
+## JE Block Image Styling Fix (Jan 10, 2026) ✅
+- [x] Apply curved/rounded image styling to ALL JE blocks systematically
+- [x] JEImageRenderer - Now defaults to rounded corners (2rem) with shadow
+- [x] JEOfferingsGridRenderer - Cards now have 2rem rounded corners with image hover effects
+- [x] JEGalleryRenderer - Gallery images now have 2rem rounded corners with shadows
+- [x] JEVolumesRenderer - Volume cards now have 2rem rounded corners with image hover effects
+- [x] JETwoColumnRenderer - Images now have 2rem rounded corners with shadow
+- [x] Added dark mode support to JEOfferingsGridRenderer, JEGalleryRenderer, JEVolumesRenderer
+- [x] All blocks now use consistent borderRadius styling with overflow-hidden for proper clipping

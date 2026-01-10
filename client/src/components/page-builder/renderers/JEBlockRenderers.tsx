@@ -1473,26 +1473,39 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
     caption?: string;
     rounded?: boolean;
     shadow?: boolean;
+    borderRadius?: string;
   };
 
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
+  // Default to rounded unless explicitly set to false
+  const isRounded = content.rounded !== false;
+  const borderRadius = content.borderRadius || '2rem';
 
   return (
     <figure className="py-8">
       {imageUrl ? (
-        <img
-          src={imageUrl}
-          alt={content.alt || 'Image'}
-          className={`w-full h-auto ${content.rounded ? 'rounded-[2rem]' : ''} ${content.shadow ? 'shadow-xl' : ''}`}
-          onError={(e) => console.error('[JEImageRenderer] Image error:', e)}
-        />
+        <div 
+          className={`relative overflow-hidden ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
+          style={{ borderRadius: isRounded ? borderRadius : '0' }}
+        >
+          <img
+            src={imageUrl}
+            alt={content.alt || 'Image'}
+            className="w-full h-auto"
+            style={{ borderRadius: isRounded ? borderRadius : '0' }}
+            onError={(e) => console.error('[JEImageRenderer] Image error:', e)}
+          />
+        </div>
       ) : (
-        <div className="aspect-video bg-neutral-200 rounded-[2rem] flex items-center justify-center">
+        <div 
+          className="aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+          style={{ borderRadius: borderRadius }}
+        >
           <span className="text-neutral-400">Add an image</span>
         </div>
       )}
       {content.caption && (
-        <figcaption className="mt-4 text-center text-sm text-neutral-500 italic">
+        <figcaption className="mt-4 text-center text-sm text-neutral-500 dark:text-neutral-400 italic">
           {content.caption}
         </figcaption>
       )}
@@ -1664,7 +1677,9 @@ export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected 
         </div>
         <div className={content.imagePosition === 'right' ? 'lg:order-2' : 'lg:order-1'}>
           {imageUrl ? (
-            <img src={imageUrl} alt="" className="w-full h-auto rounded-[2rem]" />
+            <div className="relative overflow-hidden shadow-2xl shadow-black/10" style={{ borderRadius: '2rem' }}>
+              <img src={imageUrl} alt="" className="w-full h-auto" style={{ borderRadius: '2rem' }} />
+            </div>
           ) : (
             <>
               {content.rightTitle && (
@@ -1872,30 +1887,43 @@ export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelec
       imageUrl?: string;
       link?: string;
     }>;
+    dark?: boolean;
+    cardBorderRadius?: string;
   };
 
   const items = content.items || [];
+  const bgClass = content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]';
+  const cardBgClass = content.dark ? 'bg-neutral-800' : 'bg-white';
+  const textClass = content.dark ? 'text-white' : 'text-foreground';
+  const descClass = content.dark ? 'text-neutral-400' : 'text-neutral-600';
+  const cardRadius = content.cardBorderRadius || '2rem';
 
   return (
-    <section className="py-24 px-6 bg-[#f5f5f0]">
+    <section className={`py-24 px-6 ${bgClass}`}>
       <div className="max-w-7xl mx-auto">
         {content.title && (
-          <h2 className="font-serif text-4xl md:text-5xl italic text-center mb-16">{content.title}</h2>
+          <h2 className={`font-serif text-4xl md:text-5xl italic text-center mb-16 ${textClass}`}>{content.title}</h2>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {items.map((item, index) => (
-            <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
+            <div 
+              key={index} 
+              className={`${cardBgClass} overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2`}
+              style={{ borderRadius: cardRadius }}
+            >
               {item.imageUrl && (
-                <img
-                  src={getMediaUrl(item.imageUrl)}
-                  alt={item.title}
-                  className="w-full h-48 object-cover"
-                />
+                <div className="relative overflow-hidden" style={{ borderTopLeftRadius: cardRadius, borderTopRightRadius: cardRadius }}>
+                  <img
+                    src={getMediaUrl(item.imageUrl)}
+                    alt={item.title}
+                    className="w-full h-48 object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                </div>
               )}
               <div className="p-6">
-                <h3 className="font-serif text-xl italic mb-2">{item.title}</h3>
+                <h3 className={`font-serif text-xl italic mb-2 ${textClass}`}>{item.title}</h3>
                 {item.description && (
-                  <p className="text-neutral-600 text-sm mb-4">{item.description}</p>
+                  <p className={`${descClass} text-sm mb-4`}>{item.description}</p>
                 )}
                 {item.link && (
                   <Link href={item.link}>
@@ -1956,24 +1984,38 @@ export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = 
   const content = block.content as {
     images?: Array<{ url: string; alt?: string; caption?: string }>;
     columns?: number;
+    dark?: boolean;
+    imageBorderRadius?: string;
+    imageHeight?: string;
   };
 
   const images = content.images || [];
   const columns = content.columns || 3;
+  const bgClass = content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]';
+  const borderRadius = content.imageBorderRadius || '2rem';
+  const imageHeight = content.imageHeight || '16rem';
 
   return (
-    <section className="py-24 px-6 bg-[#f5f5f0]">
+    <section className={`py-24 px-6 ${bgClass}`}>
       <div className="max-w-7xl mx-auto">
         <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${columns} gap-6`}>
           {images.map((image, index) => (
-            <figure key={index} className="relative overflow-hidden rounded-2xl">
+            <figure 
+              key={index} 
+              className="relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+              style={{ borderRadius: borderRadius }}
+            >
               <img
                 src={getMediaUrl(image.url)}
                 alt={image.alt || `Gallery image ${index + 1}`}
-                className="w-full h-64 object-cover hover:scale-105 transition-transform duration-500"
+                className="w-full object-cover hover:scale-105 transition-transform duration-500"
+                style={{ height: imageHeight, borderRadius: borderRadius }}
               />
               {image.caption && (
-                <figcaption className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white text-sm">
+                <figcaption 
+                  className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white text-sm"
+                  style={{ borderBottomLeftRadius: borderRadius, borderBottomRightRadius: borderRadius }}
+                >
                   {image.caption}
                 </figcaption>
               )}
@@ -2111,30 +2153,43 @@ export function JEVolumesRenderer({ block, isEditing = false, isBlockSelected = 
       imageUrl?: string;
       link?: string;
     }>;
+    dark?: boolean;
+    cardBorderRadius?: string;
   };
 
   const volumes = content.volumes || [];
+  const bgClass = content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]';
+  const cardBgClass = content.dark ? 'bg-neutral-800' : 'bg-white';
+  const textClass = content.dark ? 'text-white' : 'text-foreground';
+  const descClass = content.dark ? 'text-neutral-400' : 'text-neutral-600';
+  const cardRadius = content.cardBorderRadius || '2rem';
 
   return (
-    <section className="py-24 px-6 bg-[#f5f5f0]">
+    <section className={`py-24 px-6 ${bgClass}`}>
       <div className="max-w-7xl mx-auto">
         {content.title && (
-          <h2 className="font-serif text-4xl italic text-center mb-16">{content.title}</h2>
+          <h2 className={`font-serif text-4xl italic text-center mb-16 ${textClass}`}>{content.title}</h2>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {volumes.map((volume, index) => (
-            <div key={index} className="bg-white rounded-2xl overflow-hidden shadow-lg">
+            <div 
+              key={index} 
+              className={`${cardBgClass} overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2`}
+              style={{ borderRadius: cardRadius }}
+            >
               {volume.imageUrl && (
-                <img
-                  src={getMediaUrl(volume.imageUrl)}
-                  alt={volume.title}
-                  className="w-full h-64 object-cover"
-                />
+                <div className="relative overflow-hidden" style={{ borderTopLeftRadius: cardRadius, borderTopRightRadius: cardRadius }}>
+                  <img
+                    src={getMediaUrl(volume.imageUrl)}
+                    alt={volume.title}
+                    className="w-full h-64 object-cover transition-transform duration-500 hover:scale-105"
+                  />
+                </div>
               )}
               <div className="p-6">
-                <h3 className="font-serif text-xl italic mb-2">{volume.title}</h3>
+                <h3 className={`font-serif text-xl italic mb-2 ${textClass}`}>{volume.title}</h3>
                 {volume.description && (
-                  <p className="text-neutral-600 text-sm mb-4">{volume.description}</p>
+                  <p className={`${descClass} text-sm mb-4`}>{volume.description}</p>
                 )}
                 {volume.link && (
                   <Link href={volume.link}>
