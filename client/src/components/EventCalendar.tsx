@@ -168,12 +168,12 @@ export default function EventCalendar({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm border border-stone-200">
+    <div className="bg-card rounded-xl shadow-sm border border-border">
       {/* Calendar Header */}
-      <div className="p-4 border-b border-stone-200">
+      <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h2 className="text-xl font-semibold text-stone-900">
+            <h2 className="text-xl font-semibold text-foreground">
               {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
             </h2>
             <div className="flex items-center gap-1">
@@ -207,8 +207,8 @@ export default function EventCalendar({
 
         {/* Filter Panel */}
         {showFilterPanel && (
-          <div className="mt-4 p-4 bg-stone-50 rounded-lg">
-            <p className="text-sm font-medium text-stone-700 mb-3">Event Types</p>
+          <div className="mt-4 p-4 bg-muted rounded-lg">
+            <p className="text-sm font-medium text-foreground mb-3">Event Types</p>
             <div className="flex flex-wrap gap-3">
               {eventTypesQuery.data?.map(type => (
                 <label 
@@ -248,7 +248,7 @@ export default function EventCalendar({
           {DAYS.map(day => (
             <div 
               key={day} 
-              className="text-center text-sm font-medium text-stone-500 py-2"
+              className="text-center text-sm font-medium text-muted-foreground py-2"
             >
               {day}
             </div>
@@ -268,12 +268,12 @@ export default function EventCalendar({
                 key={index}
                 className={`min-h-[100px] p-1 border rounded-lg transition-colors ${
                   isInCurrentMonth 
-                    ? 'bg-white border-stone-200' 
-                    : 'bg-stone-50 border-stone-100'
+                    ? 'bg-card border-border' 
+                    : 'bg-muted border-border/50'
                 } ${isTodayDate ? 'ring-2 ring-amber-500' : ''}`}
               >
                 <div className={`text-right text-sm mb-1 ${
-                  isInCurrentMonth ? 'text-stone-900' : 'text-stone-400'
+                  isInCurrentMonth ? 'text-foreground' : 'text-muted-foreground'
                 } ${isTodayDate ? 'font-bold text-amber-600' : ''}`}>
                   {date.getDate()}
                 </div>
@@ -291,7 +291,7 @@ export default function EventCalendar({
                     );
                   })}
                   {dayEvents.length > 3 && (
-                    <p className="text-xs text-stone-500 px-1">
+                    <p className="text-xs text-muted-foreground px-1">
                       +{dayEvents.length - 3} more
                     </p>
                   )}
@@ -303,14 +303,14 @@ export default function EventCalendar({
       </div>
 
       {/* Event Legend */}
-      <div className="px-4 pb-4 border-t border-stone-100 pt-4">
+      <div className="px-4 pb-4 border-t border-border pt-4">
         <div className="flex flex-wrap gap-3">
           {eventTypesQuery.data?.map(type => {
             const colors = eventTypeColors[type.value] || eventTypeColors.other;
             return (
               <div key={type.value} className="flex items-center gap-1.5">
                 <div className={`w-3 h-3 rounded ${colors.bg} ${colors.border} border`} />
-                <span className="text-xs text-stone-600">{type.label}</span>
+                <span className="text-xs text-muted-foreground">{type.label}</span>
               </div>
             );
           })}
@@ -342,10 +342,10 @@ export default function EventCalendar({
               <div className="space-y-4 py-4">
                 {/* Date & Time */}
                 <div className="flex items-start gap-3">
-                  <Clock className="w-5 h-5 text-stone-400 mt-0.5" />
+                  <Clock className="w-5 h-5 text-muted-foreground mt-0.5" />
                   <div>
                     <p className="font-medium">{formatDate(selectedEvent.startDate)}</p>
-                    <p className="text-sm text-stone-500">
+                    <p className="text-sm text-muted-foreground">
                       {formatTime(selectedEvent.startDate)}
                       {selectedEvent.endDate && ` - ${formatTime(selectedEvent.endDate)}`}
                     </p>
@@ -355,11 +355,11 @@ export default function EventCalendar({
                 {/* Location */}
                 {(selectedEvent.venue || selectedEvent.city) && (
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-5 h-5 text-stone-400 mt-0.5" />
+                    <MapPin className="w-5 h-5 text-muted-foreground mt-0.5" />
                     <div>
                       {selectedEvent.venue && <p className="font-medium">{selectedEvent.venue}</p>}
                       {selectedEvent.city && (
-                        <p className="text-sm text-stone-500">{selectedEvent.city}</p>
+                        <p className="text-sm text-muted-foreground">{selectedEvent.city}</p>
                       )}
                     </div>
                   </div>
@@ -368,16 +368,16 @@ export default function EventCalendar({
                 {/* Virtual */}
                 {selectedEvent.locationType === 'virtual' && (
                   <div className="flex items-center gap-3">
-                    <Video className="w-5 h-5 text-stone-400" />
-                    <p className="text-stone-600">Virtual Event</p>
+                    <Video className="w-5 h-5 text-muted-foreground" />
+                    <p className="text-muted-foreground">Virtual Event</p>
                   </div>
                 )}
 
                 {/* Capacity */}
                 {selectedEvent.capacity && (
                   <div className="flex items-center gap-3">
-                    <Users className="w-5 h-5 text-stone-400" />
-                    <p className="text-stone-600">
+                    <Users className="w-5 h-5 text-muted-foreground" />
+                    <p className="text-muted-foreground">
                       {selectedEvent.spotsRemaining !== null 
                         ? `${selectedEvent.spotsRemaining} spots remaining`
                         : `${selectedEvent.capacity} capacity`
@@ -388,8 +388,8 @@ export default function EventCalendar({
 
                 {/* Price */}
                 {!selectedEvent.isFree && (
-                  <div className="bg-stone-50 rounded-lg p-3">
-                    <p className="text-lg font-semibold text-stone-900">
+                  <div className="bg-muted rounded-lg p-3">
+                    <p className="text-lg font-semibold text-foreground">
                       {selectedEvent.formattedPrice}
                     </p>
                   </div>

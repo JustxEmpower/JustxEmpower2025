@@ -81,7 +81,7 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
   };
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Hero Section - Now reads from CMS */}
       <section className="relative overflow-hidden text-white py-20">
         {/* Background Media */}
@@ -106,7 +106,7 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-serif mb-6">{heroTitle}</h1>
-            <p className="text-xl text-stone-300 mb-8">
+            <p className="text-xl text-white/70 mb-8">
               {heroSubtitle}
             </p>
             <div className="flex justify-center gap-4">
@@ -150,14 +150,14 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
             {/* Events List */}
             {eventsQuery.isLoading ? (
               <div className="text-center py-12">
-                <p className="text-stone-500">Loading events...</p>
+                <p className="text-muted-foreground">Loading events...</p>
               </div>
             ) : eventsQuery.data?.events.length === 0 ? (
               <Card className="text-center py-12">
                 <CardContent>
-                  <CalendarDays className="w-12 h-12 mx-auto text-stone-300 mb-4" />
-                  <h3 className="text-lg font-medium text-stone-900 mb-2">No events found</h3>
-                  <p className="text-stone-500">
+                  <CalendarDays className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">No events found</h3>
+                  <p className="text-muted-foreground">
                     {statusFilter === 'upcoming' 
                       ? 'Check back soon for upcoming events'
                       : 'No events to display'
@@ -214,24 +214,24 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
                       
                       <CardContent className="space-y-3">
                         {/* Date & Time */}
-                        <div className="flex items-center gap-2 text-sm text-stone-600">
-                          <Clock className="w-4 h-4 text-stone-400" />
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="w-4 h-4" />
                           <span>{formatDate(event.startDate)}</span>
-                          <span className="text-stone-400">•</span>
+                          <span>•</span>
                           <span>{formatTime(event.startDate)}</span>
                         </div>
                         
                         {/* Location */}
                         {(event.venue || event.city || event.locationType === 'virtual') && (
-                          <div className="flex items-center gap-2 text-sm text-stone-600">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             {event.locationType === 'virtual' ? (
                               <>
-                                <Video className="w-4 h-4 text-stone-400" />
+                                <Video className="w-4 h-4" />
                                 <span>Virtual Event</span>
                               </>
                             ) : (
                               <>
-                                <MapPin className="w-4 h-4 text-stone-400" />
+                                <MapPin className="w-4 h-4" />
                                 <span>{event.venue || event.city}</span>
                               </>
                             )}
@@ -240,8 +240,8 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
                         
                         {/* Capacity */}
                         {event.capacity && (
-                          <div className="flex items-center gap-2 text-sm text-stone-600">
-                            <Users className="w-4 h-4 text-stone-400" />
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Users className="w-4 h-4" />
                             <span>
                               {event.spotsRemaining !== null 
                                 ? `${event.spotsRemaining} spots left`
@@ -252,9 +252,9 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
                         )}
                         
                         {/* Price & CTA */}
-                        <div className="flex items-center justify-between pt-3 border-t border-stone-100">
+                        <div className="flex items-center justify-between pt-3 border-t border-border">
                           {event.isFree !== 1 && (
-                            <span className="font-semibold text-stone-900">
+                            <span className="font-semibold text-foreground">
                               {event.formattedPrice}
                             </span>
                           )}

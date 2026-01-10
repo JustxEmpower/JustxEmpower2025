@@ -29,26 +29,26 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
   const categories = categoriesData || [];
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Shop Category Navigation Bar - positioned below main header */}
-      <div className="fixed top-[88px] left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-b border-neutral-100">
+      <div className="fixed top-[88px] left-0 right-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Back to Home + Category Navigation - Yeezy Style */}
           <nav className="flex items-center gap-6 flex-wrap">
             <button
               type="button"
               onClick={() => setLocation("/")}
-              className="text-[11px] uppercase tracking-[0.2em] text-neutral-400 hover:text-black transition-colors flex items-center gap-2"
+              className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
             >
               <ArrowLeft className="w-3 h-3" />
               Home
             </button>
-            <span className="text-neutral-200">|</span>
+            <span className="text-border">|</span>
             <button
               type="button"
               onClick={() => setCategoryId(null)}
               className={`text-[11px] uppercase tracking-[0.2em] transition-colors ${
-                categoryId === null ? "text-black font-medium" : "text-neutral-400 hover:text-black"
+                categoryId === null ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               All
@@ -59,7 +59,7 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
                 key={cat.id}
                 onClick={() => setCategoryId(cat.id)}
                 className={`text-[11px] uppercase tracking-[0.2em] transition-colors ${
-                  categoryId === cat.id ? "text-black font-medium" : "text-neutral-400 hover:text-black"
+                  categoryId === cat.id ? "text-foreground font-medium" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {cat.name}
@@ -71,11 +71,11 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
           <button
             type="button"
             onClick={() => setCartOpen(true)}
-            className="relative text-[11px] uppercase tracking-[0.2em] text-neutral-600 hover:text-black transition-colors flex items-center gap-2"
+            className="relative text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
           >
             <ShoppingBag className="w-4 h-4" />
             {cartItemCount > 0 && (
-              <span className="text-black font-medium">{cartItemCount}</span>
+              <span className="text-foreground font-medium">{cartItemCount}</span>
             )}
           </button>
         </div>
@@ -86,15 +86,15 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
         {isLoading ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
             {[...Array(10)].map((_, i) => (
-              <div key={i} className="aspect-square bg-neutral-50 animate-pulse" />
+              <div key={i} className="aspect-square bg-muted animate-pulse" />
             ))}
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-400 mb-4">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground mb-4">
               No products available
             </p>
-            <p className="text-[10px] uppercase tracking-[0.15em] text-neutral-300">
+            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60">
               Check back soon
             </p>
           </div>
@@ -155,7 +155,7 @@ function ProductCard({ product }: ProductCardProps) {
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Product Image */}
-        <div className="aspect-square bg-neutral-50 overflow-hidden">
+        <div className="aspect-square bg-muted overflow-hidden">
           <img
             src={isHovered ? hoverImage : mainImage}
             alt={product.name}
@@ -165,14 +165,14 @@ function ProductCard({ product }: ProductCardProps) {
         
         {/* Product Code Overlay - Yeezy Style */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <span className="text-[11px] uppercase tracking-[0.3em] text-black font-medium bg-white/90 px-4 py-2">
+          <span className="text-[11px] uppercase tracking-[0.3em] text-foreground font-medium bg-background/90 px-4 py-2">
             {productCode}
           </span>
         </div>
         
         {/* Minimal Product Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-500 mb-1">
+        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1">
             {product.formattedPrice}
           </p>
         </div>

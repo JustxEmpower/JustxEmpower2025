@@ -269,7 +269,7 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
     // PDFs - embedded viewer
     if (fileType === 'pdf') {
       return (
-        <div className="h-[70vh] bg-gray-100 rounded-lg overflow-hidden">
+        <div className="h-[70vh] bg-muted rounded-lg overflow-hidden">
           <iframe
             src={`${fileUrl}#toolbar=1&navpanes=1&scrollbar=1`}
             className="w-full h-full border-0"
@@ -283,7 +283,7 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
     if (['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx'].includes(fileType)) {
       const googleViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fileUrl)}&embedded=true`;
       return (
-        <div className="h-[70vh] bg-gray-100 rounded-lg overflow-hidden">
+        <div className="h-[70vh] bg-muted rounded-lg overflow-hidden">
           <iframe
             src={googleViewerUrl}
             className="w-full h-full border-0"
@@ -295,9 +295,9 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
     
     // Fallback - show message with download option
     return (
-      <div className="flex flex-col items-center justify-center h-64 bg-gray-100 rounded-lg">
-        <File className="w-16 h-16 text-gray-400 mb-4" />
-        <p className="text-gray-600 mb-4">Preview not available for this file type</p>
+      <div className="flex flex-col items-center justify-center h-64 bg-muted rounded-lg">
+        <File className="w-16 h-16 text-muted-foreground mb-4" />
+        <p className="text-muted-foreground mb-4">Preview not available for this file type</p>
         <Button onClick={() => handleDownload(previewResource)} className="bg-amber-600 hover:bg-amber-700">
           <Download className="w-4 h-4 mr-2" />
           Download to View
@@ -357,7 +357,7 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
   };
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Hero Section - Now reads from CMS */}
       <section className="relative overflow-hidden text-white py-20">
         {/* Background Media */}
@@ -382,11 +382,11 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="text-4xl md:text-5xl font-serif mb-6">{heroTitle}</h1>
-            <p className="text-xl text-stone-300 mb-8">
+            <p className="text-xl text-white/70 mb-8">
               {heroSubtitle}
             </p>
             <div className="relative max-w-md mx-auto">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-stone-400" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
               <Input
                 placeholder="Search resources..."
                 value={searchQuery}
@@ -404,11 +404,11 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
           <section className="mb-12">
             <div className="flex items-center gap-2 mb-6">
               <Star className="w-5 h-5 text-amber-500" />
-              <h2 className="text-2xl font-serif text-stone-900">Featured Resources</h2>
+              <h2 className="text-2xl font-serif text-foreground">Featured Resources</h2>
             </div>
             <div className="grid md:grid-cols-3 gap-6">
               {featuredQuery.data.map((resource) => (
-                <Card key={resource.id} className={`border-amber-200 bg-amber-50/50 hover:shadow-lg transition-shadow relative ${resource.isPremium ? 'ring-2 ring-amber-400' : ''}`}>
+                <Card key={resource.id} className={`border-amber-200/50 dark:border-amber-800/50 bg-amber-50/50 dark:bg-amber-950/20 hover:shadow-lg transition-shadow relative ${resource.isPremium ? 'ring-2 ring-amber-400' : ''}`}>
                   {resource.isPremium && (resource.price ?? 0) > 0 && (
                     <div className="absolute top-3 right-3">
                       <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-white">
@@ -429,7 +429,7 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-between">
-                      <div className="text-sm text-stone-500">
+                      <div className="text-sm text-muted-foreground">
                         <span>{resource.formattedSize}</span>
                         <span className="mx-2">•</span>
                         <span>{resource.downloadCount} downloads</span>
@@ -459,8 +459,8 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
                 <nav className="divide-y">
                   <button
                     onClick={() => setSelectedCategory(null)}
-                    className={`w-full px-4 py-3 text-left flex items-center justify-between hover:bg-stone-50 transition-colors ${
-                      !selectedCategory ? 'bg-amber-50 text-amber-700 font-medium' : 'text-stone-600'
+                    className={`w-full px-4 py-3 text-left flex items-center justify-between hover:bg-muted transition-colors ${
+                      !selectedCategory ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 font-medium' : 'text-muted-foreground'
                     }`}
                   >
                     <span>All Resources</span>
@@ -470,8 +470,8 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
                     <button
                       key={category.id}
                       onClick={() => setSelectedCategory(category.slug)}
-                      className={`w-full px-4 py-3 text-left flex items-center justify-between hover:bg-stone-50 transition-colors ${
-                        selectedCategory === category.slug ? 'bg-amber-50 text-amber-700 font-medium' : 'text-stone-600'
+                      className={`w-full px-4 py-3 text-left flex items-center justify-between hover:bg-muted transition-colors ${
+                        selectedCategory === category.slug ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 font-medium' : 'text-muted-foreground'
                       }`}
                     >
                       <span>{category.name}</span>
@@ -488,13 +488,13 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
             {/* Results Header */}
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-stone-900">
+                <h2 className="text-xl font-semibold text-foreground">
                   {selectedCategory 
                     ? categoriesQuery.data?.find(c => c.slug === selectedCategory)?.name || 'Resources'
                     : 'All Resources'
                   }
                 </h2>
-                <p className="text-stone-500">
+                <p className="text-muted-foreground">
                   {filteredResources.length} {filteredResources.length === 1 ? 'resource' : 'resources'} available
                 </p>
               </div>
@@ -503,14 +503,14 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
             {/* Resources Grid */}
             {resourcesQuery.isLoading ? (
               <div className="text-center py-12">
-                <p className="text-stone-500">Loading resources...</p>
+                <p className="text-muted-foreground">Loading resources...</p>
               </div>
             ) : filteredResources.length === 0 ? (
               <Card className="text-center py-12">
                 <CardContent>
-                  <FileText className="w-12 h-12 mx-auto text-stone-300 mb-4" />
-                  <h3 className="text-lg font-medium text-stone-900 mb-2">No resources found</h3>
-                  <p className="text-stone-500">
+                  <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">No resources found</h3>
+                  <p className="text-muted-foreground">
                     {searchQuery 
                       ? 'Try adjusting your search terms'
                       : 'Check back soon for new resources'
@@ -546,11 +546,11 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
                                 )}
                               </div>
                               {resource.description && (
-                                <p className="text-stone-600 mb-3 line-clamp-2">
+                                <p className="text-muted-foreground mb-3 line-clamp-2">
                                   {resource.description}
                                 </p>
                               )}
-                              <div className="flex items-center gap-3 text-sm text-stone-500">
+                              <div className="flex items-center gap-3 text-sm text-muted-foreground">
                                 {getFileTypeBadge(resource.fileType)}
                                 <span>{resource.formattedSize}</span>
                                 <span className="flex items-center gap-1">
@@ -602,7 +602,7 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
                 <p className="text-sm text-red-500 mt-1">{downloadError}</p>
               )}
             </div>
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-muted-foreground">
               We'll send you updates about new resources and content. You can unsubscribe anytime.
             </p>
           </div>

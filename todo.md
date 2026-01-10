@@ -2076,3 +2076,7 @@ NODE_ENV=production
 - [x] Update all pages to use theme-aware styles
 - [ ] Test theme switching across entire site
 - [x] Fix dropdown menus for light/dark mode theme awareness
+- [ ] Fix Community Events page for dark mode
+- [ ] Fix Resources page for dark mode
+- [ ] Fix Shop page for dark mode
+- [ ] Fix legal pages for dark mode
