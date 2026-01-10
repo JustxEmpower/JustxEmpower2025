@@ -2046,3 +2046,12 @@ NODE_ENV=production
 - [x] Update App.tsx route to use new backup component
 - [x] Fix all db imports to use async getDb() pattern
 - [x] Test build successfully
+
+## Production Build Warnings Fix (Jan 10, 2026)
+- [x] Fix VITE_ANALYTICS_ENDPOINT environment variable warning
+- [x] Fix VITE_ANALYTICS_WEBSITE_ID environment variable warning
+- [x] Optimize chunk size to eliminate build warnings
+- [ ] Fix Mailchimp API integration to actually connect to Mailchimp endpoint
+- [ ] Verify Mailchimp API key and Audience ID settings work correctly
+- [x] Set up self-hosted Umami analytics on AWS server (docs created)
+- [x] Configure VITE_ANALYTICS_ENDPOINT and VITE_ANALYTICS_WEBSITE_ID (React component created)

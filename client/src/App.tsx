@@ -54,6 +54,7 @@ import NewsletterPopup from "@/components/NewsletterPopup";
 import { AIChatAssistant } from "@/components/AIChatAssistant";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import FontProvider from "@/components/FontProvider";
+import Analytics from "@/components/Analytics";
 import { CartProvider } from "@/contexts/CartContext";
 import Shop from "@/pages/Shop";
 import ProductDetail from "@/pages/ProductDetail";
@@ -168,6 +169,7 @@ function App() {
             {!isAdminPage && <NewsletterPopup />}
             {!isAdminPage && <AIChatAssistant />}
             {!isAdminPage && <AnalyticsTracker />}
+            <Analytics />
           </div>
         </TooltipProvider>
         </FontProvider>
