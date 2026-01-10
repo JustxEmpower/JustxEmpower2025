@@ -1237,17 +1237,15 @@ export function JEParagraphRenderer({ block }: { block: PageBlock }) {
   const textClass = content.dark ? 'text-white/70' : 'text-neutral-600';
 
   // Build inline styles from Style tab using helper functions
-  const containerStyle = buildContainerStyles(content);
+  const containerStyle: React.CSSProperties = {
+    ...buildContainerStyles(content),
+    // Force apply backgroundColor if it exists
+    backgroundColor: content.backgroundColor ? content.backgroundColor as string : undefined,
+  };
   const textStyle: React.CSSProperties = {
     ...buildTextStyles(content),
     maxWidth: content.maxWidthContent || '65ch',
   };
-
-  // Debug: log the content and styles
-  if (typeof window !== 'undefined') {
-    console.log('JEParagraph content:', JSON.stringify(content));
-    console.log('JEParagraph containerStyle:', JSON.stringify(containerStyle));
-  }
 
   return (
     <div className={`py-4 ${alignClass}`} style={containerStyle}>
