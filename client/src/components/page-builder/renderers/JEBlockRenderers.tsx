@@ -1243,6 +1243,12 @@ export function JEParagraphRenderer({ block }: { block: PageBlock }) {
     maxWidth: content.maxWidthContent || '65ch',
   };
 
+  // Debug: log the content and styles
+  if (typeof window !== 'undefined') {
+    console.log('JEParagraph content:', JSON.stringify(content));
+    console.log('JEParagraph containerStyle:', JSON.stringify(containerStyle));
+  }
+
   return (
     <div className={`py-4 ${alignClass}`} style={containerStyle}>
       <InlineEditableText
