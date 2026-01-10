@@ -24,6 +24,7 @@ import {
 } from "../drizzle/schema";
 import { eq, sql, desc, asc, and, gte, lte } from "drizzle-orm";
 import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { storagePut, storageGet } from "./storage";
 import { TRPCError } from "@trpc/server";
 
 // ============================================================================
@@ -125,18 +126,25 @@ const TABLE_REGISTRY: Record<string, { schema: any; priority: number; category: 
 };
 
 // ============================================================================
-// S3 CLIENT
+// S3 CLIENT (using shared storage helpers)
 // ============================================================================
 
+// Extract region from AWS_REGION (handles various formats)
+const extractRegion = (regionStr: string | undefined): string => {
+  if (!regionStr) return "us-east-1";
+  const match = regionStr.match(/(us|eu|ap|sa|ca|me|af)-[a-z]+-\d+/);
+  return match ? match[0] : "us-east-1";
+};
+
 const s3Client = new S3Client({
-  region: process.env.AWS_REGION || "us-east-1",
+  region: extractRegion(process.env.AWS_REGION),
   credentials: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
   },
 });
 
-const S3_BUCKET = process.env.S3_BACKUP_BUCKET || process.env.S3_BUCKET_NAME || "justxempower-backups";
+const S3_BUCKET = process.env.AWS_S3_BUCKET || process.env.S3_BACKUP_BUCKET || "justxempower-backups";
 
 // ============================================================================
 // UTILITY FUNCTIONS
@@ -324,50 +332,52 @@ export async function createBackup(options: BackupOptions): Promise<{
 
     console.log(`[Backup] Total size: ${(backupSize / 1024 / 1024).toFixed(2)} MB`);
 
-    // Upload to S3
+    // Try to upload to S3 using the shared storage helper
     let s3Url: string | null = null;
     let s3Key: string | null = null;
 
-    try {
-      s3Key = generateBackupKey(backupName);
-      
-      await s3Client.send(new PutObjectCommand({
-        Bucket: S3_BUCKET,
-        Key: s3Key,
-        Body: backupJson,
-        ContentType: "application/json",
-        Metadata: {
-          "backup-name": backupName,
-          "backup-type": backupType,
-          "created-at": timestamp,
-        },
-      }));
-
-      s3Url = `https://${S3_BUCKET}.s3.amazonaws.com/${s3Key}`;
-      console.log(`[Backup] Uploaded to S3: ${s3Url}`);
-    } catch (s3Error) {
-      console.error("[Backup] S3 upload failed, storing in database:", s3Error);
+    // Check if AWS credentials are configured
+    const hasAwsCredentials = process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY;
+    
+    if (hasAwsCredentials) {
+      try {
+        s3Key = generateBackupKey(backupName);
+        const result = await storagePut(s3Key, backupJson, "application/json");
+        s3Url = result.url;
+        console.log(`[Backup] Uploaded to S3: ${s3Url}`);
+      } catch (s3Error) {
+        console.error("[Backup] S3 upload failed, storing in database:", s3Error);
+        s3Key = null;
+        s3Url = null;
+      }
+    } else {
+      console.log("[Backup] AWS credentials not configured, storing backup in database only");
     }
 
     // Store backup metadata in database
-    const [insertedBackup] = await db.insert(backups).values({
+    // MySQL doesn't support .returning(), so we use insertId from the result
+    // Always store backup data in database as a reliable fallback
+    const insertResult = await db.insert(backups).values({
       backupName,
       backupType,
-      backupData: s3Url ? null : backupJson, // Only store in DB if S3 failed
+      backupData: backupJson, // Always store in DB for reliability
       s3Key,
       s3Url,
       fileSize: backupSize,
       description: description || null,
       tablesIncluded: JSON.stringify(tablesToBackup),
       createdBy: createdBy || null,
-    }).returning();
+    });
+
+    // Get the inserted ID from MySQL result
+    const backupId = Number((insertResult as any).insertId || (insertResult as any)[0]?.insertId);
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(2);
-    console.log(`[Backup] Complete in ${duration}s. ID: ${insertedBackup.id}`);
+    console.log(`[Backup] Complete in ${duration}s. ID: ${backupId}`);
 
     return {
       success: true,
-      backupId: insertedBackup.id,
+      backupId,
       s3Url,
       size: backupSize,
     };
