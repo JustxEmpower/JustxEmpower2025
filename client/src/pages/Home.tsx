@@ -6,8 +6,12 @@ import Carousel from '@/components/Carousel';
 import { usePageContent } from '@/hooks/usePageContent';
 import { getMediaUrl } from '@/lib/media';
 
-export default function Home() {
-  const { getContent, getSection, getTextStyle, isLoading } = usePageContent('home');
+interface HomeProps {
+  slug?: string;
+}
+
+export default function Home({ slug = 'home' }: HomeProps) {
+  const { getContent, getSection, getTextStyle, isLoading } = usePageContent(slug);
 
   // Helper to get proper media URL
   const getProperMediaUrl = (url: string) => {

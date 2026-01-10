@@ -6,14 +6,18 @@ import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { usePageContent } from '@/hooks/usePageContent';
 
-export default function Journal() {
+interface JournalProps {
+  slug?: string;
+}
+
+export default function Journal({ slug = 'blog' }: JournalProps) {
   const [location] = useLocation();
   const [limit] = useState(6);
   const [offset, setOffset] = useState(0);
   const [allArticles, setAllArticles] = useState<any[]>([]);
   
-  // Get page content from database
-  const { getContent, isLoading: contentLoading } = usePageContent('blog');
+  // Get page content from database - use dynamic slug
+  const { getContent, isLoading: contentLoading } = usePageContent(slug);
 
   const { data: articles, isLoading, refetch } = trpc.articles.list.useQuery({
     limit,

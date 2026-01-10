@@ -101,7 +101,11 @@ const formatPrice = (priceInCents: number): string => {
   return `$${(priceInCents / 100).toFixed(2)}`;
 };
 
-export default function Resources() {
+interface ResourcesProps {
+  slug?: string;
+}
+
+export default function Resources({ slug = 'resources' }: ResourcesProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
@@ -117,8 +121,8 @@ export default function Resources() {
   const [purchaseDialogOpen, setPurchaseDialogOpen] = useState(false);
   const [purchaseResource, setPurchaseResource] = useState<any>(null);
 
-  // Get hero content from CMS
-  const { getContent, isLoading: contentLoading } = usePageContent('resources');
+  // Get hero content from CMS - use dynamic slug
+  const { getContent, isLoading: contentLoading } = usePageContent(slug);
   
   const heroTitle = getContent('hero', 'title');
   const heroSubtitle = getContent('hero', 'subtitle');

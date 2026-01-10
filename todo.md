@@ -2015,3 +2015,10 @@ NODE_ENV=production
 - [x] Added detailed logging and summary of restored tables
 - [ ] Add confirmation dialog before restore with clear warning (UI enhancement)
 - [ ] Add preview of what will be restored before executing (UI enhancement)
+
+## Dynamic Page Routing Fix (Jan 10, 2026)
+
+- [x] Use existing template field in pages table to identify special templates
+- [x] Create DynamicPageRouter component that routes based on template field
+- [x] Update special pages (Resources, Shop, Contact, Home, Journal, Events, etc.) to accept slug prop
+- [x] Allow slug changes while preserving page template and content

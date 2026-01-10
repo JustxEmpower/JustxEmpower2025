@@ -11,6 +11,7 @@ import AdminMedia from "@/pages/AdminMedia";
 import AdminTheme from "@/pages/AdminTheme";
 import AdminPages from "@/pages/AdminPages";
 import DynamicPage from "@/pages/DynamicPage";
+import DynamicPageRouter from "@/pages/DynamicPageRouter";
 import AdminAnalytics from "@/pages/AdminAnalytics";
 import AdminBrand from "@/pages/AdminBrand";
 import AdminSEO from "@/pages/AdminSEO";
@@ -120,20 +121,17 @@ function Router() {
       <Route path="/blog-she-writes" component={Journal} />
       <Route path="/blog" component={Journal} />
       <Route path="/blog/:slug" component={ArticleDetail} />
-      <Route path="/resources" component={Resources} />
-      <Route path="/community-events" component={CommunityEvents} />
-      <Route path="/shop" component={Shop} />
+      {/* Product and event detail routes must come before dynamic router */}
       <Route path="/shop/:slug" component={ProductDetail} />
       <Route path="/checkout" component={Checkout} />
-      <Route path="/events" component={Events} />
       <Route path="/events/:slug" component={EventDetail} />
-      <Route path="/walk-with-us" component={WalkWithUs} />
       {/* Legal Pages */}
       <Route path="/privacy-policy" component={PrivacyPolicy} />
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/accessibility" component={AccessibilityStatement} />
       <Route path="/cookie-policy" component={CookiePolicy} />
-      <Route path="/:slug" component={DynamicPage} />
+      {/* Dynamic page router handles all other pages based on template field */}
+      <Route path="/:slug" component={DynamicPageRouter} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -9,12 +9,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, MapPin, Users, Clock, DollarSign } from "lucide-react";
 import { usePageContent } from "@/hooks/usePageContent";
 
-export default function Events() {
+interface EventsProps {
+  slug?: string;
+}
+
+export default function Events({ slug = 'events' }: EventsProps) {
   const [location] = useLocation();
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
   
-  // Get hero content from CMS
-  const { getContent, isLoading: contentLoading } = usePageContent('events');
+  // Get hero content from CMS - use dynamic slug
+  const { getContent, isLoading: contentLoading } = usePageContent(slug);
   
   const { data: upcomingData, isLoading: loadingUpcoming } = trpc.events.list.useQuery({
     status: "upcoming",

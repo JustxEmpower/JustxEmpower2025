@@ -31,12 +31,16 @@ const eventTypeColors: Record<string, { bg: string; text: string }> = {
   other: { bg: 'bg-gray-100', text: 'text-gray-800' },
 };
 
-export default function CommunityEvents() {
+interface CommunityEventsProps {
+  slug?: string;
+}
+
+export default function CommunityEvents({ slug = 'community-events' }: CommunityEventsProps) {
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
   const [statusFilter, setStatusFilter] = useState<'upcoming' | 'past' | 'all'>('upcoming');
   
-  // Get hero content from CMS
-  const { getContent, isLoading: contentLoading } = usePageContent('community-events');
+  // Get hero content from CMS - use dynamic slug
+  const { getContent, isLoading: contentLoading } = usePageContent(slug);
   
   const heroTitle = getContent('hero', 'title');
   const heroSubtitle = getContent('hero', 'subtitle');

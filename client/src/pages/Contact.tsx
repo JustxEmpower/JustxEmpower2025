@@ -24,11 +24,15 @@ const contactSchema = z.object({
 
 type ContactFormValues = z.infer<typeof contactSchema>;
 
-export default function Contact() {
+interface ContactProps {
+  slug?: string;
+}
+
+export default function Contact({ slug = 'contact' }: ContactProps) {
   const [location] = useLocation();
   const mapRef = useRef<google.maps.Map | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getContent, getTextStyle, isLoading } = usePageContent('contact');
+  const { getContent, getTextStyle, isLoading } = usePageContent(slug);
 
   const {
     register,

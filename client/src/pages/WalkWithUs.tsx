@@ -4,9 +4,13 @@ import { Button } from '@/components/ui/button';
 import { getMediaUrl } from '@/lib/media';
 import { usePageContent } from '@/hooks/usePageContent';
 
-export default function WalkWithUs() {
+interface WalkWithUsProps {
+  slug?: string;
+}
+
+export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
   const [location] = useLocation();
-  const { getContent, getTextStyle, isLoading } = usePageContent('walk-with-us');
+  const { getContent, getTextStyle, isLoading } = usePageContent(slug);
 
   useEffect(() => {
     window.scrollTo(0, 0);

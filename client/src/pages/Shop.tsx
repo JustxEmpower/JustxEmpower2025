@@ -5,7 +5,11 @@ import { ShoppingBag, ArrowLeft } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import CartSlideout from "@/components/CartSlideout";
 
-export default function Shop() {
+interface ShopProps {
+  slug?: string;
+}
+
+export default function Shop({ slug = 'shop' }: ShopProps) {
   const [, setLocation] = useLocation();
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
