@@ -175,7 +175,10 @@ function renderField(
   }
 
   // Image fields with MediaPicker - allow both images and videos for hero/background fields
+  // Exclude color fields (backgroundColor, textColor, etc.)
+  const isColorField = key.toLowerCase().includes('color');
   if (
+    !isColorField && (
     key.toLowerCase().includes('image') ||
     key.toLowerCase().includes('src') ||
     key.toLowerCase().includes('background') ||
@@ -183,7 +186,7 @@ function renderField(
     key.toLowerCase().includes('thumbnail') ||
     key.toLowerCase().includes('avatar') ||
     key.toLowerCase().includes('photo') ||
-    key.toLowerCase().includes('picture')
+    key.toLowerCase().includes('picture'))
   ) {
     // For hero/background fields, allow both images and videos
     const allowBothMediaTypes = 
