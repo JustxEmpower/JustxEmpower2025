@@ -1,6 +1,7 @@
 import { useRoute } from "wouter";
 import { trpc } from "@/lib/trpc";
 import DynamicPage from "./DynamicPage";
+import PageBuilderPreview from "./PageBuilderPreview";
 import Home from "./Home";
 import About from "./About";
 import Philosophy from "./Philosophy";
@@ -59,6 +60,11 @@ export default function DynamicPageRouter() {
   if (Component) {
     // Pass the slug to the component so it can fetch content dynamically
     return <Component slug={slug} />;
+  }
+
+  // Use PageBuilderPreview for page-builder template pages (full-bleed with Lenis scroll)
+  if (template === 'page-builder') {
+    return <PageBuilderPreview slug={slug} />;
   }
 
   // Fall back to DynamicPage for default/content-editor templates

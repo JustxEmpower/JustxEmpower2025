@@ -9,6 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { InlineEditableText } from '../InlineEditableText';
 import EditableElement from '../EditableElement';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+gsap.registerPlugin(ScrollTrigger);
 
 // ==========================================
 // STYLE HELPER FUNCTIONS
@@ -300,9 +304,11 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 
 // JE Hero Block Renderer (handles je-hero-video, je-hero-image, je-hero-split, je-hero)
 export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+  const heroRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
+  const animationInitialized = useRef(false);
 
   const content = block.content as {
     videoUrl?: string;
@@ -433,6 +439,38 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
   console.log('[JEHeroRenderer] Image URL:', imageUrl);
   console.log('[JEHeroRenderer] Has media:', hasMedia);
 
+  // GSAP entrance animations (matching original Hero component)
+  useEffect(() => {
+    if (!heroRef.current || isEditing || animationInitialized.current) return;
+    
+    animationInitialized.current = true;
+    
+    const ctx = gsap.context(() => {
+      // Initial entrance animations - fade in and slide up
+      gsap.fromTo('.je-hero-subtitle', 
+        { opacity: 0, y: 20 }, 
+        { opacity: 1, y: 0, duration: 0.8, delay: 0.2 }
+      );
+      
+      gsap.fromTo('.je-hero-title', 
+        { opacity: 0, y: 30 }, 
+        { opacity: 1, y: 0, duration: 0.8, delay: 0.4 }
+      );
+      
+      gsap.fromTo('.je-hero-desc', 
+        { opacity: 0, y: 20 }, 
+        { opacity: 1, y: 0, duration: 0.8, delay: 0.6 }
+      );
+      
+      gsap.fromTo('.je-hero-cta', 
+        { opacity: 0, scale: 0.9 }, 
+        { opacity: 1, scale: 1, duration: 0.8, delay: 0.8 }
+      );
+    }, heroRef);
+
+    return () => ctx.revert();
+  }, [isEditing]);
+
   // Effect to handle video playback
   useEffect(() => {
     const video = videoRef.current;
@@ -483,6 +521,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
 
   return (
     <section 
+      ref={heroRef}
       className="relative w-full overflow-hidden bg-black"
       style={sectionStyle}
     >
@@ -545,10 +584,10 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
         <div className={maxWidthClass}>
           {content.subtitle && (
             <p 
-              className="font-sans uppercase" 
+              className="je-hero-subtitle font-sans uppercase drop-shadow-lg" 
               style={{ 
                 color: subtitleColor, 
-                opacity: 0.9,
+                opacity: isEditing ? 1 : 0.9,
                 fontSize: content.subtitleFontSize || '0.75rem',
                 letterSpacing: content.subtitleLetterSpacing || '0.3em',
                 marginBottom: content.subtitleMarginBottom || '1.5rem',
@@ -559,7 +598,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
           )}
           
           <h1 
-            className="font-serif"
+            className="je-hero-title font-serif drop-shadow-lg"
             style={{ 
               color: titleColor,
               fontSize: content.titleFontSize || '5rem',
@@ -574,10 +613,10 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
           
           {content.description && (
             <p 
-              className="font-sans" 
+              className="je-hero-desc font-sans drop-shadow-lg" 
               style={{ 
                 color: descriptionColor, 
-                opacity: 0.9,
+                opacity: isEditing ? 1 : 0.9,
                 fontSize: content.descriptionFontSize || '1.125rem',
                 lineHeight: content.descriptionLineHeight || '1.6',
                 marginBottom: content.descriptionMarginBottom || '3rem',
@@ -591,7 +630,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
           {content.ctaText && content.ctaLink && (
             <Link href={content.ctaLink}>
               <a 
-                className="inline-block border font-sans uppercase transition-all duration-500"
+                className="je-hero-cta inline-block border font-sans uppercase transition-all duration-500"
                 style={{ 
                   borderColor: ctaTextColor + '4D', 
                   color: ctaTextColor,
@@ -617,6 +656,11 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
 
 // JE Section Block Renderer (handles je-section-standard, je-section-fullwidth, je-section-full-width)
 export function JESectionRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const imageWrapperRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const animationInitialized = useRef(false);
   
   const content = block.content as {
     title?: string;
@@ -704,17 +748,101 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
     paddingRight: sectionPaddingX,
   };
 
+  // GSAP scroll-triggered animations (matching original Section component)
+  useEffect(() => {
+    if (!sectionRef.current || isEditing || animationInitialized.current) return;
+    
+    animationInitialized.current = true;
+    
+    const ctx = gsap.context(() => {
+      // Image parallax and scale effect
+      if (imageRef.current) {
+        gsap.fromTo(imageRef.current,
+          { scale: 1.15, y: -30 },
+          {
+            scale: 1,
+            y: 30,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: 'top bottom',
+              end: 'bottom top',
+              scrub: 1.5
+            }
+          }
+        );
+      }
+
+      // Content reveal animation
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top 75%',
+          end: 'bottom top',
+          toggleActions: 'play none none reverse'
+        }
+      });
+
+      // Image reveal with clip-path
+      if (imageWrapperRef.current) {
+        tl.fromTo(imageWrapperRef.current,
+          { clipPath: 'inset(100% 0 0 0)', opacity: 0 },
+          { clipPath: 'inset(0% 0 0 0)', opacity: 1, duration: 1.2, ease: 'power4.out' }
+        );
+      }
+
+      // Content elements staggered reveal
+      if (contentRef.current) {
+        const subtitle = contentRef.current.querySelector('.je-section-subtitle');
+        const title = contentRef.current.querySelector('.je-section-title');
+        const desc = contentRef.current.querySelector('.je-section-desc');
+        const cta = contentRef.current.querySelector('.je-section-cta');
+
+        if (subtitle) {
+          tl.fromTo(subtitle,
+            { y: 20, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' },
+            '-=0.8'
+          );
+        }
+        if (title) {
+          tl.fromTo(title,
+            { y: 40, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1, ease: 'power3.out' },
+            '-=0.6'
+          );
+        }
+        if (desc) {
+          tl.fromTo(desc,
+            { y: 30, opacity: 0 },
+            { y: 0, opacity: 1, duration: 1, ease: 'power3.out' },
+            '-=0.8'
+          );
+        }
+        if (cta) {
+          tl.fromTo(cta,
+            { y: 20, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out' },
+            '-=0.6'
+          );
+        }
+      }
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [isEditing]);
+
   return (
-    <section className={bgClass} style={sectionStyle}>
+    <section ref={sectionRef} className={`${bgClass} overflow-hidden`} style={sectionStyle}>
       <div 
         className={`max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 items-center ${content.reversed ? 'lg:flex-row-reverse' : ''}`}
         style={{ gap: contentGap }}
       >
         {/* Text Content */}
-        <div className={content.reversed ? 'lg:order-2' : ''} style={{ textAlign: textAlign as any }}>
+        <div ref={contentRef} className={content.reversed ? 'lg:order-2' : ''} style={{ textAlign: textAlign as any }}>
           {(content.subtitle || content.label) && (
             <p 
-              className="font-sans uppercase"
+              className="je-section-subtitle font-sans uppercase"
               style={{ 
                 color: subtitleColor || undefined,
                 fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
@@ -727,7 +855,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           )}
           
           <h2 
-            className="font-serif"
+            className="je-section-title font-serif"
             style={{ 
               color: titleColor,
               fontSize: content.titleFontSize || '3rem',
@@ -742,10 +870,10 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           
           {content.description && (
             <p 
-              className="font-sans" 
+              className="je-section-desc font-sans" 
               style={{ 
                 color: descriptionColor, 
-                opacity: 0.8,
+                opacity: isEditing ? 1 : 0.8,
                 fontSize: content.descriptionFontSize || '1.125rem',
                 lineHeight: content.descriptionLineHeight || '1.75',
                 marginBottom: content.descriptionMarginBottom || '2rem',
@@ -759,7 +887,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           {content.ctaText && content.ctaLink && (
             <Link href={content.ctaLink}>
               <a 
-                className="inline-block border font-sans uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
+                className="je-section-cta inline-block border font-sans uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
                 style={{ 
                   color: ctaTextColor, 
                   borderColor: ctaTextColor,
@@ -789,6 +917,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           className={`relative ${content.reversed ? 'lg:order-1' : ''}`}
         >
           <div 
+            ref={imageWrapperRef}
             style={{
               marginTop: content.imageMarginTop || '0',
               marginBottom: content.imageMarginBottom || '0',
@@ -796,6 +925,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           >
             {imageUrl ? (
               <div 
+                ref={imageRef}
                 className="relative overflow-hidden"
                 style={{
                   borderRadius: content.imageBorderRadius || '2rem',
@@ -806,6 +936,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                 <img
                   src={imageUrl}
                   alt={content.imageAlt || 'Section image'}
+                  className="will-change-transform"
                   style={{
                     width: '100%',
                     height: 'auto',
@@ -831,6 +962,10 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
 
 // JE Carousel Block Renderer
 export function JECarouselRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const animationInitialized = useRef(false);
+  
   const content = block.content as {
     title?: string;
     subtitle?: string;
@@ -845,23 +980,68 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
     cardBorderRadius?: string;
     cardHeight?: string;
     showTitle?: boolean;
+    enableHorizontalScroll?: boolean;
   };
 
   const bgColor = content.backgroundColor || '#f5f5f0';
   const cardRadius = content.cardBorderRadius || '2rem';
-  const cardHeight = content.cardHeight || '400px';
+  const cardHeight = content.cardHeight || '60vh';
   const showTitle = content.showTitle !== false;
+  const enableHorizontalScroll = content.enableHorizontalScroll !== false; // Default true
 
-  // If items are provided in the block, render custom carousel
+  // GSAP horizontal scroll pinning (matching original Carousel component)
+  useEffect(() => {
+    if (!sectionRef.current || !trackRef.current || isEditing || animationInitialized.current) return;
+    if (!enableHorizontalScroll) return;
+    
+    animationInitialized.current = true;
+    
+    const ctx = gsap.context(() => {
+      const section = sectionRef.current;
+      const track = trackRef.current;
+
+      if (!section || !track) return;
+
+      // Calculate scroll amount
+      const getScrollAmount = () => {
+        const trackWidth = track.scrollWidth;
+        const viewportWidth = window.innerWidth;
+        return -(trackWidth - viewportWidth + 100);
+      };
+
+      // Create the scroll tween
+      const tween = gsap.to(track, {
+        x: getScrollAmount,
+        ease: 'none',
+      });
+
+      // Create the ScrollTrigger
+      ScrollTrigger.create({
+        trigger: section,
+        start: 'top top',
+        end: () => `+=${track.scrollWidth - window.innerWidth}`,
+        pin: true,
+        animation: tween,
+        scrub: 1,
+        invalidateOnRefresh: true,
+        anticipatePin: 1,
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
+  }, [isEditing, enableHorizontalScroll]);
+
+  // If items are provided in the block, render custom carousel with horizontal scroll pinning
   if (content.items && content.items.length > 0) {
     return (
       <section 
-        className="relative py-24 overflow-hidden"
+        ref={sectionRef}
+        className="relative h-screen overflow-hidden flex flex-col justify-center"
         style={{ backgroundColor: bgColor }}
       >
-        {/* Title Section */}
+        {/* Title Section - Fixed Position */}
         {showTitle && (
-          <div className="px-6 md:px-12 mb-12">
+          <div className="absolute top-12 left-6 md:left-12 z-10">
             {content.subtitle && (
               <p className="font-sans text-xs uppercase tracking-[0.3em] text-primary/80 mb-4">
                 {content.subtitle}
@@ -873,13 +1053,16 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
           </div>
         )}
 
-        {/* Carousel Track */}
-        <div className="flex gap-8 md:gap-12 px-6 md:px-12 overflow-x-auto pb-8 snap-x snap-mandatory scrollbar-hide">
+        {/* Carousel Track - Horizontal Scroll */}
+        <div 
+          ref={trackRef}
+          className="flex gap-8 md:gap-12 px-6 md:px-12 w-max items-center h-[60vh] md:h-[70vh] pl-[10vw] md:pl-[20vw] z-20"
+        >
           {content.items.map((item, index) => (
-            <div key={index} className="flex-shrink-0 snap-start">
+            <div key={index} className="h-full shrink-0">
               {item.link ? (
                 <Link href={item.link}>
-                  <a className="block">
+                  <a className="block h-full">
                     <CarouselCard 
                       item={item} 
                       cardRadius={cardRadius} 
@@ -898,9 +1081,9 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
           ))}
         </div>
 
-        {/* Scroll Indicator */}
-        <div className="px-6 md:px-12 mt-8 flex items-center gap-4">
-          <span className="font-sans text-xs uppercase tracking-[0.2em] text-muted-foreground">Scroll to Explore</span>
+        {/* Scroll Indicator - Fixed Position */}
+        <div className="absolute bottom-12 left-6 md:left-12 flex items-center gap-4 z-10">
+          <span className="font-sans text-xs uppercase tracking-[0.2em] text-muted-foreground animate-pulse">Scroll to Explore</span>
           <div className="w-24 h-[1px] bg-muted-foreground/30" />
         </div>
       </section>
@@ -921,12 +1104,15 @@ function CarouselCard({
   cardRadius: string;
   cardHeight: string;
 }) {
+  // Use h-full if cardHeight is a viewport unit, otherwise use the specified height
+  const useFullHeight = cardHeight.includes('vh');
+  
   return (
     <div 
       className="relative w-[80vw] md:w-[40vw] lg:w-[30vw] group overflow-hidden cursor-pointer shadow-2xl shadow-black/5 transition-all duration-500 hover:-translate-y-4 bg-gray-900"
       style={{ 
         borderRadius: cardRadius,
-        height: cardHeight,
+        height: useFullHeight ? '100%' : cardHeight,
       }}
     >
       {/* Image Background */}

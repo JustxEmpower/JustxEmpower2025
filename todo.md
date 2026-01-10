@@ -2113,3 +2113,10 @@ NODE_ENV=production
 - [ ] Add scroll-based interactions (carousel direction on scroll, etc.)
 - [ ] Ensure responsive behavior matches original pages
 - [x] Fix Time Machine backup verification not processing
+
+## Page Builder Premium Styling (Jan 10, 2026)
+- [x] Add Lenis smooth scroll to Page Builder preview pages
+- [x] Add GSAP entrance animations to Hero block
+- [x] Add GSAP scroll-triggered parallax and reveal animations to Section block
+- [x] Add GSAP horizontal scroll pinning to Carousel block
+
