@@ -67,6 +67,8 @@ interface Backup {
   createdBy?: string;
   createdAt: string | Date;
   s3Url?: string;
+  verificationStatus?: 'verified' | 'warning' | 'error' | null;
+  lastVerifiedAt?: string | Date | null;
 }
 
 interface BackupStats {
@@ -695,17 +697,37 @@ function BackupCard({
             </p>
           </div>
         </div>
-        <span className={`
-          text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide font-medium
-          ${backup.backupType === "scheduled" 
-            ? "bg-blue-500/10 text-blue-400" 
-            : backup.backupType === "auto"
-            ? "bg-emerald-500/10 text-emerald-400"
-            : "bg-white/[0.06] text-white/40"
-          }
-        `}>
-          {backup.backupType}
-        </span>
+        <div className="flex items-center gap-2">
+          {/* Verification Badge */}
+          {backup.verificationStatus && (
+            <span className={`
+              text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide font-medium flex items-center gap-1
+              ${backup.verificationStatus === 'verified'
+                ? 'bg-emerald-500/10 text-emerald-400'
+                : backup.verificationStatus === 'warning'
+                ? 'bg-amber-500/10 text-amber-400'
+                : 'bg-red-500/10 text-red-400'
+              }
+            `}>
+              {backup.verificationStatus === 'verified' && <CheckCircle className="w-3 h-3" />}
+              {backup.verificationStatus === 'warning' && <AlertTriangle className="w-3 h-3" />}
+              {backup.verificationStatus === 'error' && <XCircle className="w-3 h-3" />}
+              {backup.verificationStatus === 'verified' ? 'Verified' : backup.verificationStatus}
+            </span>
+          )}
+          {/* Backup Type Badge */}
+          <span className={`
+            text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wide font-medium
+            ${backup.backupType === "scheduled" 
+              ? "bg-blue-500/10 text-blue-400" 
+              : backup.backupType === "auto"
+              ? "bg-emerald-500/10 text-emerald-400"
+              : "bg-white/[0.06] text-white/40"
+            }
+          `}>
+            {backup.backupType}
+          </span>
+        </div>
       </div>
 
       {/* Info Row */}
@@ -1580,7 +1602,7 @@ function PreviewModal({
         initial={{ opacity: 0, scale: 0.95, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
-        className="relative w-full max-w-2xl p-6 rounded-3xl bg-[#141417] border border-white/[0.08] shadow-2xl"
+        className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 rounded-3xl bg-[#141417] border border-white/[0.08] shadow-2xl"
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

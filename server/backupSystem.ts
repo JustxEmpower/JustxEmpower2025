@@ -1359,14 +1359,23 @@ export async function verifyBackup(backupId: number): Promise<VerificationResult
   details.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
 
   // Determine overall status
+  // Missing tables = tables in live DB but not in backup (e.g., new tables added after backup)
+  // This is a warning, not an error - the backup is still valid for what it contains
   let overallStatus: "verified" | "warning" | "error";
-  if (missingTables > 0) {
-    overallStatus = "error";
-  } else if (mismatchedTables > 0) {
-    overallStatus = "warning"; // Data changed since backup (normal)
+  if (mismatchedTables > 0 || missingTables > 0) {
+    overallStatus = "warning"; // Data changed since backup OR new tables added (normal)
   } else {
     overallStatus = "verified";
   }
+
+  // Save verification status to database
+  const verifiedAt = new Date();
+  await db.update(backups)
+    .set({
+      verificationStatus: overallStatus,
+      lastVerifiedAt: verifiedAt,
+    })
+    .where(eq(backups.id, backupId));
 
   return {
     backupId,
@@ -1381,7 +1390,7 @@ export async function verifyBackup(backupId: number): Promise<VerificationResult
       missingTables,
     },
     details,
-    verifiedAt: new Date().toISOString(),
+    verifiedAt: verifiedAt.toISOString(),
   };
 }
 

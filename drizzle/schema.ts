@@ -517,6 +517,8 @@ export const backups = mysqlTable("backups", {
   tablesIncluded: text("tablesIncluded"), // JSON array of table names included in backup
   createdBy: varchar("createdBy", { length: 100 }), // Admin username who created backup
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  verificationStatus: varchar("verificationStatus", { length: 20 }), // 'verified', 'warning', 'error', or null
+  lastVerifiedAt: timestamp("lastVerifiedAt"), // When the backup was last verified
 });
 
 export type Backup = typeof backups.$inferSelect;

@@ -2142,3 +2142,9 @@ NODE_ENV=production
 - [x] Change backupData column from TEXT to LONGTEXT (64KB -> 4GB limit)
 - [ ] Run database migration to apply the change
 
+
+## Backup Modal & Verification Fix (Jan 10, 2026)
+- [x] Add scrolling to backup preview modal (content gets cut off)
+- [x] Adjust verification logic - missing tables shouldn't cause failure status
+
+- [x] Add verified badge to backup cards after successful verification
