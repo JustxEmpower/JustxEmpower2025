@@ -2080,3 +2080,4 @@ NODE_ENV=production
 - [ ] Fix Resources page for dark mode
 - [ ] Fix Shop page for dark mode
 - [ ] Fix legal pages for dark mode
+- [x] Create comprehensive Shop system documentation
