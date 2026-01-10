@@ -910,6 +910,172 @@ export async function cleanupOldBackups(retentionDays: number): Promise<number> 
 }
 
 // ============================================================================
+// BACKUP VERIFICATION SYSTEM
+// ============================================================================
+
+export interface VerificationResult {
+  backupId: number;
+  backupName: string;
+  backupDate: string;
+  verified: boolean;
+  status: "verified" | "warning" | "error";
+  summary: {
+    totalTables: number;
+    matchedTables: number;
+    mismatchedTables: number;
+    missingTables: number;
+  };
+  details: Array<{
+    table: string;
+    backupCount: number;
+    liveCount: number;
+    status: "match" | "mismatch" | "missing" | "new_data";
+    difference: number;
+  }>;
+  verifiedAt: string;
+}
+
+/**
+ * Get live database counts for all tables
+ */
+export async function getLiveDatabaseCounts(): Promise<Record<string, number>> {
+  const db = await getDb();
+  if (!db) {
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+  }
+
+  const counts: Record<string, number> = {};
+
+  // Query count for each table in the registry
+  for (const [tableName, config] of Object.entries(TABLE_REGISTRY)) {
+    try {
+      const result = await db.select({ count: sql<number>`count(*)` }).from(config.schema);
+      counts[tableName] = Number(result[0]?.count || 0);
+    } catch (error) {
+      console.error(`[Verify] Failed to count ${tableName}:`, error);
+      counts[tableName] = -1; // Indicate error
+    }
+  }
+
+  return counts;
+}
+
+/**
+ * Verify backup integrity against live database
+ */
+export async function verifyBackup(backupId: number): Promise<VerificationResult> {
+  const db = await getDb();
+  if (!db) {
+    throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+  }
+
+  // Get the backup record
+  const backup = await db.select().from(backups).where(eq(backups.id, backupId)).limit(1);
+  if (backup.length === 0) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "Backup not found" });
+  }
+
+  const backupRecord = backup[0];
+  let backupData: BackupData;
+
+  // Parse backup data
+  if (backupRecord.data) {
+    backupData = typeof backupRecord.data === 'string' 
+      ? JSON.parse(backupRecord.data) 
+      : backupRecord.data as BackupData;
+  } else {
+    throw new TRPCError({ code: "BAD_REQUEST", message: "Backup has no data" });
+  }
+
+  // Get live database counts
+  const liveCounts = await getLiveDatabaseCounts();
+
+  // Compare backup counts with live counts
+  const details: VerificationResult["details"] = [];
+  let matchedTables = 0;
+  let mismatchedTables = 0;
+  let missingTables = 0;
+
+  // Get backup record counts from metadata or calculate from data
+  const backupCounts: Record<string, number> = {};
+  
+  if (backupData.metadata?.recordCounts) {
+    Object.assign(backupCounts, backupData.metadata.recordCounts);
+  } else {
+    // Calculate from actual backup data
+    for (const [tableName, records] of Object.entries(backupData.tables || {})) {
+      backupCounts[tableName] = Array.isArray(records) ? records.length : 0;
+    }
+  }
+
+  // Compare each table
+  const allTables = new Set([...Object.keys(liveCounts), ...Object.keys(backupCounts)]);
+  
+  for (const tableName of allTables) {
+    const backupCount = backupCounts[tableName] ?? -1;
+    const liveCount = liveCounts[tableName] ?? -1;
+    const difference = liveCount - backupCount;
+
+    let status: "match" | "mismatch" | "missing" | "new_data";
+    
+    if (backupCount === -1) {
+      status = "missing";
+      missingTables++;
+    } else if (liveCount === -1) {
+      status = "missing";
+      missingTables++;
+    } else if (backupCount === liveCount) {
+      status = "match";
+      matchedTables++;
+    } else if (liveCount > backupCount) {
+      status = "new_data"; // New records added since backup
+      mismatchedTables++;
+    } else {
+      status = "mismatch"; // Data deleted since backup
+      mismatchedTables++;
+    }
+
+    details.push({
+      table: tableName,
+      backupCount: backupCount === -1 ? 0 : backupCount,
+      liveCount: liveCount === -1 ? 0 : liveCount,
+      status,
+      difference,
+    });
+  }
+
+  // Sort by status (errors first, then mismatches, then matches)
+  const statusOrder = { missing: 0, mismatch: 1, new_data: 2, match: 3 };
+  details.sort((a, b) => statusOrder[a.status] - statusOrder[b.status]);
+
+  // Determine overall status
+  let overallStatus: "verified" | "warning" | "error";
+  if (missingTables > 0) {
+    overallStatus = "error";
+  } else if (mismatchedTables > 0) {
+    overallStatus = "warning"; // Data changed since backup (normal)
+  } else {
+    overallStatus = "verified";
+  }
+
+  return {
+    backupId,
+    backupName: backupRecord.name,
+    backupDate: backupRecord.createdAt.toISOString(),
+    verified: overallStatus !== "error",
+    status: overallStatus,
+    summary: {
+      totalTables: allTables.size,
+      matchedTables,
+      mismatchedTables,
+      missingTables,
+    },
+    details,
+    verifiedAt: new Date().toISOString(),
+  };
+}
+
+// ============================================================================
 // EXPORT
 // ============================================================================
 

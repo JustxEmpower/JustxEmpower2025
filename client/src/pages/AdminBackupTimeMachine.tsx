@@ -49,6 +49,8 @@ import {
   History,
   Lock,
   Unlock,
+  CheckCircle,
+  XCircle,
 } from "lucide-react";
 
 // ============================================================================
@@ -1500,6 +1502,7 @@ function PreviewModal({
 }) {
   const [previewData, setPreviewData] = useState<Record<string, number> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
 
   // Fetch actual backup data from the server
   const downloadQuery = trpc.admin.backups.download.useQuery(
@@ -1510,9 +1513,19 @@ function PreviewModal({
     }
   );
 
+  // Fetch verification data
+  const verifyQuery = trpc.admin.backups.verify.useQuery(
+    { backupId: backup?.id ?? 0 },
+    { 
+      enabled: showVerification && !!backup?.id,
+      staleTime: 30 * 1000, // Cache for 30 seconds
+    }
+  );
+
   useEffect(() => {
     if (isOpen && backup) {
       setIsLoading(true);
+      setShowVerification(false);
     }
   }, [isOpen, backup]);
 
@@ -1601,7 +1614,103 @@ function PreviewModal({
 
         {/* Content Preview */}
         <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-          <h3 className="text-sm font-medium text-white/60 mb-4">Contents</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-medium text-white/60">Contents</h3>
+            <button
+              onClick={() => setShowVerification(true)}
+              disabled={verifyQuery.isLoading}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors text-xs font-medium"
+            >
+              {verifyQuery.isLoading ? (
+                <RefreshCw className="w-3 h-3 animate-spin" />
+              ) : (
+                <Shield className="w-3 h-3" />
+              )}
+              {verifyQuery.isLoading ? 'Verifying...' : 'Verify Backup'}
+            </button>
+          </div>
+          
+          {/* Verification Results */}
+          {showVerification && verifyQuery.data && (
+            <div className="mb-4 p-4 rounded-xl border" style={{
+              backgroundColor: verifyQuery.data.status === 'verified' ? 'rgba(16, 185, 129, 0.1)' :
+                              verifyQuery.data.status === 'warning' ? 'rgba(245, 158, 11, 0.1)' :
+                              'rgba(239, 68, 68, 0.1)',
+              borderColor: verifyQuery.data.status === 'verified' ? 'rgba(16, 185, 129, 0.3)' :
+                           verifyQuery.data.status === 'warning' ? 'rgba(245, 158, 11, 0.3)' :
+                           'rgba(239, 68, 68, 0.3)'
+            }}>
+              <div className="flex items-center gap-3 mb-3">
+                {verifyQuery.data.status === 'verified' ? (
+                  <CheckCircle className="w-5 h-5 text-emerald-400" />
+                ) : verifyQuery.data.status === 'warning' ? (
+                  <AlertTriangle className="w-5 h-5 text-amber-400" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-red-400" />
+                )}
+                <div>
+                  <p className="text-sm font-medium" style={{
+                    color: verifyQuery.data.status === 'verified' ? '#34d399' :
+                           verifyQuery.data.status === 'warning' ? '#fbbf24' :
+                           '#f87171'
+                  }}>
+                    {verifyQuery.data.status === 'verified' ? 'Backup Verified ✓' :
+                     verifyQuery.data.status === 'warning' ? 'Backup Valid (Data Changed)' :
+                     'Verification Failed'}
+                  </p>
+                  <p className="text-xs text-white/40">
+                    Verified at {new Date(verifyQuery.data.verifiedAt).toLocaleTimeString()}
+                  </p>
+                </div>
+              </div>
+              
+              {/* Summary Stats */}
+              <div className="grid grid-cols-4 gap-2 mb-3">
+                <div className="p-2 rounded-lg bg-black/20">
+                  <p className="text-lg font-bold text-white/90">{verifyQuery.data.summary.totalTables}</p>
+                  <p className="text-xs text-white/40">Total Tables</p>
+                </div>
+                <div className="p-2 rounded-lg bg-black/20">
+                  <p className="text-lg font-bold text-emerald-400">{verifyQuery.data.summary.matchedTables}</p>
+                  <p className="text-xs text-white/40">Matched</p>
+                </div>
+                <div className="p-2 rounded-lg bg-black/20">
+                  <p className="text-lg font-bold text-amber-400">{verifyQuery.data.summary.mismatchedTables}</p>
+                  <p className="text-xs text-white/40">Changed</p>
+                </div>
+                <div className="p-2 rounded-lg bg-black/20">
+                  <p className="text-lg font-bold text-red-400">{verifyQuery.data.summary.missingTables}</p>
+                  <p className="text-xs text-white/40">Missing</p>
+                </div>
+              </div>
+              
+              {/* Detailed Table Comparison */}
+              <details className="text-xs">
+                <summary className="cursor-pointer text-white/60 hover:text-white/80 mb-2">View detailed comparison ({verifyQuery.data.details.length} tables)</summary>
+                <div className="max-h-48 overflow-y-auto space-y-1 mt-2">
+                  {verifyQuery.data.details.map((item: any) => (
+                    <div key={item.table} className="flex items-center justify-between p-2 rounded bg-black/20">
+                      <span className="text-white/70 capitalize">{item.table.replace(/([A-Z])/g, ' $1').trim()}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-white/40">Backup: {item.backupCount}</span>
+                        <span className="text-white/40">Live: {item.liveCount}</span>
+                        {item.status === 'match' ? (
+                          <span className="text-emerald-400">✓</span>
+                        ) : item.status === 'new_data' ? (
+                          <span className="text-amber-400">+{item.difference}</span>
+                        ) : item.status === 'mismatch' ? (
+                          <span className="text-red-400">{item.difference}</span>
+                        ) : (
+                          <span className="text-red-400">Missing</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </details>
+            </div>
+          )}
+          
           {isLoading ? (
             <div className="flex items-center justify-center py-8">
               <RefreshCw className="w-6 h-6 text-white/20 animate-spin" />

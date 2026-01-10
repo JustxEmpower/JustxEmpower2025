@@ -1749,6 +1749,25 @@ export const adminRouter = router({
         const deleted = await backupSystem.default.cleanupOldBackups(input.retentionDays);
         return { deleted };
       }),
+
+    // Verify backup integrity against live database
+    verify: adminProcedure
+      .input(z.object({
+        backupId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.verifyBackup(input.backupId);
+        return result;
+      }),
+
+    // Get current database counts for comparison
+    getLiveCounts: adminProcedure
+      .query(async () => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.getLiveDatabaseCounts();
+        return result;
+      }),
   }),
 
   // Admin Users Management
