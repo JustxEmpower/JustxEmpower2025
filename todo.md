@@ -1928,3 +1928,12 @@ NODE_ENV=production
 - [x] Element resizing - Working via Style tab controls (Min Height, Max Width, Padding)
 - [x] Element editing - Working via Content tab
 - [x] Block manipulation features verified on production (delete, move, duplicate all working)
+
+
+## Visual Resize Handles Feature (Requested Jan 10, 2026)
+
+- [ ] Add visual resize handles on selected blocks (like Photoshop/Figma)
+- [ ] Corner handles for proportional resize
+- [ ] Edge handles for width/height resize
+- [ ] Drag-to-resize functionality with real-time preview
+- [ ] Update block dimensions in store when resize completes

@@ -54,6 +54,7 @@ function buildContainerStyles(content: Record<string, unknown>): React.CSSProper
     backgroundColor: content.backgroundColor && content.backgroundColor !== '#ffffff' ? content.backgroundColor as string : undefined,
     minHeight: content.minHeight && content.minHeight !== 'auto' ? content.minHeight as string : undefined,
     maxWidth: content.maxWidth && content.maxWidth !== 'full' ? content.maxWidth as string : undefined,
+    width: content.customWidth ? content.customWidth as string : undefined,
     borderRadius: content.borderRadius && content.borderRadius !== 'none' && content.borderRadius !== '0' ? content.borderRadius as string : undefined,
     paddingTop: toSpacing(content.paddingTop as string),
     paddingBottom: toSpacing(content.paddingBottom as string),

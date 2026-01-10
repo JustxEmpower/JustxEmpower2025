@@ -20,6 +20,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Plus, Trash2, Copy, Settings } from 'lucide-react';
+import ResizeHandles from './ResizeHandles';
 import { Button } from '@/components/ui/button';
 import { usePageBuilderStore, PageBlock } from './usePageBuilderStore';
 import { getBlockById, BlockType } from './blockTypes';
@@ -144,6 +145,9 @@ function SortableBlock({
         
         {/* Click overlay to prevent interaction with block content */}
         <div className="absolute inset-0 cursor-pointer" />
+        
+        {/* Resize handles for selected blocks */}
+        <ResizeHandles blockId={block.id} isSelected={isSelected} />
       </div>
 
       {/* Add block button between blocks */}
