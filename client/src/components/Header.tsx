@@ -236,14 +236,14 @@ export default function Header() {
               {/* Dropdown Menu */}
               {link.children && openDropdown === link.label && (
                 <div 
-                  className="absolute top-full left-0 mt-2 py-2 bg-white rounded-lg shadow-lg min-w-[220px] z-50"
+                  className="absolute top-full left-0 mt-2 py-2 bg-card text-card-foreground rounded-lg shadow-lg min-w-[220px] z-50 border border-border transition-colors duration-300"
                   onMouseEnter={() => handleDropdownEnter(link.label)}
                   onMouseLeave={handleDropdownLeave}
                 >
                   {/* Child links */}
                   {link.children.map((child: NavItem) => (
                     <Link key={child.href + child.label} href={child.href}>
-                      <a className="block px-4 py-2 text-sm text-foreground hover:bg-neutral-100 transition-colors">
+                      <a className="block px-4 py-2 text-sm text-card-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
                         {child.label}
                       </a>
                     </Link>

@@ -2075,3 +2075,4 @@ NODE_ENV=production
 - [x] Define light and dark CSS variables
 - [x] Update all pages to use theme-aware styles
 - [ ] Test theme switching across entire site
+- [x] Fix dropdown menus for light/dark mode theme awareness
