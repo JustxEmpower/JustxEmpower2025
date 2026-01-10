@@ -2149,3 +2149,4 @@ NODE_ENV=production
 
 - [x] Add verified badge to backup cards after successful verification
 - [x] Add verified badge to timeline view backup cards
+- [x] Fix JE Section Standard block image to have curved/rounded corners

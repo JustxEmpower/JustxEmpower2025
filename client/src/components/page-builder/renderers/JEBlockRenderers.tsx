@@ -926,28 +926,30 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
             {imageUrl ? (
               <div 
                 ref={imageRef}
-                className="relative overflow-hidden"
+                className="relative overflow-hidden shadow-2xl shadow-black/10"
                 style={{
                   borderRadius: content.imageBorderRadius || '2rem',
                   width: '100%',
                   maxWidth: content.imageMaxWidth || '100%',
+                  aspectRatio: '3/4',
                 }}
               >
                 <img
                   src={imageUrl}
                   alt={content.imageAlt || 'Section image'}
-                  className="will-change-transform"
+                  className="will-change-transform w-full h-full"
                   style={{
-                    width: '100%',
-                    height: 'auto',
                     objectFit: (content.imageObjectFit as any) || 'cover',
+                    borderRadius: content.imageBorderRadius || '2rem',
                   }}
                   onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
                 />
+                {/* Artistic Overlay like original Section */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 opacity-60 pointer-events-none" style={{ borderRadius: content.imageBorderRadius || '2rem' }} />
               </div>
             ) : (
               <div 
-                className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+                className="aspect-[3/4] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center shadow-2xl shadow-black/10"
                 style={{ borderRadius: content.imageBorderRadius || '2rem' }}
               >
                 <span className="text-neutral-400">Add an image</span>
