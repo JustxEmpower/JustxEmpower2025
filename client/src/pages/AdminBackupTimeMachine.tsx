@@ -12,8 +12,11 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { trpc } from "@/lib/trpc";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import AdminSidebar from "@/components/AdminSidebar";
 import { format, formatDistanceToNow, parseISO, isValid } from "date-fns";
 import {
   Clock,
@@ -144,6 +147,16 @@ const safeFormatDistanceToNow = (value: string | Date | null | undefined, option
 // ============================================================================
 
 export default function AdminBackupTimeMachine() {
+  const [location, setLocation] = useLocation();
+  const { isAuthenticated, isChecking } = useAdminAuth();
+
+  // Redirect to login if not authenticated
+  useEffect(() => {
+    if (!isChecking && !isAuthenticated) {
+      setLocation("/admin/login");
+    }
+  }, [isAuthenticated, isChecking, setLocation]);
+
   // State
   const [selectedBackup, setSelectedBackup] = useState<Backup | null>(null);
   const [viewMode, setViewMode] = useState<"timeline" | "list" | "analytics">("timeline");
@@ -251,8 +264,25 @@ export default function AdminBackupTimeMachine() {
   // RENDER
   // ============================================================================
 
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-stone-50">
+        <p className="text-stone-500">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-[#0a0a0b] text-white overflow-hidden">
+    <div className="flex min-h-screen bg-stone-50">
+      {/* Admin Sidebar */}
+      <AdminSidebar variant="dark" />
+
+      {/* Main Content */}
+      <div className="flex-1 bg-[#0a0a0b] text-white overflow-hidden">
       {/* Ambient Background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-purple-500/5 rounded-full blur-[120px]" />
@@ -284,7 +314,7 @@ export default function AdminBackupTimeMachine() {
                 </div>
               </motion.div>
               <div>
-                <h1 className="text-2xl font-semibold tracking-tight">Time Machine</h1>
+                <h1 className="text-2xl font-semibold tracking-tight">Just Empower Time Machine</h1>
                 <p className="text-sm text-white/40 mt-0.5">
                   {stats.totalBackups} restore points • {formatBytes(stats.totalSize)} total
                 </p>
@@ -436,6 +466,7 @@ export default function AdminBackupTimeMachine() {
         onClose={() => setIsPreviewModalOpen(false)}
         backup={selectedBackup}
       />
+      </div>
     </div>
   );
 }

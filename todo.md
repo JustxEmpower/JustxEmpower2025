@@ -2058,3 +2058,4 @@ NODE_ENV=production
 
 ## Bug Fix: Admin Backup Page TypeError (Jan 10, 2026)
 - [x] Fix TypeError: t.split is not a function in date-fns on backup page
+- [x] Integrate Time Machine backup page with admin sidebar navigation
