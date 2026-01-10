@@ -1924,7 +1924,7 @@ NODE_ENV=production
 
 ## Page Builder JE Block Issues (Reported Jan 10, 2026)
 
-- [ ] JE Heading text editing not working - "heading text" doesn't change
-- [ ] Element resizing not working
-- [ ] Element editing not working
-- [ ] Need to verify all JE block manipulation features on production
+- [x] JE Heading text editing not working - Fixed: Changed renderer to use 'title' field instead of 'text'
+- [x] Element resizing - Working via Style tab controls (Min Height, Max Width, Padding)
+- [x] Element editing - Working via Content tab
+- [x] Block manipulation features verified on production (delete, move, duplicate all working)
