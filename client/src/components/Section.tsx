@@ -161,8 +161,8 @@ export default function Section({
     <section 
       ref={sectionRef}
       className={cn(
-        "relative py-32 md:py-48 overflow-hidden",
-        dark ? "bg-[#f5f5f0]" : "bg-background" // Warmer off-white for dark mode alternative
+        "relative py-32 md:py-48 overflow-hidden transition-colors duration-300",
+        dark ? "bg-secondary" : "bg-background"
       )}
     >
       <div className="container mx-auto px-6 md:px-12">

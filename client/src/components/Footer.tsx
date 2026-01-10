@@ -78,7 +78,7 @@ export default function Footer() {
   const column2Title = footer.column2Title || 'Connect';
 
   return (
-    <footer className="bg-[#1a1a1a] text-white pt-24 pb-12">
+    <footer className="bg-foreground text-background pt-24 pb-12 transition-colors duration-300">
       <div className="container mx-auto px-6 md:px-12">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-16 mb-24">
           
@@ -93,7 +93,7 @@ export default function Footer() {
               />
             </a>
             </Link>
-            <p className="font-sans text-white/60 text-sm leading-relaxed max-w-xs mb-8">
+            <p className="font-sans text-background/60 text-sm leading-relaxed max-w-xs mb-8">
               {tagline}
             </p>
             <div className="flex gap-4">
@@ -102,7 +102,7 @@ export default function Footer() {
                   href={instagramUrl} 
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300"
+                  className="w-10 h-10 border border-background/20 rounded-full flex items-center justify-center hover:bg-background hover:text-foreground transition-colors duration-300"
                 >
                   IG
                 </a>
@@ -112,7 +112,7 @@ export default function Footer() {
                   href={linkedinUrl}
                   target="_blank"
                   rel="noopener noreferrer" 
-                  className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300"
+                  className="w-10 h-10 border border-background/20 rounded-full flex items-center justify-center hover:bg-background hover:text-foreground transition-colors duration-300"
                 >
                   LI
                 </a>
@@ -122,7 +122,7 @@ export default function Footer() {
                   href={facebookUrl}
                   target="_blank"
                   rel="noopener noreferrer" 
-                  className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300"
+                  className="w-10 h-10 border border-background/20 rounded-full flex items-center justify-center hover:bg-background hover:text-foreground transition-colors duration-300"
                 >
                   FB
                 </a>
@@ -132,7 +132,7 @@ export default function Footer() {
                   href={youtubeUrl}
                   target="_blank"
                   rel="noopener noreferrer" 
-                  className="w-10 h-10 border border-white/20 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300"
+                  className="w-10 h-10 border border-background/20 rounded-full flex items-center justify-center hover:bg-background hover:text-foreground transition-colors duration-300"
                 >
                   YT
                 </a>
@@ -149,12 +149,12 @@ export default function Footer() {
 
           {/* Links Column 1 - Explore */}
           <div className="md:col-span-2 md:col-start-7">
-            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">{column1Title}</h3>
+            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-background/40 mb-8">{column1Title}</h3>
             <ul className="space-y-4">
               {displayExploreLinks.map((item: any) => (
                 <li key={item.url}>
                   <Link href={item.url}>
-                    <a className="font-serif text-lg text-white/80 hover:text-white hover:italic transition-all duration-300">
+                    <a className="font-serif text-lg text-background/80 hover:text-background hover:italic transition-all duration-300">
                       {item.label}
                     </a>
                   </Link>
@@ -165,12 +165,12 @@ export default function Footer() {
 
           {/* Links Column 2 - Connect */}
           <div className="md:col-span-2">
-            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">{column2Title}</h3>
+            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-background/40 mb-8">{column2Title}</h3>
             <ul className="space-y-4">
               {displayConnectLinks.map((item: any) => (
                 <li key={item.url}>
                   <Link href={item.url}>
-                    <a className="font-serif text-lg text-white/80 hover:text-white hover:italic transition-all duration-300">
+                    <a className="font-serif text-lg text-background/80 hover:text-background hover:italic transition-all duration-300">
                       {item.label}
                     </a>
                   </Link>
@@ -181,8 +181,8 @@ export default function Footer() {
 
           {/* Newsletter Column */}
           <div className="md:col-span-2">
-            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-white/40 mb-8">{newsletterTitle}</h3>
-            <p className="font-sans text-white/60 text-sm mb-4">
+            <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-background/40 mb-8">{newsletterTitle}</h3>
+            <p className="font-sans text-background/60 text-sm mb-4">
               {newsletterDescription}
             </p>
             <NewsletterSignup variant="footer" />
@@ -191,14 +191,14 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40">
+        <div className="border-t border-background/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="font-sans text-[10px] uppercase tracking-[0.1em] text-background/40">
             {copyright}
           </p>
           <div className="flex flex-wrap justify-center gap-4 md:gap-8">
             {displayLegalLinks.map((item: any) => (
               <Link key={item.url} href={item.url}>
-                <a className="font-sans text-[10px] uppercase tracking-[0.1em] text-white/40 hover:text-white transition-colors">
+                <a className="font-sans text-[10px] uppercase tracking-[0.1em] text-background/40 hover:text-background transition-colors">
                   {item.label}
                 </a>
               </Link>

@@ -2070,3 +2070,8 @@ NODE_ENV=production
 - [x] Add dynamic backup verification system
 - [x] Show verification status in backup UI
 - [x] Compare backup counts vs live database counts
+- [x] Create theme context and provider
+- [x] Add theme toggle to header navigation
+- [x] Define light and dark CSS variables
+- [x] Update all pages to use theme-aware styles
+- [ ] Test theme switching across entire site

@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface NavPage {
   id: number;
@@ -252,6 +253,9 @@ export default function Header() {
             </div>
           ))}
           
+          {/* Theme Toggle */}
+          <ThemeToggle isScrolled={isScrolled} />
+          
           {/* Button Navigation Items (CTA buttons) */}
           {buttonNavItems.map((link) => (
             <Link key={link.href + link.label} href={link.href}>
@@ -337,6 +341,12 @@ export default function Header() {
                 )}
               </div>
             ))}
+            
+            {/* Theme Toggle - Mobile */}
+            <div className="mt-6 flex flex-col items-center gap-2">
+              <span className="text-sm text-foreground/60 uppercase tracking-wider">Theme</span>
+              <ThemeToggle isMobileMenu={true} />
+            </div>
             
             {/* Button Navigation Items (CTA buttons) - Mobile */}
             {buttonNavItems.map((link) => (

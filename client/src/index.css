@@ -86,33 +86,39 @@
 }
 
 .dark {
-  --background: #1a1a1a;
-  --foreground: #FFFFFF;
+  --background: #0f0f0f;
+  --foreground: #f5f5f5;
   
-  --primary: #D4AF37;
-  --primary-foreground: #FFFFFF;
+  --primary: #E5C158; /* Brighter gold for dark mode */
+  --primary-foreground: #0f0f0f;
   
-  --secondary: #2C2C2C;
-  --secondary-foreground: #FFFFFF;
+  --secondary: #1a1a1a;
+  --secondary-foreground: #f5f5f5;
   
-  --muted: #333333;
-  --muted-foreground: #A1A1AA;
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
   
-  --accent: #2C2C2C;
-  --accent-foreground: #FFFFFF;
+  --accent: #1f1f1f;
+  --accent-foreground: #f5f5f5;
   
-  --card: #1a1a1a;
-  --card-foreground: #FFFFFF;
+  --card: #141414;
+  --card-foreground: #f5f5f5;
   
-  --popover: #1a1a1a;
-  --popover-foreground: #FFFFFF;
+  --popover: #141414;
+  --popover-foreground: #f5f5f5;
   
   --destructive: #ef4444;
   --destructive-foreground: #FFFFFF;
   
-  --border: #333333;
-  --input: #333333;
-  --ring: #D4AF37;
+  --border: #2a2a2a;
+  --input: #2a2a2a;
+  --ring: #E5C158;
+  
+  /* Dark mode specific overrides */
+  --theme-background: #0f0f0f;
+  --theme-text: #f5f5f5;
+  --theme-secondary: #1a1a1a;
+  --theme-accent: #1f1f1f;
 }
 
 @layer base {

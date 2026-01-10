@@ -156,7 +156,7 @@ function App() {
   return (
     <ErrorBoundary>
       <CartProvider>
-      <ThemeProvider defaultTheme="light">
+      <ThemeProvider defaultTheme="light" switchable={true}>
         <FontProvider>
         <TooltipProvider>
           <Toaster />
