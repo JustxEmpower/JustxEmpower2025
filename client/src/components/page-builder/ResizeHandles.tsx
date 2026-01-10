@@ -109,10 +109,10 @@ export default function ResizeHandles({ blockId, isSelected }: ResizeHandlesProp
 
   if (!isSelected) return null;
 
-  const handleStyle = "absolute bg-white border-2 border-primary rounded-sm shadow-md z-50 hover:bg-primary hover:border-primary transition-colors";
-  const cornerSize = "w-3 h-3";
-  const edgeHorizontal = "w-6 h-2";
-  const edgeVertical = "w-2 h-6";
+  const handleStyle = "absolute bg-blue-500 border-2 border-white rounded-full shadow-lg z-[100] hover:bg-blue-600 hover:scale-110 transition-all";
+  const cornerSize = "w-4 h-4";
+  const edgeHorizontal = "w-8 h-3";
+  const edgeVertical = "w-3 h-8";
 
   return (
     <div ref={containerRef} className="absolute inset-0 pointer-events-none">
