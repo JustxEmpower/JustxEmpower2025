@@ -1519,8 +1519,18 @@ function PreviewModal({
     { 
       enabled: showVerification && !!backup?.id,
       staleTime: 30 * 1000, // Cache for 30 seconds
+      retry: 1,
     }
   );
+
+  // Handle verify button click - refetch if already cached
+  const handleVerifyClick = async () => {
+    setShowVerification(true);
+    // If we already have data, refetch to get fresh results
+    if (verifyQuery.data) {
+      await verifyQuery.refetch();
+    }
+  };
 
   useEffect(() => {
     if (isOpen && backup) {
@@ -1617,21 +1627,62 @@ function PreviewModal({
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-white/60">Contents</h3>
             <button
-              onClick={() => setShowVerification(true)}
-              disabled={verifyQuery.isLoading}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors text-xs font-medium"
+              onClick={handleVerifyClick}
+              disabled={verifyQuery.isLoading || verifyQuery.isFetching}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20 transition-colors text-xs font-medium disabled:opacity-50"
             >
-              {verifyQuery.isLoading ? (
+              {(verifyQuery.isLoading || verifyQuery.isFetching) ? (
                 <RefreshCw className="w-3 h-3 animate-spin" />
+              ) : verifyQuery.data?.status === 'verified' ? (
+                <CheckCircle className="w-3 h-3" />
+              ) : verifyQuery.data?.status === 'warning' ? (
+                <AlertTriangle className="w-3 h-3" />
+              ) : verifyQuery.data?.status === 'error' ? (
+                <XCircle className="w-3 h-3" />
               ) : (
                 <Shield className="w-3 h-3" />
               )}
-              {verifyQuery.isLoading ? 'Verifying...' : 'Verify Backup'}
+              {(verifyQuery.isLoading || verifyQuery.isFetching) ? 'Verifying...' : 
+               verifyQuery.data ? 'Re-verify' : 'Verify Backup'}
             </button>
           </div>
           
+          {/* Verification Loading State */}
+          {showVerification && (verifyQuery.isLoading || verifyQuery.isFetching) && (
+            <div className="mb-4 p-4 rounded-xl border bg-blue-500/10 border-blue-500/30">
+              <div className="flex items-center gap-3">
+                <RefreshCw className="w-5 h-5 text-blue-400 animate-spin" />
+                <div>
+                  <p className="text-sm font-medium text-blue-400">Verifying Backup...</p>
+                  <p className="text-xs text-white/40">Comparing backup data with live database</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Verification Error State */}
+          {showVerification && verifyQuery.isError && !verifyQuery.isFetching && (
+            <div className="mb-4 p-4 rounded-xl border bg-red-500/10 border-red-500/30">
+              <div className="flex items-center gap-3">
+                <XCircle className="w-5 h-5 text-red-400" />
+                <div>
+                  <p className="text-sm font-medium text-red-400">Verification Failed</p>
+                  <p className="text-xs text-white/40">
+                    {verifyQuery.error?.message || 'Unable to verify backup. Please try again.'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={handleVerifyClick}
+                className="mt-3 px-3 py-1.5 rounded-lg bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-colors text-xs font-medium"
+              >
+                Retry Verification
+              </button>
+            </div>
+          )}
+
           {/* Verification Results */}
-          {showVerification && verifyQuery.data && (
+          {showVerification && verifyQuery.data && !verifyQuery.isFetching && (
             <div className="mb-4 p-4 rounded-xl border" style={{
               backgroundColor: verifyQuery.data.status === 'verified' ? 'rgba(16, 185, 129, 0.1)' :
                               verifyQuery.data.status === 'warning' ? 'rgba(245, 158, 11, 0.1)' :
