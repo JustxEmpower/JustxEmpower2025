@@ -128,19 +128,26 @@ interface ProductCardProps {
   };
 }
 
+// Safe JSON parse helper for product images
+function safeParseImages(images: string | string[] | null | undefined): string[] {
+  if (!images) return [];
+  if (Array.isArray(images)) return images;
+  if (typeof images !== 'string' || !images.trim() || images === 'null') return [];
+  try {
+    const parsed = JSON.parse(images);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    console.warn('[ProductCard] Failed to parse images:', images?.substring?.(0, 50));
+    return [];
+  }
+}
+
 function ProductCard({ product }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const [imageError, setImageError] = useState(false);
   
-  // Safely parse images JSON
-  let images: string[] = [];
-  try {
-    if (product.images && typeof product.images === 'string' && product.images.trim()) {
-      images = JSON.parse(product.images);
-    }
-  } catch (e) {
-    console.warn('Failed to parse product images:', product.images);
-    images = [];
-  }
+  // Safely parse images using helper
+  const images = safeParseImages(product.images);
   const mainImage = images[0] || "/placeholder-product.jpg";
   const hoverImage = images[1] || mainImage;
   
@@ -156,11 +163,19 @@ function ProductCard({ product }: ProductCardProps) {
       >
         {/* Product Image */}
         <div className="aspect-square bg-muted overflow-hidden">
-          <img
-            src={isHovered ? hoverImage : mainImage}
-            alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-          />
+          {imageError ? (
+            <div className="w-full h-full flex items-center justify-center bg-muted">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">No Image</span>
+            </div>
+          ) : (
+            <img
+              src={isHovered ? hoverImage : mainImage}
+              alt={product.name}
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              onError={() => setImageError(true)}
+              loading="lazy"
+            />
+          )}
         </div>
         
         {/* Product Code Overlay - Yeezy Style */}

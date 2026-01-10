@@ -185,9 +185,9 @@ function CheckoutForm() {
 
   if (cart.length === 0 && step !== "complete") {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold mb-4">Your cart is empty</h1>
+          <h1 className="text-2xl font-semibold text-foreground mb-4">Your cart is empty</h1>
           <Link href="/shop">
             <Button>Continue Shopping</Button>
           </Link>
@@ -198,14 +198,14 @@ function CheckoutForm() {
 
   if (step === "complete") {
     return (
-      <div className="min-h-screen bg-[var(--theme-background)] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center max-w-md">
           <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-          <h1 className="text-2xl font-semibold mb-2">Order Confirmed!</h1>
+          <h1 className="text-2xl font-semibold text-foreground mb-2">Order Confirmed!</h1>
           {orderNumber && (
-            <p className="text-lg font-medium text-stone-700 mb-2">Order #{orderNumber}</p>
+            <p className="text-lg font-medium text-foreground mb-2">Order #{orderNumber}</p>
           )}
-          <p className="text-stone-600 mb-6">
+          <p className="text-muted-foreground mb-6">
             Thank you for your purchase. You will receive a confirmation email shortly.
           </p>
           <Link href="/shop">
@@ -217,9 +217,9 @@ function CheckoutForm() {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--theme-background)]">
+    <div className="min-h-screen bg-background transition-colors duration-300">
       <div className="container mx-auto px-4 py-8">
-        <Link href="/shop" className="inline-flex items-center text-stone-600 hover:text-stone-900 mb-8">
+        <Link href="/shop" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8">
           <ChevronLeft className="h-4 w-4 mr-1" />
           Back to Shop
         </Link>
@@ -227,16 +227,16 @@ function CheckoutForm() {
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Checkout Form */}
           <div>
-            <h1 className="text-3xl font-serif mb-8">Checkout</h1>
+            <h1 className="text-3xl font-serif text-foreground mb-8">Checkout</h1>
 
             {/* Progress Steps */}
             <div className="flex items-center gap-4 mb-8">
-              <div className={`flex items-center gap-2 ${step === "shipping" ? "text-black" : "text-stone-400"}`}>
+              <div className={`flex items-center gap-2 ${step === "shipping" ? "text-foreground" : "text-muted-foreground"}`}>
                 <span className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium">1</span>
                 <span>Shipping</span>
               </div>
-              <div className="flex-1 h-px bg-stone-200" />
-              <div className={`flex items-center gap-2 ${step === "payment" ? "text-black" : "text-stone-400"}`}>
+              <div className="flex-1 h-px bg-border" />
+              <div className={`flex items-center gap-2 ${step === "payment" ? "text-foreground" : "text-muted-foreground"}`}>
                 <span className="w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium">2</span>
                 <span>Payment</span>
               </div>
@@ -415,12 +415,12 @@ function CheckoutForm() {
               <CardContent className="space-y-4">
                 {cart.map((item) => (
                   <div key={item.id} className="flex gap-4">
-                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-stone-100">
+                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted">
                       <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1">
                       <h4 className="font-medium text-sm">{item.name}</h4>
-                      <p className="text-sm text-stone-500">Qty: {item.quantity}</p>
+                      <p className="text-sm text-muted-foreground">Qty: {item.quantity}</p>
                     </div>
                     <span className="font-medium">{formatPrice(item.price * item.quantity)}</span>
                   </div>

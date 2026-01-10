@@ -39,6 +39,20 @@ function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
 }
 
+// Safe JSON parse with default fallback - prevents crashes from malformed data
+function safeJsonParse<T>(jsonString: string | null | undefined, defaultValue: T): T {
+  if (!jsonString || jsonString === '' || jsonString === 'null' || jsonString === 'undefined') {
+    return defaultValue;
+  }
+  try {
+    const parsed = JSON.parse(jsonString);
+    return parsed as T;
+  } catch (error) {
+    console.error('[ShopRouter] JSON parse error:', error, 'Input:', jsonString?.substring(0, 100));
+    return defaultValue;
+  }
+}
+
 export const shopRouter = router({
   // Get all active products with filtering
   products: router({
@@ -111,8 +125,8 @@ export const shopRouter = router({
         return {
           products: result.map((p: Product) => ({
             ...p,
-            images: p.images ? JSON.parse(p.images) : [],
-            tags: p.tags ? JSON.parse(p.tags) : [],
+            images: safeJsonParse<string[]>(p.images, []),
+            tags: safeJsonParse<string[]>(p.tags, []),
             formattedPrice: formatPrice(p.price),
             formattedCompareAtPrice: p.compareAtPrice ? formatPrice(p.compareAtPrice) : null,
           })),
@@ -137,9 +151,9 @@ export const shopRouter = router({
         
         return {
           ...product,
-          images: product.images ? JSON.parse(product.images) : [],
-          tags: product.tags ? JSON.parse(product.tags) : [],
-          dimensions: product.dimensions ? JSON.parse(product.dimensions) : null,
+          images: safeJsonParse<string[]>(product.images, []),
+          tags: safeJsonParse<string[]>(product.tags, []),
+          dimensions: safeJsonParse<Record<string, number>>(product.dimensions, {}),
           formattedPrice: formatPrice(product.price),
           formattedCompareAtPrice: product.compareAtPrice ? formatPrice(product.compareAtPrice) : null,
         };
@@ -154,9 +168,11 @@ export const shopRouter = router({
         if (!product) throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
         return {
           ...product,
-          images: product.images ? JSON.parse(product.images) : [],
-          tags: product.tags ? JSON.parse(product.tags) : [],
+          images: safeJsonParse<string[]>(product.images, []),
+          tags: safeJsonParse<string[]>(product.tags, []),
+          dimensions: safeJsonParse<Record<string, number>>(product.dimensions, {}),
           formattedPrice: formatPrice(product.price),
+          formattedCompareAtPrice: product.compareAtPrice ? formatPrice(product.compareAtPrice) : null,
         };
       }),
   }),
@@ -178,7 +194,7 @@ export const shopRouter = router({
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
         const [cart] = await db.select().from(shoppingCarts).where(eq(shoppingCarts.sessionId, input.sessionId));
         if (!cart) return { items: [], subtotal: 0, discountAmount: 0, total: 0 };
-        const items = cart.items ? JSON.parse(cart.items) : [];
+        const items = safeJsonParse<any[]>(cart.items, []);
         const subtotal = cart.subtotal || 0;
         const discountAmount = cart.discountAmount || 0;
         return {
@@ -286,7 +302,7 @@ export const shopRouter = router({
         const [cart] = await db.select().from(shoppingCarts).where(eq(shoppingCarts.sessionId, sessionId));
         if (!cart) throw new TRPCError({ code: "NOT_FOUND", message: "Cart not found" });
         
-        const items = cart.items ? JSON.parse(cart.items) : [];
+        const items = safeJsonParse<any[]>(cart.items, []);
         if (items.length === 0) throw new TRPCError({ code: "BAD_REQUEST", message: "Cart is empty" });
         
         const subtotal = cart.subtotal || 0;
@@ -345,7 +361,7 @@ export const shopRouter = router({
         const [cart] = await db.select().from(shoppingCarts).where(eq(shoppingCarts.sessionId, sessionId));
         if (!cart) throw new TRPCError({ code: "NOT_FOUND", message: "Cart not found" });
         
-        const items = cart.items ? JSON.parse(cart.items) : [];
+        const items = safeJsonParse<any[]>(cart.items, []);
         const subtotal = cart.subtotal || 0;
         const discountAmount = cart.discountAmount || 0;
         const shippingAmount = subtotal >= 10000 ? 0 : 1000;

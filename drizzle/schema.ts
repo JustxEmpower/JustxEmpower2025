@@ -574,6 +574,8 @@ export const products = mysqlTable("products", {
   metaDescription: text("metaDescription"),
   status: mysqlEnum("status", ["draft", "active", "archived"]).default("draft").notNull(),
   isFeatured: int("isFeatured").default(0).notNull(),
+  deletedAt: timestamp("deletedAt"), // Soft delete timestamp
+  archivedReason: varchar("archivedReason", { length: 255 }), // Reason for archiving
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -1066,3 +1068,38 @@ export const contentTextStyles = mysqlTable("contentTextStyles", {
 
 export type ContentTextStyle = typeof contentTextStyles.$inferSelect;
 export type InsertContentTextStyle = typeof contentTextStyles.$inferInsert;
+
+
+/**
+ * Inventory Reservations - holds stock during checkout process
+ * Prevents overselling by temporarily reserving inventory
+ */
+export const inventoryReservations = mysqlTable("inventoryReservations", {
+  id: int("id").autoincrement().primaryKey(),
+  productId: int("productId").notNull(),
+  variantId: int("variantId"),
+  sessionId: varchar("sessionId", { length: 255 }).notNull(),
+  quantity: int("quantity").notNull(),
+  expiresAt: timestamp("expiresAt").notNull(), // 15-minute hold
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type InventoryReservation = typeof inventoryReservations.$inferSelect;
+export type InsertInventoryReservation = typeof inventoryReservations.$inferInsert;
+
+/**
+ * Cart Sync Log - for debugging cart synchronization issues
+ * Tracks merge, push, pull, and conflict resolution events
+ */
+export const cartSyncLog = mysqlTable("cartSyncLog", {
+  id: int("id").autoincrement().primaryKey(),
+  sessionId: varchar("sessionId", { length: 255 }).notNull(),
+  action: mysqlEnum("action", ["merge", "push", "pull", "conflict"]).notNull(),
+  beforeState: text("beforeState"),
+  afterState: text("afterState"),
+  resolved: text("resolved"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CartSyncLog = typeof cartSyncLog.$inferSelect;
+export type InsertCartSyncLog = typeof cartSyncLog.$inferInsert;

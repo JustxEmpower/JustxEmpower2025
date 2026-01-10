@@ -20,20 +20,20 @@ export default function ProductDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="w-8 h-8 border border-neutral-200 border-t-black rounded-full animate-spin" />
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="w-8 h-8 border border-border border-t-foreground rounded-full animate-spin" />
       </div>
     );
   }
 
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center">
-        <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-400 mb-8">
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center">
+        <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground mb-8">
           Product not found
         </p>
         <Link href="/shop">
-          <span className="text-[11px] uppercase tracking-[0.2em] text-black hover:text-neutral-600 transition-colors">
+          <span className="text-[11px] uppercase tracking-[0.2em] text-foreground hover:text-muted-foreground transition-colors">
             ← Back to Shop
           </span>
         </Link>
@@ -42,16 +42,19 @@ export default function ProductDetail() {
   }
 
   // Safely parse images JSON with error handling
-  let images: string[] = [];
-  try {
-    if (product.images) {
-      const parsed = JSON.parse(product.images as string);
-      images = Array.isArray(parsed) ? parsed : [];
+  const parseImages = (imgData: string | string[] | null | undefined): string[] => {
+    if (!imgData) return [];
+    if (Array.isArray(imgData)) return imgData;
+    if (typeof imgData !== 'string' || !imgData.trim() || imgData === 'null') return [];
+    try {
+      const parsed = JSON.parse(imgData);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+      console.warn('[ProductDetail] Failed to parse images:', imgData?.substring?.(0, 50));
+      return [];
     }
-  } catch (e) {
-    console.warn('Failed to parse product images:', e);
-    images = [];
-  }
+  };
+  const images = parseImages(product.images as string);
   const mainImage = images[selectedImage] || "/placeholder-product.jpg";
   const isOutOfStock = product.stock != null && product.stock <= 0;
   
@@ -74,24 +77,24 @@ export default function ProductDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Minimal Top Bar */}
-      <div className="fixed top-20 left-0 right-0 z-40 bg-white border-b border-neutral-100">
+      <div className="fixed top-20 left-0 right-0 z-40 bg-background border-b border-border">
         <div className="flex items-center justify-between px-6 py-3">
           <Link href="/shop">
-            <span className="text-[11px] uppercase tracking-[0.2em] text-neutral-400 hover:text-black transition-colors flex items-center gap-2">
+            <span className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2">
               <ChevronLeft className="w-3 h-3" />
               Back
             </span>
           </Link>
           
-          <span className="text-[11px] uppercase tracking-[0.3em] text-black font-medium">
+          <span className="text-[11px] uppercase tracking-[0.3em] text-foreground font-medium">
             {productCode}
           </span>
           
           <button
             onClick={() => setCartOpen(true)}
-            className="text-[11px] uppercase tracking-[0.2em] text-neutral-600 hover:text-black transition-colors flex items-center gap-2"
+            className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
           >
             <ShoppingBag className="w-4 h-4" />
             {getCartCount() > 0 && <span>{getCartCount()}</span>}
@@ -106,7 +109,7 @@ export default function ProductDetail() {
           <div className="relative">
             {/* Main Image */}
             <div className="sticky top-32 h-[calc(100vh-200px)]">
-              <div className="h-full bg-neutral-50 flex items-center justify-center p-8">
+              <div className="h-full bg-muted flex items-center justify-center p-8">
                 <img
                   src={mainImage}
                   alt={product.name}
@@ -122,7 +125,7 @@ export default function ProductDetail() {
                       key={idx}
                       onClick={() => setSelectedImage(idx)}
                       className={`w-2 h-2 rounded-full transition-colors ${
-                        selectedImage === idx ? "bg-black" : "bg-neutral-300 hover:bg-neutral-400"
+                        selectedImage === idx ? "bg-foreground" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
                       }`}
                     />
                   ))}
@@ -134,32 +137,32 @@ export default function ProductDetail() {
           {/* Product Info - Right Side */}
           <div className="flex flex-col justify-center px-8 lg:px-16 py-12">
             {/* Product Name */}
-            <h1 className="text-[11px] uppercase tracking-[0.3em] text-black mb-2">
+            <h1 className="text-[11px] uppercase tracking-[0.3em] text-foreground mb-2">
               {product.name}
             </h1>
             
             {/* Price */}
-            <p className="text-[11px] uppercase tracking-[0.2em] text-neutral-500 mb-12">
+            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground mb-12">
               {formatPrice(product.price)}
             </p>
             
             {/* Description */}
             {product.description && (
-              <p className="text-[12px] leading-relaxed text-neutral-600 mb-12 max-w-md">
+              <p className="text-[12px] leading-relaxed text-muted-foreground mb-12 max-w-md">
                 {product.description}
               </p>
             )}
             
             {/* Size/Variant Selector - Placeholder */}
             <div className="mb-8">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-4">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-4">
                 Select Size
               </p>
               <div className="flex flex-wrap gap-2">
                 {['XS', 'S', 'M', 'L', 'XL'].map((size) => (
                   <button
                     key={size}
-                    className="w-12 h-12 border border-neutral-200 text-[11px] uppercase tracking-[0.1em] hover:border-black transition-colors"
+                    className="w-12 h-12 border border-border text-[11px] uppercase tracking-[0.1em] text-foreground hover:border-foreground transition-colors"
                   >
                     {size}
                   </button>
@@ -169,14 +172,14 @@ export default function ProductDetail() {
             
             {/* Quantity */}
             <div className="mb-8">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-neutral-400 mb-4">
+              <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-4">
                 Quantity
               </p>
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   disabled={isOutOfStock}
-                  className="w-10 h-10 border border-neutral-200 flex items-center justify-center hover:border-black transition-colors disabled:opacity-50"
+                  className="w-10 h-10 border border-border text-foreground flex items-center justify-center hover:border-foreground transition-colors disabled:opacity-50"
                 >
                   <Minus className="w-3 h-3" />
                 </button>
@@ -186,7 +189,7 @@ export default function ProductDetail() {
                 <button
                   onClick={() => setQuantity(quantity + 1)}
                   disabled={isOutOfStock || (product.stock != null && quantity >= product.stock)}
-                  className="w-10 h-10 border border-neutral-200 flex items-center justify-center hover:border-black transition-colors disabled:opacity-50"
+                  className="w-10 h-10 border border-border text-foreground flex items-center justify-center hover:border-foreground transition-colors disabled:opacity-50"
                 >
                   <Plus className="w-3 h-3" />
                 </button>
@@ -199,8 +202,8 @@ export default function ProductDetail() {
               disabled={isOutOfStock}
               className={`w-full py-4 text-[11px] uppercase tracking-[0.2em] transition-colors ${
                 isOutOfStock
-                  ? "bg-neutral-100 text-neutral-400 cursor-not-allowed"
-                  : "bg-black text-white hover:bg-neutral-800"
+                  ? "bg-muted text-muted-foreground cursor-not-allowed"
+                  : "bg-foreground text-background hover:bg-foreground/90"
               }`}
             >
               {isOutOfStock ? "Sold Out" : "Add to Bag"}
@@ -208,19 +211,19 @@ export default function ProductDetail() {
             
             {/* Stock Status */}
             {!isOutOfStock && product.stock && product.stock < 10 && (
-              <p className="text-[10px] uppercase tracking-[0.15em] text-neutral-400 mt-4 text-center">
+              <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mt-4 text-center">
                 Only {product.stock} left
               </p>
             )}
             
             {/* Additional Info */}
-            <div className="mt-16 pt-8 border-t border-neutral-100">
+            <div className="mt-16 pt-8 border-t border-border">
               <div className="space-y-4">
-                <button className="w-full flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-neutral-500 hover:text-black transition-colors py-2">
+                <button className="w-full flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors py-2">
                   <span>Details</span>
                   <Plus className="w-3 h-3" />
                 </button>
-                <button className="w-full flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-neutral-500 hover:text-black transition-colors py-2">
+                <button className="w-full flex items-center justify-between text-[10px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors py-2">
                   <span>Shipping & Returns</span>
                   <Plus className="w-3 h-3" />
                 </button>

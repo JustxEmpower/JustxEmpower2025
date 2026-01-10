@@ -2081,3 +2081,17 @@ NODE_ENV=production
 - [ ] Fix Shop page for dark mode
 - [ ] Fix legal pages for dark mode
 - [x] Create comprehensive Shop system documentation
+
+## Shop System Overhaul v2.0
+- [ ] Add inventoryReservations and cartSyncLog tables to schema
+- [ ] Add soft delete fields to products table
+- [ ] Install shop-utilities.ts
+- [ ] Install JEShopErrorBoundaries.tsx
+- [ ] Replace CartContext with enhanced JECartContext
+- [ ] Replace CartSlideout with JECartSlideout
+- [ ] Replace ProductCard with JEProductCard
+- [ ] Replace ProductDetail with JEProductDetail
+- [ ] Replace Checkout with JECheckout
+- [ ] Update shopRouter with fixes
+- [ ] Update adminShopRouter with fixes
+- [ ] Test all 12 critical fixes
