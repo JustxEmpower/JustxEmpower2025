@@ -1945,3 +1945,11 @@ NODE_ENV=production
 - [ ] Add resize handles to inner elements like image placeholders
 - [ ] Make image placeholder area resizable inside JE Section Standard
 - [ ] Ensure consistent Photoshop-like editing experience across all blocks
+
+
+## Date Published Field for Articles (Jan 10, 2026)
+
+- [ ] Add publishedAt column to articles database schema
+- [ ] Add date picker to article edit form
+- [ ] Display published date in article listings
+- [ ] Test date published feature

@@ -181,15 +181,19 @@ export default function AdminArticles() {
       status,
     };
 
-    // Add publishDate if status is scheduled
+    // Add publishDate - required for scheduled, optional for others
     if (status === 'scheduled') {
       if (!publishDate) {
         toast.error('Please select a publish date for scheduled articles');
         return;
       }
       articleData.publishDate = new Date(publishDate).toISOString();
+    } else if (publishDate) {
+      // For published/draft articles, use the selected date if provided
+      articleData.publishDate = new Date(publishDate).toISOString();
     } else {
-      articleData.publishDate = null;
+      // Default to current date for published articles without a date
+      articleData.publishDate = status === 'published' ? new Date().toISOString() : null;
     }
 
     if (editingId) {
@@ -332,24 +336,24 @@ export default function AdminArticles() {
                     </select>
                   </div>
 
-                  {/* Publish Date (only shown when status is scheduled) */}
-                  {status === 'scheduled' && (
-                    <div>
-                      <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                        Publish Date & Time *
-                      </label>
-                      <Input
-                        type="datetime-local"
-                        value={publishDate}
-                        onChange={(e) => setPublishDate(e.target.value)}
-                        className="h-11"
-                        required={status === 'scheduled'}
-                      />
-                      <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                        Article will be automatically published at this time
-                      </p>
-                    </div>
-                  )}
+                  {/* Date Published - shows for all statuses */}
+                  <div>
+                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
+                      {status === 'scheduled' ? 'Scheduled Publish Date & Time *' : 'Date Published'}
+                    </label>
+                    <Input
+                      type="datetime-local"
+                      value={publishDate}
+                      onChange={(e) => setPublishDate(e.target.value)}
+                      className="h-11"
+                      required={status === 'scheduled'}
+                    />
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                      {status === 'scheduled' 
+                        ? 'Article will be automatically published at this time'
+                        : 'The date this article was published (leave empty for current date)'}
+                    </p>
+                  </div>
 
                   <div>
                     <div className="flex items-center justify-between mb-2">
@@ -515,7 +519,11 @@ export default function AdminArticles() {
                             </p>
                           )}
                           <p className="text-sm text-neutral-500 dark:text-neutral-400">
-                            Published: {article.date ? new Date(article.date).toLocaleDateString() : 'Draft'}
+                            Published: {article.publishDate 
+                              ? new Date(article.publishDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                              : article.date 
+                                ? new Date(article.date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+                                : 'No date set'}
                           </p>
                         </div>
                         <div className="flex gap-2">
