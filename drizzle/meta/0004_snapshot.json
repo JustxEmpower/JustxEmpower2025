@@ -2,7 +2,7 @@
   "version": "5",
   "dialect": "mysql",
   "id": "829c222a-f777-4d09-af5e-52b6c081e357",
-  "prevId": "2e6b45cb-5210-4d40-925c-61070b5c24c4",
+  "prevId": "7c24e8c0-2f57-458d-b5b3-83d1eb515697",
   "tables": {
     "adminSessions": {
       "name": "adminSessions",

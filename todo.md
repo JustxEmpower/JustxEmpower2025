@@ -2095,3 +2095,7 @@ NODE_ENV=production
 - [ ] Update shopRouter with fixes
 - [ ] Update adminShopRouter with fixes
 - [ ] Test all 12 critical fixes
+
+## Page Builder Fix (Jan 10, 2026)
+- [x] Fix Page Builder right panel scrolling - settings panel gets cut off at bottom
+- [x] Fix drizzle migration snapshot collision (0003/0004 pointing to same parent)

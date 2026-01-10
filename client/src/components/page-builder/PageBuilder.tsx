@@ -687,7 +687,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                 animate={{ width: rightPanelWidth, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 transition={{ duration: isResizingRight ? 0 : 0.2 }}
-                className="bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 overflow-hidden flex-shrink-0 relative"
+                className="bg-white dark:bg-neutral-900 border-l border-neutral-200 dark:border-neutral-800 flex-shrink-0 relative h-full flex flex-col overflow-hidden"
               >
                 {/* Resize handle */}
                 <div
@@ -699,7 +699,9 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                 >
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-neutral-300 dark:bg-neutral-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
-                <BlockSettings />
+                <div className="flex-1 overflow-y-auto overflow-x-hidden">
+                  <BlockSettings />
+                </div>
               </motion.aside>
             )}
           </AnimatePresence>
