@@ -978,11 +978,11 @@ export async function verifyBackup(backupId: number): Promise<VerificationResult
   const backupRecord = backup[0];
   let backupData: BackupData;
 
-  // Parse backup data
-  if (backupRecord.data) {
-    backupData = typeof backupRecord.data === 'string' 
-      ? JSON.parse(backupRecord.data) 
-      : backupRecord.data as BackupData;
+  // Parse backup data (column is 'backupData' not 'data')
+  if (backupRecord.backupData) {
+    backupData = typeof backupRecord.backupData === 'string' 
+      ? JSON.parse(backupRecord.backupData) 
+      : backupRecord.backupData as BackupData;
   } else {
     throw new TRPCError({ code: "BAD_REQUEST", message: "Backup has no data" });
   }
@@ -1002,8 +1002,8 @@ export async function verifyBackup(backupId: number): Promise<VerificationResult
   if (backupData.metadata?.recordCounts) {
     Object.assign(backupCounts, backupData.metadata.recordCounts);
   } else {
-    // Calculate from actual backup data
-    for (const [tableName, records] of Object.entries(backupData.tables || {})) {
+    // Calculate from actual backup data (use 'data' property, not 'tables')
+    for (const [tableName, records] of Object.entries(backupData.data || {})) {
       backupCounts[tableName] = Array.isArray(records) ? records.length : 0;
     }
   }
@@ -1060,7 +1060,7 @@ export async function verifyBackup(backupId: number): Promise<VerificationResult
 
   return {
     backupId,
-    backupName: backupRecord.name,
+    backupName: backupRecord.backupName,
     backupDate: backupRecord.createdAt.toISOString(),
     verified: overallStatus !== "error",
     status: overallStatus,
