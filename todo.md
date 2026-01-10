@@ -2055,3 +2055,6 @@ NODE_ENV=production
 - [ ] Verify Mailchimp API key and Audience ID settings work correctly
 - [x] Set up self-hosted Umami analytics on AWS server (docs created)
 - [x] Configure VITE_ANALYTICS_ENDPOINT and VITE_ANALYTICS_WEBSITE_ID (React component created)
+
+## Bug Fix: Admin Backup Page TypeError (Jan 10, 2026)
+- [x] Fix TypeError: t.split is not a function in date-fns on backup page

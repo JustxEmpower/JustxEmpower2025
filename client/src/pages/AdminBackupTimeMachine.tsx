@@ -14,7 +14,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { trpc } from "@/lib/trpc";
-import { format, formatDistanceToNow, parseISO } from "date-fns";
+import { format, formatDistanceToNow, parseISO, isValid } from "date-fns";
 import {
   Clock,
   Download,
@@ -60,15 +60,15 @@ interface Backup {
   description?: string;
   tablesIncluded?: string;
   createdBy?: string;
-  createdAt: string;
+  createdAt: string | Date;
   s3Url?: string;
 }
 
 interface BackupStats {
   totalBackups: number;
   totalSize: number;
-  oldestBackup: string;
-  newestBackup: string;
+  oldestBackup: string | Date | null;
+  newestBackup: string | Date | null;
   averageSize: number;
 }
 
@@ -96,6 +96,46 @@ const getBackupIcon = (type: string) => {
     case "scheduled": return <Calendar className="w-4 h-4" />;
     case "auto": return <RefreshCw className="w-4 h-4" />;
     default: return <Archive className="w-4 h-4" />;
+  }
+};
+
+/**
+ * Safely convert date value to Date object
+ * Handles both string (ISO format) and Date objects from database
+ */
+const toDate = (value: string | Date | null | undefined): Date | null => {
+  if (!value) return null;
+  if (value instanceof Date) return isValid(value) ? value : null;
+  if (typeof value === 'string') {
+    const parsed = parseISO(value);
+    return isValid(parsed) ? parsed : null;
+  }
+  return null;
+};
+
+/**
+ * Safely format a date value
+ */
+const safeFormat = (value: string | Date | null | undefined, formatStr: string): string => {
+  const date = toDate(value);
+  if (!date) return 'N/A';
+  try {
+    return format(date, formatStr);
+  } catch {
+    return 'N/A';
+  }
+};
+
+/**
+ * Safely format distance to now
+ */
+const safeFormatDistanceToNow = (value: string | Date | null | undefined, options?: { addSuffix?: boolean }): string => {
+  const date = toDate(value);
+  if (!date) return 'N/A';
+  try {
+    return formatDistanceToNow(date, options);
+  } catch {
+    return 'N/A';
   }
 };
 
@@ -189,7 +229,7 @@ export default function AdminBackupTimeMachine() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${backup.backupName.replace(/\s+/g, "_")}_${format(parseISO(backup.createdAt), "yyyy-MM-dd_HH-mm")}.json`;
+      a.download = `${backup.backupName.replace(/\s+/g, "_")}_${safeFormat(backup.createdAt, "yyyy-MM-dd_HH-mm")}.json`;
       a.click();
       URL.revokeObjectURL(url);
     } catch (error) {
@@ -315,7 +355,7 @@ export default function AdminBackupTimeMachine() {
               <StatusPill 
                 icon={<Clock className="w-3.5 h-3.5" />}
                 label="Last Backup"
-                value={stats.newestBackup ? formatDistanceToNow(parseISO(stats.newestBackup), { addSuffix: true }) : "Never"}
+                value={stats.newestBackup ? safeFormatDistanceToNow(stats.newestBackup, { addSuffix: true }) : "Never"}
                 status="default"
               />
             </div>
@@ -459,7 +499,7 @@ function TimelineView({
 }) {
   // Group backups by date
   const groupedBackups = backups.reduce((acc, backup) => {
-    const date = format(parseISO(backup.createdAt), "yyyy-MM-dd");
+    const date = safeFormat(backup.createdAt, "yyyy-MM-dd");
     if (!acc[date]) acc[date] = [];
     acc[date].push(backup);
     return acc;
@@ -511,10 +551,10 @@ function TimelineView({
             <div className="flex items-center gap-3 mb-4">
               <div className="w-2 h-2 rounded-full bg-purple-500" />
               <span className="text-sm font-medium text-white/60">
-                {format(parseISO(date), "EEEE, MMMM d")}
+                {safeFormat(date, "EEEE, MMMM d")}
               </span>
               <span className="text-xs text-white/30">
-                {format(parseISO(date), "yyyy")}
+                {safeFormat(date, "yyyy")}
               </span>
             </div>
 
@@ -618,7 +658,7 @@ function BackupCard({
               {backup.backupName}
             </h3>
             <p className="text-xs text-white/40 mt-0.5">
-              {format(parseISO(backup.createdAt), "h:mm a")}
+              {safeFormat(backup.createdAt, "h:mm a")}
             </p>
           </div>
         </div>
@@ -768,7 +808,7 @@ function ListView({
               {formatBytes(backup.fileSize || 0)}
             </div>
             <div className="col-span-2 text-sm text-white/60">
-              {formatDistanceToNow(parseISO(backup.createdAt), { addSuffix: true })}
+              {safeFormatDistanceToNow(backup.createdAt, { addSuffix: true })}
             </div>
             <div className="col-span-2 flex items-center justify-end gap-2">
               <button
@@ -820,7 +860,7 @@ function AnalyticsView({ backups, stats }: { backups: Backup[]; stats: BackupSta
 
   // Calculate backups by month
   const backupsByMonth = backups.reduce((acc, b) => {
-    const month = format(parseISO(b.createdAt), "MMM yyyy");
+    const month = safeFormat(b.createdAt, "MMM yyyy");
     acc[month] = (acc[month] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
@@ -902,7 +942,7 @@ function AnalyticsView({ backups, stats }: { backups: Backup[]; stats: BackupSta
               <span className="text-sm text-white/80">First backup</span>
               <span className="text-sm text-white/40">
                 {stats.oldestBackup 
-                  ? format(parseISO(stats.oldestBackup), "MMM d, yyyy")
+                  ? safeFormat(stats.oldestBackup, "MMM d, yyyy")
                   : "—"
                 }
               </span>
@@ -911,7 +951,7 @@ function AnalyticsView({ backups, stats }: { backups: Backup[]; stats: BackupSta
               <span className="text-sm text-white/80">Latest backup</span>
               <span className="text-sm text-white/40">
                 {stats.newestBackup 
-                  ? format(parseISO(stats.newestBackup), "MMM d, yyyy")
+                  ? safeFormat(stats.newestBackup, "MMM d, yyyy")
                   : "—"
                 }
               </span>
@@ -1193,7 +1233,7 @@ function RestoreModal({
             <div>
               <span className="text-white/40">Created:</span>
               <span className="text-white/70 ml-2">
-                {format(parseISO(backup.createdAt), "MMM d, yyyy 'at' h:mm a")}
+                {safeFormat(backup.createdAt, "MMM d, yyyy 'at' h:mm a")}
               </span>
             </div>
             <div>
@@ -1491,10 +1531,10 @@ function PreviewModal({
           <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
             <p className="text-xs text-white/40 mb-1">Created</p>
             <p className="text-sm text-white/90">
-              {format(parseISO(backup.createdAt), "MMM d, yyyy")}
+              {safeFormat(backup.createdAt, "MMM d, yyyy")}
             </p>
             <p className="text-xs text-white/40">
-              {format(parseISO(backup.createdAt), "h:mm a")}
+              {safeFormat(backup.createdAt, "h:mm a")}
             </p>
           </div>
           <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
