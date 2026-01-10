@@ -924,33 +924,43 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
             }}
           >
             {imageUrl ? (
+              /* Outer wrapper with overflow:hidden and border-radius - NOT animated */
+              /* This ensures the border-radius clipping works even when inner content is transformed by GSAP */
               <div 
-                ref={imageRef}
-                className="relative overflow-hidden shadow-2xl shadow-black/10"
+                className="shadow-2xl shadow-black/10"
                 style={{
                   borderRadius: content.imageBorderRadius || '2rem',
+                  overflow: 'hidden',
                   width: '100%',
                   maxWidth: content.imageMaxWidth || '100%',
-                  aspectRatio: '3/4',
                 }}
               >
-                <img
-                  src={imageUrl}
-                  alt={content.imageAlt || 'Section image'}
-                  className="will-change-transform w-full h-full"
+                {/* Inner wrapper that gets GSAP transform - overflow:hidden here won't clip due to transform */}
+                <div 
+                  ref={imageRef}
+                  className="relative"
                   style={{
-                    objectFit: (content.imageObjectFit as any) || 'cover',
-                    borderRadius: content.imageBorderRadius || '2rem',
+                    width: '100%',
+                    aspectRatio: '3/4',
                   }}
-                  onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
-                />
-                {/* Artistic Overlay like original Section */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 opacity-60 pointer-events-none" style={{ borderRadius: content.imageBorderRadius || '2rem' }} />
+                >
+                  <img
+                    src={imageUrl}
+                    alt={content.imageAlt || 'Section image'}
+                    className="will-change-transform w-full h-full"
+                    style={{
+                      objectFit: (content.imageObjectFit as any) || 'cover',
+                    }}
+                    onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
+                  />
+                  {/* Artistic Overlay like original Section */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 opacity-60 pointer-events-none" />
+                </div>
               </div>
             ) : (
               <div 
                 className="aspect-[3/4] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center shadow-2xl shadow-black/10"
-                style={{ borderRadius: content.imageBorderRadius || '2rem' }}
+                style={{ borderRadius: content.imageBorderRadius || '2rem', overflow: 'hidden' }}
               >
                 <span className="text-neutral-400">Add an image</span>
               </div>

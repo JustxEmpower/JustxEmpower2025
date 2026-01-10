@@ -2170,3 +2170,8 @@ NODE_ENV=production
 - [x] JEVideoRenderer - Added shadow to video container
 - [x] CarouselCard - Already had proper styling (verified)
 - [x] MediaRenderer - Already passes through styling from parent (verified)
+
+## Bug Fix: Rounded corners in editor but sharp in preview (Jan 10, 2026)
+- [ ] Investigate BlockPreview component rendering
+- [ ] Fix preview mode to apply rounded corners consistently
+- [ ] Test in both editor and preview modes

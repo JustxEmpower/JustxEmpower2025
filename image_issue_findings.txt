@@ -1,0 +1,19 @@
+KEY FINDING FROM SCREENSHOT (18-50-30):
+
+Looking at the JE Section Standard block ("The Philosophy" section):
+- The mountain/sunset image on the right side has SHARP CORNERS - NOT ROUNDED!
+- The image clearly shows 90-degree corners, not the expected 2rem rounded corners
+
+This confirms the user's issue - the rounded corners are NOT being applied to the image.
+
+The code at line 927-958 in JESectionRenderer.tsx shows:
+- borderRadius: content.imageBorderRadius || '2rem' should be applied
+- But the image is displaying with sharp corners
+
+POSSIBLE CAUSES:
+1. The CSS is being overridden somewhere
+2. The inline style is not being applied correctly
+3. There's a parent element stripping the border-radius
+4. The overflow:hidden is missing on the container
+
+NEXT STEP: Inspect the actual DOM to see what styles are being applied
