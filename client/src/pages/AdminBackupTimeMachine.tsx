@@ -1501,25 +1501,46 @@ function PreviewModal({
   const [previewData, setPreviewData] = useState<Record<string, number> | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Fetch actual backup data from the server
+  const downloadQuery = trpc.admin.backups.download.useQuery(
+    { backupId: backup?.id ?? 0 },
+    { 
+      enabled: isOpen && !!backup?.id,
+      staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    }
+  );
+
   useEffect(() => {
     if (isOpen && backup) {
       setIsLoading(true);
-      // Simulate loading preview data
-      setTimeout(() => {
-        setPreviewData({
-          pages: 12,
-          articles: 8,
-          pageBlocks: 47,
-          media: 156,
-          products: 24,
-          users: 3,
-          formSubmissions: 89,
-          siteContent: 35,
-        });
-        setIsLoading(false);
-      }, 500);
     }
   }, [isOpen, backup]);
+
+  useEffect(() => {
+    if (downloadQuery.data?.backupData) {
+      try {
+        const parsed = JSON.parse(downloadQuery.data.backupData);
+        // Extract record counts from the backup metadata
+        if (parsed.metadata?.recordCounts) {
+          setPreviewData(parsed.metadata.recordCounts);
+        } else if (parsed.data) {
+          // Fallback: count records in each table
+          const counts: Record<string, number> = {};
+          for (const [table, records] of Object.entries(parsed.data)) {
+            counts[table] = Array.isArray(records) ? records.length : 0;
+          }
+          setPreviewData(counts);
+        }
+      } catch (e) {
+        console.error('Failed to parse backup data:', e);
+        setPreviewData(null);
+      }
+      setIsLoading(false);
+    } else if (downloadQuery.isError) {
+      setIsLoading(false);
+      setPreviewData(null);
+    }
+  }, [downloadQuery.data, downloadQuery.isError]);
 
   if (!isOpen || !backup) return null;
 

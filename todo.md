@@ -2061,3 +2061,5 @@ NODE_ENV=production
 - [x] Integrate Time Machine backup page with admin sidebar navigation
 - [x] Fix backup system - creation stuck on "Creating..."
 - [x] Ensure backup actually saves all database tables
+- [x] Verify backup data accuracy against actual database
+- [x] Fix PreviewModal to show real backup data instead of hardcoded values
