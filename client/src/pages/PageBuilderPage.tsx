@@ -114,17 +114,19 @@ export default function PageBuilderPage() {
   const [pageTitle, setPageTitle] = useState('Untitled Page');
   const [pageSlug, setPageSlug] = useState('');
   
-  const { clearAutoSave } = usePageBuilderStore();
+  const { clearAutoSave, resetForNewPage } = usePageBuilderStore();
 
   // Sync currentPageId with URL param when it changes
   useEffect(() => {
     if (pageIdFromUrl !== currentPageId) {
+      // Reset the store state when switching pages
+      resetForNewPage();
       setCurrentPageId(pageIdFromUrl);
       // Reset local state when switching pages
       setPageTitle('Untitled Page');
       setPageSlug('');
     }
-  }, [pageIdFromUrl, currentPageId]);
+  }, [pageIdFromUrl, currentPageId, resetForNewPage]);
 
   // Fetch page details if editing
   const { data: existingPage, isLoading: pageLoading, refetch: refetchPage } = trpc.admin.pages.getById.useQuery(

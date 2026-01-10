@@ -2104,3 +2104,6 @@ NODE_ENV=production
 - [x] Fix Resources page dark mode text visibility
 - [x] Fix Community Events page dark mode text visibility
 - [x] Audit all pages for dark mode issues
+
+## Page Builder Bug Fix (Jan 10, 2026)
+- [x] Fix Edit in Page Builder button not loading draft page content after save/exit

@@ -95,6 +95,9 @@ interface PageBuilderState {
   clearAutoSave: () => void;
   setAutoSaveEnabled: (enabled: boolean) => void;
   markAsSaved: () => void;
+  
+  // Reset store for switching pages
+  resetForNewPage: () => void;
 }
 
 const generateId = () => `block_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -540,6 +543,24 @@ export const usePageBuilderStore = create<PageBuilderState>((set, get) => ({
     const { clearAutoSave } = get();
     set({ hasUnsavedChanges: false });
     clearAutoSave();
+  },
+  
+  resetForNewPage: () => {
+    set({
+      pageId: null,
+      pageTitle: 'Untitled Page',
+      blocks: [],
+      selectedBlockId: null,
+      hoveredBlockId: null,
+      isDragging: false,
+      isPreviewMode: false,
+      isSaving: false,
+      isElementEditMode: false,
+      selectedElementId: null,
+      history: [],
+      historyIndex: -1,
+      hasUnsavedChanges: false,
+    });
   },
 }));
 

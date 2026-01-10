@@ -144,6 +144,17 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
   const blocksInitializedRef = React.useRef(false);
   const prevInitialTitleRef = React.useRef<string | undefined>(undefined);
   const recoveryCheckedRef = React.useRef(false);
+  const prevPageIdRef = React.useRef<string | undefined>(undefined);
+
+  // Reset refs when pageId changes (switching to a different page)
+  React.useEffect(() => {
+    if (pageId !== prevPageIdRef.current) {
+      prevPageIdRef.current = pageId;
+      blocksInitializedRef.current = false;
+      prevInitialTitleRef.current = undefined;
+      recoveryCheckedRef.current = false;
+    }
+  }, [pageId]);
 
   // AI Page Generation state
   const [showAIDialog, setShowAIDialog] = React.useState(false);
