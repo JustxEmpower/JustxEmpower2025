@@ -141,10 +141,7 @@ function SortableBlock({
 
       {/* Block content */}
       <div className="relative">
-        <BlockRenderer block={block} />
-        
-        {/* Click overlay to prevent interaction with block content */}
-        <div className="absolute inset-0 cursor-pointer" />
+        <BlockRenderer block={block} isEditing={!isPreviewMode} isBlockSelected={isSelected} />
         
         {/* Resize handles for selected blocks */}
         <ResizeHandles blockId={block.id} isSelected={isSelected} />

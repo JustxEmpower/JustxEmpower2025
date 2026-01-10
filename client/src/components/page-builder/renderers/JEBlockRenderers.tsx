@@ -8,6 +8,7 @@ import { getMediaUrl } from '@/lib/media';
 import { Button } from '@/components/ui/button';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { InlineEditableText } from '../InlineEditableText';
+import EditableElement from '../EditableElement';
 
 // ==========================================
 // STYLE HELPER FUNCTIONS
@@ -298,7 +299,7 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
 };
 
 // JE Hero Block Renderer (handles je-hero-video, je-hero-image, je-hero-split, je-hero)
-export function JEHeroRenderer({ block }: { block: PageBlock }) {
+export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoError, setVideoError] = useState(false);
@@ -615,7 +616,7 @@ export function JEHeroRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Section Block Renderer (handles je-section-standard, je-section-fullwidth, je-section-full-width)
-export function JESectionRenderer({ block }: { block: PageBlock }) {
+export function JESectionRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   
   const content = block.content as {
     title?: string;
@@ -779,49 +780,57 @@ export function JESectionRenderer({ block }: { block: PageBlock }) {
         </div>
         
         {/* Image */}
-        <div 
+        <EditableElement
+          elementId="image"
+          elementType="image"
+          isEditing={isEditing && isBlockSelected}
+          initialWidth={content.imageWidth ? parseInt(content.imageWidth as string) : undefined}
+          initialHeight={content.imageHeight ? parseInt(content.imageHeight as string) : undefined}
           className={`relative ${content.reversed ? 'lg:order-1' : ''}`}
-          style={{
-            marginTop: content.imageMarginTop || '0',
-            marginBottom: content.imageMarginBottom || '0',
-          }}
         >
-          {imageUrl ? (
-            <div 
-              className="relative overflow-hidden"
-              style={{
-                borderRadius: content.imageBorderRadius || '2rem',
-                width: content.imageWidth || '100%',
-                maxWidth: content.imageMaxWidth || '100%',
-              }}
-            >
-              <img
-                src={imageUrl}
-                alt={content.imageAlt || 'Section image'}
+          <div 
+            style={{
+              marginTop: content.imageMarginTop || '0',
+              marginBottom: content.imageMarginBottom || '0',
+            }}
+          >
+            {imageUrl ? (
+              <div 
+                className="relative overflow-hidden"
                 style={{
+                  borderRadius: content.imageBorderRadius || '2rem',
                   width: '100%',
-                  height: content.imageHeight || 'auto',
-                  objectFit: (content.imageObjectFit as any) || 'cover',
+                  maxWidth: content.imageMaxWidth || '100%',
                 }}
-                onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
-              />
-            </div>
-          ) : (
-            <div 
-              className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
-              style={{ borderRadius: content.imageBorderRadius || '2rem' }}
-            >
-              <span className="text-neutral-400">Add an image</span>
-            </div>
-          )}
-        </div>
+              >
+                <img
+                  src={imageUrl}
+                  alt={content.imageAlt || 'Section image'}
+                  style={{
+                    width: '100%',
+                    height: 'auto',
+                    objectFit: (content.imageObjectFit as any) || 'cover',
+                  }}
+                  onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
+                />
+              </div>
+            ) : (
+              <div 
+                className="aspect-[4/3] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+                style={{ borderRadius: content.imageBorderRadius || '2rem' }}
+              >
+                <span className="text-neutral-400">Add an image</span>
+              </div>
+            )}
+          </div>
+        </EditableElement>
       </div>
     </section>
   );
 }
 
 // JE Carousel Block Renderer
-export function JECarouselRenderer({ block }: { block: PageBlock }) {
+export function JECarouselRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     subtitle?: string;
@@ -962,7 +971,7 @@ function CarouselCard({
 }
 
 // JE Newsletter Block Renderer
-export function JENewsletterRenderer({ block }: { block: PageBlock }) {
+export function JENewsletterRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     description?: string;
@@ -989,7 +998,7 @@ export function JENewsletterRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Quote Block Renderer (handles je-quote, je-blockquote)
-export function JEQuoteRenderer({ block }: { block: PageBlock }) {
+export function JEQuoteRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     quote?: string;
     author?: string;
@@ -1015,7 +1024,7 @@ export function JEQuoteRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Pillar Grid Renderer (handles je-pillar-grid, je-three-pillars, je-pillars)
-export function JEPillarGridRenderer({ block }: { block: PageBlock }) {
+export function JEPillarGridRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     pillars?: Array<{ icon: string; title: string; description: string }>;
@@ -1053,7 +1062,7 @@ export function JEPillarGridRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Community Section Renderer (handles je-community, je-community-section)
-export function JECommunityRenderer({ block }: { block: PageBlock }) {
+export function JECommunityRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     subtitle?: string;
@@ -1117,7 +1126,7 @@ export function JECommunityRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Rooted Unity Section Renderer
-export function JERootedUnityRenderer({ block }: { block: PageBlock }) {
+export function JERootedUnityRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     subtitle?: string;
@@ -1181,7 +1190,7 @@ export function JERootedUnityRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Heading Renderer
-export function JEHeadingRenderer({ block }: { block: PageBlock }) {
+export function JEHeadingRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as Record<string, unknown> & {
     title?: string;
     text?: string; // Legacy support
@@ -1228,7 +1237,7 @@ export function JEHeadingRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Paragraph Renderer
-export function JEParagraphRenderer({ block }: { block: PageBlock }) {
+export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as Record<string, unknown> & {
     text?: string;
     alignment?: 'left' | 'center' | 'right';
@@ -1269,7 +1278,7 @@ export function JEParagraphRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Image Renderer
-export function JEImageRenderer({ block }: { block: PageBlock }) {
+export function JEImageRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     imageUrl?: string;
     alt?: string;
@@ -1304,7 +1313,7 @@ export function JEImageRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Video Renderer
-export function JEVideoRenderer({ block }: { block: PageBlock }) {
+export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [isMuted, setIsMuted] = React.useState(true);
   const videoRef = React.useRef<HTMLVideoElement>(null);
@@ -1391,7 +1400,7 @@ export function JEVideoRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Button Renderer
-export function JEButtonRenderer({ block }: { block: PageBlock }) {
+export function JEButtonRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     text?: string;
     link?: string;
@@ -1429,7 +1438,7 @@ export function JEButtonRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Two Column Renderer
-export function JETwoColumnRenderer({ block }: { block: PageBlock }) {
+export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     leftContent?: string;
     rightContent?: string;
@@ -1485,7 +1494,7 @@ export function JETwoColumnRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Divider Renderer
-export function JEDividerRenderer({ block }: { block: PageBlock }) {
+export function JEDividerRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     style?: 'line' | 'dots' | 'ornament';
     dark?: boolean;
@@ -1521,7 +1530,7 @@ export function JEDividerRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Spacer Renderer
-export function JESpacerRenderer({ block }: { block: PageBlock }) {
+export function JESpacerRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     height?: 'small' | 'medium' | 'large' | 'xlarge';
   };
@@ -1532,7 +1541,7 @@ export function JESpacerRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE FAQ Renderer
-export function JEFAQRenderer({ block }: { block: PageBlock }) {
+export function JEFAQRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     items?: Array<{ question: string; answer: string }>;
@@ -1568,7 +1577,7 @@ export function JEFAQRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Contact Form Renderer
-export function JEContactFormRenderer({ block }: { block: PageBlock }) {
+export function JEContactFormRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     description?: string;
@@ -1629,7 +1638,7 @@ export function JEContactFormRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Testimonial Renderer
-export function JETestimonialRenderer({ block }: { block: PageBlock }) {
+export function JETestimonialRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     quote?: string;
     author?: string;
@@ -1666,7 +1675,7 @@ export function JETestimonialRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Offerings Grid Renderer
-export function JEOfferingsGridRenderer({ block }: { block: PageBlock }) {
+export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     items?: Array<{
@@ -1717,7 +1726,7 @@ export function JEOfferingsGridRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Coming Soon Renderer
-export function JEComingSoonRenderer({ block }: { block: PageBlock }) {
+export function JEComingSoonRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     subtitle?: string;
@@ -1755,7 +1764,7 @@ export function JEComingSoonRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Gallery Renderer
-export function JEGalleryRenderer({ block }: { block: PageBlock }) {
+export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     images?: Array<{ url: string; alt?: string; caption?: string }>;
     columns?: number;
@@ -1789,7 +1798,7 @@ export function JEGalleryRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Team Member Renderer
-export function JETeamMemberRenderer({ block }: { block: PageBlock }) {
+export function JETeamMemberRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     name?: string;
     role?: string;
@@ -1832,7 +1841,7 @@ export function JETeamMemberRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Principles Renderer
-export function JEPrinciplesRenderer({ block }: { block: PageBlock }) {
+export function JEPrinciplesRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     principles?: Array<{ number: string; title: string; description: string }>;
@@ -1870,7 +1879,7 @@ export function JEPrinciplesRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Footer Renderer
-export function JEFooterRenderer({ block }: { block: PageBlock }) {
+export function JEFooterRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     tagline?: string;
     copyright?: string;
@@ -1905,7 +1914,7 @@ export function JEFooterRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Volumes Renderer
-export function JEVolumesRenderer({ block }: { block: PageBlock }) {
+export function JEVolumesRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     volumes?: Array<{
@@ -1956,7 +1965,7 @@ export function JEVolumesRenderer({ block }: { block: PageBlock }) {
 }
 
 // JE Feature Card Renderer
-export function JEFeatureCardRenderer({ block }: { block: PageBlock }) {
+export function JEFeatureCardRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     description?: string;
@@ -2008,7 +2017,7 @@ interface EventType {
   color: string;
 }
 
-export function JECalendarRenderer({ block }: { block: PageBlock }) {
+export function JECalendarRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
   const content = block.content as {
     title?: string;
     subtitle?: string;

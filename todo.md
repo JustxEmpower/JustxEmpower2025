@@ -1937,3 +1937,11 @@ NODE_ENV=production
 - [ ] Edge handles for width/height resize
 - [ ] Drag-to-resize functionality with real-time preview
 - [ ] Update block dimensions in store when resize completes
+
+
+## Universal Resize Handles (Jan 10, 2026)
+
+- [ ] Add resize handles to ALL block types (JE and regular blocks)
+- [ ] Add resize handles to inner elements like image placeholders
+- [ ] Make image placeholder area resizable inside JE Section Standard
+- [ ] Ensure consistent Photoshop-like editing experience across all blocks

@@ -73,6 +73,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface BlockRendererProps {
   block: PageBlock;
+  isEditing?: boolean;
+  isBlockSelected?: boolean;
 }
 
 // Hero Block
@@ -631,7 +633,7 @@ function PlaceholderBlock({ block }: { block: PageBlock }) {
 }
 
 // Main BlockRenderer component
-export default function BlockRenderer({ block }: BlockRendererProps) {
+export default function BlockRenderer({ block, isEditing = false, isBlockSelected = false }: BlockRendererProps) {
   const { content } = block;
   
   // Apply custom styles
@@ -710,75 +712,75 @@ export default function BlockRenderer({ block }: BlockRendererProps) {
       case 'je-hero-video':
       case 'je-hero-image':
       case 'je-hero-split':
-        return <JEHeroRenderer block={block} />;
+        return <JEHeroRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       // JE Section blocks
       case 'je-section-standard':
       case 'je-section-fullwidth':
       case 'je-section-full-width':
-        return <JESectionRenderer block={block} />;
+        return <JESectionRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       // JE Text blocks
       case 'je-heading':
-        return <JEHeadingRenderer block={block} />;
+        return <JEHeadingRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-paragraph':
-        return <JEParagraphRenderer block={block} />;
+        return <JEParagraphRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-quote':
       case 'je-blockquote':
-        return <JEQuoteRenderer block={block} />;
+        return <JEQuoteRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       // JE Media blocks
       case 'je-image':
-        return <JEImageRenderer block={block} />;
+        return <JEImageRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-video':
-        return <JEVideoRenderer block={block} />;
+        return <JEVideoRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-gallery':
-        return <JEGalleryRenderer block={block} />;
+        return <JEGalleryRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-carousel':
       case 'je-offerings-carousel':
-        return <JECarouselRenderer block={block} />;
+        return <JECarouselRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       // JE Interactive blocks
       case 'je-button':
-        return <JEButtonRenderer block={block} />;
+        return <JEButtonRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-newsletter':
-        return <JENewsletterRenderer block={block} />;
+        return <JENewsletterRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-contact-form':
-        return <JEContactFormRenderer block={block} />;
+        return <JEContactFormRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-faq':
-        return <JEFAQRenderer block={block} />;
+        return <JEFAQRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-testimonial':
-        return <JETestimonialRenderer block={block} />;
+        return <JETestimonialRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       // JE Layout blocks
       case 'je-two-column':
-        return <JETwoColumnRenderer block={block} />;
+        return <JETwoColumnRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-pillar-grid':
       case 'je-pillars':
       case 'je-three-pillars':
-        return <JEPillarGridRenderer block={block} />;
+        return <JEPillarGridRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-principles':
-        return <JEPrinciplesRenderer block={block} />;
+        return <JEPrinciplesRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-offerings-grid':
-        return <JEOfferingsGridRenderer block={block} />;
+        return <JEOfferingsGridRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       // JE Special sections
       case 'je-community':
       case 'je-community-section':
-        return <JECommunityRenderer block={block} />;
+        return <JECommunityRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-rooted-unity':
-        return <JERootedUnityRenderer block={block} />;
+        return <JERootedUnityRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-coming-soon':
-        return <JEComingSoonRenderer block={block} />;
+        return <JEComingSoonRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-team-member':
-        return <JETeamMemberRenderer block={block} />;
+        return <JETeamMemberRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-feature-card':
-        return <JEFeatureCardRenderer block={block} />;
+        return <JEFeatureCardRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-volumes':
-        return <JEVolumesRenderer block={block} />;
+        return <JEVolumesRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       // JE Utility blocks
       case 'je-divider':
-        return <JEDividerRenderer block={block} />;
+        return <JEDividerRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-spacer':
-        return <JESpacerRenderer block={block} />;
+        return <JESpacerRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-footer':
-        return <JEFooterRenderer block={block} />;
+        return <JEFooterRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       case 'je-calendar':
-        return <JECalendarRenderer block={block} />;
+        return <JECalendarRenderer block={block} isEditing={isEditing} isBlockSelected={isBlockSelected} />;
       default:
         return <PlaceholderBlock block={block} />;
     }
