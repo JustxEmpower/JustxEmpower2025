@@ -994,6 +994,8 @@ export async function listBackups(options?: {
       createdBy: backups.createdBy,
       createdAt: backups.createdAt,
       s3Url: backups.s3Url,
+      verificationStatus: backups.verificationStatus,
+      lastVerifiedAt: backups.lastVerifiedAt,
     })
     .from(backups)
     .where(conditions)

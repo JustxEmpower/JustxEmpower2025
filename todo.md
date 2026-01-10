@@ -2148,3 +2148,4 @@ NODE_ENV=production
 - [x] Adjust verification logic - missing tables shouldn't cause failure status
 
 - [x] Add verified badge to backup cards after successful verification
+- [x] Add verified badge to timeline view backup cards
