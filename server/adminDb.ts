@@ -401,6 +401,27 @@ export async function updatePage(id: number, data: Partial<{
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  // If slug is being changed, migrate all associated content
+  if (data.slug) {
+    // Get the current page to find the old slug
+    const [currentPage] = await db.select({ slug: pages.slug }).from(pages).where(eq(pages.id, id));
+    
+    if (currentPage && currentPage.slug !== data.slug) {
+      const oldSlug = currentPage.slug;
+      const newSlug = data.slug;
+      
+      console.log(`Migrating content from slug "${oldSlug}" to "${newSlug}"`);
+      
+      // Migrate all siteContent records from old slug to new slug
+      await db.update(siteContent)
+        .set({ page: newSlug })
+        .where(eq(siteContent.page, oldSlug));
+      
+      console.log(`Content migration complete: ${oldSlug} -> ${newSlug}`);
+    }
+  }
+  
+  // Update the page itself
   await db.update(pages).set(data).where(eq(pages.id, id));
   return { success: true };
 }

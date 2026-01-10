@@ -2002,3 +2002,8 @@ NODE_ENV=production
 - [x] Show deletion date and days remaining
 - [x] Add trash retention settings (configurable days)
 - [x] Implement auto-cleanup for expired trash items
+
+## Slug Change Content Migration Fix (Jan 10, 2026)
+
+- [x] Fix updatePage to migrate siteContent when slug changes
+- [x] Ensure all content follows the page when slug is renamed
