@@ -30,6 +30,12 @@ import {
   createPage,
   updatePage,
   deletePage,
+  softDeletePage,
+  restorePage,
+  permanentlyDeletePage,
+  getTrashedPages,
+  emptyTrash,
+  cleanupExpiredTrash,
   reorderPages,
   getPageBlocks,
   createPageBlock,
@@ -892,8 +898,99 @@ export const adminRouter = router({
     delete: adminProcedure
       .input(z.object({ id: z.number() }))
       .mutation(async ({ input }) => {
-        return await deletePage(input.id);
+        // Now uses soft delete (moves to trash)
+        return await softDeletePage(input.id);
       }),
+
+    // Trash Bin Management
+    trash: router({
+      // List all trashed pages
+      list: adminProcedure.query(async () => {
+        return await getTrashedPages();
+      }),
+
+      // Restore a page from trash
+      restore: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          return await restorePage(input.id);
+        }),
+
+      // Permanently delete a single page
+      permanentDelete: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          return await permanentlyDeletePage(input.id);
+        }),
+
+      // Empty all trash
+      emptyAll: adminProcedure.mutation(async () => {
+        return await emptyTrash();
+      }),
+
+      // Cleanup expired trash items
+      cleanup: adminProcedure
+        .input(z.object({ retentionDays: z.number().default(30) }))
+        .mutation(async ({ input }) => {
+          return await cleanupExpiredTrash(input.retentionDays);
+        }),
+
+      // Get trash retention settings
+      getSettings: adminProcedure.query(async () => {
+        const db = await getDb();
+        if (!db) return { retentionDays: 30, autoCleanup: true };
+        
+        const [setting] = await db
+          .select()
+          .from(schema.siteSettings)
+          .where(eq(schema.siteSettings.settingKey, 'trashRetentionDays'));
+        
+        const [autoCleanupSetting] = await db
+          .select()
+          .from(schema.siteSettings)
+          .where(eq(schema.siteSettings.settingKey, 'trashAutoCleanup'));
+        
+        return {
+          retentionDays: setting ? parseInt(setting.settingValue || '30') : 30,
+          autoCleanup: autoCleanupSetting ? autoCleanupSetting.settingValue === 'true' : true,
+        };
+      }),
+
+      // Update trash retention settings
+      updateSettings: adminProcedure
+        .input(z.object({
+          retentionDays: z.number().min(1).max(365),
+          autoCleanup: z.boolean(),
+        }))
+        .mutation(async ({ input }) => {
+          const db = await getDb();
+          if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database unavailable' });
+          
+          // Upsert retention days setting
+          await db
+            .insert(schema.siteSettings)
+            .values({
+              settingKey: 'trashRetentionDays',
+              settingValue: input.retentionDays.toString(),
+            })
+            .onDuplicateKeyUpdate({
+              set: { settingValue: input.retentionDays.toString() },
+            });
+          
+          // Upsert auto cleanup setting
+          await db
+            .insert(schema.siteSettings)
+            .values({
+              settingKey: 'trashAutoCleanup',
+              settingValue: input.autoCleanup.toString(),
+            })
+            .onDuplicateKeyUpdate({
+              set: { settingValue: input.autoCleanup.toString() },
+            });
+          
+          return { success: true };
+        }),
+    }),
 
     reorder: adminProcedure
       .input(

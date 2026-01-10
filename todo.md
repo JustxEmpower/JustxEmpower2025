@@ -1980,3 +1980,25 @@ NODE_ENV=production
 - [x] Remove blocking overlay in Canvas.tsx to allow clicking on inner elements
 - [x] Fix backgroundColor rendering on JE blocks (exclude color fields from media detection)
 - [x] Implement proper backgroundColor application in JEParagraphRenderer and JEHeadingRenderer
+
+## Publish Date Display Fix (Jan 10, 2026)
+
+- [ ] Fix publish date not displaying on live article pages
+
+## Page Renaming Logic Fix (Jan 10, 2026)
+
+- [ ] Enable slug editing in Pages Manager so page URLs can be changed
+- [ ] Ensure slug changes reflect in navigation and page routing
+
+## Pages Manager Trash Bin Feature (Jan 10, 2026)
+
+- [x] Add deletedAt column to pages schema
+- [x] Create soft delete endpoint (move to trash)
+- [x] Create restore endpoint (recover from trash)
+- [x] Create empty trash endpoint (permanent delete)
+- [x] Create get trash endpoint (list deleted pages)
+- [x] Build trash bin UI section in Pages Manager
+- [x] Add restore and permanent delete buttons
+- [x] Show deletion date and days remaining
+- [x] Add trash retention settings (configurable days)
+- [x] Implement auto-cleanup for expired trash items

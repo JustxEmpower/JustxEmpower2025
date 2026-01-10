@@ -187,6 +187,9 @@ export const pages = mysqlTable("pages", {
   showInNav: int("showInNav").default(1).notNull(),
   navOrder: int("navOrder").default(0),
   parentId: int("parentId"), // For sub-pages/dropdown menus - null means top-level
+  // Trash bin functionality
+  deletedAt: timestamp("deletedAt"), // When moved to trash (null = not deleted)
+  deletedBy: varchar("deletedBy", { length: 100 }), // Who deleted it
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });

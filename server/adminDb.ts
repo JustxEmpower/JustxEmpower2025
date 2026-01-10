@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, isNull, isNotNull, lt, and } from "drizzle-orm";
 import { 
   adminUsers, 
   articles, 
@@ -310,7 +310,15 @@ export async function deleteBrandAsset(id: number) {
 export async function getAllPages() {
   const db = await getDb();
   if (!db) return [];
-  return await db.select().from(pages).orderBy(pages.navOrder);
+  // Only return non-deleted pages
+  return await db.select().from(pages).where(isNull(pages.deletedAt)).orderBy(pages.navOrder);
+}
+
+// Get all pages in trash
+export async function getTrashedPages() {
+  const db = await getDb();
+  if (!db) return [];
+  return await db.select().from(pages).where(isNotNull(pages.deletedAt)).orderBy(desc(pages.deletedAt));
 }
 
 export async function getPageBySlug(slug: string) {
@@ -397,12 +405,95 @@ export async function updatePage(id: number, data: Partial<{
   return { success: true };
 }
 
-export async function deletePage(id: number) {
+// Soft delete - move to trash
+export async function softDeletePage(id: number, deletedBy?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
+  await db.update(pages).set({
+    deletedAt: new Date(),
+    deletedBy: deletedBy || 'admin',
+    showInNav: 0, // Remove from navigation when trashed
+  }).where(eq(pages.id, id));
+  return { success: true };
+}
+
+// Restore from trash
+export async function restorePage(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(pages).set({
+    deletedAt: null,
+    deletedBy: null,
+  }).where(eq(pages.id, id));
+  return { success: true };
+}
+
+// Permanent delete (empty from trash)
+export async function permanentlyDeletePage(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Also delete associated page blocks and site content
+  await db.delete(pageBlocks).where(eq(pageBlocks.pageId, id));
+  
+  // Get the page slug to delete associated site content
+  const [page] = await db.select({ slug: pages.slug }).from(pages).where(eq(pages.id, id));
+  if (page) {
+    await db.delete(siteContent).where(eq(siteContent.page, page.slug));
+  }
+  
   await db.delete(pages).where(eq(pages.id, id));
   return { success: true };
+}
+
+// Empty all trash (permanently delete all trashed pages)
+export async function emptyTrash() {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Get all trashed pages
+  const trashedPages = await db.select().from(pages).where(isNotNull(pages.deletedAt));
+  
+  // Delete each page and its associated content
+  for (const page of trashedPages) {
+    await db.delete(pageBlocks).where(eq(pageBlocks.pageId, page.id));
+    await db.delete(siteContent).where(eq(siteContent.page, page.slug));
+    await db.delete(pages).where(eq(pages.id, page.id));
+  }
+  
+  return { success: true, deletedCount: trashedPages.length };
+}
+
+// Auto-cleanup: delete pages that have been in trash longer than retention days
+export async function cleanupExpiredTrash(retentionDays: number = 30) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - retentionDays);
+  
+  // Get expired trashed pages
+  const expiredPages = await db.select().from(pages)
+    .where(and(
+      isNotNull(pages.deletedAt),
+      lt(pages.deletedAt, cutoffDate)
+    ));
+  
+  // Delete each expired page and its associated content
+  for (const page of expiredPages) {
+    await db.delete(pageBlocks).where(eq(pageBlocks.pageId, page.id));
+    await db.delete(siteContent).where(eq(siteContent.page, page.slug));
+    await db.delete(pages).where(eq(pages.id, page.id));
+  }
+  
+  return { success: true, deletedCount: expiredPages.length };
+}
+
+// Legacy delete function (now calls soft delete)
+export async function deletePage(id: number) {
+  return await softDeletePage(id);
 }
 
 export async function reorderPages(pageOrders: { id: number; navOrder: number; parentId?: number | null }[]) {

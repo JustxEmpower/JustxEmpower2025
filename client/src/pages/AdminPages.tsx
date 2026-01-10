@@ -22,6 +22,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Layout,
   Plus,
   Edit,
@@ -31,6 +47,11 @@ import {
   EyeOff,
   ChevronRight,
   ExternalLink,
+  RotateCcw,
+  Trash,
+  Clock,
+  AlertTriangle,
+  Settings,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -64,6 +85,8 @@ interface Page {
   showInNav: number;
   navOrder: number | null;
   parentId: number | null;
+  deletedAt: Date | null;
+  deletedBy: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -159,12 +182,82 @@ function SortablePage({ page, onEdit, onEditBlocks, onDelete, isChild, parentTit
   );
 }
 
+// Trash item component
+function TrashItem({ 
+  page, 
+  onRestore, 
+  onPermanentDelete,
+  retentionDays 
+}: { 
+  page: Page; 
+  onRestore: (id: number) => void; 
+  onPermanentDelete: (id: number) => void;
+  retentionDays: number;
+}) {
+  const deletedDate = page.deletedAt ? new Date(page.deletedAt) : new Date();
+  const expiryDate = new Date(deletedDate);
+  expiryDate.setDate(expiryDate.getDate() + retentionDays);
+  const daysRemaining = Math.max(0, Math.ceil((expiryDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+  const isExpiringSoon = daysRemaining <= 7;
+
+  return (
+    <div className="flex items-center gap-4 p-4 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
+      <div className="flex-1">
+        <div className="flex items-center gap-2">
+          <Trash2 className="w-4 h-4 text-neutral-400" />
+          <h3 className="font-medium text-neutral-900 dark:text-neutral-100">{page.title}</h3>
+        </div>
+        <p className="text-sm text-neutral-500">/{page.slug}</p>
+        <div className="flex items-center gap-4 mt-2 text-xs">
+          <span className="text-neutral-400">
+            Deleted: {deletedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+          </span>
+          {page.deletedBy && (
+            <span className="text-neutral-400">by {page.deletedBy}</span>
+          )}
+          <span className={`flex items-center gap-1 ${isExpiringSoon ? 'text-amber-600' : 'text-neutral-400'}`}>
+            <Clock className="w-3 h-3" />
+            {daysRemaining} days until auto-delete
+          </span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button
+          onClick={() => onRestore(page.id)}
+          variant="outline"
+          size="sm"
+          className="text-green-600 hover:text-green-700 gap-1"
+        >
+          <RotateCcw className="w-4 h-4" />
+          Restore
+        </Button>
+
+        <Button
+          onClick={() => onPermanentDelete(page.id)}
+          variant="outline"
+          size="sm"
+          className="text-red-600 hover:text-red-700 gap-1"
+        >
+          <Trash className="w-4 h-4" />
+          Delete Forever
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPages() {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, isChecking } = useAdminAuth();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
+  const [isEmptyTrashDialogOpen, setIsEmptyTrashDialogOpen] = useState(false);
+  const [isPermanentDeleteDialogOpen, setIsPermanentDeleteDialogOpen] = useState(false);
+  const [pageToDelete, setPageToDelete] = useState<number | null>(null);
   const [editingPage, setEditingPage] = useState<Page | null>(null);
+  const [activeTab, setActiveTab] = useState("pages");
 
   const [formData, setFormData] = useState({
     title: "",
@@ -177,11 +270,22 @@ export default function AdminPages() {
     autoGenerateSeo: true,
   });
 
+  const [trashSettings, setTrashSettings] = useState({
+    retentionDays: 30,
+    autoCleanup: true,
+  });
+
   const pagesQuery = trpc.admin.pages.list.useQuery();
+  const trashQuery = trpc.admin.pages.trash.list.useQuery();
+  const trashSettingsQuery = trpc.admin.pages.trash.getSettings.useQuery();
   const createMutation = trpc.admin.pages.create.useMutation();
   const updateMutation = trpc.admin.pages.update.useMutation();
   const deleteMutation = trpc.admin.pages.delete.useMutation();
   const reorderMutation = trpc.admin.pages.reorder.useMutation();
+  const restoreMutation = trpc.admin.pages.trash.restore.useMutation();
+  const permanentDeleteMutation = trpc.admin.pages.trash.permanentDelete.useMutation();
+  const emptyTrashMutation = trpc.admin.pages.trash.emptyAll.useMutation();
+  const updateTrashSettingsMutation = trpc.admin.pages.trash.updateSettings.useMutation();
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -195,6 +299,12 @@ export default function AdminPages() {
       setLocation("/admin/login");
     }
   }, [isAuthenticated, isChecking, setLocation]);
+
+  useEffect(() => {
+    if (trashSettingsQuery.data) {
+      setTrashSettings(trashSettingsQuery.data);
+    }
+  }, [trashSettingsQuery.data]);
 
   if (isChecking) {
     return (
@@ -227,6 +337,8 @@ export default function AdminPages() {
   orphans.forEach(orphan => {
     hierarchicalPages.push({ page: orphan, isChild: true, parentTitle: '(Parent Deleted)' });
   });
+
+  const trashedPages = trashQuery.data || [];
 
   const handleCreatePage = async () => {
     try {
@@ -276,14 +388,70 @@ export default function AdminPages() {
       return;
     }
 
-    if (!confirm("Are you sure you want to delete this page?")) return;
+    if (!confirm("Move this page to trash? You can restore it within " + trashSettings.retentionDays + " days.")) return;
 
     try {
       await deleteMutation.mutateAsync({ id });
-      toast.success("Page deleted successfully");
+      toast.success("Page moved to trash");
       pagesQuery.refetch();
+      trashQuery.refetch();
     } catch (error) {
       toast.error("Failed to delete page");
+      console.error(error);
+    }
+  };
+
+  const handleRestorePage = async (id: number) => {
+    try {
+      await restoreMutation.mutateAsync({ id });
+      toast.success("Page restored successfully");
+      pagesQuery.refetch();
+      trashQuery.refetch();
+    } catch (error) {
+      toast.error("Failed to restore page");
+      console.error(error);
+    }
+  };
+
+  const handlePermanentDelete = async (id: number) => {
+    setPageToDelete(id);
+    setIsPermanentDeleteDialogOpen(true);
+  };
+
+  const confirmPermanentDelete = async () => {
+    if (!pageToDelete) return;
+
+    try {
+      await permanentDeleteMutation.mutateAsync({ id: pageToDelete });
+      toast.success("Page permanently deleted");
+      trashQuery.refetch();
+      setIsPermanentDeleteDialogOpen(false);
+      setPageToDelete(null);
+    } catch (error) {
+      toast.error("Failed to delete page");
+      console.error(error);
+    }
+  };
+
+  const handleEmptyTrash = async () => {
+    try {
+      const result = await emptyTrashMutation.mutateAsync();
+      toast.success(`Trash emptied. ${result.deletedCount} page(s) permanently deleted.`);
+      trashQuery.refetch();
+      setIsEmptyTrashDialogOpen(false);
+    } catch (error) {
+      toast.error("Failed to empty trash");
+      console.error(error);
+    }
+  };
+
+  const handleUpdateTrashSettings = async () => {
+    try {
+      await updateTrashSettingsMutation.mutateAsync(trashSettings);
+      toast.success("Trash settings updated");
+      setIsSettingsDialogOpen(false);
+    } catch (error) {
+      toast.error("Failed to update settings");
       console.error(error);
     }
   };
@@ -319,8 +487,6 @@ export default function AdminPages() {
     const reorderedPages = arrayMove(hierarchicalPages, oldIndex, newIndex);
     
     // Determine new parent for each page based on its position in the reordered list
-    // A page becomes a child if it's placed immediately after a top-level page
-    // and before another top-level page (or end of list)
     const pageUpdates: { id: number; navOrder: number; parentId: number | null }[] = [];
     let currentParent: Page | null = null;
     
@@ -331,26 +497,14 @@ export default function AdminPages() {
       // Check if this page was originally a child page
       const wasChild = item.isChild;
       
-      // Look at the previous item to determine if this should be a child
-      if (index > 0) {
-        const prevItem = reorderedPages[index - 1];
-        
-        // If previous item is a top-level page and current item was a child,
-        // make it a child of the previous top-level page
-        if (!prevItem.isChild) {
-          currentParent = prevItem.page;
-        }
-        
-        // If this item was originally a child, keep it as a child of the nearest parent above
-        if (wasChild && currentParent) {
-          newParentId = currentParent.id;
-        }
+      // If it was a child and is still positioned after a top-level page, keep it as child
+      if (wasChild && currentParent) {
+        newParentId = currentParent.id;
       }
       
-      // If this is a top-level page, reset currentParent
+      // If this is a top-level page, update currentParent
       if (!wasChild) {
         currentParent = page;
-        newParentId = null;
       }
       
       pageUpdates.push({
@@ -361,7 +515,6 @@ export default function AdminPages() {
     });
 
     try {
-      // Update both order and parent for each page
       await reorderMutation.mutateAsync({ pageOrders: pageUpdates });
       pagesQuery.refetch();
       toast.success("Pages reordered");
@@ -528,78 +681,158 @@ export default function AdminPages() {
                 </p>
               </div>
 
-              <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-                <DialogTrigger asChild>
-                  <Button className="gap-2">
-                    <Plus className="w-4 h-4" />
-                    Create Page
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Create New Page</DialogTitle>
-                    <DialogDescription>
-                      Add a new page to your website. Set a parent page to create dropdown menus.
-                    </DialogDescription>
-                  </DialogHeader>
+              <div className="flex items-center gap-2">
+                <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+                  <DialogTrigger asChild>
+                    <Button className="gap-2">
+                      <Plus className="w-4 h-4" />
+                      Create Page
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-2xl">
+                    <DialogHeader>
+                      <DialogTitle>Create New Page</DialogTitle>
+                      <DialogDescription>
+                        Add a new page to your website. Set a parent page to create dropdown menus.
+                      </DialogDescription>
+                    </DialogHeader>
 
-                  <PageFormFields />
+                    <PageFormFields />
 
-                  <div className="flex justify-end gap-2 pt-4">
+                    <div className="flex justify-end gap-2 pt-4">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsCreateDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button onClick={handleCreatePage}>Create Page</Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </div>
+
+            {/* Tabs for Pages and Trash */}
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+              <div className="flex items-center justify-between">
+                <TabsList>
+                  <TabsTrigger value="pages" className="gap-2">
+                    <Layout className="w-4 h-4" />
+                    Pages ({pages.length})
+                  </TabsTrigger>
+                  <TabsTrigger value="trash" className="gap-2">
+                    <Trash className="w-4 h-4" />
+                    Trash ({trashedPages.length})
+                  </TabsTrigger>
+                </TabsList>
+
+                {activeTab === "trash" && trashedPages.length > 0 && (
+                  <div className="flex items-center gap-2">
                     <Button
                       variant="outline"
-                      onClick={() => setIsCreateDialogOpen(false)}
+                      size="sm"
+                      onClick={() => setIsSettingsDialogOpen(true)}
+                      className="gap-1"
                     >
-                      Cancel
+                      <Settings className="w-4 h-4" />
+                      Settings
                     </Button>
-                    <Button onClick={handleCreatePage}>Create Page</Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEmptyTrashDialogOpen(true)}
+                      className="text-red-600 hover:text-red-700 gap-1"
+                    >
+                      <Trash className="w-4 h-4" />
+                      Empty Trash
+                    </Button>
                   </div>
-                </DialogContent>
-              </Dialog>
-            </div>
+                )}
+              </div>
 
-            {/* Info Box */}
-            <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
-              <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Navigation Tips</h3>
-              <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
-                <li>• Pages marked "In Nav" appear in the main site navigation</li>
-                <li>• Set a parent page to create dropdown menus</li>
-                <li>• Drag pages to reorder them in the navigation</li>
-                <li>• Navigation automatically adjusts sizing based on item count</li>
-              </ul>
-            </div>
+              <TabsContent value="pages" className="mt-6">
+                {/* Info Box */}
+                <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+                  <h3 className="font-medium text-blue-900 dark:text-blue-100 mb-1">Navigation Tips</h3>
+                  <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+                    <li>• Pages marked "In Nav" appear in the main site navigation</li>
+                    <li>• Set a parent page to create dropdown menus</li>
+                    <li>• Drag pages to reorder them in the navigation</li>
+                    <li>• Deleted pages go to Trash and can be restored within {trashSettings.retentionDays} days</li>
+                  </ul>
+                </div>
 
-            {/* Pages List */}
-            <div className="space-y-3">
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                onDragEnd={handleDragEnd}
-              >
-                <SortableContext
-                  items={hierarchicalPages.map((p) => p.page.id)}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {hierarchicalPages.map(({ page, isChild, parentTitle }) => (
-                    <SortablePage
+                {/* Pages List */}
+                <div className="space-y-3">
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <SortableContext
+                      items={hierarchicalPages.map((p) => p.page.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {hierarchicalPages.map(({ page, isChild, parentTitle }) => (
+                        <SortablePage
+                          key={page.id}
+                          page={page}
+                          onEdit={handleEditPage}
+                          onEditBlocks={handleEditBlocks}
+                          onDelete={handleDeletePage}
+                          isChild={isChild}
+                          parentTitle={parentTitle}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
+
+                  {(!pagesQuery.data || pagesQuery.data.length === 0) && (
+                    <div className="text-center py-12 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                      <p className="text-neutral-500">No pages yet. Create your first page!</p>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="trash" className="mt-6">
+                {/* Trash Info Box */}
+                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 mb-6">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-5 h-5 text-amber-600 mt-0.5" />
+                    <div>
+                      <h3 className="font-medium text-amber-900 dark:text-amber-100 mb-1">Trash Bin</h3>
+                      <p className="text-sm text-amber-700 dark:text-amber-300">
+                        Deleted pages are kept here for {trashSettings.retentionDays} days before being permanently removed.
+                        You can restore pages or delete them permanently at any time.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Trashed Pages List */}
+                <div className="space-y-3">
+                  {trashedPages.map((page) => (
+                    <TrashItem
                       key={page.id}
                       page={page}
-                      onEdit={handleEditPage}
-                      onEditBlocks={handleEditBlocks}
-                      onDelete={handleDeletePage}
-                      isChild={isChild}
-                      parentTitle={parentTitle}
+                      onRestore={handleRestorePage}
+                      onPermanentDelete={handlePermanentDelete}
+                      retentionDays={trashSettings.retentionDays}
                     />
                   ))}
-                </SortableContext>
-              </DndContext>
 
-              {(!pagesQuery.data || pagesQuery.data.length === 0) && (
-                <div className="text-center py-12 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
-                  <p className="text-neutral-500">No pages yet. Create your first page!</p>
+                  {trashedPages.length === 0 && (
+                    <div className="text-center py-12 bg-white dark:bg-neutral-900 rounded-lg border border-neutral-200 dark:border-neutral-800">
+                      <Trash className="w-12 h-12 text-neutral-300 mx-auto mb-4" />
+                      <p className="text-neutral-500">Trash is empty</p>
+                      <p className="text-sm text-neutral-400 mt-1">Deleted pages will appear here</p>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
       </main>
@@ -622,6 +855,99 @@ export default function AdminPages() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Trash Settings Dialog */}
+      <Dialog open={isSettingsDialogOpen} onOpenChange={setIsSettingsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Trash Settings</DialogTitle>
+            <DialogDescription>Configure how long deleted pages are kept before permanent deletion</DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div>
+              <Label htmlFor="retentionDays">Retention Period (days)</Label>
+              <Input
+                id="retentionDays"
+                type="number"
+                min={1}
+                max={365}
+                value={trashSettings.retentionDays}
+                onChange={(e) => setTrashSettings({ ...trashSettings, retentionDays: parseInt(e.target.value) || 30 })}
+              />
+              <p className="text-xs text-neutral-500 mt-1">
+                Pages in trash will be automatically deleted after this many days (1-365)
+              </p>
+            </div>
+
+            <div>
+              <label className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={trashSettings.autoCleanup}
+                  onChange={(e) => setTrashSettings({ ...trashSettings, autoCleanup: e.target.checked })}
+                  className="rounded"
+                />
+                <span className="text-sm">Enable automatic cleanup</span>
+              </label>
+              <p className="text-xs text-neutral-500 mt-1 ml-6">
+                Automatically delete expired pages from trash
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setIsSettingsDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateTrashSettings}>Save Settings</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Empty Trash Confirmation Dialog */}
+      <AlertDialog open={isEmptyTrashDialogOpen} onOpenChange={setIsEmptyTrashDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Empty Trash?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete all {trashedPages.length} page(s) in the trash.
+              This action cannot be undone. All page content, blocks, and associated data will be lost forever.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleEmptyTrash}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Empty Trash
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Permanent Delete Confirmation Dialog */}
+      <AlertDialog open={isPermanentDeleteDialogOpen} onOpenChange={setIsPermanentDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Permanently Delete Page?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this page and all its content.
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setPageToDelete(null)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmPermanentDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete Forever
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
