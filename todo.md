@@ -2137,3 +2137,8 @@ NODE_ENV=production
 - [x] Fix JSON parsing error in backup verification (truncated data at position 65512)
 - [x] Add better error handling for corrupted/truncated backups
 
+
+## Backup Database Column Fix (Jan 10, 2026)
+- [x] Change backupData column from TEXT to LONGTEXT (64KB -> 4GB limit)
+- [ ] Run database migration to apply the change
+

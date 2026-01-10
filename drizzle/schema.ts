@@ -1,4 +1,4 @@
-import { int, json, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
+import { int, json, longtext, mysqlEnum, mysqlTable, text, timestamp, varchar } from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -509,7 +509,7 @@ export const backups = mysqlTable("backups", {
   id: int("id").autoincrement().primaryKey(),
   backupName: varchar("backupName", { length: 255 }).notNull(),
   backupType: varchar("backupType", { length: 50 }).notNull(), // 'manual', 'scheduled', 'auto'
-  backupData: text("backupData"), // JSON dump of database (optional if using S3)
+  backupData: longtext("backupData"), // JSON dump of database (LONGTEXT for large backups up to 4GB)
   s3Key: varchar("s3Key", { length: 500 }), // S3 storage key for backup file
   s3Url: varchar("s3Url", { length: 1000 }), // S3 URL for backup file
   fileSize: int("fileSize").notNull(), // Size in bytes
