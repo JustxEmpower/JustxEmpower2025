@@ -484,9 +484,11 @@ export default function AdminContent() {
                 </div>
               )}
 
-              {/* Content Sections */}
+              {/* Content Sections - Filter out legalSections as it's handled by LegalPageEditorNew */}
               <div className="space-y-4">
-                {Object.entries(groupedContent).map(([section, items]) => (
+                {Object.entries(groupedContent)
+                  .filter(([section]) => section !== 'legalSections')
+                  .map(([section, items]) => (
                   <div
                     key={section}
                     ref={(el) => { sectionRefs.current[section] = el; }}

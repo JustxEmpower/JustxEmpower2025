@@ -2366,3 +2366,9 @@ NODE_ENV=production
 - [ ] Deploy to production
 
 - [ ] Change PDF download to directly download file instead of print dialog
+
+## Legal Page Editor Fixes (Jan 11, 2026)
+
+- [ ] Remove stuck Legal Sections component from Content Editor bottom section
+- [ ] Remove fallback/default content from legal pages - should be blank until admin adds sections
+

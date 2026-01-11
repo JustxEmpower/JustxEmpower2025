@@ -271,8 +271,11 @@ export default function LegalPageRenderer({ pageKey, defaultTitle, defaultConten
               ))}
             </div>
           ) : (
-            // Render default content when no dynamic sections exist
-            defaultContent
+            // Show blank state when no sections have been added yet
+            <div className="text-center py-16 text-muted-foreground">
+              <p className="text-lg">No content has been added to this page yet.</p>
+              <p className="text-sm mt-2">Please check back later or contact the site administrator.</p>
+            </div>
           )}
         </div>
       </div>
