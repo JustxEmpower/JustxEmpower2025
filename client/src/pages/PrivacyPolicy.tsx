@@ -1,170 +1,80 @@
-import { useEffect, useMemo } from 'react';
-import { useLocation } from 'wouter';
-import { usePageContent } from '@/hooks/usePageContent';
+import LegalPageRenderer from '@/components/LegalPageRenderer';
 
-interface ContentBlock {
-  type: 'heading' | 'paragraph';
-  text: string;
-  level?: 1 | 2 | 3;
-}
+// Default content for Privacy Policy when no dynamic sections exist
+const DefaultPrivacyContent = () => (
+  <div className="text-foreground/80 space-y-8">
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">Introduction</h2>
+      <p>Just Empower ("we," "our," or "us") respects your privacy and is committed to protecting your personal data. This privacy policy explains how we collect, use, and safeguard your information when you visit our website.</p>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">Information We Collect</h2>
+      <p>We may collect the following types of information:</p>
+      <ul className="list-disc pl-6 space-y-2">
+        <li><strong>Personal Information:</strong> Name, email address, and other contact details you provide</li>
+        <li><strong>Usage Data:</strong> Information about how you use our website</li>
+        <li><strong>Technical Data:</strong> IP address, browser type, and device information</li>
+        <li><strong>Cookies:</strong> Data collected through cookies and similar technologies</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">How We Use Your Information</h2>
+      <p>We use your information to:</p>
+      <ul className="list-disc pl-6 space-y-2">
+        <li>Provide and maintain our services</li>
+        <li>Communicate with you about updates and offerings</li>
+        <li>Improve our website and user experience</li>
+        <li>Comply with legal obligations</li>
+        <li>Protect against fraud and unauthorized access</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">Data Sharing</h2>
+      <p>We do not sell your personal information. We may share your data with:</p>
+      <ul className="list-disc pl-6 space-y-2">
+        <li>Service providers who assist in our operations</li>
+        <li>Legal authorities when required by law</li>
+        <li>Business partners with your consent</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">Your Rights</h2>
+      <p>You have the right to:</p>
+      <ul className="list-disc pl-6 space-y-2">
+        <li>Access your personal data</li>
+        <li>Correct inaccurate data</li>
+        <li>Request deletion of your data</li>
+        <li>Opt out of marketing communications</li>
+        <li>Lodge a complaint with a supervisory authority</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">Data Security</h2>
+      <p>We implement appropriate security measures to protect your personal information from unauthorized access, alteration, disclosure, or destruction.</p>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">Contact Us</h2>
+      <p>If you have questions about this privacy policy, please contact us:</p>
+      <p className="mt-4">
+        <strong>Just Empower</strong><br />
+        Email: privacy@justxempower.com
+      </p>
+    </section>
+  </div>
+);
 
 export default function PrivacyPolicy() {
-  const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent('privacy-policy');
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location]);
-
-  // Get page title and last updated from hero section
-  const title = getContent('hero', 'title', 'Privacy Policy');
-  const lastUpdated = getContent('hero', 'lastUpdated', '');
-
-  // Get free-form content blocks
-  const blocksJson = getContent('freeformContent', 'blocks', '[]');
-  
-  // Parse the blocks JSON
-  const blocks: ContentBlock[] = useMemo(() => {
-    try {
-      const parsed = JSON.parse(blocksJson);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.error('Failed to parse content blocks:', e);
-      return [];
-    }
-  }, [blocksJson]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
-
-  // Render a content block
-  const renderBlock = (block: ContentBlock, index: number) => {
-    if (block.type === 'heading') {
-      const HeadingTag = `h${block.level || 2}` as keyof JSX.IntrinsicElements;
-      const headingClasses = {
-        1: 'font-serif text-3xl md:text-4xl italic mb-6 text-foreground',
-        2: 'font-serif text-2xl italic mb-4 text-foreground',
-        3: 'font-sans text-lg font-semibold mb-2 text-foreground',
-      };
-      return (
-        <HeadingTag key={index} className={headingClasses[block.level || 2]}>
-          {block.text}
-        </HeadingTag>
-      );
-    }
-
-    if (block.type === 'paragraph') {
-      return (
-        <p key={index} className="mb-4 text-foreground/80 leading-relaxed">
-          {block.text}
-        </p>
-      );
-    }
-
-    return null;
-  };
-
-  // Check if we have free-form content or should show default
-  const hasFreeformContent = blocks.length > 0;
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="py-24 px-6 md:px-12 max-w-4xl mx-auto">
-        <h1 className="font-serif text-4xl md:text-5xl italic mb-8 text-foreground">{title}</h1>
-        {lastUpdated && <p className="text-sm text-muted-foreground mb-12">Last updated: {lastUpdated}</p>}
-
-        <div className="prose prose-lg max-w-none">
-          {hasFreeformContent ? (
-            // Render free-form content blocks
-            blocks.map((block, index) => renderBlock(block, index))
-          ) : (
-            // Default content when no free-form blocks exist
-            <div className="text-foreground/80 space-y-8">
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('introduction', 'heading', 'Introduction')}
-                </h2>
-                <p>
-                  {getContent('introduction', 'content', 'Just Empower ("we", "our", or "us") respects your privacy and is committed to protecting your personal data. This privacy policy will inform you about how we look after your personal data when you visit our website and tell you about your privacy rights and how the law protects you.')}
-                </p>
-              </section>
-
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('informationCollect', 'heading', 'Information We Collect')}
-                </h2>
-                <h3 className="font-sans text-lg font-semibold mb-2">
-                  {getContent('informationCollect', 'subheading', 'Personal Data')}
-                </h3>
-                <p>{getContent('informationCollect', 'intro', 'We may collect personally identifiable information, such as:')}</p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li>{getContent('informationCollect', 'item1', 'Name and email address')}</li>
-                  <li>{getContent('informationCollect', 'item2', 'Phone number')}</li>
-                  <li>{getContent('informationCollect', 'item3', 'Mailing address')}</li>
-                  <li>{getContent('informationCollect', 'item4', 'Payment information')}</li>
-                  <li>{getContent('informationCollect', 'item5', 'Any other information you voluntarily provide')}</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('howWeUse', 'heading', 'How We Use Your Information')}
-                </h2>
-                <p>{getContent('howWeUse', 'intro', 'We use the information we collect for purposes including:')}</p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li>{getContent('howWeUse', 'item1', 'Providing and improving our services')}</li>
-                  <li>{getContent('howWeUse', 'item2', 'Processing transactions and sending related information')}</li>
-                  <li>{getContent('howWeUse', 'item3', 'Sending promotional communications (with your consent)')}</li>
-                  <li>{getContent('howWeUse', 'item4', 'Responding to your inquiries and requests')}</li>
-                  <li>{getContent('howWeUse', 'item5', 'Analyzing usage patterns to improve our website')}</li>
-                  <li>{getContent('howWeUse', 'item6', 'Complying with legal obligations')}</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('dataSecurity', 'heading', 'Data Security')}
-                </h2>
-                <p>
-                  {getContent('dataSecurity', 'content', 'We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. However, no method of transmission over the internet or electronic storage is completely secure.')}
-                </p>
-              </section>
-
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('yourRights', 'heading', 'Your Rights')}
-                </h2>
-                <p>{getContent('yourRights', 'intro', 'Depending on your location, you may have certain rights regarding your personal information, including:')}</p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li>{getContent('yourRights', 'item1', 'The right to access your personal data')}</li>
-                  <li>{getContent('yourRights', 'item2', 'The right to correct inaccurate data')}</li>
-                  <li>{getContent('yourRights', 'item3', 'The right to request deletion of your data')}</li>
-                  <li>{getContent('yourRights', 'item4', 'The right to opt-out of marketing communications')}</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('contact', 'heading', 'Contact Us')}
-                </h2>
-                <p>
-                  {getContent('contact', 'intro', 'If you have questions about this Privacy Policy or our privacy practices, please contact us:')}
-                </p>
-                <p className="mt-4">
-                  <strong>{getContent('contact', 'companyName', 'Just Empower')}</strong><br />
-                  Email: {getContent('contact', 'email', 'privacy@justxempower.com')}<br />
-                  {getContent('contact', 'location', '')}
-                </p>
-              </section>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    <LegalPageRenderer 
+      pageKey="privacy-policy"
+      defaultTitle="Privacy Policy"
+      defaultContent={<DefaultPrivacyContent />}
+    />
   );
 }

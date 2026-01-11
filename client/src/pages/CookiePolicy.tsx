@@ -1,156 +1,72 @@
-import { useEffect, useMemo } from 'react';
-import { useLocation } from 'wouter';
-import { usePageContent } from '@/hooks/usePageContent';
+import LegalPageRenderer from '@/components/LegalPageRenderer';
 
-interface ContentBlock {
-  type: 'heading' | 'paragraph';
-  text: string;
-  level?: 1 | 2 | 3;
-}
+// Default content for Cookie Policy when no dynamic sections exist
+const DefaultCookieContent = () => (
+  <div className="text-foreground/80 space-y-8">
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">What Are Cookies</h2>
+      <p>Cookies are small text files that are placed on your computer or mobile device when you visit a website. They are widely used to make websites work more efficiently and provide information to website owners.</p>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">How We Use Cookies</h2>
+      <p>Just Empower uses cookies for the following purposes:</p>
+      <ul className="list-disc pl-6 space-y-2">
+        <li><strong>Essential Cookies:</strong> Required for the website to function properly</li>
+        <li><strong>Analytics Cookies:</strong> Help us understand how visitors interact with our website</li>
+        <li><strong>Preference Cookies:</strong> Remember your settings and preferences</li>
+        <li><strong>Marketing Cookies:</strong> Used to deliver relevant advertisements</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">Types of Cookies We Use</h2>
+      <p>We use both session cookies (which expire when you close your browser) and persistent cookies (which remain on your device for a set period or until you delete them).</p>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">Third-Party Cookies</h2>
+      <p>Some cookies are placed by third-party services that appear on our pages. We do not control these cookies. Third-party cookies may include:</p>
+      <ul className="list-disc pl-6 space-y-2">
+        <li>Google Analytics for website analytics</li>
+        <li>Social media platforms for sharing functionality</li>
+        <li>Payment processors for secure transactions</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">Managing Cookies</h2>
+      <p>You can control and manage cookies in various ways:</p>
+      <ul className="list-disc pl-6 space-y-2">
+        <li>Browser settings: Most browsers allow you to refuse or accept cookies</li>
+        <li>Third-party tools: Various opt-out tools are available online</li>
+        <li>Our cookie banner: Use our cookie consent tool when you first visit</li>
+      </ul>
+      <p className="mt-4">Please note that disabling cookies may affect the functionality of our website.</p>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">Updates to This Policy</h2>
+      <p>We may update this Cookie Policy from time to time. Any changes will be posted on this page with an updated revision date.</p>
+    </section>
+
+    <section>
+      <h2 className="font-serif text-2xl italic mb-4 text-foreground">Contact Us</h2>
+      <p>If you have questions about our use of cookies, please contact us:</p>
+      <p className="mt-4">
+        <strong>Just Empower</strong><br />
+        Email: privacy@justxempower.com
+      </p>
+    </section>
+  </div>
+);
 
 export default function CookiePolicy() {
-  const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent('cookie-policy');
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [location]);
-
-  // Get page title and last updated from hero section
-  const title = getContent('hero', 'title', 'Cookie Policy');
-  const lastUpdated = getContent('hero', 'lastUpdated', '');
-
-  // Get free-form content blocks
-  const blocksJson = getContent('freeformContent', 'blocks', '[]');
-  
-  // Parse the blocks JSON
-  const blocks: ContentBlock[] = useMemo(() => {
-    try {
-      const parsed = JSON.parse(blocksJson);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.error('Failed to parse content blocks:', e);
-      return [];
-    }
-  }, [blocksJson]);
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
-
-  // Render a content block
-  const renderBlock = (block: ContentBlock, index: number) => {
-    if (block.type === 'heading') {
-      const HeadingTag = `h${block.level || 2}` as keyof JSX.IntrinsicElements;
-      const headingClasses = {
-        1: 'font-serif text-3xl md:text-4xl italic mb-6 text-foreground',
-        2: 'font-serif text-2xl italic mb-4 text-foreground',
-        3: 'font-sans text-lg font-semibold mb-2 text-foreground',
-      };
-      return (
-        <HeadingTag key={index} className={headingClasses[block.level || 2]}>
-          {block.text}
-        </HeadingTag>
-      );
-    }
-
-    if (block.type === 'paragraph') {
-      return (
-        <p key={index} className="mb-4 text-foreground/80 leading-relaxed">
-          {block.text}
-        </p>
-      );
-    }
-
-    return null;
-  };
-
-  // Check if we have free-form content or should show default
-  const hasFreeformContent = blocks.length > 0;
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="py-24 px-6 md:px-12 max-w-4xl mx-auto">
-        <h1 className="font-serif text-4xl md:text-5xl italic mb-8 text-foreground">{title}</h1>
-        {lastUpdated && <p className="text-sm text-muted-foreground mb-12">Last updated: {lastUpdated}</p>}
-
-        <div className="prose prose-lg max-w-none">
-          {hasFreeformContent ? (
-            // Render free-form content blocks
-            blocks.map((block, index) => renderBlock(block, index))
-          ) : (
-            // Default content when no free-form blocks exist
-            <div className="text-foreground/80 space-y-8">
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('whatAreCookies', 'heading', 'What Are Cookies?')}
-                </h2>
-                <p>
-                  {getContent('whatAreCookies', 'content', 'Cookies are small text files that are placed on your computer or mobile device when you visit a website. They are widely used to make websites work more efficiently and provide information to the owners of the site.')}
-                </p>
-              </section>
-
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('howWeUse', 'heading', 'How We Use Cookies')}
-                </h2>
-                <p>{getContent('howWeUse', 'intro', 'Just Empower uses cookies for the following purposes:')}</p>
-                <ul className="list-disc pl-6 space-y-2">
-                  <li><strong>Essential Cookies:</strong> {getContent('howWeUse', 'essential', 'Required for the website to function properly')}</li>
-                  <li><strong>Performance Cookies:</strong> {getContent('howWeUse', 'performance', 'Help us understand how visitors use our website')}</li>
-                  <li><strong>Functional Cookies:</strong> {getContent('howWeUse', 'functional', 'Remember your preferences and settings')}</li>
-                  <li><strong>Marketing Cookies:</strong> {getContent('howWeUse', 'marketing', 'Track your activity for targeted advertising (with consent)')}</li>
-                </ul>
-              </section>
-
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('thirdParty', 'heading', 'Third-Party Cookies')}
-                </h2>
-                <p>
-                  {getContent('thirdParty', 'content', 'We may allow third-party service providers to place cookies on your device for analytics, advertising, and other purposes. These third parties have their own privacy policies governing their use of cookies.')}
-                </p>
-              </section>
-
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('managing', 'heading', 'Managing Cookies')}
-                </h2>
-                <p>
-                  {getContent('managing', 'content', 'You can control and manage cookies through your browser settings. Most browsers allow you to refuse cookies or alert you when cookies are being sent. However, blocking cookies may affect the functionality of our website.')}
-                </p>
-              </section>
-
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('yourChoices', 'heading', 'Your Choices')}
-                </h2>
-                <p>
-                  {getContent('yourChoices', 'content', 'By using our website, you consent to our use of cookies as described in this policy. You can withdraw your consent at any time by changing your browser settings or contacting us.')}
-                </p>
-              </section>
-
-              <section>
-                <h2 className="font-serif text-2xl italic mb-4 text-foreground">
-                  {getContent('contact', 'heading', 'Contact Us')}
-                </h2>
-                <p>
-                  {getContent('contact', 'intro', 'If you have questions about our cookie practices, please contact us:')}
-                </p>
-                <p className="mt-4">
-                  <strong>{getContent('contact', 'companyName', 'Just Empower')}</strong><br />
-                  Email: {getContent('contact', 'email', 'privacy@justxempower.com')}<br />
-                  {getContent('contact', 'location', '')}
-                </p>
-              </section>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
+    <LegalPageRenderer 
+      pageKey="cookie-policy"
+      defaultTitle="Cookie Policy"
+      defaultContent={<DefaultCookieContent />}
+    />
   );
 }
