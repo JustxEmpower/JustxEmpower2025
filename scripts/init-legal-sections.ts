@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { db } from '../server/db';
+import { getDb } from '../server/db';
 import { siteContent } from '../drizzle/schema';
 import { eq, and } from 'drizzle-orm';
 
@@ -14,6 +14,11 @@ async function initializeLegalSections() {
   console.log('Initializing legal sections in database...');
 
   try {
+    const db = await getDb();
+    if (!db) {
+      throw new Error('Database connection failed. Make sure DATABASE_URL is set.');
+    }
+
     for (const page of legalPages) {
       console.log(`Processing ${page.title}...`);
 
