@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play, Plus, ChevronDown, ChevronUp, Calendar, Heart, Leaf, Moon, Star, Sun, Sparkles, Flower2, Mountain, Globe, Shield, Zap, Target, Award, Users, BookOpen, Link } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
 import VideoThumbnail from '@/components/VideoThumbnail';
 import { Input } from '@/components/ui/input';
@@ -368,14 +368,148 @@ function renderField(
     );
   }
 
-  // Handle carousel items array
+  // Handle carousel items array (for JE Offerings Carousel)
   if (key === 'items' && Array.isArray(value)) {
+    // Check if this is FAQ items (has question/answer) or carousel items (has title/imageUrl)
+    const firstItem = value[0] as Record<string, unknown> | undefined;
+    if (firstItem && 'question' in firstItem) {
+      // FAQ items
+      return (
+        <FAQItemsEditor
+          key={key}
+          items={value as Array<{ question: string; answer: string }>}
+          onChange={(newItems) => onChange(key, newItems)}
+        />
+      );
+    }
+    // Carousel items
     const items = value as Array<{ title: string; description?: string; imageUrl?: string; link?: string }>;
     return (
       <CarouselItemsEditor
         key={key}
         items={items}
         onChange={(newItems) => onChange(key, newItems)}
+      />
+    );
+  }
+
+  // Handle pillars array (JE Three Pillars)
+  if (key === 'pillars' && Array.isArray(value)) {
+    return (
+      <PillarsEditor
+        key={key}
+        pillars={value as Array<{ title: string; description: string; icon: string }>}
+        onChange={(newPillars) => onChange(key, newPillars)}
+      />
+    );
+  }
+
+  // Handle principles array (JE Foundational Principles)
+  if (key === 'principles' && Array.isArray(value)) {
+    return (
+      <PrinciplesEditor
+        key={key}
+        principles={value as Array<{ number: string; title: string; description: string; imageUrl?: string }>}
+        onChange={(newPrinciples) => onChange(key, newPrinciples)}
+      />
+    );
+  }
+
+  // Handle volumes array (JE Volumes Display)
+  if (key === 'volumes' && Array.isArray(value)) {
+    return (
+      <VolumesEditor
+        key={key}
+        volumes={value as Array<{ title: string; description: string; imageUrl: string; link: string }>}
+        onChange={(newVolumes) => onChange(key, newVolumes)}
+      />
+    );
+  }
+
+  // Handle images array (JE Image Gallery)
+  if (key === 'images' && Array.isArray(value)) {
+    return (
+      <GalleryImagesEditor
+        key={key}
+        images={value as Array<{ url: string; alt?: string; caption?: string }>}
+        onChange={(newImages) => onChange(key, newImages)}
+      />
+    );
+  }
+
+  // Handle slides array (JE Carousel)
+  if (key === 'slides' && Array.isArray(value)) {
+    return (
+      <CarouselItemsEditor
+        key={key}
+        items={value as Array<{ title: string; description?: string; imageUrl?: string; link?: string }>}
+        onChange={(newSlides) => onChange(key, newSlides)}
+      />
+    );
+  }
+
+  // Handle offerings array (JE Offerings Grid)
+  if (key === 'offerings' && Array.isArray(value)) {
+    return (
+      <OfferingsEditor
+        key={key}
+        offerings={value as Array<{ title: string; description: string; imageUrl: string; price?: string; link: string }>}
+        onChange={(newOfferings) => onChange(key, newOfferings)}
+      />
+    );
+  }
+
+  // Handle events array (JE Calendar)
+  if (key === 'events' && Array.isArray(value)) {
+    return (
+      <EventsEditor
+        key={key}
+        events={value as Array<{ date: string; title: string; type: string; description?: string; link?: string }>}
+        onChange={(newEvents) => onChange(key, newEvents)}
+      />
+    );
+  }
+
+  // Handle footer columns array (JE Footer)
+  if (key === 'columns' && Array.isArray(value)) {
+    return (
+      <FooterColumnsEditor
+        key={key}
+        columns={value as Array<{ title: string; links: Array<{ text: string; url: string }> }>}
+        onChange={(newColumns) => onChange(key, newColumns)}
+      />
+    );
+  }
+
+  // Handle social links array (JE Footer)
+  if (key === 'socialLinks' && Array.isArray(value)) {
+    return (
+      <SocialLinksEditor
+        key={key}
+        links={value as Array<{ platform: string; url: string }>}
+        onChange={(newLinks) => onChange(key, newLinks)}
+      />
+    );
+  }
+
+  // Handle features array (JE Community Section)
+  if (key === 'features' && Array.isArray(value)) {
+    return (
+      <FeaturesEditor
+        key={key}
+        features={value as Array<{ icon: string; title: string; description: string }>}
+        onChange={(newFeatures) => onChange(key, newFeatures)}
+      />
+    );
+  }
+
+  // Handle event types array (JE Calendar)
+  if (key === 'eventTypes' && Array.isArray(value)) {
+    return (
+      <EventTypesEditor
+        key={key}
+        eventTypes={value as Array<{ id: string; name: string; color: string }>}
+        onChange={(newTypes) => onChange(key, newTypes)}
       />
     );
   }
@@ -885,6 +1019,1287 @@ function CarouselItemsEditor({
         }}
         mediaType="image"
       />
+    </div>
+  );
+}
+
+// ==========================================
+// ICON OPTIONS FOR PILLARS/FEATURES
+// ==========================================
+const ICON_OPTIONS = [
+  { value: 'heart', label: 'Heart', icon: Heart },
+  { value: 'leaf', label: 'Leaf', icon: Leaf },
+  { value: 'moon', label: 'Moon', icon: Moon },
+  { value: 'star', label: 'Star', icon: Star },
+  { value: 'sun', label: 'Sun', icon: Sun },
+  { value: 'sparkles', label: 'Sparkles', icon: Sparkles },
+  { value: 'flower', label: 'Flower', icon: Flower2 },
+  { value: 'mountain', label: 'Mountain', icon: Mountain },
+  { value: 'globe', label: 'Globe', icon: Globe },
+  { value: 'shield', label: 'Shield', icon: Shield },
+  { value: 'zap', label: 'Zap', icon: Zap },
+  { value: 'target', label: 'Target', icon: Target },
+  { value: 'award', label: 'Award', icon: Award },
+  { value: 'users', label: 'Users', icon: Users },
+  { value: 'book', label: 'Book', icon: BookOpen },
+];
+
+// ==========================================
+// PILLARS EDITOR (JE Three Pillars)
+// ==========================================
+interface Pillar {
+  title: string;
+  description: string;
+  icon: string;
+}
+
+function PillarsEditor({
+  pillars,
+  onChange,
+}: {
+  pillars: Pillar[];
+  onChange: (pillars: Pillar[]) => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+
+  const updatePillar = (index: number, field: keyof Pillar, value: string) => {
+    const newPillars = [...pillars];
+    newPillars[index] = { ...newPillars[index], [field]: value };
+    onChange(newPillars);
+  };
+
+  const addPillar = () => {
+    const newPillars = [...pillars, { title: `Pillar ${pillars.length + 1}`, description: 'Description...', icon: 'heart' }];
+    onChange(newPillars);
+    setExpandedIndex(newPillars.length - 1);
+  };
+
+  const removePillar = (index: number) => {
+    if (pillars.length <= 1) return;
+    const newPillars = pillars.filter((_, i) => i !== index);
+    onChange(newPillars);
+    if (expandedIndex === index) setExpandedIndex(null);
+  };
+
+  const movePillar = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= pillars.length) return;
+    const newPillars = [...pillars];
+    const [removed] = newPillars.splice(fromIndex, 1);
+    newPillars.splice(toIndex, 0, removed);
+    onChange(newPillars);
+    setExpandedIndex(toIndex);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Pillars ({pillars.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addPillar} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add Pillar
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {pillars.map((pillar, index) => (
+          <div key={index} className="border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+            <div
+              className="flex items-center gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 cursor-pointer"
+              onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+            >
+              <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
+                {(() => {
+                  const IconComponent = ICON_OPTIONS.find(i => i.value === pillar.icon)?.icon || Heart;
+                  return <IconComponent className="w-4 h-4 text-primary" />;
+                })()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{pillar.title || `Pillar ${index + 1}`}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); movePillar(index, index - 1); }} disabled={index === 0}>
+                  <ChevronUp className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); movePillar(index, index + 1); }} disabled={index === pillars.length - 1}>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); removePillar(index); }} disabled={pillars.length <= 1}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                {expandedIndex === index ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              </div>
+            </div>
+            {expandedIndex === index && (
+              <div className="p-3 space-y-3 border-t border-neutral-200 dark:border-neutral-700">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Icon</Label>
+                  <Select value={pillar.icon} onValueChange={(v) => updatePillar(index, 'icon', v)}>
+                    <SelectTrigger className="h-8 text-sm bg-white dark:bg-neutral-900">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ICON_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          <div className="flex items-center gap-2">
+                            <opt.icon className="w-4 h-4" />
+                            {opt.label}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Title</Label>
+                  <Input value={pillar.title} onChange={(e) => updatePillar(index, 'title', e.target.value)} placeholder="Pillar title" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Description</Label>
+                  <Textarea value={pillar.description} onChange={(e) => updatePillar(index, 'description', e.target.value)} placeholder="Pillar description" rows={2} className="text-sm bg-white dark:bg-neutral-900" />
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// PRINCIPLES EDITOR (JE Foundational Principles)
+// ==========================================
+interface Principle {
+  number: string;
+  title: string;
+  description: string;
+  imageUrl?: string;
+}
+
+function PrinciplesEditor({
+  principles,
+  onChange,
+}: {
+  principles: Principle[];
+  onChange: (principles: Principle[]) => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const updatePrinciple = (index: number, field: keyof Principle, value: string) => {
+    const newPrinciples = [...principles];
+    newPrinciples[index] = { ...newPrinciples[index], [field]: value };
+    onChange(newPrinciples);
+  };
+
+  const addPrinciple = () => {
+    const num = String(principles.length + 1).padStart(2, '0');
+    const newPrinciples = [...principles, { number: num, title: `Principle ${principles.length + 1}`, description: 'Description...', imageUrl: '' }];
+    onChange(newPrinciples);
+    setExpandedIndex(newPrinciples.length - 1);
+  };
+
+  const removePrinciple = (index: number) => {
+    if (principles.length <= 1) return;
+    const newPrinciples = principles.filter((_, i) => i !== index);
+    onChange(newPrinciples);
+    if (expandedIndex === index) setExpandedIndex(null);
+  };
+
+  const movePrinciple = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= principles.length) return;
+    const newPrinciples = [...principles];
+    const [removed] = newPrinciples.splice(fromIndex, 1);
+    newPrinciples.splice(toIndex, 0, removed);
+    onChange(newPrinciples);
+    setExpandedIndex(toIndex);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Principles ({principles.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addPrinciple} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add Principle
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {principles.map((principle, index) => (
+          <div key={index} className="border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+            <div
+              className="flex items-center gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 cursor-pointer"
+              onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+            >
+              <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                {principle.number}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{principle.title || `Principle ${index + 1}`}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); movePrinciple(index, index - 1); }} disabled={index === 0}>
+                  <ChevronUp className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); movePrinciple(index, index + 1); }} disabled={index === principles.length - 1}>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); removePrinciple(index); }} disabled={principles.length <= 1}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                {expandedIndex === index ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              </div>
+            </div>
+            {expandedIndex === index && (
+              <div className="p-3 space-y-3 border-t border-neutral-200 dark:border-neutral-700">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Number</Label>
+                    <Input value={principle.number} onChange={(e) => updatePrinciple(index, 'number', e.target.value)} placeholder="01" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Title</Label>
+                    <Input value={principle.title} onChange={(e) => updatePrinciple(index, 'title', e.target.value)} placeholder="Principle title" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Description</Label>
+                  <Textarea value={principle.description} onChange={(e) => updatePrinciple(index, 'description', e.target.value)} placeholder="Principle description" rows={3} className="text-sm bg-white dark:bg-neutral-900" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Image (Optional)</Label>
+                  <div className="flex gap-2">
+                    {principle.imageUrl && (
+                      <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
+                        <img src={principle.imageUrl} alt={principle.title} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="flex-1 space-y-2">
+                      <Button type="button" variant="outline" size="sm" className="w-full h-8 text-xs" onClick={() => { setSelectedIndex(index); setMediaPickerOpen(true); }}>
+                        <Image className="w-3 h-3 mr-1" /> {principle.imageUrl ? 'Change Image' : 'Select Image'}
+                      </Button>
+                      {principle.imageUrl && (
+                        <Button type="button" variant="ghost" size="sm" className="w-full h-7 text-xs text-destructive hover:text-destructive" onClick={() => updatePrinciple(index, 'imageUrl', '')}>
+                          Remove Image
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <MediaPicker
+        open={mediaPickerOpen}
+        onClose={() => { setMediaPickerOpen(false); setSelectedIndex(null); }}
+        onSelect={(url) => { if (selectedIndex !== null) updatePrinciple(selectedIndex, 'imageUrl', url); setMediaPickerOpen(false); setSelectedIndex(null); }}
+        mediaType="image"
+      />
+    </div>
+  );
+}
+
+// ==========================================
+// VOLUMES EDITOR (JE Volumes Display)
+// ==========================================
+interface Volume {
+  title: string;
+  description: string;
+  imageUrl: string;
+  link: string;
+}
+
+function VolumesEditor({
+  volumes,
+  onChange,
+}: {
+  volumes: Volume[];
+  onChange: (volumes: Volume[]) => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const updateVolume = (index: number, field: keyof Volume, value: string) => {
+    const newVolumes = [...volumes];
+    newVolumes[index] = { ...newVolumes[index], [field]: value };
+    onChange(newVolumes);
+  };
+
+  const addVolume = () => {
+    const newVolumes = [...volumes, { title: `Volume ${volumes.length + 1}`, description: 'Description...', imageUrl: '', link: '' }];
+    onChange(newVolumes);
+    setExpandedIndex(newVolumes.length - 1);
+  };
+
+  const removeVolume = (index: number) => {
+    if (volumes.length <= 1) return;
+    const newVolumes = volumes.filter((_, i) => i !== index);
+    onChange(newVolumes);
+    if (expandedIndex === index) setExpandedIndex(null);
+  };
+
+  const moveVolume = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= volumes.length) return;
+    const newVolumes = [...volumes];
+    const [removed] = newVolumes.splice(fromIndex, 1);
+    newVolumes.splice(toIndex, 0, removed);
+    onChange(newVolumes);
+    setExpandedIndex(toIndex);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Volumes ({volumes.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addVolume} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add Volume
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {volumes.map((volume, index) => (
+          <div key={index} className="border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+            <div
+              className="flex items-center gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 cursor-pointer"
+              onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+            >
+              <div className="w-10 h-10 rounded bg-neutral-200 dark:bg-neutral-700 flex-shrink-0 overflow-hidden">
+                {volume.imageUrl ? (
+                  <img src={volume.imageUrl} alt={volume.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center"><BookOpen className="w-4 h-4 text-neutral-400" /></div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{volume.title || `Volume ${index + 1}`}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveVolume(index, index - 1); }} disabled={index === 0}>
+                  <ChevronUp className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveVolume(index, index + 1); }} disabled={index === volumes.length - 1}>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); removeVolume(index); }} disabled={volumes.length <= 1}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                {expandedIndex === index ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              </div>
+            </div>
+            {expandedIndex === index && (
+              <div className="p-3 space-y-3 border-t border-neutral-200 dark:border-neutral-700">
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Cover Image</Label>
+                  <div className="flex gap-2">
+                    {volume.imageUrl && (
+                      <div className="w-16 h-20 rounded overflow-hidden flex-shrink-0">
+                        <img src={volume.imageUrl} alt={volume.title} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="flex-1 space-y-2">
+                      <Button type="button" variant="outline" size="sm" className="w-full h-8 text-xs" onClick={() => { setSelectedIndex(index); setMediaPickerOpen(true); }}>
+                        <Image className="w-3 h-3 mr-1" /> {volume.imageUrl ? 'Change Image' : 'Select Image'}
+                      </Button>
+                      {volume.imageUrl && (
+                        <Button type="button" variant="ghost" size="sm" className="w-full h-7 text-xs text-destructive hover:text-destructive" onClick={() => updateVolume(index, 'imageUrl', '')}>
+                          Remove Image
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Title</Label>
+                  <Input value={volume.title} onChange={(e) => updateVolume(index, 'title', e.target.value)} placeholder="Volume title" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Description</Label>
+                  <Textarea value={volume.description} onChange={(e) => updateVolume(index, 'description', e.target.value)} placeholder="Volume description" rows={2} className="text-sm bg-white dark:bg-neutral-900" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Link</Label>
+                  <Input value={volume.link} onChange={(e) => updateVolume(index, 'link', e.target.value)} placeholder="/page-link or https://..." className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <MediaPicker
+        open={mediaPickerOpen}
+        onClose={() => { setMediaPickerOpen(false); setSelectedIndex(null); }}
+        onSelect={(url) => { if (selectedIndex !== null) updateVolume(selectedIndex, 'imageUrl', url); setMediaPickerOpen(false); setSelectedIndex(null); }}
+        mediaType="image"
+      />
+    </div>
+  );
+}
+
+// ==========================================
+// GALLERY IMAGES EDITOR (JE Image Gallery)
+// ==========================================
+interface GalleryImage {
+  url: string;
+  alt?: string;
+  caption?: string;
+}
+
+function GalleryImagesEditor({
+  images,
+  onChange,
+}: {
+  images: GalleryImage[];
+  onChange: (images: GalleryImage[]) => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const updateImage = (index: number, field: keyof GalleryImage, value: string) => {
+    const newImages = [...images];
+    newImages[index] = { ...newImages[index], [field]: value };
+    onChange(newImages);
+  };
+
+  const addImage = () => {
+    setSelectedIndex(images.length);
+    setMediaPickerOpen(true);
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = images.filter((_, i) => i !== index);
+    onChange(newImages);
+    if (expandedIndex === index) setExpandedIndex(null);
+  };
+
+  const moveImage = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= images.length) return;
+    const newImages = [...images];
+    const [removed] = newImages.splice(fromIndex, 1);
+    newImages.splice(toIndex, 0, removed);
+    onChange(newImages);
+    setExpandedIndex(toIndex);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Gallery Images ({images.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addImage} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add Image
+        </Button>
+      </div>
+      {images.length === 0 ? (
+        <div className="text-center py-8 border-2 border-dashed border-neutral-200 dark:border-neutral-700 rounded-lg">
+          <Image className="w-8 h-8 mx-auto text-neutral-400 mb-2" />
+          <p className="text-sm text-muted-foreground">No images yet</p>
+          <Button type="button" variant="outline" size="sm" onClick={addImage} className="mt-2">
+            <Plus className="w-3 h-3 mr-1" /> Add First Image
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-2">
+          {images.map((image, index) => (
+            <div key={index} className="relative group aspect-square rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+              <img src={image.url} alt={image.alt || ''} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1">
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-white hover:text-white hover:bg-white/20" onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}>
+                  <Settings className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-white hover:text-white hover:bg-white/20" onClick={() => { setSelectedIndex(index); setMediaPickerOpen(true); }}>
+                  <Image className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-red-400 hover:text-red-400 hover:bg-white/20" onClick={() => removeImage(index)}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+              {expandedIndex === index && (
+                <div className="absolute inset-x-0 bottom-0 p-2 bg-black/80 space-y-2">
+                  <Input value={image.alt || ''} onChange={(e) => updateImage(index, 'alt', e.target.value)} placeholder="Alt text" className="h-7 text-xs" />
+                  <Input value={image.caption || ''} onChange={(e) => updateImage(index, 'caption', e.target.value)} placeholder="Caption" className="h-7 text-xs" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+      <MediaPicker
+        open={mediaPickerOpen}
+        onClose={() => { setMediaPickerOpen(false); setSelectedIndex(null); }}
+        onSelect={(url) => {
+          if (selectedIndex !== null) {
+            if (selectedIndex >= images.length) {
+              // Adding new image
+              onChange([...images, { url, alt: '', caption: '' }]);
+            } else {
+              // Updating existing image
+              updateImage(selectedIndex, 'url', url);
+            }
+          }
+          setMediaPickerOpen(false);
+          setSelectedIndex(null);
+        }}
+        mediaType="image"
+      />
+    </div>
+  );
+}
+
+// ==========================================
+// OFFERINGS EDITOR (JE Offerings Grid)
+// ==========================================
+interface Offering {
+  title: string;
+  description: string;
+  imageUrl: string;
+  price?: string;
+  link: string;
+}
+
+function OfferingsEditor({
+  offerings,
+  onChange,
+}: {
+  offerings: Offering[];
+  onChange: (offerings: Offering[]) => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+
+  const updateOffering = (index: number, field: keyof Offering, value: string) => {
+    const newOfferings = [...offerings];
+    newOfferings[index] = { ...newOfferings[index], [field]: value };
+    onChange(newOfferings);
+  };
+
+  const addOffering = () => {
+    const newOfferings = [...offerings, { title: `Offering ${offerings.length + 1}`, description: 'Description...', imageUrl: '', price: '', link: '' }];
+    onChange(newOfferings);
+    setExpandedIndex(newOfferings.length - 1);
+  };
+
+  const removeOffering = (index: number) => {
+    if (offerings.length <= 1) return;
+    const newOfferings = offerings.filter((_, i) => i !== index);
+    onChange(newOfferings);
+    if (expandedIndex === index) setExpandedIndex(null);
+  };
+
+  const moveOffering = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= offerings.length) return;
+    const newOfferings = [...offerings];
+    const [removed] = newOfferings.splice(fromIndex, 1);
+    newOfferings.splice(toIndex, 0, removed);
+    onChange(newOfferings);
+    setExpandedIndex(toIndex);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Offerings ({offerings.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addOffering} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add Offering
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {offerings.map((offering, index) => (
+          <div key={index} className="border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+            <div
+              className="flex items-center gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 cursor-pointer"
+              onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+            >
+              <div className="w-10 h-10 rounded bg-neutral-200 dark:bg-neutral-700 flex-shrink-0 overflow-hidden">
+                {offering.imageUrl ? (
+                  <img src={offering.imageUrl} alt={offering.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center"><Image className="w-4 h-4 text-neutral-400" /></div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{offering.title || `Offering ${index + 1}`}</p>
+                {offering.price && <p className="text-xs text-muted-foreground">{offering.price}</p>}
+              </div>
+              <div className="flex items-center gap-1">
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveOffering(index, index - 1); }} disabled={index === 0}>
+                  <ChevronUp className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveOffering(index, index + 1); }} disabled={index === offerings.length - 1}>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); removeOffering(index); }} disabled={offerings.length <= 1}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                {expandedIndex === index ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              </div>
+            </div>
+            {expandedIndex === index && (
+              <div className="p-3 space-y-3 border-t border-neutral-200 dark:border-neutral-700">
+                <div className="space-y-2">
+                  <Label className="text-xs text-muted-foreground">Image</Label>
+                  <div className="flex gap-2">
+                    {offering.imageUrl && (
+                      <div className="w-16 h-16 rounded overflow-hidden flex-shrink-0">
+                        <img src={offering.imageUrl} alt={offering.title} className="w-full h-full object-cover" />
+                      </div>
+                    )}
+                    <div className="flex-1 space-y-2">
+                      <Button type="button" variant="outline" size="sm" className="w-full h-8 text-xs" onClick={() => { setSelectedIndex(index); setMediaPickerOpen(true); }}>
+                        <Image className="w-3 h-3 mr-1" /> {offering.imageUrl ? 'Change Image' : 'Select Image'}
+                      </Button>
+                      {offering.imageUrl && (
+                        <Button type="button" variant="ghost" size="sm" className="w-full h-7 text-xs text-destructive hover:text-destructive" onClick={() => updateOffering(index, 'imageUrl', '')}>
+                          Remove Image
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Title</Label>
+                  <Input value={offering.title} onChange={(e) => updateOffering(index, 'title', e.target.value)} placeholder="Offering title" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Description</Label>
+                  <Textarea value={offering.description} onChange={(e) => updateOffering(index, 'description', e.target.value)} placeholder="Offering description" rows={2} className="text-sm bg-white dark:bg-neutral-900" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Price (Optional)</Label>
+                    <Input value={offering.price || ''} onChange={(e) => updateOffering(index, 'price', e.target.value)} placeholder="$99" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Link</Label>
+                    <Input value={offering.link} onChange={(e) => updateOffering(index, 'link', e.target.value)} placeholder="/page-link" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+      <MediaPicker
+        open={mediaPickerOpen}
+        onClose={() => { setMediaPickerOpen(false); setSelectedIndex(null); }}
+        onSelect={(url) => { if (selectedIndex !== null) updateOffering(selectedIndex, 'imageUrl', url); setMediaPickerOpen(false); setSelectedIndex(null); }}
+        mediaType="image"
+      />
+    </div>
+  );
+}
+
+// ==========================================
+// EVENTS EDITOR (JE Calendar)
+// ==========================================
+interface CalendarEvent {
+  date: string;
+  title: string;
+  type: string;
+  description?: string;
+  link?: string;
+}
+
+function EventsEditor({
+  events,
+  onChange,
+}: {
+  events: CalendarEvent[];
+  onChange: (events: CalendarEvent[]) => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+
+  const updateEvent = (index: number, field: keyof CalendarEvent, value: string) => {
+    const newEvents = [...events];
+    newEvents[index] = { ...newEvents[index], [field]: value };
+    onChange(newEvents);
+  };
+
+  const addEvent = () => {
+    const today = new Date().toISOString().split('T')[0];
+    const newEvents = [...events, { date: today, title: `Event ${events.length + 1}`, type: 'workshop', description: '', link: '' }];
+    onChange(newEvents);
+    setExpandedIndex(newEvents.length - 1);
+  };
+
+  const removeEvent = (index: number) => {
+    const newEvents = events.filter((_, i) => i !== index);
+    onChange(newEvents);
+    if (expandedIndex === index) setExpandedIndex(null);
+  };
+
+  const moveEvent = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= events.length) return;
+    const newEvents = [...events];
+    const [removed] = newEvents.splice(fromIndex, 1);
+    newEvents.splice(toIndex, 0, removed);
+    onChange(newEvents);
+    setExpandedIndex(toIndex);
+  };
+
+  const EVENT_TYPES = [
+    { value: 'workshop', label: 'Workshop' },
+    { value: 'retreat', label: 'Retreat' },
+    { value: 'webinar', label: 'Webinar' },
+    { value: 'meetup', label: 'Meetup' },
+    { value: 'conference', label: 'Conference' },
+    { value: 'other', label: 'Other' },
+  ];
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Events ({events.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addEvent} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add Event
+        </Button>
+      </div>
+      {events.length === 0 ? (
+        <div className="text-center py-8 border-2 border-dashed border-neutral-200 dark:border-neutral-700 rounded-lg">
+          <Calendar className="w-8 h-8 mx-auto text-neutral-400 mb-2" />
+          <p className="text-sm text-muted-foreground">No events yet</p>
+          <Button type="button" variant="outline" size="sm" onClick={addEvent} className="mt-2">
+            <Plus className="w-3 h-3 mr-1" /> Add First Event
+          </Button>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {events.map((event, index) => (
+            <div key={index} className="border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+              <div
+                className="flex items-center gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 cursor-pointer"
+                onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+              >
+                <div className="w-10 h-10 rounded bg-primary/10 flex flex-col items-center justify-center text-primary">
+                  <span className="text-[10px] font-medium uppercase">{new Date(event.date).toLocaleDateString('en-US', { month: 'short' })}</span>
+                  <span className="text-sm font-bold leading-none">{new Date(event.date).getDate()}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{event.title || `Event ${index + 1}`}</p>
+                  <p className="text-xs text-muted-foreground capitalize">{event.type}</p>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveEvent(index, index - 1); }} disabled={index === 0}>
+                    <ChevronUp className="w-4 h-4" />
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveEvent(index, index + 1); }} disabled={index === events.length - 1}>
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                  <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); removeEvent(index); }}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                  {expandedIndex === index ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+                </div>
+              </div>
+              {expandedIndex === index && (
+                <div className="p-3 space-y-3 border-t border-neutral-200 dark:border-neutral-700">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Date</Label>
+                      <Input type="date" value={event.date} onChange={(e) => updateEvent(index, 'date', e.target.value)} className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-xs text-muted-foreground">Type</Label>
+                      <Select value={event.type} onValueChange={(v) => updateEvent(index, 'type', v)}>
+                        <SelectTrigger className="h-8 text-sm bg-white dark:bg-neutral-900">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {EVENT_TYPES.map((t) => (
+                            <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Title</Label>
+                    <Input value={event.title} onChange={(e) => updateEvent(index, 'title', e.target.value)} placeholder="Event title" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Description (Optional)</Label>
+                    <Textarea value={event.description || ''} onChange={(e) => updateEvent(index, 'description', e.target.value)} placeholder="Event description" rows={2} className="text-sm bg-white dark:bg-neutral-900" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Link (Optional)</Label>
+                    <Input value={event.link || ''} onChange={(e) => updateEvent(index, 'link', e.target.value)} placeholder="/page-link or https://..." className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ==========================================
+// FAQ ITEMS EDITOR (JE FAQ Accordion)
+// ==========================================
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+function FAQItemsEditor({
+  items,
+  onChange,
+}: {
+  items: FAQItem[];
+  onChange: (items: FAQItem[]) => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+
+  const updateItem = (index: number, field: keyof FAQItem, value: string) => {
+    const newItems = [...items];
+    newItems[index] = { ...newItems[index], [field]: value };
+    onChange(newItems);
+  };
+
+  const addItem = () => {
+    const newItems = [...items, { question: `Question ${items.length + 1}?`, answer: 'Answer...' }];
+    onChange(newItems);
+    setExpandedIndex(newItems.length - 1);
+  };
+
+  const removeItem = (index: number) => {
+    if (items.length <= 1) return;
+    const newItems = items.filter((_, i) => i !== index);
+    onChange(newItems);
+    if (expandedIndex === index) setExpandedIndex(null);
+  };
+
+  const moveItem = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= items.length) return;
+    const newItems = [...items];
+    const [removed] = newItems.splice(fromIndex, 1);
+    newItems.splice(toIndex, 0, removed);
+    onChange(newItems);
+    setExpandedIndex(toIndex);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">FAQ Items ({items.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addItem} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add FAQ
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {items.map((item, index) => (
+          <div key={index} className="border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+            <div
+              className="flex items-center gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 cursor-pointer"
+              onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+            >
+              <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary text-sm font-bold">
+                Q{index + 1}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{item.question || `Question ${index + 1}`}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveItem(index, index - 1); }} disabled={index === 0}>
+                  <ChevronUp className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveItem(index, index + 1); }} disabled={index === items.length - 1}>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); removeItem(index); }} disabled={items.length <= 1}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                {expandedIndex === index ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              </div>
+            </div>
+            {expandedIndex === index && (
+              <div className="p-3 space-y-3 border-t border-neutral-200 dark:border-neutral-700">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Question</Label>
+                  <Input value={item.question} onChange={(e) => updateItem(index, 'question', e.target.value)} placeholder="Enter question" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Answer</Label>
+                  <Textarea value={item.answer} onChange={(e) => updateItem(index, 'answer', e.target.value)} placeholder="Enter answer" rows={4} className="text-sm bg-white dark:bg-neutral-900" />
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// FOOTER COLUMNS EDITOR (JE Footer)
+// ==========================================
+interface FooterLink {
+  text: string;
+  url: string;
+}
+
+interface FooterColumn {
+  title: string;
+  links: FooterLink[];
+}
+
+function FooterColumnsEditor({
+  columns,
+  onChange,
+}: {
+  columns: FooterColumn[];
+  onChange: (columns: FooterColumn[]) => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+
+  const updateColumn = (index: number, field: 'title', value: string) => {
+    const newColumns = [...columns];
+    newColumns[index] = { ...newColumns[index], [field]: value };
+    onChange(newColumns);
+  };
+
+  const updateLink = (colIndex: number, linkIndex: number, field: keyof FooterLink, value: string) => {
+    const newColumns = [...columns];
+    const newLinks = [...newColumns[colIndex].links];
+    newLinks[linkIndex] = { ...newLinks[linkIndex], [field]: value };
+    newColumns[colIndex] = { ...newColumns[colIndex], links: newLinks };
+    onChange(newColumns);
+  };
+
+  const addColumn = () => {
+    const newColumns = [...columns, { title: `Column ${columns.length + 1}`, links: [{ text: 'Link', url: '/' }] }];
+    onChange(newColumns);
+    setExpandedIndex(newColumns.length - 1);
+  };
+
+  const removeColumn = (index: number) => {
+    if (columns.length <= 1) return;
+    const newColumns = columns.filter((_, i) => i !== index);
+    onChange(newColumns);
+    if (expandedIndex === index) setExpandedIndex(null);
+  };
+
+  const addLink = (colIndex: number) => {
+    const newColumns = [...columns];
+    newColumns[colIndex] = {
+      ...newColumns[colIndex],
+      links: [...newColumns[colIndex].links, { text: 'New Link', url: '/' }],
+    };
+    onChange(newColumns);
+  };
+
+  const removeLink = (colIndex: number, linkIndex: number) => {
+    if (columns[colIndex].links.length <= 1) return;
+    const newColumns = [...columns];
+    newColumns[colIndex] = {
+      ...newColumns[colIndex],
+      links: newColumns[colIndex].links.filter((_, i) => i !== linkIndex),
+    };
+    onChange(newColumns);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Footer Columns ({columns.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addColumn} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add Column
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {columns.map((column, colIndex) => (
+          <div key={colIndex} className="border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+            <div
+              className="flex items-center gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 cursor-pointer"
+              onClick={() => setExpandedIndex(expandedIndex === colIndex ? null : colIndex)}
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{column.title || `Column ${colIndex + 1}`}</p>
+                <p className="text-xs text-muted-foreground">{column.links.length} links</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); removeColumn(colIndex); }} disabled={columns.length <= 1}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                {expandedIndex === colIndex ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              </div>
+            </div>
+            {expandedIndex === colIndex && (
+              <div className="p-3 space-y-3 border-t border-neutral-200 dark:border-neutral-700">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Column Title</Label>
+                  <Input value={column.title} onChange={(e) => updateColumn(colIndex, 'title', e.target.value)} placeholder="Column title" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                </div>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs text-muted-foreground">Links</Label>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => addLink(colIndex)} className="h-6 px-2 text-xs">
+                      <Plus className="w-3 h-3 mr-1" /> Add
+                    </Button>
+                  </div>
+                  {column.links.map((link, linkIndex) => (
+                    <div key={linkIndex} className="flex gap-2 items-center">
+                      <Input value={link.text} onChange={(e) => updateLink(colIndex, linkIndex, 'text', e.target.value)} placeholder="Link text" className="h-7 text-xs flex-1 bg-white dark:bg-neutral-900" />
+                      <Input value={link.url} onChange={(e) => updateLink(colIndex, linkIndex, 'url', e.target.value)} placeholder="/url" className="h-7 text-xs flex-1 bg-white dark:bg-neutral-900" />
+                      <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={() => removeLink(colIndex, linkIndex)} disabled={column.links.length <= 1}>
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// SOCIAL LINKS EDITOR (JE Footer)
+// ==========================================
+interface SocialLink {
+  platform: string;
+  url: string;
+}
+
+function SocialLinksEditor({
+  links,
+  onChange,
+}: {
+  links: SocialLink[];
+  onChange: (links: SocialLink[]) => void;
+}) {
+  const PLATFORMS = [
+    { value: 'instagram', label: 'Instagram' },
+    { value: 'facebook', label: 'Facebook' },
+    { value: 'twitter', label: 'Twitter/X' },
+    { value: 'youtube', label: 'YouTube' },
+    { value: 'linkedin', label: 'LinkedIn' },
+    { value: 'tiktok', label: 'TikTok' },
+    { value: 'pinterest', label: 'Pinterest' },
+  ];
+
+  const updateLink = (index: number, field: keyof SocialLink, value: string) => {
+    const newLinks = [...links];
+    newLinks[index] = { ...newLinks[index], [field]: value };
+    onChange(newLinks);
+  };
+
+  const addLink = () => {
+    onChange([...links, { platform: 'instagram', url: '' }]);
+  };
+
+  const removeLink = (index: number) => {
+    onChange(links.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Social Links ({links.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addLink} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add Link
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {links.map((link, index) => (
+          <div key={index} className="flex gap-2 items-center">
+            <Select value={link.platform} onValueChange={(v) => updateLink(index, 'platform', v)}>
+              <SelectTrigger className="h-8 text-sm w-32 bg-white dark:bg-neutral-900">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {PLATFORMS.map((p) => (
+                  <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input value={link.url} onChange={(e) => updateLink(index, 'url', e.target.value)} placeholder="https://..." className="h-8 text-sm flex-1 bg-white dark:bg-neutral-900" />
+            <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive" onClick={() => removeLink(index)}>
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// FEATURES EDITOR (JE Community Section)
+// ==========================================
+interface Feature {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+function FeaturesEditor({
+  features,
+  onChange,
+}: {
+  features: Feature[];
+  onChange: (features: Feature[]) => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+
+  const updateFeature = (index: number, field: keyof Feature, value: string) => {
+    const newFeatures = [...features];
+    newFeatures[index] = { ...newFeatures[index], [field]: value };
+    onChange(newFeatures);
+  };
+
+  const addFeature = () => {
+    const newFeatures = [...features, { icon: 'star', title: `Feature ${features.length + 1}`, description: 'Description...' }];
+    onChange(newFeatures);
+    setExpandedIndex(newFeatures.length - 1);
+  };
+
+  const removeFeature = (index: number) => {
+    if (features.length <= 1) return;
+    const newFeatures = features.filter((_, i) => i !== index);
+    onChange(newFeatures);
+    if (expandedIndex === index) setExpandedIndex(null);
+  };
+
+  const moveFeature = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= features.length) return;
+    const newFeatures = [...features];
+    const [removed] = newFeatures.splice(fromIndex, 1);
+    newFeatures.splice(toIndex, 0, removed);
+    onChange(newFeatures);
+    setExpandedIndex(toIndex);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Features ({features.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addFeature} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add Feature
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {features.map((feature, index) => (
+          <div key={index} className="border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+            <div
+              className="flex items-center gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 cursor-pointer"
+              onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+            >
+              <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
+                {(() => {
+                  const IconComponent = ICON_OPTIONS.find(i => i.value === feature.icon)?.icon || Star;
+                  return <IconComponent className="w-4 h-4 text-primary" />;
+                })()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{feature.title || `Feature ${index + 1}`}</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveFeature(index, index - 1); }} disabled={index === 0}>
+                  <ChevronUp className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveFeature(index, index + 1); }} disabled={index === features.length - 1}>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); removeFeature(index); }} disabled={features.length <= 1}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                {expandedIndex === index ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              </div>
+            </div>
+            {expandedIndex === index && (
+              <div className="p-3 space-y-3 border-t border-neutral-200 dark:border-neutral-700">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Icon</Label>
+                  <Select value={feature.icon} onValueChange={(v) => updateFeature(index, 'icon', v)}>
+                    <SelectTrigger className="h-8 text-sm bg-white dark:bg-neutral-900">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ICON_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          <div className="flex items-center gap-2">
+                            <opt.icon className="w-4 h-4" />
+                            {opt.label}
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Title</Label>
+                  <Input value={feature.title} onChange={(e) => updateFeature(index, 'title', e.target.value)} placeholder="Feature title" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Description</Label>
+                  <Textarea value={feature.description} onChange={(e) => updateFeature(index, 'description', e.target.value)} placeholder="Feature description" rows={2} className="text-sm bg-white dark:bg-neutral-900" />
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ==========================================
+// EVENT TYPES EDITOR (JE Calendar)
+// ==========================================
+interface EventType {
+  id: string;
+  name: string;
+  color: string;
+}
+
+function EventTypesEditor({
+  eventTypes,
+  onChange,
+}: {
+  eventTypes: EventType[];
+  onChange: (eventTypes: EventType[]) => void;
+}) {
+  const updateType = (index: number, field: keyof EventType, value: string) => {
+    const newTypes = [...eventTypes];
+    newTypes[index] = { ...newTypes[index], [field]: value };
+    onChange(newTypes);
+  };
+
+  const addType = () => {
+    const id = `type-${Date.now()}`;
+    onChange([...eventTypes, { id, name: 'New Type', color: '#6B7280' }]);
+  };
+
+  const removeType = (index: number) => {
+    if (eventTypes.length <= 1) return;
+    onChange(eventTypes.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Event Types ({eventTypes.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addType} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add Type
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {eventTypes.map((type, index) => (
+          <div key={index} className="flex gap-2 items-center">
+            <Input type="color" value={type.color} onChange={(e) => updateType(index, 'color', e.target.value)} className="w-10 h-8 p-1 cursor-pointer rounded" />
+            <Input value={type.name} onChange={(e) => updateType(index, 'name', e.target.value)} placeholder="Type name" className="h-8 text-sm flex-1 bg-white dark:bg-neutral-900" />
+            <Button type="button" variant="ghost" size="sm" className="h-8 w-8 p-0 text-destructive hover:text-destructive" onClick={() => removeType(index)} disabled={eventTypes.length <= 1}>
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

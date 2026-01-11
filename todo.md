@@ -2175,3 +2175,115 @@ NODE_ENV=production
 - [ ] Investigate BlockPreview component rendering
 - [ ] Fix preview mode to apply rounded corners consistently
 - [ ] Test in both editor and preview modes
+
+
+## COMPREHENSIVE PAGE BUILDER BLOCK AUDIT (Jan 10, 2026)
+
+### Audit Criteria for Each Block:
+1. All text fields are editable in settings panel
+2. All image uploads work (correct number of image fields)
+3. Block renders correctly in Preview mode
+4. Block saves to database correctly
+5. Section visualizer picks it up
+6. Fonts apply correctly
+
+### JE Hero Blocks (3)
+- [ ] JE Hero Video
+- [ ] JE Hero Image
+- [ ] JE Hero Carousel
+
+### JE Content Blocks (16)
+- [ ] JE Section Standard
+- [ ] JE Section Full Width
+- [ ] JE Three Pillars
+- [ ] JE Foundational Principles
+- [ ] JE Heading
+- [ ] JE Paragraph
+- [ ] JE Blockquote
+- [ ] JE Newsletter
+- [ ] JE Community Section
+- [ ] JE Coming Soon
+- [ ] JE Volumes Display
+- [ ] JE FAQ Accordion
+- [ ] JE Footer
+- [ ] JE Two Column
+- [ ] JE Divider
+- [ ] JE Spacer
+
+### JE Media Blocks (4)
+- [ ] JE Image
+- [ ] JE Video
+- [ ] JE Gallery
+- [ ] JE Carousel
+
+### JE Interactive Blocks (8)
+- [ ] JE Accordion
+- [ ] JE Tabs
+- [ ] JE Modal
+- [ ] JE Tooltip
+- [ ] JE Popover
+- [ ] JE Drawer
+- [ ] JE Alert
+- [ ] JE Toast
+
+### Layout Blocks (6)
+- [ ] Hero Section
+- [ ] Columns
+- [ ] Section
+- [ ] Grid Layout
+- [ ] Spacer
+- [ ] Divider
+
+### Content Blocks (17)
+- [ ] Text Block
+- [ ] Heading
+- [ ] Quote
+- [ ] Feature Grid
+- [ ] Testimonials
+- [ ] Team Members
+- [ ] Timeline
+- [ ] Accordion / FAQ
+- [ ] Tabs
+- [ ] Statistics
+- [ ] Logo Grid
+- [ ] Call to Action
+- [ ] Alert / Notice
+- [ ] List
+- [ ] Checklist
+- [ ] Code Block
+- [ ] Custom HTML
+
+### Media Blocks (8)
+- [ ] Image
+- [ ] Video
+- [ ] Gallery
+- [ ] Carousel
+- [ ] Audio
+- [ ] Embed
+- [ ] Map
+- [ ] Icon
+
+### Interactive Blocks (6)
+- [ ] Button
+- [ ] Link
+- [ ] Form
+- [ ] Input
+- [ ] Select
+- [ ] Checkbox
+
+### Issues Found During Audit:
+(Will be populated during audit)
+
+
+
+## Fix Broken JE Blocks (Array-Based Editing) - Jan 10, 2026
+- [ ] Fix JE Three Pillars - add editable pillar items (title, description, icon)
+- [ ] Fix JE Foundational Principles - add editable principle items (number, title, description)
+- [ ] Fix JE Volumes Display - add editable volume items (title, description, image, link)
+- [ ] Fix JE FAQ Accordion - add editable FAQ items (question, answer)
+- [ ] Fix JE Image Gallery - add editable gallery images (url, alt, caption)
+- [ ] Fix JE Carousel - add editable carousel cards (title, description, image, link)
+- [ ] Fix JE Offerings Grid - add editable offering items (title, description, image, price, link)
+- [ ] Fix JE Offerings Carousel - add editable offering items (title, description, image, link)
+- [ ] Fix JE Calendar - add event management (date, title, type, description)
+- [ ] Fix JE Footer - add editable navigation links
