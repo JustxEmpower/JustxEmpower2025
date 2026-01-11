@@ -12,6 +12,7 @@ import AdminSidebar from '@/components/AdminSidebar';
 import SectionVisualizer from '@/components/SectionVisualizer';
 import FontSelector from '@/components/FontSelector';
 import TextFormatToolbar from '@/components/TextFormatToolbar';
+import FreeformContentEditor from '@/components/FreeformContentEditor';
 
 interface ContentItem {
   id: number;
@@ -329,6 +330,9 @@ export default function AdminContent() {
 
   const hasUnsavedChanges = Object.keys(editedContent).length > 0;
 
+  // Check if this is a legal page that should use free-form editor
+  const isLegalPage = ['privacy-policy', 'terms-of-service', 'accessibility', 'cookie-policy'].includes(selectedPage);
+
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex">
       {/* Sidebar */}
@@ -407,6 +411,40 @@ export default function AdminContent() {
                   </button>
                 ))}
               </div>
+
+              {/* Legal Page Free-Form Editor */}
+              {isLegalPage && (
+                <div className="bg-white dark:bg-neutral-900 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 overflow-hidden mb-6">
+                  <div className="p-6">
+                    <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100 mb-2">
+                      Page Content
+                    </h2>
+                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6">
+                      Add headings and paragraphs to build your page content. You can reorder, edit, or delete any block.
+                    </p>
+                    
+                    {/* Find the freeformContent blocks field */}
+                    {(() => {
+                      const blocksItem = content.find(item => item.section === 'freeformContent' && item.contentKey === 'blocks');
+                      if (blocksItem) {
+                        const currentValue = editedContent[blocksItem.id] ?? blocksItem.contentValue;
+                        return (
+                          <FreeformContentEditor
+                            value={currentValue}
+                            onChange={(value) => handleContentChange(blocksItem.id, value)}
+                          />
+                        );
+                      }
+                      return (
+                        <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                          <p className="mb-2">Free-form content not initialized</p>
+                          <p className="text-sm">The page needs to be set up with free-form content support.</p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
 
               {/* Content Sections */}
               <div className="space-y-4">

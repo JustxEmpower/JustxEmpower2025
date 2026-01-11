@@ -2287,3 +2287,35 @@ NODE_ENV=production
 - [ ] Fix JE Offerings Carousel - add editable offering items (title, description, image, link)
 - [ ] Fix JE Calendar - add event management (date, title, type, description)
 - [ ] Fix JE Footer - add editable navigation links
+
+
+## Bug: Edit Elements stopped working (Jan 10, 2026)
+- [ ] Investigate Edit Elements feature failure
+- [ ] Fix the issue
+- [ ] Verify fix works
+
+## Bug: Media upload network error (Jan 10, 2026)
+- [ ] Investigate media upload network error
+- [ ] Fix S3 upload issue
+- [ ] Verify fix works
+
+
+## Footer Links and Legal Page Editor Fix (Jan 10, 2026)
+- [ ] Add missing footer links (Accessibility Statement, Cookie Policy)
+- [ ] Create free-form content editor for legal pages
+- [ ] Replace structured boxes with simple heading/text blocks
+- [ ] Update Privacy Policy, Terms of Service, Accessibility Statement, Cookie Policy pages
+- [ ] Deploy and verify changes
+
+
+## Legal Page Free-Form Content Editor (NEW)
+
+- [x] Create FreeformContentEditor component for flexible heading/paragraph blocks
+- [x] Update AdminContent.tsx to show free-form editor for legal pages
+- [x] Update PrivacyPolicy.tsx to support free-form content blocks
+- [x] Update TermsOfService.tsx to support free-form content blocks
+- [x] Update AccessibilityStatement.tsx to support free-form content blocks
+- [x] Update CookiePolicy.tsx to support free-form content blocks
+- [x] Create migration script for adding freeformContent sections to database
+- [ ] Run migration script on deployed server to enable free-form editing
+- [x] Verify footer shows all four legal links (Accessibility, Privacy Policy, Terms of Service, Cookie Policy)
