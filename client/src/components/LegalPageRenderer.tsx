@@ -1,8 +1,8 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'wouter';
 import { usePageContent } from '@/hooks/usePageContent';
 import { Button } from '@/components/ui/button';
-import { Download } from 'lucide-react';
+import { Download, Loader2 } from 'lucide-react';
 
 interface LegalSection {
   id: string;
@@ -20,6 +20,7 @@ interface LegalPageRendererProps {
 export default function LegalPageRenderer({ pageKey, defaultTitle, defaultContent }: LegalPageRendererProps) {
   const [location] = useLocation();
   const { getContent, isLoading } = usePageContent(pageKey);
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -43,86 +44,142 @@ export default function LegalPageRenderer({ pageKey, defaultTitle, defaultConten
     }
   }, [sectionsJson]);
 
-  // Generate PDF from page content
+  // Generate PDF from page content using print dialog
   const handleDownloadPDF = async () => {
-    // Create a printable version of the content
-    const printContent = document.getElementById('legal-content');
-    if (!printContent) return;
-
-    // Create a new window for printing
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      alert('Please allow popups to download the PDF');
-      return;
-    }
-
-    // Build the print HTML
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>${title}</title>
-          <style>
-            body {
-              font-family: 'Georgia', serif;
-              max-width: 800px;
-              margin: 0 auto;
-              padding: 40px;
-              line-height: 1.6;
-              color: #333;
-            }
-            h1 {
-              font-size: 28px;
-              margin-bottom: 20px;
-              font-style: italic;
-            }
-            h2 {
-              font-size: 20px;
-              margin-top: 30px;
-              margin-bottom: 15px;
-              font-style: italic;
-            }
-            p {
-              margin-bottom: 15px;
-            }
-            .last-updated {
-              font-size: 12px;
-              color: #666;
-              margin-bottom: 30px;
-            }
-            .section {
-              margin-bottom: 30px;
-            }
-            .section-footer {
-              font-size: 12px;
-              color: #666;
-              margin-top: 10px;
-              font-style: italic;
-            }
-            @media print {
-              body { padding: 20px; }
-            }
-          </style>
-        </head>
-        <body>
-          <h1>${title}</h1>
-          ${lastUpdated ? `<p class="last-updated">Last updated: ${lastUpdated}</p>` : ''}
-          ${sections.map(section => `
-            <div class="section">
-              <h2>${section.header}</h2>
-              ${section.body.split('\n\n').map(para => `<p>${para}</p>`).join('')}
-              ${section.footer ? `<p class="section-footer">${section.footer}</p>` : ''}
-            </div>
-          `).join('')}
-        </body>
-      </html>
-    `);
-    printWindow.document.close();
+    setIsGeneratingPDF(true);
     
-    // Wait for content to load then print
-    printWindow.onload = () => {
-      printWindow.print();
-    };
+    try {
+      // Create a hidden iframe for printing
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.width = '0';
+      iframe.style.height = '0';
+      iframe.style.border = 'none';
+      iframe.style.left = '-9999px';
+      document.body.appendChild(iframe);
+
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc) {
+        throw new Error('Could not access iframe document');
+      }
+
+      // Build the print HTML
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>${title} - Just Empower</title>
+            <style>
+              @page {
+                margin: 1in;
+                size: letter;
+              }
+              body {
+                font-family: 'Georgia', 'Times New Roman', serif;
+                max-width: 100%;
+                margin: 0;
+                padding: 0;
+                line-height: 1.7;
+                color: #1a1a1a;
+                font-size: 12pt;
+              }
+              .header {
+                text-align: center;
+                margin-bottom: 40px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid #333;
+              }
+              .company-name {
+                font-size: 14pt;
+                font-weight: bold;
+                margin-bottom: 10px;
+                letter-spacing: 2px;
+              }
+              h1 {
+                font-size: 24pt;
+                margin: 20px 0 10px 0;
+                font-style: italic;
+                font-weight: normal;
+              }
+              .last-updated {
+                font-size: 10pt;
+                color: #666;
+              }
+              h2 {
+                font-size: 14pt;
+                margin-top: 30px;
+                margin-bottom: 15px;
+                font-style: italic;
+                font-weight: normal;
+                color: #333;
+              }
+              p {
+                margin-bottom: 12px;
+                text-align: justify;
+              }
+              .section {
+                margin-bottom: 25px;
+                page-break-inside: avoid;
+              }
+              .section-footer {
+                font-size: 10pt;
+                color: #666;
+                margin-top: 10px;
+                font-style: italic;
+              }
+              .footer {
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 1px solid #ccc;
+                font-size: 10pt;
+                color: #666;
+                text-align: center;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="company-name">JUST EMPOWER</div>
+              <h1>${title}</h1>
+              ${lastUpdated ? `<p class="last-updated">Last updated: ${lastUpdated}</p>` : ''}
+            </div>
+            ${sections.map(section => `
+              <div class="section">
+                <h2>${section.header}</h2>
+                ${section.body.split('\n\n').filter(p => p.trim()).map(para => `<p>${para}</p>`).join('')}
+                ${section.footer ? `<p class="section-footer">${section.footer}</p>` : ''}
+              </div>
+            `).join('')}
+            <div class="footer">
+              <p>© ${new Date().getFullYear()} Just Empower. All rights reserved.</p>
+              <p>www.justxempower.com</p>
+            </div>
+          </body>
+        </html>
+      `;
+
+      iframeDoc.open();
+      iframeDoc.write(htmlContent);
+      iframeDoc.close();
+
+      // Wait for content to load
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Print the iframe content
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+
+      // Clean up after a delay
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('There was an error generating the PDF. Please try again.');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
   if (isLoading) {
@@ -159,10 +216,20 @@ export default function LegalPageRenderer({ pageKey, defaultTitle, defaultConten
             <Button 
               variant="outline" 
               onClick={handleDownloadPDF}
+              disabled={isGeneratingPDF}
               className="flex items-center gap-2 shrink-0"
             >
-              <Download className="h-4 w-4" />
-              Download PDF
+              {isGeneratingPDF ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                <>
+                  <Download className="h-4 w-4" />
+                  Download PDF
+                </>
+              )}
             </Button>
           )}
         </div>
