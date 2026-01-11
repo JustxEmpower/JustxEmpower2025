@@ -142,6 +142,14 @@ export default function AdminContent() {
       await refetch();
     },
   });
+  
+  const upsertMutation = trpc.admin.content.upsert.useMutation({
+    onSuccess: async () => {
+      await utils.admin.content.getByPage.invalidate({ page: selectedPage });
+      await utils.content.getByPage.invalidate({ page: selectedPage });
+      await refetch();
+    },
+  });
 
   useEffect(() => {
     if (contentData) {
@@ -162,14 +170,14 @@ export default function AdminContent() {
     }
   }, [contentData, selectedPage]);
 
-  // Load legal sections from localStorage (client-side storage)
+  // Load legal sections from database
   useEffect(() => {
     const isLegal = ['privacy-policy', 'terms-of-service', 'accessibility', 'cookie-policy'].includes(selectedPage);
-    if (isLegal) {
-      const stored = localStorage.getItem(`legal-sections-${selectedPage}`);
-      if (stored) {
+    if (isLegal && contentData) {
+      const legalSectionItem = contentData.find(item => item.section === 'legalSections' && item.contentKey === 'sections');
+      if (legalSectionItem && legalSectionItem.contentValue) {
         try {
-          const parsed = JSON.parse(stored);
+          const parsed = JSON.parse(legalSectionItem.contentValue);
           setLegalSections(Array.isArray(parsed) ? parsed : []);
         } catch (e) {
           console.error('Failed to parse legal sections:', e);
@@ -178,8 +186,10 @@ export default function AdminContent() {
       } else {
         setLegalSections([]);
       }
+    } else if (!isLegal) {
+      setLegalSections([]);
     }
-  }, [selectedPage]);
+  }, [selectedPage, contentData]);
 
   // Process text styles into a map for easy lookup
   useEffect(() => {
@@ -222,17 +232,16 @@ export default function AdminContent() {
     let successCount = 0;
     let errorCount = 0;
     
-    // Save legal sections if this is a legal page
+    // Save legal sections if this is a legal page (use upsert to create or update)
     if (isLegal && hasLegalSections) {
       try {
-        const legalSectionItem = content.find(item => item.section === 'legalSections');
-        if (legalSectionItem) {
-          await updateMutation.mutateAsync({
-            id: legalSectionItem.id,
-            contentValue: JSON.stringify(legalSections),
-          });
-          successCount++;
-        }
+        await upsertMutation.mutateAsync({
+          page: selectedPage,
+          section: 'legalSections',
+          contentKey: 'sections',
+          contentValue: JSON.stringify(legalSections),
+        });
+        successCount++;
       } catch (error) {
         console.error('Failed to save legal sections:', error);
         errorCount++;
