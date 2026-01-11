@@ -2372,3 +2372,4 @@ NODE_ENV=production
 - [ ] Remove stuck Legal Sections component from Content Editor bottom section
 - [ ] Remove fallback/default content from legal pages - should be blank until admin adds sections
 
+- [ ] Fix light mode navigation text visibility - text invisible on white background

@@ -189,7 +189,7 @@ export default function Header() {
               alt={siteName} 
               className={cn(
                 "w-full h-full object-contain transition-all duration-300",
-                (isScrolled || isMobileMenuOpen) ? "invert brightness-0" : ""
+                (isScrolled || isMobileMenuOpen) ? "invert brightness-0" : "invert brightness-0 dark:invert-0 dark:brightness-100"
               )}
             />
           </a>
@@ -211,7 +211,7 @@ export default function Header() {
                   className={cn(
                     "uppercase tracking-[0.15em] hover:opacity-70 transition-all duration-300 flex items-center gap-1",
                     navFontSize,
-                    isScrolled ? "text-foreground" : "text-white"
+                    isScrolled ? "text-foreground" : "text-foreground dark:text-white"
                   )}
                 >
                   {link.label}
@@ -226,7 +226,7 @@ export default function Header() {
                   <a className={cn(
                     "uppercase tracking-[0.15em] hover:opacity-70 transition-all duration-300",
                     navFontSize,
-                    isScrolled ? "text-foreground" : "text-white"
+                    isScrolled ? "text-foreground" : "text-foreground dark:text-white"
                   )}>
                     {link.label}
                   </a>
@@ -264,7 +264,7 @@ export default function Header() {
                 navFontSize,
                 isScrolled 
                   ? "border-foreground text-foreground hover:bg-foreground hover:text-white" 
-                  : "border-white text-white hover:bg-white hover:text-foreground"
+                  : "border-foreground text-foreground hover:bg-foreground hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-foreground"
               )}>
                 {link.label}
               </a>
@@ -281,12 +281,12 @@ export default function Header() {
           <div className={cn(
             "w-6 h-0.5 bg-current transition-all duration-300 absolute",
             isMobileMenuOpen ? "rotate-45" : "-translate-y-1.5",
-            (isScrolled || isMobileMenuOpen) ? "text-foreground bg-foreground" : "text-white bg-white"
+            (isScrolled || isMobileMenuOpen) ? "text-foreground bg-foreground" : "text-foreground bg-foreground dark:text-white dark:bg-white"
           )} />
           <div className={cn(
             "w-6 h-0.5 bg-current transition-all duration-300 absolute",
             isMobileMenuOpen ? "-rotate-45" : "translate-y-1.5",
-            (isScrolled || isMobileMenuOpen) ? "text-foreground bg-foreground" : "text-white bg-white"
+            (isScrolled || isMobileMenuOpen) ? "text-foreground bg-foreground" : "text-foreground bg-foreground dark:text-white dark:bg-white"
           )} />
         </button>
 
