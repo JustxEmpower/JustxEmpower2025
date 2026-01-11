@@ -170,24 +170,49 @@ export default function AdminContent() {
     }
   }, [contentData, selectedPage]);
 
-  // Load legal sections from database
+  // Load legal sections from database - only on initial page load, not after saves
+  // Use a ref to track if we've loaded the initial data for this page
+  const initialLoadRef = React.useRef<string | null>(null);
+  
   useEffect(() => {
     const isLegal = ['privacy-policy', 'terms-of-service', 'accessibility', 'cookie-policy'].includes(selectedPage);
+    
+    // Reset initial load ref when page changes
+    if (initialLoadRef.current !== selectedPage) {
+      initialLoadRef.current = null;
+    }
+    
     if (isLegal && contentData) {
-      const legalSectionItem = contentData.find(item => item.section === 'legalSections' && item.contentKey === 'sections');
-      if (legalSectionItem && legalSectionItem.contentValue) {
-        try {
-          const parsed = JSON.parse(legalSectionItem.contentValue);
-          setLegalSections(Array.isArray(parsed) ? parsed : []);
-        } catch (e) {
-          console.error('Failed to parse legal sections:', e);
-          setLegalSections([]);
+      // Only load from database if we haven't loaded yet for this page
+      if (initialLoadRef.current !== selectedPage) {
+        const legalSectionItem = contentData.find(item => item.section === 'legalSections' && item.contentKey === 'sections');
+        if (legalSectionItem && legalSectionItem.contentValue) {
+          try {
+            const parsed = JSON.parse(legalSectionItem.contentValue);
+            setLegalSections(Array.isArray(parsed) ? parsed : []);
+          } catch (e) {
+            console.error('Failed to parse legal sections:', e);
+            setLegalSections([]);
+          }
+        } else {
+          // Check localStorage for any unsaved sections
+          const localSections = localStorage.getItem(`legal-sections-${selectedPage}`);
+          if (localSections) {
+            try {
+              const parsed = JSON.parse(localSections);
+              setLegalSections(Array.isArray(parsed) ? parsed : []);
+            } catch (e) {
+              setLegalSections([]);
+            }
+          } else {
+            setLegalSections([]);
+          }
         }
-      } else {
-        setLegalSections([]);
+        initialLoadRef.current = selectedPage;
       }
     } else if (!isLegal) {
       setLegalSections([]);
+      initialLoadRef.current = null;
     }
   }, [selectedPage, contentData]);
 
@@ -221,9 +246,10 @@ export default function AdminContent() {
   const handleSaveAll = async () => {
     const isLegal = ['privacy-policy', 'terms-of-service', 'accessibility', 'cookie-policy'].includes(selectedPage);
     const hasEditedContent = Object.keys(editedContent).length > 0;
-    const hasLegalSections = isLegal && legalSections.length > 0;
+    // Always save legal sections on legal pages (even if empty array, to clear old content)
+    const shouldSaveLegalSections = isLegal;
     
-    if (!hasEditedContent && !hasLegalSections) {
+    if (!hasEditedContent && !shouldSaveLegalSections) {
       toast.info('No changes to save');
       return;
     }
@@ -233,8 +259,9 @@ export default function AdminContent() {
     let errorCount = 0;
     
     // Save legal sections if this is a legal page (use upsert to create or update)
-    if (isLegal && hasLegalSections) {
+    if (shouldSaveLegalSections) {
       try {
+        console.log('Saving legal sections:', legalSections);
         await upsertMutation.mutateAsync({
           page: selectedPage,
           section: 'legalSections',
@@ -242,6 +269,7 @@ export default function AdminContent() {
           contentValue: JSON.stringify(legalSections),
         });
         successCount++;
+        console.log('Legal sections saved successfully');
       } catch (error) {
         console.error('Failed to save legal sections:', error);
         errorCount++;

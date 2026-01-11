@@ -196,9 +196,27 @@ export async function upsertSiteContent(content: InsertSiteContent) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  await db.insert(siteContent).values(content).onDuplicateKeyUpdate({
-    set: { contentValue: content.contentValue, updatedAt: new Date() }
-  });
+  // First check if a record exists with this page+section+contentKey combination
+  const existing = await db.select()
+    .from(siteContent)
+    .where(
+      and(
+        eq(siteContent.page, content.page),
+        eq(siteContent.section, content.section),
+        eq(siteContent.contentKey, content.contentKey)
+      )
+    )
+    .limit(1);
+  
+  if (existing.length > 0) {
+    // Update existing record
+    await db.update(siteContent)
+      .set({ contentValue: content.contentValue, updatedAt: new Date() })
+      .where(eq(siteContent.id, existing[0].id));
+  } else {
+    // Insert new record
+    await db.insert(siteContent).values(content);
+  }
 }
 
 export async function updateSiteContent(id: number, contentValue: string) {
