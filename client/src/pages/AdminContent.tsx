@@ -12,7 +12,7 @@ import AdminSidebar from '@/components/AdminSidebar';
 import SectionVisualizer from '@/components/SectionVisualizer';
 import FontSelector from '@/components/FontSelector';
 import TextFormatToolbar from '@/components/TextFormatToolbar';
-import SectionCreatorWizard, { LegalSection } from '@/components/SectionCreatorWizard';
+import LegalPageEditorNew, { LegalSection } from '@/components/LegalPageEditorNew';
 
 interface ContentItem {
   id: number;
@@ -39,6 +39,12 @@ export default function AdminContent() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [textStyles, setTextStyles] = useState<Record<number, { isBold: boolean; isItalic: boolean; isUnderline: boolean }>>({});
   const [legalSections, setLegalSections] = useState<LegalSection[]>([]);
+  const legalPageNames: Record<string, string> = {
+    'privacy-policy': 'Privacy Policy',
+    'terms-of-service': 'Terms of Service',
+    'accessibility': 'Accessibility Statement',
+    'cookie-policy': 'Cookie Policy',
+  };
   
   // Refs for scrolling to sections
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -156,14 +162,14 @@ export default function AdminContent() {
     }
   }, [contentData, selectedPage]);
 
-  // Load legal sections when a legal page is selected
+  // Load legal sections from localStorage (client-side storage)
   useEffect(() => {
     const isLegal = ['privacy-policy', 'terms-of-service', 'accessibility', 'cookie-policy'].includes(selectedPage);
-    if (isLegal && content.length > 0) {
-      const legalSectionItem = content.find(item => item.section === 'legalSections');
-      if (legalSectionItem) {
+    if (isLegal) {
+      const stored = localStorage.getItem(`legal-sections-${selectedPage}`);
+      if (stored) {
         try {
-          const parsed = JSON.parse(legalSectionItem.contentValue);
+          const parsed = JSON.parse(stored);
           setLegalSections(Array.isArray(parsed) ? parsed : []);
         } catch (e) {
           console.error('Failed to parse legal sections:', e);
@@ -173,7 +179,7 @@ export default function AdminContent() {
         setLegalSections([]);
       }
     }
-  }, [selectedPage, content]);
+  }, [selectedPage]);
 
   // Process text styles into a map for easy lookup
   useEffect(() => {
@@ -453,14 +459,18 @@ export default function AdminContent() {
                 ))}
               </div>
 
-              {/* Legal Page Section Creator */}
+              {/* Legal Page Editor */}
               {isLegalPage && (
                 <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-8 mb-8">
-                  <SectionCreatorWizard
+                  <LegalPageEditorNew
                     sections={legalSections}
-                    onChange={setLegalSections}
+                    onChange={(sections) => {
+                      setLegalSections(sections);
+                      localStorage.setItem(`legal-sections-${selectedPage}`, JSON.stringify(sections));
+                    }}
                     onSave={handleSaveAll}
                     isSaving={updateMutation.isPending}
+                    pageName={legalPageNames[selectedPage] || selectedPage}
                   />
                 </div>
               )}
