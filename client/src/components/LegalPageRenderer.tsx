@@ -3,6 +3,7 @@ import { useLocation } from 'wouter';
 import { usePageContent } from '@/hooks/usePageContent';
 import { Button } from '@/components/ui/button';
 import { Download, Loader2 } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 
 interface LegalSection {
   id: string;
@@ -44,135 +45,152 @@ export default function LegalPageRenderer({ pageKey, defaultTitle, defaultConten
     }
   }, [sectionsJson]);
 
-  // Generate PDF from page content using print dialog
+  // Generate and download PDF directly
   const handleDownloadPDF = async () => {
     setIsGeneratingPDF(true);
     
     try {
-      // Create a hidden iframe for printing
-      const iframe = document.createElement('iframe');
-      iframe.style.position = 'absolute';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
-      iframe.style.border = 'none';
-      iframe.style.left = '-9999px';
-      document.body.appendChild(iframe);
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'letter'
+      });
 
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc) {
-        throw new Error('Could not access iframe document');
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 25;
+      const contentWidth = pageWidth - (margin * 2);
+      let yPosition = margin;
+
+      // Helper function to add new page if needed
+      const checkPageBreak = (height: number) => {
+        if (yPosition + height > pageHeight - margin) {
+          doc.addPage();
+          yPosition = margin;
+          return true;
+        }
+        return false;
+      };
+
+      // Helper function to wrap text
+      const addWrappedText = (text: string, fontSize: number, fontStyle: string = 'normal', lineHeight: number = 1.4) => {
+        doc.setFontSize(fontSize);
+        doc.setFont('helvetica', fontStyle);
+        const lines = doc.splitTextToSize(text, contentWidth);
+        const textHeight = (fontSize * 0.352778) * lineHeight; // Convert pt to mm
+        
+        for (const line of lines) {
+          checkPageBreak(textHeight);
+          doc.text(line, margin, yPosition);
+          yPosition += textHeight;
+        }
+        return lines.length * textHeight;
+      };
+
+      // Company header
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(100, 100, 100);
+      const companyName = 'JUST EMPOWER';
+      const companyWidth = doc.getTextWidth(companyName);
+      doc.text(companyName, (pageWidth - companyWidth) / 2, yPosition);
+      yPosition += 10;
+
+      // Document title
+      doc.setFontSize(24);
+      doc.setFont('helvetica', 'italic');
+      doc.setTextColor(30, 30, 30);
+      const titleWidth = doc.getTextWidth(title);
+      if (titleWidth > contentWidth) {
+        const titleLines = doc.splitTextToSize(title, contentWidth);
+        for (const line of titleLines) {
+          const lineWidth = doc.getTextWidth(line);
+          doc.text(line, (pageWidth - lineWidth) / 2, yPosition);
+          yPosition += 10;
+        }
+      } else {
+        doc.text(title, (pageWidth - titleWidth) / 2, yPosition);
+        yPosition += 10;
       }
 
-      // Build the print HTML
-      const htmlContent = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <title>${title} - Just Empower</title>
-            <style>
-              @page {
-                margin: 1in;
-                size: letter;
-              }
-              body {
-                font-family: 'Georgia', 'Times New Roman', serif;
-                max-width: 100%;
-                margin: 0;
-                padding: 0;
-                line-height: 1.7;
-                color: #1a1a1a;
-                font-size: 12pt;
-              }
-              .header {
-                text-align: center;
-                margin-bottom: 40px;
-                padding-bottom: 20px;
-                border-bottom: 2px solid #333;
-              }
-              .company-name {
-                font-size: 14pt;
-                font-weight: bold;
-                margin-bottom: 10px;
-                letter-spacing: 2px;
-              }
-              h1 {
-                font-size: 24pt;
-                margin: 20px 0 10px 0;
-                font-style: italic;
-                font-weight: normal;
-              }
-              .last-updated {
-                font-size: 10pt;
-                color: #666;
-              }
-              h2 {
-                font-size: 14pt;
-                margin-top: 30px;
-                margin-bottom: 15px;
-                font-style: italic;
-                font-weight: normal;
-                color: #333;
-              }
-              p {
-                margin-bottom: 12px;
-                text-align: justify;
-              }
-              .section {
-                margin-bottom: 25px;
-                page-break-inside: avoid;
-              }
-              .section-footer {
-                font-size: 10pt;
-                color: #666;
-                margin-top: 10px;
-                font-style: italic;
-              }
-              .footer {
-                margin-top: 40px;
-                padding-top: 20px;
-                border-top: 1px solid #ccc;
-                font-size: 10pt;
-                color: #666;
-                text-align: center;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <div class="company-name">JUST EMPOWER</div>
-              <h1>${title}</h1>
-              ${lastUpdated ? `<p class="last-updated">Last updated: ${lastUpdated}</p>` : ''}
-            </div>
-            ${sections.map(section => `
-              <div class="section">
-                <h2>${section.header}</h2>
-                ${section.body.split('\n\n').filter(p => p.trim()).map(para => `<p>${para}</p>`).join('')}
-                ${section.footer ? `<p class="section-footer">${section.footer}</p>` : ''}
-              </div>
-            `).join('')}
-            <div class="footer">
-              <p>© ${new Date().getFullYear()} Just Empower. All rights reserved.</p>
-              <p>www.justxempower.com</p>
-            </div>
-          </body>
-        </html>
-      `;
+      // Last updated
+      if (lastUpdated) {
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.setTextColor(100, 100, 100);
+        const updatedText = `Last updated: ${lastUpdated}`;
+        const updatedWidth = doc.getTextWidth(updatedText);
+        doc.text(updatedText, (pageWidth - updatedWidth) / 2, yPosition);
+        yPosition += 8;
+      }
 
-      iframeDoc.open();
-      iframeDoc.write(htmlContent);
-      iframeDoc.close();
+      // Divider line
+      yPosition += 5;
+      doc.setDrawColor(200, 200, 200);
+      doc.setLineWidth(0.5);
+      doc.line(margin, yPosition, pageWidth - margin, yPosition);
+      yPosition += 15;
 
-      // Wait for content to load
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // Sections
+      doc.setTextColor(30, 30, 30);
+      for (const section of sections) {
+        // Section header
+        checkPageBreak(15);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'italic');
+        doc.text(section.header, margin, yPosition);
+        yPosition += 8;
 
-      // Print the iframe content
-      iframe.contentWindow?.focus();
-      iframe.contentWindow?.print();
+        // Section body - split by paragraphs
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        const paragraphs = section.body.split('\n\n').filter(p => p.trim());
+        
+        for (const para of paragraphs) {
+          const lines = doc.splitTextToSize(para.trim(), contentWidth);
+          for (const line of lines) {
+            checkPageBreak(5);
+            doc.text(line, margin, yPosition);
+            yPosition += 5;
+          }
+          yPosition += 3; // Paragraph spacing
+        }
 
-      // Clean up after a delay
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-      }, 1000);
+        // Section footer
+        if (section.footer) {
+          checkPageBreak(8);
+          doc.setFontSize(9);
+          doc.setFont('helvetica', 'italic');
+          doc.setTextColor(100, 100, 100);
+          doc.text(section.footer, margin, yPosition);
+          doc.setTextColor(30, 30, 30);
+          yPosition += 6;
+        }
+
+        yPosition += 10; // Section spacing
+      }
+
+      // Footer on last page
+      const footerY = pageHeight - 15;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(100, 100, 100);
+      
+      const year = new Date().getFullYear();
+      const footerText1 = `© ${year} Just Empower. All rights reserved.`;
+      const footerText2 = 'www.justxempower.com';
+      
+      const footer1Width = doc.getTextWidth(footerText1);
+      const footer2Width = doc.getTextWidth(footerText2);
+      
+      doc.text(footerText1, (pageWidth - footer1Width) / 2, footerY);
+      doc.text(footerText2, (pageWidth - footer2Width) / 2, footerY + 4);
+
+      // Generate filename from title
+      const filename = `${title.toLowerCase().replace(/\s+/g, '-')}-just-empower.pdf`;
+      
+      // Download the PDF
+      doc.save(filename);
 
     } catch (error) {
       console.error('Error generating PDF:', error);

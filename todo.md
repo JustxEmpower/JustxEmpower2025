@@ -2364,3 +2364,5 @@ NODE_ENV=production
 - [ ] Test PDF downloads
 - [ ] Test footer links on live site
 - [ ] Deploy to production
+
+- [ ] Change PDF download to directly download file instead of print dialog
