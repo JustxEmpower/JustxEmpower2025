@@ -2319,3 +2319,48 @@ NODE_ENV=production
 - [x] Create migration script for adding freeformContent sections to database
 - [ ] Run migration script on deployed server to enable free-form editing
 - [x] Verify footer shows all four legal links (Accessibility, Privacy Policy, Terms of Service, Cookie Policy)
+
+
+## Legal Pages Complete Redesign (NEW - MAJOR)
+
+### Phase 1: Foundation
+- [ ] Fix footer to show all 4 legal links (Accessibility, Privacy, Terms, Cookies)
+- [ ] Delete all existing sections from legal pages in database
+- [ ] Create clean slate for dynamic section creation
+
+### Phase 2: Section Creator Wizard
+- [ ] Create SectionCreatorWizard component with GUI interface
+- [ ] Add "Header" field (main section title)
+- [ ] Add "Body" field with paragraph spacing support
+- [ ] Add optional "Footer" field
+- [ ] Create "Add Section" button
+- [ ] Create "Delete Section" button
+- [ ] Create "Reorder Sections" functionality
+
+### Phase 3: Real-Time Integration
+- [ ] Integrate Section Creator with Section Visualizer
+- [ ] Ensure Section Visualizer reads sections dynamically
+- [ ] Ensure style tools populate automatically
+- [ ] Test real-time sync between wizard and visualizer
+
+### Phase 4: PDF Download
+- [ ] Add PDF download button to Privacy Policy page
+- [ ] Add PDF download button to Terms of Service page
+- [ ] Add PDF download button to Accessibility Statement page
+- [ ] Add PDF download button to Cookie Policy page
+- [ ] Implement PDF generation from page content
+- [ ] Test PDF downloads on all 4 pages
+
+### Phase 5: Live Site Updates
+- [ ] Update PrivacyPolicy.tsx to render dynamic sections
+- [ ] Update TermsOfService.tsx to render dynamic sections
+- [ ] Update AccessibilityStatement.tsx to render dynamic sections
+- [ ] Update CookiePolicy.tsx to render dynamic sections
+- [ ] Verify real-time updates on live site
+
+### Phase 6: Testing & Deployment
+- [ ] Test Section Creator wizard on all 4 pages
+- [ ] Test Section Visualizer sync
+- [ ] Test PDF downloads
+- [ ] Test footer links on live site
+- [ ] Deploy to production

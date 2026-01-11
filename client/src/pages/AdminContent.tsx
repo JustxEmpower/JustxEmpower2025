@@ -12,7 +12,7 @@ import AdminSidebar from '@/components/AdminSidebar';
 import SectionVisualizer from '@/components/SectionVisualizer';
 import FontSelector from '@/components/FontSelector';
 import TextFormatToolbar from '@/components/TextFormatToolbar';
-import FreeformContentEditor from '@/components/FreeformContentEditor';
+import SectionCreatorWizard, { LegalSection } from '@/components/SectionCreatorWizard';
 
 interface ContentItem {
   id: number;
@@ -38,6 +38,7 @@ export default function AdminContent() {
   const [selectedFieldId, setSelectedFieldId] = useState<number | null>(null);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [textStyles, setTextStyles] = useState<Record<number, { isBold: boolean; isItalic: boolean; isUnderline: boolean }>>({});
+  const [legalSections, setLegalSections] = useState<LegalSection[]>([]);
   
   // Refs for scrolling to sections
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -155,6 +156,25 @@ export default function AdminContent() {
     }
   }, [contentData, selectedPage]);
 
+  // Load legal sections when a legal page is selected
+  useEffect(() => {
+    const isLegal = ['privacy-policy', 'terms-of-service', 'accessibility', 'cookie-policy'].includes(selectedPage);
+    if (isLegal && content.length > 0) {
+      const legalSectionItem = content.find(item => item.section === 'legalSections');
+      if (legalSectionItem) {
+        try {
+          const parsed = JSON.parse(legalSectionItem.contentValue);
+          setLegalSections(Array.isArray(parsed) ? parsed : []);
+        } catch (e) {
+          console.error('Failed to parse legal sections:', e);
+          setLegalSections([]);
+        }
+      } else {
+        setLegalSections([]);
+      }
+    }
+  }, [selectedPage, content]);
+
   // Process text styles into a map for easy lookup
   useEffect(() => {
     if (pageTextStyles) {
@@ -183,7 +203,11 @@ export default function AdminContent() {
   };
 
   const handleSaveAll = async () => {
-    if (Object.keys(editedContent).length === 0) {
+    const isLegal = ['privacy-policy', 'terms-of-service', 'accessibility', 'cookie-policy'].includes(selectedPage);
+    const hasEditedContent = Object.keys(editedContent).length > 0;
+    const hasLegalSections = isLegal && legalSections.length > 0;
+    
+    if (!hasEditedContent && !hasLegalSections) {
       toast.info('No changes to save');
       return;
     }
@@ -192,7 +216,24 @@ export default function AdminContent() {
     let successCount = 0;
     let errorCount = 0;
     
-    // Save all updates sequentially
+    // Save legal sections if this is a legal page
+    if (isLegal && hasLegalSections) {
+      try {
+        const legalSectionItem = content.find(item => item.section === 'legalSections');
+        if (legalSectionItem) {
+          await updateMutation.mutateAsync({
+            id: legalSectionItem.id,
+            contentValue: JSON.stringify(legalSections),
+          });
+          successCount++;
+        }
+      } catch (error) {
+        console.error('Failed to save legal sections:', error);
+        errorCount++;
+      }
+    }
+    
+    // Save all other updates sequentially
     for (const [id, value] of updates) {
       try {
         await updateMutation.mutateAsync({
@@ -412,37 +453,15 @@ export default function AdminContent() {
                 ))}
               </div>
 
-              {/* Legal Page Free-Form Editor */}
+              {/* Legal Page Section Creator */}
               {isLegalPage && (
-                <div className="bg-white dark:bg-neutral-900 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 overflow-hidden mb-6">
-                  <div className="p-6">
-                    <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100 mb-2">
-                      Page Content
-                    </h2>
-                    <p className="text-sm text-neutral-500 dark:text-neutral-400 mb-6">
-                      Add headings and paragraphs to build your page content. You can reorder, edit, or delete any block.
-                    </p>
-                    
-                    {/* Find the freeformContent blocks field */}
-                    {(() => {
-                      const blocksItem = content.find(item => item.section === 'freeformContent' && item.contentKey === 'blocks');
-                      if (blocksItem) {
-                        const currentValue = editedContent[blocksItem.id] ?? blocksItem.contentValue;
-                        return (
-                          <FreeformContentEditor
-                            value={currentValue}
-                            onChange={(value) => handleContentChange(blocksItem.id, value)}
-                          />
-                        );
-                      }
-                      return (
-                        <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
-                          <p className="mb-2">Free-form content not initialized</p>
-                          <p className="text-sm">The page needs to be set up with free-form content support.</p>
-                        </div>
-                      );
-                    })()}
-                  </div>
+                <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-8 mb-8">
+                  <SectionCreatorWizard
+                    sections={legalSections}
+                    onChange={setLegalSections}
+                    onSave={handleSaveAll}
+                    isSaving={updateMutation.isPending}
+                  />
                 </div>
               )}
 
