@@ -18,44 +18,52 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 // Video thumbnail component with hover-to-play
 function VideoThumbnail({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isHovering, setIsHovering] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
 
-  const handleMouseEnter = useCallback(() => {
-    setIsHovering(true);
-    if (videoRef.current) {
-      videoRef.current.currentTime = 0;
-      videoRef.current.play().catch(() => {});
-    }
-  }, []);
+  useEffect(() => {
+    const video = videoRef.current;
+    const container = containerRef.current;
+    if (!video || !container) return;
 
-  const handleMouseLeave = useCallback(() => {
-    setIsHovering(false);
-    if (videoRef.current) {
-      videoRef.current.pause();
-      videoRef.current.currentTime = 0;
-    }
-  }, []);
+    const handleEnter = () => {
+      video.currentTime = 0;
+      video.play().then(() => setIsPlaying(true)).catch(() => {});
+    };
+
+    const handleLeave = () => {
+      video.pause();
+      video.currentTime = 0;
+      setIsPlaying(false);
+    };
+
+    container.addEventListener('mouseenter', handleEnter);
+    container.addEventListener('mouseleave', handleLeave);
+
+    return () => {
+      container.removeEventListener('mouseenter', handleEnter);
+      container.removeEventListener('mouseleave', handleLeave);
+    };
+  }, [hasLoaded]);
 
   return (
-    <div 
-      className={`relative ${className}`}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div ref={containerRef} className={`relative ${className}`}>
       <video
         ref={videoRef}
         src={src}
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="auto"
         onLoadedData={() => setHasLoaded(true)}
+        onCanPlay={() => setHasLoaded(true)}
         className="w-full h-full object-cover"
+        style={{ pointerEvents: 'none' }}
       />
-      {/* Play icon overlay when not hovering */}
-      {!isHovering && hasLoaded && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+      {/* Play icon overlay when not playing */}
+      {!isPlaying && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-black/20">
           <div className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center">
             <Play className="w-5 h-5 text-white fill-white ml-0.5" />
           </div>
