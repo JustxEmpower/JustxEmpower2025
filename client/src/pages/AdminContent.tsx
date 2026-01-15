@@ -420,7 +420,7 @@ export default function AdminContent() {
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex">
       {/* Sidebar */}
-      <AdminSidebar variant="light" />
+      <AdminSidebar variant="dark" />
 
       {/* Main Content Area with Section Visualizer */}
       <div className="flex-1 flex overflow-hidden">

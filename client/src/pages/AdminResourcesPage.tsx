@@ -16,8 +16,8 @@ export default function AdminResourcesPage() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-stone-50">
-        <p className="text-stone-500">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
       </div>
     );
   }
@@ -27,8 +27,8 @@ export default function AdminResourcesPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-stone-50">
-      <AdminSidebar />
+    <div className="min-h-screen flex bg-gradient-to-br from-stone-50 via-white to-stone-50">
+      <AdminSidebar variant="dark" />
       <main className="flex-1 p-8 overflow-y-auto">
         <AdminResources />
       </main>
