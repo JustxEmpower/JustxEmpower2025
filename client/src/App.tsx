@@ -127,6 +127,11 @@ function Router() {
       <Route path="/blog-she-writes">{() => <Journal />}</Route>
       <Route path="/blog">{() => <Journal />}</Route>
       <Route path="/blog/:slug" component={ArticleDetail} />
+      {/* Shop, Events, Resources pages */}
+      <Route path="/shop" component={Shop} />
+      <Route path="/community-events" component={CommunityEvents} />
+      <Route path="/resources" component={Resources} />
+      <Route path="/events" component={Events} />
       {/* Product and event detail routes must come before dynamic router */}
       <Route path="/shop/:slug" component={ProductDetail} />
       <Route path="/checkout" component={Checkout} />
