@@ -6,7 +6,7 @@ import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboardEnhanced";
 import AdminSettings from "@/pages/AdminSettings";
 import AdminContent from "@/pages/AdminContent";
-import AdminArticles from "@/pages/AdminArticles";
+import AdminArticles from "@/pages/AdminArticlesEnhanced";
 import AdminMedia from "@/pages/AdminMedia";
 import AdminTheme from "@/pages/AdminTheme";
 import AdminPages from "@/pages/AdminPages";
