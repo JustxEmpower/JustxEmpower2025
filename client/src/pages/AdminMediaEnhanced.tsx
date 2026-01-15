@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Trash2, Image as ImageIcon, Video, Sparkles, Music, X, Copy, RefreshCw, Search, LayoutGrid, List, Filter, HardDrive, FileImage, FileVideo, FileAudio, Zap, Play } from 'lucide-react';
+import { Upload, Trash2, Image as ImageIcon, Video, Sparkles, Music, X, Copy, RefreshCw, Search, LayoutGrid, List, Filter, HardDrive, FileImage, FileVideo, FileAudio, Zap, Play, RefreshCcw, Loader2 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { getMediaUrl } from '@/lib/media';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -123,6 +123,9 @@ export default function AdminMediaEnhanced() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [previewItem, setPreviewItem] = useState<MediaItem | null>(null);
+  const [convertDialogOpen, setConvertDialogOpen] = useState(false);
+  const [convertingItem, setConvertingItem] = useState<MediaItem | null>(null);
+  const [selectedFormat, setSelectedFormat] = useState<string>('');
 
   const { data: mediaList, isLoading, refetch } = trpc.admin.media.list.useQuery(undefined, { enabled: isAuthenticated });
   const getUploadUrlMutation = trpc.admin.media.getUploadUrl.useMutation();
@@ -135,6 +138,33 @@ export default function AdminMediaEnhanced() {
     onSuccess: (data) => { navigator.clipboard.writeText(data.altText); toast.success(`Alt text: "${data.altText}"`); },
     onError: (e) => toast.error(e.message),
   });
+
+  // Conversion queries and mutations
+  const conversionFormatsQuery = trpc.admin.media.getConversionFormats.useQuery(
+    { id: convertingItem?.id || 0 },
+    { enabled: !!convertingItem && convertDialogOpen }
+  );
+  const convertMediaMutation = trpc.admin.media.convertMedia.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Converted to ${data.format}! New file: ${data.filename}`);
+      refetch();
+      setConvertDialogOpen(false);
+      setConvertingItem(null);
+      setSelectedFormat('');
+    },
+    onError: (e) => toast.error(`Conversion failed: ${e.message}`),
+  });
+
+  const openConvertDialog = (item: MediaItem) => {
+    setConvertingItem(item);
+    setSelectedFormat('');
+    setConvertDialogOpen(true);
+  };
+
+  const handleConvert = () => {
+    if (!convertingItem || !selectedFormat) return;
+    convertMediaMutation.mutate({ id: convertingItem.id, targetFormat: selectedFormat });
+  };
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) setLocation('/admin/login');
@@ -361,6 +391,9 @@ export default function AdminMediaEnhanced() {
                         )}
                         <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-10">
                           <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); copyUrl(item.url); }}><Copy className="w-4 h-4" /></Button>
+                          <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); openConvertDialog(item); }} title="Convert format">
+                            <RefreshCcw className="w-4 h-4" />
+                          </Button>
                           {item.mimeType.startsWith('image/') && (
                             <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); generateAltTextMutation.mutate({ imageUrl: getMediaUrl(item.url), context: item.originalName }); }}>
                               <Sparkles className="w-4 h-4" />
@@ -437,8 +470,92 @@ export default function AdminMediaEnhanced() {
                   <audio src={getMediaUrl(previewItem.url)} controls className="w-full" />
                 ) : null}
                 <div className="flex items-center justify-between text-sm text-stone-500">
-                  <span>{formatFileSize(previewItem.fileSize)}</span>
-                  <Button size="sm" onClick={() => copyUrl(previewItem.url)}><Copy className="w-4 h-4 mr-2" />Copy URL</Button>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline">{previewItem.mimeType}</Badge>
+                    <span>{formatFileSize(previewItem.fileSize)}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline" onClick={() => { setPreviewItem(null); openConvertDialog(previewItem); }}>
+                      <RefreshCcw className="w-4 h-4 mr-2" />Convert
+                    </Button>
+                    <Button size="sm" onClick={() => copyUrl(previewItem.url)}><Copy className="w-4 h-4 mr-2" />Copy URL</Button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Convert Dialog */}
+        <Dialog open={convertDialogOpen} onOpenChange={(open) => { if (!open) { setConvertDialogOpen(false); setConvertingItem(null); setSelectedFormat(''); } }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Convert Media</DialogTitle>
+            </DialogHeader>
+            {convertingItem && (
+              <div className="space-y-4 py-2">
+                <div className="flex items-center gap-3 p-3 bg-stone-50 rounded-lg">
+                  <div className="w-16 h-16 bg-stone-200 rounded-lg overflow-hidden flex-shrink-0">
+                    {convertingItem.mimeType.startsWith('image/') ? (
+                      <img src={getMediaUrl(convertingItem.url)} alt={convertingItem.originalName} className="w-full h-full object-cover" />
+                    ) : convertingItem.mimeType.startsWith('video/') ? (
+                      <VideoThumbnail src={getMediaUrl(convertingItem.url)} alt={convertingItem.originalName} className="w-full h-full" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">{getMediaIcon(convertingItem.mimeType)}</div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium truncate">{convertingItem.originalName}</p>
+                    <p className="text-sm text-stone-500">{convertingItem.mimeType}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Convert to:</label>
+                  {conversionFormatsQuery.isLoading ? (
+                    <div className="flex items-center gap-2 text-stone-500">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>Loading formats...</span>
+                    </div>
+                  ) : conversionFormatsQuery.data?.availableFormats?.length === 0 ? (
+                    <p className="text-sm text-stone-500">No conversion formats available for this file type.</p>
+                  ) : (
+                    <Select value={selectedFormat} onValueChange={setSelectedFormat}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select output format" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {conversionFormatsQuery.data?.availableFormats?.map((format: string) => (
+                          <SelectItem key={format} value={format}>
+                            {format.replace('image/', '').replace('video/', '').replace('audio/', '').toUpperCase()}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                </div>
+
+                <div className="flex justify-end gap-2 pt-2">
+                  <Button variant="outline" onClick={() => { setConvertDialogOpen(false); setConvertingItem(null); }}>
+                    Cancel
+                  </Button>
+                  <Button 
+                    onClick={handleConvert} 
+                    disabled={!selectedFormat || convertMediaMutation.isPending}
+                    className="bg-amber-600 hover:bg-amber-700"
+                  >
+                    {convertMediaMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Converting...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCcw className="w-4 h-4 mr-2" />
+                        Convert
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
             )}
