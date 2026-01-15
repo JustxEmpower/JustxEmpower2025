@@ -44,7 +44,6 @@ const navItems = [
   { icon: Images, label: 'Carousel Manager', path: '/admin/carousels' },
   { icon: FileText, label: 'Articles', path: '/admin/articles' },
   { icon: FolderOpen, label: 'Media', path: '/admin/media' },
-  { icon: Files, label: 'Pages', path: '/admin/pages' },
   { icon: Blocks, label: 'Page Builder', path: '/admin/page-builder' },
   // E-commerce / Shop section
   { icon: Package, label: 'Products', path: '/admin/products' },

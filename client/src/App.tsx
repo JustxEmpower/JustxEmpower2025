@@ -15,7 +15,7 @@ import DynamicPageRouter from "@/pages/DynamicPageRouter";
 import AdminAnalytics from "@/pages/AdminAnalyticsEnhanced";
 import AdminBrand from "@/pages/AdminBrandEnhanced";
 import AdminSEO from "@/pages/AdminSEOEnhanced";
-import AdminNavigation from "@/pages/AdminNavigationEnhanced";
+import AdminNavigation from "@/pages/AdminNavigationManager";
 import AdminForms from "@/pages/AdminFormsEnhanced";
 import AdminRedirects from "@/pages/AdminRedirectsEnhanced";
 import AdminCode from "@/pages/AdminCodeEnhanced";
