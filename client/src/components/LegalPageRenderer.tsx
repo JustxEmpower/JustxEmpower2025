@@ -18,9 +18,57 @@ interface LegalPageRendererProps {
   defaultContent?: React.ReactNode;
 }
 
+// Section ordering and configuration for each legal page type
+const LEGAL_PAGE_SECTIONS: Record<string, { sectionKey: string; headingKey: string; contentKeys: string[] }[]> = {
+  'privacy-policy': [
+    { sectionKey: 'introduction', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'informationCollect', headingKey: 'heading', contentKeys: ['intro', 'subheading', 'item1', 'item2', 'item3', 'item4', 'item5'] },
+    { sectionKey: 'howWeUse', headingKey: 'heading', contentKeys: ['intro', 'item1', 'item2', 'item3', 'item4', 'item5', 'item6'] },
+    { sectionKey: 'dataSharing', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'dataSecurity', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'cookies', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'yourRights', headingKey: 'heading', contentKeys: ['item1', 'item2', 'item3', 'item4'] },
+    { sectionKey: 'childrenPrivacy', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'changes', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'contact', headingKey: 'heading', contentKeys: ['intro', 'companyName', 'email', 'location'] },
+  ],
+  'terms-of-service': [
+    { sectionKey: 'acceptance', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'useOfService', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'userAccounts', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'intellectualProperty', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'userContent', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'prohibitedUses', headingKey: 'heading', contentKeys: ['content', 'item1', 'item2', 'item3', 'item4', 'item5'] },
+    { sectionKey: 'disclaimer', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'limitation', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'indemnification', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'termination', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'governing', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'changes', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'contact', headingKey: 'heading', contentKeys: ['intro', 'companyName', 'email', 'location'] },
+  ],
+  'accessibility': [
+    { sectionKey: 'commitment', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'conformance', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'compatibility', headingKey: 'heading', contentKeys: ['intro', 'item1', 'item2', 'item3', 'item4'] },
+    { sectionKey: 'features', headingKey: 'heading', contentKeys: ['intro', 'keyboard', 'screenReader', 'altText', 'resizableText', 'colorContrast', 'focusIndicators', 'skipLinks'] },
+    { sectionKey: 'feedback', headingKey: 'heading', contentKeys: ['intro', 'email', 'response'] },
+    { sectionKey: 'contact', headingKey: 'heading', contentKeys: ['intro', 'companyName', 'email', 'location'] },
+  ],
+  'cookie-policy': [
+    { sectionKey: 'whatAreCookies', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'howWeUse', headingKey: 'heading', contentKeys: ['intro', 'essential', 'functional', 'performance', 'marketing'] },
+    { sectionKey: 'typesOfCookies', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'thirdParty', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'managing', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'yourChoices', headingKey: 'heading', contentKeys: ['content'] },
+    { sectionKey: 'contact', headingKey: 'heading', contentKeys: ['intro', 'companyName', 'email', 'location'] },
+  ],
+};
+
 export default function LegalPageRenderer({ pageKey, defaultTitle, defaultContent }: LegalPageRendererProps) {
   const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent(pageKey);
+  const { getContent, getSection, content, isLoading } = usePageContent(pageKey);
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
 
   useEffect(() => {
@@ -31,19 +79,61 @@ export default function LegalPageRenderer({ pageKey, defaultTitle, defaultConten
   const title = getContent('hero', 'title', defaultTitle);
   const lastUpdated = getContent('hero', 'lastUpdated', '');
 
-  // Get legal sections from database
-  const sectionsJson = getContent('legalSections', 'sections', '[]');
-  
-  // Parse the sections JSON
+  // Build sections from individual content items in database
   const sections: LegalSection[] = useMemo(() => {
-    try {
-      const parsed = JSON.parse(sectionsJson);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (e) {
-      console.error('Failed to parse legal sections:', e);
-      return [];
+    // First try the new legalSections format
+    const sectionsJson = getContent('legalSections', 'sections', '');
+    if (sectionsJson && sectionsJson !== '[]') {
+      try {
+        const parsed = JSON.parse(sectionsJson);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Failed to parse legal sections JSON:', e);
+      }
     }
-  }, [sectionsJson]);
+
+    // Fall back to building sections from individual content items
+    const pageConfig = LEGAL_PAGE_SECTIONS[pageKey];
+    if (!pageConfig) return [];
+
+    const builtSections: LegalSection[] = [];
+    
+    for (const config of pageConfig) {
+      const heading = getContent(config.sectionKey, config.headingKey, '');
+      if (!heading) continue; // Skip sections without headings
+      
+      // Build body from content keys
+      const bodyParts: string[] = [];
+      for (const key of config.contentKeys) {
+        const value = getContent(config.sectionKey, key, '');
+        if (value) {
+          // Format contact info specially
+          if (config.sectionKey === 'contact') {
+            if (key === 'companyName' && value) bodyParts.push(`Company: ${value}`);
+            else if (key === 'email' && value) bodyParts.push(`Email: ${value}`);
+            else if (key === 'location' && value) bodyParts.push(`Location: ${value}`);
+            else if (value) bodyParts.push(value);
+          } else if (key.startsWith('item')) {
+            bodyParts.push(`• ${value}`);
+          } else {
+            bodyParts.push(value);
+          }
+        }
+      }
+      
+      if (bodyParts.length > 0) {
+        builtSections.push({
+          id: config.sectionKey,
+          header: heading,
+          body: bodyParts.join('\n\n'),
+        });
+      }
+    }
+    
+    return builtSections;
+  }, [pageKey, getContent, content]);
 
   // Generate and download PDF directly
   const handleDownloadPDF = async () => {
