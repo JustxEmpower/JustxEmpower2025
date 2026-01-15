@@ -1,6 +1,8 @@
+import 'dotenv/config';
 import mysql from 'mysql2/promise';
 
 async function fixSchema() {
+  console.log('Connecting to database...');
   const conn = await mysql.createConnection(process.env.DATABASE_URL);
   
   try {
