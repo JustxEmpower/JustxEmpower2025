@@ -27,7 +27,7 @@ import AdminEvents from "@/pages/AdminEventsEnhanced";
 import AdminOrders from "@/pages/AdminOrders";
 import AdminShop from "@/pages/AdminShop";
 import AdminReviews from "@/pages/AdminReviewsEnhanced";
-import AdminCategories from "@/pages/AdminCategories";
+import AdminCategories from "@/pages/AdminCategoriesEnhanced";
 import AdminAttendees from "@/pages/AdminAttendeesEnhanced";
 import AdminRevenue from "@/pages/AdminRevenue";
 import AdminPayments from "@/pages/AdminPayments";
