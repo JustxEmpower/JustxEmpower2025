@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import AdminLogin from "@/pages/AdminLogin";
-import AdminDashboard from "@/pages/AdminDashboard";
+import AdminDashboard from "@/pages/AdminDashboardEnhanced";
 import AdminSettings from "@/pages/AdminSettings";
 import AdminContent from "@/pages/AdminContent";
 import AdminArticles from "@/pages/AdminArticles";
