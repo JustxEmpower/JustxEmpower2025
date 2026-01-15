@@ -42,23 +42,23 @@ export default function NewsletterSignup({ variant = 'inline', className = '' }:
     });
   };
 
-  // Footer variant - responsive layout (stacks on mobile)
+  // Footer variant - stacked layout for better readability
   if (variant === 'footer') {
     return (
-      <form onSubmit={handleSubmit} className={`flex flex-col sm:flex-row gap-2 ${className}`}>
+      <form onSubmit={handleSubmit} className={`flex flex-col gap-3 ${className}`}>
         <Input
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Your email address"
+          placeholder="Your email"
           required
-          className="flex-1 min-w-0 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-400 h-10"
+          className="w-full bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-400 h-10"
           disabled={subscribeMutation.isPending}
         />
         <Button
           type="submit"
           disabled={subscribeMutation.isPending}
-          className="bg-white text-black hover:bg-neutral-200 whitespace-nowrap h-10 px-6"
+          className="w-full bg-white text-black hover:bg-neutral-200 h-10"
         >
           {subscribeMutation.isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />
