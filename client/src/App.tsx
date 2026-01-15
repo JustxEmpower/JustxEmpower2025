@@ -23,7 +23,7 @@ import AdminBackup from "@/pages/AdminBackup";
 import AdminBackupTimeMachine from "@/pages/AdminBackupTimeMachine";
 import AdminUsers from "@/pages/AdminUsers";
 import AdminProducts from "@/pages/AdminProducts";
-import AdminEvents from "@/pages/AdminEvents";
+import AdminEvents from "@/pages/AdminEventsEnhanced";
 import AdminOrders from "@/pages/AdminOrders";
 import AdminShop from "@/pages/AdminShop";
 import AdminReviews from "@/pages/AdminReviews";
@@ -128,10 +128,10 @@ function Router() {
       <Route path="/blog">{() => <Journal />}</Route>
       <Route path="/blog/:slug" component={ArticleDetail} />
       {/* Shop, Events, Resources pages */}
-      <Route path="/shop" component={Shop} />
-      <Route path="/community-events" component={CommunityEvents} />
-      <Route path="/resources" component={Resources} />
-      <Route path="/events" component={Events} />
+      <Route path="/shop">{() => <Shop />}</Route>
+      <Route path="/community-events">{() => <CommunityEvents />}</Route>
+      <Route path="/resources">{() => <Resources />}</Route>
+      <Route path="/events">{() => <Events />}</Route>
       {/* Product and event detail routes must come before dynamic router */}
       <Route path="/shop/:slug" component={ProductDetail} />
       <Route path="/checkout" component={Checkout} />
