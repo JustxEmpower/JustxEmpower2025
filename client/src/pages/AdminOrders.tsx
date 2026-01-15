@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
+import { motion, AnimatePresence } from "framer-motion";
 import AdminSidebar from '@/components/AdminSidebar';
 import {
   LogOut,
@@ -22,6 +25,18 @@ import {
   ClipboardList,
   Package,
   Eye,
+  Search,
+  Filter,
+  RefreshCw,
+  DollarSign,
+  TrendingUp,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Truck,
+  CreditCard,
+  ArrowUpRight,
+  MoreHorizontal,
 } from "lucide-react";
 
 export default function AdminOrders() {
@@ -29,6 +44,7 @@ export default function AdminOrders() {
   const { isAuthenticated, isChecking, username, logout } = useAdminAuth();
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const ordersQuery = trpc.admin.orders.list.useQuery(
     statusFilter !== "all" ? { status: statusFilter as any } : {}
@@ -62,7 +78,21 @@ export default function AdminOrders() {
     return null;
   }
 
-  const orders = ordersQuery.data?.orders || [];
+  const allOrders = ordersQuery.data?.orders || [];
+  
+  // Filter orders
+  const orders = allOrders.filter((order: any) => {
+    if (searchQuery === "") return true;
+    return order.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           order.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+           `${order.firstName} ${order.lastName}`.toLowerCase().includes(searchQuery.toLowerCase());
+  });
+  
+  // Calculate stats
+  const totalRevenue = allOrders.filter((o: any) => o.paymentStatus === 'paid').reduce((sum: number, o: any) => sum + o.total, 0);
+  const pendingOrders = allOrders.filter((o: any) => o.status === 'pending').length;
+  const processingOrders = allOrders.filter((o: any) => o.status === 'processing').length;
+  const completedOrders = allOrders.filter((o: any) => o.status === 'delivered').length;
 
   const formatDate = (date: Date | string) => {
     const d = new Date(date);
@@ -86,20 +116,102 @@ export default function AdminOrders() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex">
-      {/* Sidebar */}
-      <AdminSidebar variant="light" />
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+      <AdminSidebar variant="dark" />
 
-      {/* Main Content */}
-      <main className="flex-1 p-8 overflow-auto">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-3xl font-light tracking-tight">Orders</h1>
-              <p className="text-neutral-500 mt-1">Manage shop orders and fulfillment</p>
+      <main className="flex-1 overflow-auto">
+        {/* Header */}
+        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-stone-900">Orders</h1>
+                <p className="text-stone-500 text-sm">Manage shop orders and fulfillment</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button variant="outline" size="sm" onClick={() => ordersQuery.refetch()}>
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Refresh
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-6 py-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 300 }}>
+              <Card className="bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-emerald-600 font-medium">Total Revenue</p>
+                      <p className="text-2xl font-bold text-emerald-900">${(totalRevenue / 100).toLocaleString()}</p>
+                    </div>
+                    <DollarSign className="w-8 h-8 text-emerald-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 300 }}>
+              <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-amber-600 font-medium">Pending</p>
+                      <p className="text-2xl font-bold text-amber-900">{pendingOrders}</p>
+                    </div>
+                    <Clock className="w-8 h-8 text-amber-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 300 }}>
+              <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-blue-600 font-medium">Processing</p>
+                      <p className="text-2xl font-bold text-blue-900">{processingOrders}</p>
+                    </div>
+                    <Truck className="w-8 h-8 text-blue-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+            
+            <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 300 }}>
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-green-600 font-medium">Completed</p>
+                      <p className="text-2xl font-bold text-green-900">{completedOrders}</p>
+                    </div>
+                    <CheckCircle className="w-8 h-8 text-green-500" />
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          {/* Search and Filter */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-stone-400" />
+              <Input
+                placeholder="Search orders..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-[180px]">
+                <Filter className="w-4 h-4 mr-2" />
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
@@ -115,64 +227,90 @@ export default function AdminOrders() {
           </div>
 
           {ordersQuery.isLoading ? (
-            <div className="text-center py-12">Loading orders...</div>
+            <div className="flex items-center justify-center py-20">
+              <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            </div>
           ) : orders.length === 0 ? (
             <Card>
-              <CardContent className="flex flex-col items-center justify-center py-12">
-                <Package className="w-12 h-12 text-neutral-400 mb-4" />
-                <h3 className="text-lg font-medium mb-2">No orders yet</h3>
-                <p className="text-neutral-500">Orders will appear here when customers make purchases</p>
+              <CardContent className="flex flex-col items-center justify-center py-16">
+                <div className="w-20 h-20 rounded-full bg-stone-100 flex items-center justify-center mb-4">
+                  <Package className="w-10 h-10 text-stone-400" />
+                </div>
+                <h3 className="text-lg font-semibold mb-2">{searchQuery ? "No orders match your search" : "No orders yet"}</h3>
+                <p className="text-stone-500 text-center max-w-md">
+                  {searchQuery ? "Try adjusting your search criteria" : "Orders will appear here when customers make purchases"}
+                </p>
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-4">
-              {orders.map((order: any) => (
-                <Card key={order.id}>
-                  <CardContent className="flex items-center gap-4 p-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium">{order.orderNumber}</h3>
-                        <span className={`px-2 py-0.5 text-xs rounded-full ${getStatusColor(order.status)}`}>
-                          {order.status}
-                        </span>
-                      </div>
-                      <p className="text-sm text-neutral-500 mt-1">
-                        {order.firstName} {order.lastName} • {order.email}
-                      </p>
-                      <p className="text-xs text-neutral-400 mt-1">
-                        {formatDate(order.createdAt)}
-                      </p>
+            <div className="space-y-3">
+              <AnimatePresence>
+                {orders.map((order: any, index: number) => (
+                  <motion.div
+                    key={order.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    transition={{ delay: index * 0.03 }}
+                  >
+                    <Card className="hover:shadow-md transition-all">
+                      <CardContent className="flex items-center gap-4 p-4">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0">
+                          <ShoppingBag className="w-6 h-6 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-semibold">{order.orderNumber}</h3>
+                            <Badge className={`${getStatusColor(order.status)}`}>
+                              {order.status}
+                            </Badge>
+                            {order.paymentStatus === "paid" && (
+                              <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
+                                <CreditCard className="w-3 h-3 mr-1" />
+                                Paid
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-stone-600 mt-1">
+                            {order.firstName} {order.lastName} • {order.email}
+                          </p>
+                          <p className="text-xs text-stone-400 mt-1">
+                            {formatDate(order.createdAt)}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xl font-bold text-primary">${(order.total / 100).toFixed(2)}</p>
+                          <p className="text-xs text-stone-500 mt-1">
+                            {order.itemCount || 1} item{order.itemCount !== 1 ? 's' : ''}
+                          </p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-medium">${(order.total / 100).toFixed(2)}</p>
-                      <p className="text-sm text-neutral-500">
-                        {order.paymentStatus === "paid" ? "Paid" : order.paymentStatus}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Select 
-                        value={order.status} 
-                        onValueChange={(value) => handleStatusChange(order.id, value)}
-                      >
-                        <SelectTrigger className="w-[130px]">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="pending">Pending</SelectItem>
-                          <SelectItem value="processing">Processing</SelectItem>
-                          <SelectItem value="shipped">Shipped</SelectItem>
-                          <SelectItem value="delivered">Delivered</SelectItem>
-                          <SelectItem value="cancelled">Cancelled</SelectItem>
-                          <SelectItem value="refunded">Refunded</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <Button variant="ghost" size="icon" onClick={() => setSelectedOrder(order)}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
+                        <div className="flex items-center gap-2 mt-2">
+                          <Select 
+                            value={order.status} 
+                            onValueChange={(value) => handleStatusChange(order.id, value)}
+                          >
+                            <SelectTrigger className="w-[130px] h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="pending">Pending</SelectItem>
+                              <SelectItem value="processing">Processing</SelectItem>
+                              <SelectItem value="shipped">Shipped</SelectItem>
+                              <SelectItem value="delivered">Delivered</SelectItem>
+                              <SelectItem value="cancelled">Cancelled</SelectItem>
+                              <SelectItem value="refunded">Refunded</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
+                            <Eye className="w-4 h-4 mr-1" />
+                            Details
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
           )}
 
