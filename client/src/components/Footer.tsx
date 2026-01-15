@@ -146,7 +146,7 @@ export default function Footer() {
           </div>
 
           {/* Links Column 1 - Explore */}
-          <div className="md:col-span-2 md:col-start-7">
+          <div className="md:col-span-2 md:col-start-6">
             <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-background/40 mb-8">{column1Title}</h3>
             <ul className="space-y-4">
               {displayExploreLinks.map((item: any) => (
@@ -180,9 +180,9 @@ export default function Footer() {
           </div>
 
           {/* Newsletter Column */}
-          <div className="md:col-span-2">
+          <div className="md:col-span-4">
             <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-background/40 mb-8">{newsletterTitle}</h3>
-            <p className="font-sans text-background/60 text-sm mb-4">
+            <p className="font-sans text-background/60 text-sm mb-6 max-w-xs">
               {newsletterDescription}
             </p>
             <NewsletterSignup variant="footer" />
