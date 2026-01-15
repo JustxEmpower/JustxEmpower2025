@@ -15,41 +15,22 @@ import { getMediaUrl } from '@/lib/media';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-// Video thumbnail component with hover-to-play
-function VideoThumbnail({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+// Video thumbnail - simple display, parent handles hover
+function VideoThumbnail({ src, alt, className = "", videoRef, isPlaying }: { 
+  src: string; 
+  alt: string; 
+  className?: string;
+  videoRef?: React.RefObject<HTMLVideoElement>;
+  isPlaying?: boolean;
+}) {
+  const localRef = useRef<HTMLVideoElement>(null);
+  const ref = videoRef || localRef;
   const [hasLoaded, setHasLoaded] = useState(false);
 
-  const playVideo = () => {
-    const video = videoRef.current;
-    if (video) {
-      video.currentTime = 0;
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => setIsPlaying(true)).catch(() => {});
-      }
-    }
-  };
-
-  const pauseVideo = () => {
-    const video = videoRef.current;
-    if (video) {
-      video.pause();
-      video.currentTime = 0;
-      setIsPlaying(false);
-    }
-  };
-
   return (
-    <div 
-      className={`relative ${className}`}
-      onMouseEnter={playVideo}
-      onMouseLeave={pauseVideo}
-      onMouseOver={playVideo}
-    >
+    <div className={`relative ${className}`}>
       <video
-        ref={videoRef}
+        ref={ref}
         src={src}
         muted
         loop
@@ -73,6 +54,81 @@ function VideoThumbnail({ src, alt, className = "" }: { src: string; alt: string
         </div>
       )}
     </div>
+  );
+}
+
+// Media grid card with video hover-to-play at card level
+function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerateAlt, formatFileSize, getMediaIcon }: {
+  item: MediaItem;
+  onPreview: () => void;
+  onCopy: () => void;
+  onConvert: () => void;
+  onDelete: () => void;
+  onGenerateAlt: () => void;
+  formatFileSize: (bytes: number) => string;
+  getMediaIcon: (mimeType: string, size?: string) => React.ReactNode;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const handleMouseEnter = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().then(() => setIsPlaying(true)).catch(() => {});
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+      setIsPlaying(false);
+    }
+  };
+
+  const isVideo = item.mimeType.startsWith('video/');
+
+  return (
+    <Card 
+      className="overflow-hidden group hover:shadow-lg transition-shadow cursor-pointer" 
+      onClick={onPreview}
+      onMouseEnter={isVideo ? handleMouseEnter : undefined}
+      onMouseLeave={isVideo ? handleMouseLeave : undefined}
+    >
+      <div className="aspect-square bg-stone-100 relative overflow-hidden">
+        {item.mimeType.startsWith('image/') ? (
+          <img src={getMediaUrl(item.url)} alt={item.originalName} className="w-full h-full object-cover" loading="lazy" />
+        ) : isVideo ? (
+          <VideoThumbnail 
+            src={getMediaUrl(item.url)} 
+            alt={item.originalName} 
+            className="w-full h-full" 
+            videoRef={videoRef}
+            isPlaying={isPlaying}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">{getMediaIcon(item.mimeType, 'w-12 h-12')}</div>
+        )}
+        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-10">
+          <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onCopy(); }}><Copy className="w-4 h-4" /></Button>
+          <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onConvert(); }} title="Convert format">
+            <RefreshCcw className="w-4 h-4" />
+          </Button>
+          {item.mimeType.startsWith('image/') && (
+            <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onGenerateAlt(); }}>
+              <Sparkles className="w-4 h-4" />
+            </Button>
+          )}
+          <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+      <CardContent className="p-3">
+        <p className="text-sm font-medium truncate">{item.originalName}</p>
+        <p className="text-xs text-stone-500">{formatFileSize(item.fileSize)}</p>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -377,35 +433,16 @@ export default function AdminMediaEnhanced() {
               <AnimatePresence mode="popLayout">
                 {filteredMedia.map((item: MediaItem, i: number) => (
                   <motion.div key={item.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ delay: i * 0.02 }}>
-                    <Card className="overflow-hidden group hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setPreviewItem(item)}>
-                      <div className="aspect-square bg-stone-100 relative overflow-hidden">
-                        {item.mimeType.startsWith('image/') ? (
-                          <img src={getMediaUrl(item.url)} alt={item.originalName} className="w-full h-full object-cover" loading="lazy" />
-                        ) : item.mimeType.startsWith('video/') ? (
-                          <VideoThumbnail src={getMediaUrl(item.url)} alt={item.originalName} className="w-full h-full" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">{getMediaIcon(item.mimeType, 'w-12 h-12')}</div>
-                        )}
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-10">
-                          <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); copyUrl(item.url); }}><Copy className="w-4 h-4" /></Button>
-                          <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); openConvertDialog(item); }} title="Convert format">
-                            <RefreshCcw className="w-4 h-4" />
-                          </Button>
-                          {item.mimeType.startsWith('image/') && (
-                            <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); generateAltTextMutation.mutate({ imageUrl: getMediaUrl(item.url), context: item.originalName }); }}>
-                              <Sparkles className="w-4 h-4" />
-                            </Button>
-                          )}
-                          <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); if (confirm('Delete?')) deleteMutation.mutate({ id: item.id }); }}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </div>
-                      <CardContent className="p-3">
-                        <p className="text-sm font-medium truncate">{item.originalName}</p>
-                        <p className="text-xs text-stone-500">{formatFileSize(item.fileSize)}</p>
-                      </CardContent>
-                    </Card>
+                    <MediaGridCard
+                      item={item}
+                      onPreview={() => setPreviewItem(item)}
+                      onCopy={() => copyUrl(item.url)}
+                      onConvert={() => openConvertDialog(item)}
+                      onDelete={() => { if (confirm('Delete?')) deleteMutation.mutate({ id: item.id }); }}
+                      onGenerateAlt={() => generateAltTextMutation.mutate({ imageUrl: getMediaUrl(item.url), context: item.originalName })}
+                      formatFileSize={formatFileSize}
+                      getMediaIcon={getMediaIcon}
+                    />
                   </motion.div>
                 ))}
               </AnimatePresence>
