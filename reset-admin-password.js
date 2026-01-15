@@ -1,6 +1,11 @@
 import 'dotenv/config';
 import mysql from 'mysql2/promise';
-import { hash } from 'bcrypt';
+import crypto from 'crypto';
+
+// Hash password using SHA256 - MUST match server/adminDb.ts hashPassword()
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
+}
 
 async function resetPassword() {
   const conn = await mysql.createConnection(process.env.DATABASE_URL);
@@ -9,9 +14,10 @@ async function resetPassword() {
   const [users] = await conn.execute('SELECT id, username, email FROM adminUsers');
   console.log('Existing admin users:', JSON.stringify(users, null, 2));
   
-  // Hash the new password using bcrypt (matches server implementation)
+  // Hash the new password using SHA256 (matches server implementation)
   const newPassword = 'EmpowerX2025';
-  const hashedPassword = await hash(newPassword, 10);
+  const hashedPassword = hashPassword(newPassword);
+  console.log('Generated hash:', hashedPassword);
   
   // Check if JusticeEmpower exists
   const [existing] = await conn.execute('SELECT id FROM adminUsers WHERE username = ?', ['JusticeEmpower']);
