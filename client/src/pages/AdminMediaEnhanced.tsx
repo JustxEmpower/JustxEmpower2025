@@ -18,48 +18,45 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 // Video thumbnail component with hover-to-play
 function VideoThumbnail({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
 
-  useEffect(() => {
+  const playVideo = () => {
     const video = videoRef.current;
-    const container = containerRef.current;
-    if (!video || !container) return;
-
-    const handleEnter = () => {
+    if (video) {
       video.currentTime = 0;
-      video.play().then(() => setIsPlaying(true)).catch(() => {});
-    };
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => setIsPlaying(true)).catch(() => {});
+      }
+    }
+  };
 
-    const handleLeave = () => {
+  const pauseVideo = () => {
+    const video = videoRef.current;
+    if (video) {
       video.pause();
       video.currentTime = 0;
       setIsPlaying(false);
-    };
-
-    container.addEventListener('mouseenter', handleEnter);
-    container.addEventListener('mouseleave', handleLeave);
-
-    return () => {
-      container.removeEventListener('mouseenter', handleEnter);
-      container.removeEventListener('mouseleave', handleLeave);
-    };
-  }, [hasLoaded]);
+    }
+  };
 
   return (
-    <div ref={containerRef} className={`relative ${className}`}>
+    <div 
+      className={`relative ${className}`}
+      onMouseEnter={playVideo}
+      onMouseLeave={pauseVideo}
+      onMouseOver={playVideo}
+    >
       <video
         ref={videoRef}
         src={src}
         muted
         loop
         playsInline
-        preload="auto"
-        onLoadedData={() => setHasLoaded(true)}
-        onCanPlay={() => setHasLoaded(true)}
+        preload="metadata"
+        onLoadedMetadata={() => setHasLoaded(true)}
         className="w-full h-full object-cover"
-        style={{ pointerEvents: 'none' }}
       />
       {/* Play icon overlay when not playing */}
       {!isPlaying && (
