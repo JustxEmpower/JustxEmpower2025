@@ -38,6 +38,31 @@ export default function AdminNavigationEnhanced() {
 
   const navQuery = trpc.admin.navigation?.list?.useQuery?.() || { data: [], refetch: () => {} };
 
+  const createMutation = trpc.admin.navigation?.create?.useMutation?.({
+    onSuccess: () => { toast.success('Item created'); navQuery.refetch?.(); setIsCreateOpen(false); resetForm(); },
+    onError: (e: any) => toast.error(e.message),
+  }) || { mutate: () => {}, isPending: false };
+  const updateMutation = trpc.admin.navigation?.update?.useMutation?.({
+    onSuccess: () => { toast.success('Item updated'); navQuery.refetch?.(); setEditingItem(null); resetForm(); },
+    onError: (e: any) => toast.error(e.message),
+  }) || { mutate: () => {}, isPending: false };
+  const deleteMutation = trpc.admin.navigation?.delete?.useMutation?.({
+    onSuccess: () => { toast.success('Item deleted'); navQuery.refetch?.(); },
+    onError: (e: any) => toast.error(e.message),
+  }) || { mutate: () => {}, isPending: false };
+
+  const handleSubmit = () => {
+    if (editingItem) {
+      updateMutation.mutate?.({ id: editingItem.id, ...formData });
+    } else {
+      createMutation.mutate?.(formData);
+    }
+  };
+
+  const handleDelete = (id: number) => {
+    if (confirm('Delete this item?')) deleteMutation.mutate?.({ id });
+  };
+
   useEffect(() => {
     if (!isChecking && !isAuthenticated) setLocation("/admin/login");
   }, [isAuthenticated, isChecking, setLocation]);
@@ -114,7 +139,7 @@ export default function AdminNavigationEnhanced() {
               <div className="space-y-2"><Label>URL</Label><Input value={formData.url} onChange={(e) => setFormData({ ...formData, url: e.target.value })} placeholder="/page-slug or https://..." /></div>
               <div className="flex items-center gap-2"><input type="checkbox" checked={formData.isExternal} onChange={(e) => setFormData({ ...formData, isExternal: e.target.checked })} className="rounded" /><Label>External link (opens in new tab)</Label></div>
             </div>
-            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingItem(null); resetForm(); }}>Cancel</Button><Button className="bg-amber-600 hover:bg-amber-700">{editingItem ? "Update" : "Add"}</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingItem(null); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending} className="bg-amber-600 hover:bg-amber-700">{editingItem ? "Update" : "Add"}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </main>

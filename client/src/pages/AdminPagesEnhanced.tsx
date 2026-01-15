@@ -64,6 +64,16 @@ export default function AdminPagesEnhanced() {
 
   const resetForm = () => setFormData({ title: "", slug: "", template: "default", status: "published" });
   const handleEdit = (page: any) => { setEditingPage(page); setFormData({ title: page.title, slug: page.slug, template: page.template || "default", status: page.status || "published" }); };
+  const handleSubmit = () => {
+    if (editingPage) {
+      updateMutation.mutate?.({ id: editingPage.id, ...formData });
+    } else {
+      createMutation.mutate?.(formData);
+    }
+  };
+  const handleDelete = (id: number) => {
+    if (confirm('Delete this page?')) deleteMutation.mutate?.({ id });
+  };
 
   if (isChecking) {
     return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" /></div>;
@@ -136,7 +146,7 @@ export default function AdminPagesEnhanced() {
               <div className="space-y-2"><Label>Slug</Label><Input value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} placeholder="page-url" /></div>
               <div className="space-y-2"><Label>Status</Label><Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="published">Published</SelectItem><SelectItem value="draft">Draft</SelectItem></SelectContent></Select></div>
             </div>
-            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingPage(null); resetForm(); }}>Cancel</Button><Button className="bg-amber-600 hover:bg-amber-700">{editingPage ? "Update" : "Create"}</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingPage(null); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending} className="bg-amber-600 hover:bg-amber-700">{editingPage ? "Update" : "Create"}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </main>

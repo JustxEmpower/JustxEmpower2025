@@ -42,6 +42,31 @@ export default function AdminCarouselEnhanced() {
   const carouselQuery = trpc.carousel.list.useQuery();
   const items = carouselQuery.data || [];
 
+  const createMutation = trpc.carousel.create.useMutation({
+    onSuccess: () => { toast.success('Slide created'); carouselQuery.refetch(); setIsCreateOpen(false); resetForm(); },
+    onError: (e) => toast.error(e.message),
+  });
+  const updateMutation = trpc.carousel.update.useMutation({
+    onSuccess: () => { toast.success('Slide updated'); carouselQuery.refetch(); setEditingItem(null); resetForm(); },
+    onError: (e) => toast.error(e.message),
+  });
+  const deleteMutation = trpc.carousel.delete.useMutation({
+    onSuccess: () => { toast.success('Slide deleted'); carouselQuery.refetch(); },
+    onError: (e) => toast.error(e.message),
+  });
+
+  const handleSubmit = () => {
+    if (editingItem) {
+      updateMutation.mutate({ id: editingItem.id, ...formData });
+    } else {
+      createMutation.mutate(formData);
+    }
+  };
+
+  const handleDelete = (id: number) => {
+    if (confirm('Delete this slide?')) deleteMutation.mutate({ id });
+  };
+
   useEffect(() => {
     if (!isChecking && !isAuthenticated) setLocation("/admin/login");
   }, [isAuthenticated, isChecking, setLocation]);
@@ -109,7 +134,7 @@ export default function AdminCarouselEnhanced() {
                       </div>
                       <div className="flex items-center gap-2">
                         <Button variant="ghost" size="icon" onClick={() => handleEdit(item)}><Edit className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon"><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}><Trash2 className="w-4 h-4 text-red-500" /></Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -129,7 +154,7 @@ export default function AdminCarouselEnhanced() {
               <div className="space-y-2"><Label>Link URL</Label><Input value={formData.linkUrl} onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })} placeholder="/page or https://..." /></div>
               <div className="flex items-center gap-2"><Switch checked={formData.isActive} onCheckedChange={(v) => setFormData({ ...formData, isActive: v })} /><Label>Active</Label></div>
             </div>
-            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingItem(null); resetForm(); }}>Cancel</Button><Button className="bg-amber-600 hover:bg-amber-700">{editingItem ? "Update" : "Add"} Slide</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingItem(null); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending} className="bg-amber-600 hover:bg-amber-700">{editingItem ? "Update" : "Add"} Slide</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </main>
