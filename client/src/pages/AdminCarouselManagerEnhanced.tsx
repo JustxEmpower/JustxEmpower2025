@@ -60,16 +60,24 @@ export default function AdminCarouselManagerEnhanced() {
     order: 0,
   });
 
-  // Fetch homepage carousel slides
-  const homepageCarouselQuery = trpc.carousel.list.useQuery();
-  const homepageSlides = homepageCarouselQuery.data || [];
+  // Fetch homepage carousel slides (legacy carouselOfferings table)
+  const homepageCarouselQuery = trpc.carousel.getAll.useQuery();
+  const homepageSlides = (homepageCarouselQuery.data || []).map((s: any) => ({
+    id: s.id,
+    title: s.title,
+    subtitle: s.description,
+    imageUrl: s.imageUrl,
+    linkUrl: s.link,
+    isActive: s.isActive === 1,
+    order: s.order,
+  }));
 
   // Fetch page builder carousels (from content blocks)
   const pageBuilderCarouselsQuery = trpc.content.getCarouselBlocks?.useQuery?.() || { data: [], isLoading: false };
   const pageBuilderCarousels = pageBuilderCarouselsQuery.data || [];
 
-  // Mutations for homepage carousel
-  const createSlideMutation = trpc.carousel.create.useMutation({
+  // Mutations for homepage carousel (legacy carouselOfferings)
+  const createSlideMutation = trpc.carousel.createOffering.useMutation({
     onSuccess: () => {
       toast.success("Slide added successfully");
       homepageCarouselQuery.refetch();
@@ -79,7 +87,7 @@ export default function AdminCarouselManagerEnhanced() {
     onError: (error) => toast.error(`Failed to add slide: ${error.message}`),
   });
 
-  const updateSlideMutation = trpc.carousel.update.useMutation({
+  const updateSlideMutation = trpc.carousel.updateOffering.useMutation({
     onSuccess: () => {
       toast.success("Slide updated successfully");
       homepageCarouselQuery.refetch();
@@ -90,7 +98,7 @@ export default function AdminCarouselManagerEnhanced() {
     onError: (error) => toast.error(`Failed to update slide: ${error.message}`),
   });
 
-  const deleteSlideMutation = trpc.carousel.delete.useMutation({
+  const deleteSlideMutation = trpc.carousel.deleteOffering.useMutation({
     onSuccess: () => {
       toast.success("Slide deleted");
       homepageCarouselQuery.refetch();
@@ -126,10 +134,20 @@ export default function AdminCarouselManagerEnhanced() {
   };
 
   const handleSaveSlide = () => {
+    // Map form fields to legacy API field names
+    const legacyData = {
+      title: slideFormData.title,
+      description: slideFormData.subtitle,
+      link: slideFormData.linkUrl,
+      imageUrl: slideFormData.imageUrl,
+      order: slideFormData.order,
+      isActive: slideFormData.isActive ? 1 : 0,
+    };
+    
     if (editingSlide) {
-      updateSlideMutation.mutate({ id: editingSlide.id, ...slideFormData });
+      updateSlideMutation.mutate({ id: editingSlide.id, ...legacyData });
     } else {
-      createSlideMutation.mutate(slideFormData);
+      createSlideMutation.mutate(legacyData);
     }
   };
 
