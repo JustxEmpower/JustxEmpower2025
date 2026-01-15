@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
@@ -9,11 +9,67 @@ import { Badge } from '@/components/ui/badge';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Trash2, Image as ImageIcon, Video, Sparkles, Music, X, Copy, RefreshCw, Search, LayoutGrid, List, Filter, HardDrive, FileImage, FileVideo, FileAudio, Zap } from 'lucide-react';
+import { Upload, Trash2, Image as ImageIcon, Video, Sparkles, Music, X, Copy, RefreshCw, Search, LayoutGrid, List, Filter, HardDrive, FileImage, FileVideo, FileAudio, Zap, Play } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { getMediaUrl } from '@/lib/media';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+// Video thumbnail component with hover-to-play
+function VideoThumbnail({ src, alt, className = "" }: { src: string; alt: string; className?: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isHovering, setIsHovering] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+
+  const handleMouseEnter = useCallback(() => {
+    setIsHovering(true);
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(() => {});
+    }
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    setIsHovering(false);
+    if (videoRef.current) {
+      videoRef.current.pause();
+      videoRef.current.currentTime = 0;
+    }
+  }, []);
+
+  return (
+    <div 
+      className={`relative ${className}`}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <video
+        ref={videoRef}
+        src={src}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        onLoadedData={() => setHasLoaded(true)}
+        className="w-full h-full object-cover"
+      />
+      {/* Play icon overlay when not hovering */}
+      {!isHovering && hasLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="w-10 h-10 rounded-full bg-black/60 flex items-center justify-center">
+            <Play className="w-5 h-5 text-white fill-white ml-0.5" />
+          </div>
+        </div>
+      )}
+      {/* Loading state */}
+      {!hasLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-stone-200">
+          <FileVideo className="w-8 h-8 text-purple-500 animate-pulse" />
+        </div>
+      )}
+    </div>
+  );
+}
 
 interface MediaItem {
   id: number;
@@ -289,11 +345,13 @@ export default function AdminMediaEnhanced() {
                     <Card className="overflow-hidden group hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setPreviewItem(item)}>
                       <div className="aspect-square bg-stone-100 relative overflow-hidden">
                         {item.mimeType.startsWith('image/') ? (
-                          <img src={getMediaUrl(item.url)} alt={item.originalName} className="w-full h-full object-cover" />
+                          <img src={getMediaUrl(item.url)} alt={item.originalName} className="w-full h-full object-cover" loading="lazy" />
+                        ) : item.mimeType.startsWith('video/') ? (
+                          <VideoThumbnail src={getMediaUrl(item.url)} alt={item.originalName} className="w-full h-full" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center">{getMediaIcon(item.mimeType, 'w-12 h-12')}</div>
                         )}
-                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 z-10">
                           <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); copyUrl(item.url); }}><Copy className="w-4 h-4" /></Button>
                           {item.mimeType.startsWith('image/') && (
                             <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); generateAltTextMutation.mutate({ imageUrl: getMediaUrl(item.url), context: item.originalName }); }}>
@@ -323,7 +381,9 @@ export default function AdminMediaEnhanced() {
                       <CardContent className="flex items-center gap-4 p-4">
                         <div className="w-16 h-16 bg-stone-100 rounded-lg overflow-hidden flex-shrink-0">
                           {item.mimeType.startsWith('image/') ? (
-                            <img src={getMediaUrl(item.url)} alt={item.originalName} className="w-full h-full object-cover" />
+                            <img src={getMediaUrl(item.url)} alt={item.originalName} className="w-full h-full object-cover" loading="lazy" />
+                          ) : item.mimeType.startsWith('video/') ? (
+                            <VideoThumbnail src={getMediaUrl(item.url)} alt={item.originalName} className="w-full h-full" />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center">{getMediaIcon(item.mimeType)}</div>
                           )}
