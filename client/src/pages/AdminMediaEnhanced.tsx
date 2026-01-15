@@ -257,8 +257,8 @@ export default function AdminMediaEnhanced() {
     setUploadProgress(prev => new Map(prev).set(fileId, { filename: file.name, progress: 0, status: 'pending' }));
     try {
       setUploadProgress(prev => new Map(prev).set(fileId, { ...prev.get(fileId)!, status: 'uploading', progress: 10 }));
-      const { uploadUrl, key, fileId: dbFileId } = await getUploadUrlMutation.mutateAsync({
-        filename: file.name, contentType: file.type, fileSize: file.size,
+      const { uploadUrl, s3Key, uniqueFilename, publicUrl } = await getUploadUrlMutation.mutateAsync({
+        filename: file.name, mimeType: file.type, fileSize: file.size,
       });
       const xhr = new XMLHttpRequest();
       await new Promise<void>((resolve, reject) => {
@@ -275,7 +275,14 @@ export default function AdminMediaEnhanced() {
         xhr.send(file);
       });
       setUploadProgress(prev => new Map(prev).set(fileId, { ...prev.get(fileId)!, status: 'confirming', progress: 95 }));
-      await confirmUploadMutation.mutateAsync({ fileId: dbFileId, key, originalName: file.name, contentType: file.type, fileSize: file.size });
+      await confirmUploadMutation.mutateAsync({ 
+        s3Key, 
+        uniqueFilename, 
+        originalName: file.name, 
+        mimeType: file.type, 
+        fileSize: file.size,
+        publicUrl,
+      });
       setUploadProgress(prev => new Map(prev).set(fileId, { ...prev.get(fileId)!, status: 'complete', progress: 100 }));
       setTimeout(() => setUploadProgress(prev => { const m = new Map(prev); m.delete(fileId); return m; }), 2000);
     } catch (error: any) {
