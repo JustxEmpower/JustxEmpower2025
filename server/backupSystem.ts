@@ -79,6 +79,8 @@ interface BackupData {
     mediaFilesCount?: number;
     mediaFilesSize?: number;  // Total size in bytes
     mediaBackupFolder?: string;  // S3 folder where media files are copied
+    schemaVersion?: string;  // Track schema version for compatibility
+    tableSchemas?: Record<string, string[]>;  // Column names per table for validation
   };
   data: Record<string, any[]>;
   mediaFiles?: MediaFileInfo[];  // List of media files included in backup
@@ -88,6 +90,9 @@ interface RestoreOptions {
   backupId: number;
   tables?: string[];  // Selective restore - if empty, restore all
   dryRun?: boolean;   // Preview what would be restored
+  createSafetyBackup?: boolean;  // Create automatic backup before restore (default: true)
+  mergeMode?: boolean;  // If true, don't delete existing data, just add/update (safer)
+  skipSchemaCheck?: boolean;  // Skip schema compatibility check (use with caution)
 }
 
 interface RestoreResult {
@@ -581,6 +586,14 @@ export async function createBackup(options: BackupOptions): Promise<{
       }
     }
 
+    // Capture table schemas for compatibility checking on restore
+    const tableSchemas: Record<string, string[]> = {};
+    for (const tableName of tablesToBackup) {
+      if (backupData[tableName] && backupData[tableName].length > 0) {
+        tableSchemas[tableName] = Object.keys(backupData[tableName][0]);
+      }
+    }
+
     // Create backup structure
     const timestamp = new Date().toISOString();
     const mediaBackupFolder = `backups/media/${timestamp.replace(/[:.]/g, "-")}_${backupName.toLowerCase().replace(/[^a-z0-9]/g, "-").slice(0, 30)}`;
@@ -596,6 +609,8 @@ export async function createBackup(options: BackupOptions): Promise<{
         tablesIncluded: tablesToBackup,
         recordCounts,
         mediaBackupFolder,
+        schemaVersion: BACKUP_VERSION,
+        tableSchemas,
       },
       data: backupData,
     };
@@ -703,11 +718,19 @@ export async function createBackup(options: BackupOptions): Promise<{
 
 /**
  * Restore database from a backup
+ * ENHANCED: Includes safety features like auto-backup and merge mode
  */
 export async function restoreBackup(options: RestoreOptions): Promise<RestoreResult> {
-  const { backupId, tables, dryRun = false } = options;
+  const { 
+    backupId, 
+    tables, 
+    dryRun = false,
+    createSafetyBackup = true,  // Default: always create safety backup
+    mergeMode = false,  // Default: replace mode (original behavior)
+    skipSchemaCheck = false,
+  } = options;
 
-  console.log(`[Restore] Starting restore from backup ID: ${backupId}${dryRun ? " (DRY RUN)" : ""}`);
+  console.log(`[Restore] Starting restore from backup ID: ${backupId}${dryRun ? " (DRY RUN)" : ""}${mergeMode ? " (MERGE MODE)" : ""}`);
   const startTime = Date.now();
 
   const db = await getDb();
@@ -718,6 +741,7 @@ export async function restoreBackup(options: RestoreOptions): Promise<RestoreRes
   const restored: string[] = [];
   const errors: string[] = [];
   let recordsRestored = 0;
+  let safetyBackupId: number | null = null;
 
   try {
     // Fetch backup metadata
@@ -728,6 +752,28 @@ export async function restoreBackup(options: RestoreOptions): Promise<RestoreRes
         code: "NOT_FOUND",
         message: "Backup not found",
       });
+    }
+
+    // CREATE SAFETY BACKUP before restore (unless disabled or dry run)
+    if (createSafetyBackup && !dryRun) {
+      console.log(`[Restore] Creating safety backup before restore...`);
+      try {
+        const safetyResult = await createBackup({
+          backupName: `Pre-Restore Safety Backup (before restoring ${backup.backupName})`,
+          description: `Automatic safety backup created before restoring backup ID ${backupId}`,
+          backupType: "auto",
+          includeMedia: false,  // Skip media for speed - we're just protecting database
+          includeConfig: true,
+          createdBy: "system-restore-safety",
+        });
+        safetyBackupId = safetyResult.backupId;
+        console.log(`[Restore] Safety backup created: ID ${safetyBackupId}`);
+        restored.push(`Safety backup created: ID ${safetyBackupId}`);
+      } catch (safetyError) {
+        console.error("[Restore] Failed to create safety backup:", safetyError);
+        errors.push(`Warning: Safety backup failed - ${safetyError instanceof Error ? safetyError.message : "Unknown error"}`);
+        // Continue with restore - safety backup is optional
+      }
     }
 
     // Fetch backup data
@@ -799,7 +845,7 @@ export async function restoreBackup(options: RestoreOptions): Promise<RestoreRes
       for (const tableName of tablesToRestore) {
         const records = backupData.data[tableName];
         if (records && records.length > 0) {
-          restored.push(`${tableName}: ${records.length} records would be restored`);
+          restored.push(`${tableName}: ${records.length} records would be restored${mergeMode ? " (merge)" : " (replace)"}`);
           recordsRestored += records.length;
         }
       }
@@ -814,10 +860,12 @@ export async function restoreBackup(options: RestoreOptions): Promise<RestoreRes
         }
 
         try {
-          console.log(`[Restore] Restoring ${tableName}: ${records.length} records`);
+          console.log(`[Restore] Restoring ${tableName}: ${records.length} records${mergeMode ? " (merge mode)" : ""}`);
 
-          // Delete existing data
-          await db.delete(tableInfo.schema);
+          // Only delete existing data if NOT in merge mode
+          if (!mergeMode) {
+            await db.delete(tableInfo.schema);
+          }
 
           // Insert in batches
           for (let i = 0; i < records.length; i += BATCH_SIZE) {
@@ -835,10 +883,25 @@ export async function restoreBackup(options: RestoreOptions): Promise<RestoreRes
               return cleaned;
             });
 
-            await db.insert(tableInfo.schema).values(cleanedBatch);
+            try {
+              if (mergeMode) {
+                // In merge mode, try to insert and ignore duplicates
+                // MySQL supports INSERT IGNORE or ON DUPLICATE KEY UPDATE
+                await db.insert(tableInfo.schema).values(cleanedBatch).onDuplicateKeyUpdate({ set: cleanedBatch[0] });
+              } else {
+                await db.insert(tableInfo.schema).values(cleanedBatch);
+              }
+            } catch (insertError) {
+              // If merge mode fails on duplicates, just log and continue
+              if (mergeMode) {
+                console.log(`[Restore] Some records in ${tableName} already exist, skipping duplicates`);
+              } else {
+                throw insertError;
+              }
+            }
           }
 
-          restored.push(`${tableName}: ${records.length} records`);
+          restored.push(`${tableName}: ${records.length} records${mergeMode ? " (merged)" : ""}`);
           recordsRestored += records.length;
 
         } catch (tableError) {

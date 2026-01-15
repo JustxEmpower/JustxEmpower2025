@@ -1771,12 +1771,14 @@ export const adminRouter = router({
         return result;
       }),
 
-    // Restore from backup
+    // Restore from backup - ENHANCED with safety features
     restore: adminProcedure
       .input(z.object({
         backupId: z.number(),
         tables: z.array(z.string()).optional(),
         dryRun: z.boolean().default(false),
+        createSafetyBackup: z.boolean().default(true),  // Auto-backup before restore
+        mergeMode: z.boolean().default(false),  // Don't delete existing data
       }))
       .mutation(async ({ input }) => {
         const backupSystem = await import('./backupSystem');
