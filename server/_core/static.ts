@@ -151,9 +151,12 @@ export function serveStatic(app: Express) {
     );
   }
 
-  app.use(express.static(distPath));
+  // Serve static assets (JS, CSS, images) but NOT index.html
+  app.use(express.static(distPath, {
+    index: false, // Don't serve index.html automatically
+  }));
 
-  // Serve index.html with injected meta tags
+  // Serve index.html with injected meta tags for ALL routes
   app.get("*", async (req, res) => {
     const indexPath = path.resolve(distPath, "index.html");
     
