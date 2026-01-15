@@ -107,7 +107,7 @@ function Router() {
       <Route path="/admin/financial-analytics" component={AdminFinancialAnalytics} />
       <Route path="/admin/resources" component={AdminResourcesPage} />
       <Route path="/admin/messages" component={AdminContactMessages} />
-      <Route path="/admin/carousel" component={AdminCarousel} />
+      <Route path="/admin/carousel">{() => { window.location.href = '/admin/carousels'; return null; }}</Route>
       <Route path="/admin/carousels" component={AdminCarouselManager} />
       <Route path="/admin/ai-training" component={AdminAITraining} />
       <Route path="/admin/page-builder" component={PageBuilderPage} />

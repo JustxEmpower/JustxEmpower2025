@@ -41,7 +41,6 @@ import {
 const navItems = [
   { icon: Home, label: 'Dashboard', path: '/admin/dashboard' },
   { icon: Layout, label: 'Content', path: '/admin/content' },
-  { icon: Images, label: 'Featured Offerings', path: '/admin/carousel' },
   { icon: Images, label: 'Carousel Manager', path: '/admin/carousels' },
   { icon: FileText, label: 'Articles', path: '/admin/articles' },
   { icon: FolderOpen, label: 'Media', path: '/admin/media' },
