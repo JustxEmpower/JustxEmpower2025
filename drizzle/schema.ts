@@ -233,6 +233,7 @@ export const navigation = mysqlTable("navigation", {
   order: int("order").default(0).notNull(),
   isExternal: int("isExternal").default(0).notNull(),
   openInNewTab: int("openInNewTab").default(0).notNull(),
+  isActive: int("isActive").default(1).notNull(),
   parentId: int("parentId"), // for nested menus
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
