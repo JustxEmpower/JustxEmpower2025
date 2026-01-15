@@ -1,4 +1,4 @@
-const mysql = require('mysql2/promise');
+import mysql from 'mysql2/promise';
 
 async function fixSchema() {
   const conn = await mysql.createConnection(process.env.DATABASE_URL);
