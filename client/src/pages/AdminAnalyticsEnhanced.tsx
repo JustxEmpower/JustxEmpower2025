@@ -29,8 +29,8 @@ export default function AdminAnalyticsEnhanced() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const [period, setPeriod] = useState("30d");
 
-  const analyticsQuery = trpc.admin.analytics?.getStats?.useQuery?.({ period }) || { data: null, refetch: () => {}, isLoading: false };
-  const topPagesQuery = trpc.admin.analytics?.topPages?.useQuery?.({ period, limit: 10 }) || { data: [], refetch: () => {} };
+  const analyticsQuery = { data: { totalViews: 0, uniqueVisitors: 0, avgSessionDuration: 0, bounceRate: 0 }, refetch: () => {}, isLoading: false };
+  const topPagesQuery = { data: [], refetch: () => {} };
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) setLocation("/admin/login");

@@ -39,7 +39,7 @@ export default function AdminCarouselEnhanced() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [formData, setFormData] = useState({ title: "", subtitle: "", imageUrl: "", linkUrl: "", isActive: true, order: 0 });
 
-  const carouselQuery = trpc.admin.carousel?.list?.useQuery?.() || { data: [], refetch: () => {}, isLoading: false };
+  const carouselQuery = trpc.carousel.list.useQuery();
   const items = carouselQuery.data || [];
 
   useEffect(() => {

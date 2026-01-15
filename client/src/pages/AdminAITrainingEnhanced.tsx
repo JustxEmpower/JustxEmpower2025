@@ -37,23 +37,23 @@ export default function AdminAITrainingEnhanced() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [formData, setFormData] = useState({ question: "", answer: "", category: "" });
 
-  const trainingQuery = trpc.aiTraining?.list?.useQuery?.({}) || { data: { items: [] }, refetch: () => {}, isLoading: false };
-  const createMutation = trpc.aiTraining?.create?.useMutation?.({ onSuccess: () => { toast.success("Training data added"); trainingQuery.refetch?.(); setIsCreateOpen(false); setFormData({ question: "", answer: "", category: "" }); }, onError: (e: any) => toast.error(e.message) }) || { mutate: () => {}, isPending: false };
-  const deleteMutation = trpc.aiTraining?.delete?.useMutation?.({ onSuccess: () => { toast.success("Deleted"); trainingQuery.refetch?.(); }, onError: (e: any) => toast.error(e.message) }) || { mutate: () => {} };
+  const trainingQuery = trpc.aiTraining.listKnowledge.useQuery();
+  const createMutation = trpc.aiTraining.addKnowledge.useMutation({ onSuccess: () => { toast.success("Training data added"); trainingQuery.refetch(); setIsCreateOpen(false); setFormData({ question: "", answer: "", category: "" }); }, onError: (e: any) => toast.error(e.message) });
+  const deleteMutation = trpc.aiTraining.deleteKnowledge.useMutation({ onSuccess: () => { toast.success("Deleted"); trainingQuery.refetch(); }, onError: (e: any) => toast.error(e.message) });
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) setLocation("/admin/login");
   }, [isAuthenticated, isChecking, setLocation]);
 
-  const items = trainingQuery.data?.items || [];
+  const items = trainingQuery.data || [];
   const stats = useMemo(() => ({
     total: items.length,
-    categories: [...new Set(items.map((i: any) => i.category).filter(Boolean))].length,
+    categories: Array.from(new Set(items.map((i: any) => i.category).filter(Boolean))).length,
   }), [items]);
 
   const filteredItems = useMemo(() => items.filter((i: any) => searchQuery === "" || i.question?.toLowerCase().includes(searchQuery.toLowerCase()) || i.answer?.toLowerCase().includes(searchQuery.toLowerCase())), [items, searchQuery]);
 
-  if (isChecking || trainingQuery.isLoading) {
+  if (isChecking || trainingQuery.isPending) {
     return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" /></div>;
   }
   if (!isAuthenticated) return null;

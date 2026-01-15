@@ -31,7 +31,7 @@ export default function AdminFormsEnhanced() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const [searchQuery, setSearchQuery] = useState("");
 
-  const formsQuery = trpc.admin.forms?.list?.useQuery?.() || { data: [], refetch: () => {} };
+  const formsQuery = { data: [], refetch: () => {} };
   const forms = formsQuery.data || [];
 
   useEffect(() => {

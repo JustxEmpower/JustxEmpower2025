@@ -30,7 +30,7 @@ export default function AdminBackupEnhanced() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const [isCreatingBackup, setIsCreatingBackup] = useState(false);
 
-  const backupsQuery = trpc.admin.backup?.list?.useQuery?.() || { data: [], refetch: () => {} };
+  const backupsQuery = trpc.admin.backups.list.useQuery();
   const backups = backupsQuery.data || [];
 
   useEffect(() => {

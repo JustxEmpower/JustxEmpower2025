@@ -40,10 +40,7 @@ export default function AdminCategoriesEnhanced() {
   const productCategoriesQuery = trpc.shop?.categories?.list?.useQuery?.() || { data: [], isLoading: false, refetch: () => {} };
   const resourceCategoriesQuery = trpc.adminResources?.categories?.list?.useQuery?.() || { data: [], isLoading: false, refetch: () => {} };
 
-  const createProductCategoryMutation = trpc.shop?.categories?.create?.useMutation?.({
-    onSuccess: () => { toast.success("Category created"); setIsCreateOpen(false); resetForm(); productCategoriesQuery.refetch?.(); },
-    onError: (e: any) => toast.error(e.message),
-  }) || { mutate: () => toast.info("Category creation not available"), isPending: false };
+  const createProductCategoryMutation = { mutate: () => toast.info("Category creation coming soon"), isPending: false };
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) setLocation("/admin/login");

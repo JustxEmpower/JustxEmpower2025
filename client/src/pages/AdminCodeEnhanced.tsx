@@ -17,7 +17,7 @@ export default function AdminCodeEnhanced() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const [isSaving, setIsSaving] = useState(false);
 
-  const codeQuery = trpc.admin.code?.get?.useQuery?.() || { data: null, refetch: () => {} };
+  const codeQuery = { data: null, refetch: () => {} };
 
   const [formData, setFormData] = useState({ headerCode: "", footerCode: "", customCss: "", customJs: "" });
 

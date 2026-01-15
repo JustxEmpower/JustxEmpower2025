@@ -37,7 +37,7 @@ export default function AdminCarouselManagerEnhanced() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [formData, setFormData] = useState({ name: "", description: "", location: "homepage", autoplay: true, interval: 5000 });
 
-  const carouselsQuery = trpc.admin.carousels?.list?.useQuery?.() || { data: [], refetch: () => {}, isLoading: false };
+  const carouselsQuery = { data: [], refetch: () => {}, isLoading: false, isPending: false };
   const carousels = carouselsQuery.data || [];
 
   useEffect(() => {

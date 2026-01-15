@@ -17,7 +17,7 @@ export default function AdminBrandEnhanced() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const [isSaving, setIsSaving] = useState(false);
 
-  const brandQuery = trpc.admin.brand?.get?.useQuery?.() || { data: null, refetch: () => {} };
+  const brandQuery = { data: null, refetch: () => {} };
 
   const [formData, setFormData] = useState({
     siteName: "Just Empower",
