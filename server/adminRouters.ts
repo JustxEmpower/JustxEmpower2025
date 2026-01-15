@@ -2905,7 +2905,10 @@ export const publicNavigationRouter = router({
       const items = await db
         .select()
         .from(schema.navigation)
-        .where(eq(schema.navigation.location, input.location))
+        .where(and(
+          eq(schema.navigation.location, input.location),
+          eq(schema.navigation.isActive, 1)
+        ))
         .orderBy(schema.navigation.order);
       
       return items;
