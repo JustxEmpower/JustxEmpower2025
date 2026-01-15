@@ -56,6 +56,7 @@ import NewsletterPopup from "@/components/NewsletterPopup";
 import { AIChatAssistant } from "@/components/AIChatAssistant";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import FontProvider from "@/components/FontProvider";
+import SEOHead from "@/components/SEOHead";
 import Analytics from "@/components/Analytics";
 import { CartProvider } from "@/contexts/CartContext";
 import Shop from "@/pages/Shop";
@@ -169,6 +170,8 @@ function App() {
         <FontProvider>
         <TooltipProvider>
           <Toaster />
+          {/* Global SEO - applies to all non-admin pages */}
+          {!isAdminPage && <SEOHead />}
           {isLoading && !isAdminPage && <Preloader onComplete={() => setIsLoading(false)} />}
           <div className={`transition-opacity duration-1000 ${isLoading && !isAdminPage ? 'opacity-0' : 'opacity-100'}`}>
             {/* Only show Header and Footer on non-admin pages */}
