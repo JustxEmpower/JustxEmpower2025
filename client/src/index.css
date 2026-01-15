@@ -1,0 +1,196 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Inter", sans-serif;
+  --font-serif: "Cormorant Garamond", serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+}
+
+:root {
+  /* Theme variables from admin settings (can be overridden via JS) */
+  --theme-primary: #D4AF37;
+  --theme-secondary: #F8F8F8;
+  --theme-accent: #F4E4C1;
+  --theme-background: #FFFFFF;
+  --theme-text: #333333;
+  --theme-heading-font: "Playfair Display", serif;
+  --theme-body-font: "Inter", sans-serif;
+  --theme-container-max-width: 1400px;
+  --theme-section-spacing: 120px;
+  --theme-border-radius: 1.5rem;
+  
+  /* Discovery Land / Just Empower 2025 Palette */
+  --background: var(--theme-background, #FFFFFF);
+  --foreground: var(--theme-text, #333333);
+  
+  --primary: var(--theme-primary, #D4AF37); /* Gold */
+  --primary-foreground: #FFFFFF;
+  
+  --secondary: var(--theme-secondary, #F8F8F8); /* Off-white */
+  --secondary-foreground: var(--theme-text, #333333);
+  
+  --muted: #E5E5E5;
+  --muted-foreground: #666666;
+  
+  --accent: var(--theme-accent, #F4E4C1); /* Light Gold */
+  --accent-foreground: var(--theme-text, #333333);
+  
+  --card: #FFFFFF;
+  --card-foreground: #333333;
+  
+  --popover: #FFFFFF;
+  --popover-foreground: #333333;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #FFFFFF;
+  
+  --border: #E5E5E5;
+  --input: #E5E5E5;
+  --ring: #D4AF37;
+  
+  --radius: var(--theme-border-radius, 1.5rem); /* Soft rounded corners */
+}
+
+.dark {
+  --background: #0f0f0f;
+  --foreground: #f5f5f5;
+  
+  --primary: #E5C158; /* Brighter gold for dark mode */
+  --primary-foreground: #0f0f0f;
+  
+  --secondary: #1a1a1a;
+  --secondary-foreground: #f5f5f5;
+  
+  --muted: #262626;
+  --muted-foreground: #a3a3a3;
+  
+  --accent: #1f1f1f;
+  --accent-foreground: #f5f5f5;
+  
+  --card: #141414;
+  --card-foreground: #f5f5f5;
+  
+  --popover: #141414;
+  --popover-foreground: #f5f5f5;
+  
+  --destructive: #ef4444;
+  --destructive-foreground: #FFFFFF;
+  
+  --border: #2a2a2a;
+  --input: #2a2a2a;
+  --ring: #E5C158;
+  
+  /* Dark mode specific overrides */
+  --theme-background: #0f0f0f;
+  --theme-text: #f5f5f5;
+  --theme-secondary: #1a1a1a;
+  --theme-accent: #1f1f1f;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif font-light;
+  }
+  
+  /* Lenis Smooth Scroll */
+  html.lenis, html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+  .lenis.lenis-scrolling iframe {
+    pointer-events: none;
+  }
+}
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    max-width: var(--theme-container-max-width, 1400px);
+  }
+
+  /* Global Rounded Corners for Images */
+  img, video, .bg-cover {
+    @apply rounded-[var(--radius)];
+  }
+  
+  /* Exception for full-screen hero */
+  .hero-section img, .hero-section video, .hero-section .bg-cover {
+    @apply rounded-none;
+  }
+  
+  .headline-hero {
+    @apply font-serif text-5xl md:text-7xl lg:text-8xl font-light tracking-wide leading-tight italic text-white;
+  }
+  
+  .headline-section {
+    @apply font-serif text-4xl md:text-5xl lg:text-6xl font-light tracking-wide leading-tight text-foreground;
+  }
+  
+  .body-text {
+    @apply font-sans text-base md:text-lg font-light leading-relaxed tracking-wide text-muted-foreground;
+  }
+  
+  .nav-link {
+    @apply font-sans text-sm uppercase tracking-[0.15em] text-white hover:text-primary transition-colors duration-300;
+  }
+  
+  .btn-luxury {
+    @apply inline-flex items-center justify-center px-8 py-4 border border-white text-white font-sans text-xs uppercase tracking-[0.2em] hover:bg-white hover:text-foreground transition-all duration-500;
+  }
+  
+  .btn-luxury-dark {
+    @apply inline-flex items-center justify-center px-8 py-4 border border-foreground text-foreground font-sans text-xs uppercase tracking-[0.2em] hover:bg-foreground hover:text-white transition-all duration-500;
+  }
+}

@@ -1,0 +1,41 @@
+[
+  {
+    "id": 60003,
+    "username": "TestAdminUser",
+    "passwordHash": "d519397a4e89a7a66d28a266ed00a679bdee93fddec9ebba7d01ff27c39c1a99",
+    "email": "testadmin@test.com",
+    "role": "admin",
+    "permissions": null,
+    "mailchimpApiKey": null,
+    "mailchimpAudienceId": null,
+    "createdAt": "2025-12-24T18:33:42.000Z",
+    "updatedAt": "2025-12-24T18:33:42.000Z",
+    "lastLoginAt": null
+  },
+  {
+    "id": 60004,
+    "username": "blocktest",
+    "passwordHash": "13d249f2cb4127b40cfa757866850278793f814ded3c587fe5889e889a7a9f6c",
+    "email": null,
+    "role": "editor",
+    "permissions": null,
+    "mailchimpApiKey": null,
+    "mailchimpAudienceId": null,
+    "createdAt": "2025-12-24T18:35:01.000Z",
+    "updatedAt": "2025-12-24T18:35:01.000Z",
+    "lastLoginAt": null
+  },
+  {
+    "id": 60005,
+    "username": "JusticeEmpower",
+    "passwordHash": "8dfb50580e5aea48c0813af97fab2b4ad514844f4e422130c671f510f9634208",
+    "email": null,
+    "role": "editor",
+    "permissions": null,
+    "mailchimpApiKey": null,
+    "mailchimpAudienceId": null,
+    "createdAt": "2025-12-24T18:44:39.000Z",
+    "updatedAt": "2025-12-24T18:44:39.000Z",
+    "lastLoginAt": null
+  }
+]

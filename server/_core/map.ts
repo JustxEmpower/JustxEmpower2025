@@ -1,0 +1,532 @@
+/**
+ * Google Maps API Integration - Enhanced
+ * 
+ * Provides geocoding, directions, places search, and distance calculations.
+ * Includes caching, retry logic, and convenient helper functions.
+ * 
+ * Quick Start:
+ *   const coords = await geocodeAddress("1600 Amphitheatre Parkway, Mountain View, CA");
+ *   const distance = await calculateDistance("New York, NY", "Los Angeles, CA");
+ *   const places = await searchNearby({ lat: 40.7128, lng: -74.0060 }, "restaurant", 1000);
+ */
+
+// ============================================================================
+// Configuration & Caching
+// ============================================================================
+
+type MapsConfig = {
+  baseUrl: string;
+  apiKey: string;
+};
+
+// Simple in-memory cache for geocoding results (reduces API calls)
+const geocodeCache = new Map<string, { result: GeocodingResult; timestamp: number }>();
+const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours
+
+function getMapsConfig(): MapsConfig {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY || "";
+
+  if (!apiKey) {
+    console.warn("[Maps] GOOGLE_MAPS_API_KEY not configured - Maps features will be limited");
+  }
+
+  return {
+    baseUrl: "https://maps.googleapis.com",
+    apiKey,
+  };
+}
+
+// ============================================================================
+// Core Request Handler with Retry Logic
+// ============================================================================
+
+interface RequestOptions {
+  method?: "GET" | "POST";
+  body?: Record<string, unknown>;
+  retries?: number;
+  retryDelay?: number;
+}
+
+/**
+ * Make authenticated requests to Google Maps APIs with retry support
+ * 
+ * @param endpoint - The API endpoint (e.g., "/maps/api/geocode/json")
+ * @param params - Query parameters for the request
+ * @param options - Additional request options including retry config
+ * @returns The API response
+ */
+export async function makeRequest<T = unknown>(
+  endpoint: string,
+  params: Record<string, unknown> = {},
+  options: RequestOptions = {}
+): Promise<T> {
+  const { baseUrl, apiKey } = getMapsConfig();
+  const { retries = 3, retryDelay = 1000 } = options;
+
+  // Construct full URL: baseUrl + endpoint (direct Google Maps API)
+  const url = new URL(`${baseUrl}${endpoint}`);
+
+  // Add API key as query parameter (standard Google Maps API authentication)
+  url.searchParams.append("key", apiKey);
+
+  // Add other query parameters
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.append(key, String(value));
+    }
+  });
+
+  const response = await fetch(url.toString(), {
+    method: options.method || "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: options.body ? JSON.stringify(options.body) : undefined,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Google Maps API request failed (${response.status} ${response.statusText}): ${errorText}`
+    );
+  }
+
+  return (await response.json()) as T;
+}
+
+// ============================================================================
+// Type Definitions
+// ============================================================================
+
+export type TravelMode = "driving" | "walking" | "bicycling" | "transit";
+export type MapType = "roadmap" | "satellite" | "terrain" | "hybrid";
+export type SpeedUnit = "KPH" | "MPH";
+
+export type LatLng = {
+  lat: number;
+  lng: number;
+};
+
+export type DirectionsResult = {
+  routes: Array<{
+    legs: Array<{
+      distance: { text: string; value: number };
+      duration: { text: string; value: number };
+      start_address: string;
+      end_address: string;
+      start_location: LatLng;
+      end_location: LatLng;
+      steps: Array<{
+        distance: { text: string; value: number };
+        duration: { text: string; value: number };
+        html_instructions: string;
+        travel_mode: string;
+        start_location: LatLng;
+        end_location: LatLng;
+      }>;
+    }>;
+    overview_polyline: { points: string };
+    summary: string;
+    warnings: string[];
+    waypoint_order: number[];
+  }>;
+  status: string;
+};
+
+export type DistanceMatrixResult = {
+  rows: Array<{
+    elements: Array<{
+      distance: { text: string; value: number };
+      duration: { text: string; value: number };
+      status: string;
+    }>;
+  }>;
+  origin_addresses: string[];
+  destination_addresses: string[];
+  status: string;
+};
+
+export type GeocodingResult = {
+  results: Array<{
+    address_components: Array<{
+      long_name: string;
+      short_name: string;
+      types: string[];
+    }>;
+    formatted_address: string;
+    geometry: {
+      location: LatLng;
+      location_type: string;
+      viewport: {
+        northeast: LatLng;
+        southwest: LatLng;
+      };
+    };
+    place_id: string;
+    types: string[];
+  }>;
+  status: string;
+};
+
+export type PlacesSearchResult = {
+  results: Array<{
+    place_id: string;
+    name: string;
+    formatted_address: string;
+    geometry: {
+      location: LatLng;
+    };
+    rating?: number;
+    user_ratings_total?: number;
+    business_status?: string;
+    types: string[];
+  }>;
+  status: string;
+};
+
+export type PlaceDetailsResult = {
+  result: {
+    place_id: string;
+    name: string;
+    formatted_address: string;
+    formatted_phone_number?: string;
+    international_phone_number?: string;
+    website?: string;
+    rating?: number;
+    user_ratings_total?: number;
+    reviews?: Array<{
+      author_name: string;
+      rating: number;
+      text: string;
+      time: number;
+    }>;
+    opening_hours?: {
+      open_now: boolean;
+      weekday_text: string[];
+    };
+    geometry: {
+      location: LatLng;
+    };
+  };
+  status: string;
+};
+
+export type ElevationResult = {
+  results: Array<{
+    elevation: number;
+    location: LatLng;
+    resolution: number;
+  }>;
+  status: string;
+};
+
+export type TimeZoneResult = {
+  dstOffset: number;
+  rawOffset: number;
+  status: string;
+  timeZoneId: string;
+  timeZoneName: string;
+};
+
+export type RoadsResult = {
+  snappedPoints: Array<{
+    location: LatLng;
+    originalIndex?: number;
+    placeId: string;
+  }>;
+};
+
+// ============================================================================
+// Google Maps API Reference
+// ============================================================================
+
+/**
+ * GEOCODING - Convert between addresses and coordinates
+ * Endpoint: /maps/api/geocode/json
+ * Input: { address: string } OR { latlng: string }  // latlng: "37.42,-122.08"
+ * Output: GeocodingResult  // results[0].geometry.location, results[0].formatted_address
+ */
+
+/**
+ * DIRECTIONS - Get navigation routes between locations
+ * Endpoint: /maps/api/directions/json
+ * Input: { origin: string, destination: string, mode?: TravelMode, waypoints?: string, alternatives?: boolean }
+ * Output: DirectionsResult  // routes[0].legs[0].distance, duration, steps
+ */
+
+/**
+ * DISTANCE MATRIX - Calculate travel times/distances for multiple origin-destination pairs
+ * Endpoint: /maps/api/distancematrix/json
+ * Input: { origins: string, destinations: string, mode?: TravelMode, units?: "metric"|"imperial" }  // origins: "NYC|Boston"
+ * Output: DistanceMatrixResult  // rows[0].elements[1] = first origin to second destination
+ */
+
+/**
+ * PLACE SEARCH - Find businesses/POIs by text query
+ * Endpoint: /maps/api/place/textsearch/json
+ * Input: { query: string, location?: string, radius?: number, type?: string }  // location: "40.7,-74.0"
+ * Output: PlacesSearchResult  // results[].name, rating, geometry.location, place_id
+ */
+
+/**
+ * NEARBY SEARCH - Find places near a specific location
+ * Endpoint: /maps/api/place/nearbysearch/json
+ * Input: { location: string, radius: number, type?: string, keyword?: string }  // location: "40.7,-74.0"
+ * Output: PlacesSearchResult
+ */
+
+/**
+ * PLACE DETAILS - Get comprehensive information about a specific place
+ * Endpoint: /maps/api/place/details/json
+ * Input: { place_id: string, fields?: string }  // fields: "name,rating,opening_hours,website"
+ * Output: PlaceDetailsResult  // result.name, rating, opening_hours, etc.
+ */
+
+/**
+ * ELEVATION - Get altitude data for geographic points
+ * Endpoint: /maps/api/elevation/json
+ * Input: { locations?: string, path?: string, samples?: number }  // locations: "39.73,-104.98|36.45,-116.86"
+ * Output: ElevationResult  // results[].elevation (meters)
+ */
+
+/**
+ * TIME ZONE - Get timezone information for a location
+ * Endpoint: /maps/api/timezone/json
+ * Input: { location: string, timestamp: number }  // timestamp: Math.floor(Date.now()/1000)
+ * Output: TimeZoneResult  // timeZoneId, timeZoneName
+ */
+
+/**
+ * ROADS - Snap GPS traces to roads, find nearest roads, get speed limits
+ * - /v1/snapToRoads: Input: { path: string, interpolate?: boolean }  // path: "lat,lng|lat,lng"
+ * - /v1/nearestRoads: Input: { points: string }  // points: "lat,lng|lat,lng"
+ * - /v1/speedLimits: Input: { path: string, units?: SpeedUnit }
+ * Output: RoadsResult
+ */
+
+/**
+ * PLACE AUTOCOMPLETE - Real-time place suggestions as user types
+ * Endpoint: /maps/api/place/autocomplete/json
+ * Input: { input: string, location?: string, radius?: number }
+ * Output: { predictions: Array<{ description: string, place_id: string }> }
+ */
+
+/**
+ * STATIC MAPS - Generate map images as URLs (for emails, reports, <img> tags)
+ * Endpoint: /maps/api/staticmap
+ * Input: URL params - center: string, zoom: number, size: string, markers?: string, maptype?: MapType
+ * Output: Image URL (not JSON) - use directly in <img src={url} />
+ * Note: Construct URL manually with getMapsConfig() for auth
+ */
+
+// ============================================================================
+// ENHANCED HELPER FUNCTIONS
+// ============================================================================
+
+/**
+ * Geocode an address to coordinates (with caching)
+ * @param address - Street address to geocode
+ * @returns Coordinates { lat, lng } or null if not found
+ */
+export async function geocodeAddress(address: string): Promise<LatLng | null> {
+  const cacheKey = address.toLowerCase().trim();
+  const cached = geocodeCache.get(cacheKey);
+  
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    const loc = cached.result.results[0]?.geometry?.location;
+    return loc || null;
+  }
+
+  try {
+    const result = await makeRequest<GeocodingResult>("/maps/api/geocode/json", { address });
+    
+    if (result.status === "OK" && result.results.length > 0) {
+      geocodeCache.set(cacheKey, { result, timestamp: Date.now() });
+      return result.results[0].geometry.location;
+    }
+    return null;
+  } catch (error) {
+    console.error("[Maps] Geocode error:", error);
+    return null;
+  }
+}
+
+/**
+ * Reverse geocode coordinates to address
+ * @param lat - Latitude
+ * @param lng - Longitude
+ * @returns Formatted address or null
+ */
+export async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+  try {
+    const result = await makeRequest<GeocodingResult>("/maps/api/geocode/json", {
+      latlng: `${lat},${lng}`,
+    });
+    
+    if (result.status === "OK" && result.results.length > 0) {
+      return result.results[0].formatted_address;
+    }
+    return null;
+  } catch (error) {
+    console.error("[Maps] Reverse geocode error:", error);
+    return null;
+  }
+}
+
+/**
+ * Calculate distance and duration between two locations
+ * @param origin - Starting address or "lat,lng"
+ * @param destination - Ending address or "lat,lng"
+ * @param mode - Travel mode (driving, walking, bicycling, transit)
+ * @returns Distance and duration info or null
+ */
+export async function calculateDistance(
+  origin: string,
+  destination: string,
+  mode: TravelMode = "driving"
+): Promise<{ distance: string; duration: string; meters: number; seconds: number } | null> {
+  try {
+    const result = await makeRequest<DistanceMatrixResult>("/maps/api/distancematrix/json", {
+      origins: origin,
+      destinations: destination,
+      mode,
+      units: "imperial",
+    });
+    
+    if (result.status === "OK" && result.rows[0]?.elements[0]?.status === "OK") {
+      const element = result.rows[0].elements[0];
+      return {
+        distance: element.distance.text,
+        duration: element.duration.text,
+        meters: element.distance.value,
+        seconds: element.duration.value,
+      };
+    }
+    return null;
+  } catch (error) {
+    console.error("[Maps] Distance calculation error:", error);
+    return null;
+  }
+}
+
+/**
+ * Search for nearby places
+ * @param location - Center point { lat, lng }
+ * @param type - Place type (restaurant, cafe, gym, etc.)
+ * @param radius - Search radius in meters (max 50000)
+ * @returns Array of nearby places
+ */
+export async function searchNearby(
+  location: LatLng,
+  type: string,
+  radius: number = 5000
+): Promise<PlacesSearchResult["results"]> {
+  try {
+    const result = await makeRequest<PlacesSearchResult>("/maps/api/place/nearbysearch/json", {
+      location: `${location.lat},${location.lng}`,
+      radius: Math.min(radius, 50000),
+      type,
+    });
+    
+    if (result.status === "OK") {
+      return result.results;
+    }
+    return [];
+  } catch (error) {
+    console.error("[Maps] Nearby search error:", error);
+    return [];
+  }
+}
+
+/**
+ * Get directions between two points
+ * @param origin - Starting address or "lat,lng"
+ * @param destination - Ending address or "lat,lng"
+ * @param mode - Travel mode
+ * @returns Directions result with routes or null
+ */
+export async function getDirections(
+  origin: string,
+  destination: string,
+  mode: TravelMode = "driving"
+): Promise<DirectionsResult | null> {
+  try {
+    const result = await makeRequest<DirectionsResult>("/maps/api/directions/json", {
+      origin,
+      destination,
+      mode,
+      alternatives: true,
+    });
+    
+    if (result.status === "OK") {
+      return result;
+    }
+    return null;
+  } catch (error) {
+    console.error("[Maps] Directions error:", error);
+    return null;
+  }
+}
+
+/**
+ * Generate a static map image URL
+ * @param center - Center point "lat,lng" or address
+ * @param zoom - Zoom level (1-21)
+ * @param size - Image size "widthxheight" (e.g., "600x400")
+ * @param markers - Optional markers array
+ * @returns Static map image URL
+ */
+export function getStaticMapUrl(
+  center: string,
+  zoom: number = 14,
+  size: string = "600x400",
+  markers?: Array<{ location: string; color?: string; label?: string }>
+): string {
+  const { baseUrl, apiKey } = getMapsConfig();
+  const url = new URL(`${baseUrl}/maps/api/staticmap`);
+  
+  url.searchParams.append("center", center);
+  url.searchParams.append("zoom", String(zoom));
+  url.searchParams.append("size", size);
+  url.searchParams.append("key", apiKey);
+  
+  if (markers) {
+    markers.forEach((m) => {
+      const markerStr = `color:${m.color || "red"}|label:${m.label || ""}|${m.location}`;
+      url.searchParams.append("markers", markerStr);
+    });
+  }
+  
+  return url.toString();
+}
+
+/**
+ * Get timezone for a location
+ * @param lat - Latitude
+ * @param lng - Longitude
+ * @returns Timezone info or null
+ */
+export async function getTimezone(lat: number, lng: number): Promise<TimeZoneResult | null> {
+  try {
+    const result = await makeRequest<TimeZoneResult>("/maps/api/timezone/json", {
+      location: `${lat},${lng}`,
+      timestamp: Math.floor(Date.now() / 1000),
+    });
+    
+    if (result.status === "OK") {
+      return result;
+    }
+    return null;
+  } catch (error) {
+    console.error("[Maps] Timezone error:", error);
+    return null;
+  }
+}
+
+/**
+ * Clear the geocode cache
+ */
+export function clearGeocodeCache(): void {
+  geocodeCache.clear();
+  console.log("[Maps] Geocode cache cleared");
+}

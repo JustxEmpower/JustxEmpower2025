@@ -1,0 +1,3832 @@
+import { z } from "zod";
+import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo, generatePageBlocks } from "./aiService";
+import { generateVideoThumbnail } from "./mediaConversionService";
+import { publicProcedure, router } from "./_core/trpc";
+import { TRPCError } from "@trpc/server";
+import {
+  getAdminByUsername,
+  verifyPassword,
+  updateAdminPassword,
+  updateAdminUsername,
+  getAllArticles,
+  getPublishedArticles,
+  getArticleBySlug,
+  addPageToSeoSettings,
+  createArticle,
+  updateArticle,
+  deleteArticle,
+  getSiteContentByPage,
+  getAllSiteContent,
+  updateSiteContent,
+  upsertSiteContent,
+  createMedia,
+  getAllMedia,
+  getMediaById,
+  deleteMedia,
+  getThemeSettings,
+  updateThemeSettings,
+  getAllPages,
+  getPageBySlug,
+  createPage,
+  updatePage,
+  deletePage,
+  softDeletePage,
+  restorePage,
+  permanentlyDeletePage,
+  getTrashedPages,
+  emptyTrash,
+  cleanupExpiredTrash,
+  reorderPages,
+  getPageBlocks,
+  createPageBlock,
+  updatePageBlock,
+  deletePageBlock,
+  reorderPageBlocks,
+  syncPageBlocksToSiteContent,
+} from "./adminDb";
+import { storagePut, getPresignedUploadUrl } from "./storage";
+import { getDb } from "./db";
+import * as schema from "../drizzle/schema";
+import { eq, and, sql, desc, lt, gte, isNotNull } from "drizzle-orm";
+import { nanoid } from "nanoid";
+import { generateColorPalette, suggestFontPairings } from "./aiService";
+
+// Admin session management (database-backed for persistence)
+function generateSessionToken(): string {
+  return nanoid(64); // Secure random token
+}
+
+async function createAdminSession(username: string): Promise<string> {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const token = generateSessionToken();
+  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+  
+  await db.insert(schema.adminSessions).values({
+    token,
+    username,
+    expiresAt,
+  });
+  
+  return token;
+}
+
+async function validateAdminSession(token: string): Promise<string | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const [session] = await db
+    .select()
+    .from(schema.adminSessions)
+    .where(eq(schema.adminSessions.token, token))
+    .limit(1);
+  
+  if (!session) return null;
+  
+  // Check if expired
+  if (session.expiresAt < new Date()) {
+    // Clean up expired session
+    await db.delete(schema.adminSessions).where(eq(schema.adminSessions.token, token));
+    return null;
+  }
+  
+  return session.username;
+}
+
+async function deleteAdminSession(token: string): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.delete(schema.adminSessions).where(eq(schema.adminSessions.token, token));
+}
+
+// Clean up expired sessions periodically
+async function cleanupExpiredSessions(): Promise<void> {
+  const db = await getDb();
+  if (!db) return;
+  
+  await db.delete(schema.adminSessions).where(lt(schema.adminSessions.expiresAt, new Date()));
+}
+
+// Admin authentication middleware
+const adminProcedure = publicProcedure.use(async ({ ctx, next }) => {
+  const token = ctx.req.headers["x-admin-token"] as string;
+  if (!token) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Admin token required" });
+  }
+  
+  const username = await validateAdminSession(token);
+  if (!username) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid or expired admin session" });
+  }
+  
+  return next({
+    ctx: {
+      ...ctx,
+      adminUsername: username,
+    },
+  });
+});
+
+export const adminRouter = router({
+  // Dashboard Statistics - Enhanced
+  dashboard: router({
+    stats: adminProcedure
+      .query(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Gather all stats in parallel for performance
+        const [
+          pages, articles, media, submissions, users,
+          products, events, orders, newsletters, resources
+        ] = await Promise.all([
+          db.select({ count: sql<number>`count(*)` }).from(schema.pages).catch(() => [{ count: 0 }]),
+          db.select({ count: sql<number>`count(*)` }).from(schema.articles).catch(() => [{ count: 0 }]),
+          db.select({ count: sql<number>`count(*)` }).from(schema.media).catch(() => [{ count: 0 }]),
+          db.select({ count: sql<number>`count(*)` }).from(schema.formSubmissions).catch(() => [{ count: 0 }]),
+          db.select({ count: sql<number>`count(*)` }).from(schema.adminUsers).catch(() => [{ count: 0 }]),
+          db.select({ count: sql<number>`count(*)` }).from(schema.products).catch(() => [{ count: 0 }]),
+          db.select({ count: sql<number>`count(*)` }).from(schema.events).catch(() => [{ count: 0 }]),
+          db.select({ count: sql<number>`count(*)` }).from(schema.orders).catch(() => [{ count: 0 }]),
+          db.select({ count: sql<number>`count(*)` }).from(schema.newsletterSubscribers).catch(() => [{ count: 0 }]),
+          db.select({ count: sql<number>`count(*)` }).from(schema.resources).catch(() => [{ count: 0 }]),
+        ]);
+        
+        // Get unread submissions
+        const unreadSubmissions = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.formSubmissions)
+          .where(eq(schema.formSubmissions.isRead, 0))
+          .catch(() => [{ count: 0 }]);
+        
+        // Get published vs draft counts
+        const publishedPages = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.pages)
+          .where(eq(schema.pages.published, 1))
+          .catch(() => [{ count: 0 }]);
+        
+        const publishedArticles = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.articles)
+          .where(eq(schema.articles.published, 1))
+          .catch(() => [{ count: 0 }]);
+        
+        // Get recent orders count (last 7 days)
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+        const recentOrders = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.orders)
+          .where(gte(schema.orders.createdAt, sevenDaysAgo))
+          .catch(() => [{ count: 0 }]);
+        
+        // Calculate total revenue
+        const revenueResult = await db
+          .select({ total: sql<number>`COALESCE(SUM(totalAmount), 0)` })
+          .from(schema.orders)
+          .where(eq(schema.orders.status, 'completed'))
+          .catch(() => [{ total: 0 }]);
+        
+        return {
+          totalPages: pages[0]?.count || 0,
+          publishedPages: publishedPages[0]?.count || 0,
+          totalArticles: articles[0]?.count || 0,
+          publishedArticles: publishedArticles[0]?.count || 0,
+          totalMedia: media[0]?.count || 0,
+          totalFormSubmissions: submissions[0]?.count || 0,
+          unreadSubmissions: unreadSubmissions[0]?.count || 0,
+          totalUsers: users[0]?.count || 0,
+          totalProducts: products[0]?.count || 0,
+          totalEvents: events[0]?.count || 0,
+          totalOrders: orders[0]?.count || 0,
+          recentOrders: recentOrders[0]?.count || 0,
+          totalRevenue: revenueResult[0]?.total || 0,
+          totalSubscribers: newsletters[0]?.count || 0,
+          totalResources: resources[0]?.count || 0,
+        };
+      }),
+    
+    // System health check
+    health: adminProcedure.query(async () => {
+      const db = await getDb();
+      const checks = {
+        database: false,
+        storage: false,
+        email: false,
+        ai: false,
+      };
+      
+      // Database check
+      if (db) {
+        try {
+          await db.execute(sql`SELECT 1`);
+          checks.database = true;
+        } catch {}
+      }
+      
+      // Storage check
+      checks.storage = !!(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY);
+      
+      // Email check
+      checks.email = !!(process.env.SES_FROM_EMAIL || process.env.SENDGRID_API_KEY || process.env.RESEND_API_KEY);
+      
+      // AI check
+      checks.ai = !!(process.env.GEMINI_API_KEY || process.env.OPENAI_API_KEY);
+      
+      return {
+        status: checks.database ? 'healthy' : 'degraded',
+        checks,
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime(),
+      };
+    }),
+
+    recentActivity: adminProcedure
+      .query(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Get recent pages
+        const recentPages = await db
+          .select({
+            title: schema.pages.title,
+            createdAt: schema.pages.createdAt,
+            type: sql<string>`'page'`,
+          })
+          .from(schema.pages)
+          .orderBy(desc(schema.pages.createdAt))
+          .limit(5);
+        
+        // Get recent articles
+        const recentArticles = await db
+          .select({
+            title: schema.articles.title,
+            createdAt: schema.articles.createdAt,
+            type: sql<string>`'article'`,
+          })
+          .from(schema.articles)
+          .orderBy(desc(schema.articles.createdAt))
+          .limit(5);
+        
+        // Combine and sort
+        const activities = [...recentPages, ...recentArticles]
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, 10)
+          .map(item => ({
+            description: `${item.type === 'page' ? 'Page' : 'Article'} "${item.title}" was ${item.type === 'page' ? 'created' : 'published'}`,
+            timestamp: new Date(item.createdAt).toLocaleString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            }),
+          }));
+        
+        return activities;
+      }),
+  }),
+
+  // AI Content Generation
+  ai: router({    generateArticle: adminProcedure
+      .input(z.object({ topic: z.string(), tone: z.string().optional() }))
+      .mutation(async ({ input }) => {
+        const content = await generateArticleContent(input.topic, input.tone);
+        return { content };
+      }),
+
+    generateMetaDescription: adminProcedure
+      .input(z.object({ title: z.string(), content: z.string() }))
+      .mutation(async ({ input }) => {
+        const description = await generateMetaDescription(input.title, input.content);
+        return { description };
+      }),
+
+    generateImageAlt: adminProcedure
+      .input(z.object({ imageUrl: z.string(), context: z.string().optional() }))
+      .mutation(async ({ input }) => {
+        const altText = await generateImageAltText(input.imageUrl, input.context);
+        return { altText };
+      }),
+
+    generateContentSuggestions: adminProcedure
+      .mutation(async () => {
+        // Get all existing articles
+        const articles = await getAllArticles();
+        const articleData = articles.map(a => ({
+          title: a.title,
+          content: a.content || ""
+        }));
+        
+        const suggestions = await generateContentSuggestions(articleData);
+        return { suggestions };
+      }),
+
+    generateBulkAltText: adminProcedure
+      .input(z.object({ imageUrls: z.array(z.string()) }))
+      .mutation(async ({ input }) => {
+        const results = await generateBulkAltText(input.imageUrls);
+        return { results };
+      }),
+
+    generatePageBlocks: adminProcedure
+      .input(z.object({
+        description: z.string().min(10, "Description must be at least 10 characters"),
+        pageType: z.enum(['landing', 'about', 'services', 'contact', 'blog', 'custom']).default('custom')
+      }))
+      .mutation(async ({ input }) => {
+        const result = await generatePageBlocks(input.description, input.pageType);
+        return result;
+      }),
+  }),
+
+  // Get current admin settings
+  getSettings: adminProcedure.query(async ({ ctx }) => {
+    const admin = await getAdminByUsername(ctx.adminUsername);
+    if (!admin) {
+      throw new TRPCError({ code: "NOT_FOUND", message: "Admin user not found" });
+    }
+    return {
+      username: admin.username,
+      mailchimpApiKey: admin.mailchimpApiKey || '',
+      mailchimpAudienceId: admin.mailchimpAudienceId || '',
+    };
+  }),
+
+  // Authentication
+  login: publicProcedure
+    .input(z.object({
+      username: z.string(),
+      password: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const admin = await getAdminByUsername(input.username);
+      
+      if (!admin || !verifyPassword(input.password, admin.passwordHash)) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid credentials" });
+      }
+      
+      const token = await createAdminSession(admin.username);
+      
+      return {
+        success: true,
+        token,
+        username: admin.username,
+      };
+    }),
+  
+  logout: adminProcedure
+    .mutation(async ({ ctx }) => {
+      const token = ctx.req.headers["x-admin-token"] as string;
+      await deleteAdminSession(token);
+      return { success: true };
+    }),
+  
+  verifySession: adminProcedure
+    .query(({ ctx }) => {
+      return {
+        valid: true,
+        username: ctx.adminUsername,
+      };
+    }),
+  
+  // Admin settings
+  changePassword: adminProcedure
+    .input(z.object({
+      currentPassword: z.string(),
+      newPassword: z.string().min(8),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const admin = await getAdminByUsername(ctx.adminUsername);
+      
+      if (!admin || !verifyPassword(input.currentPassword, admin.passwordHash)) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Current password is incorrect" });
+      }
+      
+      await updateAdminPassword(ctx.adminUsername, input.newPassword);
+      
+      return { success: true };
+    }),
+  
+  changeUsername: adminProcedure
+    .input(z.object({
+      newUsername: z.string().min(3),
+      password: z.string(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const admin = await getAdminByUsername(ctx.adminUsername);
+      
+      if (!admin || !verifyPassword(input.password, admin.passwordHash)) {
+        throw new TRPCError({ code: "UNAUTHORIZED", message: "Password is incorrect" });
+      }
+      
+      // Check if new username already exists
+      const existing = await getAdminByUsername(input.newUsername);
+      if (existing) {
+        throw new TRPCError({ code: "CONFLICT", message: "Username already exists" });
+      }
+      
+      await updateAdminUsername(ctx.adminUsername, input.newUsername);
+      
+      return { success: true, newUsername: input.newUsername };
+    }),
+  
+  // Article management
+  articles: router({
+    list: adminProcedure
+      .input(z.object({
+        limit: z.number().optional(),
+        offset: z.number().optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        const articles = await getAllArticles(input?.limit, input?.offset);
+        return articles;
+      }),
+    
+    get: adminProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        const article = await getArticleBySlug(input.slug);
+        if (!article) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
+        }
+        return article;
+      }),
+    
+    create: adminProcedure
+      .input(z.object({
+        title: z.string(),
+        slug: z.string(),
+        category: z.string().optional(),
+        date: z.string().optional(),
+        excerpt: z.string().optional(),
+        content: z.string(),
+        imageUrl: z.string().optional(),
+        published: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await createArticle(input);
+        return { success: true };
+      }),
+    
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().optional(),
+        slug: z.string().optional(),
+        category: z.string().optional(),
+        date: z.string().optional(),
+        excerpt: z.string().optional(),
+        content: z.string().optional(),
+        imageUrl: z.string().optional(),
+        published: z.number().optional(),
+        displayOrder: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        await updateArticle(id, data);
+        return { success: true };
+      }),
+    
+    reorder: adminProcedure
+      .input(z.object({
+        articles: z.array(z.object({
+          id: z.number(),
+          displayOrder: z.number(),
+        })),
+      }))
+      .mutation(async ({ input }) => {
+        for (const article of input.articles) {
+          await updateArticle(article.id, { displayOrder: article.displayOrder });
+        }
+        return { success: true };
+      }),
+    
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await deleteArticle(input.id);
+        return { success: true };
+      }),
+  }),
+  
+  // Site content management
+  content: router({
+    listAll: adminProcedure
+      .query(async () => {
+        return await getAllSiteContent();
+      }),
+    
+    getByPage: adminProcedure
+      .input(z.object({ page: z.string() }))
+      .query(async ({ input }) => {
+        return await getSiteContentByPage(input.page);
+      }),
+    
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        contentValue: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        await updateSiteContent(input.id, input.contentValue);
+        return { success: true };
+      }),
+    
+    upsert: adminProcedure
+      .input(z.object({
+        page: z.string(),
+        section: z.string(),
+        contentKey: z.string(),
+        contentValue: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        await upsertSiteContent(input);
+        return { success: true };
+      }),
+  }),
+  
+  // Media library management
+  media: router({
+    list: adminProcedure
+      .query(async () => {
+        const mediaItems = await getAllMedia();
+        // Debug: Log video items with thumbnailUrl
+        const videos = mediaItems.filter(m => m.type === 'video');
+        console.log('[DEBUG] Video items with thumbnailUrl:', videos.map(v => ({ id: v.id, name: v.originalName, thumbnailUrl: v.thumbnailUrl })));
+        return mediaItems;
+      }),
+    
+    // Get presigned URL for direct S3 upload (for large files)
+    getUploadUrl: adminProcedure
+      .input(z.object({
+        filename: z.string(),
+        mimeType: z.string(),
+        fileSize: z.number(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Generate unique filename
+        const ext = input.filename.split('.').pop() || '';
+        const uniqueFilename = `${nanoid()}.${ext}`;
+        const s3Key = `media/${uniqueFilename}`;
+        
+        // Get presigned URL for direct upload
+        const { uploadUrl, publicUrl } = await getPresignedUploadUrl(s3Key, input.mimeType);
+        
+        return {
+          uploadUrl,
+          publicUrl,
+          s3Key,
+          uniqueFilename,
+          originalName: input.filename,
+          mimeType: input.mimeType,
+          fileSize: input.fileSize,
+        };
+      }),
+    
+    // Confirm upload after direct S3 upload completes
+    confirmUpload: adminProcedure
+      .input(z.object({
+        s3Key: z.string(),
+        uniqueFilename: z.string(),
+        originalName: z.string(),
+        mimeType: z.string(),
+        fileSize: z.number(),
+        publicUrl: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Determine media type
+        const type = input.mimeType.startsWith('video/') ? 'video' : 
+                     input.mimeType.startsWith('audio/') ? 'video' : 'image';
+        
+        // Generate thumbnail for videos asynchronously
+        let thumbnailUrl: string | undefined;
+        if (type === 'video') {
+          try {
+            // Download video from S3
+            const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3');
+            const s3Client = new S3Client({ region: process.env.AWS_REGION || 'us-east-1' });
+            
+            const getCommand = new GetObjectCommand({
+              Bucket: 'justxempower-assets',
+              Key: input.s3Key,
+            });
+            
+            const response = await s3Client.send(getCommand);
+            const videoBuffer = await response.Body?.transformToByteArray();
+            
+            if (videoBuffer) {
+              // Generate thumbnail
+              const thumbnailResult = await generateVideoThumbnail(Buffer.from(videoBuffer), input.mimeType, 1);
+              
+              if (thumbnailResult.success && thumbnailResult.outputBuffer) {
+                // Upload thumbnail to S3
+                const thumbnailKey = `media/thumbnails/${nanoid()}.jpg`;
+                const { storagePut } = await import('./storage');
+                const uploadResult = await storagePut(thumbnailKey, thumbnailResult.outputBuffer, 'image/jpeg');
+                thumbnailUrl = uploadResult.url;
+              }
+            }
+          } catch (error) {
+            console.error('Failed to generate video thumbnail:', error);
+            // Continue without thumbnail - not a critical failure
+          }
+        }
+        
+        // Save to database
+        const db = await getDb();
+        if (!db) throw new Error("Database not available");
+        
+        await db.insert(schema.media).values({
+          filename: input.uniqueFilename,
+          originalName: input.originalName,
+          mimeType: input.mimeType,
+          fileSize: input.fileSize,
+          s3Key: input.s3Key,
+          url: input.publicUrl,
+          type,
+          uploadedBy: ctx.adminUsername,
+          thumbnailUrl: thumbnailUrl,
+        });
+        
+        return { success: true, url: input.publicUrl, thumbnailUrl };
+      }),
+    
+    // Legacy upload (for small files via base64)
+    upload: adminProcedure
+      .input(z.object({
+        filename: z.string(),
+        mimeType: z.string(),
+        fileSize: z.number(),
+        base64Data: z.string(), // Base64 encoded file data
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Decode base64 data
+        const buffer = Buffer.from(input.base64Data, 'base64');
+        
+        // Generate unique filename
+        const ext = input.filename.split('.').pop() || '';
+        const uniqueFilename = `${nanoid()}.${ext}`;
+        const s3Key = `media/${uniqueFilename}`;
+        
+        // Upload to S3
+        const { url } = await storagePut(s3Key, buffer, input.mimeType);
+        
+        // Determine media type
+        const type = input.mimeType.startsWith('video/') ? 'video' : 'image';
+        
+        // Save to database
+        await createMedia({
+          filename: uniqueFilename,
+          originalName: input.filename,
+          mimeType: input.mimeType,
+          fileSize: input.fileSize,
+          s3Key,
+          url,
+          type,
+          uploadedBy: ctx.adminUsername,
+        });
+        
+        return { success: true, url };
+      }),
+    
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        // Note: We're not deleting from S3 for safety
+        // You can add S3 deletion logic here if needed
+        await deleteMedia(input.id);
+        return { success: true };
+      }),
+    
+    // Get available conversion formats for a media file
+    getConversionFormats: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const media = await getMediaById(input.id);
+        if (!media) {
+          throw new Error('Media not found');
+        }
+        
+        const { getAvailableOutputFormats } = await import('./mediaConversionService');
+        const formats = getAvailableOutputFormats(media.mimeType);
+        
+        return {
+          currentFormat: media.mimeType,
+          availableFormats: formats,
+          mediaId: media.id,
+          filename: media.originalName,
+        };
+      }),
+    
+    // Convert media to a different format
+    convertMedia: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        targetFormat: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const media = await getMediaById(input.id);
+        if (!media) {
+          throw new Error('Media not found');
+        }
+        
+        try {
+          // Download media from S3
+          const { S3Client, GetObjectCommand } = await import('@aws-sdk/client-s3');
+          // Extract valid region from AWS_REGION env var (handle cases like "USEast(N.Virginia)us-east-1")
+          let region = process.env.AWS_REGION || 'us-east-1';
+          if (region.includes('us-east-1')) {
+            region = 'us-east-1';
+          } else if (region.includes('us-west-2')) {
+            region = 'us-west-2';
+          } else if (region.includes('eu-west-1')) {
+            region = 'eu-west-1';
+          }
+          const s3Client = new S3Client({ region });
+          
+          const getCommand = new GetObjectCommand({
+            Bucket: 'justxempower-assets',
+            Key: media.s3Key,
+          });
+          
+          const response = await s3Client.send(getCommand);
+          const mediaBuffer = await response.Body?.transformToByteArray();
+          
+          if (!mediaBuffer) {
+            throw new Error('Failed to download media from S3');
+          }
+          
+          // Convert media
+          const { convertMedia: convertMediaFn } = await import('./mediaConversionService');
+          const conversionResult = await convertMediaFn(Buffer.from(mediaBuffer), media.mimeType, input.targetFormat);
+          
+          if (!conversionResult.success || !conversionResult.outputBuffer) {
+            throw new Error(conversionResult.error || 'Conversion failed');
+          }
+          
+          // Upload converted file to S3
+          const ext = conversionResult.outputExtension || 'bin';
+          const convertedFilename = `${media.originalName.split('.')[0]}-converted.${ext}`;
+          const convertedS3Key = `media/conversions/${nanoid()}.${ext}`;
+          
+          const { storagePut } = await import('./storage');
+          const uploadResult = await storagePut(convertedS3Key, conversionResult.outputBuffer, input.targetFormat);
+          
+          // Save converted file to database
+          await createMedia({
+            filename: `${nanoid()}.${ext}`,
+            originalName: convertedFilename,
+            mimeType: input.targetFormat,
+            fileSize: conversionResult.outputBuffer.length,
+            s3Key: convertedS3Key,
+            url: uploadResult.url,
+            type: input.targetFormat.startsWith('video/') ? 'video' : 'image',
+            uploadedBy: ctx.adminUsername,
+          });
+          
+          return {
+            success: true,
+            url: uploadResult.url,
+            filename: convertedFilename,
+            format: input.targetFormat,
+          };
+        } catch (error) {
+          console.error('Media conversion error:', error);
+          throw new Error(error instanceof Error ? error.message : 'Conversion failed');
+        }
+      }),
+  }),
+  
+  // Theme Settings
+  theme: router({
+    get: adminProcedure.query(async () => {
+      return await getThemeSettings();
+    }),
+    
+    update: adminProcedure
+      .input(z.object({
+        primaryColor: z.string().optional(),
+        secondaryColor: z.string().optional(),
+        accentColor: z.string().optional(),
+        backgroundColor: z.string().optional(),
+        textColor: z.string().optional(),
+        headingFont: z.string().optional(),
+        bodyFont: z.string().optional(),
+        headingFontUrl: z.string().optional(),
+        bodyFontUrl: z.string().optional(),
+        containerMaxWidth: z.string().optional(),
+        sectionSpacing: z.string().optional(),
+        borderRadius: z.string().optional(),
+        enableAnimations: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await updateThemeSettings(input);
+        return { success: true };
+      }),
+    
+    generatePalette: adminProcedure
+      .input(z.object({ description: z.string() }))
+      .mutation(async ({ input }) => {
+        const palette = await generateColorPalette(input.description);
+        return palette;
+      }),
+    
+    suggestFonts: adminProcedure
+      .input(z.object({ style: z.string() }))
+      .mutation(async ({ input }) => {
+        const fonts = await suggestFontPairings(input.style);
+        return fonts;
+      }),
+  }),
+
+  // Block Templates Management
+  blockTemplates: router({
+    list: adminProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) return [];
+      return await db.select().from(schema.blockTemplates).orderBy(schema.blockTemplates.createdAt);
+    }),
+
+    create: adminProcedure
+      .input(
+        z.object({
+          name: z.string(),
+          description: z.string().optional(),
+          blocks: z.string(), // JSON array of block configurations
+        })
+      )
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        const [result] = await db.insert(schema.blockTemplates).values(input);
+        return { id: result.insertId };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        await db.delete(schema.blockTemplates).where(eq(schema.blockTemplates.id, input.id));
+        return { success: true };
+      }),
+  }),
+
+  // Pages Management
+  pages: router({
+    list: adminProcedure.query(async () => {
+      return await getAllPages();
+    }),
+
+    get: adminProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        const page = await getPageBySlug(input.slug);
+        if (!page) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Page not found" });
+        }
+        return page;
+      }),
+
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const [page] = await db
+          .select()
+          .from(schema.pages)
+          .where(eq(schema.pages.id, input.id));
+        
+        if (!page) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Page not found" });
+        }
+        return page;
+      }),
+
+    create: adminProcedure
+      .input(
+        z.object({
+          title: z.string(),
+          slug: z.string(),
+          template: z.string().optional(),
+          metaTitle: z.string().optional(),
+          metaDescription: z.string().optional(),
+          ogImage: z.string().optional(),
+          published: z.number().optional(),
+          showInNav: z.number().optional(),
+          navOrder: z.number().optional(),
+          parentId: z.number().nullable().optional(),
+          autoGenerateSeo: z.boolean().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        let seoData = {
+          metaTitle: input.metaTitle,
+          metaDescription: input.metaDescription,
+        };
+
+        // Auto-generate SEO if requested and not provided
+        if (input.autoGenerateSeo && (!input.metaTitle || !input.metaDescription)) {
+          try {
+            const generatedSeo = await generatePageSeo(input.title, input.slug);
+            if (!input.metaTitle && generatedSeo.metaTitle) {
+              seoData.metaTitle = generatedSeo.metaTitle;
+            }
+            if (!input.metaDescription && generatedSeo.metaDescription) {
+              seoData.metaDescription = generatedSeo.metaDescription;
+            }
+          } catch (error) {
+            console.error('Failed to auto-generate SEO:', error);
+          }
+        }
+
+        // Create the page with SEO data
+        const page = await createPage({
+          ...input,
+          metaTitle: seoData.metaTitle,
+          metaDescription: seoData.metaDescription,
+        });
+
+        // Auto-add to SEO settings
+        try {
+          await addPageToSeoSettings(page.id, input.slug, seoData.metaTitle || input.title, seoData.metaDescription);
+        } catch (error) {
+          console.error('Failed to add page to SEO settings:', error);
+        }
+
+        return page;
+      }),
+
+    update: adminProcedure
+      .input(
+        z.object({
+          id: z.number(),
+          title: z.string().optional(),
+          slug: z.string().optional(),
+          template: z.string().optional(),
+          metaTitle: z.string().optional(),
+          metaDescription: z.string().optional(),
+          ogImage: z.string().optional(),
+          published: z.number().optional(),
+          showInNav: z.number().optional(),
+          navOrder: z.number().optional(),
+          parentId: z.number().nullable().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { id, ...data } = input;
+        return await updatePage(id, data);
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        // Now uses soft delete (moves to trash)
+        return await softDeletePage(input.id);
+      }),
+
+    // Trash Bin Management
+    trash: router({
+      // List all trashed pages
+      list: adminProcedure.query(async () => {
+        return await getTrashedPages();
+      }),
+
+      // Restore a page from trash
+      restore: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          return await restorePage(input.id);
+        }),
+
+      // Permanently delete a single page
+      permanentDelete: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          return await permanentlyDeletePage(input.id);
+        }),
+
+      // Empty all trash
+      emptyAll: adminProcedure.mutation(async () => {
+        return await emptyTrash();
+      }),
+
+      // Cleanup expired trash items
+      cleanup: adminProcedure
+        .input(z.object({ retentionDays: z.number().default(30) }))
+        .mutation(async ({ input }) => {
+          return await cleanupExpiredTrash(input.retentionDays);
+        }),
+
+      // Get trash retention settings
+      getSettings: adminProcedure.query(async () => {
+        const db = await getDb();
+        if (!db) return { retentionDays: 30, autoCleanup: true };
+        
+        const [setting] = await db
+          .select()
+          .from(schema.siteSettings)
+          .where(eq(schema.siteSettings.settingKey, 'trashRetentionDays'));
+        
+        const [autoCleanupSetting] = await db
+          .select()
+          .from(schema.siteSettings)
+          .where(eq(schema.siteSettings.settingKey, 'trashAutoCleanup'));
+        
+        return {
+          retentionDays: setting ? parseInt(setting.settingValue || '30') : 30,
+          autoCleanup: autoCleanupSetting ? autoCleanupSetting.settingValue === 'true' : true,
+        };
+      }),
+
+      // Update trash retention settings
+      updateSettings: adminProcedure
+        .input(z.object({
+          retentionDays: z.number().min(1).max(365),
+          autoCleanup: z.boolean(),
+        }))
+        .mutation(async ({ input }) => {
+          const db = await getDb();
+          if (!db) throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Database unavailable' });
+          
+          // Upsert retention days setting
+          await db
+            .insert(schema.siteSettings)
+            .values({
+              settingKey: 'trashRetentionDays',
+              settingValue: input.retentionDays.toString(),
+            })
+            .onDuplicateKeyUpdate({
+              set: { settingValue: input.retentionDays.toString() },
+            });
+          
+          // Upsert auto cleanup setting
+          await db
+            .insert(schema.siteSettings)
+            .values({
+              settingKey: 'trashAutoCleanup',
+              settingValue: input.autoCleanup.toString(),
+            })
+            .onDuplicateKeyUpdate({
+              set: { settingValue: input.autoCleanup.toString() },
+            });
+          
+          return { success: true };
+        }),
+    }),
+
+    reorder: adminProcedure
+      .input(
+        z.object({
+          pageOrders: z.array(
+            z.object({
+              id: z.number(),
+              navOrder: z.number(),
+              parentId: z.number().nullable().optional(),
+            })
+          ),
+        })
+      )
+      .mutation(async ({ input }) => {
+        return await reorderPages(input.pageOrders);
+      }),
+
+    // Page Blocks Management
+    blocks: router({
+      list: adminProcedure
+        .input(z.object({ pageId: z.number() }))
+        .query(async ({ input }) => {
+          return await getPageBlocks(input.pageId);
+        }),
+
+      create: adminProcedure
+        .input(
+          z.object({
+            pageId: z.number(),
+            type: z.string(), // Accept any block type from Page Builder
+            content: z.string(),
+            order: z.number(),
+            settings: z.string().optional(),
+            visibility: z.string().optional(),
+            animation: z.string().optional(),
+          })
+        )
+        .mutation(async ({ input }) => {
+          const result = await createPageBlock(input);
+          
+          // Sync to siteContent for Content Editor access
+          try {
+            const db = await getDb();
+            if (db) {
+              const [page] = await db
+                .select()
+                .from(schema.pages)
+                .where(eq(schema.pages.id, input.pageId))
+                .limit(1);
+              if (page) {
+                await syncPageBlocksToSiteContent(input.pageId, page.slug);
+              }
+            }
+          } catch (error) {
+            console.error('Failed to sync blocks to siteContent:', error);
+          }
+          
+          return result;
+        }),
+
+      update: adminProcedure
+        .input(
+          z.object({
+            id: z.number(),
+            content: z.string().optional(),
+            order: z.number().optional(),
+            settings: z.string().optional(),
+            visibility: z.string().optional(),
+            animation: z.string().optional(),
+          })
+        )
+        .mutation(async ({ input }) => {
+          const { id, ...data } = input;
+          const result = await updatePageBlock(id, data);
+          
+          // Sync to siteContent for Content Editor access
+          try {
+            const db = await getDb();
+            if (db) {
+              // Get the block to find its pageId
+              const [block] = await db
+                .select()
+                .from(schema.pageBlocks)
+                .where(eq(schema.pageBlocks.id, id))
+                .limit(1);
+              if (block) {
+                const [page] = await db
+                  .select()
+                  .from(schema.pages)
+                  .where(eq(schema.pages.id, block.pageId))
+                  .limit(1);
+                if (page) {
+                  await syncPageBlocksToSiteContent(block.pageId, page.slug);
+                }
+              }
+            }
+          } catch (error) {
+            console.error('Failed to sync blocks to siteContent:', error);
+          }
+          
+          return result;
+        }),
+
+      delete: adminProcedure
+        .input(z.object({ id: z.number() }))
+        .mutation(async ({ input }) => {
+          return await deletePageBlock(input.id);
+        }),
+
+      reorder: adminProcedure
+        .input(
+          z.object({
+            pageId: z.number().optional(),
+            blocks: z.array(
+              z.object({
+                id: z.number(),
+                order: z.number(),
+              })
+            ),
+          })
+        )
+        .mutation(async ({ input }) => {
+          console.log(`[blocks.reorder] Reordering ${input.blocks.length} blocks`);
+          
+          // Reorder the blocks
+          await reorderPageBlocks(input.blocks);
+          
+          // Sync to siteContent if pageId is provided
+          if (input.pageId) {
+            try {
+              const db = await getDb();
+              if (db) {
+                const [page] = await db
+                  .select()
+                  .from(schema.pages)
+                  .where(eq(schema.pages.id, input.pageId))
+                  .limit(1);
+                if (page) {
+                  await syncPageBlocksToSiteContent(input.pageId, page.slug);
+                  console.log(`[blocks.reorder] Synced to siteContent for page ${page.slug}`);
+                }
+              }
+            } catch (error) {
+              console.error('[blocks.reorder] Failed to sync to siteContent:', error);
+            }
+          }
+          
+          return { success: true, reordered: input.blocks.length };
+        }),
+
+      // Normalize block orders (fix gaps and duplicates)
+      normalizeOrders: adminProcedure
+        .input(z.object({ pageId: z.number() }))
+        .mutation(async ({ input }) => {
+          const db = await getDb();
+          if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+          
+          console.log(`[blocks.normalizeOrders] Normalizing orders for page ${input.pageId}`);
+          
+          // Get all blocks ordered by current order
+          const allBlocks = await db
+            .select()
+            .from(schema.pageBlocks)
+            .where(eq(schema.pageBlocks.pageId, input.pageId))
+            .orderBy(schema.pageBlocks.order);
+          
+          // Reassign sequential orders
+          let updated = 0;
+          for (let i = 0; i < allBlocks.length; i++) {
+            if (allBlocks[i].order !== i) {
+              await db
+                .update(schema.pageBlocks)
+                .set({ order: i })
+                .where(eq(schema.pageBlocks.id, allBlocks[i].id));
+              updated++;
+            }
+          }
+          
+          // Sync to siteContent
+          if (updated > 0) {
+            const [page] = await db
+              .select()
+              .from(schema.pages)
+              .where(eq(schema.pages.id, input.pageId))
+              .limit(1);
+            if (page) {
+              await syncPageBlocksToSiteContent(input.pageId, page.slug);
+            }
+          }
+          
+          return { success: true, totalBlocks: allBlocks.length, updated };
+        }),
+
+      // Block version history endpoints
+      versions: router({
+        list: adminProcedure
+          .input(z.object({ blockId: z.number() }))
+          .query(async ({ input }) => {
+            const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+            
+            const versions = await db
+              .select()
+              .from(schema.blockVersions)
+              .where(eq(schema.blockVersions.blockId, input.blockId))
+              .orderBy(schema.blockVersions.versionNumber);
+            
+            return versions;
+          }),
+
+        restore: adminProcedure
+          .input(z.object({ versionId: z.number() }))
+          .mutation(async ({ input, ctx }) => {
+            const db = await getDb();
+            if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+            
+            // Get the version to restore
+            const [version] = await db
+              .select()
+              .from(schema.blockVersions)
+              .where(eq(schema.blockVersions.id, input.versionId))
+              .limit(1);
+            
+            if (!version) {
+              throw new TRPCError({ code: "NOT_FOUND", message: "Version not found" });
+            }
+            
+            // Update the current block with version data
+            await updatePageBlock(version.blockId, {
+              content: version.content || "",
+              settings: version.settings || "{}",
+              order: version.order,
+            });
+            
+            return { success: true };
+          }),
+      }),
+    }),
+  }),
+
+  // Brand Assets Management
+  brand: router({
+    list: adminProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      
+      const assets = await db.select().from(schema.brandAssets);
+      return assets;
+    }),
+
+    upload: adminProcedure
+      .input(z.object({
+        assetType: z.enum(["logo_header", "logo_footer", "logo_mobile", "logo_preloader", "favicon", "og_image", "twitter_image"]),
+        assetName: z.string(),
+        base64Data: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Extract base64 data and convert to buffer
+        const matches = input.base64Data.match(/^data:image\/(\w+);base64,(.+)$/);
+        if (!matches) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid base64 image data" });
+        }
+        
+        const [, imageType, base64] = matches;
+        const buffer = Buffer.from(base64, 'base64');
+        
+        // Get image dimensions (simplified - in production use sharp or similar)
+        let width = 0;
+        let height = 0;
+        
+        // Upload to S3
+        const fileName = `brand/${input.assetType}-${Date.now()}.${imageType}`;
+        const { storagePut } = await import("./storage");
+        const { url } = await storagePut(fileName, buffer, `image/${imageType}`);
+        
+        // Check if asset already exists
+        const [existing] = await db
+          .select()
+          .from(schema.brandAssets)
+          .where(eq(schema.brandAssets.assetType, input.assetType))
+          .limit(1);
+        
+        if (existing) {
+          // Update existing
+          await db
+            .update(schema.brandAssets)
+            .set({
+              assetUrl: url,
+              assetName: input.assetName,
+              width,
+              height,
+            })
+            .where(eq(schema.brandAssets.assetType, input.assetType));
+        } else {
+          // Insert new
+          await db.insert(schema.brandAssets).values({
+            assetType: input.assetType,
+            assetUrl: url,
+            assetName: input.assetName,
+            width,
+            height,
+          });
+        }
+        
+        return { success: true, url };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({
+        assetType: z.enum(["logo_header", "logo_footer", "logo_mobile", "logo_preloader", "favicon", "og_image", "twitter_image"]),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db
+          .delete(schema.brandAssets)
+          .where(eq(schema.brandAssets.assetType, input.assetType));
+        
+        return { success: true };
+      }),
+  }),
+
+  // SEO Settings Management
+  seo: router({
+    get: adminProcedure
+      .input(z.object({ pageSlug: z.string() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const [settings] = await db
+          .select()
+          .from(schema.seoSettings)
+          .where(eq(schema.seoSettings.pageSlug, input.pageSlug))
+          .limit(1);
+        
+        return settings || null;
+      }),
+
+    update: adminProcedure
+      .input(z.object({
+        pageSlug: z.string(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        metaKeywords: z.string().optional(),
+        ogTitle: z.string().optional(),
+        ogDescription: z.string().optional(),
+        ogImage: z.string().optional(),
+        twitterCard: z.string().optional(),
+        canonicalUrl: z.string().optional(),
+        noIndex: z.number().optional(),
+        structuredData: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Check if settings exist
+        const [existing] = await db
+          .select()
+          .from(schema.seoSettings)
+          .where(eq(schema.seoSettings.pageSlug, input.pageSlug))
+          .limit(1);
+        
+        if (existing) {
+          // Update existing
+          await db
+            .update(schema.seoSettings)
+            .set({
+              metaTitle: input.metaTitle,
+              metaDescription: input.metaDescription,
+              metaKeywords: input.metaKeywords,
+              ogTitle: input.ogTitle,
+              ogDescription: input.ogDescription,
+              ogImage: input.ogImage,
+              twitterCard: input.twitterCard,
+              canonicalUrl: input.canonicalUrl,
+              noIndex: input.noIndex,
+              structuredData: input.structuredData,
+            })
+            .where(eq(schema.seoSettings.pageSlug, input.pageSlug));
+        } else {
+          // Insert new
+          await db.insert(schema.seoSettings).values({
+            pageSlug: input.pageSlug,
+            metaTitle: input.metaTitle,
+            metaDescription: input.metaDescription,
+            metaKeywords: input.metaKeywords,
+            ogTitle: input.ogTitle,
+            ogDescription: input.ogDescription,
+            ogImage: input.ogImage,
+            twitterCard: input.twitterCard,
+            canonicalUrl: input.canonicalUrl,
+            noIndex: input.noIndex,
+            structuredData: input.structuredData,
+          });
+        }
+        
+        return { success: true };
+      }),
+  }),
+
+  // Navigation Management
+  navigation: router({
+    list: adminProcedure
+      .input(z.object({ location: z.enum(["header", "footer"]) }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const items = await db
+          .select()
+          .from(schema.navigation)
+          .where(eq(schema.navigation.location, input.location))
+          .orderBy(schema.navigation.order);
+        
+        return items;
+      }),
+
+    create: adminProcedure
+      .input(z.object({
+        location: z.enum(["header", "footer"]),
+        label: z.string(),
+        url: z.string(),
+        isExternal: z.number(),
+        openInNewTab: z.number(),
+        order: z.number(),
+        parentId: z.number().nullable().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const result = await db.insert(schema.navigation).values(input);
+        return { success: true, id: result[0].insertId };
+      }),
+
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        label: z.string().optional(),
+        url: z.string().optional(),
+        isExternal: z.number().optional(),
+        openInNewTab: z.number().optional(),
+        parentId: z.number().nullable().optional(),
+        order: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const { id, ...updates } = input;
+        await db
+          .update(schema.navigation)
+          .set(updates)
+          .where(eq(schema.navigation.id, id));
+        
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db
+          .delete(schema.navigation)
+          .where(eq(schema.navigation.id, input.id));
+        
+        return { success: true };
+      }),
+
+    reorder: adminProcedure
+      .input(z.object({
+        items: z.array(z.object({
+          id: z.number(),
+          order: z.number(),
+        })),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Update order for each item
+        for (const item of input.items) {
+          await db
+            .update(schema.navigation)
+            .set({ order: item.order })
+            .where(eq(schema.navigation.id, item.id));
+        }
+        
+        return { success: true };
+      }),
+  }),
+
+  // Form Builder Management
+  forms: router({
+    listFields: adminProcedure
+      .query(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const fields = await db
+          .select()
+          .from(schema.formFields)
+          .where(eq(schema.formFields.isActive, 1))
+          .orderBy(schema.formFields.order);
+        
+        return fields;
+      }),
+
+    createField: adminProcedure
+      .input(z.object({
+        fieldName: z.string(),
+        fieldLabel: z.string(),
+        fieldType: z.enum(["text", "email", "tel", "textarea", "select", "checkbox"]),
+        placeholder: z.string().nullable(),
+        required: z.number(),
+        order: z.number(),
+        options: z.string().nullable(),
+        isActive: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db.insert(schema.formFields).values(input);
+        return { success: true };
+      }),
+
+    updateField: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        fieldName: z.string().optional(),
+        fieldLabel: z.string().optional(),
+        fieldType: z.enum(["text", "email", "tel", "textarea", "select", "checkbox"]).optional(),
+        placeholder: z.string().nullable().optional(),
+        required: z.number().optional(),
+        options: z.string().nullable().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const { id, ...updates } = input;
+        await db
+          .update(schema.formFields)
+          .set(updates)
+          .where(eq(schema.formFields.id, id));
+        
+        return { success: true };
+      }),
+
+    deleteField: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db
+          .update(schema.formFields)
+          .set({ isActive: 0 })
+          .where(eq(schema.formFields.id, input.id));
+        
+        return { success: true };
+      }),
+
+    listSubmissions: adminProcedure
+      .query(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const submissions = await db
+          .select()
+          .from(schema.formSubmissions)
+          .orderBy(desc(schema.formSubmissions.submittedAt));
+        
+        return submissions;
+      }),
+
+    markSubmissionRead: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db
+          .update(schema.formSubmissions)
+          .set({ isRead: 1 })
+          .where(eq(schema.formSubmissions.id, input.id));
+        
+        return { success: true };
+      }),
+  }),
+
+  // Site Settings Management
+  siteSettings: router({    get: adminProcedure
+      .query(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const settings = await db
+          .select()
+          .from(schema.siteSettings);
+        
+        return settings;
+      }),
+
+    update: adminProcedure
+      .input(z.object({
+        settingKey: z.string(),
+        settingValue: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Check if setting exists
+        const existing = await db
+          .select()
+          .from(schema.siteSettings)
+          .where(eq(schema.siteSettings.settingKey, input.settingKey))
+          .limit(1);
+        
+        if (existing.length > 0) {
+          // Update existing
+          await db
+            .update(schema.siteSettings)
+            .set({ settingValue: input.settingValue })
+            .where(eq(schema.siteSettings.settingKey, input.settingKey));
+        } else {
+          // Insert new
+          await db.insert(schema.siteSettings).values(input);
+        }
+        
+        return { success: true };
+      }),
+  }),
+
+  // Backup & Restore Management - Time Machine Enhanced
+  backups: router({
+    // List all backups with optional filtering
+    list: adminProcedure
+      .input(z.object({
+        limit: z.number().min(1).max(100).optional(),
+        offset: z.number().min(0).optional(),
+        type: z.enum(["manual", "auto", "scheduled"]).optional(),
+      }).optional())
+      .query(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.listBackups(input);
+        return result.backups;
+      }),
+
+    // Create a new backup
+    create: adminProcedure
+      .input(z.object({
+        backupName: z.string().min(1).max(255),
+        description: z.string().max(1000).optional(),
+        backupType: z.enum(["manual", "auto", "scheduled"]).default("manual"),
+        includeMedia: z.boolean().default(true),
+        includeConfig: z.boolean().default(true),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.createBackup({
+          ...input,
+          createdBy: ctx.user?.email || ctx.user?.name || ctx.adminUsername || "admin",
+        });
+        return {
+          success: result.success,
+          s3Url: result.s3Url,
+          backupId: result.backupId,
+          size: result.size,
+        };
+      }),
+
+    // Download backup data
+    download: adminProcedure
+      .input(z.object({
+        backupId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.downloadBackup(input.backupId);
+        return result;
+      }),
+
+    // Restore from backup
+    restore: adminProcedure
+      .input(z.object({
+        backupId: z.number(),
+        tables: z.array(z.string()).optional(),
+        dryRun: z.boolean().default(false),
+      }))
+      .mutation(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.restoreBackup(input);
+        return result;
+      }),
+
+    // Delete backup
+    delete: adminProcedure
+      .input(z.object({
+        backupId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.deleteBackup(input.backupId);
+        return result;
+      }),
+
+    // Get backup statistics
+    stats: adminProcedure
+      .query(async () => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.getBackupStats();
+        return result;
+      }),
+
+    // Preview restore (dry run)
+    previewRestore: adminProcedure
+      .input(z.object({
+        backupId: z.number(),
+        tables: z.array(z.string()).optional(),
+      }))
+      .query(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.default.restoreBackup({
+          ...input,
+          dryRun: true,
+        });
+        return result;
+      }),
+
+    // Trigger scheduled backup manually
+    triggerScheduled: adminProcedure
+      .mutation(async () => {
+        const backupSystem = await import('./backupSystem');
+        await backupSystem.default.runScheduledBackup();
+        return { success: true };
+      }),
+
+    // Cleanup old backups
+    cleanup: adminProcedure
+      .input(z.object({
+        retentionDays: z.number().min(1).max(365).default(30),
+      }))
+      .mutation(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const deleted = await backupSystem.default.cleanupOldBackups(input.retentionDays);
+        return { deleted };
+      }),
+
+    // Verify backup integrity against live database
+    verify: adminProcedure
+      .input(z.object({
+        backupId: z.number(),
+      }))
+      .query(async ({ input }) => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.verifyBackup(input.backupId);
+        return result;
+      }),
+
+    // Get current database counts for comparison
+    getLiveCounts: adminProcedure
+      .query(async () => {
+        const backupSystem = await import('./backupSystem');
+        const result = await backupSystem.getLiveDatabaseCounts();
+        return result;
+      }),
+  }),
+
+  // Admin Users Management
+  users: router({
+    list: adminProcedure
+      .query(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const users = await db
+          .select({
+            id: schema.adminUsers.id,
+            username: schema.adminUsers.username,
+            email: schema.adminUsers.email,
+            role: schema.adminUsers.role,
+            createdAt: schema.adminUsers.createdAt,
+            lastLoginAt: schema.adminUsers.lastLoginAt,
+          })
+          .from(schema.adminUsers)
+          .orderBy(desc(schema.adminUsers.createdAt));
+        
+        return users;
+      }),
+
+    create: adminProcedure
+      .input(z.object({
+        username: z.string(),
+        email: z.string().nullable(),
+        password: z.string(),
+        role: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Check if username already exists
+        const existing = await db
+          .select()
+          .from(schema.adminUsers)
+          .where(eq(schema.adminUsers.username, input.username))
+          .limit(1);
+        
+        if (existing.length > 0) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Username already exists" });
+        }
+        
+        // Hash password
+        const bcrypt = await import('bcryptjs');
+        const passwordHash = await bcrypt.hash(input.password, 10);
+        
+        await db.insert(schema.adminUsers).values({
+          username: input.username,
+          email: input.email,
+          passwordHash,
+          role: input.role,
+        });
+        
+        return { success: true };
+      }),
+
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        email: z.string().nullable(),
+        role: z.string(),
+        password: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const updateData: any = {
+          email: input.email,
+          role: input.role,
+        };
+        
+        // Update password if provided
+        if (input.password) {
+          const bcrypt = await import('bcryptjs');
+          updateData.passwordHash = await bcrypt.hash(input.password, 10);
+        }
+        
+        await db
+          .update(schema.adminUsers)
+          .set(updateData)
+          .where(eq(schema.adminUsers.id, input.id));
+        
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Prevent deleting the last admin
+        const allAdmins = await db.select().from(schema.adminUsers);
+        if (allAdmins.length <= 1) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Cannot delete the last admin user" });
+        }
+        
+        await db
+          .delete(schema.adminUsers)
+          .where(eq(schema.adminUsers.id, input.id));
+        
+        return { success: true };
+      }),
+  }),
+
+  // URL Redirects Management
+  redirects: router({
+    list: adminProcedure
+      .query(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const redirects = await db
+          .select()
+          .from(schema.redirects)
+          .orderBy(schema.redirects.createdAt);
+        
+        return redirects;
+      }),
+
+    create: adminProcedure
+      .input(z.object({
+        fromPath: z.string(),
+        toPath: z.string(),
+        redirectType: z.enum(["301", "302"]),
+        isActive: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db.insert(schema.redirects).values(input);
+        return { success: true };
+      }),
+
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        fromPath: z.string().optional(),
+        toPath: z.string().optional(),
+        redirectType: z.enum(["301", "302"]).optional(),
+        isActive: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const { id, ...updates } = input;
+        await db
+          .update(schema.redirects)
+          .set(updates)
+          .where(eq(schema.redirects.id, id));
+        
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db
+          .delete(schema.redirects)
+          .where(eq(schema.redirects.id, input.id));
+        
+        return { success: true };
+      }),
+  }),
+
+  // Products Management
+  products: router({
+    list: adminProcedure
+      .input(z.object({
+        status: z.enum(["draft", "active", "archived"]).optional(),
+        search: z.string().optional(),
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const conditions: any[] = [];
+        if (input?.status) {
+          conditions.push(eq(schema.products.status, input.status));
+        }
+        if (input?.search) {
+          conditions.push(
+            sql`(${schema.products.name} LIKE ${`%${input.search}%`} OR ${schema.products.sku} LIKE ${`%${input.search}%`})`
+          );
+        }
+        
+        const products = await db
+          .select()
+          .from(schema.products)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(schema.products.createdAt))
+          .limit(input?.limit || 50)
+          .offset(input?.offset || 0);
+        
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.products)
+          .where(conditions.length > 0 ? and(...conditions) : undefined);
+        
+        return {
+          products,
+          total: countResult?.count || 0,
+        };
+      }),
+
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const [product] = await db
+          .select()
+          .from(schema.products)
+          .where(eq(schema.products.id, input.id));
+        
+        if (!product) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
+        }
+        
+        return product;
+      }),
+
+    create: adminProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        slug: z.string().min(1),
+        sku: z.string().optional(),
+        description: z.string().optional(),
+        shortDescription: z.string().optional(),
+        price: z.number().min(0),
+        compareAtPrice: z.number().optional(),
+        costPrice: z.number().optional(),
+        categoryId: z.number().optional(),
+        images: z.string().optional(),
+        featuredImage: z.string().optional(),
+        stock: z.number().default(0),
+        lowStockThreshold: z.number().optional(),
+        trackInventory: z.number().default(1),
+        weight: z.number().optional(),
+        dimensions: z.string().optional(),
+        tags: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        status: z.enum(["draft", "active", "archived"]).default("draft"),
+        isFeatured: z.number().default(0),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Check for duplicate slug
+        const [existing] = await db
+          .select()
+          .from(schema.products)
+          .where(eq(schema.products.slug, input.slug));
+        
+        if (existing) {
+          throw new TRPCError({ code: "CONFLICT", message: "A product with this slug already exists" });
+        }
+        
+        const result = await db.insert(schema.products).values(input);
+        return { success: true, id: Number(result[0].insertId) };
+      }),
+
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        slug: z.string().min(1).optional(),
+        sku: z.string().optional(),
+        description: z.string().optional(),
+        shortDescription: z.string().optional(),
+        price: z.number().min(0).optional(),
+        compareAtPrice: z.number().nullable().optional(),
+        costPrice: z.number().nullable().optional(),
+        categoryId: z.number().nullable().optional(),
+        images: z.string().optional(),
+        featuredImage: z.string().nullable().optional(),
+        stock: z.number().optional(),
+        lowStockThreshold: z.number().optional(),
+        trackInventory: z.number().optional(),
+        weight: z.number().nullable().optional(),
+        dimensions: z.string().optional(),
+        tags: z.string().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        status: z.enum(["draft", "active", "archived"]).optional(),
+        isFeatured: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const { id, ...updates } = input;
+        
+        // Check for duplicate slug if updating slug
+        if (updates.slug) {
+          const [existing] = await db
+            .select()
+            .from(schema.products)
+            .where(and(
+              eq(schema.products.slug, updates.slug),
+              sql`${schema.products.id} != ${id}`
+            ));
+          
+          if (existing) {
+            throw new TRPCError({ code: "CONFLICT", message: "A product with this slug already exists" });
+          }
+        }
+        
+        await db
+          .update(schema.products)
+          .set(updates)
+          .where(eq(schema.products.id, id));
+        
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db
+          .delete(schema.products)
+          .where(eq(schema.products.id, input.id));
+        
+        return { success: true };
+      }),
+  }),
+
+  // Events Management
+  events: router({
+    list: adminProcedure
+      .input(z.object({
+        status: z.enum(["draft", "published", "cancelled", "completed"]).optional(),
+        search: z.string().optional(),
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const conditions: any[] = [];
+        if (input?.status) {
+          conditions.push(eq(schema.events.status, input.status));
+        }
+        if (input?.search) {
+          conditions.push(
+            sql`(${schema.events.title} LIKE ${`%${input.search}%`} OR ${schema.events.venue} LIKE ${`%${input.search}%`})`
+          );
+        }
+        
+        const events = await db
+          .select()
+          .from(schema.events)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(schema.events.startDate))
+          .limit(input?.limit || 50)
+          .offset(input?.offset || 0);
+        
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.events)
+          .where(conditions.length > 0 ? and(...conditions) : undefined);
+        
+        return {
+          events,
+          total: countResult?.count || 0,
+        };
+      }),
+
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const [event] = await db
+          .select()
+          .from(schema.events)
+          .where(eq(schema.events.id, input.id));
+        
+        if (!event) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Event not found" });
+        }
+        
+        // Get registrations count
+        const [regCount] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.eventRegistrations)
+          .where(eq(schema.eventRegistrations.eventId, input.id));
+        
+        return {
+          ...event,
+          registrationCount: regCount?.count || 0,
+        };
+      }),
+
+    create: adminProcedure
+      .input(z.object({
+        title: z.string().min(1),
+        slug: z.string().min(1),
+        description: z.string().optional(),
+        shortDescription: z.string().optional(),
+        eventType: z.enum(["workshop", "retreat", "webinar", "meetup", "conference", "other"]).default("workshop"),
+        startDate: z.date(),
+        endDate: z.date().optional(),
+        timezone: z.string().optional(),
+        isAllDay: z.number().default(0),
+        locationType: z.enum(["in_person", "virtual", "hybrid"]).default("in_person"),
+        venue: z.string().optional(),
+        address: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        country: z.string().optional(),
+        virtualUrl: z.string().optional(),
+        virtualPassword: z.string().optional(),
+        isFree: z.number().default(0),
+        price: z.number().default(0),
+        earlyBirdPrice: z.number().optional(),
+        earlyBirdDeadline: z.date().optional(),
+        capacity: z.number().optional(),
+        waitlistEnabled: z.number().default(0),
+        featuredImage: z.string().optional(),
+        images: z.string().optional(),
+        registrationOpen: z.number().default(1),
+        registrationDeadline: z.date().optional(),
+        requiresApproval: z.number().default(0),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        status: z.enum(["draft", "published", "cancelled", "completed"]).default("draft"),
+        isFeatured: z.number().default(0),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Check for duplicate slug
+        const [existing] = await db
+          .select()
+          .from(schema.events)
+          .where(eq(schema.events.slug, input.slug));
+        
+        if (existing) {
+          throw new TRPCError({ code: "CONFLICT", message: "An event with this slug already exists" });
+        }
+        
+        const result = await db.insert(schema.events).values(input);
+        return { success: true, id: Number(result[0].insertId) };
+      }),
+
+    update: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        title: z.string().min(1).optional(),
+        slug: z.string().min(1).optional(),
+        description: z.string().optional(),
+        shortDescription: z.string().optional(),
+        eventType: z.enum(["workshop", "retreat", "webinar", "meetup", "conference", "other"]).optional(),
+        startDate: z.date().optional(),
+        endDate: z.date().nullable().optional(),
+        timezone: z.string().optional(),
+        isAllDay: z.number().optional(),
+        locationType: z.enum(["in_person", "virtual", "hybrid"]).optional(),
+        venue: z.string().nullable().optional(),
+        address: z.string().nullable().optional(),
+        city: z.string().nullable().optional(),
+        state: z.string().nullable().optional(),
+        country: z.string().nullable().optional(),
+        virtualUrl: z.string().nullable().optional(),
+        virtualPassword: z.string().nullable().optional(),
+        isFree: z.number().optional(),
+        price: z.number().optional(),
+        earlyBirdPrice: z.number().nullable().optional(),
+        earlyBirdDeadline: z.date().nullable().optional(),
+        capacity: z.number().nullable().optional(),
+        waitlistEnabled: z.number().optional(),
+        featuredImage: z.string().nullable().optional(),
+        images: z.string().optional(),
+        registrationOpen: z.number().optional(),
+        registrationDeadline: z.date().nullable().optional(),
+        requiresApproval: z.number().optional(),
+        metaTitle: z.string().optional(),
+        metaDescription: z.string().optional(),
+        status: z.enum(["draft", "published", "cancelled", "completed"]).optional(),
+        isFeatured: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const { id, ...updates } = input;
+        
+        // Check for duplicate slug if updating slug
+        if (updates.slug) {
+          const [existing] = await db
+            .select()
+            .from(schema.events)
+            .where(and(
+              eq(schema.events.slug, updates.slug),
+              sql`${schema.events.id} != ${id}`
+            ));
+          
+          if (existing) {
+            throw new TRPCError({ code: "CONFLICT", message: "An event with this slug already exists" });
+          }
+        }
+        
+        await db
+          .update(schema.events)
+          .set(updates)
+          .where(eq(schema.events.id, id));
+        
+        return { success: true };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Delete related registrations first
+        await db
+          .delete(schema.eventRegistrations)
+          .where(eq(schema.eventRegistrations.eventId, input.id));
+        
+        await db
+          .delete(schema.events)
+          .where(eq(schema.events.id, input.id));
+        
+        return { success: true };
+      }),
+
+    // Get registrations for an event
+    getRegistrations: adminProcedure
+      .input(z.object({
+        eventId: z.number(),
+        status: z.enum(["pending", "confirmed", "waitlisted", "cancelled", "attended", "no_show"]).optional(),
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+      }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const conditions = [eq(schema.eventRegistrations.eventId, input.eventId)];
+        if (input.status) {
+          conditions.push(eq(schema.eventRegistrations.status, input.status));
+        }
+        
+        const registrations = await db
+          .select()
+          .from(schema.eventRegistrations)
+          .where(and(...conditions))
+          .orderBy(desc(schema.eventRegistrations.createdAt))
+          .limit(input.limit)
+          .offset(input.offset);
+        
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.eventRegistrations)
+          .where(and(...conditions));
+        
+        return {
+          registrations,
+          total: countResult?.count || 0,
+        };
+      }),
+
+    // Update registration status
+    updateRegistrationStatus: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        status: z.enum(["pending", "confirmed", "waitlisted", "cancelled", "attended", "no_show"]),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db
+          .update(schema.eventRegistrations)
+          .set({ status: input.status })
+          .where(eq(schema.eventRegistrations.id, input.id));
+        
+        return { success: true };
+      }),
+  }),
+
+  // Orders Management
+  orders: router({
+    list: adminProcedure
+      .input(z.object({
+        status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled", "refunded"]).optional(),
+        search: z.string().optional(),
+        limit: z.number().optional().default(50),
+        offset: z.number().optional().default(0),
+      }).optional())
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const conditions: any[] = [];
+        if (input?.status) {
+          conditions.push(eq(schema.orders.status, input.status));
+        }
+        if (input?.search) {
+          conditions.push(
+            sql`(${schema.orders.orderNumber} LIKE ${`%${input.search}%`} OR ${schema.orders.email} LIKE ${`%${input.search}%`})`
+          );
+        }
+        
+        const orders = await db
+          .select()
+          .from(schema.orders)
+          .where(conditions.length > 0 ? and(...conditions) : undefined)
+          .orderBy(desc(schema.orders.createdAt))
+          .limit(input?.limit || 50)
+          .offset(input?.offset || 0);
+        
+        const [countResult] = await db
+          .select({ count: sql<number>`count(*)` })
+          .from(schema.orders)
+          .where(conditions.length > 0 ? and(...conditions) : undefined);
+        
+        return {
+          orders,
+          total: countResult?.count || 0,
+        };
+      }),
+
+    getById: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const [order] = await db
+          .select()
+          .from(schema.orders)
+          .where(eq(schema.orders.id, input.id));
+        
+        if (!order) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+        }
+        
+        // Get order items
+        const items = await db
+          .select()
+          .from(schema.orderItems)
+          .where(eq(schema.orderItems.orderId, input.id));
+        
+        return {
+          ...order,
+          items,
+        };
+      }),
+
+    updateStatus: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled", "refunded"]),
+        trackingNumber: z.string().optional(),
+        trackingUrl: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const { id, ...updates } = input;
+        await db
+          .update(schema.orders)
+          .set(updates)
+          .where(eq(schema.orders.id, id));
+        
+        return { success: true };
+      }),
+  }),
+
+  // Revenue Analytics
+  revenue: router({
+    stats: adminProcedure
+      .input(z.object({
+        period: z.enum(["today", "week", "month", "year", "all"]).optional().default("month"),
+      }).optional())
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Calculate date range
+        const now = new Date();
+        let startDate: Date | null = null;
+        const period = input?.period || "month";
+        
+        switch (period) {
+          case "today":
+            startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+            break;
+          case "week":
+            startDate = new Date(now);
+            startDate.setDate(startDate.getDate() - 7);
+            break;
+          case "month":
+            startDate = new Date(now);
+            startDate.setMonth(startDate.getMonth() - 1);
+            break;
+          case "year":
+            startDate = new Date(now);
+            startDate.setFullYear(startDate.getFullYear() - 1);
+            break;
+          case "all":
+            startDate = null;
+            break;
+        }
+        
+        // Get shop revenue from orders
+        const shopConditions = [eq(schema.orders.status, "delivered")];
+        if (startDate) {
+          shopConditions.push(gte(schema.orders.createdAt, startDate));
+        }
+        
+        const [shopStats] = await db
+          .select({
+            totalRevenue: sql<number>`COALESCE(SUM(${schema.orders.total}), 0)`.as('totalRevenue'),
+            orderCount: sql<number>`COUNT(*)`.as('orderCount'),
+          })
+          .from(schema.orders)
+          .where(and(...shopConditions));
+        
+        // Get event revenue from registrations
+        const eventConditions = [eq(schema.eventRegistrations.status, "confirmed")];
+        if (startDate) {
+          eventConditions.push(gte(schema.eventRegistrations.createdAt, startDate));
+        }
+        
+        const [eventStats] = await db
+          .select({
+            totalRevenue: sql<number>`COALESCE(SUM(${schema.eventRegistrations.total}), 0)`.as('totalRevenue'),
+            registrationCount: sql<number>`COUNT(*)`.as('registrationCount'),
+          })
+          .from(schema.eventRegistrations)
+          .where(and(...eventConditions));
+        
+        // Get previous period for comparison
+        let prevStartDate: Date | null = null;
+        let prevEndDate: Date | null = null;
+        
+        if (startDate) {
+          const periodMs = now.getTime() - startDate.getTime();
+          prevEndDate = new Date(startDate);
+          prevStartDate = new Date(startDate.getTime() - periodMs);
+        }
+        
+        let prevShopRevenue = 0;
+        let prevEventRevenue = 0;
+        
+        if (prevStartDate && prevEndDate) {
+          const [prevShopStats] = await db
+            .select({
+              totalRevenue: sql<number>`COALESCE(SUM(${schema.orders.total}), 0)`.as('totalRevenue'),
+            })
+            .from(schema.orders)
+            .where(and(
+              eq(schema.orders.status, "delivered"),
+              gte(schema.orders.createdAt, prevStartDate),
+              sql`${schema.orders.createdAt} < ${prevEndDate}`
+            ));
+          prevShopRevenue = prevShopStats?.totalRevenue || 0;
+          
+          const [prevEventStats] = await db
+            .select({
+              totalRevenue: sql<number>`COALESCE(SUM(${schema.eventRegistrations.total}), 0)`.as('totalRevenue'),
+            })
+            .from(schema.eventRegistrations)
+            .where(and(
+              eq(schema.eventRegistrations.status, "confirmed"),
+              gte(schema.eventRegistrations.createdAt, prevStartDate),
+              sql`${schema.eventRegistrations.createdAt} < ${prevEndDate}`
+            ));
+          prevEventRevenue = prevEventStats?.totalRevenue || 0;
+        }
+        
+        const shopRevenue = shopStats?.totalRevenue || 0;
+        const eventRevenue = eventStats?.totalRevenue || 0;
+        const totalRevenue = shopRevenue + eventRevenue;
+        const prevTotalRevenue = prevShopRevenue + prevEventRevenue;
+        
+        const percentChange = prevTotalRevenue > 0 
+          ? Math.round(((totalRevenue - prevTotalRevenue) / prevTotalRevenue) * 100)
+          : totalRevenue > 0 ? 100 : 0;
+        
+        return {
+          totalRevenue,
+          shopRevenue,
+          eventRevenue,
+          orderCount: shopStats?.orderCount || 0,
+          registrationCount: eventStats?.registrationCount || 0,
+          percentChange,
+          period,
+        };
+      }),
+
+    recentTransactions: adminProcedure
+      .input(z.object({
+        limit: z.number().optional().default(10),
+      }).optional())
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Get recent orders
+        const orders = await db
+          .select({
+            id: schema.orders.id,
+            type: sql<string>`'order'`.as('type'),
+            reference: schema.orders.orderNumber,
+            email: schema.orders.email,
+            amount: schema.orders.total,
+            status: schema.orders.status,
+            createdAt: schema.orders.createdAt,
+          })
+          .from(schema.orders)
+          .orderBy(desc(schema.orders.createdAt))
+          .limit(input?.limit || 10);
+        
+        // Get recent event registrations
+        const registrations = await db
+          .select({
+            id: schema.eventRegistrations.id,
+            type: sql<string>`'registration'`.as('type'),
+            reference: schema.eventRegistrations.confirmationNumber,
+            email: schema.eventRegistrations.email,
+            amount: schema.eventRegistrations.total,
+            status: schema.eventRegistrations.status,
+            createdAt: schema.eventRegistrations.createdAt,
+          })
+          .from(schema.eventRegistrations)
+          .orderBy(desc(schema.eventRegistrations.createdAt))
+          .limit(input?.limit || 10);
+        
+        // Combine and sort by date
+        const transactions = [...orders, ...registrations]
+          .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+          .slice(0, input?.limit || 10);
+        
+        return { transactions };
+      }),
+  }),
+});
+
+// Public article router (for the Journal page)
+export const publicArticlesRouter = router({
+  list: publicProcedure
+    .input(z.object({
+      limit: z.number().optional(),
+      offset: z.number().optional(),
+    }).optional())
+    .query(async ({ input }) => {
+      const articles = await getPublishedArticles(input?.limit, input?.offset);
+      return articles;
+    }),
+  
+  get: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      const article = await getArticleBySlug(input.slug);
+      if (!article || article.published !== 1) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Article not found" });
+      }
+      return article;
+    }),
+});
+
+// Public site content router
+export const publicContentRouter = router({
+  getByPage: publicProcedure
+    .input(z.object({ page: z.string() }))
+    .query(async ({ input }) => {
+      return await getSiteContentByPage(input.page);
+    }),
+  
+  // Get text styles for a page (public)
+  getTextStylesByPage: publicProcedure
+    .input(z.object({ page: z.string() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      
+      // Get content IDs for this page
+      const pageContent = await db
+        .select({ id: schema.siteContent.id, section: schema.siteContent.section, contentKey: schema.siteContent.contentKey })
+        .from(schema.siteContent)
+        .where(eq(schema.siteContent.page, input.page));
+      
+      const contentIds = pageContent.map(c => c.id);
+      if (contentIds.length === 0) return [];
+      
+      // Get styles for these content items
+      const styles = await db
+        .select()
+        .from(schema.contentTextStyles);
+      
+      // Map styles with content keys and section for easier lookup on frontend
+      const stylesWithKeys = styles
+        .filter(s => contentIds.includes(s.contentId))
+        .map(s => {
+          const content = pageContent.find(c => c.id === s.contentId);
+          return {
+            contentId: s.contentId,
+            section: content?.section || '',
+            contentKey: content?.contentKey || '',
+            isBold: s.isBold === 1,
+            isItalic: s.isItalic === 1,
+            isUnderline: s.isUnderline === 1,
+            fontSize: s.fontSize || null,
+            fontColor: s.fontColor || null,
+          };
+        });
+      
+      return stylesWithKeys;
+    }),
+});
+
+
+// Public pages router
+export const publicPagesRouter = router({
+  getBySlug: publicProcedure
+    .input(z.object({ slug: z.string() }))
+    .query(async ({ input }) => {
+      const page = await getPageBySlug(input.slug);
+      if (!page || page.published !== 1) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Page not found" });
+      }
+      return page;
+    }),
+
+  getNavPages: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    const pages = await db
+      .select({
+        id: schema.pages.id,
+        title: schema.pages.title,
+        slug: schema.pages.slug,
+        published: schema.pages.published,
+        showInNav: schema.pages.showInNav,
+        navOrder: schema.pages.navOrder,
+        parentId: schema.pages.parentId,
+      })
+      .from(schema.pages)
+      .where(and(eq(schema.pages.published, 1), eq(schema.pages.showInNav, 1)))
+      .orderBy(schema.pages.navOrder);
+    return pages;
+  }),
+
+  getBlocks: publicProcedure
+    .input(z.object({ pageId: z.number() }))
+    .query(async ({ input }) => {
+      return await getPageBlocks(input.pageId);
+    }),
+});
+
+// Public theme router for applying theme settings to the site
+export const publicThemeRouter = router({
+  get: publicProcedure.query(async () => {
+    return await getThemeSettings();
+  }),
+});
+
+// Public site settings router for frontend to fetch brand/site settings
+export const publicSiteSettingsRouter = router({
+  get: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return {};
+    
+    const settings = await db
+      .select()
+      .from(schema.siteSettings);
+    
+    // Convert array to object for easier access
+    const settingsObj: Record<string, string> = {};
+    settings.forEach(s => {
+      if (s.settingValue !== null) {
+        settingsObj[s.settingKey] = s.settingValue;
+      }
+    });
+    
+    return settingsObj;
+  }),
+  
+  // Get brand assets for public display
+  getBrandAssets: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return {};
+    
+    const assets = await db.select().from(schema.brandAssets);
+    
+    // Convert array to object keyed by assetType
+    const assetsObj: Record<string, string> = {};
+    assets.forEach(a => {
+      assetsObj[a.assetType] = a.assetUrl;
+    });
+    
+    return assetsObj;
+  }),
+  
+  // Get specific setting by key
+  getByKey: publicProcedure
+    .input(z.object({ key: z.string() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return null;
+      
+      const setting = await db
+        .select()
+        .from(schema.siteSettings)
+        .where(eq(schema.siteSettings.settingKey, input.key))
+        .limit(1);
+      
+      return setting[0]?.settingValue || null;
+    }),
+});
+
+// Public navigation router for footer and header navigation
+export const publicNavigationRouter = router({
+  getByLocation: publicProcedure
+    .input(z.object({ location: z.enum(["header", "footer"]) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      
+      const items = await db
+        .select()
+        .from(schema.navigation)
+        .where(eq(schema.navigation.location, input.location))
+        .orderBy(schema.navigation.order);
+      
+      return items;
+    }),
+});
+
+// AI Chat Analytics Router
+export const aiChatAnalyticsRouter = router({
+  // Get topic distribution
+  getTopicDistribution: adminProcedure
+    .input(z.object({
+      days: z.number().optional().default(30)
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - input.days);
+      
+      const conversations = await db
+        .select({
+          topic: schema.aiChatConversations.topic,
+          count: sql<number>`COUNT(*)`.as('count')
+        })
+        .from(schema.aiChatConversations)
+        .where(
+          and(
+            gte(schema.aiChatConversations.createdAt, startDate),
+            isNotNull(schema.aiChatConversations.topic)
+          )
+        )
+        .groupBy(schema.aiChatConversations.topic)
+        .orderBy(desc(sql`COUNT(*)`))
+        .limit(10);
+      
+      return conversations;
+    }),
+
+  // Get sentiment trends over time
+  getSentimentTrends: adminProcedure
+    .input(z.object({
+      days: z.number().optional().default(30)
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - input.days);
+      
+      const trends = await db
+        .select({
+          date: sql<string>`DATE(${schema.aiChatConversations.createdAt})`.as('date'),
+          sentiment: schema.aiChatConversations.sentiment,
+          count: sql<number>`COUNT(*)`.as('count')
+        })
+        .from(schema.aiChatConversations)
+        .where(
+          and(
+            gte(schema.aiChatConversations.createdAt, startDate),
+            isNotNull(schema.aiChatConversations.sentiment)
+          )
+        )
+        .groupBy(sql`DATE(${schema.aiChatConversations.createdAt})`, schema.aiChatConversations.sentiment)
+        .orderBy(sql`DATE(${schema.aiChatConversations.createdAt})`);
+      
+      return trends;
+    }),
+
+  // Get conversation statistics
+  getConversationStats: adminProcedure
+    .input(z.object({
+      days: z.number().optional().default(30)
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return {
+        totalConversations: 0,
+        totalMessages: 0,
+        avgMessagesPerConversation: 0,
+        uniqueVisitors: 0
+      };
+      
+      const startDate = new Date();
+      startDate.setDate(startDate.getDate() - input.days);
+      
+      const [stats] = await db
+        .select({
+          totalMessages: sql<number>`COUNT(*)`.as('totalMessages'),
+          uniqueSessions: sql<number>`COUNT(DISTINCT ${schema.aiChatConversations.sessionId})`.as('uniqueSessions'),
+          uniqueVisitors: sql<number>`COUNT(DISTINCT ${schema.aiChatConversations.visitorId})`.as('uniqueVisitors')
+        })
+        .from(schema.aiChatConversations)
+        .where(gte(schema.aiChatConversations.createdAt, startDate));
+      
+      return {
+        totalConversations: stats?.uniqueSessions || 0,
+        totalMessages: stats?.totalMessages || 0,
+        avgMessagesPerConversation: stats?.uniqueSessions 
+          ? Math.round((stats.totalMessages / stats.uniqueSessions) * 10) / 10 
+          : 0,
+        uniqueVisitors: stats?.uniqueVisitors || 0
+      };
+    }),
+});
+
+
+// ============================================================================
+// CAROUSEL MANAGEMENT SYSTEM - Multi-carousel with slides support
+// ============================================================================
+
+const CarouselTypeEnum = z.enum(['hero', 'featured', 'testimonial', 'gallery', 'card', 'custom']);
+
+const CarouselSettingsSchema = z.object({
+  autoPlay: z.boolean().optional().default(true),
+  interval: z.number().min(1000).max(30000).optional().default(5000),
+  showArrows: z.boolean().optional().default(true),
+  showDots: z.boolean().optional().default(true),
+  pauseOnHover: z.boolean().optional().default(true),
+  loop: z.boolean().optional().default(true),
+  itemsPerView: z.number().min(1).max(6).optional().default(1),
+  gap: z.number().min(0).max(100).optional().default(24),
+  minHeight: z.string().optional().default('500px'),
+  dark: z.boolean().optional().default(false),
+}).passthrough();
+
+const CarouselStylingSchema = z.object({
+  backgroundColor: z.string().optional(),
+  textColor: z.string().optional(),
+  accentColor: z.string().optional(),
+  containerMaxWidth: z.string().optional(),
+  borderRadius: z.string().optional(),
+  padding: z.string().optional(),
+}).passthrough();
+
+export const carouselRouter = router({
+  // ==========================================================================
+  // PUBLIC ENDPOINTS
+  // ==========================================================================
+
+  // Get all carousel offerings (legacy - for backward compatibility)
+  getAll: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    
+    const offerings = await db
+      .select()
+      .from(schema.carouselOfferings)
+      .where(eq(schema.carouselOfferings.isActive, 1))
+      .orderBy(schema.carouselOfferings.order);
+    
+    return offerings;
+  }),
+
+  // Get carousel by slug (new system)
+  getBySlug: publicProcedure
+    .input(z.object({
+      slug: z.string(),
+      includeHidden: z.boolean().optional().default(false),
+    }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return null;
+
+      const carouselResults = await db
+        .select()
+        .from(schema.carousels)
+        .where(and(
+          eq(schema.carousels.slug, input.slug),
+          eq(schema.carousels.active, 1)
+        ))
+        .limit(1);
+
+      if (carouselResults.length === 0) return null;
+      const carousel = carouselResults[0];
+
+      // Get slides
+      let slidesQuery = db
+        .select()
+        .from(schema.carouselSlides)
+        .where(eq(schema.carouselSlides.carouselId, carousel.id))
+        .orderBy(schema.carouselSlides.sortOrder);
+
+      const slides = await slidesQuery;
+
+      // Filter hidden slides if needed
+      const filteredSlides = input.includeHidden 
+        ? slides 
+        : slides.filter(s => s.visible === 1);
+
+      return {
+        id: carousel.id,
+        name: carousel.name,
+        slug: carousel.slug,
+        type: carousel.type,
+        settings: carousel.settings ? JSON.parse(carousel.settings) : {},
+        styling: carousel.styling ? JSON.parse(carousel.styling) : {},
+        slides: filteredSlides.map(s => ({
+          ...s,
+          styling: s.styling ? JSON.parse(s.styling) : {},
+        })),
+      };
+    }),
+
+  // List all public carousels
+  listPublic: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+
+    const carousels = await db
+      .select({
+        id: schema.carousels.id,
+        name: schema.carousels.name,
+        slug: schema.carousels.slug,
+        type: schema.carousels.type,
+        description: schema.carousels.description,
+      })
+      .from(schema.carousels)
+      .where(eq(schema.carousels.active, 1))
+      .orderBy(schema.carousels.name);
+
+    return carousels;
+  }),
+
+  // ==========================================================================
+  // ADMIN ENDPOINTS - CAROUSELS
+  // ==========================================================================
+
+  // List all carousels (admin)
+  list: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+
+    const carousels = await db
+      .select()
+      .from(schema.carousels)
+      .orderBy(schema.carousels.name);
+
+    // Get slide counts
+    const carouselsWithCounts = await Promise.all(
+      carousels.map(async (c) => {
+        const slides = await db
+          .select({ id: schema.carouselSlides.id })
+          .from(schema.carouselSlides)
+          .where(eq(schema.carouselSlides.carouselId, c.id));
+        return {
+          ...c,
+          settings: c.settings ? JSON.parse(c.settings) : {},
+          styling: c.styling ? JSON.parse(c.styling) : {},
+          slideCount: slides.length,
+        };
+      })
+    );
+
+    return carouselsWithCounts;
+  }),
+
+  // Get single carousel with slides (admin)
+  get: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const carouselResults = await db
+        .select()
+        .from(schema.carousels)
+        .where(eq(schema.carousels.id, input.id))
+        .limit(1);
+
+      if (carouselResults.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Carousel not found" });
+      }
+
+      const carousel = carouselResults[0];
+      const slides = await db
+        .select()
+        .from(schema.carouselSlides)
+        .where(eq(schema.carouselSlides.carouselId, input.id))
+        .orderBy(schema.carouselSlides.sortOrder);
+
+      return {
+        ...carousel,
+        settings: carousel.settings ? JSON.parse(carousel.settings) : {},
+        styling: carousel.styling ? JSON.parse(carousel.styling) : {},
+        slides: slides.map(s => ({
+          ...s,
+          styling: s.styling ? JSON.parse(s.styling) : {},
+        })),
+      };
+    }),
+
+  // Create new carousel
+  create: adminProcedure
+    .input(z.object({
+      name: z.string().min(1).max(255),
+      slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/),
+      description: z.string().optional(),
+      type: CarouselTypeEnum,
+      settings: CarouselSettingsSchema.optional(),
+      styling: CarouselStylingSchema.optional(),
+      active: z.boolean().optional().default(true),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Check for duplicate slug
+      const existing = await db
+        .select({ id: schema.carousels.id })
+        .from(schema.carousels)
+        .where(eq(schema.carousels.slug, input.slug))
+        .limit(1);
+
+      if (existing.length > 0) {
+        throw new TRPCError({ code: "CONFLICT", message: "A carousel with this slug already exists" });
+      }
+
+      const result = await db.insert(schema.carousels).values({
+        name: input.name,
+        slug: input.slug,
+        description: input.description || null,
+        type: input.type,
+        settings: JSON.stringify(input.settings || {}),
+        styling: JSON.stringify(input.styling || {}),
+        active: input.active ? 1 : 0,
+      });
+
+      return { id: result[0].insertId, slug: input.slug };
+    }),
+
+  // Update carousel
+  update: adminProcedure
+    .input(z.object({
+      id: z.number(),
+      name: z.string().min(1).max(255).optional(),
+      slug: z.string().min(1).max(100).regex(/^[a-z0-9-]+$/).optional(),
+      description: z.string().optional().nullable(),
+      type: CarouselTypeEnum.optional(),
+      settings: CarouselSettingsSchema.optional(),
+      styling: CarouselStylingSchema.optional(),
+      active: z.boolean().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const { id, ...updates } = input;
+
+      // Check if carousel exists
+      const existing = await db
+        .select({ id: schema.carousels.id })
+        .from(schema.carousels)
+        .where(eq(schema.carousels.id, id))
+        .limit(1);
+
+      if (existing.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Carousel not found" });
+      }
+
+      // Check for duplicate slug if updating slug
+      if (updates.slug) {
+        const duplicate = await db
+          .select({ id: schema.carousels.id })
+          .from(schema.carousels)
+          .where(and(
+            eq(schema.carousels.slug, updates.slug),
+            sql`${schema.carousels.id} != ${id}`
+          ))
+          .limit(1);
+
+        if (duplicate.length > 0) {
+          throw new TRPCError({ code: "CONFLICT", message: "A carousel with this slug already exists" });
+        }
+      }
+
+      // Build update object
+      const updateData: Record<string, any> = {};
+      if (updates.name !== undefined) updateData.name = updates.name;
+      if (updates.slug !== undefined) updateData.slug = updates.slug;
+      if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.type !== undefined) updateData.type = updates.type;
+      if (updates.settings !== undefined) updateData.settings = JSON.stringify(updates.settings);
+      if (updates.styling !== undefined) updateData.styling = JSON.stringify(updates.styling);
+      if (updates.active !== undefined) updateData.active = updates.active ? 1 : 0;
+
+      if (Object.keys(updateData).length > 0) {
+        await db
+          .update(schema.carousels)
+          .set(updateData)
+          .where(eq(schema.carousels.id, id));
+      }
+
+      return { success: true };
+    }),
+
+  // Delete carousel
+  delete: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Delete slides first (cascade)
+      await db
+        .delete(schema.carouselSlides)
+        .where(eq(schema.carouselSlides.carouselId, input.id));
+
+      // Delete carousel
+      await db
+        .delete(schema.carousels)
+        .where(eq(schema.carousels.id, input.id));
+
+      return { success: true };
+    }),
+
+  // ==========================================================================
+  // ADMIN ENDPOINTS - SLIDES
+  // ==========================================================================
+
+  // Create slide
+  createSlide: adminProcedure
+    .input(z.object({
+      carouselId: z.number(),
+      title: z.string().optional(),
+      subtitle: z.string().optional(),
+      description: z.string().optional(),
+      imageUrl: z.string().optional(),
+      videoUrl: z.string().optional(),
+      thumbnailUrl: z.string().optional(),
+      altText: z.string().optional(),
+      ctaText: z.string().optional(),
+      ctaLink: z.string().optional(),
+      ctaStyle: z.enum(['primary', 'secondary', 'ghost', 'outline']).optional(),
+      authorName: z.string().optional(),
+      authorRole: z.string().optional(),
+      authorAvatar: z.string().optional(),
+      rating: z.number().min(1).max(5).optional(),
+      styling: z.record(z.string(), z.any()).optional(),
+      visible: z.boolean().optional().default(true),
+      sortOrder: z.number().optional().default(0),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      // Verify carousel exists
+      const carousel = await db
+        .select({ id: schema.carousels.id })
+        .from(schema.carousels)
+        .where(eq(schema.carousels.id, input.carouselId))
+        .limit(1);
+
+      if (carousel.length === 0) {
+        throw new TRPCError({ code: "NOT_FOUND", message: "Carousel not found" });
+      }
+
+      const result = await db.insert(schema.carouselSlides).values({
+        carouselId: input.carouselId,
+        title: input.title || null,
+        subtitle: input.subtitle || null,
+        description: input.description || null,
+        imageUrl: input.imageUrl || null,
+        videoUrl: input.videoUrl || null,
+        thumbnailUrl: input.thumbnailUrl || null,
+        altText: input.altText || null,
+        ctaText: input.ctaText || null,
+        ctaLink: input.ctaLink || null,
+        ctaStyle: input.ctaStyle || 'primary',
+        authorName: input.authorName || null,
+        authorRole: input.authorRole || null,
+        authorAvatar: input.authorAvatar || null,
+        rating: input.rating || null,
+        styling: input.styling ? JSON.stringify(input.styling) : null,
+        visible: input.visible ? 1 : 0,
+        sortOrder: input.sortOrder,
+      });
+
+      return { id: result[0].insertId };
+    }),
+
+  // Update slide
+  updateSlide: adminProcedure
+    .input(z.object({
+      id: z.number(),
+      title: z.string().optional().nullable(),
+      subtitle: z.string().optional().nullable(),
+      description: z.string().optional().nullable(),
+      imageUrl: z.string().optional().nullable(),
+      videoUrl: z.string().optional().nullable(),
+      thumbnailUrl: z.string().optional().nullable(),
+      altText: z.string().optional().nullable(),
+      ctaText: z.string().optional().nullable(),
+      ctaLink: z.string().optional().nullable(),
+      ctaStyle: z.enum(['primary', 'secondary', 'ghost', 'outline']).optional(),
+      authorName: z.string().optional().nullable(),
+      authorRole: z.string().optional().nullable(),
+      authorAvatar: z.string().optional().nullable(),
+      rating: z.number().min(1).max(5).optional().nullable(),
+      styling: z.record(z.string(), z.any()).optional(),
+      visible: z.boolean().optional(),
+      sortOrder: z.number().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      const { id, ...updates } = input;
+
+      const updateData: Record<string, any> = {};
+      if (updates.title !== undefined) updateData.title = updates.title;
+      if (updates.subtitle !== undefined) updateData.subtitle = updates.subtitle;
+      if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.imageUrl !== undefined) updateData.imageUrl = updates.imageUrl;
+      if (updates.videoUrl !== undefined) updateData.videoUrl = updates.videoUrl;
+      if (updates.thumbnailUrl !== undefined) updateData.thumbnailUrl = updates.thumbnailUrl;
+      if (updates.altText !== undefined) updateData.altText = updates.altText;
+      if (updates.ctaText !== undefined) updateData.ctaText = updates.ctaText;
+      if (updates.ctaLink !== undefined) updateData.ctaLink = updates.ctaLink;
+      if (updates.ctaStyle !== undefined) updateData.ctaStyle = updates.ctaStyle;
+      if (updates.authorName !== undefined) updateData.authorName = updates.authorName;
+      if (updates.authorRole !== undefined) updateData.authorRole = updates.authorRole;
+      if (updates.authorAvatar !== undefined) updateData.authorAvatar = updates.authorAvatar;
+      if (updates.rating !== undefined) updateData.rating = updates.rating;
+      if (updates.styling !== undefined) updateData.styling = JSON.stringify(updates.styling);
+      if (updates.visible !== undefined) updateData.visible = updates.visible ? 1 : 0;
+      if (updates.sortOrder !== undefined) updateData.sortOrder = updates.sortOrder;
+
+      if (Object.keys(updateData).length > 0) {
+        await db
+          .update(schema.carouselSlides)
+          .set(updateData)
+          .where(eq(schema.carouselSlides.id, id));
+      }
+
+      return { success: true };
+    }),
+
+  // Delete slide
+  deleteSlide: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      await db
+        .delete(schema.carouselSlides)
+        .where(eq(schema.carouselSlides.id, input.id));
+
+      return { success: true };
+    }),
+
+  // Reorder slides
+  reorderSlides: adminProcedure
+    .input(z.array(z.object({
+      id: z.number(),
+      sortOrder: z.number(),
+    })))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+
+      for (const item of input) {
+        await db
+          .update(schema.carouselSlides)
+          .set({ sortOrder: item.sortOrder })
+          .where(eq(schema.carouselSlides.id, item.id));
+      }
+
+      return { success: true };
+    }),
+
+  // ==========================================================================
+  // LEGACY ENDPOINTS - For backward compatibility with carouselOfferings
+  // ==========================================================================
+
+  getAllAdmin: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    
+    const offerings = await db
+      .select()
+      .from(schema.carouselOfferings)
+      .orderBy(schema.carouselOfferings.order);
+    
+    return offerings;
+  }),
+
+  createOffering: adminProcedure
+    .input(z.object({
+      title: z.string().min(1),
+      description: z.string().optional(),
+      link: z.string().optional(),
+      imageUrl: z.string().optional(),
+      order: z.number().optional().default(0),
+      isActive: z.number().optional().default(1),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const result = await db.insert(schema.carouselOfferings).values({
+        title: input.title,
+        description: input.description || null,
+        link: input.link || null,
+        imageUrl: input.imageUrl || null,
+        order: input.order,
+        isActive: input.isActive,
+      });
+      
+      return { success: true, id: result[0].insertId };
+    }),
+
+  updateOffering: adminProcedure
+    .input(z.object({
+      id: z.number(),
+      title: z.string().min(1).optional(),
+      description: z.string().optional(),
+      link: z.string().optional(),
+      imageUrl: z.string().optional(),
+      order: z.number().optional(),
+      isActive: z.number().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const { id, ...updateData } = input;
+      const filteredData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, v]) => v !== undefined)
+      );
+      
+      if (Object.keys(filteredData).length === 0) {
+        throw new TRPCError({ code: "BAD_REQUEST", message: "No fields to update" });
+      }
+      
+      await db
+        .update(schema.carouselOfferings)
+        .set(filteredData)
+        .where(eq(schema.carouselOfferings.id, id));
+      
+      return { success: true };
+    }),
+
+  deleteOffering: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      await db
+        .delete(schema.carouselOfferings)
+        .where(eq(schema.carouselOfferings.id, input.id));
+      
+      return { success: true };
+    }),
+
+  reorderOfferings: adminProcedure
+    .input(z.array(z.object({
+      id: z.number(),
+      order: z.number(),
+    })))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      for (const item of input) {
+        await db
+          .update(schema.carouselOfferings)
+          .set({ order: item.order })
+          .where(eq(schema.carouselOfferings.id, item.id));
+      }
+      
+      return { success: true };
+    }),
+});
+
+
+// Font Settings Router for site-wide typography management
+export const fontSettingsRouter = router({
+  // Get current font settings
+  get: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return null;
+    
+    const settings = await db.select().from(schema.fontSettings).limit(1);
+    return settings[0] || null;
+  }),
+
+  // Update font settings (admin only)
+  update: adminProcedure
+    .input(z.object({
+      headingFont: z.string().optional(),
+      bodyFont: z.string().optional(),
+      accentFont: z.string().optional(),
+      headingWeight: z.string().optional(),
+      bodyWeight: z.string().optional(),
+      headingBaseSize: z.string().optional(),
+      bodyBaseSize: z.string().optional(),
+      headingLineHeight: z.string().optional(),
+      bodyLineHeight: z.string().optional(),
+      headingLetterSpacing: z.string().optional(),
+      bodyLetterSpacing: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      // Check if settings exist
+      const existing = await db.select().from(schema.fontSettings).limit(1);
+      
+      if (existing.length === 0) {
+        // Insert new settings
+        await db.insert(schema.fontSettings).values(input);
+      } else {
+        // Update existing settings
+        const filteredData = Object.fromEntries(
+          Object.entries(input).filter(([_, v]) => v !== undefined)
+        );
+        
+        if (Object.keys(filteredData).length > 0) {
+          await db
+            .update(schema.fontSettings)
+            .set(filteredData)
+            .where(eq(schema.fontSettings.id, existing[0].id));
+        }
+      }
+      
+      return { success: true };
+    }),
+
+  // Get available fonts list
+  availableFonts: publicProcedure.query(() => {
+    return [
+      // Elegant Serif Fonts
+      { name: "Cormorant Garamond", category: "serif", googleFont: true, style: "elegant" },
+      { name: "Playfair Display", category: "serif", googleFont: true, style: "elegant" },
+      { name: "Libre Baskerville", category: "serif", googleFont: true, style: "classic" },
+      { name: "Lora", category: "serif", googleFont: true, style: "elegant" },
+      { name: "Crimson Text", category: "serif", googleFont: true, style: "classic" },
+      { name: "EB Garamond", category: "serif", googleFont: true, style: "classic" },
+      { name: "Merriweather", category: "serif", googleFont: true, style: "readable" },
+      { name: "Source Serif Pro", category: "serif", googleFont: true, style: "modern" },
+      { name: "Spectral", category: "serif", googleFont: true, style: "elegant" },
+      { name: "Noto Serif", category: "serif", googleFont: true, style: "universal" },
+      { name: "Bitter", category: "serif", googleFont: true, style: "modern" },
+      { name: "Vollkorn", category: "serif", googleFont: true, style: "classic" },
+      { name: "Cardo", category: "serif", googleFont: true, style: "classic" },
+      { name: "Sorts Mill Goudy", category: "serif", googleFont: true, style: "elegant" },
+      { name: "Cormorant", category: "serif", googleFont: true, style: "elegant" },
+      
+      // Sophisticated Sans-Serif Fonts
+      { name: "Inter", category: "sans-serif", googleFont: true, style: "modern" },
+      { name: "Montserrat", category: "sans-serif", googleFont: true, style: "geometric" },
+      { name: "Raleway", category: "sans-serif", googleFont: true, style: "elegant" },
+      { name: "Poppins", category: "sans-serif", googleFont: true, style: "modern" },
+      { name: "Nunito Sans", category: "sans-serif", googleFont: true, style: "friendly" },
+      { name: "Work Sans", category: "sans-serif", googleFont: true, style: "professional" },
+      { name: "DM Sans", category: "sans-serif", googleFont: true, style: "modern" },
+      { name: "Outfit", category: "sans-serif", googleFont: true, style: "geometric" },
+      { name: "Plus Jakarta Sans", category: "sans-serif", googleFont: true, style: "modern" },
+      { name: "Jost", category: "sans-serif", googleFont: true, style: "geometric" },
+      { name: "Josefin Sans", category: "sans-serif", googleFont: true, style: "elegant" },
+      { name: "Quicksand", category: "sans-serif", googleFont: true, style: "rounded" },
+      { name: "Karla", category: "sans-serif", googleFont: true, style: "grotesque" },
+      { name: "Manrope", category: "sans-serif", googleFont: true, style: "modern" },
+      { name: "Space Grotesk", category: "sans-serif", googleFont: true, style: "geometric" },
+    ];
+  }),
+});
+
+// Content Text Styles Router for per-field formatting
+export const contentTextStylesRouter = router({
+  // Get text style for a content item
+  get: adminProcedure
+    .input(z.object({ contentId: z.number() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return null;
+      
+      const styles = await db
+        .select()
+        .from(schema.contentTextStyles)
+        .where(eq(schema.contentTextStyles.contentId, input.contentId))
+        .limit(1);
+      
+      const style = styles[0];
+      return {
+        isBold: style ? style.isBold === 1 : false,
+        isItalic: style ? style.isItalic === 1 : false,
+        isUnderline: style ? style.isUnderline === 1 : false,
+        fontOverride: style?.fontOverride || null,
+        fontSize: style?.fontSize || null,
+        fontColor: style?.fontColor || null,
+      };
+    }),
+
+  // Get all text styles for a page
+  getByPage: adminProcedure
+    .input(z.object({ page: z.string() }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      
+      // Get content IDs for this page
+      const pageContent = await db
+        .select({ id: schema.siteContent.id })
+        .from(schema.siteContent)
+        .where(eq(schema.siteContent.page, input.page));
+      
+      const contentIds = pageContent.map(c => c.id);
+      if (contentIds.length === 0) return [];
+      
+      // Get styles for these content items
+      const styles = await db
+        .select()
+        .from(schema.contentTextStyles);
+      
+      return styles.filter(s => contentIds.includes(s.contentId));
+    }),
+
+  // Save text style (used by TextFormatToolbar)
+  save: adminProcedure
+    .input(z.object({
+      contentId: z.number(),
+      isBold: z.boolean(),
+      isItalic: z.boolean(),
+      isUnderline: z.boolean(),
+      fontSize: z.string().optional(),
+      fontColor: z.string().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const { contentId, isBold, isItalic, isUnderline, fontSize, fontColor } = input;
+      
+      // Check if style exists
+      const existing = await db
+        .select()
+        .from(schema.contentTextStyles)
+        .where(eq(schema.contentTextStyles.contentId, contentId))
+        .limit(1);
+      
+      if (existing.length === 0) {
+        // Insert new style
+        await db.insert(schema.contentTextStyles).values({
+          contentId,
+          isBold: isBold ? 1 : 0,
+          isItalic: isItalic ? 1 : 0,
+          isUnderline: isUnderline ? 1 : 0,
+          fontSize: fontSize || null,
+          fontColor: fontColor || null,
+        });
+      } else {
+        // Update existing style
+        await db
+          .update(schema.contentTextStyles)
+          .set({
+            isBold: isBold ? 1 : 0,
+            isItalic: isItalic ? 1 : 0,
+            isUnderline: isUnderline ? 1 : 0,
+            fontSize: fontSize || null,
+            fontColor: fontColor || null,
+          })
+          .where(eq(schema.contentTextStyles.contentId, contentId));
+      }
+      
+      return { success: true };
+    }),
+
+  // Update or create text style
+  upsert: adminProcedure
+    .input(z.object({
+      contentId: z.number(),
+      isBold: z.number().optional(),
+      isItalic: z.number().optional(),
+      isUnderline: z.number().optional(),
+      fontOverride: z.string().nullable().optional(),
+      fontSize: z.string().nullable().optional(),
+      fontColor: z.string().nullable().optional(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const { contentId, ...styleData } = input;
+      
+      // Check if style exists
+      const existing = await db
+        .select()
+        .from(schema.contentTextStyles)
+        .where(eq(schema.contentTextStyles.contentId, contentId))
+        .limit(1);
+      
+      if (existing.length === 0) {
+        // Insert new style
+        await db.insert(schema.contentTextStyles).values({
+          contentId,
+          isBold: styleData.isBold ?? 0,
+          isItalic: styleData.isItalic ?? 0,
+          isUnderline: styleData.isUnderline ?? 0,
+          fontOverride: styleData.fontOverride ?? null,
+          fontSize: styleData.fontSize ?? null,
+          fontColor: styleData.fontColor ?? null,
+        });
+      } else {
+        // Update existing style
+        const filteredData = Object.fromEntries(
+          Object.entries(styleData).filter(([_, v]) => v !== undefined)
+        );
+        
+        if (Object.keys(filteredData).length > 0) {
+          await db
+            .update(schema.contentTextStyles)
+            .set(filteredData)
+            .where(eq(schema.contentTextStyles.contentId, contentId));
+        }
+      }
+      
+      return { success: true };
+    }),
+});

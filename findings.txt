@@ -1,0 +1,26 @@
+Key Findings from Screenshots:
+
+Screenshot 1 (5.30.41PM) - EDITOR MODE (Preview button NOT highlighted):
+- Shows "The Philosophy" section with image on the right
+- The image of mountains/sunset has SHARP corners (no rounded edges)
+- The section shows "OUR APPROACH" label, "The Philosophy" title
+- Image appears to be a je-section-standard block
+
+Screenshot 2 (5.30.37PM) - EDITOR MODE (block is selected, has + button below):
+- Shows the same page but with a block selected (has the + button below the hero)
+- The "The Philosophy" section image ALSO has SHARP corners
+- Both screenshots are in EDITOR mode (not preview mode)
+
+CONCLUSION:
+The issue is NOT editor vs preview mode. The issue is that the JESectionRenderer 
+is NOT applying rounded corners to the image in EITHER mode.
+
+Looking at the code, the JESectionRenderer should apply:
+- borderRadius: content.imageBorderRadius || '2rem'
+
+But in the screenshots, the image clearly has sharp corners.
+
+This suggests either:
+1. The block content doesn't have imageBorderRadius set
+2. The CSS is being overridden somewhere
+3. The block type being used is different from je-section-standard

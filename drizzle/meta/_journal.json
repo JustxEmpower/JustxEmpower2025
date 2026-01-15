@@ -1,0 +1,48 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1767352324916,
+      "tag": "0000_awesome_wolf_cub",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1767389709485,
+      "tag": "0001_left_dazzler",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1767420524918,
+      "tag": "0002_sharp_medusa",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1767490340482,
+      "tag": "0003_new_ben_grimm",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1767490616582,
+      "tag": "0004_jazzy_skin",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1768170462168,
+      "tag": "0005_petite_satana",
+      "breakpoints": true
+    }
+  ]
+}
