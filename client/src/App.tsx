@@ -7,7 +7,7 @@ import AdminDashboard from "@/pages/AdminDashboardEnhanced";
 import AdminSettings from "@/pages/AdminSettings";
 import AdminContent from "@/pages/AdminContent";
 import AdminArticles from "@/pages/AdminArticlesEnhanced";
-import AdminMedia from "@/pages/AdminMedia";
+import AdminMedia from "@/pages/AdminMediaEnhanced";
 import AdminTheme from "@/pages/AdminTheme";
 import AdminPages from "@/pages/AdminPages";
 import DynamicPage from "@/pages/DynamicPage";
