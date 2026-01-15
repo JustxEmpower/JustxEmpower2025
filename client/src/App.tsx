@@ -36,6 +36,7 @@ import AdminResourcesPage from "@/pages/AdminResourcesPage";
 import AdminContactMessages from "@/pages/AdminContactMessages";
 import AdminCarousel from "@/pages/AdminCarousel";
 import AdminCarouselManager from "@/pages/AdminCarouselManager";
+import AdminAITraining from "@/pages/AdminAITraining";
 import PageBuilderPage from "@/pages/PageBuilderPage";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -108,6 +109,7 @@ function Router() {
       <Route path="/admin/messages" component={AdminContactMessages} />
       <Route path="/admin/carousel" component={AdminCarousel} />
       <Route path="/admin/carousels" component={AdminCarouselManager} />
+      <Route path="/admin/ai-training" component={AdminAITraining} />
       <Route path="/admin/page-builder" component={PageBuilderPage} />
       <Route path="/admin/page-builder/:pageId" component={PageBuilderPage} />
       <Route path={"/404"} component={NotFound} />

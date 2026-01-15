@@ -329,6 +329,43 @@ export type AIFeedback = typeof aiFeedback.$inferSelect;
 export type InsertAIFeedback = typeof aiFeedback.$inferInsert;
 
 /**
+ * AI Knowledge Base for training the AI with custom Q&A pairs
+ */
+export const aiKnowledgeBase = mysqlTable("aiKnowledgeBase", {
+  id: int("id").autoincrement().primaryKey(),
+  category: varchar("category", { length: 100 }).notNull(), // e.g., "about", "services", "philosophy", "events", "products"
+  question: text("question").notNull(), // The question or trigger phrase
+  answer: text("answer").notNull(), // The ideal response
+  keywords: text("keywords"), // JSON array of keywords for matching
+  priority: int("priority").default(0).notNull(), // Higher priority = used first
+  isActive: int("isActive").default(1).notNull(),
+  usageCount: int("usageCount").default(0).notNull(), // Track how often this is used
+  lastUsedAt: timestamp("lastUsedAt"),
+  createdBy: varchar("createdBy", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type AIKnowledgeBase = typeof aiKnowledgeBase.$inferSelect;
+export type InsertAIKnowledgeBase = typeof aiKnowledgeBase.$inferInsert;
+
+/**
+ * AI Training Logs for tracking improvements and learning
+ */
+export const aiTrainingLogs = mysqlTable("aiTrainingLogs", {
+  id: int("id").autoincrement().primaryKey(),
+  action: mysqlEnum("action", ["added", "updated", "deleted", "used", "feedback"]).notNull(),
+  knowledgeId: int("knowledgeId"),
+  conversationId: int("conversationId"),
+  details: text("details"), // JSON with action details
+  performedBy: varchar("performedBy", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AITrainingLog = typeof aiTrainingLogs.$inferSelect;
+export type InsertAITrainingLog = typeof aiTrainingLogs.$inferInsert;
+
+/**
  * Visitor profiles for persistent conversation memory
  */
 export const visitorProfiles = mysqlTable("visitorProfiles", {

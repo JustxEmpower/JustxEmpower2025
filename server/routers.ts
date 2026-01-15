@@ -2,7 +2,7 @@ import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
-import { adminRouter, publicArticlesRouter, publicContentRouter, publicPagesRouter, aiChatAnalyticsRouter, publicThemeRouter, publicSiteSettingsRouter, publicNavigationRouter, carouselRouter, fontSettingsRouter, contentTextStylesRouter } from "./adminRouters";
+import { adminRouter, publicArticlesRouter, publicContentRouter, publicPagesRouter, aiChatAnalyticsRouter, publicThemeRouter, publicSiteSettingsRouter, publicNavigationRouter, carouselRouter, fontSettingsRouter, contentTextStylesRouter, aiTrainingRouter } from "./adminRouters";
 import { siteManagerRouter } from "./siteManagerRouter";
 import { automationRouter } from "./automationRouter";
 import { shopRouter } from "./shopRouter";
@@ -85,6 +85,9 @@ export const appRouter = router({
   
   // Automation - scheduled tasks, notifications, workflows
   automation: automationRouter,
+  
+  // AI Training - knowledge base management
+  aiTraining: aiTrainingRouter,
 });
 
 export type AppRouter = typeof appRouter;

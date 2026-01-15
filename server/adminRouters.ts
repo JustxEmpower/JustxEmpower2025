@@ -3833,3 +3833,137 @@ export const contentTextStylesRouter = router({
       return { success: true };
     }),
 });
+
+// AI Training Router for managing knowledge base
+export const aiTrainingRouter = router({
+  listKnowledge: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    
+    const knowledge = await db
+      .select()
+      .from(schema.aiKnowledgeBase)
+      .orderBy(desc(schema.aiKnowledgeBase.priority), desc(schema.aiKnowledgeBase.usageCount));
+    
+    return knowledge;
+  }),
+
+  getStats: adminProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return { totalKnowledge: 0, activeKnowledge: 0, totalUsage: 0, avgSatisfaction: 0 };
+    
+    const knowledge = await db.select().from(schema.aiKnowledgeBase);
+    const feedback = await db.select().from(schema.aiFeedback);
+    
+    const totalKnowledge = knowledge.length;
+    const activeKnowledge = knowledge.filter(k => k.isActive === 1).length;
+    const totalUsage = knowledge.reduce((sum, k) => sum + k.usageCount, 0);
+    
+    const positiveFeedback = feedback.filter(f => f.rating === 'positive').length;
+    const totalFeedback = feedback.length;
+    const avgSatisfaction = totalFeedback > 0 ? Math.round((positiveFeedback / totalFeedback) * 100) : 0;
+    
+    return { totalKnowledge, activeKnowledge, totalUsage, avgSatisfaction };
+  }),
+
+  getRecentConversations: adminProcedure
+    .input(z.object({ limit: z.number().optional().default(20) }))
+    .query(async ({ input }) => {
+      const db = await getDb();
+      if (!db) return [];
+      
+      const conversations = await db
+        .select()
+        .from(schema.aiChatConversations)
+        .orderBy(desc(schema.aiChatConversations.createdAt))
+        .limit(input.limit);
+      
+      return conversations;
+    }),
+
+  createKnowledge: adminProcedure
+    .input(z.object({
+      category: z.string(),
+      question: z.string(),
+      answer: z.string(),
+      keywords: z.string().nullable().optional(),
+      priority: z.number().optional().default(0),
+      isActive: z.number().optional().default(1),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const result = await db.insert(schema.aiKnowledgeBase).values({
+        category: input.category,
+        question: input.question,
+        answer: input.answer,
+        keywords: input.keywords || null,
+        priority: input.priority,
+        isActive: input.isActive,
+        createdBy: ctx.adminUsername || 'admin',
+      });
+      
+      await db.insert(schema.aiTrainingLogs).values({
+        action: 'added',
+        knowledgeId: Number(result.insertId),
+        details: JSON.stringify({ category: input.category }),
+        performedBy: ctx.adminUsername || 'admin',
+      });
+      
+      return { success: true, id: Number(result.insertId) };
+    }),
+
+  updateKnowledge: adminProcedure
+    .input(z.object({
+      id: z.number(),
+      category: z.string().optional(),
+      question: z.string().optional(),
+      answer: z.string().optional(),
+      keywords: z.string().nullable().optional(),
+      priority: z.number().optional(),
+      isActive: z.number().optional(),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      const { id, ...updateData } = input;
+      const filteredUpdateData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, v]) => v !== undefined)
+      );
+      
+      if (Object.keys(filteredUpdateData).length > 0) {
+        await db
+          .update(schema.aiKnowledgeBase)
+          .set(filteredUpdateData)
+          .where(eq(schema.aiKnowledgeBase.id, id));
+      }
+      
+      await db.insert(schema.aiTrainingLogs).values({
+        action: 'updated',
+        knowledgeId: id,
+        details: JSON.stringify(filteredUpdateData),
+        performedBy: ctx.adminUsername || 'admin',
+      });
+      
+      return { success: true };
+    }),
+
+  deleteKnowledge: adminProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ input, ctx }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+      
+      await db.delete(schema.aiKnowledgeBase).where(eq(schema.aiKnowledgeBase.id, input.id));
+      
+      await db.insert(schema.aiTrainingLogs).values({
+        action: 'deleted',
+        knowledgeId: input.id,
+        performedBy: ctx.adminUsername || 'admin',
+      });
+      
+      return { success: true };
+    }),
+});
