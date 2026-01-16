@@ -2730,6 +2730,399 @@ export const adminRouter = router({
         return { transactions };
       }),
   }),
+
+  // Source Code Editor - List editable files
+  sourceCode: router({
+    // Simple test procedure
+    test: adminProcedure.query(() => {
+      return { status: "ok", message: "sourceCode router is working" };
+    }),
+    
+    listFiles: adminProcedure
+      .input(z.object({
+        directory: z.enum(["pages", "components", "hooks", "lib", "styles"]).default("pages"),
+      }).optional())
+      .query(async ({ input }) => {
+        const dir = input?.directory || "pages";
+        const basePath = path.resolve(process.cwd(), "client/src", dir);
+        
+        try {
+          const files = fs.readdirSync(basePath, { withFileTypes: true });
+          const result = files
+            .filter(f => f.isFile() && (f.name.endsWith(".tsx") || f.name.endsWith(".ts") || f.name.endsWith(".css")))
+            .map(f => {
+              const filePath = path.join(basePath, f.name);
+              const stats = fs.statSync(filePath);
+              const content = fs.readFileSync(filePath, "utf-8");
+              const lines = content.split("\n").length;
+              return {
+                name: f.name,
+                path: `client/src/${dir}/${f.name}`,
+                size: stats.size,
+                lines,
+                modified: stats.mtime.toISOString(),
+                type: f.name.endsWith(".css") ? "css" : f.name.endsWith(".ts") ? "typescript" : "tsx",
+              };
+            })
+            .sort((a, b) => a.name.localeCompare(b.name));
+          
+          return { files: result, directory: dir, basePath: `client/src/${dir}` };
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
+      }),
+
+    readFile: adminProcedure
+      .input(z.object({
+        filePath: z.string(),
+      }))
+      .query(async ({ input }) => {
+        if (!input.filePath.startsWith("client/src/") || input.filePath.includes("..")) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+        
+        const possiblePaths = [
+          path.resolve(process.cwd(), input.filePath),
+          path.resolve("/var/www/justxempower", input.filePath),
+          path.resolve(__dirname, "../", input.filePath),
+          path.resolve(__dirname, "../../", input.filePath),
+        ];
+        
+        let fullPath = "";
+        for (const p of possiblePaths) {
+          if (fs.existsSync(p)) {
+            fullPath = p;
+            break;
+          }
+        }
+        
+        if (!fullPath) {
+          throw new TRPCError({ code: "NOT_FOUND", message: `File not found. Tried: ${possiblePaths[0]}` });
+        }
+        
+        try {
+          const content = fs.readFileSync(fullPath, "utf-8");
+          const stats = fs.statSync(fullPath);
+          return {
+            content,
+            path: input.filePath,
+            size: stats.size,
+            lines: content.split("\n").length,
+            modified: stats.mtime.toISOString(),
+          };
+        } catch (e: any) {
+          throw new TRPCError({ code: "NOT_FOUND", message: `File read error: ${e.message}` });
+        }
+      }),
+
+    writeFile: adminProcedure
+      .input(z.object({
+        filePath: z.string(),
+        content: z.string(),
+        createBackup: z.boolean().default(true),
+      }))
+      .mutation(async ({ input }) => {
+        if (!input.filePath.startsWith("client/src/") || input.filePath.includes("..")) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+        
+        const basePaths = [
+          process.cwd(),
+          "/var/www/justxempower",
+          path.resolve(__dirname, ".."),
+          path.resolve(__dirname, "../.."),
+        ];
+        
+        let baseDir = "";
+        for (const b of basePaths) {
+          if (fs.existsSync(path.join(b, "client/src"))) {
+            baseDir = b;
+            break;
+          }
+        }
+        
+        if (!baseDir) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Cannot find base directory" });
+        }
+        
+        const fullPath = path.resolve(baseDir, input.filePath);
+        const backupDir = path.resolve(baseDir, ".code-backups");
+        
+        try {
+          if (input.createBackup && fs.existsSync(fullPath)) {
+            if (!fs.existsSync(backupDir)) {
+              fs.mkdirSync(backupDir, { recursive: true });
+            }
+            const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+            const backupName = `${path.basename(input.filePath)}.${timestamp}.bak`;
+            const originalContent = fs.readFileSync(fullPath, "utf-8");
+            fs.writeFileSync(path.join(backupDir, backupName), originalContent);
+          }
+          
+          fs.writeFileSync(fullPath, input.content, "utf-8");
+          
+          const stats = fs.statSync(fullPath);
+          return {
+            success: true,
+            path: input.filePath,
+            size: stats.size,
+            lines: input.content.split("\n").length,
+            modified: stats.mtime.toISOString(),
+            backupCreated: input.createBackup,
+          };
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
+      }),
+
+    listBackups: adminProcedure
+      .query(async () => {
+        const backupDir = path.resolve(process.cwd(), ".code-backups");
+        
+        try {
+          if (!fs.existsSync(backupDir)) {
+            return { backups: [] };
+          }
+          
+          const files = fs.readdirSync(backupDir, { withFileTypes: true });
+          const backups = files
+            .filter(f => f.isFile() && f.name.endsWith(".bak"))
+            .map(f => {
+              const filePath = path.join(backupDir, f.name);
+              const stats = fs.statSync(filePath);
+              const parts = f.name.replace(".bak", "").split(".");
+              const timestamp = parts.pop() || "";
+              const originalName = parts.join(".");
+              return {
+                name: f.name,
+                originalFile: originalName,
+                timestamp,
+                size: stats.size,
+                created: stats.mtime.toISOString(),
+              };
+            })
+            .sort((a, b) => b.created.localeCompare(a.created));
+          
+          return { backups };
+        } catch (e: any) {
+          return { backups: [] };
+        }
+      }),
+
+    restoreBackup: adminProcedure
+      .input(z.object({
+        backupName: z.string(),
+        targetPath: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        if (!input.targetPath.startsWith("client/src/") || input.targetPath.includes("..")) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+        
+        const backupDir = path.resolve(process.cwd(), ".code-backups");
+        const backupPath = path.join(backupDir, input.backupName);
+        const targetPath = path.resolve(process.cwd(), input.targetPath);
+        
+        try {
+          if (!fs.existsSync(backupPath)) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Backup not found" });
+          }
+          
+          const content = fs.readFileSync(backupPath, "utf-8");
+          fs.writeFileSync(targetPath, content, "utf-8");
+          
+          return { success: true, restored: input.targetPath };
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
+      }),
+
+    deleteBackup: adminProcedure
+      .input(z.object({ backupName: z.string() }))
+      .mutation(async ({ input }) => {
+        const backupDir = path.resolve(process.cwd(), ".code-backups");
+        const backupPath = path.join(backupDir, input.backupName);
+        
+        try {
+          if (fs.existsSync(backupPath)) {
+            fs.unlinkSync(backupPath);
+          }
+          return { success: true };
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
+      }),
+
+    getDirectoryTree: adminProcedure
+      .query(async () => {
+        const possiblePaths = [
+          path.resolve(process.cwd(), "client/src"),
+          path.resolve("/var/www/justxempower/client/src"),
+          path.resolve(__dirname, "../client/src"),
+          path.resolve(__dirname, "../../client/src"),
+        ];
+        
+        let basePath = "";
+        for (const p of possiblePaths) {
+          if (fs.existsSync(p)) {
+            basePath = p;
+            break;
+          }
+        }
+        
+        if (!basePath) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Source directory not found. CWD: ${process.cwd()}, Tried: ${possiblePaths.join(", ")}`,
+          });
+        }
+        
+        const scanDir = (dirPath: string, relativePath: string = ""): any[] => {
+          try {
+            const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+            return entries
+              .filter(e => !e.name.startsWith(".") && e.name !== "node_modules")
+              .map(entry => {
+                const fullPath = path.join(dirPath, entry.name);
+                const relPath = path.join(relativePath, entry.name);
+                
+                if (entry.isDirectory()) {
+                  return {
+                    name: entry.name,
+                    type: "directory",
+                    path: `client/src/${relPath}`,
+                    children: scanDir(fullPath, relPath),
+                  };
+                } else if (entry.name.endsWith(".tsx") || entry.name.endsWith(".ts") || entry.name.endsWith(".css")) {
+                  const stats = fs.statSync(fullPath);
+                  return {
+                    name: entry.name,
+                    type: entry.name.endsWith(".css") ? "css" : entry.name.endsWith(".ts") ? "typescript" : "tsx",
+                    path: `client/src/${relPath}`,
+                    size: stats.size,
+                    modified: stats.mtime.toISOString(),
+                  };
+                }
+                return null;
+              })
+              .filter(Boolean)
+              .sort((a: any, b: any) => {
+                if (a.type === "directory" && b.type !== "directory") return -1;
+                if (a.type !== "directory" && b.type === "directory") return 1;
+                return a.name.localeCompare(b.name);
+              });
+          } catch (e: any) {
+            console.error("scanDir error:", e.message);
+            return [];
+          }
+        };
+        
+        return { tree: scanDir(basePath), basePath };
+      }),
+
+    aiAssist: adminProcedure
+      .input(z.object({
+        action: z.enum(["explain", "fix", "improve", "generate", "refactor", "comment", "test", "chat"]),
+        code: z.string(),
+        fileName: z.string().optional(),
+        language: z.string().optional(),
+        selection: z.string().optional(),
+        prompt: z.string().optional(),
+        conversationHistory: z.array(z.object({
+          role: z.string(),
+          content: z.string(),
+        })).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          const result = await codeAssistant(input.action, input.code, {
+            fileName: input.fileName,
+            language: input.language,
+            selection: input.selection,
+            prompt: input.prompt,
+            conversationHistory: input.conversationHistory,
+          });
+          return { success: true, result };
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
+      }),
+
+    buildAndDeploy: adminProcedure
+      .mutation(async () => {
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+        
+        try {
+          const buildResult = await execAsync('pnpm build', {
+            cwd: process.cwd(),
+            timeout: 120000,
+          });
+          
+          try {
+            await execAsync('pm2 restart justxempower', {
+              cwd: process.cwd(),
+              timeout: 30000,
+            });
+          } catch (pm2Error) {
+            console.log('PM2 restart skipped (dev mode or not available)');
+          }
+          
+          return {
+            success: true,
+            buildOutput: buildResult.stdout.slice(-500),
+            message: 'Build completed successfully',
+          };
+        } catch (e: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Build failed: ${e.message}`,
+          });
+        }
+      }),
+
+    getStatus: adminProcedure
+      .query(async () => {
+        const distPath = path.resolve(process.cwd(), 'dist');
+        const clientPath = path.resolve(process.cwd(), 'client/src');
+        
+        try {
+          const distStats = fs.existsSync(distPath) ? fs.statSync(distPath) : null;
+          
+          let latestSourceMod = new Date(0);
+          const checkDir = (dir: string) => {
+            const entries = fs.readdirSync(dir, { withFileTypes: true });
+            for (const entry of entries) {
+              const fullPath = path.join(dir, entry.name);
+              if (entry.isDirectory() && !entry.name.startsWith('.')) {
+                checkDir(fullPath);
+              } else if (entry.isFile() && (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts'))) {
+                const stats = fs.statSync(fullPath);
+                if (stats.mtime > latestSourceMod) {
+                  latestSourceMod = stats.mtime;
+                }
+              }
+            }
+          };
+          checkDir(clientPath);
+          
+          const needsRebuild = distStats ? latestSourceMod > distStats.mtime : true;
+          
+          return {
+            lastBuild: distStats?.mtime.toISOString() || null,
+            latestSourceChange: latestSourceMod.toISOString(),
+            needsRebuild,
+          };
+        } catch (e: any) {
+          return {
+            lastBuild: null,
+            latestSourceChange: null,
+            needsRebuild: true,
+          };
+        }
+      }),
+  }),
 });
 
 // Public article router (for the Journal page)
@@ -4102,415 +4495,4 @@ export const aiTrainingRouter = router({
       
       return { success: true };
     }),
-
-  // Source Code Editor - List editable files
-  sourceCode: router({
-    // Simple test procedure
-    test: adminProcedure.query(() => {
-      return { status: "ok", message: "sourceCode router is working" };
-    }),
-    
-    listFiles: adminProcedure
-      .input(z.object({
-        directory: z.enum(["pages", "components", "hooks", "lib", "styles"]).default("pages"),
-      }).optional())
-      .query(async ({ input }) => {
-        const dir = input?.directory || "pages";
-        const basePath = path.resolve(process.cwd(), "client/src", dir);
-        
-        try {
-          const files = fs.readdirSync(basePath, { withFileTypes: true });
-          const result = files
-            .filter(f => f.isFile() && (f.name.endsWith(".tsx") || f.name.endsWith(".ts") || f.name.endsWith(".css")))
-            .map(f => {
-              const filePath = path.join(basePath, f.name);
-              const stats = fs.statSync(filePath);
-              const content = fs.readFileSync(filePath, "utf-8");
-              const lines = content.split("\n").length;
-              return {
-                name: f.name,
-                path: `client/src/${dir}/${f.name}`,
-                size: stats.size,
-                lines,
-                modified: stats.mtime.toISOString(),
-                type: f.name.endsWith(".css") ? "css" : f.name.endsWith(".ts") ? "typescript" : "tsx",
-              };
-            })
-            .sort((a, b) => a.name.localeCompare(b.name));
-          
-          return { files: result, directory: dir, basePath: `client/src/${dir}` };
-        } catch (e: any) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
-        }
-      }),
-
-    readFile: adminProcedure
-      .input(z.object({
-        filePath: z.string(),
-      }))
-      .query(async ({ input }) => {
-        // Security: only allow reading from client/src
-        if (!input.filePath.startsWith("client/src/") || input.filePath.includes("..")) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
-        }
-        
-        // Try multiple base paths
-        const relativePath = input.filePath.replace("client/src/", "");
-        const possiblePaths = [
-          path.resolve(process.cwd(), input.filePath),
-          path.resolve("/var/www/justxempower", input.filePath),
-          path.resolve(__dirname, "../", input.filePath),
-          path.resolve(__dirname, "../../", input.filePath),
-        ];
-        
-        let fullPath = "";
-        for (const p of possiblePaths) {
-          if (fs.existsSync(p)) {
-            fullPath = p;
-            break;
-          }
-        }
-        
-        if (!fullPath) {
-          throw new TRPCError({ code: "NOT_FOUND", message: `File not found. Tried: ${possiblePaths[0]}` });
-        }
-        
-        try {
-          const content = fs.readFileSync(fullPath, "utf-8");
-          const stats = fs.statSync(fullPath);
-          return {
-            content,
-            path: input.filePath,
-            size: stats.size,
-            lines: content.split("\n").length,
-            modified: stats.mtime.toISOString(),
-          };
-        } catch (e: any) {
-          throw new TRPCError({ code: "NOT_FOUND", message: `File read error: ${e.message}` });
-        }
-      }),
-
-    writeFile: adminProcedure
-      .input(z.object({
-        filePath: z.string(),
-        content: z.string(),
-        createBackup: z.boolean().default(true),
-      }))
-      .mutation(async ({ input, ctx }) => {
-        // Security: only allow writing to client/src
-        if (!input.filePath.startsWith("client/src/") || input.filePath.includes("..")) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
-        }
-        
-        // Try multiple base paths
-        const basePaths = [
-          process.cwd(),
-          "/var/www/justxempower",
-          path.resolve(__dirname, ".."),
-          path.resolve(__dirname, "../.."),
-        ];
-        
-        let baseDir = "";
-        for (const b of basePaths) {
-          if (fs.existsSync(path.join(b, "client/src"))) {
-            baseDir = b;
-            break;
-          }
-        }
-        
-        if (!baseDir) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Cannot find base directory" });
-        }
-        
-        const fullPath = path.resolve(baseDir, input.filePath);
-        const backupDir = path.resolve(baseDir, ".code-backups");
-        
-        try {
-          // Create backup if file exists
-          if (input.createBackup && fs.existsSync(fullPath)) {
-            if (!fs.existsSync(backupDir)) {
-              fs.mkdirSync(backupDir, { recursive: true });
-            }
-            const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-            const backupName = `${path.basename(input.filePath)}.${timestamp}.bak`;
-            const originalContent = fs.readFileSync(fullPath, "utf-8");
-            fs.writeFileSync(path.join(backupDir, backupName), originalContent);
-          }
-          
-          // Write new content
-          fs.writeFileSync(fullPath, input.content, "utf-8");
-          
-          const stats = fs.statSync(fullPath);
-          return {
-            success: true,
-            path: input.filePath,
-            size: stats.size,
-            lines: input.content.split("\n").length,
-            modified: stats.mtime.toISOString(),
-            backupCreated: input.createBackup,
-          };
-        } catch (e: any) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
-        }
-      }),
-
-    listBackups: adminProcedure
-      .query(async () => {
-        const backupDir = path.resolve(process.cwd(), ".code-backups");
-        
-        try {
-          if (!fs.existsSync(backupDir)) {
-            return { backups: [] };
-          }
-          
-          const files = fs.readdirSync(backupDir, { withFileTypes: true });
-          const backups = files
-            .filter(f => f.isFile() && f.name.endsWith(".bak"))
-            .map(f => {
-              const filePath = path.join(backupDir, f.name);
-              const stats = fs.statSync(filePath);
-              // Parse filename: originalname.tsx.2024-01-16T04-30-00-000Z.bak
-              const parts = f.name.replace(".bak", "").split(".");
-              const timestamp = parts.pop() || "";
-              const originalName = parts.join(".");
-              return {
-                name: f.name,
-                originalFile: originalName,
-                timestamp,
-                size: stats.size,
-                created: stats.mtime.toISOString(),
-              };
-            })
-            .sort((a, b) => b.created.localeCompare(a.created));
-          
-          return { backups };
-        } catch (e: any) {
-          return { backups: [] };
-        }
-      }),
-
-    restoreBackup: adminProcedure
-      .input(z.object({
-        backupName: z.string(),
-        targetPath: z.string(),
-      }))
-      .mutation(async ({ input }) => {
-        // Security check
-        if (!input.targetPath.startsWith("client/src/") || input.targetPath.includes("..")) {
-          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
-        }
-        
-        const backupDir = path.resolve(process.cwd(), ".code-backups");
-        const backupPath = path.join(backupDir, input.backupName);
-        const targetPath = path.resolve(process.cwd(), input.targetPath);
-        
-        try {
-          if (!fs.existsSync(backupPath)) {
-            throw new TRPCError({ code: "NOT_FOUND", message: "Backup not found" });
-          }
-          
-          const content = fs.readFileSync(backupPath, "utf-8");
-          fs.writeFileSync(targetPath, content, "utf-8");
-          
-          return { success: true, restored: input.targetPath };
-        } catch (e: any) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
-        }
-      }),
-
-    deleteBackup: adminProcedure
-      .input(z.object({ backupName: z.string() }))
-      .mutation(async ({ input }) => {
-        const backupDir = path.resolve(process.cwd(), ".code-backups");
-        const backupPath = path.join(backupDir, input.backupName);
-        
-        try {
-          if (fs.existsSync(backupPath)) {
-            fs.unlinkSync(backupPath);
-          }
-          return { success: true };
-        } catch (e: any) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
-        }
-      }),
-
-    getDirectoryTree: adminProcedure
-      .query(async () => {
-        // Try multiple possible paths for the source code
-        const possiblePaths = [
-          path.resolve(process.cwd(), "client/src"),
-          path.resolve("/var/www/justxempower/client/src"),
-          path.resolve(__dirname, "../client/src"),
-          path.resolve(__dirname, "../../client/src"),
-        ];
-        
-        let basePath = "";
-        for (const p of possiblePaths) {
-          if (fs.existsSync(p)) {
-            basePath = p;
-            break;
-          }
-        }
-        
-        if (!basePath) {
-          // Return debug info
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Source directory not found. CWD: ${process.cwd()}, Tried: ${possiblePaths.join(", ")}`,
-          });
-        }
-        
-        const scanDir = (dirPath: string, relativePath: string = ""): any[] => {
-          try {
-            const entries = fs.readdirSync(dirPath, { withFileTypes: true });
-            return entries
-              .filter(e => !e.name.startsWith(".") && e.name !== "node_modules")
-              .map(entry => {
-                const fullPath = path.join(dirPath, entry.name);
-                const relPath = path.join(relativePath, entry.name);
-                
-                if (entry.isDirectory()) {
-                  return {
-                    name: entry.name,
-                    type: "directory",
-                    path: `client/src/${relPath}`,
-                    children: scanDir(fullPath, relPath),
-                  };
-                } else if (entry.name.endsWith(".tsx") || entry.name.endsWith(".ts") || entry.name.endsWith(".css")) {
-                  const stats = fs.statSync(fullPath);
-                  return {
-                    name: entry.name,
-                    type: entry.name.endsWith(".css") ? "css" : entry.name.endsWith(".ts") ? "typescript" : "tsx",
-                    path: `client/src/${relPath}`,
-                    size: stats.size,
-                    modified: stats.mtime.toISOString(),
-                  };
-                }
-                return null;
-              })
-              .filter(Boolean)
-              .sort((a: any, b: any) => {
-                if (a.type === "directory" && b.type !== "directory") return -1;
-                if (a.type !== "directory" && b.type === "directory") return 1;
-                return a.name.localeCompare(b.name);
-              });
-          } catch (e: any) {
-            console.error("scanDir error:", e.message);
-            return [];
-          }
-        };
-        
-        return { tree: scanDir(basePath), basePath };
-      }),
-
-    // AI Code Assistant
-    aiAssist: adminProcedure
-      .input(z.object({
-        action: z.enum(["explain", "fix", "improve", "generate", "refactor", "comment", "test", "chat"]),
-        code: z.string(),
-        fileName: z.string().optional(),
-        language: z.string().optional(),
-        selection: z.string().optional(),
-        prompt: z.string().optional(),
-        conversationHistory: z.array(z.object({
-          role: z.string(),
-          content: z.string(),
-        })).optional(),
-      }))
-      .mutation(async ({ input }) => {
-        try {
-          const result = await codeAssistant(input.action, input.code, {
-            fileName: input.fileName,
-            language: input.language,
-            selection: input.selection,
-            prompt: input.prompt,
-            conversationHistory: input.conversationHistory,
-          });
-          return { success: true, result };
-        } catch (e: any) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
-        }
-      }),
-
-    // Build and deploy - rebuilds the site after code changes
-    buildAndDeploy: adminProcedure
-      .mutation(async () => {
-        const { exec } = await import('child_process');
-        const { promisify } = await import('util');
-        const execAsync = promisify(exec);
-        
-        try {
-          // Run build
-          const buildResult = await execAsync('pnpm build', {
-            cwd: process.cwd(),
-            timeout: 120000, // 2 minute timeout
-          });
-          
-          // Restart PM2 process
-          try {
-            await execAsync('pm2 restart justxempower', {
-              cwd: process.cwd(),
-              timeout: 30000,
-            });
-          } catch (pm2Error) {
-            // PM2 might not be available in dev, that's okay
-            console.log('PM2 restart skipped (dev mode or not available)');
-          }
-          
-          return {
-            success: true,
-            buildOutput: buildResult.stdout.slice(-500), // Last 500 chars
-            message: 'Build completed successfully',
-          };
-        } catch (e: any) {
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: `Build failed: ${e.message}`,
-          });
-        }
-      }),
-
-    // Get build status / last modified times
-    getStatus: adminProcedure
-      .query(async () => {
-        const distPath = path.resolve(process.cwd(), 'dist');
-        const clientPath = path.resolve(process.cwd(), 'client/src');
-        
-        try {
-          const distStats = fs.existsSync(distPath) ? fs.statSync(distPath) : null;
-          
-          // Get most recently modified source file
-          let latestSourceMod = new Date(0);
-          const checkDir = (dir: string) => {
-            const entries = fs.readdirSync(dir, { withFileTypes: true });
-            for (const entry of entries) {
-              const fullPath = path.join(dir, entry.name);
-              if (entry.isDirectory() && !entry.name.startsWith('.')) {
-                checkDir(fullPath);
-              } else if (entry.isFile() && (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts'))) {
-                const stats = fs.statSync(fullPath);
-                if (stats.mtime > latestSourceMod) {
-                  latestSourceMod = stats.mtime;
-                }
-              }
-            }
-          };
-          checkDir(clientPath);
-          
-          const needsRebuild = distStats ? latestSourceMod > distStats.mtime : true;
-          
-          return {
-            lastBuild: distStats?.mtime.toISOString() || null,
-            latestSourceChange: latestSourceMod.toISOString(),
-            needsRebuild,
-          };
-        } catch (e: any) {
-          return {
-            lastBuild: null,
-            latestSourceChange: null,
-            needsRebuild: true,
-          };
-        }
-      }),
-  }),
 });
