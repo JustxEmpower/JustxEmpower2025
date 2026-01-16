@@ -18,53 +18,90 @@ interface LegalPageRendererProps {
   defaultContent?: React.ReactNode;
 }
 
-// Section ordering and configuration for each legal page type
-const LEGAL_PAGE_SECTIONS: Record<string, { sectionKey: string; headingKey: string; contentKeys: string[] }[]> = {
-  'privacy-policy': [
-    { sectionKey: 'introduction', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'informationCollect', headingKey: 'heading', contentKeys: ['intro', 'subheading', 'item1', 'item2', 'item3', 'item4', 'item5'] },
-    { sectionKey: 'howWeUse', headingKey: 'heading', contentKeys: ['intro', 'item1', 'item2', 'item3', 'item4', 'item5', 'item6'] },
-    { sectionKey: 'dataSharing', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'dataSecurity', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'cookies', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'yourRights', headingKey: 'heading', contentKeys: ['item1', 'item2', 'item3', 'item4'] },
-    { sectionKey: 'childrenPrivacy', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'changes', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'contact', headingKey: 'heading', contentKeys: ['intro', 'companyName', 'email', 'location'] },
-  ],
-  'terms-of-service': [
-    { sectionKey: 'acceptance', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'useOfService', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'userAccounts', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'intellectualProperty', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'userContent', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'prohibitedUses', headingKey: 'heading', contentKeys: ['content', 'item1', 'item2', 'item3', 'item4', 'item5'] },
-    { sectionKey: 'disclaimer', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'limitation', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'indemnification', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'termination', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'governing', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'changes', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'contact', headingKey: 'heading', contentKeys: ['intro', 'companyName', 'email', 'location'] },
-  ],
-  'accessibility': [
-    { sectionKey: 'commitment', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'conformance', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'compatibility', headingKey: 'heading', contentKeys: ['intro', 'item1', 'item2', 'item3', 'item4'] },
-    { sectionKey: 'features', headingKey: 'heading', contentKeys: ['intro', 'keyboard', 'screenReader', 'altText', 'resizableText', 'colorContrast', 'focusIndicators', 'skipLinks'] },
-    { sectionKey: 'feedback', headingKey: 'heading', contentKeys: ['intro', 'email', 'response'] },
-    { sectionKey: 'contact', headingKey: 'heading', contentKeys: ['intro', 'companyName', 'email', 'location'] },
-  ],
-  'cookie-policy': [
-    { sectionKey: 'whatAreCookies', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'howWeUse', headingKey: 'heading', contentKeys: ['intro', 'essential', 'functional', 'performance', 'marketing'] },
-    { sectionKey: 'typesOfCookies', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'thirdParty', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'managing', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'yourChoices', headingKey: 'heading', contentKeys: ['content'] },
-    { sectionKey: 'contact', headingKey: 'heading', contentKeys: ['intro', 'companyName', 'email', 'location'] },
-  ],
-};
+// Helper to extract unique sections from content data and build them dynamically
+function buildSectionsFromContent(contentData: Array<{ section: string; contentKey: string; contentValue: string }>) {
+  // Get unique section names (excluding 'hero' and 'legalSections')
+  const sectionNames = [...new Set(contentData
+    .filter(c => c.section && c.section !== 'hero' && c.section !== 'legalSections')
+    .map(c => c.section)
+  )];
+
+  const sections: LegalSection[] = [];
+
+  for (const sectionName of sectionNames) {
+    const sectionContent = contentData.filter(c => c.section === sectionName);
+    
+    // Get heading
+    const headingItem = sectionContent.find(c => c.contentKey === 'heading' || c.contentKey === 'Heading');
+    const heading = headingItem?.contentValue || sectionName;
+    
+    // Get intro/content
+    const introItem = sectionContent.find(c => c.contentKey === 'intro' || c.contentKey === 'Intro' || c.contentKey === 'content' || c.contentKey === 'Content');
+    
+    // Build body from all other fields
+    const bodyParts: string[] = [];
+    
+    // Add intro first if exists
+    if (introItem?.contentValue) {
+      bodyParts.push(introItem.contentValue);
+    }
+    
+    // Add other content fields (excluding heading and intro)
+    const otherFields = sectionContent.filter(c => 
+      c.contentKey !== 'heading' && 
+      c.contentKey !== 'Heading' && 
+      c.contentKey !== 'intro' && 
+      c.contentKey !== 'Intro' &&
+      c.contentKey !== 'content' &&
+      c.contentKey !== 'Content' &&
+      c.contentValue
+    );
+    
+    // Sort fields - items first (Item1, Item2, etc.), then others
+    otherFields.sort((a, b) => {
+      const aIsItem = /^item\d+$/i.test(a.contentKey);
+      const bIsItem = /^item\d+$/i.test(b.contentKey);
+      if (aIsItem && bIsItem) {
+        const aNum = parseInt(a.contentKey.replace(/\D/g, '')) || 0;
+        const bNum = parseInt(b.contentKey.replace(/\D/g, '')) || 0;
+        return aNum - bNum;
+      }
+      if (aIsItem) return 1;
+      if (bIsItem) return 1;
+      return a.contentKey.localeCompare(b.contentKey);
+    });
+    
+    for (const field of otherFields) {
+      // Format based on field type
+      if (/^item\d+$/i.test(field.contentKey)) {
+        bodyParts.push(`• ${field.contentValue}`);
+      } else if (field.contentKey.toLowerCase() === 'email') {
+        bodyParts.push(`Email: ${field.contentValue}`);
+      } else if (field.contentKey.toLowerCase() === 'companyname') {
+        bodyParts.push(`Company: ${field.contentValue}`);
+      } else if (field.contentKey.toLowerCase() === 'location') {
+        bodyParts.push(`Location: ${field.contentValue}`);
+      } else if (field.contentKey.toLowerCase() === 'response') {
+        bodyParts.push(field.contentValue);
+      } else {
+        // For other fields like keyboard, screenReader, etc., format as labeled item
+        const label = field.contentKey.replace(/([A-Z])/g, ' $1').trim();
+        const capitalizedLabel = label.charAt(0).toUpperCase() + label.slice(1);
+        bodyParts.push(`**${capitalizedLabel}:** ${field.contentValue}`);
+      }
+    }
+    
+    if (heading || bodyParts.length > 0) {
+      sections.push({
+        id: sectionName,
+        header: heading,
+        body: bodyParts.join('\n\n'),
+      });
+    }
+  }
+
+  return sections;
+}
 
 export default function LegalPageRenderer({ pageKey, defaultTitle, defaultContent }: LegalPageRendererProps) {
   const [location] = useLocation();
@@ -79,7 +116,7 @@ export default function LegalPageRenderer({ pageKey, defaultTitle, defaultConten
   const title = getContent('hero', 'title', defaultTitle);
   const lastUpdated = getContent('hero', 'lastUpdated', '');
 
-  // Build sections from individual content items in database
+  // Build sections dynamically from all content items in database
   const sections: LegalSection[] = useMemo(() => {
     // First try the new legalSections format
     const sectionsJson = getContent('legalSections', 'sections', '');
@@ -94,45 +131,10 @@ export default function LegalPageRenderer({ pageKey, defaultTitle, defaultConten
       }
     }
 
-    // Fall back to building sections from individual content items
-    const pageConfig = LEGAL_PAGE_SECTIONS[pageKey];
-    if (!pageConfig) return [];
-
-    const builtSections: LegalSection[] = [];
+    // Dynamically build sections from whatever content exists in the database
+    if (!content || content.length === 0) return [];
     
-    for (const config of pageConfig) {
-      const heading = getContent(config.sectionKey, config.headingKey, '');
-      if (!heading) continue; // Skip sections without headings
-      
-      // Build body from content keys
-      const bodyParts: string[] = [];
-      for (const key of config.contentKeys) {
-        const value = getContent(config.sectionKey, key, '');
-        if (value) {
-          // Format contact info specially
-          if (config.sectionKey === 'contact') {
-            if (key === 'companyName' && value) bodyParts.push(`Company: ${value}`);
-            else if (key === 'email' && value) bodyParts.push(`Email: ${value}`);
-            else if (key === 'location' && value) bodyParts.push(`Location: ${value}`);
-            else if (value) bodyParts.push(value);
-          } else if (key.startsWith('item')) {
-            bodyParts.push(`• ${value}`);
-          } else {
-            bodyParts.push(value);
-          }
-        }
-      }
-      
-      if (bodyParts.length > 0) {
-        builtSections.push({
-          id: config.sectionKey,
-          header: heading,
-          body: bodyParts.join('\n\n'),
-        });
-      }
-    }
-    
-    return builtSections;
+    return buildSectionsFromContent(content);
   }, [pageKey, getContent, content]);
 
   // Generate and download PDF directly
@@ -301,14 +303,25 @@ export default function LegalPageRenderer({ pageKey, defaultTitle, defaultConten
   // Check if we have dynamic sections
   const hasDynamicSections = sections.length > 0;
 
-  // Render body text with paragraph spacing
+  // Render body text with paragraph spacing and markdown-style bold
   const renderBody = (body: string) => {
     const paragraphs = body.split('\n\n').filter(p => p.trim());
-    return paragraphs.map((para, index) => (
-      <p key={index} className="mb-4 text-foreground/80 leading-relaxed">
-        {para}
-      </p>
-    ));
+    return paragraphs.map((para, index) => {
+      // Handle markdown-style bold **text**
+      const parts = para.split(/(\*\*[^*]+\*\*)/g);
+      const rendered = parts.map((part, i) => {
+        if (part.startsWith('**') && part.endsWith('**')) {
+          return <strong key={i}>{part.slice(2, -2)}</strong>;
+        }
+        return part;
+      });
+      
+      return (
+        <p key={index} className="mb-4 text-foreground/80 leading-relaxed">
+          {rendered}
+        </p>
+      );
+    });
   };
 
   return (
