@@ -189,22 +189,29 @@ export const adminRouter = router({
           .where(eq(schema.orders.status, 'completed'))
           .catch(() => [{ total: 0 }]);
         
+        // Helper to safely extract count (handles string/number/BigInt)
+        const getCount = (arr: any[]) => {
+          const val = arr[0]?.count;
+          if (val === null || val === undefined) return 0;
+          return typeof val === 'bigint' ? Number(val) : Number(val) || 0;
+        };
+        
         return {
-          totalPages: pages[0]?.count || 0,
-          publishedPages: publishedPages[0]?.count || 0,
-          totalArticles: articles[0]?.count || 0,
-          publishedArticles: publishedArticles[0]?.count || 0,
-          totalMedia: media[0]?.count || 0,
-          totalFormSubmissions: submissions[0]?.count || 0,
-          unreadSubmissions: unreadSubmissions[0]?.count || 0,
-          totalUsers: users[0]?.count || 0,
-          totalProducts: products[0]?.count || 0,
-          totalEvents: events[0]?.count || 0,
-          totalOrders: orders[0]?.count || 0,
-          recentOrders: recentOrders[0]?.count || 0,
-          totalRevenue: revenueResult[0]?.total || 0,
-          totalSubscribers: newsletters[0]?.count || 0,
-          totalResources: resources[0]?.count || 0,
+          totalPages: getCount(pages),
+          publishedPages: getCount(publishedPages),
+          totalArticles: getCount(articles),
+          publishedArticles: getCount(publishedArticles),
+          totalMedia: getCount(media),
+          totalFormSubmissions: getCount(submissions),
+          unreadSubmissions: getCount(unreadSubmissions),
+          totalUsers: getCount(users),
+          totalProducts: getCount(products),
+          totalEvents: getCount(events),
+          totalOrders: getCount(orders),
+          recentOrders: getCount(recentOrders),
+          totalRevenue: revenueResult[0]?.total ? Number(revenueResult[0].total) : 0,
+          totalSubscribers: getCount(newsletters),
+          totalResources: getCount(resources),
         };
       }),
     
