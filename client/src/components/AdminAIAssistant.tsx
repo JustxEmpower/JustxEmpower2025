@@ -14,7 +14,8 @@ import {
   CheckCircle, AlertTriangle, Clock, Target, Zap, RefreshCw,
   MessageSquare, Wand2, ChevronRight, ArrowRight, Copy, Check,
   Settings, Layout, Image, Tag, Star, PenLine, Rocket, Activity,
-  ListTodo, Clipboard, Eye, Edit, Trash2, Plus, Search
+  ListTodo, Clipboard, Eye, Edit, Trash2, Plus, Search, Shield,
+  Bug, CheckCircle2, XCircle, AlertOctagon
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
@@ -101,6 +102,17 @@ export default function AdminAIAssistant() {
   // Fetch site stats for insights
   const statsQuery = trpc.admin.dashboard.stats.useQuery();
   const messagesQuery = trpc.contact.list.useQuery({ limit: 5 });
+  
+  // Code Health Monitor
+  const codeHealthQuery = trpc.admin.dashboard.codeHealth.getErrors.useQuery({ limit: 10 }, {
+    refetchInterval: 30000, // Auto-refresh every 30 seconds
+  });
+  const resolveErrorMutation = trpc.admin.dashboard.codeHealth.resolveError.useMutation({
+    onSuccess: () => { codeHealthQuery.refetch(); toast.success("Error resolved"); },
+  });
+  const resolveAllMutation = trpc.admin.dashboard.codeHealth.resolveAll.useMutation({
+    onSuccess: () => { codeHealthQuery.refetch(); toast.success("All errors resolved"); },
+  });
 
   // Real AI chat mutation
   const chatMutation = trpc.ai.adminChat.useMutation({
@@ -383,6 +395,14 @@ What would you like to focus on today?`,
             <TabsTrigger value="actions" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white text-slate-400 text-xs">
               <Zap className="w-3.5 h-3.5 mr-1.5" />Quick Actions
             </TabsTrigger>
+            <TabsTrigger value="health" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white text-slate-400 text-xs relative">
+              <Shield className="w-3.5 h-3.5 mr-1.5" />Health
+              {codeHealthQuery.data?.stats?.unresolved > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white font-bold">
+                  {codeHealthQuery.data.stats.unresolved}
+                </span>
+              )}
+            </TabsTrigger>
           </TabsList>
 
           {/* Chat Tab */}
@@ -630,6 +650,130 @@ What would you like to focus on today?`,
                   </Button>
                 ))}
               </div>
+            </div>
+          </TabsContent>
+
+          {/* Code Health Tab */}
+          <TabsContent value="health" className="flex-1 m-0 p-4 overflow-auto">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-white">Code Health Monitor</h3>
+                <Button variant="ghost" size="sm" onClick={() => codeHealthQuery.refetch()} className="text-slate-400 hover:text-white h-7">
+                  <RefreshCw className={`w-3.5 h-3.5 mr-1 ${codeHealthQuery.isFetching ? "animate-spin" : ""}`} />
+                  Refresh
+                </Button>
+              </div>
+
+              {/* Status Card */}
+              <Card className={`border-2 ${
+                codeHealthQuery.data?.stats?.status === 'healthy' ? 'bg-emerald-500/10 border-emerald-500/30' :
+                codeHealthQuery.data?.stats?.status === 'warning' ? 'bg-amber-500/10 border-amber-500/30' :
+                'bg-red-500/10 border-red-500/30'
+              }`}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    {codeHealthQuery.data?.stats?.status === 'healthy' ? (
+                      <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                    ) : codeHealthQuery.data?.stats?.status === 'warning' ? (
+                      <AlertTriangle className="w-8 h-8 text-amber-400" />
+                    ) : (
+                      <AlertOctagon className="w-8 h-8 text-red-400" />
+                    )}
+                    <div>
+                      <p className="font-semibold text-white capitalize">
+                        {codeHealthQuery.data?.stats?.status || 'Checking...'}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {codeHealthQuery.data?.stats?.unresolved === 0 
+                          ? 'No issues detected' 
+                          : `${codeHealthQuery.data?.stats?.unresolved} unresolved issue(s)`}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Stats Grid */}
+              <div className="grid grid-cols-2 gap-2">
+                <Card className="bg-slate-800/50 border-white/10">
+                  <CardContent className="p-3 text-center">
+                    <Bug className="w-5 h-5 text-red-400 mx-auto mb-1" />
+                    <p className="text-lg font-bold text-white">{codeHealthQuery.data?.stats?.jsErrors || 0}</p>
+                    <p className="text-xs text-slate-400">JS Errors</p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-slate-800/50 border-white/10">
+                  <CardContent className="p-3 text-center">
+                    <XCircle className="w-5 h-5 text-orange-400 mx-auto mb-1" />
+                    <p className="text-lg font-bold text-white">{codeHealthQuery.data?.stats?.apiErrors || 0}</p>
+                    <p className="text-xs text-slate-400">API Errors</p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Error List */}
+              {codeHealthQuery.data?.errors && codeHealthQuery.data.errors.length > 0 ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs font-medium text-slate-400">Recent Issues</p>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 text-xs text-slate-400 hover:text-white"
+                      onClick={() => resolveAllMutation.mutate()}
+                    >
+                      Resolve All
+                    </Button>
+                  </div>
+                  {codeHealthQuery.data.errors.map((error: any) => (
+                    <Card key={error.id} className="bg-slate-800/50 border-white/10">
+                      <CardContent className="p-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <Badge className={`text-xs ${
+                                error.type === 'js_error' ? 'bg-red-500/20 text-red-400' :
+                                error.type === 'api_error' ? 'bg-orange-500/20 text-orange-400' :
+                                'bg-slate-500/20 text-slate-400'
+                              }`}>
+                                {error.type.replace('_', ' ')}
+                              </Badge>
+                              <span className="text-xs text-slate-500">
+                                {formatDistanceToNow(new Date(error.timestamp), { addSuffix: true })}
+                              </span>
+                            </div>
+                            <p className="text-xs text-white truncate">{error.message}</p>
+                            {error.url && (
+                              <p className="text-xs text-slate-500 truncate">{error.url}</p>
+                            )}
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 px-2 text-slate-400 hover:text-emerald-400"
+                            onClick={() => resolveErrorMutation.mutate({ errorId: error.id })}
+                          >
+                            <Check className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <Card className="bg-slate-800/50 border-white/10">
+                  <CardContent className="py-8 text-center">
+                    <Shield className="w-10 h-10 text-emerald-400 mx-auto mb-2" />
+                    <p className="text-sm text-white">All Clear!</p>
+                    <p className="text-xs text-slate-400">No code issues detected</p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Auto-monitor notice */}
+              <p className="text-xs text-slate-500 text-center">
+                🔄 Auto-monitoring every 30 seconds
+              </p>
             </div>
           </TabsContent>
         </Tabs>

@@ -53,6 +53,35 @@ import { eq, and, sql, desc, lt, gte, isNotNull } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { generateColorPalette, suggestFontPairings } from "./aiService";
 
+// Code Health Monitor - In-memory error log store
+interface CodeError {
+  id: string;
+  type: 'js_error' | 'api_error' | 'build_error' | 'runtime_error';
+  message: string;
+  stack?: string;
+  url?: string;
+  timestamp: Date;
+  resolved: boolean;
+  userAgent?: string;
+}
+
+const codeErrorStore: CodeError[] = [];
+const MAX_ERROR_STORE = 100;
+
+function logCodeError(error: Omit<CodeError, 'id' | 'timestamp' | 'resolved'>): CodeError {
+  const newError: CodeError = {
+    ...error,
+    id: `err-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+    timestamp: new Date(),
+    resolved: false,
+  };
+  codeErrorStore.unshift(newError);
+  if (codeErrorStore.length > MAX_ERROR_STORE) {
+    codeErrorStore.pop();
+  }
+  return newError;
+}
+
 // Admin session management (database-backed for persistence)
 function generateSessionToken(): string {
   return nanoid(64); // Secure random token
@@ -295,6 +324,75 @@ export const adminRouter = router({
         
         return activities;
       }),
+    
+    // Code Health Monitor
+    codeHealth: router({
+      // Get all errors
+      getErrors: adminProcedure
+        .input(z.object({ limit: z.number().optional(), includeResolved: z.boolean().optional() }).optional())
+        .query(({ input }) => {
+          const limit = input?.limit || 20;
+          const includeResolved = input?.includeResolved || false;
+          const errors = includeResolved 
+            ? codeErrorStore.slice(0, limit)
+            : codeErrorStore.filter(e => !e.resolved).slice(0, limit);
+          
+          const stats = {
+            total: codeErrorStore.length,
+            unresolved: codeErrorStore.filter(e => !e.resolved).length,
+            jsErrors: codeErrorStore.filter(e => e.type === 'js_error' && !e.resolved).length,
+            apiErrors: codeErrorStore.filter(e => e.type === 'api_error' && !e.resolved).length,
+            lastError: codeErrorStore[0]?.timestamp || null,
+            status: codeErrorStore.filter(e => !e.resolved).length === 0 ? 'healthy' : 
+                    codeErrorStore.filter(e => !e.resolved).length < 5 ? 'warning' : 'critical',
+          };
+          
+          return { errors, stats };
+        }),
+      
+      // Log a new error (public endpoint for frontend error reporting)
+      logError: publicProcedure
+        .input(z.object({
+          type: z.enum(['js_error', 'api_error', 'build_error', 'runtime_error']),
+          message: z.string(),
+          stack: z.string().optional(),
+          url: z.string().optional(),
+          userAgent: z.string().optional(),
+        }))
+        .mutation(({ input }) => {
+          const error = logCodeError(input);
+          return { success: true, errorId: error.id };
+        }),
+      
+      // Resolve an error
+      resolveError: adminProcedure
+        .input(z.object({ errorId: z.string() }))
+        .mutation(({ input }) => {
+          const error = codeErrorStore.find(e => e.id === input.errorId);
+          if (error) {
+            error.resolved = true;
+            return { success: true };
+          }
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Error not found' });
+        }),
+      
+      // Clear all resolved errors
+      clearResolved: adminProcedure
+        .mutation(() => {
+          const before = codeErrorStore.length;
+          const unresolvedErrors = codeErrorStore.filter(e => !e.resolved);
+          codeErrorStore.length = 0;
+          codeErrorStore.push(...unresolvedErrors);
+          return { success: true, cleared: before - codeErrorStore.length };
+        }),
+      
+      // Resolve all errors
+      resolveAll: adminProcedure
+        .mutation(() => {
+          codeErrorStore.forEach(e => e.resolved = true);
+          return { success: true, resolved: codeErrorStore.length };
+        }),
+    }),
   }),
 
   // AI Content Generation

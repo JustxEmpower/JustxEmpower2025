@@ -23,8 +23,12 @@ import {
   ChevronDown, ChevronRight, FolderOpen, File,
   Search, X, RotateCcw, Clock, FileText, Braces,
   Bot, Send, Wand2, Bug, MessageSquare, FileQuestion, TestTube,
-  Lightbulb, PanelRightOpen, PanelRightClose, Check, Rocket
+  Lightbulb, PanelRightOpen, PanelRightClose, Check, Rocket,
+  Shield, CheckCircle2, AlertOctagon, XCircle, Eye, EyeOff, 
+  Play, Sparkles, Code, PenLine
 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 
@@ -65,8 +69,15 @@ export default function AdminSourceEditorTurbo() {
   const [aiPrompt, setAiPrompt] = useState("");
   const [aiResponse, setAiResponse] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
+  const [rightPanelTab, setRightPanelTab] = useState<"ai" | "health" | "preview">("ai");
+  
+  // Preview State
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewCode, setPreviewCode] = useState("");
+  const [previewError, setPreviewError] = useState<string | null>(null);
   
   const editorRef = useRef<HTMLTextAreaElement>(null);
+  const previewRef = useRef<HTMLIFrameElement>(null);
   
   // ============ QUERIES ============
   const treeQuery = trpc.admin.sourceCode.getDirectoryTree.useQuery(undefined, {
@@ -82,6 +93,18 @@ export default function AdminSourceEditorTurbo() {
   const buildStatusQuery = trpc.admin.sourceCode.getStatus.useQuery(undefined, {
     enabled: isAuthenticated,
     refetchInterval: 60000,
+  });
+  
+  // Code Health Monitor
+  const codeHealthQuery = trpc.admin.dashboard.codeHealth.getErrors.useQuery({ limit: 10 }, {
+    enabled: isAuthenticated,
+    refetchInterval: 30000,
+  });
+  const resolveErrorMutation = trpc.admin.dashboard.codeHealth.resolveError.useMutation({
+    onSuccess: () => { codeHealthQuery.refetch(); toast.success("Error resolved"); },
+  });
+  const resolveAllMutation = trpc.admin.dashboard.codeHealth.resolveAll.useMutation({
+    onSuccess: () => { codeHealthQuery.refetch(); toast.success("All errors resolved"); },
   });
   
   // File read - using enabled flag
@@ -203,7 +226,7 @@ export default function AdminSourceEditorTurbo() {
     buildMutation.mutate();
   };
 
-  const handleAI = (action: string) => {
+  const handleAI = (action: string, directEdit = false) => {
     if (!fileContent && action !== "generate") {
       toast.error("No code to analyze");
       return;
@@ -211,23 +234,60 @@ export default function AdminSourceEditorTurbo() {
     setAiLoading(true);
     setAiResponse("");
     const lang = selectedFile?.endsWith(".css") ? "CSS" : "TypeScript React";
+    
+    // For direct edit mode, modify the prompt to request only code
+    const editPrompt = directEdit 
+      ? `${aiPrompt}\n\nIMPORTANT: Return ONLY the complete modified code in a code block. No explanations.`
+      : aiPrompt;
+    
     aiMutation.mutate({
       action: action as any,
       code: fileContent,
       fileName: selectedFile || undefined,
       language: lang,
-      prompt: aiPrompt || undefined,
+      prompt: editPrompt || undefined,
     });
   };
 
   const applyAICode = () => {
-    const codeMatch = aiResponse.match(/```(?:tsx?|javascript|css)?\n([\s\S]*?)```/);
+    const codeMatch = aiResponse.match(/```(?:tsx?|javascript|jsx|css)?\n([\s\S]*?)```/);
     if (codeMatch) {
+      setPreviewCode(codeMatch[1]); // Set preview first
       setFileContent(codeMatch[1]);
-      toast.success("AI code applied");
+      toast.success("AI code applied to editor");
+    } else {
+      toast.error("No code block found in response");
+    }
+  };
+
+  const previewAICode = () => {
+    const codeMatch = aiResponse.match(/```(?:tsx?|javascript|jsx|css)?\n([\s\S]*?)```/);
+    if (codeMatch) {
+      setPreviewCode(codeMatch[1]);
+      setRightPanelTab("preview");
+      toast.success("Preview updated");
     } else {
       toast.error("No code block found");
     }
+  };
+
+  const handleDirectEdit = () => {
+    if (!aiPrompt.trim()) {
+      toast.error("Enter a command to edit the code");
+      return;
+    }
+    handleAI("edit", true);
+  };
+
+  // Generate preview HTML for component
+  const generatePreviewHtml = (code: string) => {
+    const isCSS = selectedFile?.endsWith(".css");
+    if (isCSS) {
+      return `<!DOCTYPE html><html><head><style>${code}</style></head><body style="background:#1e1e1e;color:#fff;padding:20px;font-family:system-ui;"><h1>CSS Preview</h1><p>Styles applied to this preview</p><div style="margin-top:20px;padding:20px;border:1px solid #444;border-radius:8px;"><h2>Sample Content</h2><p>This is a paragraph with your styles.</p><button>Sample Button</button><a href="#">Sample Link</a></div></body></html>`;
+    }
+    // For TSX/React, show syntax-highlighted code (can't actually render React in iframe)
+    const escapedCode = code.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return `<!DOCTYPE html><html><head><style>body{background:#1e1e1e;color:#e0e0e0;padding:20px;font-family:'Fira Code',monospace;font-size:12px;line-height:1.6;margin:0;}.keyword{color:#569cd6;}.string{color:#ce9178;}.comment{color:#6a9955;}.function{color:#dcdcaa;}.component{color:#4ec9b0;}.prop{color:#9cdcfe;}pre{white-space:pre-wrap;word-wrap:break-word;}</style></head><body><h3 style="color:#f59e0b;margin-bottom:16px;">📄 Component Preview</h3><pre>${escapedCode.replace(/\b(import|export|const|let|var|function|return|if|else|from|default|async|await)\b/g, '<span class="keyword">$1</span>').replace(/(['"\`])(.*?)\1/g, '<span class="string">$1$2$1</span>').replace(/(\/\/.*)/g, '<span class="comment">$1</span>').replace(/\b([A-Z][a-zA-Z0-9]*)\b/g, '<span class="component">$1</span>')}</pre></body></html>`;
   };
 
   const toggleDir = (dirPath: string) => {
@@ -336,10 +396,31 @@ export default function AdminSourceEditorTurbo() {
               
               <Button
                 variant="ghost" size="sm"
-                onClick={() => setShowAI(!showAI)}
-                className={showAI ? "bg-purple-600/20 text-purple-400" : "text-stone-400"}
+                onClick={() => { setShowAI(!showAI); setRightPanelTab("ai"); }}
+                className={showAI && rightPanelTab === "ai" ? "bg-purple-600/20 text-purple-400" : "text-stone-400"}
               >
                 <Bot className="w-4 h-4 mr-1" /> AI
+              </Button>
+              
+              <Button
+                variant="ghost" size="sm"
+                onClick={() => { setShowAI(true); setRightPanelTab("health"); }}
+                className={`relative ${showAI && rightPanelTab === "health" ? "bg-emerald-600/20 text-emerald-400" : "text-stone-400"}`}
+              >
+                <Shield className="w-4 h-4 mr-1" /> Health
+                {(codeHealthQuery.data?.stats?.unresolved || 0) > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white font-bold">
+                    {codeHealthQuery.data?.stats?.unresolved}
+                  </span>
+                )}
+              </Button>
+              
+              <Button
+                variant="ghost" size="sm"
+                onClick={() => { setShowAI(true); setRightPanelTab("preview"); setPreviewCode(fileContent); }}
+                className={showAI && rightPanelTab === "preview" ? "bg-blue-600/20 text-blue-400" : "text-stone-400"}
+              >
+                <Eye className="w-4 h-4 mr-1" /> Preview
               </Button>
               
               <Button
@@ -479,90 +560,251 @@ export default function AdminSourceEditorTurbo() {
             )}
           </div>
 
-          {/* AI Panel */}
+          {/* Right Panel - AI / Health / Preview */}
           {showAI && (
-            <div className="w-80 bg-stone-800 border-l border-stone-700 flex flex-col">
-              <div className="p-3 border-b border-stone-700 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Bot className="w-5 h-5 text-purple-400" />
-                  <span className="font-medium text-white">Gemini AI</span>
-                </div>
-                <Button variant="ghost" size="sm" onClick={() => setAiResponse("")} className="h-6 px-2 text-stone-400">
-                  <RotateCcw className="w-3 h-3" />
-                </Button>
-              </div>
-              
-              {/* Quick Actions */}
-              <div className="p-2 border-b border-stone-700 grid grid-cols-4 gap-1">
-                {[
-                  { action: "explain", icon: FileQuestion, label: "Explain", color: "purple" },
-                  { action: "fix", icon: Bug, label: "Fix", color: "red" },
-                  { action: "improve", icon: Lightbulb, label: "Improve", color: "green" },
-                  { action: "refactor", icon: Wand2, label: "Refactor", color: "blue" },
-                ].map(({ action, icon: Icon, label, color }) => (
-                  <Button
-                    key={action}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleAI(action)}
-                    disabled={aiLoading}
-                    className={`flex-col h-12 text-stone-400 hover:text-${color}-400 hover:bg-${color}-900/20`}
-                  >
-                    <Icon className="w-4 h-4" />
-                    <span className="text-xs">{label}</span>
-                  </Button>
-                ))}
-              </div>
-              
-              {/* Response */}
-              <ScrollArea className="flex-1 p-3">
-                {aiLoading ? (
-                  <div className="flex flex-col items-center py-8">
-                    <Loader2 className="w-6 h-6 text-purple-400 animate-spin mb-2" />
-                    <span className="text-sm text-stone-400">Thinking...</span>
+            <div className="w-96 bg-stone-800 border-l border-stone-700 flex flex-col">
+              {/* Panel Header with Tabs */}
+              <Tabs value={rightPanelTab} onValueChange={(v: any) => setRightPanelTab(v)} className="flex flex-col h-full">
+                <TabsList className="bg-stone-900 border-b border-stone-700 p-1 rounded-none">
+                  <TabsTrigger value="ai" className="data-[state=active]:bg-purple-600 data-[state=active]:text-white text-stone-400 text-xs">
+                    <Bot className="w-3 h-3 mr-1" />AI Editor
+                  </TabsTrigger>
+                  <TabsTrigger value="health" className="data-[state=active]:bg-emerald-600 data-[state=active]:text-white text-stone-400 text-xs relative">
+                    <Shield className="w-3 h-3 mr-1" />Health
+                    {(codeHealthQuery.data?.stats?.unresolved || 0) > 0 && (
+                      <span className="ml-1 w-4 h-4 bg-red-500 rounded-full text-[10px] flex items-center justify-center text-white font-bold">
+                        {codeHealthQuery.data?.stats?.unresolved}
+                      </span>
+                    )}
+                  </TabsTrigger>
+                  <TabsTrigger value="preview" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white text-stone-400 text-xs">
+                    <Eye className="w-3 h-3 mr-1" />Preview
+                  </TabsTrigger>
+                </TabsList>
+
+                {/* AI Tab */}
+                <TabsContent value="ai" className="flex-1 flex flex-col m-0 overflow-hidden">
+                  {/* AI Command Bar */}
+                  <div className="p-3 border-b border-stone-700 bg-gradient-to-r from-purple-900/20 to-pink-900/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Sparkles className="w-4 h-4 text-purple-400" />
+                      <span className="text-sm font-medium text-white">AI Code Editor</span>
+                    </div>
+                    <Textarea
+                      value={aiPrompt}
+                      onChange={(e) => setAiPrompt(e.target.value)}
+                      placeholder="Tell AI what to change... e.g. 'Add a loading spinner' or 'Make the button amber colored'"
+                      className="bg-stone-900 border-stone-600 text-white text-sm min-h-[60px] mb-2"
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={handleDirectEdit}
+                        disabled={aiLoading || !aiPrompt.trim()}
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                        size="sm"
+                      >
+                        <PenLine className="w-4 h-4 mr-1" /> Edit Code
+                      </Button>
+                      <Button
+                        onClick={() => handleAI("chat")}
+                        disabled={aiLoading || !aiPrompt.trim()}
+                        variant="outline"
+                        className="border-stone-600 text-stone-300"
+                        size="sm"
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
-                ) : aiResponse ? (
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <Badge className="bg-purple-600/20 text-purple-400">Response</Badge>
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => navigator.clipboard.writeText(aiResponse)} className="h-6 px-2 text-stone-400">
-                          <Copy className="w-3 h-3" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={applyAICode} className="h-6 px-2 text-purple-400">
-                          <Check className="w-3 h-3" /> Apply
-                        </Button>
+                  
+                  {/* Quick Actions */}
+                  <div className="p-2 border-b border-stone-700 grid grid-cols-4 gap-1">
+                    {[
+                      { action: "explain", icon: FileQuestion, label: "Explain", color: "purple" },
+                      { action: "fix", icon: Bug, label: "Fix", color: "red" },
+                      { action: "improve", icon: Lightbulb, label: "Improve", color: "green" },
+                      { action: "refactor", icon: Wand2, label: "Refactor", color: "blue" },
+                    ].map(({ action, icon: Icon, label, color }) => (
+                      <Button
+                        key={action}
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleAI(action)}
+                        disabled={aiLoading}
+                        className={`flex-col h-12 text-stone-400 hover:text-${color}-400 hover:bg-${color}-900/20`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="text-xs">{label}</span>
+                      </Button>
+                    ))}
+                  </div>
+                  
+                  {/* Response */}
+                  <ScrollArea className="flex-1 p-3">
+                    {aiLoading ? (
+                      <div className="flex flex-col items-center py-8">
+                        <Loader2 className="w-6 h-6 text-purple-400 animate-spin mb-2" />
+                        <span className="text-sm text-stone-400">AI is thinking...</span>
+                      </div>
+                    ) : aiResponse ? (
+                      <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                          <Badge className="bg-purple-600/20 text-purple-400">AI Response</Badge>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="sm" onClick={() => navigator.clipboard.writeText(aiResponse)} className="h-6 px-2 text-stone-400" title="Copy">
+                              <Copy className="w-3 h-3" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={previewAICode} className="h-6 px-2 text-blue-400" title="Preview first">
+                              <Eye className="w-3 h-3" />
+                            </Button>
+                            <Button variant="ghost" size="sm" onClick={applyAICode} className="h-6 px-2 text-emerald-400" title="Apply to editor">
+                              <Check className="w-3 h-3" /> Apply
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="bg-stone-900 rounded p-3 text-xs text-stone-300 font-mono whitespace-pre-wrap max-h-80 overflow-auto">
+                          {aiResponse}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-stone-500">
+                        <Bot className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">Enter a command above</p>
+                        <p className="text-xs mt-1">e.g. "Add dark mode support"</p>
+                      </div>
+                    )}
+                  </ScrollArea>
+                </TabsContent>
+
+                {/* Health Tab */}
+                <TabsContent value="health" className="flex-1 m-0 p-3 overflow-auto">
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium text-white">Code Health Monitor</span>
+                      <Button variant="ghost" size="sm" onClick={() => codeHealthQuery.refetch()} className="h-6 px-2 text-stone-400">
+                        <RefreshCw className={`w-3 h-3 ${codeHealthQuery.isFetching ? "animate-spin" : ""}`} />
+                      </Button>
+                    </div>
+
+                    {/* Status Card */}
+                    <Card className={`border ${
+                      codeHealthQuery.data?.stats?.status === 'healthy' ? 'bg-emerald-900/20 border-emerald-600/30' :
+                      codeHealthQuery.data?.stats?.status === 'warning' ? 'bg-amber-900/20 border-amber-600/30' :
+                      'bg-red-900/20 border-red-600/30'
+                    }`}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center gap-3">
+                          {codeHealthQuery.data?.stats?.status === 'healthy' ? (
+                            <CheckCircle2 className="w-8 h-8 text-emerald-400" />
+                          ) : codeHealthQuery.data?.stats?.status === 'warning' ? (
+                            <AlertTriangle className="w-8 h-8 text-amber-400" />
+                          ) : (
+                            <AlertOctagon className="w-8 h-8 text-red-400" />
+                          )}
+                          <div>
+                            <p className="font-semibold text-white capitalize">
+                              {codeHealthQuery.data?.stats?.status || 'Checking...'}
+                            </p>
+                            <p className="text-xs text-stone-400">
+                              {codeHealthQuery.data?.stats?.unresolved === 0 
+                                ? 'No issues detected' 
+                                : `${codeHealthQuery.data?.stats?.unresolved} unresolved issue(s)`}
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="bg-stone-900 rounded-lg p-3 text-center">
+                        <Bug className="w-5 h-5 text-red-400 mx-auto mb-1" />
+                        <p className="text-lg font-bold text-white">{codeHealthQuery.data?.stats?.jsErrors || 0}</p>
+                        <p className="text-xs text-stone-400">JS Errors</p>
+                      </div>
+                      <div className="bg-stone-900 rounded-lg p-3 text-center">
+                        <XCircle className="w-5 h-5 text-orange-400 mx-auto mb-1" />
+                        <p className="text-lg font-bold text-white">{codeHealthQuery.data?.stats?.apiErrors || 0}</p>
+                        <p className="text-xs text-stone-400">API Errors</p>
                       </div>
                     </div>
-                    <div className="bg-stone-900 rounded p-3 text-xs text-stone-300 font-mono whitespace-pre-wrap max-h-64 overflow-auto">
-                      {aiResponse}
+
+                    {/* Error List */}
+                    {codeHealthQuery.data?.errors && codeHealthQuery.data.errors.length > 0 ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-stone-400">Recent Issues</span>
+                          <Button variant="ghost" size="sm" className="h-5 text-xs text-stone-400" onClick={() => resolveAllMutation.mutate()}>
+                            Resolve All
+                          </Button>
+                        </div>
+                        {codeHealthQuery.data.errors.map((error: any) => (
+                          <div key={error.id} className="bg-stone-900 rounded p-2">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-1 mb-1">
+                                  <Badge className={`text-[10px] ${error.type === 'js_error' ? 'bg-red-500/20 text-red-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                                    {error.type.replace('_', ' ')}
+                                  </Badge>
+                                  <span className="text-[10px] text-stone-500">
+                                    {formatDistanceToNow(new Date(error.timestamp), { addSuffix: true })}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-white truncate">{error.message}</p>
+                              </div>
+                              <Button variant="ghost" size="sm" className="h-5 px-1 text-stone-400 hover:text-emerald-400" onClick={() => resolveErrorMutation.mutate({ errorId: error.id })}>
+                                <Check className="w-3 h-3" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-6 text-stone-500">
+                        <Shield className="w-8 h-8 mx-auto mb-2 text-emerald-500" />
+                        <p className="text-sm">All Clear!</p>
+                      </div>
+                    )}
+                    <p className="text-[10px] text-stone-500 text-center">🔄 Auto-refresh every 30s</p>
+                  </div>
+                </TabsContent>
+
+                {/* Preview Tab */}
+                <TabsContent value="preview" className="flex-1 m-0 flex flex-col overflow-hidden">
+                  <div className="p-2 border-b border-stone-700 flex items-center justify-between">
+                    <span className="text-xs font-medium text-white">Code Preview</span>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="sm" className="h-6 px-2 text-stone-400" onClick={() => setPreviewCode(fileContent)}>
+                        <RefreshCw className="w-3 h-3" />
+                      </Button>
                     </div>
                   </div>
-                ) : (
-                  <div className="text-center py-8 text-stone-500">
-                    <Bot className="w-10 h-10 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm">Ask AI about your code</p>
+                  <div className="flex-1 bg-stone-900">
+                    {previewCode ? (
+                      <iframe
+                        ref={previewRef}
+                        srcDoc={generatePreviewHtml(previewCode)}
+                        className="w-full h-full border-none"
+                        title="Code Preview"
+                        sandbox="allow-scripts"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full text-stone-500">
+                        <div className="text-center">
+                          <Eye className="w-10 h-10 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">No preview available</p>
+                          <p className="text-xs mt-1">Edit code or apply AI changes</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-              </ScrollArea>
-              
-              {/* Chat Input */}
-              <div className="p-3 border-t border-stone-700">
-                <Textarea
-                  value={aiPrompt}
-                  onChange={(e) => setAiPrompt(e.target.value)}
-                  placeholder="Ask about this code..."
-                  className="bg-stone-900 border-stone-600 text-white text-sm min-h-[60px] mb-2"
-                />
-                <Button
-                  onClick={() => handleAI("chat")}
-                  disabled={aiLoading || !aiPrompt.trim()}
-                  className="w-full bg-purple-600 hover:bg-purple-700"
-                  size="sm"
-                >
-                  <Send className="w-4 h-4 mr-1" /> Send
-                </Button>
-              </div>
+                  <div className="p-2 border-t border-stone-700 bg-stone-800">
+                    <p className="text-[10px] text-stone-500 text-center">
+                      {selectedFile?.endsWith('.css') ? '🎨 Live CSS Preview' : '📄 Syntax-highlighted code view'}
+                    </p>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           )}
         </div>
