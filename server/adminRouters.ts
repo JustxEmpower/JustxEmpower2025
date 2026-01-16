@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo, generatePageBlocks } from "./aiService";
+import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo, generatePageBlocks, codeAssistant } from "./aiService";
 import { generateVideoThumbnail } from "./mediaConversionService";
 import { publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
@@ -4334,6 +4334,35 @@ export const aiTrainingRouter = router({
         };
         
         return { tree: scanDir(basePath) };
+      }),
+
+    // AI Code Assistant
+    aiAssist: adminProcedure
+      .input(z.object({
+        action: z.enum(["explain", "fix", "improve", "generate", "refactor", "comment", "test", "chat"]),
+        code: z.string(),
+        fileName: z.string().optional(),
+        language: z.string().optional(),
+        selection: z.string().optional(),
+        prompt: z.string().optional(),
+        conversationHistory: z.array(z.object({
+          role: z.string(),
+          content: z.string(),
+        })).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          const result = await codeAssistant(input.action, input.code, {
+            fileName: input.fileName,
+            language: input.language,
+            selection: input.selection,
+            prompt: input.prompt,
+            conversationHistory: input.conversationHistory,
+          });
+          return { success: true, result };
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
       }),
   }),
 });

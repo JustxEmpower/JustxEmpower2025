@@ -886,3 +886,88 @@ Return ONLY valid JSON:
     };
   }
 }
+
+/**
+ * AI Code Assistant - Gemini-powered code editing features
+ */
+export async function codeAssistant(
+  action: "explain" | "fix" | "improve" | "generate" | "refactor" | "comment" | "test" | "chat",
+  code: string,
+  context?: {
+    fileName?: string;
+    language?: string;
+    selection?: string;
+    prompt?: string;
+    conversationHistory?: Array<{ role: string; content: string }>;
+  }
+): Promise<string> {
+  if (!genAI) {
+    throw new Error("Gemini AI not initialized. Please configure API key.");
+  }
+
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  const lang = context?.language || "TypeScript React";
+  const fileName = context?.fileName || "unknown";
+
+  const systemPrompts: Record<string, string> = {
+    explain: `You are an expert code explainer. Analyze the following ${lang} code and provide a clear, concise explanation of what it does. Break down complex parts, explain the logic flow, and highlight any important patterns or techniques used. Be thorough but accessible.`,
+    
+    fix: `You are an expert ${lang} debugger. Analyze the following code for bugs, errors, or issues. Identify problems and provide the corrected code with explanations of what was wrong and how you fixed it. Return the complete fixed code.`,
+    
+    improve: `You are an expert ${lang} code reviewer. Analyze the following code and suggest improvements for:
+- Performance optimization
+- Code readability
+- Best practices
+- Error handling
+- Type safety
+Provide the improved code with explanations of the changes.`,
+    
+    generate: `You are an expert ${lang} developer. Generate code based on the user's request. Write clean, well-structured, production-ready code. Include proper TypeScript types, error handling, and follow React best practices. The code should be complete and immediately usable.`,
+    
+    refactor: `You are an expert ${lang} refactoring specialist. Refactor the following code to:
+- Improve structure and organization
+- Extract reusable functions/components
+- Reduce complexity
+- Improve maintainability
+- Follow SOLID principles
+Provide the refactored code with explanations.`,
+    
+    comment: `You are an expert code documenter. Add comprehensive JSDoc comments and inline comments to the following ${lang} code. Explain what each function, component, and complex logic block does. Make the code self-documenting.`,
+    
+    test: `You are an expert ${lang} test writer. Generate comprehensive unit tests for the following code using Jest and React Testing Library (if applicable). Cover edge cases, error states, and common use cases. Write production-ready tests.`,
+    
+    chat: `You are an expert ${lang} developer assistant. You help with coding questions, debugging, best practices, and implementation guidance. Be concise, practical, and provide code examples when helpful. You're working in the context of a React/TypeScript web application.`
+  };
+
+  const systemPrompt = systemPrompts[action] || systemPrompts.chat;
+  
+  let userMessage = "";
+  
+  if (action === "chat") {
+    const history = context?.conversationHistory
+      ?.map(msg => `${msg.role}: ${msg.content}`)
+      .join("\n") || "";
+    userMessage = `${history ? `Previous conversation:\n${history}\n\n` : ""}User question: ${context?.prompt || code}
+
+${code ? `Current code context (${fileName}):\n\`\`\`${lang}\n${code}\n\`\`\`` : ""}`;
+  } else if (action === "generate") {
+    userMessage = `Request: ${context?.prompt || "Generate code"}
+
+${code ? `Existing code context:\n\`\`\`${lang}\n${code}\n\`\`\`` : ""}
+
+Generate the requested code.`;
+  } else {
+    const targetCode = context?.selection || code;
+    userMessage = `File: ${fileName}
+
+\`\`\`${lang}
+${targetCode}
+\`\`\`
+
+${context?.prompt ? `Additional context: ${context.prompt}` : ""}`;
+  }
+
+  const result = await model.generateContent(`${systemPrompt}\n\n${userMessage}`);
+  const response = result.response;
+  return response.text();
+}

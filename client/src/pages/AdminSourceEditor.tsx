@@ -35,8 +35,11 @@ import {
   Eye, EyeOff, History, Undo2, Download, Upload, Trash2,
   AlertTriangle, CheckCircle, XCircle, Zap, Terminal, Palette,
   ChevronDown, ChevronRight, Plus, Settings, FolderOpen, File,
-  Search, X, RotateCcw, GitBranch, Clock, FileText, Braces
+  Search, X, RotateCcw, GitBranch, Clock, FileText, Braces,
+  Bot, Send, Wand2, Bug, MessageSquare, FileQuestion, TestTube,
+  Lightbulb, PanelRightOpen, PanelRightClose
 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { format, formatDistanceToNow } from "date-fns";
 
@@ -72,6 +75,14 @@ export default function AdminSourceEditor() {
   const [pendingFile, setPendingFile] = useState<string | null>(null);
   const [cursorPosition, setCursorPosition] = useState({ line: 1, col: 1 });
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
+  // AI Assistant State
+  const [showAI, setShowAI] = useState(true);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiResponse, setAiResponse] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiHistory, setAiHistory] = useState<Array<{ role: string; content: string }>>([]);
+  const [selectedText, setSelectedText] = useState("");
   
   // Queries
   const treeQuery = trpc.admin.sourceCode.getDirectoryTree.useQuery(undefined, {
@@ -114,6 +125,18 @@ export default function AdminSourceEditor() {
       backupsQuery.refetch();
     },
     onError: (e) => toast.error(e.message),
+  });
+
+  // AI Assistant Mutation
+  const aiAssistMutation = trpc.admin.sourceCode.aiAssist.useMutation({
+    onSuccess: (data) => {
+      setAiResponse(data.result);
+      setAiLoading(false);
+    },
+    onError: (e) => {
+      toast.error(e.message);
+      setAiLoading(false);
+    },
   });
 
   // Load file content when selected
@@ -175,6 +198,68 @@ export default function AdminSourceEditor() {
   const revertChanges = () => {
     setFileContent(originalContent);
     toast.info("Changes reverted");
+  };
+
+  // AI Assistant Actions
+  const handleAIAction = async (action: "explain" | "fix" | "improve" | "generate" | "refactor" | "comment" | "test" | "chat", prompt?: string) => {
+    if (!fileContent && action !== "generate") {
+      toast.error("No code to analyze");
+      return;
+    }
+    
+    setAiLoading(true);
+    setAiResponse("");
+    
+    const lang = selectedFile?.endsWith(".css") ? "CSS" : selectedFile?.endsWith(".ts") ? "TypeScript" : "TypeScript React";
+    
+    aiAssistMutation.mutate({
+      action,
+      code: fileContent,
+      fileName: selectedFile || undefined,
+      language: lang,
+      selection: selectedText || undefined,
+      prompt: prompt || aiPrompt,
+      conversationHistory: action === "chat" ? aiHistory : undefined,
+    });
+
+    if (action === "chat" && (prompt || aiPrompt)) {
+      setAiHistory(prev => [...prev, { role: "user", content: prompt || aiPrompt }]);
+      setAiPrompt("");
+    }
+  };
+
+  // Apply AI generated code
+  const applyAICode = () => {
+    // Extract code blocks from AI response
+    const codeBlockRegex = /```(?:tsx?|javascript|css)?\n([\s\S]*?)```/g;
+    const matches = [...aiResponse.matchAll(codeBlockRegex)];
+    
+    if (matches.length > 0) {
+      const extractedCode = matches.map(m => m[1]).join("\n\n");
+      setFileContent(extractedCode);
+      toast.success("AI code applied");
+    } else {
+      toast.error("No code block found in AI response");
+    }
+  };
+
+  // Copy AI response
+  const copyAIResponse = () => {
+    navigator.clipboard.writeText(aiResponse);
+    toast.success("Copied to clipboard");
+  };
+
+  // Handle text selection for AI context
+  const handleTextSelection = () => {
+    if (textareaRef.current) {
+      const start = textareaRef.current.selectionStart;
+      const end = textareaRef.current.selectionEnd;
+      if (start !== end) {
+        setSelectedText(textareaRef.current.value.substring(start, end));
+      } else {
+        setSelectedText("");
+      }
+    }
   };
 
   // Toggle directory
@@ -327,6 +412,15 @@ export default function AdminSourceEditor() {
                   <RefreshCw className="w-4 h-4" />
                 </Button>
                 <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAI(!showAI)}
+                  className={`${showAI ? "bg-purple-600/20 text-purple-400" : "text-stone-300"} hover:text-white hover:bg-stone-700`}
+                >
+                  {showAI ? <PanelRightClose className="w-4 h-4 mr-2" /> : <PanelRightOpen className="w-4 h-4 mr-2" />}
+                  AI
+                </Button>
+                <Button
                   onClick={handleSave}
                   disabled={isSaving || !hasUnsavedChanges || !selectedFile}
                   className="bg-amber-600 hover:bg-amber-700 text-white"
@@ -377,7 +471,7 @@ export default function AdminSourceEditor() {
           </div>
 
           {/* Editor */}
-          <div className="flex-1 flex flex-col bg-stone-900">
+          <div className={`${showAI ? "flex-1" : "flex-1"} flex flex-col bg-stone-900`}>
             {selectedFile ? (
               <>
                 {/* File Tab */}
@@ -428,9 +522,9 @@ export default function AdminSourceEditor() {
                         ref={textareaRef}
                         value={fileContent}
                         onChange={handleTextareaChange}
-                        onSelect={(e) => updateCursorPosition(e.currentTarget)}
+                        onSelect={(e) => { updateCursorPosition(e.currentTarget); handleTextSelection(); }}
                         onClick={(e) => updateCursorPosition(e.currentTarget)}
-                        onKeyUp={(e) => updateCursorPosition(e.currentTarget)}
+                        onKeyUp={(e) => { updateCursorPosition(e.currentTarget); handleTextSelection(); }}
                         className="flex-1 bg-stone-900 text-green-400 font-mono text-sm p-2 leading-6 resize-none outline-none"
                         spellCheck={false}
                         style={{ tabSize: 2 }}
@@ -446,6 +540,7 @@ export default function AdminSourceEditor() {
                     <span>|</span>
                     <span>{stats.lines} lines</span>
                     <span>{stats.chars} chars</span>
+                    {selectedText && <Badge className="bg-purple-600/20 text-purple-400 text-xs">{selectedText.length} selected</Badge>}
                   </div>
                   <div className="flex items-center gap-4 text-stone-400">
                     <span>Ln {cursorPosition.line}, Col {cursorPosition.col}</span>
@@ -464,6 +559,187 @@ export default function AdminSourceEditor() {
               </div>
             )}
           </div>
+
+          {/* AI Assistant Panel */}
+          {showAI && (
+            <div className="w-96 bg-stone-800 border-l border-stone-700 flex flex-col">
+              {/* AI Header */}
+              <div className="p-3 border-b border-stone-700">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bot className="w-5 h-5 text-purple-400" />
+                    <span className="font-semibold text-white">Gemini AI Assistant</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setAiResponse(""); setAiHistory([]); }}
+                    className="text-stone-400 hover:text-white h-6 px-2"
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="p-3 border-b border-stone-700">
+                <p className="text-xs text-stone-500 mb-2">Quick Actions</p>
+                <div className="grid grid-cols-4 gap-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleAIAction("explain")}
+                    disabled={aiLoading || !selectedFile}
+                    className="flex-col h-14 text-stone-400 hover:text-purple-400 hover:bg-purple-900/20"
+                  >
+                    <FileQuestion className="w-4 h-4 mb-1" />
+                    <span className="text-xs">Explain</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleAIAction("fix")}
+                    disabled={aiLoading || !selectedFile}
+                    className="flex-col h-14 text-stone-400 hover:text-red-400 hover:bg-red-900/20"
+                  >
+                    <Bug className="w-4 h-4 mb-1" />
+                    <span className="text-xs">Fix</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleAIAction("improve")}
+                    disabled={aiLoading || !selectedFile}
+                    className="flex-col h-14 text-stone-400 hover:text-green-400 hover:bg-green-900/20"
+                  >
+                    <Lightbulb className="w-4 h-4 mb-1" />
+                    <span className="text-xs">Improve</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleAIAction("refactor")}
+                    disabled={aiLoading || !selectedFile}
+                    className="flex-col h-14 text-stone-400 hover:text-blue-400 hover:bg-blue-900/20"
+                  >
+                    <Wand2 className="w-4 h-4 mb-1" />
+                    <span className="text-xs">Refactor</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleAIAction("comment")}
+                    disabled={aiLoading || !selectedFile}
+                    className="flex-col h-14 text-stone-400 hover:text-amber-400 hover:bg-amber-900/20"
+                  >
+                    <MessageSquare className="w-4 h-4 mb-1" />
+                    <span className="text-xs">Comment</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleAIAction("test")}
+                    disabled={aiLoading || !selectedFile}
+                    className="flex-col h-14 text-stone-400 hover:text-cyan-400 hover:bg-cyan-900/20"
+                  >
+                    <TestTube className="w-4 h-4 mb-1" />
+                    <span className="text-xs">Test</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleAIAction("generate")}
+                    disabled={aiLoading}
+                    className="flex-col h-14 text-stone-400 hover:text-pink-400 hover:bg-pink-900/20"
+                  >
+                    <Sparkles className="w-4 h-4 mb-1" />
+                    <span className="text-xs">Generate</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {}}
+                    disabled={aiLoading}
+                    className="flex-col h-14 text-stone-400 hover:text-purple-400 hover:bg-purple-900/20"
+                  >
+                    <Bot className="w-4 h-4 mb-1" />
+                    <span className="text-xs">Chat</span>
+                  </Button>
+                </div>
+              </div>
+
+              {/* AI Response */}
+              <ScrollArea className="flex-1 p-3">
+                {aiLoading ? (
+                  <div className="flex flex-col items-center justify-center py-8">
+                    <Loader2 className="w-8 h-8 text-purple-400 animate-spin mb-3" />
+                    <p className="text-stone-400 text-sm">Gemini is thinking...</p>
+                  </div>
+                ) : aiResponse ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Badge className="bg-purple-600/20 text-purple-400">AI Response</Badge>
+                      <div className="flex gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={copyAIResponse}
+                          className="h-6 px-2 text-stone-400 hover:text-white"
+                        >
+                          <Copy className="w-3 h-3" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={applyAICode}
+                          className="h-6 px-2 text-purple-400 hover:text-purple-300"
+                        >
+                          <Check className="w-3 h-3 mr-1" />
+                          Apply
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="bg-stone-900 rounded-lg p-3 text-sm text-stone-300 whitespace-pre-wrap font-mono text-xs leading-relaxed max-h-96 overflow-auto">
+                      {aiResponse}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-8 text-stone-500">
+                    <Bot className="w-12 h-12 mb-3 text-stone-600" />
+                    <p className="text-sm">Ask Gemini anything about your code</p>
+                    <p className="text-xs mt-1">Use quick actions or chat below</p>
+                  </div>
+                )}
+              </ScrollArea>
+
+              {/* Chat Input */}
+              <div className="p-3 border-t border-stone-700">
+                <div className="flex gap-2">
+                  <Textarea
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="Ask about this code..."
+                    className="flex-1 bg-stone-900 border-stone-600 text-white placeholder:text-stone-500 text-sm min-h-[60px] resize-none"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && !e.shiftKey) {
+                        e.preventDefault();
+                        if (aiPrompt.trim()) handleAIAction("chat");
+                      }
+                    }}
+                  />
+                </div>
+                <Button
+                  onClick={() => handleAIAction("chat")}
+                  disabled={aiLoading || !aiPrompt.trim()}
+                  className="w-full mt-2 bg-purple-600 hover:bg-purple-700"
+                  size="sm"
+                >
+                  {aiLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
+                  Send to Gemini
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Unsaved Changes Dialog */}
