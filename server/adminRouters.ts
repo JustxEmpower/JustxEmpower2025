@@ -2806,6 +2806,18 @@ export const publicContentRouter = router({
 
 // Public pages router
 export const publicPagesRouter = router({
+  // List all published pages
+  list: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    const pages = await db
+      .select()
+      .from(schema.pages)
+      .where(eq(schema.pages.published, 1))
+      .orderBy(schema.pages.navOrder);
+    return pages;
+  }),
+
   getBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input }) => {
@@ -2905,6 +2917,20 @@ export const publicSiteSettingsRouter = router({
 
 // Public navigation router for footer and header navigation
 export const publicNavigationRouter = router({
+  // Get all active navigation items
+  getAll: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    
+    const items = await db
+      .select()
+      .from(schema.navigation)
+      .where(eq(schema.navigation.isActive, 1))
+      .orderBy(schema.navigation.order);
+    
+    return items;
+  }),
+
   getByLocation: publicProcedure
     .input(z.object({ location: z.enum(["header", "footer"]) }))
     .query(async ({ input }) => {
