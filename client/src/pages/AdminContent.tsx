@@ -496,21 +496,7 @@ export default function AdminContent() {
                 ))}
               </div>
 
-              {/* Legal Page Editor */}
-              {isLegalPage && (
-                <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-8 mb-8">
-                  <LegalPageEditorNew
-                    sections={legalSections}
-                    onChange={(sections) => {
-                      setLegalSections(sections);
-                      localStorage.setItem(`legal-sections-${selectedPage}`, JSON.stringify(sections));
-                    }}
-                    onSave={handleSaveAll}
-                    isSaving={updateMutation.isPending}
-                    pageName={legalPageNames[selectedPage] || selectedPage}
-                  />
-                </div>
-              )}
+              {/* Legal pages now use standard content sections below instead of the old LegalPageEditorNew */}
 
               {/* Content Sections - Filter out legalSections as it's handled by LegalPageEditorNew */}
               <div className="space-y-4">
