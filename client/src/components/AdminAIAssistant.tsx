@@ -321,7 +321,7 @@ What would you like to focus on today?`,
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col h-[calc(100%-80px)]">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-col" style={{ height: 'calc(100% - 88px)' }}>
           <TabsList className="bg-slate-800/50 border-b border-white/10 rounded-none p-1 mx-2 mt-2">
             <TabsTrigger value="chat" className="data-[state=active]:bg-violet-600 data-[state=active]:text-white text-slate-400 text-xs">
               <MessageSquare className="w-3.5 h-3.5 mr-1.5" />Chat
@@ -335,8 +335,8 @@ What would you like to focus on today?`,
           </TabsList>
 
           {/* Chat Tab */}
-          <TabsContent value="chat" className="flex-1 flex flex-col m-0 p-0 overflow-hidden">
-            <ScrollArea className="flex-1 p-4">
+          <TabsContent value="chat" className="flex-1 flex flex-col m-0 p-0 overflow-hidden min-h-0">
+            <ScrollArea className="flex-1 p-4 min-h-0">
               <div className="space-y-4">
                 {messages.map((message) => (
                   <motion.div
