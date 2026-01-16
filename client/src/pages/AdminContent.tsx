@@ -37,7 +37,7 @@ export default function AdminContent() {
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [selectedFieldId, setSelectedFieldId] = useState<number | null>(null);
   const [activeSection, setActiveSection] = useState<string | null>(null);
-  const [textStyles, setTextStyles] = useState<Record<number, { isBold: boolean; isItalic: boolean; isUnderline: boolean }>>({});
+  const [textStyles, setTextStyles] = useState<Record<number, { isBold: boolean; isItalic: boolean; isUnderline: boolean; fontSize?: string; fontColor?: string }>>({});
   const [legalSections, setLegalSections] = useState<LegalSection[]>([]);
   const legalPageNames: Record<string, string> = {
     'privacy-policy': 'Privacy Policy',
@@ -219,12 +219,14 @@ export default function AdminContent() {
   // Process text styles into a map for easy lookup
   useEffect(() => {
     if (pageTextStyles) {
-      const stylesMap: Record<number, { isBold: boolean; isItalic: boolean; isUnderline: boolean }> = {};
+      const stylesMap: Record<number, { isBold: boolean; isItalic: boolean; isUnderline: boolean; fontSize?: string; fontColor?: string }> = {};
       pageTextStyles.forEach((style: any) => {
         stylesMap[style.contentId] = {
           isBold: style.isBold === 1,
           isItalic: style.isItalic === 1,
           isUnderline: style.isUnderline === 1,
+          fontSize: style.fontSize || '',
+          fontColor: style.fontColor || '',
         };
       });
       setTextStyles(stylesMap);
@@ -576,12 +578,16 @@ export default function AdminContent() {
                           const isModified = editedContent[item.id] !== undefined;
                           const inputType = getInputType(item.contentKey);
                           const useTextarea = isLongText(item.contentKey, currentValue);
-                          const itemStyles = textStyles[item.id] || { isBold: false, isItalic: false, isUnderline: false };
+                          const itemStyles = textStyles[item.id] || { isBold: false, isItalic: false, isUnderline: false, fontSize: '', fontColor: '' };
                           const styleClasses = [
                             itemStyles.isBold ? 'font-bold' : '',
                             itemStyles.isItalic ? 'italic' : '',
                             itemStyles.isUnderline ? 'underline' : '',
                           ].filter(Boolean).join(' ');
+                          const inlineStyles: React.CSSProperties = {
+                            ...(itemStyles.fontSize ? { fontSize: itemStyles.fontSize } : {}),
+                            ...(itemStyles.fontColor ? { color: itemStyles.fontColor } : {}),
+                          };
 
                           return (
                             <div key={item.id} className="pt-4">
@@ -613,6 +619,7 @@ export default function AdminContent() {
                                   value={currentValue}
                                   onChange={(e) => handleContentChange(item.id, e.target.value)}
                                   className={`min-h-[100px] ${isModified ? 'border-amber-400 dark:border-amber-600' : ''} ${styleClasses}`}
+                                  style={inlineStyles}
                                   placeholder={`Enter ${item.contentKey}...`}
                                 />
                               ) : (
@@ -622,6 +629,7 @@ export default function AdminContent() {
                                     value={currentValue}
                                     onChange={(e) => handleContentChange(item.id, e.target.value)}
                                     className={`h-11 flex-1 ${isModified ? 'border-amber-400 dark:border-amber-600' : ''} ${styleClasses}`}
+                                    style={inlineStyles}
                                     placeholder={`Enter ${item.contentKey}...`}
                                   />
                                   {(item.contentKey.includes('Url') || item.contentKey.includes('Image') || item.contentKey.includes('Video')) && (
