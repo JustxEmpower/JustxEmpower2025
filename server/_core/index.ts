@@ -10,6 +10,9 @@ import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
+import { getDb } from "../db";
+import { siteSettings, pages } from "../../drizzle/schema";
+import { eq } from "drizzle-orm";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -63,9 +66,6 @@ async function startServer() {
   // SEO Routes - robots.txt and sitemap.xml
   app.get("/robots.txt", async (_req, res) => {
     try {
-      const { getDb } = await import("../db");
-      const { siteSettings } = await import("../schema");
-      const { eq } = await import("drizzle-orm");
       const db = await getDb();
       
       let robotsContent = `User-agent: *\nAllow: /\nSitemap: https://justxempower.com/sitemap.xml`;
@@ -86,9 +86,6 @@ async function startServer() {
 
   app.get("/sitemap.xml", async (_req, res) => {
     try {
-      const { getDb } = await import("../db");
-      const { pages } = await import("../schema");
-      const { eq } = await import("drizzle-orm");
       const db = await getDb();
       
       const baseUrl = "https://justxempower.com";

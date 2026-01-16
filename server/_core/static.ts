@@ -1,6 +1,9 @@
 import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
+import { getDb } from "../db";
+import { siteSettings, seoSettings, pages } from "../../drizzle/schema";
+import { eq, isNull, and } from "drizzle-orm";
 
 interface SEOMeta {
   title: string;
@@ -47,8 +50,6 @@ const routeSEO: Record<string, Partial<SEOMeta>> = {
 
 async function getGlobalSEOSettings(): Promise<Partial<SEOMeta>> {
   try {
-    const { getDb } = await import("../db");
-    const { siteSettings } = await import("../schema");
     const db = await getDb();
     
     if (!db) return {};
@@ -70,9 +71,6 @@ async function getGlobalSEOSettings(): Promise<Partial<SEOMeta>> {
 
 async function getPageSEO(slug: string): Promise<Partial<SEOMeta>> {
   try {
-    const { getDb } = await import("../db");
-    const { seoSettings, pages } = await import("../schema");
-    const { eq, isNull, and } = await import("drizzle-orm");
     const db = await getDb();
     
     if (!db) return {};
