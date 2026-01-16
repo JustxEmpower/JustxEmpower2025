@@ -1,5 +1,13 @@
 import { z } from "zod";
-import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo, generatePageBlocks, codeAssistant } from "./aiService";
+import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo, generatePageBlocks, codeAssistant, initializeGemini } from "./aiService";
+
+// Ensure Gemini is initialized before AI calls
+function ensureGeminiInitialized() {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (apiKey) {
+    initializeGemini(apiKey);
+  }
+}
 import { generateVideoThumbnail } from "./mediaConversionService";
 import { publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
@@ -413,6 +421,7 @@ export const adminRouter = router({
     generateImageAlt: adminProcedure
       .input(z.object({ imageUrl: z.string(), context: z.string().optional() }))
       .mutation(async ({ input }) => {
+        ensureGeminiInitialized();
         const altText = await generateImageAltText(input.imageUrl, input.context);
         return { altText };
       }),
@@ -433,6 +442,7 @@ export const adminRouter = router({
     generateBulkAltText: adminProcedure
       .input(z.object({ imageUrls: z.array(z.string()) }))
       .mutation(async ({ input }) => {
+        ensureGeminiInitialized();
         const results = await generateBulkAltText(input.imageUrls);
         return { results };
       }),
