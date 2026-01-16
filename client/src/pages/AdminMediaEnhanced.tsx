@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Trash2, Image as ImageIcon, Video, Sparkles, Music, X, Copy, RefreshCw, Search, LayoutGrid, List, Filter, HardDrive, FileImage, FileVideo, FileAudio, Zap, Play, RefreshCcw, Loader2 } from 'lucide-react';
+import { Upload, Trash2, Image as ImageIcon, Video, Sparkles, Music, X, Copy, RefreshCw, Search, LayoutGrid, List, Filter, HardDrive, FileImage, FileVideo, FileAudio, Zap, Play, RefreshCcw, Loader2, Wand2 } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { getMediaUrl } from '@/lib/media';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -58,16 +58,18 @@ function VideoThumbnail({ src, alt, className = "", videoRef, isPlaying }: {
 }
 
 // Media grid card with video hover-to-play at card level
-function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerateAlt, formatFileSize, getMediaIcon, isGeneratingAlt }: {
+function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerateAlt, onGenerateAiImage, formatFileSize, getMediaIcon, isGeneratingAlt, isGeneratingAiImage }: {
   item: MediaItem;
   onPreview: () => void;
   onCopy: () => void;
   onConvert: () => void;
   onDelete: () => void;
   onGenerateAlt: () => void;
+  onGenerateAiImage: () => void;
   formatFileSize: (bytes: number) => string;
   getMediaIcon: (mimeType: string, size?: string) => React.ReactNode;
   isGeneratingAlt?: boolean;
+  isGeneratingAiImage?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -116,9 +118,14 @@ function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerat
             <RefreshCcw className="w-4 h-4" />
           </Button>
           {item.mimeType.startsWith('image/') && (
-            <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onGenerateAlt(); }} disabled={isGeneratingAlt}>
-              {isGeneratingAlt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-            </Button>
+            <>
+              <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onGenerateAlt(); }} disabled={isGeneratingAlt} title="Generate Alt Text">
+                {isGeneratingAlt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              </Button>
+              <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onGenerateAiImage(); }} disabled={isGeneratingAiImage} title="Generate AI Variation" className="bg-purple-600 hover:bg-purple-700 text-white">
+                {isGeneratingAiImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+              </Button>
+            </>
           )}
           <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
             <Trash2 className="w-4 h-4" />
@@ -221,6 +228,30 @@ export default function AdminMediaEnhanced() {
       context: item.originalName,
       mediaId: item.id,
     } as any);
+  };
+
+  // AI Image Generation
+  const [generatingAiImageFor, setGeneratingAiImageFor] = useState<number | null>(null);
+  
+  const generateAiImageMutation = trpc.admin.ai.generateImage.useMutation({
+    onSuccess: (data) => {
+      toast.success(`AI image generated and saved! View it in your media library.`);
+      refetch();
+      setGeneratingAiImageFor(null);
+    },
+    onError: (e) => {
+      toast.error(`AI generation failed: ${e.message}`);
+      setGeneratingAiImageFor(null);
+    },
+  });
+
+  const handleGenerateAiImage = (item: MediaItem) => {
+    setGeneratingAiImageFor(item.id);
+    toast.info("Generating AI variation... This may take a moment.");
+    generateAiImageMutation.mutate({
+      sourceImageUrl: getMediaUrl(item.url),
+      style: "similar style and mood",
+    });
   };
 
   // Conversion queries and mutations
@@ -478,9 +509,11 @@ export default function AdminMediaEnhanced() {
                       onConvert={() => openConvertDialog(item)}
                       onDelete={() => { if (confirm('Delete?')) deleteMutation.mutate({ id: item.id }); }}
                       onGenerateAlt={() => handleGenerateAlt(item)}
+                      onGenerateAiImage={() => handleGenerateAiImage(item)}
                       formatFileSize={formatFileSize}
                       getMediaIcon={getMediaIcon}
                       isGeneratingAlt={generatingAltFor === item.id}
+                      isGeneratingAiImage={generatingAiImageFor === item.id}
                     />
                   </motion.div>
                 ))}

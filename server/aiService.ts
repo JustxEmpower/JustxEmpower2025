@@ -980,3 +980,99 @@ ${context?.prompt ? `Additional context: ${context.prompt}` : ""}`;
   const response = result.response;
   return response.text();
 }
+
+/**
+ * Generate AI image variation based on source image
+ * Uses Gemini to analyze the image and create a prompt, then generates a new image
+ */
+export async function generateImageVariation(
+  sourceImageUrl: string, 
+  style?: string,
+  prompt?: string
+): Promise<{ imageData: string; mimeType: string; description: string }> {
+  if (!genAI) {
+    throw new Error("Gemini AI not initialized");
+  }
+
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  try {
+    // Fetch the source image
+    const response = await fetch(sourceImageUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch image: ${response.statusText}`);
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64Image = buffer.toString('base64');
+    
+    let mimeType = 'image/jpeg';
+    if (sourceImageUrl.endsWith('.png')) mimeType = 'image/png';
+    else if (sourceImageUrl.endsWith('.webp')) mimeType = 'image/webp';
+
+    // First, analyze the image to create a detailed description
+    const analysisPrompt = `Analyze this image in detail. Describe:
+1. The main subject and composition
+2. Colors, lighting, and mood
+3. Style and artistic elements
+4. Any text or symbols visible
+
+Provide a detailed description that could be used to recreate a similar image.`;
+
+    const analysisResult = await model.generateContent([
+      analysisPrompt,
+      { inlineData: { data: base64Image, mimeType } }
+    ]);
+    
+    const imageDescription = analysisResult.response.text().trim();
+
+    // Create an enhanced prompt for image generation
+    const styleModifier = style ? `Style: ${style}. ` : "";
+    const userPrompt = prompt ? `Additional requirements: ${prompt}. ` : "";
+    
+    const generationPrompt = `Based on this description, create a detailed image generation prompt:
+
+Original image description: ${imageDescription}
+
+${styleModifier}${userPrompt}
+
+Create a new, unique variation that maintains the essence but adds creative interpretation. 
+Return ONLY the image generation prompt, nothing else.`;
+
+    const promptResult = await model.generateContent(generationPrompt);
+    const finalPrompt = promptResult.response.text().trim();
+
+    // Use Imagen for actual image generation (Gemini 2.0 with imagen)
+    // Note: This requires the imagen model which may need separate API access
+    try {
+      const imagenModel = genAI.getGenerativeModel({ model: "imagen-3.0-generate-001" });
+      const imageResult = await imagenModel.generateContent(finalPrompt);
+      
+      // Check if we got an image back
+      const imageResponse = imageResult.response;
+      const candidates = imageResponse.candidates;
+      
+      if (candidates && candidates[0]?.content?.parts) {
+        for (const part of candidates[0].content.parts) {
+          if ('inlineData' in part && part.inlineData) {
+            return {
+              imageData: part.inlineData.data,
+              mimeType: part.inlineData.mimeType || 'image/png',
+              description: finalPrompt
+            };
+          }
+        }
+      }
+      
+      throw new Error("No image generated from Imagen model");
+    } catch (imagenError) {
+      console.log("Imagen model not available, returning analysis only:", imagenError);
+      // If Imagen isn't available, return a helpful message with the prompt
+      throw new Error(`Image generation model not available. Generated prompt: "${finalPrompt.substring(0, 200)}..."`);
+    }
+  } catch (error: any) {
+    console.error('Error generating image variation:', error);
+    throw new Error(error.message || "Failed to generate image variation");
+  }
+}
