@@ -9,25 +9,13 @@ const conn = await mysql.createConnection({
 
 const pageSlugs = ["accessibility", "privacy-policy", "terms-of-service", "cookie-policy"];
 
-// Delete all numbered sections from pageSections for these legal pages
+// Delete the legalSections JSON data from siteContent (these are the numbered sections in the editor)
 for (const slug of pageSlugs) {
-  // First find the page ID
-  const [pages] = await conn.execute(
-    `SELECT id FROM pages WHERE slug = ?`,
+  const [result] = await conn.execute(
+    `DELETE FROM siteContent WHERE page = ? AND section = 'legalSections'`,
     [slug]
   );
-  
-  if (pages.length > 0) {
-    const pageId = pages[0].id;
-    // Delete all sections for this page from pageSections
-    const [result] = await conn.execute(
-      `DELETE FROM pageSections WHERE pageId = ?`,
-      [pageId]
-    );
-    console.log(`${slug} (pageId ${pageId}): deleted ${result.affectedRows} sections from pageSections`);
-  } else {
-    console.log(`${slug}: page not found in pages table`);
-  }
+  console.log(`${slug}: deleted ${result.affectedRows} legalSections entries from siteContent`);
 }
 
 await conn.end();
