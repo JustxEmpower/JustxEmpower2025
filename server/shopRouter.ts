@@ -54,6 +54,17 @@ function safeJsonParse<T>(jsonString: string | null | undefined, defaultValue: T
 }
 
 export const shopRouter = router({
+  // Debug endpoint to check all products in database
+  debugProducts: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return { error: "No database" };
+    const allProducts = await db.select().from(products);
+    return { 
+      count: allProducts.length, 
+      products: allProducts.map(p => ({ id: p.id, name: p.name, status: p.status, price: p.price }))
+    };
+  }),
+
   // Get all active products with filtering
   products: router({
     list: publicProcedure
