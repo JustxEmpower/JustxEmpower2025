@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +17,7 @@ import {
   ListTodo, Clipboard, Eye, Edit, Trash2, Plus, Search
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -94,9 +95,20 @@ export default function AdminAIAssistant() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Generate a unique session ID for this admin session
+  const sessionId = useMemo(() => `admin-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, []);
+
   // Fetch site stats for insights
   const statsQuery = trpc.admin.dashboard.stats.useQuery();
   const messagesQuery = trpc.contact.list.useQuery({ limit: 5 });
+
+  // Real AI chat mutation
+  const chatMutation = trpc.ai.adminChat.useMutation({
+    onError: (error) => {
+      toast.error("AI Error: " + error.message);
+      setIsLoading(false);
+    },
+  });
 
   // Generate insights from stats
   useEffect(() => {
@@ -179,127 +191,6 @@ What would you like to focus on today?`,
     scrollToBottom();
   }, [messages]);
 
-  const generateAIResponse = async (userMessage: string): Promise<string> => {
-    // Build context with site data
-    const stats = statsQuery.data;
-    const context = `
-Site Stats:
-- ${stats?.totalPages || 0} pages (${stats?.publishedPages || 0} published)
-- ${stats?.totalArticles || 0} articles
-- ${stats?.totalProducts || 0} products
-- ${stats?.totalEvents || 0} events
-- ${stats?.totalOrders || 0} orders (${stats?.recentOrders || 0} recent)
-- ${stats?.unreadSubmissions || 0} unread form submissions
-- ${stats?.totalSubscribers || 0} newsletter subscribers
-`;
-
-    // Simulate AI thinking with intelligent responses
-    const responses: Record<string, string> = {
-      "content": `Based on your site analysis, here are my **content recommendations**:
-
-📝 **Blog Post Ideas:**
-1. "The Art of Self-Empowerment: A Beginner's Guide"
-2. "5 Morning Rituals for Conscious Leaders"
-3. "From Vision to Action: Manifesting Your Goals"
-4. "Community Spotlight: Stories of Transformation"
-5. "The Science Behind Embodied Leadership"
-
-🎯 **Priority Actions:**
-- You have ${stats?.totalArticles || 0} articles - aim for at least 2 new posts per week
-- Consider adding more visual content (videos, infographics)
-- Update older posts with fresh insights
-
-💡 **Pro Tip:** Content that shares transformation stories tends to resonate most with your audience.`,
-
-      "seo": `**SEO Audit Summary** 🔍
-
-✅ **Strengths:**
-- ${stats?.totalPages || 0} indexed pages
-- Good content foundation
-
-⚠️ **Areas to Improve:**
-1. Add meta descriptions to all pages
-2. Implement structured data for events & products
-3. Optimize image alt tags
-4. Build internal linking between related content
-5. Create a blog sitemap
-
-📊 **Quick Wins:**
-- Add FAQ schema to your offerings page
-- Optimize page titles with target keywords
-- Create cornerstone content for "women's empowerment"`,
-
-      "engagement": `**Engagement Strategy** 💫
-
-📈 **Current Status:**
-- ${stats?.totalFormSubmissions || 0} form submissions
-- ${stats?.unreadSubmissions || 0} awaiting response
-- ${stats?.totalSubscribers || 0} newsletter subscribers
-
-🚀 **Recommendations:**
-1. **Respond quickly** - ${stats?.unreadSubmissions || 0} unread messages need attention
-2. **Email nurture sequence** - Set up automated welcome series
-3. **Community building** - Create exclusive content for subscribers
-4. **Social proof** - Add testimonials throughout the site
-5. **Interactive elements** - Quizzes, assessments, or challenges
-
-💡 **Quick Action:** Reply to pending messages within 24 hours to boost trust.`,
-
-      "growth": `**Growth Strategy Blueprint** 🚀
-
-📊 **Current Metrics:**
-- ${stats?.totalProducts || 0} products
-- ${stats?.totalEvents || 0} events
-- ${stats?.totalOrders || 0} total orders
-
-🎯 **This Week's Focus:**
-1. **Content Marketing** - Publish 2 high-value blog posts
-2. **Email Campaign** - Send newsletter to ${stats?.totalSubscribers || 0} subscribers
-3. **Social Engagement** - Share behind-the-scenes content
-4. **Product Launch** - Feature a product of the week
-5. **Community Event** - Host a free workshop or webinar
-
-💰 **Revenue Opportunities:**
-- Bundle products for higher average order value
-- Create early-bird pricing for events
-- Launch a membership or subscription offering`,
-
-      "default": `I understand you're looking for guidance on: "${userMessage}"
-
-Let me analyze this in the context of Just Empower's mission...
-
-Based on your current site status:
-${context}
-
-Here's my strategic recommendation:
-
-1. **Immediate Action:** Focus on what will have the biggest impact this week
-2. **Short-term Goal:** Build consistent momentum with regular content
-3. **Long-term Vision:** Establish Just Empower as the go-to platform for women's transformation
-
-Would you like me to dive deeper into any specific area? I can help with:
-- Content strategy
-- SEO optimization
-- User engagement
-- Revenue growth
-- Brand consistency`
-    };
-
-    // Match response based on keywords
-    const lowerMessage = userMessage.toLowerCase();
-    if (lowerMessage.includes("content") || lowerMessage.includes("blog") || lowerMessage.includes("post")) {
-      return responses.content;
-    } else if (lowerMessage.includes("seo") || lowerMessage.includes("search") || lowerMessage.includes("google")) {
-      return responses.seo;
-    } else if (lowerMessage.includes("engage") || lowerMessage.includes("user") || lowerMessage.includes("message")) {
-      return responses.engagement;
-    } else if (lowerMessage.includes("grow") || lowerMessage.includes("revenue") || lowerMessage.includes("sales") || lowerMessage.includes("strategy")) {
-      return responses.growth;
-    }
-    
-    return responses.default;
-  };
-
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
@@ -315,21 +206,41 @@ Would you like me to dive deeper into any specific area? I can help with:
     setIsLoading(true);
 
     try {
-      // Simulate AI processing time
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Get current site stats to pass to AI
+      const stats = statsQuery.data;
       
-      const response = await generateAIResponse(userMessage.content);
+      const result = await chatMutation.mutateAsync({
+        message: userMessage.content,
+        sessionId,
+        siteStats: stats ? {
+          totalPages: stats.totalPages,
+          totalArticles: stats.totalArticles,
+          totalProducts: stats.totalProducts,
+          totalEvents: stats.totalEvents,
+          totalOrders: stats.totalOrders,
+          totalSubscribers: stats.totalSubscribers,
+          unreadSubmissions: stats.unreadSubmissions,
+        } : undefined,
+      });
       
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: response,
+        content: result.message,
         timestamp: new Date(),
       };
 
       setMessages(prev => [...prev, assistantMessage]);
     } catch (error) {
       console.error("AI response error:", error);
+      // Add error message to chat
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "I apologize, but I encountered an error processing your request. Please try again or check that the AI service is properly configured.",
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
     }

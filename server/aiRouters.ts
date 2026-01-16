@@ -18,7 +18,113 @@ function ensureGeminiInitialized() {
   }
 }
 
+// Admin AI Assistant system prompt - separate from visitor AI
+const ADMIN_AI_SYSTEM_PROMPT = `You are Aria, an elite AI Site Manager for Just Empower - a transformational platform for women's empowerment. You are speaking directly to the site administrator to help them manage and grow their platform.
+
+Your expertise includes:
+- Content strategy and optimization
+- SEO best practices and implementation
+- User engagement and conversion optimization
+- E-commerce and event management
+- Brand consistency and messaging
+- Analytics interpretation and insights
+- Social media strategy
+- Task prioritization and project management
+
+Your communication style:
+- Be direct, strategic, and actionable
+- Provide specific recommendations with clear next steps
+- Use data and metrics when available
+- Think like a growth consultant and CMO
+- Be encouraging but realistic
+- Format responses with clear structure (bullets, headers when helpful)
+- Include emojis sparingly for visual organization
+
+You understand the Just Empower brand mission of "catalyzing the rise of her" and align all suggestions with this vision of women's empowerment, leadership, and transformation.
+
+When responding:
+1. Address the specific question or task
+2. Provide actionable recommendations
+3. Suggest related improvements they might not have considered
+4. Offer to dive deeper into any area`;
+
 export const aiRouter = router({
+  /**
+   * Admin AI Assistant - Strategic site management AI
+   */
+  adminChat: publicProcedure
+    .input(
+      z.object({
+        message: z.string().min(1),
+        sessionId: z.string(),
+        siteStats: z.object({
+          totalPages: z.number().optional(),
+          totalArticles: z.number().optional(),
+          totalProducts: z.number().optional(),
+          totalEvents: z.number().optional(),
+          totalOrders: z.number().optional(),
+          totalSubscribers: z.number().optional(),
+          unreadSubmissions: z.number().optional(),
+        }).optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      ensureGeminiInitialized();
+      const db = await getDb();
+      if (!db) throw new Error("Database not available");
+
+      // Build context with site stats
+      let statsContext = "";
+      if (input.siteStats) {
+        const s = input.siteStats;
+        statsContext = `\n\nCurrent Site Statistics:
+- Total Pages: ${s.totalPages ?? 'Unknown'}
+- Total Articles: ${s.totalArticles ?? 'Unknown'}
+- Total Products: ${s.totalProducts ?? 'Unknown'}
+- Total Events: ${s.totalEvents ?? 'Unknown'}
+- Total Orders: ${s.totalOrders ?? 'Unknown'}
+- Newsletter Subscribers: ${s.totalSubscribers ?? 'Unknown'}
+- Unread Form Submissions: ${s.unreadSubmissions ?? 'Unknown'}`;
+      }
+
+      // Get conversation history for this admin session
+      const history = await db
+        .select()
+        .from(aiChatConversations)
+        .where(eq(aiChatConversations.sessionId, input.sessionId))
+        .orderBy(desc(aiChatConversations.createdAt))
+        .limit(10);
+
+      const conversationHistory = history.reverse().map((msg) => ({
+        role: msg.role,
+        message: msg.message,
+      }));
+
+      // Generate AI response with admin context
+      const response = await chatWithAI(
+        input.message + statsContext,
+        conversationHistory,
+        ADMIN_AI_SYSTEM_PROMPT
+      );
+
+      // Save conversation to database
+      await db.insert(aiChatConversations).values({
+        sessionId: input.sessionId,
+        message: input.message,
+        role: "user",
+        context: "admin-assistant",
+      });
+
+      await db.insert(aiChatConversations).values({
+        sessionId: input.sessionId,
+        message: response,
+        role: "assistant",
+        context: "admin-assistant",
+      });
+
+      return { message: response };
+    }),
+
   /**
    * Send a message to the AI chat assistant
    */
