@@ -4364,5 +4364,86 @@ export const aiTrainingRouter = router({
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
         }
       }),
+
+    // Build and deploy - rebuilds the site after code changes
+    buildAndDeploy: adminProcedure
+      .mutation(async () => {
+        const { exec } = await import('child_process');
+        const { promisify } = await import('util');
+        const execAsync = promisify(exec);
+        
+        try {
+          // Run build
+          const buildResult = await execAsync('pnpm build', {
+            cwd: process.cwd(),
+            timeout: 120000, // 2 minute timeout
+          });
+          
+          // Restart PM2 process
+          try {
+            await execAsync('pm2 restart justxempower', {
+              cwd: process.cwd(),
+              timeout: 30000,
+            });
+          } catch (pm2Error) {
+            // PM2 might not be available in dev, that's okay
+            console.log('PM2 restart skipped (dev mode or not available)');
+          }
+          
+          return {
+            success: true,
+            buildOutput: buildResult.stdout.slice(-500), // Last 500 chars
+            message: 'Build completed successfully',
+          };
+        } catch (e: any) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Build failed: ${e.message}`,
+          });
+        }
+      }),
+
+    // Get build status / last modified times
+    getStatus: adminProcedure
+      .query(async () => {
+        const distPath = path.resolve(process.cwd(), 'dist');
+        const clientPath = path.resolve(process.cwd(), 'client/src');
+        
+        try {
+          const distStats = fs.existsSync(distPath) ? fs.statSync(distPath) : null;
+          
+          // Get most recently modified source file
+          let latestSourceMod = new Date(0);
+          const checkDir = (dir: string) => {
+            const entries = fs.readdirSync(dir, { withFileTypes: true });
+            for (const entry of entries) {
+              const fullPath = path.join(dir, entry.name);
+              if (entry.isDirectory() && !entry.name.startsWith('.')) {
+                checkDir(fullPath);
+              } else if (entry.isFile() && (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts'))) {
+                const stats = fs.statSync(fullPath);
+                if (stats.mtime > latestSourceMod) {
+                  latestSourceMod = stats.mtime;
+                }
+              }
+            }
+          };
+          checkDir(clientPath);
+          
+          const needsRebuild = distStats ? latestSourceMod > distStats.mtime : true;
+          
+          return {
+            lastBuild: distStats?.mtime.toISOString() || null,
+            latestSourceChange: latestSourceMod.toISOString(),
+            needsRebuild,
+          };
+        } catch (e: any) {
+          return {
+            lastBuild: null,
+            latestSourceChange: null,
+            needsRebuild: true,
+          };
+        }
+      }),
   }),
 });

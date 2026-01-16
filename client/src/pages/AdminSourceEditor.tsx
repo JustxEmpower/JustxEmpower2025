@@ -83,6 +83,9 @@ export default function AdminSourceEditor() {
   const [aiLoading, setAiLoading] = useState(false);
   const [aiHistory, setAiHistory] = useState<Array<{ role: string; content: string }>>([]);
   const [selectedText, setSelectedText] = useState("");
+  const [isBuilding, setIsBuilding] = useState(false);
+  const [showBuildDialog, setShowBuildDialog] = useState(false);
+  const [buildOutput, setBuildOutput] = useState("");
   
   // Queries
   const treeQuery = trpc.admin.sourceCode.getDirectoryTree.useQuery(undefined, {
@@ -125,6 +128,27 @@ export default function AdminSourceEditor() {
       backupsQuery.refetch();
     },
     onError: (e) => toast.error(e.message),
+  });
+
+  // Build Status Query
+  const buildStatusQuery = trpc.admin.sourceCode.getStatus.useQuery(undefined, {
+    enabled: isAuthenticated,
+    refetchInterval: 30000, // Check every 30 seconds
+  });
+
+  // Build and Deploy Mutation
+  const buildMutation = trpc.admin.sourceCode.buildAndDeploy.useMutation({
+    onSuccess: (data) => {
+      setIsBuilding(false);
+      setBuildOutput(data.buildOutput || "Build completed");
+      toast.success("Build & deploy completed!");
+      buildStatusQuery.refetch();
+    },
+    onError: (e) => {
+      setIsBuilding(false);
+      setBuildOutput(`Error: ${e.message}`);
+      toast.error(e.message);
+    },
   });
 
   // AI Assistant Mutation
@@ -428,6 +452,19 @@ export default function AdminSourceEditor() {
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                   Save
+                </Button>
+                <Button
+                  onClick={() => {
+                    setShowBuildDialog(true);
+                    setBuildOutput("");
+                  }}
+                  disabled={isBuilding}
+                  className={`${buildStatusQuery.data?.needsRebuild ? "bg-green-600 hover:bg-green-700" : "bg-stone-600 hover:bg-stone-500"} text-white`}
+                  size="sm"
+                >
+                  {isBuilding ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
+                  Deploy
+                  {buildStatusQuery.data?.needsRebuild && <span className="ml-1 w-2 h-2 bg-green-400 rounded-full animate-pulse" />}
                 </Button>
               </div>
             </div>
@@ -843,6 +880,111 @@ export default function AdminSourceEditor() {
             <DialogFooter>
               <Button variant="outline" onClick={() => setShowBackups(false)} className="border-stone-600 text-stone-300">
                 Close
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Build & Deploy Dialog */}
+        <Dialog open={showBuildDialog} onOpenChange={setShowBuildDialog}>
+          <DialogContent className="max-w-lg bg-stone-800 border-stone-700 text-white">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Zap className="w-5 h-5 text-green-500" />
+                Build & Deploy
+              </DialogTitle>
+              <DialogDescription className="text-stone-400">
+                Build your changes and deploy them to the live site.
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {/* Build Status */}
+              <div className="bg-stone-900 rounded-lg p-4 space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-stone-400">Last Build:</span>
+                  <span className="text-stone-300">
+                    {buildStatusQuery.data?.lastBuild 
+                      ? formatDistanceToNow(new Date(buildStatusQuery.data.lastBuild), { addSuffix: true })
+                      : "Never"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-stone-400">Latest Code Change:</span>
+                  <span className="text-stone-300">
+                    {buildStatusQuery.data?.latestSourceChange
+                      ? formatDistanceToNow(new Date(buildStatusQuery.data.latestSourceChange), { addSuffix: true })
+                      : "Unknown"}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-stone-400">Status:</span>
+                  {buildStatusQuery.data?.needsRebuild ? (
+                    <Badge className="bg-amber-500/20 text-amber-400">Rebuild needed</Badge>
+                  ) : (
+                    <Badge className="bg-green-500/20 text-green-400">Up to date</Badge>
+                  )}
+                </div>
+              </div>
+
+              {/* Build Output */}
+              {(isBuilding || buildOutput) && (
+                <div className="bg-stone-900 rounded-lg p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Terminal className="w-4 h-4 text-stone-400" />
+                    <span className="text-sm text-stone-400">Build Output</span>
+                  </div>
+                  <div className="font-mono text-xs text-green-400 max-h-32 overflow-auto whitespace-pre-wrap">
+                    {isBuilding ? (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Building... This may take up to 2 minutes.
+                      </div>
+                    ) : (
+                      buildOutput
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Warning */}
+              <div className="bg-amber-900/20 border border-amber-700/50 rounded-lg p-3 flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-amber-300">
+                  Building will temporarily restart the server. The site will be unavailable for a few seconds during deployment.
+                </p>
+              </div>
+            </div>
+
+            <DialogFooter className="gap-2">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowBuildDialog(false)} 
+                className="border-stone-600 text-stone-300"
+                disabled={isBuilding}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() => {
+                  setIsBuilding(true);
+                  setBuildOutput("");
+                  buildMutation.mutate();
+                }}
+                disabled={isBuilding}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                {isBuilding ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Building...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="w-4 h-4 mr-2" />
+                    Build & Deploy Now
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>
