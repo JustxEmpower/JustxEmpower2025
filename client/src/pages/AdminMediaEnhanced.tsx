@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Trash2, Image as ImageIcon, Video, Sparkles, Music, X, Copy, RefreshCw, Search, LayoutGrid, List, Filter, HardDrive, FileImage, FileVideo, FileAudio, Zap, Play, RefreshCcw, Loader2, Wand2 } from 'lucide-react';
+import { Upload, Trash2, Image as ImageIcon, Video, Sparkles, Music, X, Copy, RefreshCw, Search, LayoutGrid, List, Filter, HardDrive, FileImage, FileVideo, FileAudio, Zap, Play, RefreshCcw, Loader2, Wand2, Film } from 'lucide-react';
 import AdminSidebar from '@/components/AdminSidebar';
 import { getMediaUrl } from '@/lib/media';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -58,7 +58,7 @@ function VideoThumbnail({ src, alt, className = "", videoRef, isPlaying }: {
 }
 
 // Media grid card with video hover-to-play at card level
-function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerateAlt, onGenerateAiImage, formatFileSize, getMediaIcon, isGeneratingAlt, isGeneratingAiImage }: {
+function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerateAlt, onGenerateAiImage, onGenerateVideoLoop, formatFileSize, getMediaIcon, isGeneratingAlt, isGeneratingAiImage, isGeneratingVideoLoop }: {
   item: MediaItem;
   onPreview: () => void;
   onCopy: () => void;
@@ -66,10 +66,12 @@ function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerat
   onDelete: () => void;
   onGenerateAlt: () => void;
   onGenerateAiImage: () => void;
+  onGenerateVideoLoop: () => void;
   formatFileSize: (bytes: number) => string;
   getMediaIcon: (mimeType: string, size?: string) => React.ReactNode;
   isGeneratingAlt?: boolean;
   isGeneratingAiImage?: boolean;
+  isGeneratingVideoLoop?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -122,8 +124,11 @@ function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerat
               <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onGenerateAlt(); }} disabled={isGeneratingAlt} title="Generate Alt Text">
                 {isGeneratingAlt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
               </Button>
-              <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onGenerateAiImage(); }} disabled={isGeneratingAiImage} title="Generate AI Variation" className="bg-purple-600 hover:bg-purple-700 text-white">
+              <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onGenerateAiImage(); }} disabled={isGeneratingAiImage} title="Generate AI Image Variation" className="bg-purple-600 hover:bg-purple-700 text-white">
                 {isGeneratingAiImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+              </Button>
+              <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onGenerateVideoLoop(); }} disabled={isGeneratingVideoLoop} title="Generate AI Video Loop" className="bg-blue-600 hover:bg-blue-700 text-white">
+                {isGeneratingVideoLoop ? <Loader2 className="w-4 h-4 animate-spin" /> : <Film className="w-4 h-4" />}
               </Button>
             </>
           )}
@@ -251,6 +256,30 @@ export default function AdminMediaEnhanced() {
     generateAiImageMutation.mutate({
       sourceImageUrl: getMediaUrl(item.url),
       style: "similar style and mood",
+    });
+  };
+
+  // AI Video Loop Generation
+  const [generatingVideoLoopFor, setGeneratingVideoLoopFor] = useState<number | null>(null);
+  
+  const generateVideoLoopMutation = trpc.admin.ai.generateVideoLoop.useMutation({
+    onSuccess: (data) => {
+      toast.success(`AI video loop generated and saved! View it in your media library.`);
+      refetch();
+      setGeneratingVideoLoopFor(null);
+    },
+    onError: (e) => {
+      toast.error(`Video generation failed: ${e.message}`);
+      setGeneratingVideoLoopFor(null);
+    },
+  });
+
+  const handleGenerateVideoLoop = (item: MediaItem) => {
+    setGeneratingVideoLoopFor(item.id);
+    toast.info("Generating AI video loop... This may take a moment.");
+    generateVideoLoopMutation.mutate({
+      sourceImageUrl: getMediaUrl(item.url),
+      duration: 4,
     });
   };
 
@@ -510,10 +539,12 @@ export default function AdminMediaEnhanced() {
                       onDelete={() => { if (confirm('Delete?')) deleteMutation.mutate({ id: item.id }); }}
                       onGenerateAlt={() => handleGenerateAlt(item)}
                       onGenerateAiImage={() => handleGenerateAiImage(item)}
+                      onGenerateVideoLoop={() => handleGenerateVideoLoop(item)}
                       formatFileSize={formatFileSize}
                       getMediaIcon={getMediaIcon}
                       isGeneratingAlt={generatingAltFor === item.id}
                       isGeneratingAiImage={generatingAiImageFor === item.id}
+                      isGeneratingVideoLoop={generatingVideoLoopFor === item.id}
                     />
                   </motion.div>
                 ))}

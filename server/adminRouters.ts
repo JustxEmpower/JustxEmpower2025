@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo, generatePageBlocks, codeAssistant, initializeGemini, generateImageVariation } from "./aiService";
+import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo, generatePageBlocks, codeAssistant, initializeGemini, generateImageVariation, generateVideoLoop } from "./aiService";
 
 // Ensure Gemini is initialized before AI calls
 function ensureGeminiInitialized() {
@@ -491,6 +491,51 @@ export const adminRouter = router({
           url: s3Url,
           altText: result.description.substring(0, 500),
           type: 'image',
+          uploadedBy: 'AI Generator',
+        });
+        
+        return {
+          success: true,
+          mediaId: Number(mediaResult[0].insertId),
+          url: s3Url,
+          description: result.description,
+        };
+      }),
+
+    generateVideoLoop: adminProcedure
+      .input(z.object({
+        sourceImageUrl: z.string().optional(),
+        prompt: z.string().optional(),
+        duration: z.number().min(2).max(10).default(4),
+      }))
+      .mutation(async ({ input }) => {
+        ensureGeminiInitialized();
+        const result = await generateVideoLoop(input.sourceImageUrl, input.prompt, input.duration);
+        
+        // Save the generated video to S3 and database
+        const filename = `ai-video-loop-${Date.now()}.mp4`;
+        const buffer = Buffer.from(result.videoData, 'base64');
+        
+        // Upload to S3
+        const s3Key = `media/${filename}`;
+        await storagePut(s3Key, buffer, result.mimeType);
+        
+        // Get the public URL
+        const s3Url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION || 'us-east-1'}.amazonaws.com/${s3Key}`;
+        
+        // Save to database
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const mediaResult = await db.insert(schema.media).values({
+          filename,
+          originalName: `AI Video Loop - ${new Date().toLocaleDateString()}`,
+          mimeType: result.mimeType,
+          fileSize: buffer.length,
+          s3Key,
+          url: s3Url,
+          altText: result.description.substring(0, 500),
+          type: 'video',
           uploadedBy: 'AI Generator',
         });
         

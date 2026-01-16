@@ -982,6 +982,98 @@ ${context?.prompt ? `Additional context: ${context.prompt}` : ""}`;
 }
 
 /**
+ * Generate AI video loop from image or prompt
+ * Uses Veo model for video generation
+ */
+export async function generateVideoLoop(
+  sourceImageUrl?: string,
+  prompt?: string,
+  duration: number = 4
+): Promise<{ videoData: string; mimeType: string; description: string }> {
+  if (!genAI) {
+    throw new Error("Gemini AI not initialized");
+  }
+
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  try {
+    let finalPrompt = prompt || "";
+
+    // If source image provided, analyze it first
+    if (sourceImageUrl) {
+      const response = await fetch(sourceImageUrl);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch image: ${response.statusText}`);
+      }
+      
+      const arrayBuffer = await response.arrayBuffer();
+      const buffer = Buffer.from(arrayBuffer);
+      const base64Image = buffer.toString('base64');
+      
+      let mimeType = 'image/jpeg';
+      if (sourceImageUrl.endsWith('.png')) mimeType = 'image/png';
+      else if (sourceImageUrl.endsWith('.webp')) mimeType = 'image/webp';
+
+      // Analyze image to create video prompt
+      const analysisPrompt = `Analyze this image and create a prompt for generating a seamless looping video animation based on it.
+      
+Describe:
+1. What elements could be animated (clouds moving, water flowing, leaves rustling, etc.)
+2. The mood and atmosphere
+3. Suggested camera movement if any
+
+Create a detailed video generation prompt that would result in a beautiful, calming loop perfect for a website background.`;
+
+      const analysisResult = await model.generateContent([
+        analysisPrompt,
+        { inlineData: { data: base64Image, mimeType } }
+      ]);
+      
+      finalPrompt = analysisResult.response.text().trim();
+    }
+
+    if (!finalPrompt) {
+      finalPrompt = "A serene, calming nature scene with gentle movement. Soft light, peaceful atmosphere. Perfect for website background. Seamless loop.";
+    }
+
+    // Try to use Veo for video generation
+    try {
+      // Note: Veo 2 model name - may need adjustment based on actual API availability
+      const veoModel = genAI.getGenerativeModel({ model: "veo-001" });
+      
+      const videoResult = await veoModel.generateContent({
+        contents: [{ role: "user", parts: [{ text: `Create a ${duration} second seamless looping video: ${finalPrompt}` }] }],
+      } as any);
+      
+      const videoResponse = videoResult.response;
+      const candidates = videoResponse.candidates;
+      
+      if (candidates && candidates[0]?.content?.parts) {
+        for (const part of candidates[0].content.parts) {
+          if ('inlineData' in part && part.inlineData) {
+            return {
+              videoData: part.inlineData.data,
+              mimeType: part.inlineData.mimeType || 'video/mp4',
+              description: finalPrompt
+            };
+          }
+        }
+      }
+      
+      throw new Error("No video generated from Veo model");
+    } catch (veoError: any) {
+      console.log("Veo model not available:", veoError.message);
+      
+      // Return the generated prompt so user knows what would be created
+      throw new Error(`Video generation requires Veo API access. Generated prompt for external use: "${finalPrompt.substring(0, 300)}..."`);
+    }
+  } catch (error: any) {
+    console.error('Error generating video loop:', error);
+    throw new Error(error.message || "Failed to generate video loop");
+  }
+}
+
+/**
  * Generate AI image variation based on source image
  * Uses Gemini to analyze the image and create a prompt, then generates a new image
  */
