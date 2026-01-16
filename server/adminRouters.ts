@@ -4105,6 +4105,11 @@ export const aiTrainingRouter = router({
 
   // Source Code Editor - List editable files
   sourceCode: router({
+    // Simple test procedure
+    test: adminProcedure.query(() => {
+      return { status: "ok", message: "sourceCode router is working" };
+    }),
+    
     listFiles: adminProcedure
       .input(z.object({
         directory: z.enum(["pages", "components", "hooks", "lib", "styles"]).default("pages"),
