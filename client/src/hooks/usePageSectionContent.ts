@@ -159,9 +159,29 @@ export function usePageSectionContent(pageSlug: PageSlug): UsePageSectionContent
 export function getProperMediaUrl(url: string): string {
   if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://')) {
+    // Fix URLs with incorrect uploads/media path
+    if (url.includes('/uploads/media/')) {
+      return url.replace('/uploads/media/', '/media/');
+    }
     return url;
   }
-  // For relative paths, prepend the CloudFront or S3 base URL
-  // This assumes media is stored in S3 and served via CloudFront
-  return url;
+  // For relative paths, convert to S3 URL
+  let cleanPath = url.startsWith('/') ? url.slice(1) : url;
+  
+  // Fix uploads/media prefix
+  if (cleanPath.startsWith('uploads/media/')) {
+    cleanPath = cleanPath.replace('uploads/media/', 'media/');
+  }
+  
+  // Use the legacy bucket for media paths
+  const S3_LEGACY_BASE_URL = 'https://elasticbeanstalk-us-east-1-137738969420.s3.amazonaws.com';
+  const S3_PRIMARY_BASE_URL = 'https://justxempower-assets.s3.us-east-1.amazonaws.com';
+  
+  // Legacy paths go to legacy bucket
+  if (cleanPath.startsWith('media/1') || cleanPath.startsWith('media/2')) {
+    return `${S3_LEGACY_BASE_URL}/${cleanPath}`;
+  }
+  
+  // New uploads go to primary bucket
+  return `${S3_PRIMARY_BASE_URL}/${cleanPath}`;
 }

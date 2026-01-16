@@ -3,6 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
 import { cn } from '@/lib/utils';
+import { getMediaUrl } from '@/lib/media';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -60,8 +61,11 @@ export default function Hero(props: HeroProps = {}) {
   const videoRef = useRef<HTMLVideoElement>(null);
   
   // Get all hero content from props - NO FALLBACK DEFAULTS
-  const videoUrl = props.videoUrl || '';
-  const imageUrl = props.imageUrl || '';
+  // Convert URLs to proper S3 URLs if they're relative paths
+  const rawVideoUrl = props.videoUrl || '';
+  const rawImageUrl = props.imageUrl || '';
+  const videoUrl = rawVideoUrl ? getMediaUrl(rawVideoUrl) : '';
+  const imageUrl = rawImageUrl ? getMediaUrl(rawImageUrl) : '';
   const subtitle = props.subtitle || '';
   const fullTitle = props.title || '';
   const titleLine1 = fullTitle ? fullTitle.split(' ').slice(0, 2).join(' ') : '';
@@ -71,7 +75,7 @@ export default function Hero(props: HeroProps = {}) {
   const ctaLink = props.ctaLink || '';
   const textStyles = props.textStyles || {};
   
-  // Determine if we have a video or image
+  // Determine if we have a video or image - check both raw URL and converted URL
   const isVideo = videoUrl && /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(?:[?#]|$)/i.test(videoUrl);
   const heroMediaUrl = videoUrl || imageUrl;
 
