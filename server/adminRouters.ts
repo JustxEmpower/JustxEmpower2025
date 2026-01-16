@@ -3,6 +3,8 @@ import { generateArticleContent, generateMetaDescription, generateImageAltText, 
 import { generateVideoThumbnail } from "./mediaConversionService";
 import { publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
+import * as fs from "fs";
+import * as path from "path";
 import {
   getAdminByUsername,
   verifyPassword,
@@ -4100,4 +4102,238 @@ export const aiTrainingRouter = router({
       
       return { success: true };
     }),
+
+  // Source Code Editor - List editable files
+  sourceCode: router({
+    listFiles: adminProcedure
+      .input(z.object({
+        directory: z.enum(["pages", "components", "hooks", "lib", "styles"]).default("pages"),
+      }).optional())
+      .query(async ({ input }) => {
+        const dir = input?.directory || "pages";
+        const basePath = path.resolve(process.cwd(), "client/src", dir);
+        
+        try {
+          const files = fs.readdirSync(basePath, { withFileTypes: true });
+          const result = files
+            .filter(f => f.isFile() && (f.name.endsWith(".tsx") || f.name.endsWith(".ts") || f.name.endsWith(".css")))
+            .map(f => {
+              const filePath = path.join(basePath, f.name);
+              const stats = fs.statSync(filePath);
+              const content = fs.readFileSync(filePath, "utf-8");
+              const lines = content.split("\n").length;
+              return {
+                name: f.name,
+                path: `client/src/${dir}/${f.name}`,
+                size: stats.size,
+                lines,
+                modified: stats.mtime.toISOString(),
+                type: f.name.endsWith(".css") ? "css" : f.name.endsWith(".ts") ? "typescript" : "tsx",
+              };
+            })
+            .sort((a, b) => a.name.localeCompare(b.name));
+          
+          return { files: result, directory: dir, basePath: `client/src/${dir}` };
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
+      }),
+
+    readFile: adminProcedure
+      .input(z.object({
+        filePath: z.string(),
+      }))
+      .query(async ({ input }) => {
+        // Security: only allow reading from client/src
+        if (!input.filePath.startsWith("client/src/") || input.filePath.includes("..")) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+        
+        const fullPath = path.resolve(process.cwd(), input.filePath);
+        
+        try {
+          const content = fs.readFileSync(fullPath, "utf-8");
+          const stats = fs.statSync(fullPath);
+          return {
+            content,
+            path: input.filePath,
+            size: stats.size,
+            lines: content.split("\n").length,
+            modified: stats.mtime.toISOString(),
+          };
+        } catch (e: any) {
+          throw new TRPCError({ code: "NOT_FOUND", message: `File not found: ${e.message}` });
+        }
+      }),
+
+    writeFile: adminProcedure
+      .input(z.object({
+        filePath: z.string(),
+        content: z.string(),
+        createBackup: z.boolean().default(true),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        // Security: only allow writing to client/src
+        if (!input.filePath.startsWith("client/src/") || input.filePath.includes("..")) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+        
+        const fullPath = path.resolve(process.cwd(), input.filePath);
+        const backupDir = path.resolve(process.cwd(), ".code-backups");
+        
+        try {
+          // Create backup if file exists
+          if (input.createBackup && fs.existsSync(fullPath)) {
+            if (!fs.existsSync(backupDir)) {
+              fs.mkdirSync(backupDir, { recursive: true });
+            }
+            const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+            const backupName = `${path.basename(input.filePath)}.${timestamp}.bak`;
+            const originalContent = fs.readFileSync(fullPath, "utf-8");
+            fs.writeFileSync(path.join(backupDir, backupName), originalContent);
+          }
+          
+          // Write new content
+          fs.writeFileSync(fullPath, input.content, "utf-8");
+          
+          const stats = fs.statSync(fullPath);
+          return {
+            success: true,
+            path: input.filePath,
+            size: stats.size,
+            lines: input.content.split("\n").length,
+            modified: stats.mtime.toISOString(),
+            backupCreated: input.createBackup,
+          };
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
+      }),
+
+    listBackups: adminProcedure
+      .query(async () => {
+        const backupDir = path.resolve(process.cwd(), ".code-backups");
+        
+        try {
+          if (!fs.existsSync(backupDir)) {
+            return { backups: [] };
+          }
+          
+          const files = fs.readdirSync(backupDir, { withFileTypes: true });
+          const backups = files
+            .filter(f => f.isFile() && f.name.endsWith(".bak"))
+            .map(f => {
+              const filePath = path.join(backupDir, f.name);
+              const stats = fs.statSync(filePath);
+              // Parse filename: originalname.tsx.2024-01-16T04-30-00-000Z.bak
+              const parts = f.name.replace(".bak", "").split(".");
+              const timestamp = parts.pop() || "";
+              const originalName = parts.join(".");
+              return {
+                name: f.name,
+                originalFile: originalName,
+                timestamp,
+                size: stats.size,
+                created: stats.mtime.toISOString(),
+              };
+            })
+            .sort((a, b) => b.created.localeCompare(a.created));
+          
+          return { backups };
+        } catch (e: any) {
+          return { backups: [] };
+        }
+      }),
+
+    restoreBackup: adminProcedure
+      .input(z.object({
+        backupName: z.string(),
+        targetPath: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        // Security check
+        if (!input.targetPath.startsWith("client/src/") || input.targetPath.includes("..")) {
+          throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
+        }
+        
+        const backupDir = path.resolve(process.cwd(), ".code-backups");
+        const backupPath = path.join(backupDir, input.backupName);
+        const targetPath = path.resolve(process.cwd(), input.targetPath);
+        
+        try {
+          if (!fs.existsSync(backupPath)) {
+            throw new TRPCError({ code: "NOT_FOUND", message: "Backup not found" });
+          }
+          
+          const content = fs.readFileSync(backupPath, "utf-8");
+          fs.writeFileSync(targetPath, content, "utf-8");
+          
+          return { success: true, restored: input.targetPath };
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
+      }),
+
+    deleteBackup: adminProcedure
+      .input(z.object({ backupName: z.string() }))
+      .mutation(async ({ input }) => {
+        const backupDir = path.resolve(process.cwd(), ".code-backups");
+        const backupPath = path.join(backupDir, input.backupName);
+        
+        try {
+          if (fs.existsSync(backupPath)) {
+            fs.unlinkSync(backupPath);
+          }
+          return { success: true };
+        } catch (e: any) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message });
+        }
+      }),
+
+    getDirectoryTree: adminProcedure
+      .query(async () => {
+        const basePath = path.resolve(process.cwd(), "client/src");
+        
+        const scanDir = (dirPath: string, relativePath: string = ""): any[] => {
+          try {
+            const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+            return entries
+              .filter(e => !e.name.startsWith(".") && e.name !== "node_modules")
+              .map(entry => {
+                const fullPath = path.join(dirPath, entry.name);
+                const relPath = path.join(relativePath, entry.name);
+                
+                if (entry.isDirectory()) {
+                  return {
+                    name: entry.name,
+                    type: "directory",
+                    path: `client/src/${relPath}`,
+                    children: scanDir(fullPath, relPath),
+                  };
+                } else if (entry.name.endsWith(".tsx") || entry.name.endsWith(".ts") || entry.name.endsWith(".css")) {
+                  const stats = fs.statSync(fullPath);
+                  return {
+                    name: entry.name,
+                    type: entry.name.endsWith(".css") ? "css" : entry.name.endsWith(".ts") ? "typescript" : "tsx",
+                    path: `client/src/${relPath}`,
+                    size: stats.size,
+                    modified: stats.mtime.toISOString(),
+                  };
+                }
+                return null;
+              })
+              .filter(Boolean)
+              .sort((a: any, b: any) => {
+                if (a.type === "directory" && b.type !== "directory") return -1;
+                if (a.type !== "directory" && b.type === "directory") return 1;
+                return a.name.localeCompare(b.name);
+              });
+          } catch {
+            return [];
+          }
+        };
+        
+        return { tree: scanDir(basePath) };
+      }),
+  }),
 });

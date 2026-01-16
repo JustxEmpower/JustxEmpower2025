@@ -439,6 +439,10 @@ export default function AdminCodeTurbo() {
                 {hasChanges && (
                   <Badge className="bg-amber-100 text-amber-700 animate-pulse">Unsaved changes</Badge>
                 )}
+                <Button variant="outline" size="sm" onClick={() => window.location.href = "/admin/source-editor"}>
+                  <Terminal className="w-4 h-4 mr-2" />
+                  Source Editor
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => setShowHistory(true)} disabled={codeVersions.length === 0}>
                   <History className="w-4 h-4 mr-2" />
                   History

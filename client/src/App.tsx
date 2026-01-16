@@ -19,6 +19,7 @@ import AdminNavigation from "@/pages/AdminNavigationManager";
 import AdminForms from "@/pages/AdminFormsTurbo";
 import AdminRedirects from "@/pages/AdminRedirectsEnhanced";
 import AdminCode from "@/pages/AdminCodeTurbo";
+import AdminSourceEditor from "@/pages/AdminSourceEditor";
 import AdminBackup from "@/pages/AdminBackupEnhanced";
 import AdminBackupTimeMachine from "@/pages/AdminBackupTimeMachine";
 import AdminUsers from "@/pages/AdminUsersEnhanced";
@@ -94,6 +95,7 @@ function Router() {
       <Route path="/admin/forms" component={AdminForms} />
       <Route path="/admin/redirects" component={AdminRedirects} />
       <Route path="/admin/code" component={AdminCode} />
+      <Route path="/admin/source-editor" component={AdminSourceEditor} />
       <Route path="/admin/backup" component={AdminBackupTimeMachine} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/products" component={AdminProducts} />
