@@ -901,8 +901,17 @@ export async function codeAssistant(
     conversationHistory?: Array<{ role: string; content: string }>;
   }
 ): Promise<string> {
+  // Lazy initialize Gemini if not already done
   if (!genAI) {
-    throw new Error("Gemini AI not initialized. Please configure API key.");
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("Gemini API key not configured. Please set GEMINI_API_KEY in environment.");
+    }
+    initializeGemini(apiKey);
+  }
+  
+  if (!genAI) {
+    throw new Error("Failed to initialize Gemini AI.");
   }
 
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
