@@ -663,11 +663,17 @@ export default function AdminSourceEditorTurbo() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          onClick={() => restoreBackupMutation.mutate({ 
-                            backupName: backup.name, 
-                            targetPath: `client/src/pages/${backup.originalFile}` 
-                          })}
+                          onClick={() => {
+                            const targetPath = selectedFile || prompt(`Enter restore path (e.g., client/src/pages/${backup.originalFile}):`);
+                            if (targetPath) {
+                              restoreBackupMutation.mutate({ 
+                                backupName: backup.name, 
+                                targetPath 
+                              });
+                            }
+                          }}
                           className="text-amber-400 hover:bg-stone-600"
+                          title={selectedFile ? `Restore to ${selectedFile}` : "Restore backup"}
                         >
                           <RotateCcw className="w-4 h-4" />
                         </Button>
