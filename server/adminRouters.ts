@@ -807,6 +807,16 @@ export const adminRouter = router({
         return { success: true };
       }),
     
+    // Update media alt text
+    updateAltText: adminProcedure
+      .input(z.object({ id: z.number(), altText: z.string() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        await db.update(schema.media).set({ altText: input.altText }).where(eq(schema.media.id, input.id));
+        return { success: true, altText: input.altText };
+      }),
+    
     // Get available conversion formats for a media file
     getConversionFormats: adminProcedure
       .input(z.object({ id: z.number() }))

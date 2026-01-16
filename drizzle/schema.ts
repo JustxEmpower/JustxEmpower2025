@@ -108,6 +108,7 @@ export const media = mysqlTable("media", {
   s3Key: varchar("s3Key", { length: 500 }).notNull(), // S3 storage key
   url: varchar("url", { length: 1000 }).notNull(), // Public URL
   thumbnailUrl: varchar("thumbnailUrl", { length: 1000 }), // Thumbnail URL for videos
+  altText: varchar("altText", { length: 500 }), // AI-generated or manual alt text for accessibility
   type: mysqlEnum("type", ["image", "video"]).notNull(),
   uploadedBy: varchar("uploadedBy", { length: 100 }), // admin username
   createdAt: timestamp("createdAt").defaultNow().notNull(),

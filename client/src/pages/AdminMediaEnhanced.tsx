@@ -58,7 +58,7 @@ function VideoThumbnail({ src, alt, className = "", videoRef, isPlaying }: {
 }
 
 // Media grid card with video hover-to-play at card level
-function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerateAlt, formatFileSize, getMediaIcon }: {
+function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerateAlt, formatFileSize, getMediaIcon, isGeneratingAlt }: {
   item: MediaItem;
   onPreview: () => void;
   onCopy: () => void;
@@ -67,6 +67,7 @@ function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerat
   onGenerateAlt: () => void;
   formatFileSize: (bytes: number) => string;
   getMediaIcon: (mimeType: string, size?: string) => React.ReactNode;
+  isGeneratingAlt?: boolean;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -115,8 +116,8 @@ function MediaGridCard({ item, onPreview, onCopy, onConvert, onDelete, onGenerat
             <RefreshCcw className="w-4 h-4" />
           </Button>
           {item.mimeType.startsWith('image/') && (
-            <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onGenerateAlt(); }}>
-              <Sparkles className="w-4 h-4" />
+            <Button size="sm" variant="secondary" onClick={(e) => { e.stopPropagation(); onGenerateAlt(); }} disabled={isGeneratingAlt}>
+              {isGeneratingAlt ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
             </Button>
           )}
           <Button size="sm" variant="destructive" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
@@ -187,10 +188,40 @@ export default function AdminMediaEnhanced() {
     onSuccess: () => { toast.success('Deleted'); refetch(); },
     onError: (e) => toast.error(e.message),
   });
-  const generateAltTextMutation = trpc.admin.ai.generateImageAlt.useMutation({
-    onSuccess: (data) => { navigator.clipboard.writeText(data.altText); toast.success(`Alt text: "${data.altText}"`); },
-    onError: (e) => toast.error(e.message),
+  const [generatingAltFor, setGeneratingAltFor] = useState<number | null>(null);
+  
+  const updateAltTextMutation = trpc.admin.media.updateAltText.useMutation({
+    onSuccess: (data) => {
+      navigator.clipboard.writeText(data.altText);
+      toast.success(`Alt text saved & copied: "${data.altText}"`);
+      refetch();
+    },
+    onError: (e) => toast.error(`Failed to save: ${e.message}`),
   });
+  
+  const generateAltTextMutation = trpc.admin.ai.generateImageAlt.useMutation({
+    onSuccess: (data, variables) => {
+      // After generating, save it to the media item
+      const mediaId = (variables as any).mediaId;
+      if (mediaId) {
+        updateAltTextMutation.mutate({ id: mediaId, altText: data.altText });
+      } else {
+        navigator.clipboard.writeText(data.altText);
+        toast.success(`Alt text: "${data.altText}"`);
+      }
+      setGeneratingAltFor(null);
+    },
+    onError: (e) => { toast.error(e.message); setGeneratingAltFor(null); },
+  });
+  
+  const handleGenerateAlt = (item: MediaItem) => {
+    setGeneratingAltFor(item.id);
+    generateAltTextMutation.mutate({ 
+      imageUrl: getMediaUrl(item.url), 
+      context: item.originalName,
+      mediaId: item.id,
+    } as any);
+  };
 
   // Conversion queries and mutations
   const conversionFormatsQuery = trpc.admin.media.getConversionFormats.useQuery(
@@ -446,9 +477,10 @@ export default function AdminMediaEnhanced() {
                       onCopy={() => copyUrl(item.url)}
                       onConvert={() => openConvertDialog(item)}
                       onDelete={() => { if (confirm('Delete?')) deleteMutation.mutate({ id: item.id }); }}
-                      onGenerateAlt={() => generateAltTextMutation.mutate({ imageUrl: getMediaUrl(item.url), context: item.originalName })}
+                      onGenerateAlt={() => handleGenerateAlt(item)}
                       formatFileSize={formatFileSize}
                       getMediaIcon={getMediaIcon}
+                      isGeneratingAlt={generatingAltFor === item.id}
                     />
                   </motion.div>
                 ))}
@@ -480,8 +512,8 @@ export default function AdminMediaEnhanced() {
                         <div className="flex items-center gap-2">
                           <Button variant="ghost" size="icon" onClick={() => copyUrl(item.url)}><Copy className="w-4 h-4" /></Button>
                           {item.mimeType.startsWith('image/') && (
-                            <Button variant="ghost" size="icon" onClick={() => generateAltTextMutation.mutate({ imageUrl: getMediaUrl(item.url), context: item.originalName })}>
-                              <Sparkles className="w-4 h-4" />
+                            <Button variant="ghost" size="icon" onClick={() => handleGenerateAlt(item)} disabled={generatingAltFor === item.id}>
+                              {generatingAltFor === item.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
                             </Button>
                           )}
                           <Button variant="ghost" size="icon" onClick={() => { if (confirm('Delete?')) deleteMutation.mutate({ id: item.id }); }}>
