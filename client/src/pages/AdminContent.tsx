@@ -10,7 +10,7 @@ import { LogOut, FileText, Settings, Layout, Save, ChevronDown, ChevronUp, Folde
 import MediaPicker from '@/components/MediaPicker';
 import AdminSidebar from '@/components/AdminSidebar';
 import SectionVisualizer from '@/components/SectionVisualizer';
-import FontSelector from '@/components/FontSelector';
+import FontSelectorEnhanced from '@/components/FontSelectorEnhanced';
 import TextFormatToolbar from '@/components/TextFormatToolbar';
 import LegalPageEditorNew, { LegalSection } from '@/components/LegalPageEditorNew';
 
@@ -437,7 +437,7 @@ export default function AdminContent() {
           
           {/* Font Typography Settings */}
           <div className="mt-4">
-            <FontSelector 
+            <FontSelectorEnhanced 
               content={content}
               selectedPage={selectedPage}
               activeSection={activeSection}

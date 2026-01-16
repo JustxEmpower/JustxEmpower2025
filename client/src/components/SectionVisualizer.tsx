@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutGrid } from 'lucide-react';
+import { LayoutGrid, Search, Eye, EyeOff, ChevronDown, ChevronUp, Layers } from 'lucide-react';
 
 interface ContentItem {
   id: number;
@@ -113,6 +113,10 @@ export default function SectionVisualizer({
   activeSection, 
   onSectionClick 
 }: SectionVisualizerProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showEmptySections, setShowEmptySections] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
   // Group content by section while preserving order
   const groupedContent = content.reduce((acc, item) => {
     if (!acc[item.section]) {
@@ -123,21 +127,31 @@ export default function SectionVisualizer({
   }, {} as Record<string, ContentItem[]>);
 
   // Get ordered sections (maintain insertion order)
-  const sections = Object.keys(groupedContent);
+  const allSections = Object.keys(groupedContent);
+  
+  // Filter sections based on search and empty filter
+  const sections = allSections.filter(section => {
+    const matchesSearch = !searchQuery || 
+      section.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      getSectionDisplayTitle(section, groupedContent[section]).toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesEmpty = showEmptySections || calculateCompletion(groupedContent[section]) > 0;
+    return matchesSearch && matchesEmpty;
+  });
   
   // Calculate overall completion
   const totalItems = content.length;
   const filledItems = content.filter(item => item.contentValue && item.contentValue.trim() !== '').length;
   const overallCompletion = totalItems > 0 ? Math.round((filledItems / totalItems) * 100) : 0;
-  const filledSections = sections.filter(s => calculateCompletion(groupedContent[s]) > 0).length;
+  const filledSections = allSections.filter(s => calculateCompletion(groupedContent[s]) > 0).length;
+  const emptySections = allSections.length - filledSections;
 
   return (
-    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 p-4">
+    <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <LayoutGrid className="w-4 h-4 text-neutral-500" />
-          <div>
+      <div className="p-4 border-b border-neutral-200 dark:border-neutral-700">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Layers className="w-4 h-4 text-neutral-500" />
             <span className="text-xs font-bold text-neutral-700 dark:text-neutral-300 uppercase tracking-wide">
               PAGE STRUCTURE
             </span>
