@@ -16,7 +16,7 @@ import AdminAnalytics from "@/pages/AdminAnalyticsEnhanced";
 import AdminBrand from "@/pages/AdminBrandManager";
 import AdminSEO from "@/pages/AdminSEOEnhanced";
 import AdminNavigation from "@/pages/AdminNavigationManager";
-import AdminForms from "@/pages/AdminFormsEnhanced";
+import AdminForms from "@/pages/AdminFormsTurbo";
 import AdminRedirects from "@/pages/AdminRedirectsEnhanced";
 import AdminCode from "@/pages/AdminCodeEnhanced";
 import AdminBackup from "@/pages/AdminBackupEnhanced";
