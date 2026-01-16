@@ -44,7 +44,6 @@ import {
   Wifi,
   RefreshCw,
   Settings,
-  Bell,
   Search,
   Command,
   Plus,
@@ -57,6 +56,7 @@ import {
   Rocket,
   LayoutDashboard,
 } from "lucide-react";
+import { NotificationBell } from "@/components/NotificationCenter";
 
 // Animated counter component
 function AnimatedCounter({ value, prefix = "", suffix = "" }: { value: number; prefix?: string; suffix?: string }) {
@@ -277,14 +277,7 @@ export default function AdminDashboardEnhanced() {
                   <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
-                <Button variant="outline" size="icon" className="relative">
-                  <Bell className="w-4 h-4" />
-                  {stats.unreadSubmissions > 0 && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                      {stats.unreadSubmissions}
-                    </span>
-                  )}
-                </Button>
+                <NotificationBell unreadCount={stats.unreadSubmissions} />
                 <Link href="/admin/settings">
                   <Button variant="outline" size="icon">
                     <Settings className="w-4 h-4" />
