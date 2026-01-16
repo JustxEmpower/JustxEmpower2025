@@ -38,7 +38,7 @@ export default function Footer() {
   ) || [];
   
   const legalLinks = footerNav?.filter((item: NavItem) => 
-    ['/privacy', '/terms', '/cookie', '/accessibility'].some(path => item.url.includes(path))
+    ['/privacy-policy', '/terms-of-service', '/cookie-policy', '/accessibility'].some(path => item.url.includes(path))
   ) || [];
 
   // Fallback links if database is empty
