@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation } from "wouter";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { trpc } from "@/lib/trpc";
@@ -10,9 +10,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Progress } from "@/components/ui/progress";
+import { Switch } from "@/components/ui/switch";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import AdminSidebar from '@/components/AdminSidebar';
-import { motion } from "framer-motion";
-import { Brain, Plus, Edit, Trash2, Search, RefreshCw, MessageSquare, Sparkles, Database, Zap } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  Brain, Plus, Edit, Trash2, Search, RefreshCw, MessageSquare, Sparkles, Database, Zap,
+  Upload, Download, FileJson, Copy, Check, ChevronDown, ChevronUp, Filter, Tag, 
+  BarChart3, TrendingUp, Clock, CheckCircle2, XCircle, AlertCircle, Lightbulb,
+  BookOpen, GraduationCap, Target, Layers, FolderOpen, ArrowUpDown, MoreHorizontal,
+  FileText, Wand2, Bot, Cpu, Activity, PieChart
+} from "lucide-react";
 import { toast } from "sonner";
 
 function AnimatedCounter({ value }: { value: number }) {

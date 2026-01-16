@@ -36,7 +36,7 @@ import AdminResourcesPage from "@/pages/AdminResourcesPage";
 import AdminContactMessages from "@/pages/AdminMessagesInbox";
 import AdminCarousel from "@/pages/AdminCarouselEnhanced";
 import AdminCarouselManager from "@/pages/AdminCarouselManagerEnhanced";
-import AdminAITraining from "@/pages/AdminAITrainingEnhanced";
+import AdminAITraining from "@/pages/AdminAITrainingTurbo";
 import PageBuilderPage from "@/pages/PageBuilderPage";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
