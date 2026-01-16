@@ -54,6 +54,7 @@ import Footer from "@/components/Footer";
 import Preloader from "@/components/Preloader";
 import NewsletterPopup from "@/components/NewsletterPopup";
 import { AIChatAssistant } from "@/components/AIChatAssistant";
+import AdminAIAssistant from "@/components/AdminAIAssistant";
 import { AnalyticsTracker } from "@/components/AnalyticsTracker";
 import FontProvider from "@/components/FontProvider";
 import SEOHead from "@/components/SEOHead";
@@ -180,6 +181,7 @@ function App() {
             {!isAdminPage && <Footer />}
             {!isAdminPage && <NewsletterPopup />}
             {!isAdminPage && <AIChatAssistant />}
+            {isAdminPage && <AdminAIAssistant />}
             {!isAdminPage && <AnalyticsTracker />}
             <Analytics />
           </div>
