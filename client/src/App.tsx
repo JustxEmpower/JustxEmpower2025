@@ -18,7 +18,7 @@ import AdminSEO from "@/pages/AdminSEOEnhanced";
 import AdminNavigation from "@/pages/AdminNavigationManager";
 import AdminForms from "@/pages/AdminFormsTurbo";
 import AdminRedirects from "@/pages/AdminRedirectsEnhanced";
-import AdminCode from "@/pages/AdminCodeEnhanced";
+import AdminCode from "@/pages/AdminCodeTurbo";
 import AdminBackup from "@/pages/AdminBackupEnhanced";
 import AdminBackupTimeMachine from "@/pages/AdminBackupTimeMachine";
 import AdminUsers from "@/pages/AdminUsersEnhanced";
