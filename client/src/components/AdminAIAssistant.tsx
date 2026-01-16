@@ -251,6 +251,57 @@ What would you like to focus on today?`,
     inputRef.current?.focus();
   };
 
+  const sendDirectMessage = async (messageText: string) => {
+    if (!messageText.trim() || isLoading) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: messageText.trim(),
+      timestamp: new Date(),
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setIsLoading(true);
+
+    try {
+      const stats = statsQuery.data;
+      const result = await chatMutation.mutateAsync({
+        message: userMessage.content,
+        sessionId,
+        siteStats: stats ? {
+          totalPages: stats.totalPages,
+          totalArticles: stats.totalArticles,
+          totalProducts: stats.totalProducts,
+          totalEvents: stats.totalEvents,
+          totalOrders: stats.totalOrders,
+          totalSubscribers: stats.totalSubscribers,
+          unreadSubmissions: stats.unreadSubmissions,
+        } : undefined,
+      });
+      
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: result.message,
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error("AI response error:", error);
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "I apologize, but I encountered an error processing your request. Please try again.",
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopied(id);
@@ -517,7 +568,15 @@ What would you like to focus on today?`,
                       <p className="text-xs text-slate-400 mt-1">
                         Based on your current metrics, focus on creating more blog content and engaging with recent form submissions to build momentum.
                       </p>
-                      <Button size="sm" className="mt-3 bg-violet-600 hover:bg-violet-700 h-7 text-xs">
+                      <Button 
+                        size="sm" 
+                        className="mt-3 bg-violet-600 hover:bg-violet-700 h-7 text-xs"
+                        onClick={() => {
+                          setActiveTab("chat");
+                          const planPrompt = `Based on my current site metrics (${statsQuery.data?.totalPages || 0} pages, ${statsQuery.data?.totalArticles || 0} articles, ${statsQuery.data?.totalProducts || 0} products, ${statsQuery.data?.totalEvents || 0} events, ${statsQuery.data?.unreadSubmissions || 0} unread submissions), give me a detailed action plan for the next 7 days to grow my site and increase engagement.`;
+                          sendDirectMessage(planPrompt);
+                        }}
+                      >
                         Get detailed plan
                       </Button>
                     </div>
