@@ -35,6 +35,8 @@ import {
   Images,
   Blocks,
   Brain,
+  ArrowLeft,
+  LayoutDashboard,
 } from 'lucide-react';
 
 // Complete list of all admin navigation items matching the original design
@@ -115,6 +117,21 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
       </div>
 
       <nav className={`flex-1 min-h-0 overflow-y-auto ${isDark ? 'space-y-1 px-3' : 'p-4 space-y-1'}`}>
+        {/* Back to Dashboard button - show on all pages except dashboard */}
+        {location !== '/admin' && location !== '/admin/dashboard' && (
+          <button
+            onClick={() => setLocation('/admin/dashboard')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all mb-3 ${
+              isDark
+                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-lg shadow-purple-500/25'
+                : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-md'
+            }`}
+          >
+            <ArrowLeft className="w-5 h-5 flex-shrink-0" />
+            <span className="font-medium">Back to Dashboard</span>
+          </button>
+        )}
+        
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = location === item.path || 
