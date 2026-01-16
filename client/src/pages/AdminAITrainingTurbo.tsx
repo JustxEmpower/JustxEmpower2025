@@ -164,9 +164,9 @@ export default function AdminAITrainingTurbo() {
               </div>
               <div className="flex items-center gap-3">
                 <input type="file" ref={fileInputRef} accept=".json" onChange={handleFileUpload} className="hidden" />
-                <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="border-white/20 text-white hover:bg-white/10"><Upload className="w-4 h-4 mr-2" />Import</Button>
-                <Button variant="outline" size="sm" onClick={handleExport} className="border-white/20 text-white hover:bg-white/10"><Download className="w-4 h-4 mr-2" />Export</Button>
-                <Button variant="outline" size="sm" onClick={() => trainingQuery.refetch?.()} className="border-white/20 text-white hover:bg-white/10"><RefreshCw className="w-4 h-4" /></Button>
+                <Button variant="ghost" size="sm" onClick={() => fileInputRef.current?.click()} className="bg-white/10 border border-white/20 text-white hover:bg-white/20"><Upload className="w-4 h-4 mr-2" />Import</Button>
+                <Button variant="ghost" size="sm" onClick={handleExport} className="bg-white/10 border border-white/20 text-white hover:bg-white/20"><Download className="w-4 h-4 mr-2" />Export</Button>
+                <Button variant="ghost" size="sm" onClick={() => trainingQuery.refetch?.()} className="bg-white/10 border border-white/20 text-white hover:bg-white/20"><RefreshCw className="w-4 h-4" /></Button>
                 <Button onClick={() => setIsCreateOpen(true)} className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg"><Plus className="w-4 h-4 mr-2" />Add Training</Button>
               </div>
             </div>
