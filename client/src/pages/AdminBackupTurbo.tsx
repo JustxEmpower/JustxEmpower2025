@@ -3,7 +3,7 @@
  * All bells and whistles, fully functional
  */
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useLocation } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { trpc } from "@/lib/trpc";
@@ -23,14 +23,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { format, formatDistanceToNow, parseISO, isValid } from "date-fns";
 import { toast } from "sonner";
 import {
-  Clock, Download, Upload, Trash2, Plus, ChevronLeft, ChevronRight,
-  Database, Image, FileCode, Settings, Calendar, Shield, HardDrive,
-  RefreshCw, Check, AlertTriangle, Info, Layers, Play, Pause, Eye,
-  ArrowLeft, Sparkles, Zap, Archive, CloudUpload, History, Lock,
-  Unlock, CheckCircle, XCircle, Search, Filter, BarChart3, Activity,
-  TrendingUp, Loader2, Copy, FileJson, Table2, Users, ShoppingCart,
-  FileText, Mail, Star, Cpu, Timer, AlertOctagon, CheckCircle2,
-  ArrowUpRight, ArrowDownRight, Diff, GitCompare, RotateCcw, Rocket
+  Clock, Download, Trash2, Plus, Database, Settings, Shield, HardDrive,
+  RefreshCw, AlertTriangle, Eye, ArrowLeft, Zap, Archive, CloudUpload, History,
+  Search, Filter, BarChart3, Activity, Loader2, RotateCcw
 } from "lucide-react";
 
 // ============================================================================
@@ -51,20 +46,12 @@ interface Backup {
   lastVerifiedAt?: string | Date | null;
 }
 
-interface BackupStats {
-  totalBackups: number;
-  totalSize: number;
-  oldestBackup: string | Date | null;
-  newestBackup: string | Date | null;
-  averageSize: number;
-}
-
 // ============================================================================
 // UTILITIES
 // ============================================================================
 
 const formatBytes = (bytes: number): string => {
-  if (bytes === 0) return "0 B";
+  if (!bytes || isNaN(bytes) || bytes === 0) return "0 B";
   const k = 1024;
   const sizes = ["B", "KB", "MB", "GB", "TB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -110,7 +97,6 @@ export default function AdminBackupTurbo() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [showCompareModal, setShowCompareModal] = useState(false);
   const [showCleanupModal, setShowCleanupModal] = useState(false);
   
   // Backup Form State
@@ -125,10 +111,6 @@ export default function AdminBackupTurbo() {
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
   const [createSafetyBackup, setCreateSafetyBackup] = useState(true);
   const [mergeMode, setMergeMode] = useState(false);
-  
-  // Compare State
-  const [compareBackup1, setCompareBackup1] = useState<Backup | null>(null);
-  const [compareBackup2, setCompareBackup2] = useState<Backup | null>(null);
   
   // Cleanup State
   const [retentionDays, setRetentionDays] = useState(30);
@@ -182,11 +164,6 @@ export default function AdminBackupTurbo() {
     onError: (e) => toast.error(`Delete failed: ${e.message}`),
   });
 
-  const verifyMutation = trpc.admin.backups.verify.useQuery(
-    { backupId: selectedBackup?.id || 0 },
-    { enabled: !!selectedBackup && showPreviewModal }
-  );
-
   const cleanupMutation = trpc.admin.backups.cleanup.useMutation({
     onSuccess: (data) => {
       toast.success(`Cleaned up ${data.deleted} old backups`);
@@ -222,21 +199,11 @@ export default function AdminBackupTurbo() {
 
   // Compute analytics
   const analytics = useMemo(() => {
-    const byType = backups.reduce((acc: any, b: Backup) => {
+    const byType = backups.reduce((acc: Record<string, number>, b: Backup) => {
       acc[b.backupType] = (acc[b.backupType] || 0) + 1;
       return acc;
     }, {});
-    const byDay = backups.reduce((acc: any, b: Backup) => {
-      const day = safeFormat(b.createdAt, "yyyy-MM-dd");
-      acc[day] = (acc[day] || 0) + 1;
-      return acc;
-    }, {});
-    const sizeHistory = backups.slice(0, 10).map((b: Backup) => ({
-      name: safeFormat(b.createdAt, "MMM d"),
-      size: b.fileSize,
-    })).reverse();
-    
-    return { byType, byDay, sizeHistory };
+    return { byType };
   }, [backups]);
 
   // Handlers
@@ -289,11 +256,6 @@ export default function AdminBackupTurbo() {
     }
   };
 
-  const handleCopyBackupId = (backup: Backup) => {
-    navigator.clipboard.writeText(String(backup.id));
-    toast.success("Backup ID copied");
-  };
-
   // Loading state
   if (isChecking) {
     return (
@@ -336,27 +298,25 @@ export default function AdminBackupTurbo() {
                   <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-[10px]">TURBO</Badge>
                 </h1>
                 <p className="text-sm text-white/40">
-                  {stats.totalBackups} restore points • {formatBytes(stats.totalSize)} total
+                  {stats.totalBackups} restore points • {formatBytes(stats.totalSize || 0)} total
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
               <Button
-                variant="outline"
                 size="sm"
                 onClick={() => backupsQuery.refetch()}
-                className="border-white/10 text-white/60 hover:text-white hover:bg-white/10"
+                className="bg-white/10 border border-white/20 text-white hover:bg-white/20"
               >
                 <RefreshCw className={`w-4 h-4 mr-2 ${backupsQuery.isFetching ? "animate-spin" : ""}`} />
                 Refresh
               </Button>
               <Button
-                variant="outline"
                 size="sm"
                 onClick={() => triggerScheduledMutation.mutate()}
                 disabled={triggerScheduledMutation.isPending}
-                className="border-white/10 text-white/60 hover:text-white hover:bg-white/10"
+                className="bg-white/10 border border-white/20 text-white hover:bg-white/20"
               >
                 <Zap className="w-4 h-4 mr-2" />
                 Auto Backup
@@ -375,10 +335,10 @@ export default function AdminBackupTurbo() {
         {/* Live Status Bar */}
         <div className="relative z-10 px-6 py-3 border-b border-white/[0.04] bg-white/[0.01] flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <StatusPill icon={<Shield />} label="Protection" value="Active" status="success" />
-            <StatusPill icon={<HardDrive />} label="Storage" value={formatBytes(stats.totalSize)} status="info" />
-            <StatusPill icon={<Clock />} label="Last Backup" value={stats.newestBackup ? safeFormatDistance(stats.newestBackup) : "Never"} status="default" />
-            <StatusPill icon={<Database />} label="Live Records" value={Object.values(liveCounts).reduce((a: number, b: any) => a + (b || 0), 0).toLocaleString()} status="info" />
+            <StatusPill icon={<Shield className="w-4 h-4" />} label="Protection" value="Active" status="success" />
+            <StatusPill icon={<HardDrive className="w-4 h-4" />} label="Storage" value={formatBytes(stats.totalSize || 0)} status="info" />
+            <StatusPill icon={<Clock className="w-4 h-4" />} label="Last Backup" value={stats.newestBackup ? safeFormatDistance(stats.newestBackup) : "Never"} status="default" />
+            <StatusPill icon={<Database className="w-4 h-4" />} label="Live Records" value={Object.values(liveCounts).reduce((a: number, b: any) => a + (Number(b) || 0), 0).toLocaleString()} status="info" />
           </div>
           <div className="flex items-center gap-2 text-white/30 text-xs">
             <CloudUpload className="w-3.5 h-3.5" />
@@ -408,30 +368,76 @@ export default function AdminBackupTurbo() {
 
           {/* Dashboard Tab */}
           <TabsContent value="dashboard" className="flex-1 overflow-auto p-6 m-0">
+            {/* Stats Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              {[
-                { label: "Total Backups", value: stats.totalBackups, icon: Archive, color: "purple", trend: "+3 this week" },
-                { label: "Total Storage", value: formatBytes(stats.totalSize), icon: HardDrive, color: "blue", isText: true },
-                { label: "Avg Backup Size", value: formatBytes(stats.averageSize), icon: Database, color: "emerald", isText: true },
-                { label: "Last Backup", value: stats.newestBackup ? safeFormatDistance(stats.newestBackup) : "Never", icon: Clock, color: "amber", isText: true },
-              ].map((stat, i) => (
-                <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                  <Card className={`bg-gradient-to-br from-${stat.color}-500/10 to-${stat.color}-600/5 border-${stat.color}-500/20 hover:border-${stat.color}-500/40 transition-all`}>
-                    <CardContent className="p-5">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <p className={`text-xs font-medium text-${stat.color}-400 uppercase tracking-wide`}>{stat.label}</p>
-                          <p className="text-2xl font-bold text-white mt-1">{stat.isText ? stat.value : stat.value}</p>
-                          {stat.trend && <p className="text-xs text-white/40 mt-1">{stat.trend}</p>}
-                        </div>
-                        <div className={`w-12 h-12 rounded-xl bg-${stat.color}-500/20 flex items-center justify-center`}>
-                          <stat.icon className={`w-6 h-6 text-${stat.color}-400`} />
-                        </div>
+              {/* Total Backups */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
+                <Card className="bg-gradient-to-br from-purple-500/10 to-purple-600/5 border-purple-500/20 hover:border-purple-500/40 transition-all">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-medium text-purple-400 uppercase tracking-wide">Total Backups</p>
+                        <p className="text-2xl font-bold text-white mt-1">{stats.totalBackups || 0}</p>
+                        <p className="text-xs text-white/40 mt-1">All restore points</p>
                       </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
+                      <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                        <Archive className="w-6 h-6 text-purple-400" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              {/* Total Storage */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+                <Card className="bg-gradient-to-br from-blue-500/10 to-blue-600/5 border-blue-500/20 hover:border-blue-500/40 transition-all">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-medium text-blue-400 uppercase tracking-wide">Total Storage</p>
+                        <p className="text-2xl font-bold text-white mt-1">{formatBytes(stats.totalSize || 0)}</p>
+                        <p className="text-xs text-white/40 mt-1">S3 cloud storage</p>
+                      </div>
+                      <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                        <HardDrive className="w-6 h-6 text-blue-400" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              {/* Avg Backup Size */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+                <Card className="bg-gradient-to-br from-emerald-500/10 to-emerald-600/5 border-emerald-500/20 hover:border-emerald-500/40 transition-all">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-medium text-emerald-400 uppercase tracking-wide">Avg Backup Size</p>
+                        <p className="text-2xl font-bold text-white mt-1">{formatBytes(stats.averageSize || 0)}</p>
+                        <p className="text-xs text-white/40 mt-1">Per backup</p>
+                      </div>
+                      <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                        <Database className="w-6 h-6 text-emerald-400" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+              {/* Last Backup */}
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+                <Card className="bg-gradient-to-br from-amber-500/10 to-amber-600/5 border-amber-500/20 hover:border-amber-500/40 transition-all">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-xs font-medium text-amber-400 uppercase tracking-wide">Last Backup</p>
+                        <p className="text-2xl font-bold text-white mt-1">{stats.newestBackup ? safeFormatDistance(stats.newestBackup) : "Never"}</p>
+                        <p className="text-xs text-white/40 mt-1">Most recent</p>
+                      </div>
+                      <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                        <Clock className="w-6 h-6 text-amber-400" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
             </div>
 
             {/* Quick Actions */}
@@ -439,33 +445,33 @@ export default function AdminBackupTurbo() {
               <Card className="bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04] transition-all cursor-pointer" onClick={() => setShowCreateModal(true)}>
                 <CardContent className="p-6 flex items-center gap-4">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-violet-600 flex items-center justify-center">
-                    <Plus className="w-7 h-7" />
+                    <Plus className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">Create Backup</h3>
-                    <p className="text-sm text-white/40">Snapshot current state</p>
+                    <h3 className="font-semibold text-white">Create Backup</h3>
+                    <p className="text-sm text-white/60">Snapshot current state</p>
                   </div>
                 </CardContent>
               </Card>
               <Card className="bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04] transition-all cursor-pointer" onClick={() => setActiveTab("restore")}>
                 <CardContent className="p-6 flex items-center gap-4">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
-                    <RotateCcw className="w-7 h-7" />
+                    <RotateCcw className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">Restore Data</h3>
-                    <p className="text-sm text-white/40">Roll back to previous state</p>
+                    <h3 className="font-semibold text-white">Restore Data</h3>
+                    <p className="text-sm text-white/60">Roll back to previous state</p>
                   </div>
                 </CardContent>
               </Card>
               <Card className="bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04] transition-all cursor-pointer" onClick={() => setShowCleanupModal(true)}>
                 <CardContent className="p-6 flex items-center gap-4">
                   <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-pink-600 flex items-center justify-center">
-                    <Trash2 className="w-7 h-7" />
+                    <Trash2 className="w-7 h-7 text-white" />
                   </div>
                   <div>
-                    <h3 className="font-semibold">Cleanup Old</h3>
-                    <p className="text-sm text-white/40">Remove outdated backups</p>
+                    <h3 className="font-semibold text-white">Cleanup Old</h3>
+                    <p className="text-sm text-white/60">Remove outdated backups</p>
                   </div>
                 </CardContent>
               </Card>
@@ -474,12 +480,12 @@ export default function AdminBackupTurbo() {
             {/* Recent Backups */}
             <Card className="bg-white/[0.02] border-white/[0.06]">
               <CardHeader>
-                <CardTitle className="text-lg">Recent Backups</CardTitle>
+                <CardTitle className="text-lg text-white">Recent Backups</CardTitle>
                 <CardDescription>Latest restore points</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {backups.slice(0, 5).map((backup: Backup, i: number) => (
+                  {backups.slice(0, 5).map((backup: Backup) => (
                     <BackupRow 
                       key={backup.id} 
                       backup={backup} 
@@ -537,7 +543,6 @@ export default function AdminBackupTurbo() {
                     onDownload={() => handleDownload(backup)}
                     onRestore={() => { setSelectedBackup(backup); setShowRestoreModal(true); }}
                     onDelete={() => { if (confirm(`Delete "${backup.backupName}"?`)) deleteMutation.mutate({ backupId: backup.id }); }}
-                    onCopy={() => handleCopyBackupId(backup)}
                   />
                 </motion.div>
               ))}
@@ -550,7 +555,7 @@ export default function AdminBackupTurbo() {
               {/* Select Backup */}
               <Card className="bg-white/[0.02] border-white/[0.06]">
                 <CardHeader>
-                  <CardTitle>Select Backup to Restore</CardTitle>
+                  <CardTitle className="text-white">Select Backup to Restore</CardTitle>
                   <CardDescription>Choose a restore point</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -574,11 +579,11 @@ export default function AdminBackupTurbo() {
                                 <Archive className="w-5 h-5 text-purple-400" />
                               </div>
                               <div>
-                                <p className="font-medium text-sm">{backup.backupName}</p>
+                                <p className="font-medium text-sm text-white">{backup.backupName}</p>
                                 <p className="text-xs text-white/40">{safeFormat(backup.createdAt, "MMM d, yyyy 'at' h:mm a")}</p>
                               </div>
                             </div>
-                            <Badge className={backup.backupType === 'manual' ? 'bg-white/10' : 'bg-blue-500/20 text-blue-400'}>
+                            <Badge className={backup.backupType === 'manual' ? 'bg-white/10 text-white/60' : 'bg-blue-500/20 text-blue-400'}>
                               {backup.backupType}
                             </Badge>
                           </div>
@@ -592,7 +597,7 @@ export default function AdminBackupTurbo() {
               {/* Restore Options */}
               <Card className="bg-white/[0.02] border-white/[0.06]">
                 <CardHeader>
-                  <CardTitle>Restore Options</CardTitle>
+                  <CardTitle className="text-white">Restore Options</CardTitle>
                   <CardDescription>Configure how to restore</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -602,7 +607,7 @@ export default function AdminBackupTurbo() {
                       <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20">
                         <div className="flex items-center gap-3 mb-2">
                           <Archive className="w-5 h-5 text-purple-400" />
-                          <span className="font-medium">{selectedBackup.backupName}</span>
+                          <span className="font-medium text-white">{selectedBackup.backupName}</span>
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-sm text-white/60">
                           <span>Size: {formatBytes(selectedBackup.fileSize)}</span>
@@ -614,14 +619,14 @@ export default function AdminBackupTurbo() {
                       <div className="space-y-4">
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-medium text-sm">Create Safety Backup</p>
+                            <p className="font-medium text-sm text-white">Create Safety Backup</p>
                             <p className="text-xs text-white/40">Backup current state before restore</p>
                           </div>
                           <Switch checked={createSafetyBackup} onCheckedChange={setCreateSafetyBackup} />
                         </div>
                         <div className="flex items-center justify-between">
                           <div>
-                            <p className="font-medium text-sm">Merge Mode</p>
+                            <p className="font-medium text-sm text-white">Merge Mode</p>
                             <p className="text-xs text-white/40">Add data instead of replacing</p>
                           </div>
                           <Switch checked={mergeMode} onCheckedChange={setMergeMode} />
@@ -634,7 +639,7 @@ export default function AdminBackupTurbo() {
                           variant="outline"
                           onClick={() => handleRestore(true)}
                           disabled={restoreMutation.isPending}
-                          className="flex-1 border-white/10"
+                          className="flex-1 border-white/10 text-white hover:bg-white/10"
                         >
                           <Eye className="w-4 h-4 mr-2" />
                           Dry Run
@@ -666,19 +671,19 @@ export default function AdminBackupTurbo() {
               {/* Backup Types Distribution */}
               <Card className="bg-white/[0.02] border-white/[0.06]">
                 <CardHeader>
-                  <CardTitle className="text-base">Backup Types</CardTitle>
+                  <CardTitle className="text-base text-white">Backup Types</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {Object.entries(analytics.byType).map(([type, count]: [string, any]) => (
+                    {Object.entries(analytics.byType).map(([type, count]: [string, number]) => (
                       <div key={type} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className={`w-3 h-3 rounded-full ${
                             type === 'manual' ? 'bg-purple-500' : type === 'auto' ? 'bg-emerald-500' : 'bg-blue-500'
                           }`} />
-                          <span className="text-sm capitalize">{type}</span>
+                          <span className="text-sm capitalize text-white/80">{type}</span>
                         </div>
-                        <span className="font-medium">{count}</span>
+                        <span className="font-medium text-white">{count}</span>
                       </div>
                     ))}
                   </div>
@@ -688,15 +693,15 @@ export default function AdminBackupTurbo() {
               {/* Storage Usage */}
               <Card className="bg-white/[0.02] border-white/[0.06]">
                 <CardHeader>
-                  <CardTitle className="text-base">Storage Usage</CardTitle>
+                  <CardTitle className="text-base text-white">Storage Usage</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-center py-4">
-                    <div className="text-4xl font-bold text-purple-400">{formatBytes(stats.totalSize)}</div>
+                    <div className="text-4xl font-bold text-purple-400">{formatBytes(stats.totalSize || 0)}</div>
                     <p className="text-sm text-white/40 mt-1">Total backup storage</p>
                   </div>
                   <div className="mt-4">
-                    <Progress value={Math.min((stats.totalSize / (1024 * 1024 * 1024)) * 100, 100)} className="h-2" />
+                    <Progress value={Math.min(((stats.totalSize || 0) / (1024 * 1024 * 1024)) * 100, 100)} className="h-2" />
                     <p className="text-xs text-white/40 mt-2 text-center">of 1 GB limit</p>
                   </div>
                 </CardContent>
@@ -705,14 +710,14 @@ export default function AdminBackupTurbo() {
               {/* Live Database Stats */}
               <Card className="bg-white/[0.02] border-white/[0.06]">
                 <CardHeader>
-                  <CardTitle className="text-base">Live Database</CardTitle>
+                  <CardTitle className="text-base text-white">Live Database</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
                     {Object.entries(liveCounts).slice(0, 8).map(([table, count]: [string, any]) => (
                       <div key={table} className="flex items-center justify-between text-sm">
                         <span className="text-white/60 capitalize">{table.replace(/([A-Z])/g, ' $1').trim()}</span>
-                        <span className="font-medium">{count?.toLocaleString() || 0}</span>
+                        <span className="font-medium text-white">{(Number(count) || 0).toLocaleString()}</span>
                       </div>
                     ))}
                   </div>
@@ -726,17 +731,17 @@ export default function AdminBackupTurbo() {
             <div className="max-w-2xl space-y-6">
               <Card className="bg-white/[0.02] border-white/[0.06]">
                 <CardHeader>
-                  <CardTitle>Backup Retention</CardTitle>
+                  <CardTitle className="text-white">Backup Retention</CardTitle>
                   <CardDescription>Configure automatic cleanup</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">Retention Period</p>
+                      <p className="font-medium text-white">Retention Period</p>
                       <p className="text-sm text-white/40">Delete backups older than this</p>
                     </div>
                     <Select value={String(retentionDays)} onValueChange={(v) => setRetentionDays(Number(v))}>
-                      <SelectTrigger className="w-32 bg-white/[0.04] border-white/[0.08]">
+                      <SelectTrigger className="w-32 bg-white/[0.04] border-white/[0.08] text-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -757,7 +762,7 @@ export default function AdminBackupTurbo() {
 
               <Card className="bg-white/[0.02] border-white/[0.06]">
                 <CardHeader>
-                  <CardTitle>Automatic Backups</CardTitle>
+                  <CardTitle className="text-white">Automatic Backups</CardTitle>
                   <CardDescription>Schedule regular backups</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -810,21 +815,21 @@ export default function AdminBackupTurbo() {
               </div>
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <p className="font-medium text-sm">Include Media References</p>
+                  <p className="font-medium text-sm text-white">Include Media References</p>
                   <p className="text-xs text-white/40">Backup media file URLs</p>
                 </div>
                 <Switch checked={includeMedia} onCheckedChange={setIncludeMedia} />
               </div>
               <div className="flex items-center justify-between py-2">
                 <div>
-                  <p className="font-medium text-sm">Include Configuration</p>
+                  <p className="font-medium text-sm text-white">Include Configuration</p>
                   <p className="text-xs text-white/40">Site settings and theme</p>
                 </div>
                 <Switch checked={includeConfig} onCheckedChange={setIncludeConfig} />
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowCreateModal(false)} className="border-white/10">Cancel</Button>
+              <Button variant="outline" onClick={() => setShowCreateModal(false)} className="border-white/10 text-white hover:bg-white/10">Cancel</Button>
               <Button onClick={handleCreateBackup} disabled={createMutation.isPending || !backupName.trim()} className="bg-gradient-to-r from-purple-500 to-violet-600">
                 {createMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Plus className="w-4 h-4 mr-2" />}
                 Create Backup
@@ -848,7 +853,7 @@ export default function AdminBackupTurbo() {
             {selectedBackup && (
               <div className="space-y-4 py-4">
                 <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                  <p className="font-medium">{selectedBackup.backupName}</p>
+                  <p className="font-medium text-white">{selectedBackup.backupName}</p>
                   <p className="text-sm text-white/40">{safeFormat(selectedBackup.createdAt, "MMMM d, yyyy 'at' h:mm a")}</p>
                 </div>
                 <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20">
@@ -870,7 +875,7 @@ export default function AdminBackupTurbo() {
               </div>
             )}
             <DialogFooter>
-              <Button variant="outline" onClick={() => { setShowRestoreModal(false); setRestoreConfirmText(""); }} className="border-white/10">Cancel</Button>
+              <Button variant="outline" onClick={() => { setShowRestoreModal(false); setRestoreConfirmText(""); }} className="border-white/10 text-white hover:bg-white/10">Cancel</Button>
               <Button onClick={() => handleRestore(false)} disabled={restoreMutation.isPending || restoreConfirmText !== "RESTORE"} className="bg-gradient-to-r from-red-500 to-orange-600">
                 {restoreMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RotateCcw className="w-4 h-4 mr-2" />}
                 Restore Now
@@ -893,15 +898,15 @@ export default function AdminBackupTurbo() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                     <p className="text-xs text-white/40 uppercase tracking-wide mb-1">Name</p>
-                    <p className="font-medium">{selectedBackup.backupName}</p>
+                    <p className="font-medium text-white">{selectedBackup.backupName}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                     <p className="text-xs text-white/40 uppercase tracking-wide mb-1">Size</p>
-                    <p className="font-medium">{formatBytes(selectedBackup.fileSize)}</p>
+                    <p className="font-medium text-white">{formatBytes(selectedBackup.fileSize)}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                     <p className="text-xs text-white/40 uppercase tracking-wide mb-1">Created</p>
-                    <p className="font-medium">{safeFormat(selectedBackup.createdAt, "MMM d, yyyy h:mm a")}</p>
+                    <p className="font-medium text-white">{safeFormat(selectedBackup.createdAt, "MMM d, yyyy h:mm a")}</p>
                   </div>
                   <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                     <p className="text-xs text-white/40 uppercase tracking-wide mb-1">Type</p>
@@ -913,13 +918,13 @@ export default function AdminBackupTurbo() {
                 {selectedBackup.description && (
                   <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                     <p className="text-xs text-white/40 uppercase tracking-wide mb-1">Description</p>
-                    <p className="text-sm">{selectedBackup.description}</p>
+                    <p className="text-sm text-white">{selectedBackup.description}</p>
                   </div>
                 )}
               </div>
             )}
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowPreviewModal(false)} className="border-white/10">Close</Button>
+              <Button variant="outline" onClick={() => setShowPreviewModal(false)} className="border-white/10 text-white hover:bg-white/10">Close</Button>
               <Button onClick={() => selectedBackup && handleDownload(selectedBackup)} className="bg-blue-600 hover:bg-blue-700">
                 <Download className="w-4 h-4 mr-2" />Download
               </Button>
@@ -948,7 +953,7 @@ export default function AdminBackupTurbo() {
               </div>
             </div>
             <DialogFooter>
-              <Button variant="outline" onClick={() => setShowCleanupModal(false)} className="border-white/10">Cancel</Button>
+              <Button variant="outline" onClick={() => setShowCleanupModal(false)} className="border-white/10 text-white hover:bg-white/10">Cancel</Button>
               <Button onClick={() => cleanupMutation.mutate({ retentionDays })} disabled={cleanupMutation.isPending} className="bg-red-600 hover:bg-red-700">
                 {cleanupMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Trash2 className="w-4 h-4 mr-2" />}
                 Delete Old Backups
@@ -996,7 +1001,7 @@ function BackupRow({ backup, onPreview, onDownload, onRestore, onDelete }: {
           <Archive className="w-5 h-5 text-purple-400" />
         </div>
         <div>
-          <p className="font-medium text-sm">{backup.backupName}</p>
+          <p className="font-medium text-sm text-white">{backup.backupName}</p>
           <p className="text-xs text-white/40">{safeFormat(backup.createdAt, "MMM d, yyyy 'at' h:mm a")} • {formatBytes(backup.fileSize)}</p>
         </div>
       </div>
@@ -1010,13 +1015,12 @@ function BackupRow({ backup, onPreview, onDownload, onRestore, onDelete }: {
   );
 }
 
-function BackupCard({ backup, onPreview, onDownload, onRestore, onDelete, onCopy }: {
+function BackupCard({ backup, onPreview, onDownload, onRestore, onDelete }: {
   backup: Backup;
   onPreview: () => void;
   onDownload: () => void;
   onRestore: () => void;
   onDelete: () => void;
-  onCopy: () => void;
 }) {
   return (
     <Card className="bg-white/[0.02] border-white/[0.06] hover:bg-white/[0.04] hover:border-white/[0.1] transition-all group">
@@ -1027,7 +1031,7 @@ function BackupCard({ backup, onPreview, onDownload, onRestore, onDelete, onCopy
               <Archive className="w-6 h-6 text-purple-400" />
             </div>
             <div>
-              <h3 className="font-medium text-sm line-clamp-1">{backup.backupName}</h3>
+              <h3 className="font-medium text-sm line-clamp-1 text-white">{backup.backupName}</h3>
               <p className="text-xs text-white/40">{safeFormat(backup.createdAt, "MMM d 'at' h:mm a")}</p>
             </div>
           </div>
@@ -1046,10 +1050,10 @@ function BackupCard({ backup, onPreview, onDownload, onRestore, onDelete, onCopy
         </div>
         
         <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-          <Button variant="ghost" size="sm" onClick={onPreview} className="flex-1 h-8 text-xs"><Eye className="w-3 h-3 mr-1" />View</Button>
-          <Button variant="ghost" size="sm" onClick={onDownload} className="flex-1 h-8 text-xs"><Download className="w-3 h-3 mr-1" />Get</Button>
-          <Button variant="ghost" size="sm" onClick={onRestore} className="flex-1 h-8 text-xs text-amber-400"><RotateCcw className="w-3 h-3 mr-1" />Restore</Button>
-          <Button variant="ghost" size="sm" onClick={onDelete} className="h-8 px-2 text-red-400"><Trash2 className="w-3 h-3" /></Button>
+          <Button variant="ghost" size="sm" onClick={onPreview} className="flex-1 h-8 text-xs text-white/60 hover:text-white"><Eye className="w-3 h-3 mr-1" />View</Button>
+          <Button variant="ghost" size="sm" onClick={onDownload} className="flex-1 h-8 text-xs text-white/60 hover:text-white"><Download className="w-3 h-3 mr-1" />Get</Button>
+          <Button variant="ghost" size="sm" onClick={onRestore} className="flex-1 h-8 text-xs text-amber-400 hover:text-amber-300"><RotateCcw className="w-3 h-3 mr-1" />Restore</Button>
+          <Button variant="ghost" size="sm" onClick={onDelete} className="h-8 px-2 text-red-400 hover:text-red-300"><Trash2 className="w-3 h-3" /></Button>
         </div>
       </CardContent>
     </Card>
