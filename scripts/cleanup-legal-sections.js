@@ -21,7 +21,7 @@ const pages = ["accessibility", "privacy-policy", "terms-of-service", "cookie-po
 for (const page of pages) {
   const placeholders = oldSections.map(() => "?").join(",");
   const [result] = await conn.execute(
-    `DELETE FROM pageContent WHERE page = ? AND section IN (${placeholders})`, 
+    `DELETE FROM siteContent WHERE page = ? AND section IN (${placeholders})`, 
     [page, ...oldSections]
   );
   console.log(`${page}: deleted ${result.affectedRows} rows`);
