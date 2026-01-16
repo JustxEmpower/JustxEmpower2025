@@ -33,7 +33,7 @@ import AdminRevenue from "@/pages/AdminRevenueEnhanced";
 import AdminPayments from "@/pages/AdminPaymentsEnhanced";
 import AdminFinancialAnalytics from "@/pages/AdminFinancialAnalyticsEnhanced";
 import AdminResourcesPage from "@/pages/AdminResourcesPage";
-import AdminContactMessages from "@/pages/AdminContactMessagesEnhanced";
+import AdminContactMessages from "@/pages/AdminMessagesInbox";
 import AdminCarousel from "@/pages/AdminCarouselEnhanced";
 import AdminCarouselManager from "@/pages/AdminCarouselManagerEnhanced";
 import AdminAITraining from "@/pages/AdminAITrainingEnhanced";

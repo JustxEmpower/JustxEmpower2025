@@ -3,7 +3,8 @@ import { publicProcedure, router } from "./_core/trpc";
 import { getDb } from "./db";
 import * as schema from "../drizzle/schema";
 import { TRPCError } from "@trpc/server";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql, and, or, like } from "drizzle-orm";
+import { sendEmail } from "./emailService";
 
 export const contactRouter = router({
   // Submit contact form (public)
@@ -111,4 +112,125 @@ export const contactRouter = router({
 
       return { success: true };
     }),
+
+  // Bulk delete submissions
+  bulkDelete: publicProcedure
+    .input(z.object({ ids: z.array(z.number()) }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      }
+
+      for (const id of input.ids) {
+        await db.delete(schema.contactSubmissions).where(eq(schema.contactSubmissions.id, id));
+      }
+
+      return { success: true, deleted: input.ids.length };
+    }),
+
+  // Bulk update status
+  bulkUpdateStatus: publicProcedure
+    .input(z.object({
+      ids: z.array(z.number()),
+      status: z.enum(["new", "read", "replied", "archived"]),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      }
+
+      for (const id of input.ids) {
+        await db.update(schema.contactSubmissions)
+          .set({ status: input.status })
+          .where(eq(schema.contactSubmissions.id, id));
+      }
+
+      return { success: true, updated: input.ids.length };
+    }),
+
+  // Send reply email
+  reply: publicProcedure
+    .input(z.object({
+      id: z.number(),
+      toEmail: z.string().email(),
+      toName: z.string(),
+      subject: z.string(),
+      message: z.string(),
+    }))
+    .mutation(async ({ input }) => {
+      const db = await getDb();
+      if (!db) {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      }
+
+      try {
+        // Send the reply email
+        const htmlContent = `
+          <div style="font-family: 'Inter', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+            <div style="background: linear-gradient(135deg, #d4a574 0%, #c9956c 100%); padding: 30px; border-radius: 12px 12px 0 0;">
+              <h1 style="color: white; margin: 0; font-size: 24px;">Just Empower</h1>
+            </div>
+            <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e5e5; border-top: none; border-radius: 0 0 12px 12px;">
+              <p style="color: #525252; margin: 0 0 20px 0;">Dear ${input.toName},</p>
+              <div style="color: #404040; line-height: 1.6; white-space: pre-wrap;">${input.message}</div>
+              <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 30px 0;" />
+              <p style="color: #737373; font-size: 14px; margin: 0;">
+                Best regards,<br />
+                <strong>The Just Empower Team</strong>
+              </p>
+            </div>
+            <div style="text-align: center; padding: 20px; color: #a3a3a3; font-size: 12px;">
+              <p>Just Empower | Where Empowerment Becomes Embodiment</p>
+            </div>
+          </div>
+        `;
+
+        await sendEmail({
+          to: [input.toEmail],
+          subject: input.subject,
+          htmlContent,
+        });
+
+        // Update the submission status and save reply
+        await db.update(schema.contactSubmissions)
+          .set({
+            status: "replied",
+            repliedAt: new Date(),
+            notes: `Reply sent: ${input.subject}\n\n${input.message}`,
+          })
+          .where(eq(schema.contactSubmissions.id, input.id));
+
+        return { success: true, message: "Reply sent successfully!" };
+      } catch (error: any) {
+        console.error("Error sending reply:", error);
+        throw new TRPCError({ 
+          code: "INTERNAL_SERVER_ERROR", 
+          message: error.message || "Failed to send reply" 
+        });
+      }
+    }),
+
+  // Get stats
+  stats: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) {
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+    }
+
+    const [total] = await db.select({ count: sql<number>`count(*)` }).from(schema.contactSubmissions);
+    const [newCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.contactSubmissions).where(eq(schema.contactSubmissions.status, "new"));
+    const [readCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.contactSubmissions).where(eq(schema.contactSubmissions.status, "read"));
+    const [repliedCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.contactSubmissions).where(eq(schema.contactSubmissions.status, "replied"));
+    const [archivedCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.contactSubmissions).where(eq(schema.contactSubmissions.status, "archived"));
+
+    return {
+      total: total?.count || 0,
+      new: newCount?.count || 0,
+      read: readCount?.count || 0,
+      replied: repliedCount?.count || 0,
+      archived: archivedCount?.count || 0,
+    };
+  }),
 });
