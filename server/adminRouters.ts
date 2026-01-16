@@ -2779,8 +2779,6 @@ export const adminRouter = router({
         const possiblePaths = [
           path.resolve(process.cwd(), input.filePath),
           path.resolve("/var/www/justxempower", input.filePath),
-          path.resolve(__dirname, "../", input.filePath),
-          path.resolve(__dirname, "../../", input.filePath),
         ];
         
         let fullPath = "";
@@ -2824,8 +2822,6 @@ export const adminRouter = router({
         const basePaths = [
           process.cwd(),
           "/var/www/justxempower",
-          path.resolve(__dirname, ".."),
-          path.resolve(__dirname, "../.."),
         ];
         
         let baseDir = "";
@@ -2953,8 +2949,6 @@ export const adminRouter = router({
         const possiblePaths = [
           path.resolve(process.cwd(), "client/src"),
           path.resolve("/var/www/justxempower/client/src"),
-          path.resolve(__dirname, "../client/src"),
-          path.resolve(__dirname, "../../client/src"),
         ];
         
         let basePath = "";
