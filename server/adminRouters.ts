@@ -4149,7 +4149,26 @@ export const aiTrainingRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
         }
         
-        const fullPath = path.resolve(process.cwd(), input.filePath);
+        // Try multiple base paths
+        const relativePath = input.filePath.replace("client/src/", "");
+        const possiblePaths = [
+          path.resolve(process.cwd(), input.filePath),
+          path.resolve("/var/www/justxempower", input.filePath),
+          path.resolve(__dirname, "../", input.filePath),
+          path.resolve(__dirname, "../../", input.filePath),
+        ];
+        
+        let fullPath = "";
+        for (const p of possiblePaths) {
+          if (fs.existsSync(p)) {
+            fullPath = p;
+            break;
+          }
+        }
+        
+        if (!fullPath) {
+          throw new TRPCError({ code: "NOT_FOUND", message: `File not found. Tried: ${possiblePaths[0]}` });
+        }
         
         try {
           const content = fs.readFileSync(fullPath, "utf-8");
@@ -4162,7 +4181,7 @@ export const aiTrainingRouter = router({
             modified: stats.mtime.toISOString(),
           };
         } catch (e: any) {
-          throw new TRPCError({ code: "NOT_FOUND", message: `File not found: ${e.message}` });
+          throw new TRPCError({ code: "NOT_FOUND", message: `File read error: ${e.message}` });
         }
       }),
 
@@ -4178,8 +4197,28 @@ export const aiTrainingRouter = router({
           throw new TRPCError({ code: "FORBIDDEN", message: "Access denied" });
         }
         
-        const fullPath = path.resolve(process.cwd(), input.filePath);
-        const backupDir = path.resolve(process.cwd(), ".code-backups");
+        // Try multiple base paths
+        const basePaths = [
+          process.cwd(),
+          "/var/www/justxempower",
+          path.resolve(__dirname, ".."),
+          path.resolve(__dirname, "../.."),
+        ];
+        
+        let baseDir = "";
+        for (const b of basePaths) {
+          if (fs.existsSync(path.join(b, "client/src"))) {
+            baseDir = b;
+            break;
+          }
+        }
+        
+        if (!baseDir) {
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Cannot find base directory" });
+        }
+        
+        const fullPath = path.resolve(baseDir, input.filePath);
+        const backupDir = path.resolve(baseDir, ".code-backups");
         
         try {
           // Create backup if file exists
@@ -4292,7 +4331,29 @@ export const aiTrainingRouter = router({
 
     getDirectoryTree: adminProcedure
       .query(async () => {
-        const basePath = path.resolve(process.cwd(), "client/src");
+        // Try multiple possible paths for the source code
+        const possiblePaths = [
+          path.resolve(process.cwd(), "client/src"),
+          path.resolve("/var/www/justxempower/client/src"),
+          path.resolve(__dirname, "../client/src"),
+          path.resolve(__dirname, "../../client/src"),
+        ];
+        
+        let basePath = "";
+        for (const p of possiblePaths) {
+          if (fs.existsSync(p)) {
+            basePath = p;
+            break;
+          }
+        }
+        
+        if (!basePath) {
+          // Return debug info
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: `Source directory not found. CWD: ${process.cwd()}, Tried: ${possiblePaths.join(", ")}`,
+          });
+        }
         
         const scanDir = (dirPath: string, relativePath: string = ""): any[] => {
           try {
@@ -4328,12 +4389,13 @@ export const aiTrainingRouter = router({
                 if (a.type !== "directory" && b.type === "directory") return 1;
                 return a.name.localeCompare(b.name);
               });
-          } catch {
+          } catch (e: any) {
+            console.error("scanDir error:", e.message);
             return [];
           }
         };
         
-        return { tree: scanDir(basePath) };
+        return { tree: scanDir(basePath), basePath };
       }),
 
     // AI Code Assistant
