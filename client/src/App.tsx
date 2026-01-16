@@ -19,7 +19,7 @@ import AdminNavigation from "@/pages/AdminNavigationManager";
 import AdminForms from "@/pages/AdminFormsTurbo";
 import AdminRedirects from "@/pages/AdminRedirectsEnhanced";
 import AdminCode from "@/pages/AdminCodeTurbo";
-import AdminSourceEditor from "@/pages/AdminSourceEditor";
+import AdminSourceEditor from "@/pages/AdminSourceEditorTurbo";
 import AdminBackup from "@/pages/AdminBackupEnhanced";
 import AdminBackupTimeMachine from "@/pages/AdminBackupTimeMachine";
 import AdminUsers from "@/pages/AdminUsersEnhanced";
