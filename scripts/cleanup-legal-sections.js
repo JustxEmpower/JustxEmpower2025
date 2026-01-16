@@ -7,24 +7,27 @@ const conn = await mysql.createConnection({
   database: process.env.DB_NAME
 });
 
-const oldSections = [
-  "commitment", "conformance", "introduction", "informationCollect", 
-  "howWeUse", "dataSharing", "dataSecurity", "cookies", "yourRights", 
-  "childrenPrivacy", "changes", "contact", "acceptance", "useOfService", 
-  "userAccounts", "intellectualProperty", "userContent", "prohibitedUses", 
-  "disclaimer", "limitation", "indemnification", "termination", "governing", 
-  "whatAreCookies", "typesOfCookies", "thirdParty", "managing", "yourChoices"
-];
+const pageSlugs = ["accessibility", "privacy-policy", "terms-of-service", "cookie-policy"];
 
-const pages = ["accessibility", "privacy-policy", "terms-of-service", "cookie-policy"];
-
-for (const page of pages) {
-  const placeholders = oldSections.map(() => "?").join(",");
-  const [result] = await conn.execute(
-    `DELETE FROM siteContent WHERE page = ? AND section IN (${placeholders})`, 
-    [page, ...oldSections]
+// Delete all numbered sections from pageSections for these legal pages
+for (const slug of pageSlugs) {
+  // First find the page ID
+  const [pages] = await conn.execute(
+    `SELECT id FROM pages WHERE slug = ?`,
+    [slug]
   );
-  console.log(`${page}: deleted ${result.affectedRows} rows`);
+  
+  if (pages.length > 0) {
+    const pageId = pages[0].id;
+    // Delete all sections for this page from pageSections
+    const [result] = await conn.execute(
+      `DELETE FROM pageSections WHERE pageId = ?`,
+      [pageId]
+    );
+    console.log(`${slug} (pageId ${pageId}): deleted ${result.affectedRows} sections from pageSections`);
+  } else {
+    console.log(`${slug}: page not found in pages table`);
+  }
 }
 
 await conn.end();
