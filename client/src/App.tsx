@@ -13,7 +13,7 @@ import AdminPages from "@/pages/AdminPagesEnhanced";
 import DynamicPage from "@/pages/DynamicPage";
 import DynamicPageRouter from "@/pages/DynamicPageRouter";
 import AdminAnalytics from "@/pages/AdminAnalyticsEnhanced";
-import AdminBrand from "@/pages/AdminBrandEnhanced";
+import AdminBrand from "@/pages/AdminBrandManager";
 import AdminSEO from "@/pages/AdminSEOEnhanced";
 import AdminNavigation from "@/pages/AdminNavigationManager";
 import AdminForms from "@/pages/AdminFormsEnhanced";
