@@ -20,7 +20,8 @@ import {
   BookOpen, 
   FolderOpen,
   ExternalLink,
-  Sparkles
+  Sparkles,
+  ArrowLeft
 } from 'lucide-react';
 
 // Define available pages and their zones
@@ -117,6 +118,15 @@ export default function AdminZoneManager() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => navigate('/admin/dashboard')}
+            className="mb-4 -ml-2"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Dashboard
+          </Button>
           <div className="flex items-center gap-3 mb-2">
             <div className="p-2 rounded-lg bg-primary/10">
               <Layers className="w-6 h-6 text-primary" />
