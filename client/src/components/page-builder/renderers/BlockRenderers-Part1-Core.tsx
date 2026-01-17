@@ -343,6 +343,37 @@ export function getIcon(iconName: string): React.ComponentType<{ className?: str
 }
 
 // ============================================================================
+// SIZING PRESETS - Match original site proportions (shared across renderers)
+// ============================================================================
+
+export const SECTION_PADDING_PRESETS: Record<string, string> = {
+  compact: 'py-16 md:py-20',
+  standard: 'py-24 md:py-32',
+  spacious: 'py-32 md:py-48',
+  hero: 'py-40 md:py-56',
+};
+
+export const TITLE_SIZE_PRESETS: Record<string, string> = {
+  small: 'text-3xl md:text-4xl',
+  medium: 'text-4xl md:text-5xl',
+  large: 'text-5xl md:text-6xl lg:text-7xl',
+  hero: 'text-6xl md:text-7xl lg:text-8xl',
+};
+
+export const BODY_SIZE_PRESETS: Record<string, string> = {
+  small: 'text-base',
+  medium: 'text-lg md:text-xl',
+  large: 'text-xl md:text-2xl',
+};
+
+export const GAP_PRESETS: Record<string, string> = {
+  tight: 'gap-6 md:gap-8',
+  standard: 'gap-8 md:gap-12',
+  spacious: 'gap-12 md:gap-16',
+  wide: 'gap-16 md:gap-24',
+};
+
+// ============================================================================
 // JE HERO RENDERER - All variants (je-hero, je-hero-video, je-hero-image, je-hero-split)
 // ============================================================================
 
@@ -380,7 +411,16 @@ export function JEHeroRenderer({ block, isEditing, onUpdate }: BlockRendererProp
     minHeight = '80vh',
     contentWidth = 'max-w-4xl',
     verticalAlign = 'center',
+    // Sizing controls
+    titleSize = 'hero',
+    subtitleSize = 'medium',
+    descriptionSize = 'medium',
+    buttonSize = 'lg',
   } = content;
+
+  // Get sizing classes
+  const getTitleClass = () => TITLE_SIZE_PRESETS[titleSize as keyof typeof TITLE_SIZE_PRESETS] || TITLE_SIZE_PRESETS.hero;
+  const getDescriptionClass = () => BODY_SIZE_PRESETS[descriptionSize as keyof typeof BODY_SIZE_PRESETS] || BODY_SIZE_PRESETS.medium;
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -460,7 +500,7 @@ export function JEHeroRenderer({ block, isEditing, onUpdate }: BlockRendererProp
             style={subtitleColor ? { color: subtitleColor } : undefined}
           />
 
-          {/* Title */}
+          {/* Title - Using sizing presets */}
           <EditableText
             value={title}
             onChange={(v) => handleChange('title', v)}
@@ -468,13 +508,14 @@ export function JEHeroRenderer({ block, isEditing, onUpdate }: BlockRendererProp
             placeholder="Your Headline Here"
             isEditing={isEditing}
             className={cn(
-              'text-4xl md:text-6xl lg:text-7xl font-serif italic mb-6 leading-tight',
+              getTitleClass(),
+              'font-serif italic mb-6 leading-tight',
               overlay || dark ? 'text-white' : 'text-neutral-900'
             )}
             style={titleColor ? { color: titleColor } : undefined}
           />
 
-          {/* Description */}
+          {/* Description - Using sizing presets */}
           <EditableText
             value={description}
             onChange={(v) => handleChange('description', v)}
@@ -483,7 +524,8 @@ export function JEHeroRenderer({ block, isEditing, onUpdate }: BlockRendererProp
             multiline
             isEditing={isEditing}
             className={cn(
-              'text-lg md:text-xl mb-8 font-sans leading-relaxed whitespace-pre-wrap',
+              getDescriptionClass(),
+              'mb-8 font-sans leading-relaxed whitespace-pre-wrap',
               variant === 'centered' ? 'mx-auto max-w-2xl' : '',
               overlay || dark ? 'text-white/90' : 'text-neutral-700'
             )}
