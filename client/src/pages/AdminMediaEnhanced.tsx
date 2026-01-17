@@ -321,7 +321,8 @@ export default function AdminMediaEnhanced() {
       const matchesType = typeFilter === 'all' || 
         (typeFilter === 'image' && item.mimeType.startsWith('image/')) ||
         (typeFilter === 'video' && item.mimeType.startsWith('video/')) ||
-        (typeFilter === 'audio' && item.mimeType.startsWith('audio/'));
+        (typeFilter === 'audio' && item.mimeType.startsWith('audio/')) ||
+        (typeFilter === 'ai' && item.uploadedBy === 'AI Generator');
       return matchesSearch && matchesType;
     });
   }, [mediaList, searchQuery, typeFilter]);
@@ -332,8 +333,9 @@ export default function AdminMediaEnhanced() {
     const images = all.filter((m: MediaItem) => m.mimeType.startsWith('image/')).length;
     const videos = all.filter((m: MediaItem) => m.mimeType.startsWith('video/')).length;
     const audio = all.filter((m: MediaItem) => m.mimeType.startsWith('audio/')).length;
+    const aiGenerated = all.filter((m: MediaItem) => m.uploadedBy === 'AI Generator').length;
     const totalSize = all.reduce((sum: number, m: MediaItem) => sum + m.fileSize, 0);
-    return { total: all.length, images, videos, audio, totalSize };
+    return { total: all.length, images, videos, audio, aiGenerated, totalSize };
   }, [mediaList]);
 
   const formatFileSize = (bytes: number) => {
@@ -450,11 +452,14 @@ export default function AdminMediaEnhanced() {
               { label: 'Total Files', value: stats.total, icon: HardDrive, color: 'amber' },
               { label: 'Images', value: stats.images, icon: FileImage, color: 'blue' },
               { label: 'Videos', value: stats.videos, icon: FileVideo, color: 'purple' },
-              { label: 'Audio', value: stats.audio, icon: FileAudio, color: 'pink' },
+              { label: 'AI Generated', value: stats.aiGenerated, icon: Wand2, color: 'violet', onClick: () => setTypeFilter('ai') },
               { label: 'Storage', value: formatFileSize(stats.totalSize), icon: HardDrive, color: 'emerald', isText: true },
             ].map((stat, i) => (
               <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                <Card className={`bg-gradient-to-br from-${stat.color}-50 to-${stat.color}-100/50 border-${stat.color}-200`}>
+                <Card 
+                  className={`bg-gradient-to-br from-${stat.color}-50 to-${stat.color}-100/50 border-${stat.color}-200 ${stat.onClick ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}`}
+                  onClick={stat.onClick}
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
@@ -505,6 +510,7 @@ export default function AdminMediaEnhanced() {
                   <SelectItem value="image">Images</SelectItem>
                   <SelectItem value="video">Videos</SelectItem>
                   <SelectItem value="audio">Audio</SelectItem>
+                  <SelectItem value="ai">AI Generated</SelectItem>
                 </SelectContent>
               </Select>
             </div>
