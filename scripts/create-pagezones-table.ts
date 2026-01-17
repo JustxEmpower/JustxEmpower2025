@@ -4,12 +4,15 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 async function createPageZonesTable() {
-  const connection = await mysql.createConnection({
-    host: process.env.DATABASE_HOST,
-    user: process.env.DATABASE_USER,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE_NAME,
-  });
+  // Use DATABASE_URL which is the format used by the app
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.error('DATABASE_URL environment variable is not set');
+    process.exit(1);
+  }
+  
+  console.log('Connecting to database...');
+  const connection = await mysql.createConnection(dbUrl);
 
   console.log('Connected to database...');
 
