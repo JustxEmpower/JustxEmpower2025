@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { VertexAI } from "@google-cloud/vertexai";
+import { GoogleAuth } from 'google-auth-library';
 import dns from 'dns';
 
 // Force IPv4 for all DNS lookups - fixes IPv6 "Network is unreachable" on EC2
@@ -9,6 +10,7 @@ dns.setDefaultResultOrder('ipv4first');
 // Initialize Gemini AI
 let genAI: GoogleGenerativeAI | null = null;
 let vertexAI: VertexAI | null = null;
+let googleAuth: GoogleAuth | null = null;
 
 export function initializeGemini(apiKey: string) {
   if (!apiKey) {
@@ -22,6 +24,9 @@ export function initializeGemini(apiKey: string) {
   if (projectId) {
     try {
       vertexAI = new VertexAI({ project: projectId, location: 'us-central1' });
+      googleAuth = new GoogleAuth({
+        scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+      });
       console.log('Vertex AI initialized for project:', projectId);
     } catch (e) {
       console.warn('Vertex AI initialization failed:', e);
@@ -1153,30 +1158,44 @@ Return ONLY the image generation prompt, nothing else.`;
     const promptResult = await model.generateContent(generationPrompt);
     const finalPrompt = promptResult.response.text().trim();
 
-    // Use Vertex AI Imagen for image generation
-    if (vertexAI) {
+    // Use Vertex AI Imagen REST API for image generation
+    const projectId = process.env.GOOGLE_CLOUD_PROJECT;
+    if (projectId && googleAuth) {
       try {
-        const imagenModel = vertexAI.preview.getGenerativeModel({
-          model: "imagegeneration@006",
-        });
+        const client = await googleAuth.getClient();
+        const accessToken = await client.getAccessToken();
         
-        const imageResult = await imagenModel.generateContent({
-          contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
-        });
+        const endpoint = `https://us-central1-aiplatform.googleapis.com/v1/projects/${projectId}/locations/us-central1/publishers/google/models/imagen-3.0-generate-001:predict`;
         
-        const imageResponse = imageResult.response;
-        const candidates = imageResponse.candidates;
-        
-        if (candidates && candidates[0]?.content?.parts) {
-          for (const part of candidates[0].content.parts) {
-            if ('inlineData' in part && part.inlineData) {
-              return {
-                imageData: part.inlineData.data,
-                mimeType: part.inlineData.mimeType || 'image/png',
-                description: finalPrompt
-              };
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken.token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            instances: [{ prompt: finalPrompt }],
+            parameters: {
+              sampleCount: 1,
+              aspectRatio: "1:1",
+              personGeneration: "allow_adult",
             }
-          }
+          })
+        });
+        
+        if (!response.ok) {
+          const errorText = await response.text();
+          throw new Error(`Imagen API error: ${response.status} - ${errorText}`);
+        }
+        
+        const result = await response.json();
+        
+        if (result.predictions && result.predictions[0]?.bytesBase64Encoded) {
+          return {
+            imageData: result.predictions[0].bytesBase64Encoded,
+            mimeType: result.predictions[0].mimeType || 'image/png',
+            description: finalPrompt
+          };
         }
         
         throw new Error("No image generated from Imagen model");
@@ -1185,7 +1204,6 @@ Return ONLY the image generation prompt, nothing else.`;
         throw new Error(`Image generation failed: ${imagenError.message}. Prompt: "${finalPrompt.substring(0, 150)}..."`);
       }
     } else {
-      // Vertex AI not configured - provide setup instructions
       throw new Error(`Vertex AI not configured. Set GOOGLE_CLOUD_PROJECT env var and ensure service account credentials. Generated prompt: "${finalPrompt.substring(0, 150)}..."`);
     }
   } catch (error: any) {
