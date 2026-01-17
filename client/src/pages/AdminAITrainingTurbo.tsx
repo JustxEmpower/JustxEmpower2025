@@ -52,7 +52,7 @@ const PRESET_CATEGORIES = [
 const TRAINING_TEMPLATES = [
   { category: "brand", question: "What is Just Empower?", answer: "Just Empower is a transformational platform dedicated to catalyzing the rise of women through embodied transformation and conscious leadership." },
   { category: "philosophy", question: "What is the philosophy behind Just Empower?", answer: "Our philosophy centers on the belief that true empowerment comes from within - through embodied practices, conscious awareness, and authentic connection to one's inner wisdom." },
-  { category: "offerings", question: "What programs does Just Empower offer?", answer: "We offer transformational workshops, coaching programs, community events, and the VI•X Journal Trilogy for personal development and spiritual growth." },
+  { category: "offerings", question: "What programs does Just Empower offer?", answer: "We offer transformational workshops, coaching programs, community events, and the VIX Journal Trilogy for personal development and spiritual growth." },
   { category: "founder", question: "Who founded Just Empower?", answer: "Just Empower was founded by April Gambardella, a visionary leader dedicated to women's empowerment and conscious transformation." },
   { category: "faq", question: "How can I get started with Just Empower?", answer: "You can begin your journey by exploring our offerings, joining our community events, or reaching out through our contact page for personalized guidance." },
   { category: "community", question: "How can I join the Just Empower community?", answer: "Join our community by subscribing to our newsletter, attending our events, and connecting with us on social media for ongoing inspiration and support." },
