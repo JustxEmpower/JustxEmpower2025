@@ -290,11 +290,13 @@ export function BlockRenderer({
   isPreviewMode = false,
   onUpdate,
 }: BlockRendererProps) {
+  console.log(`[BlockRenderer] Rendering block type: "${block.type}"`, block);
   const Renderer = BLOCK_RENDERER_MAP[block.type];
+  console.log(`[BlockRenderer] Found renderer for "${block.type}":`, !!Renderer);
 
   // Handle unknown block types
   if (!Renderer) {
-    console.warn(`Unknown block type: ${block.type}`);
+    console.warn(`[BlockRenderer] Unknown block type: ${block.type}`, 'Available types:', Object.keys(BLOCK_RENDERER_MAP));
     
     return (
       <div className="p-8 border-2 border-dashed border-yellow-400 bg-yellow-50 rounded-lg text-center">

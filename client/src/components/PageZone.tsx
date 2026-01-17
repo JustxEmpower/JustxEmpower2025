@@ -30,16 +30,30 @@ export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZ
   const { data: zone, isLoading, error } = trpc.pageZones.getZone.useQuery(
     { pageSlug, zoneName },
     { 
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      refetchOnWindowFocus: false 
+      staleTime: 0, // Disable caching for debugging
+      refetchOnWindowFocus: true 
     }
   );
+
+  // Debug logging
+  console.log(`[PageZone] ${pageSlug}/${zoneName}:`, { zone, isLoading, error });
 
   if (isLoading) {
     return fallback || null;
   }
 
-  if (error || !zone || !zone.isActive) {
+  if (error) {
+    console.error(`[PageZone] Error for ${pageSlug}/${zoneName}:`, error);
+    return fallback || null;
+  }
+
+  if (!zone) {
+    console.log(`[PageZone] No zone found for ${pageSlug}/${zoneName}`);
+    return fallback || null;
+  }
+
+  if (!zone.isActive) {
+    console.log(`[PageZone] Zone ${pageSlug}/${zoneName} is not active`);
     return fallback || null;
   }
 
@@ -52,22 +66,30 @@ export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZ
     return fallback || null;
   }
 
+  console.log(`[PageZone] Parsed ${blocks.length} blocks for ${pageSlug}/${zoneName}:`, blocks);
+
   if (blocks.length === 0) {
+    console.log(`[PageZone] No blocks to render for ${pageSlug}/${zoneName}`);
     return fallback || null;
   }
 
   // Sort blocks by order
   const sortedBlocks = [...blocks].sort((a, b) => a.order - b.order);
 
+  console.log(`[PageZone] Rendering ${sortedBlocks.length} blocks for ${pageSlug}/${zoneName}`);
+
   return (
     <div className={`page-zone page-zone-${zoneName} ${className}`} data-zone={zoneName}>
-      {sortedBlocks.map((block) => (
-        <BlockRenderer
-          key={block.id}
-          block={block}
-          isPreviewMode={true}
-        />
-      ))}
+      {sortedBlocks.map((block) => {
+        console.log(`[PageZone] Rendering block:`, block.type, block.id);
+        return (
+          <BlockRenderer
+            key={block.id}
+            block={block}
+            isPreviewMode={true}
+          />
+        );
+      })}
     </div>
   );
 }
