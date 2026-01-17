@@ -155,60 +155,365 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
   ],
 
   'je-hero-video': [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' },
-    { key: 'videoUrl', label: 'Video URL', type: 'video', required: true },
-    { key: 'ctaText', label: 'Button Text', type: 'text' },
-    { key: 'ctaLink', label: 'Button Link', type: 'url' },
-    { key: 'overlay', label: 'Show Overlay', type: 'boolean' },
-    { key: 'overlayOpacity', label: 'Overlay Opacity', type: 'number', min: 0, max: 100 },
-    { key: 'dark', label: 'Dark Mode', type: 'boolean' },
+    // === CONTENT GROUP ===
+    { key: 'title', label: 'Title', type: 'text', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'ctaText', label: 'Button Text', type: 'text', group: 'content' },
+    { key: 'ctaLink', label: 'Button Link', type: 'url', group: 'content' },
+    
+    // === MEDIA GROUP ===
+    { key: 'videoUrl', label: 'Video URL', type: 'video', required: true, group: 'media' },
+    { key: 'posterImage', label: 'Poster Image', type: 'image', group: 'media' },
+    
+    // === COLORS GROUP ===
+    { key: 'titleColor', label: 'Title Color', type: 'color', group: 'style' },
+    { key: 'subtitleColor', label: 'Subtitle Color', type: 'color', group: 'style' },
+    { key: 'descriptionColor', label: 'Description Color', type: 'color', group: 'style' },
+    { key: 'ctaTextColor', label: 'Button Text Color', type: 'color', group: 'style' },
+    { key: 'overlayOpacity', label: 'Overlay Opacity', type: 'number', min: 0, max: 100, group: 'style' },
+    
+    // === SHAPE & SIZE GROUP ===
+    { key: 'minHeight', label: 'Minimum Height', type: 'text', placeholder: '100vh', group: 'layout' },
+    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '2.5rem', group: 'layout' },
+    { key: 'bottomCurve', label: 'Bottom Curve', type: 'boolean', description: 'Add curved bottom edge', group: 'layout' },
+    { key: 'topCurve', label: 'Top Curve', type: 'boolean', description: 'Add curved top edge', group: 'layout' },
+    
+    // === CONTENT POSITION GROUP ===
+    { key: 'textAlignment', label: 'Text Alignment', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' },
+    ], group: 'layout' },
+    { key: 'contentVerticalAlign', label: 'Vertical Align', type: 'select', options: [
+      { value: 'top', label: 'Top' },
+      { value: 'center', label: 'Center' },
+      { value: 'bottom', label: 'Bottom' },
+    ], group: 'layout' },
+    { key: 'contentHorizontalAlign', label: 'Horizontal Align', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' },
+    ], group: 'layout' },
+    { key: 'contentMaxWidth', label: 'Content Max Width', type: 'select', options: [
+      { value: '2xl', label: 'Narrow (2xl)' },
+      { value: '3xl', label: 'Small (3xl)' },
+      { value: '4xl', label: 'Medium (4xl)' },
+      { value: '5xl', label: 'Large (5xl)' },
+      { value: '6xl', label: 'Wide (6xl)' },
+      { value: '7xl', label: 'Extra Wide (7xl)' },
+    ], group: 'layout' },
+    
+    // === SPACING GROUP ===
+    { key: 'paddingTop', label: 'Padding Top', type: 'text', placeholder: '16', group: 'layout' },
+    { key: 'paddingBottom', label: 'Padding Bottom', type: 'text', placeholder: '16', group: 'layout' },
+    { key: 'paddingLeft', label: 'Padding Left', type: 'text', placeholder: '6', group: 'layout' },
+    { key: 'paddingRight', label: 'Padding Right', type: 'text', placeholder: '6', group: 'layout' },
+    
+    // === TITLE TYPOGRAPHY GROUP ===
+    { key: 'titleFontSize', label: 'Title Font Size (Mobile)', type: 'text', placeholder: '5rem', group: 'advanced' },
+    { key: 'titleFontSizeMd', label: 'Title Font Size (Tablet)', type: 'text', placeholder: '7rem', group: 'advanced' },
+    { key: 'titleFontSizeLg', label: 'Title Font Size (Desktop)', type: 'text', placeholder: '8rem', group: 'advanced' },
+    { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.1', group: 'advanced' },
+    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    { key: 'titleFontWeight', label: 'Title Font Weight', type: 'select', options: [
+      { value: '100', label: 'Thin (100)' },
+      { value: '200', label: 'Extra Light (200)' },
+      { value: '300', label: 'Light (300)' },
+      { value: '400', label: 'Normal (400)' },
+      { value: '500', label: 'Medium (500)' },
+      { value: '600', label: 'Semi Bold (600)' },
+      { value: '700', label: 'Bold (700)' },
+    ], group: 'advanced' },
+    { key: 'titleFontStyle', label: 'Title Font Style', type: 'select', options: [
+      { value: 'normal', label: 'Normal' },
+      { value: 'italic', label: 'Italic' },
+    ], group: 'advanced' },
+    
+    // === SUBTITLE TYPOGRAPHY GROUP ===
+    { key: 'subtitleFontSize', label: 'Subtitle Font Size', type: 'text', placeholder: '0.75rem', group: 'advanced' },
+    { key: 'subtitleLetterSpacing', label: 'Subtitle Letter Spacing', type: 'text', placeholder: '0.3em', group: 'advanced' },
+    { key: 'subtitleMarginBottom', label: 'Subtitle Margin Bottom', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    
+    // === DESCRIPTION TYPOGRAPHY GROUP ===
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '1.125rem', group: 'advanced' },
+    { key: 'descriptionFontSizeMd', label: 'Description Size (Tablet)', type: 'text', placeholder: '1.25rem', group: 'advanced' },
+    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.6', group: 'advanced' },
+    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '3rem', group: 'advanced' },
+    { key: 'descriptionMaxWidth', label: 'Description Max Width', type: 'text', placeholder: '32rem', group: 'advanced' },
+    
+    // === CTA BUTTON STYLING GROUP ===
+    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'text', placeholder: '9999px', group: 'advanced' },
+    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'text', placeholder: '2rem', group: 'advanced' },
+    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'text', placeholder: '1rem', group: 'advanced' },
+    { key: 'ctaFontSize', label: 'Button Font Size', type: 'text', placeholder: '0.875rem', group: 'advanced' },
+    { key: 'ctaLetterSpacing', label: 'Button Letter Spacing', type: 'text', placeholder: '0.2em', group: 'advanced' },
+    { key: 'ctaBorderWidth', label: 'Button Border Width', type: 'text', placeholder: '1px', group: 'advanced' },
+  ],
+
+  'je-hero-image': [
+    // === CONTENT GROUP ===
+    { key: 'title', label: 'Title', type: 'text', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'ctaText', label: 'Button Text', type: 'text', group: 'content' },
+    { key: 'ctaLink', label: 'Button Link', type: 'url', group: 'content' },
+    
+    // === MEDIA GROUP ===
+    { key: 'imageUrl', label: 'Background Image', type: 'image', required: true, group: 'media' },
+    
+    // === COLORS GROUP ===
+    { key: 'titleColor', label: 'Title Color', type: 'color', group: 'style' },
+    { key: 'subtitleColor', label: 'Subtitle Color', type: 'color', group: 'style' },
+    { key: 'descriptionColor', label: 'Description Color', type: 'color', group: 'style' },
+    { key: 'ctaTextColor', label: 'Button Text Color', type: 'color', group: 'style' },
+    { key: 'overlayOpacity', label: 'Overlay Opacity', type: 'number', min: 0, max: 100, group: 'style' },
+    
+    // === SHAPE & SIZE GROUP ===
+    { key: 'minHeight', label: 'Minimum Height', type: 'text', placeholder: '80vh', group: 'layout' },
+    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '2.5rem', group: 'layout' },
+    { key: 'bottomCurve', label: 'Bottom Curve', type: 'boolean', description: 'Add curved bottom edge', group: 'layout' },
+    { key: 'topCurve', label: 'Top Curve', type: 'boolean', description: 'Add curved top edge', group: 'layout' },
+    
+    // === CONTENT POSITION GROUP ===
+    { key: 'textAlignment', label: 'Text Alignment', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' },
+    ], group: 'layout' },
+    { key: 'contentVerticalAlign', label: 'Vertical Align', type: 'select', options: [
+      { value: 'top', label: 'Top' },
+      { value: 'center', label: 'Center' },
+      { value: 'bottom', label: 'Bottom' },
+    ], group: 'layout' },
+    { key: 'contentHorizontalAlign', label: 'Horizontal Align', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' },
+    ], group: 'layout' },
+    { key: 'contentMaxWidth', label: 'Content Max Width', type: 'select', options: [
+      { value: '2xl', label: 'Narrow (2xl)' },
+      { value: '3xl', label: 'Small (3xl)' },
+      { value: '4xl', label: 'Medium (4xl)' },
+      { value: '5xl', label: 'Large (5xl)' },
+      { value: '6xl', label: 'Wide (6xl)' },
+    ], group: 'layout' },
+    
+    // === SPACING GROUP ===
+    { key: 'paddingTop', label: 'Padding Top', type: 'text', placeholder: '16', group: 'layout' },
+    { key: 'paddingBottom', label: 'Padding Bottom', type: 'text', placeholder: '16', group: 'layout' },
+    { key: 'paddingLeft', label: 'Padding Left', type: 'text', placeholder: '6', group: 'layout' },
+    { key: 'paddingRight', label: 'Padding Right', type: 'text', placeholder: '6', group: 'layout' },
+    
+    // === TITLE TYPOGRAPHY GROUP ===
+    { key: 'titleFontSize', label: 'Title Font Size (Mobile)', type: 'text', placeholder: '5rem', group: 'advanced' },
+    { key: 'titleFontSizeMd', label: 'Title Font Size (Tablet)', type: 'text', placeholder: '7rem', group: 'advanced' },
+    { key: 'titleFontSizeLg', label: 'Title Font Size (Desktop)', type: 'text', placeholder: '8rem', group: 'advanced' },
+    { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.1', group: 'advanced' },
+    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    { key: 'titleFontWeight', label: 'Title Font Weight', type: 'select', options: [
+      { value: '100', label: 'Thin (100)' },
+      { value: '200', label: 'Extra Light (200)' },
+      { value: '300', label: 'Light (300)' },
+      { value: '400', label: 'Normal (400)' },
+      { value: '500', label: 'Medium (500)' },
+      { value: '600', label: 'Semi Bold (600)' },
+      { value: '700', label: 'Bold (700)' },
+    ], group: 'advanced' },
+    { key: 'titleFontStyle', label: 'Title Font Style', type: 'select', options: [
+      { value: 'normal', label: 'Normal' },
+      { value: 'italic', label: 'Italic' },
+    ], group: 'advanced' },
+    
+    // === SUBTITLE TYPOGRAPHY GROUP ===
+    { key: 'subtitleFontSize', label: 'Subtitle Font Size', type: 'text', placeholder: '0.75rem', group: 'advanced' },
+    { key: 'subtitleLetterSpacing', label: 'Subtitle Letter Spacing', type: 'text', placeholder: '0.3em', group: 'advanced' },
+    { key: 'subtitleMarginBottom', label: 'Subtitle Margin Bottom', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    
+    // === DESCRIPTION TYPOGRAPHY GROUP ===
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '1.125rem', group: 'advanced' },
+    { key: 'descriptionFontSizeMd', label: 'Description Size (Tablet)', type: 'text', placeholder: '1.25rem', group: 'advanced' },
+    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.6', group: 'advanced' },
+    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '3rem', group: 'advanced' },
+    { key: 'descriptionMaxWidth', label: 'Description Max Width', type: 'text', placeholder: '32rem', group: 'advanced' },
+    
+    // === CTA BUTTON STYLING GROUP ===
+    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'text', placeholder: '9999px', group: 'advanced' },
+    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'text', placeholder: '2rem', group: 'advanced' },
+    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'text', placeholder: '1rem', group: 'advanced' },
+    { key: 'ctaFontSize', label: 'Button Font Size', type: 'text', placeholder: '0.875rem', group: 'advanced' },
+    { key: 'ctaLetterSpacing', label: 'Button Letter Spacing', type: 'text', placeholder: '0.2em', group: 'advanced' },
+    { key: 'ctaBorderWidth', label: 'Button Border Width', type: 'text', placeholder: '1px', group: 'advanced' },
+  ],
+
+  'je-hero-split': [
+    // === CONTENT GROUP ===
+    { key: 'title', label: 'Title', type: 'text', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'ctaText', label: 'Button Text', type: 'text', group: 'content' },
+    { key: 'ctaLink', label: 'Button Link', type: 'url', group: 'content' },
+    
+    // === MEDIA GROUP ===
+    { key: 'imageUrl', label: 'Image', type: 'image', required: true, group: 'media' },
+    { key: 'imagePosition', label: 'Image Position', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'right', label: 'Right' },
+    ], group: 'layout' },
+    
+    // === COLORS GROUP ===
+    { key: 'titleColor', label: 'Title Color', type: 'color', group: 'style' },
+    { key: 'subtitleColor', label: 'Subtitle Color', type: 'color', group: 'style' },
+    { key: 'descriptionColor', label: 'Description Color', type: 'color', group: 'style' },
+    { key: 'ctaTextColor', label: 'Button Text Color', type: 'color', group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
   ],
 
   // ========================================
   // JE SECTION BLOCKS
   // ========================================
   'je-section-standard': [
-    { key: 'label', label: 'Section Label', type: 'text', placeholder: 'SECTION LABEL' },
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' },
-    { key: 'htmlContent', label: 'HTML Content', type: 'richtext' },
-    { key: 'imageUrl', label: 'Image', type: 'image' },
+    // === CONTENT GROUP ===
+    { key: 'label', label: 'Section Label', type: 'text', placeholder: 'SECTION LABEL', group: 'content' },
+    { key: 'title', label: 'Title', type: 'text', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'htmlContent', label: 'HTML Content', type: 'richtext', group: 'content' },
+    { key: 'ctaText', label: 'Button Text', type: 'text', group: 'content' },
+    { key: 'ctaLink', label: 'Button Link', type: 'url', group: 'content' },
+    
+    // === MEDIA GROUP ===
+    { key: 'imageUrl', label: 'Image', type: 'image', group: 'media' },
     { key: 'imagePosition', label: 'Image Position', type: 'select', options: [
       { value: 'left', label: 'Left' },
       { value: 'right', label: 'Right' },
       { value: 'top', label: 'Top' },
       { value: 'bottom', label: 'Bottom' },
-    ]},
-    { key: 'backgroundColor', label: 'Background Color', type: 'color' },
-    { key: 'textColor', label: 'Text Color', type: 'color' },
-    { key: 'padding', label: 'Padding', type: 'select', options: PADDING_OPTIONS },
-    { key: 'alignment', label: 'Text Alignment', type: 'alignment' },
-    { key: 'maxWidth', label: 'Max Width', type: 'select', options: [
-      { value: '4xl', label: 'Narrow' },
-      { value: '5xl', label: 'Medium' },
-      { value: '6xl', label: 'Wide' },
-      { value: '7xl', label: 'Extra Wide' },
-    ]},
-    { key: 'dark', label: 'Dark Mode', type: 'boolean' },
+    ], group: 'layout' },
+    
+    // === COLORS GROUP ===
+    { key: 'backgroundColor', label: 'Background Color', type: 'select', options: [
+      { value: 'white', label: 'White' },
+      { value: 'cream', label: 'Cream' },
+      { value: 'dark', label: 'Dark' },
+      { value: 'transparent', label: 'Transparent' },
+    ], group: 'style' },
+    { key: 'labelColor', label: 'Label Color', type: 'color', group: 'style' },
+    { key: 'titleColor', label: 'Title Color', type: 'color', group: 'style' },
+    { key: 'descriptionColor', label: 'Description Color', type: 'color', group: 'style' },
+    { key: 'ctaTextColor', label: 'Button Text Color', type: 'color', group: 'style' },
+    { key: 'dark', label: 'Dark Mode', type: 'boolean', group: 'style' },
+    
+    // === IMAGE ELEMENT CONTROLS ===
+    { key: 'imageWidth', label: 'Image Width', type: 'text', placeholder: '100%', group: 'advanced' },
+    { key: 'imageHeight', label: 'Image Height', type: 'text', placeholder: 'auto', group: 'advanced' },
+    { key: 'imageMaxWidth', label: 'Image Max Width', type: 'text', placeholder: '100%', group: 'advanced' },
+    { key: 'imageBorderRadius', label: 'Image Border Radius', type: 'text', placeholder: '2rem', group: 'advanced' },
+    { key: 'imageObjectFit', label: 'Image Object Fit', type: 'select', options: [
+      { value: 'cover', label: 'Cover' },
+      { value: 'contain', label: 'Contain' },
+      { value: 'fill', label: 'Fill' },
+      { value: 'none', label: 'None' },
+    ], group: 'advanced' },
+    { key: 'imageMarginTop', label: 'Image Margin Top', type: 'text', placeholder: '0', group: 'advanced' },
+    { key: 'imageMarginBottom', label: 'Image Margin Bottom', type: 'text', placeholder: '0', group: 'advanced' },
+    
+    // === TEXT ELEMENT CONTROLS ===
+    { key: 'titleFontSize', label: 'Title Font Size', type: 'text', placeholder: '3rem', group: 'advanced' },
+    { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.2', group: 'advanced' },
+    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '2rem', group: 'advanced' },
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '1.125rem', group: 'advanced' },
+    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.75', group: 'advanced' },
+    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '2rem', group: 'advanced' },
+    { key: 'labelFontSize', label: 'Label Font Size', type: 'text', placeholder: '0.75rem', group: 'advanced' },
+    { key: 'labelMarginBottom', label: 'Label Margin Bottom', type: 'text', placeholder: '1rem', group: 'advanced' },
+    
+    // === CTA ELEMENT CONTROLS ===
+    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'text', placeholder: '9999px', group: 'advanced' },
+    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'text', placeholder: '0.75rem', group: 'advanced' },
+    { key: 'ctaFontSize', label: 'Button Font Size', type: 'text', placeholder: '0.875rem', group: 'advanced' },
+    
+    // === LAYOUT CONTROLS ===
+    { key: 'contentGap', label: 'Content Gap', type: 'text', placeholder: '4rem', group: 'layout' },
+    { key: 'sectionPaddingY', label: 'Section Padding Y', type: 'text', placeholder: '6rem', group: 'layout' },
+    { key: 'sectionPaddingX', label: 'Section Padding X', type: 'text', placeholder: '1.5rem', group: 'layout' },
+    { key: 'contentTextAlign', label: 'Content Text Align', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' },
+    ], group: 'layout' },
+    { key: 'contentVerticalAlign', label: 'Content Vertical Align', type: 'select', options: [
+      { value: 'top', label: 'Top' },
+      { value: 'center', label: 'Center' },
+      { value: 'bottom', label: 'Bottom' },
+    ], group: 'layout' },
   ],
 
   'je-section-fullwidth': [
-    { key: 'label', label: 'Section Label', type: 'text' },
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' },
-    { key: 'htmlContent', label: 'HTML Content', type: 'richtext' },
-    { key: 'imageUrl', label: 'Background Image', type: 'image' },
-    { key: 'videoUrl', label: 'Background Video', type: 'video' },
-    { key: 'backgroundColor', label: 'Background Color', type: 'color' },
-    { key: 'textColor', label: 'Text Color', type: 'color' },
-    { key: 'padding', label: 'Padding', type: 'select', options: PADDING_OPTIONS },
-    { key: 'alignment', label: 'Text Alignment', type: 'alignment' },
-    { key: 'overlay', label: 'Show Overlay', type: 'boolean' },
-    { key: 'dark', label: 'Dark Mode', type: 'boolean' },
+    // === CONTENT GROUP ===
+    { key: 'label', label: 'Section Label', type: 'text', group: 'content' },
+    { key: 'title', label: 'Title', type: 'text', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'htmlContent', label: 'HTML Content', type: 'richtext', group: 'content' },
+    { key: 'ctaText', label: 'Button Text', type: 'text', group: 'content' },
+    { key: 'ctaLink', label: 'Button Link', type: 'url', group: 'content' },
+    
+    // === MEDIA GROUP ===
+    { key: 'backgroundType', label: 'Background Type', type: 'select', options: [
+      { value: 'image', label: 'Image' },
+      { value: 'video', label: 'Video' },
+      { value: 'color', label: 'Color Only' },
+    ], group: 'media' },
+    { key: 'backgroundUrl', label: 'Background URL', type: 'image', group: 'media' },
+    { key: 'imageUrl', label: 'Background Image', type: 'image', group: 'media' },
+    { key: 'videoUrl', label: 'Background Video', type: 'video', group: 'media' },
+    
+    // === COLORS GROUP ===
+    { key: 'labelColor', label: 'Label Color', type: 'color', group: 'style' },
+    { key: 'titleColor', label: 'Title Color', type: 'color', group: 'style' },
+    { key: 'descriptionColor', label: 'Description Color', type: 'color', group: 'style' },
+    { key: 'ctaTextColor', label: 'Button Text Color', type: 'color', group: 'style' },
+    { key: 'textColor', label: 'Text Color Theme', type: 'select', options: [
+      { value: 'light', label: 'Light' },
+      { value: 'dark', label: 'Dark' },
+    ], group: 'style' },
+    { key: 'overlayOpacity', label: 'Overlay Opacity', type: 'number', min: 0, max: 100, group: 'style' },
+    { key: 'overlay', label: 'Show Overlay', type: 'boolean', group: 'style' },
+    { key: 'dark', label: 'Dark Mode', type: 'boolean', group: 'style' },
+    
+    // === TEXT ELEMENT CONTROLS ===
+    { key: 'titleFontSize', label: 'Title Font Size', type: 'text', placeholder: '3.5rem', group: 'advanced' },
+    { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.2', group: 'advanced' },
+    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '1.25rem', group: 'advanced' },
+    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.75', group: 'advanced' },
+    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '2rem', group: 'advanced' },
+    { key: 'labelFontSize', label: 'Label Font Size', type: 'text', placeholder: '0.75rem', group: 'advanced' },
+    { key: 'labelMarginBottom', label: 'Label Margin Bottom', type: 'text', placeholder: '1rem', group: 'advanced' },
+    
+    // === CTA ELEMENT CONTROLS ===
+    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'text', placeholder: '9999px', group: 'advanced' },
+    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'text', placeholder: '2rem', group: 'advanced' },
+    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'text', placeholder: '1rem', group: 'advanced' },
+    { key: 'ctaFontSize', label: 'Button Font Size', type: 'text', placeholder: '0.875rem', group: 'advanced' },
+    
+    // === LAYOUT CONTROLS ===
+    { key: 'minHeight', label: 'Minimum Height', type: 'text', placeholder: '70vh', group: 'layout' },
+    { key: 'sectionPaddingY', label: 'Section Padding Y', type: 'text', placeholder: '6rem', group: 'layout' },
+    { key: 'sectionPaddingX', label: 'Section Padding X', type: 'text', placeholder: '1.5rem', group: 'layout' },
+    { key: 'contentMaxWidth', label: 'Content Max Width', type: 'text', placeholder: '48rem', group: 'layout' },
+    { key: 'contentTextAlign', label: 'Content Text Align', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' },
+    ], group: 'layout' },
+    { key: 'contentVerticalAlign', label: 'Content Vertical Align', type: 'select', options: [
+      { value: 'top', label: 'Top' },
+      { value: 'center', label: 'Center' },
+      { value: 'bottom', label: 'Bottom' },
+    ], group: 'layout' },
   ],
 
   // ========================================
