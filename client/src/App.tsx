@@ -41,6 +41,7 @@ import AdminCarouselManager from "@/pages/AdminCarouselManagerEnhanced";
 import AdminAITraining from "@/pages/AdminAITrainingTurbo";
 import PageBuilderPage from "@/pages/PageBuilderPage";
 import AdminZoneEditor from "@/pages/AdminZoneEditor";
+import AdminZoneManager from "@/pages/AdminZoneManager";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -119,6 +120,7 @@ function Router() {
       <Route path="/admin/page-builder" component={PageBuilderPage} />
       <Route path="/admin/page-builder/:pageId" component={PageBuilderPage} />
       <Route path="/admin/zone-editor/:pageSlug/:zoneName" component={AdminZoneEditor} />
+      <Route path="/admin/zones" component={AdminZoneManager} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/about">{() => <About />}</Route>
       <Route path="/about-just-empower" component={AboutJustEmpower} />
