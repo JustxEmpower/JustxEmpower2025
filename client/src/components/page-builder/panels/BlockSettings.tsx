@@ -16,6 +16,7 @@ import { getBlockById } from '../blockTypes';
 import { IconPicker } from '../IconPicker';
 import BlockAnimationSettings, { BlockAnimationConfig, DEFAULT_ANIMATION_CONFIG } from '../BlockAnimationSettings';
 import CustomCSSEditor from '../CustomCSSEditor';
+import { getBlockFields, getGroupedFields, FieldDefinition } from './BlockFieldDefinitions';
 
 // Generic field renderer based on content type
 function renderField(
@@ -553,6 +554,256 @@ function renderField(
 
   // Skip other complex objects/arrays for now (would need custom editors)
   return null;
+}
+
+// ==========================================
+// DYNAMIC FIELD RENDERER (from BlockFieldDefinitions)
+// ==========================================
+
+/**
+ * Render a field based on its FieldDefinition from BlockFieldDefinitions.tsx
+ * This provides consistent, definition-driven UI for all block properties.
+ */
+function renderDefinedField(
+  field: FieldDefinition,
+  value: unknown,
+  onChange: (key: string, value: unknown) => void,
+  blockType: string
+): React.ReactNode {
+  const { key, label, type, placeholder, description, options, min, max, required, itemFields } = field;
+  
+  // Handle based on field type
+  switch (type) {
+    case 'text':
+      return (
+        <div key={key} className="space-y-2">
+          <Label htmlFor={key} className="text-sm font-medium">
+            {label} {required && <span className="text-red-500">*</span>}
+          </Label>
+          <Input
+            id={key}
+            value={(value as string) || ''}
+            onChange={(e) => onChange(key, e.target.value)}
+            placeholder={placeholder}
+            className="bg-neutral-50 dark:bg-neutral-800"
+          />
+          {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        </div>
+      );
+    
+    case 'textarea':
+    case 'richtext':
+      return (
+        <div key={key} className="space-y-2">
+          <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
+          <Textarea
+            id={key}
+            value={(value as string) || ''}
+            onChange={(e) => onChange(key, e.target.value)}
+            placeholder={placeholder}
+            rows={4}
+            className="bg-neutral-50 dark:bg-neutral-800"
+          />
+          {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        </div>
+      );
+    
+    case 'number':
+      return (
+        <div key={key} className="space-y-2">
+          <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
+          <Input
+            id={key}
+            type="number"
+            value={(value as number) || min || 0}
+            onChange={(e) => onChange(key, Number(e.target.value))}
+            min={min}
+            max={max}
+            className="bg-neutral-50 dark:bg-neutral-800"
+          />
+        </div>
+      );
+    
+    case 'boolean':
+      return (
+        <div key={key} className="flex items-center justify-between py-2">
+          <div>
+            <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
+            {description && <p className="text-xs text-muted-foreground">{description}</p>}
+          </div>
+          <Switch
+            id={key}
+            checked={(value as boolean) || false}
+            onCheckedChange={(checked) => onChange(key, checked)}
+          />
+        </div>
+      );
+    
+    case 'select':
+      return (
+        <div key={key} className="space-y-2">
+          <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
+          <Select value={(value as string) || ''} onValueChange={(v) => onChange(key, v)}>
+            <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+              <SelectValue placeholder={placeholder || `Select ${label}`} />
+            </SelectTrigger>
+            <SelectContent>
+              {options?.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        </div>
+      );
+    
+    case 'color':
+      return (
+        <div key={key} className="space-y-2">
+          <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
+          <div className="flex gap-2">
+            <Input
+              type="color"
+              className="w-12 h-10 p-1 cursor-pointer rounded"
+              value={(value as string) || '#ffffff'}
+              onChange={(e) => onChange(key, e.target.value)}
+            />
+            <Input
+              id={key}
+              value={(value as string) || ''}
+              onChange={(e) => onChange(key, e.target.value)}
+              placeholder={placeholder || '#ffffff'}
+              className="bg-neutral-50 dark:bg-neutral-800 flex-1"
+            />
+          </div>
+        </div>
+      );
+    
+    case 'image':
+      return (
+        <MediaFieldWithPicker
+          key={key}
+          fieldKey={key}
+          label={label}
+          value={(value as string) || ''}
+          onChange={onChange}
+          mediaType="image"
+        />
+      );
+    
+    case 'video':
+      return (
+        <MediaFieldWithPicker
+          key={key}
+          fieldKey={key}
+          label={label}
+          value={(value as string) || ''}
+          onChange={onChange}
+          mediaType="video"
+        />
+      );
+    
+    case 'url':
+      return (
+        <div key={key} className="space-y-2">
+          <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
+          <Input
+            id={key}
+            type="url"
+            value={(value as string) || ''}
+            onChange={(e) => onChange(key, e.target.value)}
+            placeholder={placeholder || 'https://...'}
+            className="bg-neutral-50 dark:bg-neutral-800"
+          />
+        </div>
+      );
+    
+    case 'alignment':
+      return (
+        <div key={key} className="space-y-2">
+          <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
+          <Select value={(value as string) || 'left'} onValueChange={(v) => onChange(key, v)}>
+            <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="left">Left</SelectItem>
+              <SelectItem value="center">Center</SelectItem>
+              <SelectItem value="right">Right</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      );
+    
+    case 'icon':
+      return (
+        <div key={key} className="space-y-2">
+          <Label className="text-sm font-medium">{label}</Label>
+          <IconPicker
+            value={(value as string) || ''}
+            onChange={(icon) => onChange(key, icon)}
+          />
+        </div>
+      );
+    
+    // For array types, fall back to existing editors
+    case 'array':
+    case 'stringarray':
+      // These are handled by the existing renderField function
+      return null;
+    
+    default:
+      // Fall back to text input for unknown types
+      return (
+        <div key={key} className="space-y-2">
+          <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
+          <Input
+            id={key}
+            value={(value as string) || ''}
+            onChange={(e) => onChange(key, e.target.value)}
+            placeholder={placeholder}
+            className="bg-neutral-50 dark:bg-neutral-800"
+          />
+        </div>
+      );
+  }
+}
+
+/**
+ * Render all defined fields for a block, grouped by category
+ */
+function renderFieldsFromDefinitions(
+  blockType: string,
+  content: Record<string, unknown>,
+  onChange: (key: string, value: unknown) => void
+): React.ReactNode {
+  const groupedFields = getGroupedFields(blockType);
+  const groups = Object.entries(groupedFields).filter(([_, fields]) => fields.length > 0);
+  
+  if (groups.length === 0) return null;
+  
+  return (
+    <div className="space-y-6">
+      {groups.map(([groupName, fields]) => (
+        <div key={groupName} className="space-y-3">
+          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground border-b pb-2">
+            {groupName.charAt(0).toUpperCase() + groupName.slice(1)}
+          </h4>
+          <div className="space-y-4">
+            {fields.map((field) => {
+              // Skip array fields - they need special handling
+              if (field.type === 'array' || field.type === 'stringarray') {
+                return renderField(field.key, content[field.key], onChange, blockType);
+              }
+              return renderDefinedField(field, content[field.key], onChange, blockType);
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 // ==========================================
@@ -2619,14 +2870,21 @@ export default function BlockSettings() {
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-4"
               >
-                {Object.entries(selectedBlock.content).map(([key, value]) => {
-                  // Allow arrays through for editing (pillars, items, principles, etc.)
-                  // Only skip non-array objects
-                  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-                    return null;
+                {/* Use definition-based field rendering when available */}
+                {(() => {
+                  const blockFields = getBlockFields(selectedBlock.type);
+                  if (blockFields.length > 0) {
+                    // Render fields from definitions, grouped by category
+                    return renderFieldsFromDefinitions(selectedBlock.type, selectedBlock.content, handleContentChange);
                   }
-                  return renderField(key, value, handleContentChange, selectedBlock.type);
-                })}
+                  // Fallback to legacy rendering for blocks without definitions
+                  return Object.entries(selectedBlock.content).map(([key, value]) => {
+                    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                      return null;
+                    }
+                    return renderField(key, value, handleContentChange, selectedBlock.type);
+                  });
+                })()}
               </motion.div>
             </AnimatePresence>
               </div>
