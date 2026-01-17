@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { 
-  ArrowLeft, Plus, Trash2, Edit, Eye, Search, Box, Sparkles, 
+  Plus, Trash2, Eye, Search, Box, Sparkles, 
   Type, Image, Layout, List, Grid, Heart, Star, Zap, 
   FileText, MessageSquare, Users, MoreVertical, Copy
 } from 'lucide-react';
@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
+import AdminSidebar from '@/components/AdminSidebar';
 
 const iconMap: Record<string, any> = {
   box: Box,
@@ -70,28 +71,27 @@ export default function AdminBlockStore() {
   const previewBlock = blocks?.find(b => b.id === previewBlockId);
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      {/* Top Bar */}
-      <div className="sticky top-0 z-50 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 px-4 py-3">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/admin')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Admin
-            </Button>
-            <div>
-              <h1 className="text-lg font-semibold">Block Store</h1>
-              <p className="text-sm text-muted-foreground">Manage your custom reusable blocks</p>
+    <div className="flex min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50">
+      <AdminSidebar />
+      
+      <main className="flex-1 overflow-auto">
+        {/* Top Bar */}
+        <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-bold text-stone-900">Block Store</h1>
+                <p className="text-sm text-stone-500">Manage your custom reusable blocks</p>
+              </div>
+              <Button onClick={() => navigate('/admin/block-creator')}>
+                <Plus className="w-4 h-4 mr-2" />
+                Create New Block
+              </Button>
             </div>
           </div>
-          <Button onClick={() => navigate('/admin/block-creator')}>
-            <Plus className="w-4 h-4 mr-2" />
-            Create New Block
-          </Button>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto p-6">
+        <div className="p-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           {/* Sidebar - Categories */}
@@ -261,7 +261,8 @@ export default function AdminBlockStore() {
             </div>
           )}
         </div>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

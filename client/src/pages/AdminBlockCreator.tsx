@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { blockTypes } from '@/components/page-builder/blockTypes';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
+import AdminSidebar from '@/components/AdminSidebar';
 
 const ICON_OPTIONS = [
   { value: 'box', label: 'Box', icon: Box },
@@ -170,28 +171,33 @@ export default function AdminBlockCreator() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-50 dark:bg-neutral-900">
-      {/* Top Bar */}
-      <div className="sticky top-0 z-50 bg-white dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 px-4 py-3">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => navigate('/admin/block-store')}>
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Block Store
-            </Button>
-            <div>
-              <h1 className="text-lg font-semibold">Block Creator</h1>
-              <p className="text-sm text-muted-foreground">Create a custom reusable block</p>
+    <div className="flex min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50">
+      <AdminSidebar />
+      
+      <main className="flex-1 overflow-auto">
+        {/* Top Bar */}
+        <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+          <div className="px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button variant="ghost" size="sm" onClick={() => navigate('/admin/block-store')}>
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Block Store
+                </Button>
+                <div>
+                  <h1 className="text-xl font-bold text-stone-900">Block Creator</h1>
+                  <p className="text-sm text-stone-500">Create a custom reusable block</p>
+                </div>
+              </div>
+              <Button onClick={handleSave} disabled={isSaving || !blockName || !selectedBlockType}>
+                <Save className="w-4 h-4 mr-2" />
+                {isSaving ? 'Saving...' : 'Save to Block Store'}
+              </Button>
             </div>
           </div>
-          <Button onClick={handleSave} disabled={isSaving || !blockName || !selectedBlockType}>
-            <Save className="w-4 h-4 mr-2" />
-            {isSaving ? 'Saving...' : 'Save to Block Store'}
-          </Button>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto p-6">
+        <div className="p-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           {/* Left Panel - Block Type Selection */}
@@ -559,7 +565,8 @@ export default function AdminBlockCreator() {
             </Card>
           </div>
         </div>
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
