@@ -734,14 +734,58 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
   ],
 
   'je-offerings-carousel': [
-    { key: 'label', label: 'Section Label', type: 'text' },
-    { key: 'title', label: 'Section Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'autoplay', label: 'Autoplay', type: 'boolean' },
-    { key: 'interval', label: 'Interval (ms)', type: 'number', min: 1000, max: 10000 },
-    { key: 'showDots', label: 'Show Dots', type: 'boolean' },
-    { key: 'showArrows', label: 'Show Arrows', type: 'boolean' },
-    { key: 'items', label: 'Carousel Items', type: 'array', itemFields: [
+    // === DATA SOURCE ===
+    { key: 'useAdminCarousel', label: 'Use Admin Carousel', type: 'boolean', description: 'Connect to a carousel managed in Admin Dashboard', group: 'content' },
+    { key: 'carouselSlug', label: 'Admin Carousel Slug', type: 'text', placeholder: 'e.g., homepage-offerings', description: 'Enter the slug of an admin-managed carousel', group: 'content' },
+    
+    // === CONTENT GROUP ===
+    { key: 'label', label: 'Section Label', type: 'text', group: 'content' },
+    { key: 'title', label: 'Section Title', type: 'text', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
+    { key: 'showTitle', label: 'Show Title Section', type: 'boolean', group: 'content' },
+    
+    // === CAROUSEL SETTINGS ===
+    { key: 'autoplay', label: 'Autoplay', type: 'boolean', group: 'layout' },
+    { key: 'interval', label: 'Interval (ms)', type: 'number', min: 1000, max: 10000, group: 'layout' },
+    { key: 'showDots', label: 'Show Dots', type: 'boolean', group: 'layout' },
+    { key: 'showArrows', label: 'Show Arrows', type: 'boolean', group: 'layout' },
+    
+    // === SHAPE & SIZE ===
+    { key: 'cardBorderRadius', label: 'Card Border Radius', type: 'text', placeholder: '2rem', group: 'style' },
+    { key: 'cardHeight', label: 'Card Height', type: 'text', placeholder: '400px', group: 'style' },
+    { key: 'cardWidth', label: 'Card Width', type: 'text', placeholder: '30vw', group: 'style' },
+    
+    // === SPACING ===
+    { key: 'cardGap', label: 'Card Gap', type: 'text', placeholder: '3rem', group: 'layout' },
+    { key: 'sectionPadding', label: 'Section Padding', type: 'text', placeholder: '6rem', group: 'layout' },
+    
+    // === MANUAL ITEMS (when not using admin carousel) ===
+    { key: 'items', label: 'Carousel Items', type: 'array', description: 'Manual items (ignored when using Admin Carousel)', itemFields: [
+      { key: 'title', label: 'Title', type: 'text' },
+      { key: 'description', label: 'Description', type: 'textarea' },
+      { key: 'imageUrl', label: 'Image', type: 'image' },
+      { key: 'link', label: 'Link', type: 'url' },
+    ]},
+  ],
+  
+  'je-carousel': [
+    // === DATA SOURCE ===
+    { key: 'useAdminCarousel', label: 'Use Admin Carousel', type: 'boolean', description: 'Connect to a carousel managed in Admin Dashboard', group: 'content' },
+    { key: 'carouselSlug', label: 'Admin Carousel Slug', type: 'text', placeholder: 'e.g., homepage-hero', description: 'Enter the slug of an admin-managed carousel', group: 'content' },
+    
+    // === CAROUSEL SETTINGS ===
+    { key: 'autoplay', label: 'Autoplay', type: 'boolean', group: 'layout' },
+    { key: 'interval', label: 'Interval (ms)', type: 'number', min: 1000, max: 10000, group: 'layout' },
+    { key: 'showDots', label: 'Show Dots', type: 'boolean', group: 'layout' },
+    { key: 'showArrows', label: 'Show Arrows', type: 'boolean', group: 'layout' },
+    { key: 'transition', label: 'Transition', type: 'select', options: [
+      { value: 'fade', label: 'Fade' },
+      { value: 'slide', label: 'Slide' },
+      { value: 'zoom', label: 'Zoom' },
+    ], group: 'style' },
+    
+    // === MANUAL SLIDES (when not using admin carousel) ===
+    { key: 'slides', label: 'Slides', type: 'array', description: 'Manual slides (ignored when using Admin Carousel)', itemFields: [
       { key: 'title', label: 'Title', type: 'text' },
       { key: 'description', label: 'Description', type: 'textarea' },
       { key: 'imageUrl', label: 'Image', type: 'image' },
@@ -840,11 +884,43 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
   ],
 
   'je-contact-form': [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' },
-    { key: 'submitText', label: 'Submit Button Text', type: 'text' },
-    { key: 'successMessage', label: 'Success Message', type: 'text' },
-    { key: 'dark', label: 'Dark Mode', type: 'boolean' },
+    // === CONTENT GROUP ===
+    { key: 'title', label: 'Title', type: 'text', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'submitText', label: 'Submit Button Text', type: 'text', group: 'content' },
+    { key: 'successMessage', label: 'Success Message', type: 'text', group: 'content' },
+    
+    // === STYLE GROUP ===
+    { key: 'dark', label: 'Dark Mode', type: 'boolean', group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'textColor', label: 'Text Color', type: 'color', group: 'style' },
+    
+    // === SHAPE & SIZE GROUP ===
+    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '1.5rem', group: 'layout' },
+    { key: 'maxWidth', label: 'Max Width', type: 'text', placeholder: '2xl', group: 'layout' },
+    { key: 'formWidth', label: 'Form Width', type: 'text', placeholder: '100%', group: 'layout' },
+    
+    // === SPACING GROUP ===
+    { key: 'paddingTop', label: 'Padding Top', type: 'text', placeholder: '24', group: 'layout' },
+    { key: 'paddingBottom', label: 'Padding Bottom', type: 'text', placeholder: '24', group: 'layout' },
+    { key: 'paddingLeft', label: 'Padding Left', type: 'text', placeholder: '6', group: 'layout' },
+    { key: 'paddingRight', label: 'Padding Right', type: 'text', placeholder: '6', group: 'layout' },
+    { key: 'inputSpacing', label: 'Input Spacing', type: 'text', placeholder: '4', group: 'layout' },
+    
+    // === ALIGNMENT GROUP ===
+    { key: 'contentAlign', label: 'Content Align', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' },
+    ], group: 'layout' },
+    { key: 'formAlign', label: 'Form Align', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' },
+    ], group: 'layout' },
+    
+    // === FORM FIELDS ===
     { key: 'fields', label: 'Form Fields', type: 'array', itemFields: [
       { key: 'name', label: 'Field Name', type: 'text' },
       { key: 'label', label: 'Label', type: 'text' },
@@ -857,6 +933,60 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
       ]},
       { key: 'required', label: 'Required', type: 'boolean' },
       { key: 'placeholder', label: 'Placeholder', type: 'text' },
+    ]},
+  ],
+  
+  'je-calendar': [
+    // === CONTENT GROUP ===
+    { key: 'title', label: 'Title', type: 'text', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
+    { key: 'viewMode', label: 'View Mode', type: 'select', options: [
+      { value: 'calendar', label: 'Calendar View' },
+      { value: 'list', label: 'List View' },
+      { value: 'grid', label: 'Grid View' },
+    ], group: 'content' },
+    { key: 'showFilters', label: 'Show Filters', type: 'boolean', group: 'content' },
+    
+    // === STYLE GROUP ===
+    { key: 'dark', label: 'Dark Mode', type: 'boolean', group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    
+    // === SHAPE & SIZE GROUP ===
+    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '1.5rem', group: 'layout' },
+    { key: 'maxWidth', label: 'Max Width', type: 'select', options: [
+      { value: '4xl', label: 'Medium (4xl)' },
+      { value: '5xl', label: 'Large (5xl)' },
+      { value: '6xl', label: 'Wide (6xl)' },
+      { value: '7xl', label: 'Extra Wide (7xl)' },
+    ], group: 'layout' },
+    
+    // === SPACING GROUP ===
+    { key: 'paddingTop', label: 'Padding Top', type: 'text', placeholder: '24', group: 'layout' },
+    { key: 'paddingBottom', label: 'Padding Bottom', type: 'text', placeholder: '24', group: 'layout' },
+    { key: 'paddingLeft', label: 'Padding Left', type: 'text', placeholder: '6', group: 'layout' },
+    { key: 'paddingRight', label: 'Padding Right', type: 'text', placeholder: '6', group: 'layout' },
+    
+    // === ALIGNMENT GROUP ===
+    { key: 'contentAlign', label: 'Content Align', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' },
+    ], group: 'layout' },
+    
+    // === EVENT TYPES ===
+    { key: 'eventTypes', label: 'Event Types', type: 'array', itemFields: [
+      { key: 'id', label: 'ID', type: 'text' },
+      { key: 'name', label: 'Name', type: 'text' },
+      { key: 'color', label: 'Color', type: 'color' },
+    ]},
+    
+    // === EVENTS ===
+    { key: 'events', label: 'Events', type: 'array', itemFields: [
+      { key: 'date', label: 'Date', type: 'text', placeholder: 'YYYY-MM-DD' },
+      { key: 'title', label: 'Title', type: 'text' },
+      { key: 'type', label: 'Type', type: 'text' },
+      { key: 'description', label: 'Description', type: 'textarea' },
+      { key: 'link', label: 'Link', type: 'url' },
     ]},
   ],
 
