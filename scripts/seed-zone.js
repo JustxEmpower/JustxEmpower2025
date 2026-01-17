@@ -6,11 +6,24 @@ const blocksData = JSON.stringify([{
   id: "test_block_1",
   type: "je-principles",
   content: {
+    label: "OUR FOUNDATION",
     title: "Foundational Principles",
+    subtitle: "The core values that guide our work and community",
+    columns: 2,
+    dark: false,
+    // Sizing controls - matching original site proportions
+    sectionPadding: "spacious",
+    titleSize: "large",
+    subtitleSize: "medium",
+    numberSize: "large",
+    descriptionSize: "medium",
+    itemGap: "spacious",
+    headerMargin: "mb-16 md:mb-24",
+    maxWidth: "max-w-6xl",
     principles: [
-      { number: "01", title: "Embodiment", description: "Real change happens not in the mind alone, but in the body..." },
-      { number: "02", title: "Sacred Reciprocity", description: "We honor the give and take of life..." },
-      { number: "03", title: "Feminine Wisdom", description: "We honor the intelligence of the feminine..." }
+      { number: "01", title: "Embodiment", description: "Real change happens not in the mind alone, but in the body—where wisdom lives, where patterns are held, and where transformation takes root." },
+      { number: "02", title: "Sacred Reciprocity", description: "We honor the give and take of life, creating balanced exchanges that nourish all involved and honor the interconnection of all things." },
+      { number: "03", title: "Feminine Wisdom", description: "We honor the intelligence of the feminine—intuition, receptivity, cycles, and the deep knowing that arises from stillness and presence." }
     ]
   },
   order: 0
