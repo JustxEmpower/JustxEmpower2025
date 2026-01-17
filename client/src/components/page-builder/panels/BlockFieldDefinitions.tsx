@@ -1132,148 +1132,404 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
 
 export const STANDARD_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
   'hero': [
-    { key: 'headline', label: 'Headline', type: 'text' },
-    { key: 'subheadline', label: 'Subheadline', type: 'textarea' },
-    { key: 'ctaText', label: 'Button Text', type: 'text' },
-    { key: 'ctaLink', label: 'Button Link', type: 'url' },
-    { key: 'secondaryCtaText', label: 'Secondary Button', type: 'text' },
-    { key: 'secondaryCtaLink', label: 'Secondary Link', type: 'url' },
-    { key: 'backgroundImage', label: 'Background Image', type: 'image' },
-    { key: 'backgroundColor', label: 'Background Color', type: 'color' },
+    // === CONTENT ===
+    { key: 'headline', label: 'Headline', type: 'text', group: 'content' },
+    { key: 'subheadline', label: 'Subheadline', type: 'textarea', group: 'content' },
+    { key: 'ctaText', label: 'Button Text', type: 'text', group: 'content' },
+    { key: 'ctaLink', label: 'Button Link', type: 'url', group: 'content' },
+    { key: 'secondaryCtaText', label: 'Secondary Button', type: 'text', group: 'content' },
+    { key: 'secondaryCtaLink', label: 'Secondary Link', type: 'url', group: 'content' },
+    // === MEDIA ===
+    { key: 'backgroundImage', label: 'Background Image', type: 'image', group: 'media' },
+    { key: 'backgroundVideo', label: 'Background Video', type: 'video', group: 'media' },
+    // === STYLE ===
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'headlineColor', label: 'Headline Color', type: 'color', group: 'style' },
+    { key: 'subheadlineColor', label: 'Subheadline Color', type: 'color', group: 'style' },
+    { key: 'overlay', label: 'Show Overlay', type: 'boolean', group: 'style' },
+    { key: 'overlayOpacity', label: 'Overlay Opacity', type: 'number', min: 0, max: 100, group: 'style' },
+    { key: 'overlayColor', label: 'Overlay Color', type: 'color', group: 'style' },
+    // === LAYOUT ===
     { key: 'variant', label: 'Layout', type: 'select', options: [
       { value: 'centered', label: 'Centered' },
-      { value: 'left', label: 'Left' },
-      { value: 'right', label: 'Right' },
-    ]},
-    { key: 'minHeight', label: 'Minimum Height', type: 'text' },
-    { key: 'overlay', label: 'Show Overlay', type: 'boolean' },
-    { key: 'overlayOpacity', label: 'Overlay Opacity', type: 'number', min: 0, max: 100 },
-    { key: 'textColor', label: 'Text Color', type: 'select', options: [
-      { value: 'white', label: 'White' },
-      { value: 'dark', label: 'Dark' },
-    ]},
+      { value: 'left', label: 'Left Aligned' },
+      { value: 'right', label: 'Right Aligned' },
+      { value: 'split', label: 'Split' },
+    ], group: 'layout' },
+    { key: 'minHeight', label: 'Minimum Height', type: 'text', placeholder: '80vh', group: 'layout' },
+    { key: 'maxWidth', label: 'Content Max Width', type: 'select', options: [
+      { value: '2xl', label: 'Narrow' },
+      { value: '4xl', label: 'Medium' },
+      { value: '6xl', label: 'Wide' },
+    ], group: 'layout' },
+    { key: 'verticalAlign', label: 'Vertical Align', type: 'select', options: [
+      { value: 'top', label: 'Top' },
+      { value: 'center', label: 'Center' },
+      { value: 'bottom', label: 'Bottom' },
+    ], group: 'layout' },
+    { key: 'paddingTop', label: 'Padding Top', type: 'text', placeholder: '6rem', group: 'layout' },
+    { key: 'paddingBottom', label: 'Padding Bottom', type: 'text', placeholder: '6rem', group: 'layout' },
+    // === TYPOGRAPHY ===
+    { key: 'headlineFontSize', label: 'Headline Font Size', type: 'text', placeholder: '4rem', group: 'advanced' },
+    { key: 'headlineFontWeight', label: 'Headline Font Weight', type: 'select', options: [
+      { value: '300', label: 'Light' },
+      { value: '400', label: 'Normal' },
+      { value: '600', label: 'Semi Bold' },
+      { value: '700', label: 'Bold' },
+    ], group: 'advanced' },
+    { key: 'buttonVariant', label: 'Button Style', type: 'select', options: [
+      { value: 'primary', label: 'Primary' },
+      { value: 'secondary', label: 'Secondary' },
+      { value: 'outline', label: 'Outline' },
+    ], group: 'advanced' },
+    { key: 'buttonBorderRadius', label: 'Button Border Radius', type: 'text', placeholder: '9999px', group: 'advanced' },
   ],
 
   'text': [
-    { key: 'content', label: 'Content', type: 'richtext' },
-    { key: 'alignment', label: 'Alignment', type: 'alignment' },
+    // === CONTENT ===
+    { key: 'content', label: 'Content', type: 'richtext', group: 'content' },
+    // === STYLE ===
+    { key: 'textColor', label: 'Text Color', type: 'color', group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    // === LAYOUT ===
+    { key: 'alignment', label: 'Alignment', type: 'alignment', group: 'layout' },
     { key: 'maxWidth', label: 'Max Width', type: 'select', options: [
       { value: '2xl', label: 'Narrow' },
       { value: '4xl', label: 'Medium' },
       { value: '6xl', label: 'Wide' },
       { value: 'full', label: 'Full' },
-    ]},
+    ], group: 'layout' },
+    { key: 'paddingTop', label: 'Padding Top', type: 'text', placeholder: '0', group: 'layout' },
+    { key: 'paddingBottom', label: 'Padding Bottom', type: 'text', placeholder: '0', group: 'layout' },
+    // === TYPOGRAPHY ===
+    { key: 'fontSize', label: 'Font Size', type: 'select', options: [
+      { value: 'sm', label: 'Small' },
+      { value: 'base', label: 'Normal' },
+      { value: 'lg', label: 'Large' },
+      { value: 'xl', label: 'Extra Large' },
+    ], group: 'advanced' },
+    { key: 'lineHeight', label: 'Line Height', type: 'select', options: [
+      { value: 'tight', label: 'Tight' },
+      { value: 'normal', label: 'Normal' },
+      { value: 'relaxed', label: 'Relaxed' },
+    ], group: 'advanced' },
   ],
 
   'heading': [
-    { key: 'text', label: 'Heading Text', type: 'text' },
-    { key: 'level', label: 'Level', type: 'select', options: HEADING_LEVEL_OPTIONS },
-    { key: 'alignment', label: 'Alignment', type: 'alignment' },
-    { key: 'color', label: 'Color', type: 'color' },
+    // === CONTENT ===
+    { key: 'text', label: 'Heading Text', type: 'text', group: 'content' },
+    { key: 'level', label: 'Level', type: 'select', options: HEADING_LEVEL_OPTIONS, group: 'content' },
+    // === STYLE ===
+    { key: 'color', label: 'Color', type: 'color', group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    // === LAYOUT ===
+    { key: 'alignment', label: 'Alignment', type: 'alignment', group: 'layout' },
+    { key: 'maxWidth', label: 'Max Width', type: 'select', options: [
+      { value: '2xl', label: 'Narrow' },
+      { value: '4xl', label: 'Medium' },
+      { value: 'full', label: 'Full' },
+    ], group: 'layout' },
+    { key: 'marginTop', label: 'Margin Top', type: 'text', placeholder: '0', group: 'layout' },
+    { key: 'marginBottom', label: 'Margin Bottom', type: 'text', placeholder: '1rem', group: 'layout' },
+    // === TYPOGRAPHY ===
+    { key: 'fontSize', label: 'Font Size', type: 'text', placeholder: 'auto', group: 'advanced' },
+    { key: 'fontWeight', label: 'Font Weight', type: 'select', options: [
+      { value: '300', label: 'Light' },
+      { value: '400', label: 'Normal' },
+      { value: '600', label: 'Semi Bold' },
+      { value: '700', label: 'Bold' },
+    ], group: 'advanced' },
+    { key: 'fontStyle', label: 'Font Style', type: 'select', options: [
+      { value: 'normal', label: 'Normal' },
+      { value: 'italic', label: 'Italic' },
+    ], group: 'advanced' },
+    { key: 'textTransform', label: 'Text Transform', type: 'select', options: [
+      { value: 'none', label: 'None' },
+      { value: 'uppercase', label: 'Uppercase' },
+      { value: 'capitalize', label: 'Capitalize' },
+    ], group: 'advanced' },
   ],
 
   'quote': [
-    { key: 'quote', label: 'Quote Text', type: 'textarea' },
-    { key: 'author', label: 'Author', type: 'text' },
-    { key: 'role', label: 'Role', type: 'text' },
+    // === CONTENT ===
+    { key: 'quote', label: 'Quote Text', type: 'textarea', group: 'content' },
+    { key: 'author', label: 'Author', type: 'text', group: 'content' },
+    { key: 'role', label: 'Role', type: 'text', group: 'content' },
+    { key: 'authorImage', label: 'Author Image', type: 'image', group: 'media' },
+    // === STYLE ===
     { key: 'variant', label: 'Style', type: 'select', options: [
       { value: 'default', label: 'Default' },
       { value: 'bordered', label: 'Bordered' },
       { value: 'modern', label: 'Modern' },
       { value: 'large', label: 'Large' },
-    ]},
+      { value: 'card', label: 'Card' },
+    ], group: 'style' },
+    { key: 'quoteColor', label: 'Quote Color', type: 'color', group: 'style' },
+    { key: 'authorColor', label: 'Author Color', type: 'color', group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'borderColor', label: 'Border Color', type: 'color', group: 'style' },
+    // === LAYOUT ===
+    { key: 'alignment', label: 'Alignment', type: 'alignment', group: 'layout' },
+    { key: 'maxWidth', label: 'Max Width', type: 'select', options: [
+      { value: '2xl', label: 'Narrow' },
+      { value: '4xl', label: 'Medium' },
+      { value: '6xl', label: 'Wide' },
+    ], group: 'layout' },
+    // === TYPOGRAPHY ===
+    { key: 'quoteFontSize', label: 'Quote Font Size', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    { key: 'quoteFontStyle', label: 'Quote Font Style', type: 'select', options: [
+      { value: 'normal', label: 'Normal' },
+      { value: 'italic', label: 'Italic' },
+    ], group: 'advanced' },
   ],
 
   'feature-grid': [
-    { key: 'heading', label: 'Heading', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' },
-    { key: 'columns', label: 'Columns', type: 'number', min: 2, max: 4 },
+    // === CONTENT ===
+    { key: 'heading', label: 'Heading', type: 'text', group: 'content' },
+    { key: 'subheading', label: 'Subheading', type: 'text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    // === LAYOUT ===
+    { key: 'columns', label: 'Columns', type: 'number', min: 2, max: 4, group: 'layout' },
+    { key: 'gap', label: 'Gap', type: 'select', options: [
+      { value: 'small', label: 'Small' },
+      { value: 'medium', label: 'Medium' },
+      { value: 'large', label: 'Large' },
+    ], group: 'layout' },
+    { key: 'alignment', label: 'Alignment', type: 'alignment', group: 'layout' },
+    { key: 'paddingTop', label: 'Padding Top', type: 'text', placeholder: '4rem', group: 'layout' },
+    { key: 'paddingBottom', label: 'Padding Bottom', type: 'text', placeholder: '4rem', group: 'layout' },
+    // === STYLE ===
+    { key: 'variant', label: 'Style', type: 'select', options: [
+      { value: 'default', label: 'Default' },
+      { value: 'cards', label: 'Cards' },
+      { value: 'minimal', label: 'Minimal' },
+      { value: 'bordered', label: 'Bordered' },
+    ], group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'cardBackgroundColor', label: 'Card Background', type: 'color', group: 'style' },
+    { key: 'iconColor', label: 'Icon Color', type: 'color', group: 'style' },
+    { key: 'titleColor', label: 'Title Color', type: 'color', group: 'style' },
+    // === FEATURES ===
     { key: 'features', label: 'Features', type: 'array', itemFields: [
       { key: 'icon', label: 'Icon', type: 'icon' },
       { key: 'title', label: 'Title', type: 'text' },
       { key: 'description', label: 'Description', type: 'textarea' },
+      { key: 'link', label: 'Link', type: 'url' },
     ]},
   ],
 
   'testimonials': [
-    { key: 'heading', label: 'Heading', type: 'text' },
+    // === CONTENT ===
+    { key: 'heading', label: 'Heading', type: 'text', group: 'content' },
+    { key: 'subheading', label: 'Subheading', type: 'text', group: 'content' },
+    // === LAYOUT ===
+    { key: 'columns', label: 'Columns', type: 'number', min: 1, max: 4, group: 'layout' },
+    { key: 'layout', label: 'Layout', type: 'select', options: [
+      { value: 'grid', label: 'Grid' },
+      { value: 'carousel', label: 'Carousel' },
+    ], group: 'layout' },
+    // === STYLE ===
+    { key: 'variant', label: 'Style', type: 'select', options: [
+      { value: 'default', label: 'Default' },
+      { value: 'cards', label: 'Cards' },
+      { value: 'minimal', label: 'Minimal' },
+    ], group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'cardBackgroundColor', label: 'Card Background', type: 'color', group: 'style' },
+    { key: 'showRating', label: 'Show Rating', type: 'boolean', group: 'style' },
+    { key: 'showAvatar', label: 'Show Avatar', type: 'boolean', group: 'style' },
+    // === TESTIMONIALS ===
     { key: 'testimonials', label: 'Testimonials', type: 'array', itemFields: [
       { key: 'quote', label: 'Quote', type: 'textarea' },
       { key: 'author', label: 'Author', type: 'text' },
       { key: 'role', label: 'Role', type: 'text' },
+      { key: 'company', label: 'Company', type: 'text' },
       { key: 'avatar', label: 'Avatar', type: 'image' },
       { key: 'rating', label: 'Rating', type: 'number', min: 0, max: 5 },
     ]},
   ],
 
   'stats': [
-    { key: 'backgroundColor', label: 'Background Color', type: 'color' },
+    // === CONTENT ===
+    { key: 'heading', label: 'Heading', type: 'text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    // === LAYOUT ===
+    { key: 'columns', label: 'Columns', type: 'number', min: 2, max: 6, group: 'layout' },
+    { key: 'alignment', label: 'Alignment', type: 'alignment', group: 'layout' },
+    // === STYLE ===
     { key: 'variant', label: 'Style', type: 'select', options: [
       { value: 'default', label: 'Default' },
       { value: 'cards', label: 'Cards' },
-    ]},
+      { value: 'minimal', label: 'Minimal' },
+    ], group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'valueColor', label: 'Value Color', type: 'color', group: 'style' },
+    { key: 'labelColor', label: 'Label Color', type: 'color', group: 'style' },
+    { key: 'animate', label: 'Animate Numbers', type: 'boolean', group: 'style' },
+    // === STATS ===
     { key: 'stats', label: 'Statistics', type: 'array', itemFields: [
       { key: 'value', label: 'Value', type: 'text' },
       { key: 'label', label: 'Label', type: 'text' },
+      { key: 'prefix', label: 'Prefix', type: 'text' },
+      { key: 'suffix', label: 'Suffix', type: 'text' },
+      { key: 'icon', label: 'Icon', type: 'icon' },
     ]},
   ],
 
   'cta': [
-    { key: 'heading', label: 'Heading', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' },
-    { key: 'primaryButtonText', label: 'Primary Button', type: 'text' },
-    { key: 'primaryButtonLink', label: 'Primary Link', type: 'url' },
-    { key: 'secondaryButtonText', label: 'Secondary Button', type: 'text' },
-    { key: 'secondaryButtonLink', label: 'Secondary Link', type: 'url' },
+    // === CONTENT ===
+    { key: 'heading', label: 'Heading', type: 'text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'primaryButtonText', label: 'Primary Button', type: 'text', group: 'content' },
+    { key: 'primaryButtonLink', label: 'Primary Link', type: 'url', group: 'content' },
+    { key: 'secondaryButtonText', label: 'Secondary Button', type: 'text', group: 'content' },
+    { key: 'secondaryButtonLink', label: 'Secondary Link', type: 'url', group: 'content' },
+    // === MEDIA ===
+    { key: 'backgroundImage', label: 'Background Image', type: 'image', group: 'media' },
+    // === LAYOUT ===
     { key: 'variant', label: 'Layout', type: 'select', options: [
       { value: 'centered', label: 'Centered' },
       { value: 'split', label: 'Split' },
-    ]},
-    { key: 'backgroundColor', label: 'Background Color', type: 'color' },
-    { key: 'textColor', label: 'Text Color', type: 'select', options: [
-      { value: 'white', label: 'White' },
-      { value: 'dark', label: 'Dark' },
-    ]},
+      { value: 'stacked', label: 'Stacked' },
+    ], group: 'layout' },
+    { key: 'alignment', label: 'Alignment', type: 'alignment', group: 'layout' },
+    { key: 'maxWidth', label: 'Max Width', type: 'select', options: [
+      { value: '2xl', label: 'Narrow' },
+      { value: '4xl', label: 'Medium' },
+      { value: '6xl', label: 'Wide' },
+    ], group: 'layout' },
+    { key: 'paddingTop', label: 'Padding Top', type: 'text', placeholder: '4rem', group: 'layout' },
+    { key: 'paddingBottom', label: 'Padding Bottom', type: 'text', placeholder: '4rem', group: 'layout' },
+    // === STYLE ===
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'headingColor', label: 'Heading Color', type: 'color', group: 'style' },
+    { key: 'descriptionColor', label: 'Description Color', type: 'color', group: 'style' },
+    { key: 'buttonBorderRadius', label: 'Button Border Radius', type: 'text', placeholder: '9999px', group: 'advanced' },
   ],
 
   'accordion': [
-    { key: 'heading', label: 'Heading', type: 'text' },
-    { key: 'allowMultiple', label: 'Allow Multiple Open', type: 'boolean' },
+    // === CONTENT ===
+    { key: 'heading', label: 'Heading', type: 'text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'allowMultiple', label: 'Allow Multiple Open', type: 'boolean', group: 'content' },
+    { key: 'defaultOpen', label: 'Default Open Index', type: 'number', min: -1, max: 20, group: 'content' },
+    // === STYLE ===
+    { key: 'variant', label: 'Style', type: 'select', options: [
+      { value: 'default', label: 'Default' },
+      { value: 'bordered', label: 'Bordered' },
+      { value: 'separated', label: 'Separated' },
+    ], group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'headerBackgroundColor', label: 'Header Background', type: 'color', group: 'style' },
+    { key: 'borderColor', label: 'Border Color', type: 'color', group: 'style' },
+    { key: 'iconPosition', label: 'Icon Position', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'right', label: 'Right' },
+    ], group: 'style' },
+    // === ITEMS ===
     { key: 'items', label: 'Items', type: 'array', itemFields: [
       { key: 'title', label: 'Title', type: 'text' },
       { key: 'content', label: 'Content', type: 'textarea' },
+      { key: 'icon', label: 'Icon', type: 'icon' },
     ]},
   ],
 
   'tabs': [
+    // === STYLE ===
+    { key: 'variant', label: 'Style', type: 'select', options: [
+      { value: 'default', label: 'Default' },
+      { value: 'pills', label: 'Pills' },
+      { value: 'underline', label: 'Underline' },
+      { value: 'boxed', label: 'Boxed' },
+    ], group: 'style' },
+    { key: 'alignment', label: 'Tab Alignment', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'center', label: 'Center' },
+      { value: 'right', label: 'Right' },
+    ], group: 'layout' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'activeTabColor', label: 'Active Tab Color', type: 'color', group: 'style' },
+    // === TABS ===
     { key: 'tabs', label: 'Tabs', type: 'array', itemFields: [
       { key: 'title', label: 'Tab Title', type: 'text' },
+      { key: 'icon', label: 'Tab Icon', type: 'icon' },
       { key: 'content', label: 'Content', type: 'richtext' },
     ]},
   ],
 
   'image': [
-    { key: 'src', label: 'Image URL', type: 'image', required: true },
-    { key: 'alt', label: 'Alt Text', type: 'text' },
-    { key: 'caption', label: 'Caption', type: 'text' },
-    { key: 'width', label: 'Width', type: 'select', options: WIDTH_OPTIONS },
-    { key: 'alignment', label: 'Alignment', type: 'alignment' },
-    { key: 'rounded', label: 'Border Radius', type: 'select', options: ROUNDED_OPTIONS },
-    { key: 'shadow', label: 'Shadow', type: 'boolean' },
-    { key: 'link', label: 'Link URL', type: 'url' },
+    // === MEDIA ===
+    { key: 'src', label: 'Image URL', type: 'image', required: true, group: 'media' },
+    { key: 'alt', label: 'Alt Text', type: 'text', group: 'content' },
+    { key: 'caption', label: 'Caption', type: 'text', group: 'content' },
+    // === LAYOUT ===
+    { key: 'width', label: 'Width', type: 'select', options: WIDTH_OPTIONS, group: 'layout' },
+    { key: 'height', label: 'Height', type: 'text', placeholder: 'auto', group: 'layout' },
+    { key: 'maxWidth', label: 'Max Width', type: 'text', placeholder: '100%', group: 'layout' },
+    { key: 'alignment', label: 'Alignment', type: 'alignment', group: 'layout' },
+    { key: 'objectFit', label: 'Object Fit', type: 'select', options: [
+      { value: 'cover', label: 'Cover' },
+      { value: 'contain', label: 'Contain' },
+      { value: 'fill', label: 'Fill' },
+    ], group: 'layout' },
+    // === STYLE ===
+    { key: 'rounded', label: 'Border Radius', type: 'select', options: ROUNDED_OPTIONS, group: 'style' },
+    { key: 'shadow', label: 'Shadow', type: 'select', options: [
+      { value: 'none', label: 'None' },
+      { value: 'sm', label: 'Small' },
+      { value: 'md', label: 'Medium' },
+      { value: 'lg', label: 'Large' },
+    ], group: 'style' },
+    { key: 'border', label: 'Border', type: 'boolean', group: 'style' },
+    { key: 'borderColor', label: 'Border Color', type: 'color', group: 'style' },
+    // === INTERACTION ===
+    { key: 'link', label: 'Link URL', type: 'url', group: 'content' },
+    { key: 'lightbox', label: 'Enable Lightbox', type: 'boolean', group: 'content' },
+    { key: 'hoverEffect', label: 'Hover Effect', type: 'select', options: [
+      { value: 'none', label: 'None' },
+      { value: 'zoom', label: 'Zoom' },
+      { value: 'brightness', label: 'Brightness' },
+    ], group: 'style' },
+    // === SPACING ===
+    { key: 'marginTop', label: 'Margin Top', type: 'text', placeholder: '0', group: 'layout' },
+    { key: 'marginBottom', label: 'Margin Bottom', type: 'text', placeholder: '0', group: 'layout' },
   ],
 
   'video': [
-    { key: 'url', label: 'Video URL', type: 'video', required: true },
-    { key: 'poster', label: 'Poster Image', type: 'image' },
-    { key: 'autoplay', label: 'Autoplay', type: 'boolean' },
-    { key: 'controls', label: 'Show Controls', type: 'boolean' },
-    { key: 'aspectRatio', label: 'Aspect Ratio', type: 'select', options: ASPECT_RATIO_OPTIONS },
-    { key: 'caption', label: 'Caption', type: 'text' },
+    // === MEDIA ===
+    { key: 'url', label: 'Video URL', type: 'video', required: true, group: 'media' },
+    { key: 'poster', label: 'Poster Image', type: 'image', group: 'media' },
+    { key: 'title', label: 'Title', type: 'text', group: 'content' },
+    { key: 'caption', label: 'Caption', type: 'text', group: 'content' },
+    // === PLAYBACK ===
+    { key: 'autoplay', label: 'Autoplay', type: 'boolean', group: 'content' },
+    { key: 'muted', label: 'Muted', type: 'boolean', group: 'content' },
+    { key: 'loop', label: 'Loop', type: 'boolean', group: 'content' },
+    { key: 'controls', label: 'Show Controls', type: 'boolean', group: 'content' },
+    { key: 'playsInline', label: 'Plays Inline', type: 'boolean', group: 'content' },
+    // === LAYOUT ===
+    { key: 'aspectRatio', label: 'Aspect Ratio', type: 'select', options: ASPECT_RATIO_OPTIONS, group: 'layout' },
+    { key: 'width', label: 'Width', type: 'select', options: WIDTH_OPTIONS, group: 'layout' },
+    { key: 'maxWidth', label: 'Max Width', type: 'text', placeholder: '100%', group: 'layout' },
+    { key: 'alignment', label: 'Alignment', type: 'alignment', group: 'layout' },
+    // === STYLE ===
+    { key: 'rounded', label: 'Border Radius', type: 'select', options: ROUNDED_OPTIONS, group: 'style' },
+    { key: 'shadow', label: 'Shadow', type: 'select', options: [
+      { value: 'none', label: 'None' },
+      { value: 'sm', label: 'Small' },
+      { value: 'md', label: 'Medium' },
+      { value: 'lg', label: 'Large' },
+    ], group: 'style' },
+    // === SPACING ===
+    { key: 'marginTop', label: 'Margin Top', type: 'text', placeholder: '0', group: 'layout' },
+    { key: 'marginBottom', label: 'Margin Bottom', type: 'text', placeholder: '0', group: 'layout' },
   ],
 
   'spacer': [
-    { key: 'height', label: 'Height (px)', type: 'number', min: 0, max: 500 },
+    { key: 'height', label: 'Height (px)', type: 'number', min: 0, max: 500, group: 'layout' },
+    { key: 'mobileHeight', label: 'Mobile Height (px)', type: 'number', min: 0, max: 500, group: 'layout' },
+    { key: 'tabletHeight', label: 'Tablet Height (px)', type: 'number', min: 0, max: 500, group: 'layout' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
   ],
 
   'divider': [
@@ -1281,42 +1537,89 @@ export const STANDARD_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
       { value: 'solid', label: 'Solid' },
       { value: 'dashed', label: 'Dashed' },
       { value: 'dotted', label: 'Dotted' },
-    ]},
-    { key: 'color', label: 'Color', type: 'color' },
-    { key: 'width', label: 'Width', type: 'select', options: WIDTH_OPTIONS },
+      { value: 'double', label: 'Double' },
+      { value: 'gradient', label: 'Gradient' },
+    ], group: 'style' },
+    { key: 'color', label: 'Color', type: 'color', group: 'style' },
+    { key: 'gradientFrom', label: 'Gradient From', type: 'color', group: 'style' },
+    { key: 'gradientTo', label: 'Gradient To', type: 'color', group: 'style' },
+    { key: 'width', label: 'Width', type: 'select', options: WIDTH_OPTIONS, group: 'layout' },
+    { key: 'thickness', label: 'Thickness', type: 'select', options: [
+      { value: '1px', label: 'Thin (1px)' },
+      { value: '2px', label: 'Normal (2px)' },
+      { value: '4px', label: 'Thick (4px)' },
+    ], group: 'layout' },
+    { key: 'marginTop', label: 'Margin Top', type: 'text', placeholder: '2rem', group: 'layout' },
+    { key: 'marginBottom', label: 'Margin Bottom', type: 'text', placeholder: '2rem', group: 'layout' },
   ],
 
   'button': [
-    { key: 'text', label: 'Button Text', type: 'text' },
-    { key: 'link', label: 'Link URL', type: 'url' },
+    // === CONTENT ===
+    { key: 'text', label: 'Button Text', type: 'text', group: 'content' },
+    { key: 'link', label: 'Link URL', type: 'url', group: 'content' },
+    { key: 'icon', label: 'Icon', type: 'icon', group: 'content' },
+    { key: 'iconPosition', label: 'Icon Position', type: 'select', options: [
+      { value: 'left', label: 'Left' },
+      { value: 'right', label: 'Right' },
+    ], group: 'content' },
+    // === STYLE ===
     { key: 'variant', label: 'Style', type: 'select', options: [
       { value: 'default', label: 'Default' },
+      { value: 'primary', label: 'Primary' },
+      { value: 'secondary', label: 'Secondary' },
       { value: 'outline', label: 'Outline' },
       { value: 'ghost', label: 'Ghost' },
-    ]},
+    ], group: 'style' },
     { key: 'size', label: 'Size', type: 'select', options: [
       { value: 'sm', label: 'Small' },
       { value: 'default', label: 'Default' },
       { value: 'lg', label: 'Large' },
-    ]},
-    { key: 'alignment', label: 'Alignment', type: 'alignment' },
+      { value: 'xl', label: 'Extra Large' },
+    ], group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'textColor', label: 'Text Color', type: 'color', group: 'style' },
+    { key: 'borderColor', label: 'Border Color', type: 'color', group: 'style' },
+    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '9999px', group: 'style' },
+    { key: 'fullWidth', label: 'Full Width', type: 'boolean', group: 'layout' },
+    // === LAYOUT ===
+    { key: 'alignment', label: 'Alignment', type: 'alignment', group: 'layout' },
+    { key: 'marginTop', label: 'Margin Top', type: 'text', placeholder: '0', group: 'layout' },
+    { key: 'marginBottom', label: 'Margin Bottom', type: 'text', placeholder: '0', group: 'layout' },
   ],
 
   'pricing': [
-    { key: 'heading', label: 'Heading', type: 'text' },
-    { key: 'description', label: 'Description', type: 'textarea' },
+    // === CONTENT ===
+    { key: 'heading', label: 'Heading', type: 'text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    // === LAYOUT ===
+    { key: 'columns', label: 'Columns', type: 'number', min: 2, max: 4, group: 'layout' },
+    // === STYLE ===
+    { key: 'variant', label: 'Style', type: 'select', options: [
+      { value: 'default', label: 'Default' },
+      { value: 'cards', label: 'Cards' },
+      { value: 'minimal', label: 'Minimal' },
+    ], group: 'style' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'highlightColor', label: 'Highlight Color', type: 'color', group: 'style' },
+    { key: 'showToggle', label: 'Show Monthly/Yearly Toggle', type: 'boolean', group: 'content' },
+    // === PLANS ===
     { key: 'plans', label: 'Plans', type: 'array', itemFields: [
       { key: 'name', label: 'Plan Name', type: 'text' },
       { key: 'price', label: 'Price', type: 'text' },
+      { key: 'yearlyPrice', label: 'Yearly Price', type: 'text' },
       { key: 'period', label: 'Period', type: 'text' },
+      { key: 'description', label: 'Description', type: 'text' },
       { key: 'features', label: 'Features', type: 'stringarray' },
       { key: 'ctaText', label: 'Button Text', type: 'text' },
+      { key: 'ctaLink', label: 'Button Link', type: 'url' },
       { key: 'highlighted', label: 'Highlighted', type: 'boolean' },
+      { key: 'badge', label: 'Badge Text', type: 'text' },
     ]},
   ],
 
   'code': [
-    { key: 'code', label: 'Code', type: 'textarea' },
+    // === CONTENT ===
+    { key: 'code', label: 'Code', type: 'textarea', group: 'content' },
     { key: 'language', label: 'Language', type: 'select', options: [
       { value: 'javascript', label: 'JavaScript' },
       { value: 'typescript', label: 'TypeScript' },
@@ -1325,13 +1628,103 @@ export const STANDARD_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
       { value: 'python', label: 'Python' },
       { value: 'bash', label: 'Bash' },
       { value: 'json', label: 'JSON' },
-    ]},
-    { key: 'filename', label: 'Filename', type: 'text' },
-    { key: 'showLineNumbers', label: 'Show Line Numbers', type: 'boolean' },
+      { value: 'sql', label: 'SQL' },
+      { value: 'php', label: 'PHP' },
+    ], group: 'content' },
+    { key: 'filename', label: 'Filename', type: 'text', group: 'content' },
+    { key: 'showLineNumbers', label: 'Show Line Numbers', type: 'boolean', group: 'style' },
+    { key: 'highlightLines', label: 'Highlight Lines', type: 'text', placeholder: '1,3-5', group: 'style' },
+    { key: 'theme', label: 'Theme', type: 'select', options: [
+      { value: 'dark', label: 'Dark' },
+      { value: 'light', label: 'Light' },
+    ], group: 'style' },
+    { key: 'maxHeight', label: 'Max Height', type: 'text', placeholder: 'auto', group: 'layout' },
+    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '0.5rem', group: 'style' },
   ],
 
   'html': [
-    { key: 'html', label: 'HTML Content', type: 'richtext' },
+    { key: 'html', label: 'HTML Content', type: 'richtext', group: 'content' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'padding', label: 'Padding', type: 'text', placeholder: '0', group: 'layout' },
+    { key: 'maxWidth', label: 'Max Width', type: 'select', options: [
+      { value: '2xl', label: 'Narrow' },
+      { value: '4xl', label: 'Medium' },
+      { value: '6xl', label: 'Wide' },
+      { value: 'full', label: 'Full' },
+    ], group: 'layout' },
+    { key: 'alignment', label: 'Alignment', type: 'alignment', group: 'layout' },
+  ],
+
+  // === ADDITIONAL BLOCKS ===
+  'section': [
+    // === STYLE ===
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'backgroundImage', label: 'Background Image', type: 'image', group: 'media' },
+    { key: 'backgroundPosition', label: 'Background Position', type: 'select', options: [
+      { value: 'center', label: 'Center' },
+      { value: 'top', label: 'Top' },
+      { value: 'bottom', label: 'Bottom' },
+    ], group: 'style' },
+    // === LAYOUT ===
+    { key: 'paddingTop', label: 'Padding Top', type: 'text', placeholder: '4rem', group: 'layout' },
+    { key: 'paddingBottom', label: 'Padding Bottom', type: 'text', placeholder: '4rem', group: 'layout' },
+    { key: 'maxWidth', label: 'Max Width', type: 'select', options: [
+      { value: 'container', label: 'Container' },
+      { value: 'full', label: 'Full Width' },
+    ], group: 'layout' },
+    { key: 'minHeight', label: 'Minimum Height', type: 'text', placeholder: 'auto', group: 'layout' },
+  ],
+
+  'columns': [
+    { key: 'columns', label: 'Number of Columns', type: 'number', min: 2, max: 6, group: 'layout' },
+    { key: 'gap', label: 'Gap', type: 'select', options: [
+      { value: 'none', label: 'None' },
+      { value: 'small', label: 'Small' },
+      { value: 'medium', label: 'Medium' },
+      { value: 'large', label: 'Large' },
+    ], group: 'layout' },
+    { key: 'verticalAlign', label: 'Vertical Align', type: 'select', options: [
+      { value: 'top', label: 'Top' },
+      { value: 'center', label: 'Center' },
+      { value: 'bottom', label: 'Bottom' },
+    ], group: 'layout' },
+    { key: 'reverseOnMobile', label: 'Reverse on Mobile', type: 'boolean', group: 'layout' },
+    { key: 'stackOnMobile', label: 'Stack on Mobile', type: 'boolean', group: 'layout' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+  ],
+
+  'grid': [
+    { key: 'columns', label: 'Columns', type: 'number', min: 1, max: 6, group: 'layout' },
+    { key: 'rows', label: 'Rows', type: 'number', min: 1, max: 10, group: 'layout' },
+    { key: 'gap', label: 'Gap', type: 'select', options: [
+      { value: 'none', label: 'None' },
+      { value: 'small', label: 'Small' },
+      { value: 'medium', label: 'Medium' },
+      { value: 'large', label: 'Large' },
+    ], group: 'layout' },
+    { key: 'mobileColumns', label: 'Mobile Columns', type: 'number', min: 1, max: 4, group: 'layout' },
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+  ],
+
+  'gallery': [
+    { key: 'title', label: 'Title', type: 'text', group: 'content' },
+    { key: 'columns', label: 'Columns', type: 'number', min: 2, max: 6, group: 'layout' },
+    { key: 'gap', label: 'Gap', type: 'select', options: [
+      { value: 'none', label: 'None' },
+      { value: 'small', label: 'Small' },
+      { value: 'medium', label: 'Medium' },
+    ], group: 'layout' },
+    { key: 'layout', label: 'Layout', type: 'select', options: [
+      { value: 'grid', label: 'Grid' },
+      { value: 'masonry', label: 'Masonry' },
+    ], group: 'layout' },
+    { key: 'rounded', label: 'Image Border Radius', type: 'select', options: ROUNDED_OPTIONS, group: 'style' },
+    { key: 'lightbox', label: 'Enable Lightbox', type: 'boolean', group: 'content' },
+    { key: 'images', label: 'Images', type: 'array', itemFields: [
+      { key: 'src', label: 'Image URL', type: 'image' },
+      { key: 'alt', label: 'Alt Text', type: 'text' },
+      { key: 'caption', label: 'Caption', type: 'text' },
+    ]},
   ],
 };
 
