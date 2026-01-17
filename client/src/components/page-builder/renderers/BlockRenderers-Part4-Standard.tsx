@@ -42,7 +42,7 @@ import {
   Image as ImageIcon, Video, List, Table, Grid, Columns,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { EditableText, getIcon } from './BlockRenderers-Part1-Core';
+import { EditableText, getIcon, SECTION_PADDING_PRESETS, TITLE_SIZE_PRESETS, BODY_SIZE_PRESETS, GAP_PRESETS } from './BlockRenderers-Part1-Core';
 
 // ============================================================================
 // SHARED INTERFACES
@@ -78,6 +78,11 @@ export function HeroBlockRenderer({ block, isEditing, onUpdate }: BlockRendererP
     overlay = true,
     overlayOpacity = 50,
     variant = 'centered',
+    // Sizing controls
+    sectionPadding = 'hero',
+    titleSize = 'hero',
+    descriptionSize = 'large',
+    maxWidth = 'max-w-6xl',
     minHeight = '500px',
     textColor = 'white',
   } = content;

@@ -27,7 +27,7 @@ import {
   Check, ChevronLeft, ChevronRight, ExternalLink, Filter,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { EditableText, getIcon } from './BlockRenderers-Part1-Core';
+import { EditableText, getIcon, SECTION_PADDING_PRESETS, TITLE_SIZE_PRESETS, BODY_SIZE_PRESETS, GAP_PRESETS } from './BlockRenderers-Part1-Core';
 
 // ============================================================================
 // SHARED INTERFACES
@@ -61,11 +61,21 @@ export function JENewsletterRenderer({ block, isEditing, onUpdate }: BlockRender
     dark = false,
     variant = 'elegant',
     alignment = 'center',
+    // Sizing controls
+    sectionPadding = 'spacious',
+    titleSize = 'large',
+    descriptionSize = 'medium',
+    maxWidth = 'max-w-3xl',
   } = content;
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
   };
+
+  // Get sizing classes
+  const getPaddingClass = () => SECTION_PADDING_PRESETS[sectionPadding as keyof typeof SECTION_PADDING_PRESETS] || SECTION_PADDING_PRESETS.spacious;
+  const getTitleClass = () => TITLE_SIZE_PRESETS[titleSize as keyof typeof TITLE_SIZE_PRESETS] || TITLE_SIZE_PRESETS.large;
+  const getDescriptionClass = () => BODY_SIZE_PRESETS[descriptionSize as keyof typeof BODY_SIZE_PRESETS] || BODY_SIZE_PRESETS.medium;
 
   const alignmentClasses: Record<string, string> = {
     left: 'text-left',
@@ -76,13 +86,15 @@ export function JENewsletterRenderer({ block, isEditing, onUpdate }: BlockRender
   return (
     <section
       className={cn(
-        'py-16 md:py-24',
-        dark ? 'bg-neutral-900' : 'bg-amber-50'
+        getPaddingClass(),
+        'overflow-hidden',
+        dark ? 'bg-[#1a1a1a]' : 'bg-[#faf9f7]'
       )}
       style={backgroundColor ? { backgroundColor } : undefined}
     >
       <div className={cn(
-        'container mx-auto px-6 max-w-2xl',
+        'mx-auto px-6 md:px-12',
+        maxWidth,
         alignmentClasses[alignment]
       )}>
         <EditableText
@@ -92,8 +104,9 @@ export function JENewsletterRenderer({ block, isEditing, onUpdate }: BlockRender
           placeholder="Newsletter Title"
           isEditing={isEditing}
           className={cn(
-            'text-3xl md:text-4xl font-serif italic mb-4',
-            dark ? 'text-white' : 'text-neutral-900'
+            getTitleClass(),
+            'font-serif italic font-light leading-[1.1] tracking-tight mb-6',
+            dark ? 'text-white' : 'text-foreground'
           )}
         />
 
