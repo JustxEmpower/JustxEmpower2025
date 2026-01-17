@@ -80,12 +80,25 @@ export default function AdminBlockCreator() {
     return acc;
   }, {} as Record<string, typeof blockTypes>);
 
-  // When a base block type is selected, initialize content with defaults
+  // Default sizing fields to add to all blocks
+  const DEFAULT_SIZING = {
+    sectionPadding: 'standard',
+    titleSize: 'large',
+    descriptionSize: 'medium',
+    maxWidth: 'max-w-6xl',
+    itemGap: 'standard',
+  };
+
+  // When a base block type is selected, initialize content with defaults + sizing
   const handleSelectBlockType = (blockTypeId: string) => {
     const blockDef = blockTypes.find(b => b.id === blockTypeId);
     if (blockDef) {
       setSelectedBlockType(blockTypeId);
-      setBlockContent({ ...blockDef.defaultContent });
+      // Merge sizing defaults with block defaults
+      setBlockContent({ 
+        ...DEFAULT_SIZING,
+        ...blockDef.defaultContent 
+      });
       if (!blockName) {
         setBlockName(`Custom ${blockDef.name}`);
       }
