@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
-import { LogOut, FileText, Settings, Layout, Save, ChevronDown, ChevronUp, FolderOpen, Image, Palette, Files, BarChart3 } from 'lucide-react';
+import { LogOut, FileText, Settings, Layout, Save, ChevronDown, ChevronUp, FolderOpen, Image, Palette, Files, BarChart3, Layers } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
 import AdminSidebar from '@/components/AdminSidebar';
 import SectionVisualizer from '@/components/SectionVisualizer';
@@ -442,6 +442,22 @@ export default function AdminContent() {
               selectedPage={selectedPage}
               activeSection={activeSection}
             />
+          </div>
+
+          {/* Quick Link to Page Zones */}
+          <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-800">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full justify-start gap-2 text-xs"
+              onClick={() => setLocation(`/admin/zones`)}
+            >
+              <Layers className="w-4 h-4" />
+              Edit Page Zones
+            </Button>
+            <p className="text-[10px] text-muted-foreground mt-2">
+              Add Page Builder blocks to this page
+            </p>
           </div>
         </div>
 

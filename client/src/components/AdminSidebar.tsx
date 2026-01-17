@@ -37,6 +37,7 @@ import {
   Brain,
   ArrowLeft,
   LayoutDashboard,
+  Layers,
 } from 'lucide-react';
 
 // Complete list of all admin navigation items matching the original design
@@ -47,6 +48,7 @@ const navItems = [
   { icon: FileText, label: 'Articles', path: '/admin/articles' },
   { icon: FolderOpen, label: 'Media', path: '/admin/media' },
   { icon: Blocks, label: 'Page Builder', path: '/admin/page-builder' },
+  { icon: Layers, label: 'Page Zones', path: '/admin/zones' },
   // E-commerce / Shop section
   { icon: Package, label: 'Products', path: '/admin/products' },
   { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
