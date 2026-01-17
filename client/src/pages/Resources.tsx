@@ -3,6 +3,7 @@ import { trpc } from '@/lib/trpc';
 import { usePageContent } from '@/hooks/usePageContent';
 import { getMediaUrl } from '@/lib/media';
 import AutoplayVideo from '@/components/AutoplayVideo';
+import { EditablePageZone } from '@/components/PageZone';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -729,6 +730,9 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Page Builder Zone: Before Footer */}
+      <EditablePageZone pageSlug="resources" zoneName="before-footer" />
     </div>
   );
 }

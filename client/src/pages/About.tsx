@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { getMediaUrl } from '@/lib/media';
 import { usePageContent } from '@/hooks/usePageContent';
+import { EditablePageZone } from '@/components/PageZone';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -282,6 +283,9 @@ export default function About({ slug = 'about' }: AboutProps) {
           </p>
         </section>
 
+        {/* Page Builder Zone: Before Newsletter */}
+        <EditablePageZone pageSlug="about" zoneName="before-newsletter" />
+
         {/* Newsletter CTA */}
         <section className="content-section max-w-2xl mx-auto">
           <div className="bg-card rounded-3xl p-12 md:p-16 text-center border border-border">
@@ -294,6 +298,9 @@ export default function About({ slug = 'about' }: AboutProps) {
             <NewsletterSignup variant="inline" />
           </div>
         </section>
+
+        {/* Page Builder Zone: Before Footer */}
+        <EditablePageZone pageSlug="about" zoneName="before-footer" />
       </div>
     </div>
   );

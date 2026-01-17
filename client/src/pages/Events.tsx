@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, MapPin, Users, Clock, DollarSign } from "lucide-react";
 import { usePageContent } from "@/hooks/usePageContent";
+import { EditablePageZone } from '@/components/PageZone';
 
 interface EventsProps {
   slug?: string;
@@ -95,6 +96,9 @@ export default function Events({ slug = 'events' }: EventsProps) {
           </Tabs>
         </div>
       </section>
+
+      {/* Page Builder Zone: Before Footer */}
+      <EditablePageZone pageSlug="events" zoneName="before-footer" />
     </div>
   );
 }

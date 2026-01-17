@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { ShoppingBag, ArrowLeft } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import CartSlideout from "@/components/CartSlideout";
+import { EditablePageZone } from '@/components/PageZone';
 
 interface ShopProps {
   slug?: string;
@@ -106,6 +107,9 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
           </div>
         )}
       </main>
+      
+      {/* Page Builder Zone: Before Footer */}
+      <EditablePageZone pageSlug="shop" zoneName="before-footer" />
       
       {/* Cart Slideout */}
       <CartSlideout open={cartOpen} onClose={() => setCartOpen(false)} />

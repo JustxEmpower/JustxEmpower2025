@@ -4,6 +4,7 @@ import { useLocation } from 'wouter';
 import { getMediaUrl } from '@/lib/media';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { usePageContent } from '@/hooks/usePageContent';
+import { EditablePageZone } from '@/components/PageZone';
 
 export default function Philosophy() {
   const [location] = useLocation();
@@ -139,6 +140,9 @@ export default function Philosophy() {
         dark
       />
 
+      {/* Page Builder Zone: Before Newsletter */}
+      <EditablePageZone pageSlug="philosophy" zoneName="before-newsletter" />
+
       {/* Newsletter CTA */}
       <div className="py-24 px-6 md:px-12 bg-neutral-50 dark:bg-neutral-900">
         <div className="max-w-2xl mx-auto text-center">
@@ -153,6 +157,9 @@ export default function Philosophy() {
           </div>
         </div>
       </div>
+
+      {/* Page Builder Zone: Before Footer */}
+      <EditablePageZone pageSlug="philosophy" zoneName="before-footer" />
     </div>
   );
 }

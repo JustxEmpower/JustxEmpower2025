@@ -3,6 +3,7 @@ import Section from '@/components/Section';
 import { useLocation } from 'wouter';
 import { getMediaUrl } from '@/lib/media';
 import { usePageContent } from '@/hooks/usePageContent';
+import { EditablePageZone } from '@/components/PageZone';
 
 export default function Offerings() {
   const [location] = useLocation();
@@ -137,6 +138,9 @@ export default function Offerings() {
         reversed
         dark
       />
+
+      {/* Page Builder Zone: Before Footer */}
+      <EditablePageZone pageSlug="offerings" zoneName="before-footer" />
     </div>
   );
 }

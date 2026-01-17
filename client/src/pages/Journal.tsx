@@ -5,6 +5,7 @@ import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { usePageContent } from '@/hooks/usePageContent';
+import { EditablePageZone } from '@/components/PageZone';
 
 interface JournalProps {
   slug?: string;
@@ -248,6 +249,9 @@ export default function Journal({ slug = 'blog' }: JournalProps) {
             </p>
           </div>
         )}
+
+        {/* Page Builder Zone: Before Footer */}
+        <EditablePageZone pageSlug="blog" zoneName="before-footer" />
       </div>
     </div>
   );

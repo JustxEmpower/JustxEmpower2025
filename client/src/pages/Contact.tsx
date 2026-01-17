@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { usePageContent } from '@/hooks/usePageContent';
+import { EditablePageZone } from '@/components/PageZone';
 
 const contactSchema = z.object({
   firstName: z.string().min(2, "First name is required"),
@@ -264,6 +265,9 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
           </div>
         </div>
       </div>
+
+      {/* Page Builder Zone: Before Footer */}
+      <EditablePageZone pageSlug="contact" zoneName="before-footer" />
     </div>
   );
 }
