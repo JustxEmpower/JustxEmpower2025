@@ -15,6 +15,20 @@ import {
   Download,
   Eye,
   Sparkles,
+  Heart,
+  Crown,
+  Mountain,
+  Flower2,
+  Sun,
+  Star,
+  Calendar,
+  GraduationCap,
+  BookOpen,
+  Compass,
+  Gem,
+  Flame,
+  Target,
+  Award,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -31,11 +45,12 @@ export interface PageTemplate {
   id: string;
   name: string;
   description: string;
-  category: 'landing' | 'content' | 'business' | 'special';
+  category: 'landing' | 'content' | 'business' | 'special' | 'retreat' | 'coaching' | 'community' | 'workshop';
   icon: React.ComponentType<{ className?: string }>;
   preview?: string;
   blocks: Omit<PageBlock, 'id' | 'order'>[];
   tags: string[];
+  featured?: boolean;
 }
 
 // Helper to generate unique IDs
@@ -508,7 +523,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
         content: {
           title: 'Something Amazing is Coming',
           subtitle: 'We are working on something special. Be the first to know when we launch.',
-          launchDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days from now
+          launchDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           showCountdown: true,
         },
       },
@@ -519,6 +534,781 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
           description: 'Enter your email to be the first to know when we launch.',
           buttonText: 'Notify Me',
           placeholder: 'your@email.com',
+        },
+      },
+    ],
+  },
+
+  // ============================================================================
+  // ✦ TURBO TEMPLATES - JE WOMEN'S EMPOWERMENT
+  // ============================================================================
+
+  // 11. Transformation Retreat
+  {
+    id: 'retreat-transformation',
+    name: '✦ Transformation Retreat',
+    description: 'Immersive retreat experience with video hero, pillars of transformation, testimonials, and booking.',
+    category: 'retreat',
+    icon: Mountain,
+    tags: ['retreat', 'transformation', 'wellness', 'luxury'],
+    featured: true,
+    blocks: [
+      {
+        type: 'je-hero-video',
+        content: {
+          videoUrl: '',
+          posterImage: '',
+          title: 'Awaken Your Inner Power',
+          subtitle: 'A Transformational Retreat Experience',
+          description: 'Join us for an immersive journey of self-discovery, healing, and empowerment in a sacred space designed for your transformation.',
+          ctaText: 'Reserve Your Spot',
+          ctaLink: '#register',
+          overlayOpacity: 50,
+          textAlignment: 'center',
+          minHeight: '90vh',
+        },
+      },
+      {
+        type: 'je-pillars',
+        content: {
+          label: 'The Journey',
+          title: 'Three Pillars of Transformation',
+          description: 'Experience a holistic approach to awakening your full potential.',
+          pillar1Icon: 'heart',
+          pillar1Title: 'Embodiment',
+          pillar1Description: 'Reconnect with your body through movement, breathwork, and somatic practices.',
+          pillar2Icon: 'compass',
+          pillar2Title: 'Clarity',
+          pillar2Description: 'Gain crystal clear vision for your path forward with guided introspection.',
+          pillar3Icon: 'crown',
+          pillar3Title: 'Empowerment',
+          pillar3Description: 'Step into your sovereignty and claim your birthright of abundance.',
+        },
+      },
+      {
+        type: 'je-two-column',
+        content: {
+          imageUrl: '',
+          imagePosition: 'left',
+          title: 'What Awaits You',
+          content: 'Nestled in nature, our retreat offers a sanctuary for deep inner work. Experience daily yoga, meditation, sound healing, and transformational workshops led by expert facilitators. Leave with clarity, community, and a renewed sense of purpose.',
+          ctaText: 'View Full Itinerary',
+          ctaLink: '#schedule',
+        },
+      },
+      {
+        type: 'je-testimonial',
+        content: {
+          quote: 'This retreat was the most profound experience of my life. I returned home a different woman—more confident, more clear, more me.',
+          author: 'Sarah M.',
+          role: 'Retreat Participant, 2024',
+          image: '',
+          style: 'featured',
+        },
+      },
+      {
+        type: 'je-offerings-grid',
+        content: {
+          title: 'Investment Options',
+          subtitle: 'Choose the experience that calls to you.',
+          offerings: [
+            { title: 'Shared Room', description: 'Full retreat experience with shared accommodations', icon: 'users', price: '$2,997' },
+            { title: 'Private Room', description: 'Full retreat with private sanctuary space', icon: 'crown', price: '$3,997' },
+            { title: 'VIP Experience', description: 'Private room plus 1:1 sessions and extras', icon: 'gem', price: '$5,997' },
+          ],
+        },
+      },
+      {
+        type: 'je-faq',
+        content: {
+          title: 'Questions & Answers',
+          items: [
+            { question: 'What is included in the retreat?', answer: 'All accommodations, meals, workshops, ceremonies, materials, and airport transfers are included.' },
+            { question: 'Do I need prior experience?', answer: 'No prior experience is needed. This retreat welcomes women at all stages of their journey.' },
+            { question: 'What should I bring?', answer: 'Comfortable clothing, journal, and an open heart. A detailed packing list will be sent upon registration.' },
+          ],
+        },
+      },
+      {
+        type: 'je-newsletter',
+        content: {
+          title: 'Ready to Transform?',
+          description: 'Spaces are limited. Join our waitlist to be notified when registration opens.',
+          buttonText: 'Join Waitlist',
+        },
+      },
+      {
+        type: 'je-footer',
+        content: {
+          tagline: 'Catalyzing the Rise of Her',
+          copyright: '© Just Empower. All rights reserved.',
+        },
+      },
+    ],
+  },
+
+  // 12. 1:1 Coaching Program
+  {
+    id: 'coaching-1on1',
+    name: '✦ 1:1 Coaching Program',
+    description: 'Personal coaching program page with principles, process, testimonials, and application.',
+    category: 'coaching',
+    icon: Compass,
+    tags: ['coaching', 'mentorship', '1:1', 'transformation'],
+    featured: true,
+    blocks: [
+      {
+        type: 'je-hero-image',
+        content: {
+          imageUrl: '',
+          title: 'Your Personal Transformation Journey',
+          subtitle: 'Private 1:1 Coaching',
+          description: 'Deep, personalized guidance for women ready to claim their power and create extraordinary lives.',
+          ctaText: 'Apply Now',
+          ctaLink: '#apply',
+          overlayOpacity: 40,
+          textAlignment: 'center',
+          minHeight: '80vh',
+        },
+      },
+      {
+        type: 'je-section-standard',
+        content: {
+          title: 'Is This For You?',
+          content: 'This intimate coaching container is for the woman who knows she is meant for more. You have achieved success, yet something deeper calls. You are ready to shed what no longer serves and step fully into your power, purpose, and presence.',
+          alignment: 'center',
+        },
+      },
+      {
+        type: 'je-principles',
+        content: {
+          title: 'The Coaching Journey',
+          principles: [
+            { number: '01', title: 'Discovery', description: 'We begin with a deep dive into your vision, blocks, and desires.' },
+            { number: '02', title: 'Activation', description: 'Unlock dormant potential through proven transformational practices.' },
+            { number: '03', title: 'Integration', description: 'Embody your new way of being with ongoing support and accountability.' },
+            { number: '04', title: 'Expansion', description: 'Watch as your outer world transforms to match your inner shifts.' },
+          ],
+        },
+      },
+      {
+        type: 'je-two-column',
+        content: {
+          imageUrl: '',
+          imagePosition: 'right',
+          title: 'What You Receive',
+          content: '• Weekly 60-minute private coaching sessions\n• Unlimited voice/text support between calls\n• Personalized practices and rituals\n• Access to exclusive resources and teachings\n• Recordings of all sessions\n• Emergency support when life happens',
+          ctaText: 'See Full Details',
+          ctaLink: '#details',
+        },
+      },
+      {
+        type: 'je-testimonial',
+        content: {
+          quote: 'Working with her changed everything. I finally understand my worth and have the tools to create the life I always dreamed of.',
+          author: 'Michelle K.',
+          role: 'Executive Coach',
+          image: '',
+        },
+      },
+      {
+        type: 'je-blockquote',
+        content: {
+          quote: 'You are not here to play small. You are here to rise.',
+          author: '',
+          role: '',
+          style: 'decorative',
+        },
+      },
+      {
+        type: 'je-contact-form',
+        content: {
+          title: 'Apply for 1:1 Coaching',
+          description: 'Tell me about yourself and what you are seeking. I personally review every application.',
+          fields: ['name', 'email', 'message'],
+          submitText: 'Submit Application',
+        },
+      },
+      {
+        type: 'je-footer',
+        content: {
+          tagline: 'Catalyzing the Rise of Her',
+          copyright: '© Just Empower. All rights reserved.',
+        },
+      },
+    ],
+  },
+
+  // 13. Group Coaching Circle
+  {
+    id: 'coaching-group',
+    name: '✦ Sisterhood Circle',
+    description: 'Group coaching program with community focus, curriculum, and enrollment.',
+    category: 'coaching',
+    icon: Heart,
+    tags: ['group', 'sisterhood', 'community', 'coaching'],
+    blocks: [
+      {
+        type: 'je-hero-image',
+        content: {
+          imageUrl: '',
+          title: 'Rise Together',
+          subtitle: 'The Sisterhood Circle',
+          description: 'A sacred container for transformation in community. Because we rise higher when we rise together.',
+          ctaText: 'Join the Circle',
+          ctaLink: '#enroll',
+          overlayOpacity: 45,
+          textAlignment: 'center',
+          minHeight: '80vh',
+        },
+      },
+      {
+        type: 'je-pillars',
+        content: {
+          label: 'The Experience',
+          title: 'Three Pillars of Sisterhood',
+          description: 'A transformational journey held in sacred community.',
+          pillar1Icon: 'heart',
+          pillar1Title: 'Connection',
+          pillar1Description: 'Deep bonds with women who truly see and support you.',
+          pillar2Icon: 'sparkles',
+          pillar2Title: 'Growth',
+          pillar2Description: 'Structured curriculum designed for lasting transformation.',
+          pillar3Icon: 'users',
+          pillar3Title: 'Accountability',
+          pillar3Description: 'Loving support to help you follow through on your commitments.',
+        },
+      },
+      {
+        type: 'je-principles',
+        content: {
+          title: '12-Week Curriculum',
+          principles: [
+            { number: 'Weeks 1-3', title: 'Foundation', description: 'Establish your vision, values, and inner compass.' },
+            { number: 'Weeks 4-6', title: 'Release', description: 'Clear blocks, patterns, and limiting beliefs.' },
+            { number: 'Weeks 7-9', title: 'Activate', description: 'Embody your power and take aligned action.' },
+            { number: 'Weeks 10-12', title: 'Integrate', description: 'Anchor your transformation for lasting change.' },
+          ],
+        },
+      },
+      {
+        type: 'je-testimonial',
+        content: {
+          quote: 'The sisterhood I found here is unlike anything I have experienced. These women became my soul family.',
+          author: 'Jennifer L.',
+          role: 'Circle Member, Spring 2024',
+          image: '',
+        },
+      },
+      {
+        type: 'je-newsletter',
+        content: {
+          title: 'Next Circle Begins Soon',
+          description: 'Join the waitlist to be notified when enrollment opens.',
+          buttonText: 'Join Waitlist',
+        },
+      },
+      {
+        type: 'je-footer',
+        content: {
+          tagline: 'Catalyzing the Rise of Her',
+          copyright: '© Just Empower. All rights reserved.',
+        },
+      },
+    ],
+  },
+
+  // 14. Workshop/Masterclass
+  {
+    id: 'workshop-masterclass',
+    name: '✦ Workshop Masterclass',
+    description: 'Single workshop or masterclass page with agenda, speaker, and registration.',
+    category: 'workshop',
+    icon: GraduationCap,
+    tags: ['workshop', 'masterclass', 'training', 'learning'],
+    blocks: [
+      {
+        type: 'je-hero-image',
+        content: {
+          imageUrl: '',
+          title: 'Unlock Your Authentic Power',
+          subtitle: 'A 3-Hour Live Masterclass',
+          description: 'Learn the exact framework I use to help women step into their sovereignty and create lives of purpose and abundance.',
+          ctaText: 'Register Now',
+          ctaLink: '#register',
+          overlayOpacity: 40,
+          textAlignment: 'center',
+          minHeight: '75vh',
+        },
+      },
+      {
+        type: 'je-section-standard',
+        content: {
+          title: 'What You Will Learn',
+          content: 'In this immersive masterclass, you will discover the hidden blocks keeping you stuck, learn practical tools for immediate transformation, and leave with a clear action plan for your next chapter.',
+          alignment: 'center',
+        },
+      },
+      {
+        type: 'je-principles',
+        content: {
+          title: 'Masterclass Agenda',
+          principles: [
+            { number: '1', title: 'The Power Framework', description: 'Understand the 4 pillars of authentic feminine power.' },
+            { number: '2', title: 'Block Breakthrough', description: 'Identify and release your top 3 limiting patterns.' },
+            { number: '3', title: 'Action Blueprint', description: 'Create your personalized 30-day transformation plan.' },
+          ],
+        },
+      },
+      {
+        type: 'je-team-member',
+        content: {
+          name: 'Your Host',
+          role: 'Transformation Guide & Founder',
+          bio: 'With over 15 years guiding women through transformation, she brings wisdom, warmth, and practical tools to every teaching.',
+          image: '',
+        },
+      },
+      {
+        type: 'je-button',
+        content: {
+          text: 'Claim Your Spot - $97',
+          link: '#register',
+          variant: 'primary',
+          size: 'large',
+          alignment: 'center',
+        },
+      },
+      {
+        type: 'je-footer',
+        content: {
+          tagline: 'Catalyzing the Rise of Her',
+          copyright: '© Just Empower. All rights reserved.',
+        },
+      },
+    ],
+  },
+
+  // 15. Community Hub
+  {
+    id: 'community-hub',
+    name: '✦ Community Hub',
+    description: 'Community membership page with benefits, events, and join options.',
+    category: 'community',
+    icon: Users,
+    tags: ['community', 'membership', 'sisterhood', 'connection'],
+    blocks: [
+      {
+        type: 'je-hero-image',
+        content: {
+          imageUrl: '',
+          title: 'Welcome to the Sisterhood',
+          subtitle: 'The Just Empower Community',
+          description: 'A sacred digital village for women who are rising. Connect, learn, and grow with soul-aligned sisters from around the world.',
+          ctaText: 'Join Us',
+          ctaLink: '#join',
+          overlayOpacity: 40,
+          textAlignment: 'center',
+          minHeight: '80vh',
+        },
+      },
+      {
+        type: 'je-pillars',
+        content: {
+          label: 'Membership Benefits',
+          title: 'What Awaits Inside',
+          description: 'Everything you need to thrive on your journey.',
+          pillar1Icon: 'users',
+          pillar1Title: 'Sister Circles',
+          pillar1Description: 'Weekly virtual gatherings for connection and support.',
+          pillar2Icon: 'book',
+          pillar2Title: 'Resource Library',
+          pillar2Description: 'Exclusive teachings, meditations, and practices.',
+          pillar3Icon: 'calendar',
+          pillar3Title: 'Live Events',
+          pillar3Description: 'Monthly masterclasses and special guest teachings.',
+        },
+      },
+      {
+        type: 'je-testimonial',
+        content: {
+          quote: 'Finding this community changed my life. For the first time, I feel truly seen and supported.',
+          author: 'Amanda R.',
+          role: 'Community Member',
+          image: '',
+        },
+      },
+      {
+        type: 'je-community-section',
+        content: {
+          title: 'Join Our Growing Sisterhood',
+          description: '2,000+ women rising together',
+          backgroundImage: '',
+          ctaText: 'Become a Member',
+          ctaLink: '#join',
+        },
+      },
+      {
+        type: 'je-footer',
+        content: {
+          tagline: 'Catalyzing the Rise of Her',
+          copyright: '© Just Empower. All rights reserved.',
+        },
+      },
+    ],
+  },
+
+  // 16. VIX Journal Product
+  {
+    id: 'product-journal',
+    name: '✦ Journal Product Page',
+    description: 'Product page for journals or physical products with features and purchase.',
+    category: 'business',
+    icon: BookOpen,
+    tags: ['product', 'journal', 'shop', 'purchase'],
+    blocks: [
+      {
+        type: 'je-hero-split',
+        content: {
+          imageUrl: '',
+          imagePosition: 'right',
+          title: 'The VIX Journal',
+          subtitle: 'Your Daily Companion for Transformation',
+          description: 'A beautifully designed guided journal to help you connect with your inner wisdom, track your growth, and manifest your dreams.',
+          ctaText: 'Order Now',
+          ctaLink: '#buy',
+        },
+      },
+      {
+        type: 'je-pillars',
+        content: {
+          label: 'Features',
+          title: 'Inside the Journal',
+          description: 'Thoughtfully designed for your journey.',
+          pillar1Icon: 'pen',
+          pillar1Title: 'Daily Prompts',
+          pillar1Description: '365 carefully crafted questions for reflection.',
+          pillar2Icon: 'moon',
+          pillar2Title: 'Moon Rituals',
+          pillar2Description: 'Lunar cycle tracking and ceremony guides.',
+          pillar3Icon: 'heart',
+          pillar3Title: 'Affirmations',
+          pillar3Description: 'Empowering mantras for every season.',
+        },
+      },
+      {
+        type: 'je-gallery',
+        content: {
+          title: 'Beautiful Inside & Out',
+          images: [],
+          columns: 3,
+          gap: 'medium',
+        },
+      },
+      {
+        type: 'je-testimonial',
+        content: {
+          quote: 'This journal has become my sacred morning ritual. The prompts are profound and the quality is exceptional.',
+          author: 'Lisa M.',
+          role: 'Verified Buyer',
+          image: '',
+        },
+      },
+      {
+        type: 'je-button',
+        content: {
+          text: 'Add to Cart - $44',
+          link: '/shop/vix-journal',
+          variant: 'primary',
+          size: 'large',
+          alignment: 'center',
+        },
+      },
+      {
+        type: 'je-footer',
+        content: {
+          tagline: 'Catalyzing the Rise of Her',
+          copyright: '© Just Empower. All rights reserved.',
+        },
+      },
+    ],
+  },
+
+  // 17. Event Announcement
+  {
+    id: 'event-announcement',
+    name: '✦ Event Announcement',
+    description: 'Single event page with details, speakers, schedule, and tickets.',
+    category: 'community',
+    icon: Calendar,
+    tags: ['event', 'gathering', 'conference', 'tickets'],
+    featured: true,
+    blocks: [
+      {
+        type: 'je-hero-video',
+        content: {
+          videoUrl: '',
+          posterImage: '',
+          title: 'The Rise Summit 2025',
+          subtitle: 'March 15-17 • Sedona, Arizona',
+          description: 'Three transformational days with world-class speakers, powerful workshops, and connections that last a lifetime.',
+          ctaText: 'Get Tickets',
+          ctaLink: '#tickets',
+          overlayOpacity: 50,
+          textAlignment: 'center',
+          minHeight: '85vh',
+        },
+      },
+      {
+        type: 'je-section-standard',
+        content: {
+          title: 'The Experience',
+          content: 'Join 300 extraordinary women for an immersive weekend of inspiration, education, and sisterhood. Leave with new tools, deep connections, and a renewed sense of purpose.',
+          alignment: 'center',
+        },
+      },
+      {
+        type: 'je-offerings-grid',
+        content: {
+          title: 'Featured Speakers',
+          subtitle: 'Learn from visionary leaders.',
+          offerings: [
+            { title: 'Keynote Speaker', description: 'The Art of Feminine Leadership', icon: 'mic' },
+            { title: 'Workshop Leader', description: 'Somatic Healing Practices', icon: 'heart' },
+            { title: 'Panel Host', description: 'Building Conscious Business', icon: 'briefcase' },
+          ],
+        },
+      },
+      {
+        type: 'je-principles',
+        content: {
+          title: 'Event Schedule',
+          principles: [
+            { number: 'Day 1', title: 'Arrival & Opening Ceremony', description: 'Welcome reception, intention setting, and opening ritual.' },
+            { number: 'Day 2', title: 'Deep Dive Sessions', description: 'Workshops, breakouts, and transformational practices.' },
+            { number: 'Day 3', title: 'Integration & Celebration', description: 'Final teachings, integration, and closing celebration.' },
+          ],
+        },
+      },
+      {
+        type: 'je-faq',
+        content: {
+          title: 'Event FAQ',
+          items: [
+            { question: 'What is included in my ticket?', answer: 'All sessions, meals, materials, and networking events are included.' },
+            { question: 'Is accommodation included?', answer: 'Accommodation is booked separately. We have negotiated special rates at partner hotels.' },
+            { question: 'Can I get a refund?', answer: 'Full refund available up to 30 days before the event. 50% refund up to 14 days before.' },
+          ],
+        },
+      },
+      {
+        type: 'je-button',
+        content: {
+          text: 'Secure Your Ticket',
+          link: '#tickets',
+          variant: 'primary',
+          size: 'large',
+          alignment: 'center',
+        },
+      },
+      {
+        type: 'je-footer',
+        content: {
+          tagline: 'Catalyzing the Rise of Her',
+          copyright: '© Just Empower. All rights reserved.',
+        },
+      },
+    ],
+  },
+
+  // 18. Founder/About Story
+  {
+    id: 'founder-story',
+    name: '✦ Founder Story',
+    description: 'Personal story page with journey, philosophy, and connection.',
+    category: 'content',
+    icon: Flower2,
+    tags: ['about', 'founder', 'story', 'mission'],
+    blocks: [
+      {
+        type: 'je-hero-split',
+        content: {
+          imageUrl: '',
+          imagePosition: 'left',
+          title: 'Hello, I am April',
+          subtitle: 'Founder of Just Empower',
+          description: 'I believe every woman carries within her the seeds of extraordinary transformation. My mission is to help you water those seeds.',
+          ctaText: 'My Story',
+          ctaLink: '#story',
+        },
+      },
+      {
+        type: 'je-section-standard',
+        content: {
+          title: 'My Journey',
+          content: 'Like many of you, I spent years dimming my light, playing small, and seeking validation outside myself. It was only through deep inner work, mentorship, and sacred community that I remembered who I truly was. Now I dedicate my life to helping other women do the same.',
+          alignment: 'center',
+        },
+      },
+      {
+        type: 'je-blockquote',
+        content: {
+          quote: 'Your transformation begins the moment you decide you are worthy of it.',
+          author: 'April Gambardella',
+          role: 'Founder',
+          style: 'large',
+        },
+      },
+      {
+        type: 'je-pillars',
+        content: {
+          label: 'My Philosophy',
+          title: 'What I Believe',
+          description: 'The principles that guide my work.',
+          pillar1Icon: 'heart',
+          pillar1Title: 'Embodiment',
+          pillar1Description: 'True transformation happens in the body, not just the mind.',
+          pillar2Icon: 'users',
+          pillar2Title: 'Community',
+          pillar2Description: 'We heal and grow faster together than alone.',
+          pillar3Icon: 'sparkles',
+          pillar3Title: 'Sovereignty',
+          pillar3Description: 'You already have everything you need within you.',
+        },
+      },
+      {
+        type: 'je-newsletter',
+        content: {
+          title: 'Let us Stay Connected',
+          description: 'Receive wisdom, inspiration, and updates directly in your inbox.',
+          buttonText: 'Subscribe',
+        },
+      },
+      {
+        type: 'je-footer',
+        content: {
+          tagline: 'Catalyzing the Rise of Her',
+          copyright: '© Just Empower. All rights reserved.',
+        },
+      },
+    ],
+  },
+
+  // 19. Mini Course / Free Training
+  {
+    id: 'free-training',
+    name: '✦ Free Training',
+    description: 'Lead magnet page for free training, mini course, or opt-in.',
+    category: 'landing',
+    icon: Flame,
+    tags: ['free', 'training', 'lead magnet', 'opt-in'],
+    blocks: [
+      {
+        type: 'je-hero-image',
+        content: {
+          imageUrl: '',
+          title: 'Free 5-Day Activation',
+          subtitle: 'Reclaim Your Power',
+          description: 'Join thousands of women who have transformed their lives with this powerful free training. Delivered straight to your inbox.',
+          ctaText: 'Get Instant Access',
+          ctaLink: '#signup',
+          overlayOpacity: 45,
+          textAlignment: 'center',
+          minHeight: '80vh',
+        },
+      },
+      {
+        type: 'je-principles',
+        content: {
+          title: 'What You Will Learn',
+          principles: [
+            { number: 'Day 1', title: 'Awareness', description: 'Identify the patterns keeping you stuck.' },
+            { number: 'Day 2', title: 'Release', description: 'Simple techniques to let go of what no longer serves.' },
+            { number: 'Day 3', title: 'Vision', description: 'Get crystal clear on what you truly desire.' },
+            { number: 'Day 4', title: 'Action', description: 'Create your aligned action plan.' },
+            { number: 'Day 5', title: 'Integration', description: 'Anchor your transformation for lasting change.' },
+          ],
+        },
+      },
+      {
+        type: 'je-testimonial',
+        content: {
+          quote: 'This free training gave me more clarity than years of therapy. I cannot believe it is free!',
+          author: 'Rebecca T.',
+          role: 'Training Participant',
+          image: '',
+        },
+      },
+      {
+        type: 'je-newsletter',
+        content: {
+          title: 'Get Your Free Training',
+          description: 'Enter your email and get instant access to Day 1.',
+          buttonText: 'Send Me Day 1',
+        },
+      },
+      {
+        type: 'je-footer',
+        content: {
+          tagline: 'Catalyzing the Rise of Her',
+          copyright: '© Just Empower. All rights reserved.',
+        },
+      },
+    ],
+  },
+
+  // 20. Thank You / Confirmation
+  {
+    id: 'thank-you',
+    name: '✦ Thank You Page',
+    description: 'Post-purchase or signup confirmation page with next steps.',
+    category: 'special',
+    icon: Award,
+    tags: ['thank you', 'confirmation', 'next steps', 'welcome'],
+    blocks: [
+      {
+        type: 'je-hero',
+        content: {
+          title: 'You Are In! 🎉',
+          subtitle: 'Welcome to the Sisterhood',
+          variant: 'minimal',
+          overlay: false,
+        },
+      },
+      {
+        type: 'je-section-standard',
+        content: {
+          title: 'What Happens Next',
+          content: 'Check your inbox! You will receive a confirmation email with all the details and your next steps. Be sure to add us to your contacts so our emails land in your primary inbox.',
+          alignment: 'center',
+        },
+      },
+      {
+        type: 'je-principles',
+        content: {
+          title: 'Your Next Steps',
+          principles: [
+            { number: '1', title: 'Check Your Email', description: 'Your welcome email is on its way with important details.' },
+            { number: '2', title: 'Join the Community', description: 'Connect with fellow sisters in our private group.' },
+            { number: '3', title: 'Mark Your Calendar', description: 'Add upcoming dates so you do not miss anything.' },
+          ],
+        },
+      },
+      {
+        type: 'je-button',
+        content: {
+          text: 'Join Our Community',
+          link: '/community',
+          variant: 'primary',
+          size: 'large',
+          alignment: 'center',
+        },
+      },
+      {
+        type: 'je-footer',
+        content: {
+          tagline: 'Catalyzing the Rise of Her',
+          copyright: '© Just Empower. All rights reserved.',
         },
       },
     ],
@@ -540,11 +1330,15 @@ export function TemplateLibrary({ isOpen, onClose, onSelectTemplate }: TemplateL
   const [previewTemplate, setPreviewTemplate] = useState<PageTemplate | null>(null);
 
   const categories = [
-    { id: null, label: 'All Templates', count: PAGE_TEMPLATES.length },
-    { id: 'landing', label: 'Landing Pages', count: PAGE_TEMPLATES.filter(t => t.category === 'landing').length },
-    { id: 'content', label: 'Content Pages', count: PAGE_TEMPLATES.filter(t => t.category === 'content').length },
-    { id: 'business', label: 'Business Pages', count: PAGE_TEMPLATES.filter(t => t.category === 'business').length },
-    { id: 'special', label: 'Special Pages', count: PAGE_TEMPLATES.filter(t => t.category === 'special').length },
+    { id: null, label: 'All Templates', count: PAGE_TEMPLATES.length, icon: Sparkles },
+    { id: 'retreat', label: '✦ Retreats', count: PAGE_TEMPLATES.filter(t => t.category === 'retreat').length, icon: Mountain },
+    { id: 'coaching', label: '✦ Coaching', count: PAGE_TEMPLATES.filter(t => t.category === 'coaching').length, icon: Compass },
+    { id: 'workshop', label: '✦ Workshops', count: PAGE_TEMPLATES.filter(t => t.category === 'workshop').length, icon: GraduationCap },
+    { id: 'community', label: '✦ Community', count: PAGE_TEMPLATES.filter(t => t.category === 'community').length, icon: Heart },
+    { id: 'landing', label: 'Landing Pages', count: PAGE_TEMPLATES.filter(t => t.category === 'landing').length, icon: Layout },
+    { id: 'content', label: 'Content Pages', count: PAGE_TEMPLATES.filter(t => t.category === 'content').length, icon: FileText },
+    { id: 'business', label: 'Business Pages', count: PAGE_TEMPLATES.filter(t => t.category === 'business').length, icon: Briefcase },
+    { id: 'special', label: 'Special Pages', count: PAGE_TEMPLATES.filter(t => t.category === 'special').length, icon: Star },
   ];
 
   const filteredTemplates = selectedCategory
