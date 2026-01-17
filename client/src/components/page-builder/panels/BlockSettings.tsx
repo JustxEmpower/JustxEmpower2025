@@ -107,6 +107,191 @@ function renderField(
     );
   }
 
+  // ============================================================================
+  // SIZING CONTROLS - For proper proportions matching original site
+  // ============================================================================
+
+  // Section Padding
+  if (key === 'sectionPadding') {
+    return (
+      <div key={key} className="space-y-2">
+        <Label htmlFor={key} className="text-sm font-medium">Section Padding</Label>
+        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+          <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="compact">Compact (py-16/20)</SelectItem>
+            <SelectItem value="standard">Standard (py-24/32)</SelectItem>
+            <SelectItem value="spacious">Spacious (py-32/48)</SelectItem>
+            <SelectItem value="hero">Hero (py-40/56)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  // Title Size
+  if (key === 'titleSize') {
+    return (
+      <div key={key} className="space-y-2">
+        <Label htmlFor={key} className="text-sm font-medium">Title Size</Label>
+        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+          <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="small">Small (3xl/4xl)</SelectItem>
+            <SelectItem value="medium">Medium (4xl/5xl)</SelectItem>
+            <SelectItem value="large">Large (5xl/6xl/7xl)</SelectItem>
+            <SelectItem value="hero">Hero (6xl/7xl/8xl)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  // Subtitle/Body Size
+  if (key === 'subtitleSize' || key === 'descriptionSize' || key === 'bodySize') {
+    return (
+      <div key={key} className="space-y-2">
+        <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
+        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+          <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="small">Small (base)</SelectItem>
+            <SelectItem value="medium">Medium (lg/xl)</SelectItem>
+            <SelectItem value="large">Large (xl/2xl)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  // Number Size (for principles, etc.)
+  if (key === 'numberSize') {
+    return (
+      <div key={key} className="space-y-2">
+        <Label htmlFor={key} className="text-sm font-medium">Number Size</Label>
+        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+          <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="small">Small (3xl/4xl)</SelectItem>
+            <SelectItem value="medium">Medium (4xl/5xl)</SelectItem>
+            <SelectItem value="large">Large (5xl/6xl)</SelectItem>
+            <SelectItem value="hero">Hero (6xl/7xl)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  // Item Gap
+  if (key === 'itemGap' || key === 'gap') {
+    return (
+      <div key={key} className="space-y-2">
+        <Label htmlFor={key} className="text-sm font-medium">Item Spacing</Label>
+        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+          <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="tight">Tight (gap-6/8)</SelectItem>
+            <SelectItem value="standard">Standard (gap-8/12)</SelectItem>
+            <SelectItem value="spacious">Spacious (gap-12/16)</SelectItem>
+            <SelectItem value="wide">Wide (gap-16/24)</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  // Max Width
+  if (key === 'maxWidth') {
+    return (
+      <div key={key} className="space-y-2">
+        <Label htmlFor={key} className="text-sm font-medium">Container Width</Label>
+        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+          <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="max-w-4xl">Narrow (4xl)</SelectItem>
+            <SelectItem value="max-w-5xl">Medium (5xl)</SelectItem>
+            <SelectItem value="max-w-6xl">Wide (6xl)</SelectItem>
+            <SelectItem value="max-w-7xl">Extra Wide (7xl)</SelectItem>
+            <SelectItem value="max-w-full">Full Width</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  // Header Margin
+  if (key === 'headerMargin') {
+    return (
+      <div key={key} className="space-y-2">
+        <Label htmlFor={key} className="text-sm font-medium">Header Bottom Margin</Label>
+        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+          <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="mb-8 md:mb-12">Small</SelectItem>
+            <SelectItem value="mb-12 md:mb-16">Medium</SelectItem>
+            <SelectItem value="mb-16 md:mb-24">Large</SelectItem>
+            <SelectItem value="mb-20 md:mb-32">Extra Large</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  // Image Size
+  if (key === 'imageSize') {
+    return (
+      <div key={key} className="space-y-2">
+        <Label htmlFor={key} className="text-sm font-medium">Image Size</Label>
+        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+          <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="small">Small (200px)</SelectItem>
+            <SelectItem value="medium">Medium (300px)</SelectItem>
+            <SelectItem value="large">Large (400px)</SelectItem>
+            <SelectItem value="xlarge">Extra Large (500px)</SelectItem>
+            <SelectItem value="full">Full Width</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  // Button Size
+  if (key === 'buttonSize') {
+    return (
+      <div key={key} className="space-y-2">
+        <Label htmlFor={key} className="text-sm font-medium">Button Size</Label>
+        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+          <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="sm">Small</SelectItem>
+            <SelectItem value="md">Medium</SelectItem>
+            <SelectItem value="lg">Large</SelectItem>
+            <SelectItem value="xl">Extra Large</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
   // Handle footer columns array (JE Footer) - check for array first
   if (key === 'columns' && Array.isArray(value)) {
     return (

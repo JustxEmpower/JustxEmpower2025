@@ -45,6 +45,44 @@ interface BlockRendererProps {
 }
 
 // ============================================================================
+// SIZING PRESETS - Match original site proportions
+// ============================================================================
+
+const SECTION_PADDING_PRESETS: Record<string, string> = {
+  compact: 'py-16 md:py-20',
+  standard: 'py-24 md:py-32',
+  spacious: 'py-32 md:py-48',
+  hero: 'py-40 md:py-56',
+};
+
+const TITLE_SIZE_PRESETS: Record<string, string> = {
+  small: 'text-3xl md:text-4xl',
+  medium: 'text-4xl md:text-5xl',
+  large: 'text-5xl md:text-6xl lg:text-7xl',
+  hero: 'text-6xl md:text-7xl lg:text-8xl',
+};
+
+const BODY_SIZE_PRESETS: Record<string, string> = {
+  small: 'text-base',
+  medium: 'text-lg md:text-xl',
+  large: 'text-xl md:text-2xl',
+};
+
+const NUMBER_SIZE_PRESETS: Record<string, string> = {
+  small: 'text-3xl md:text-4xl',
+  medium: 'text-4xl md:text-5xl',
+  large: 'text-5xl md:text-6xl',
+  hero: 'text-6xl md:text-7xl',
+};
+
+const GAP_PRESETS: Record<string, string> = {
+  tight: 'gap-6 md:gap-8',
+  standard: 'gap-8 md:gap-12',
+  spacious: 'gap-12 md:gap-16',
+  wide: 'gap-16 md:gap-24',
+};
+
+// ============================================================================
 // JE THREE PILLARS RENDERER
 // ============================================================================
 
@@ -58,12 +96,24 @@ export function JEThreePillarsRenderer({ block, isEditing, onUpdate }: BlockRend
     imageUrl = '',
     dark = false,
     variant = 'default',
+    // Sizing controls
+    sectionPadding = 'spacious',
+    titleSize = 'large',
+    descriptionSize = 'medium',
+    itemGap = 'spacious',
+    maxWidth = 'max-w-6xl',
     pillars = [
       { icon: 'heart', title: 'Embodiment', description: 'Living wisdom through the body' },
       { icon: 'sparkles', title: 'Sacred Reciprocity', description: 'Honoring the give and take of life' },
       { icon: 'heart', title: 'Feminine Wisdom', description: 'Reclaiming ancient knowing' },
     ],
   } = content;
+
+  // Get classes from presets
+  const getPaddingClass = () => SECTION_PADDING_PRESETS[sectionPadding as keyof typeof SECTION_PADDING_PRESETS] || sectionPadding;
+  const getTitleClass = () => TITLE_SIZE_PRESETS[titleSize as keyof typeof TITLE_SIZE_PRESETS] || titleSize;
+  const getDescriptionClass = () => BODY_SIZE_PRESETS[descriptionSize as keyof typeof BODY_SIZE_PRESETS] || descriptionSize;
+  const getGapClass = () => GAP_PRESETS[itemGap as keyof typeof GAP_PRESETS] || itemGap;
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -573,7 +623,7 @@ export function JERootedUnityRenderer({ block, isEditing, onUpdate }: BlockRende
 }
 
 // ============================================================================
-// JE FOUNDATIONAL PRINCIPLES RENDERER
+// JE FOUNDATIONAL PRINCIPLES RENDERER - REVAMPED with proper proportions
 // ============================================================================
 
 export function JEPrinciplesRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
@@ -586,6 +636,15 @@ export function JEPrinciplesRenderer({ block, isEditing, onUpdate }: BlockRender
     columns = 2,
     variant = 'numbered',
     dark = false,
+    // NEW: Sizing controls
+    sectionPadding = 'spacious',
+    titleSize = 'large',
+    subtitleSize = 'medium',
+    numberSize = 'large',
+    descriptionSize = 'medium',
+    itemGap = 'spacious',
+    headerMargin = 'mb-16 md:mb-24',
+    maxWidth = 'max-w-6xl',
     principles = [
       { number: '01', title: 'Integrity', description: 'We act with honesty and transparency in all we do.' },
       { number: '02', title: 'Compassion', description: 'We lead with empathy and understanding.' },
@@ -613,25 +672,36 @@ export function JEPrinciplesRenderer({ block, isEditing, onUpdate }: BlockRender
     onUpdate?.({ ...content, principles: principles.filter((_: any, i: number) => i !== index) });
   };
 
+  // Get classes from presets or use custom value
+  const getPaddingClass = () => SECTION_PADDING_PRESETS[sectionPadding as keyof typeof SECTION_PADDING_PRESETS] || sectionPadding;
+  const getTitleClass = () => TITLE_SIZE_PRESETS[titleSize as keyof typeof TITLE_SIZE_PRESETS] || titleSize;
+  const getSubtitleClass = () => BODY_SIZE_PRESETS[subtitleSize as keyof typeof BODY_SIZE_PRESETS] || subtitleSize;
+  const getNumberClass = () => NUMBER_SIZE_PRESETS[numberSize as keyof typeof NUMBER_SIZE_PRESETS] || numberSize;
+  const getDescriptionClass = () => BODY_SIZE_PRESETS[descriptionSize as keyof typeof BODY_SIZE_PRESETS] || descriptionSize;
+  const getGapClass = () => GAP_PRESETS[itemGap as keyof typeof GAP_PRESETS] || itemGap;
+
   return (
     <section className={cn(
-      'py-16 md:py-24',
-      dark ? 'bg-neutral-900' : 'bg-white'
+      getPaddingClass(),
+      'overflow-hidden',
+      dark ? 'bg-[#1a1a1a]' : 'bg-[#faf9f7]'
     )}>
-      <div className="container mx-auto px-6">
-        {/* Header */}
-        <div className="text-center mb-12 max-w-3xl mx-auto">
-          <EditableText
-            value={label}
-            onChange={(v) => handleChange('label', v)}
-            tag="p"
-            placeholder="LABEL"
-            isEditing={isEditing}
-            className={cn(
-              'text-xs uppercase tracking-[0.3em] mb-4 font-sans',
-              dark ? 'text-amber-400' : 'text-amber-600'
-            )}
-          />
+      <div className={cn('mx-auto px-6 md:px-12', maxWidth)}>
+        {/* Header - Matching original site proportions */}
+        <div className={cn('text-center mx-auto', headerMargin, 'max-w-4xl')}>
+          {label && (
+            <EditableText
+              value={label}
+              onChange={(v) => handleChange('label', v)}
+              tag="p"
+              placeholder="LABEL"
+              isEditing={isEditing}
+              className={cn(
+                'text-xs uppercase tracking-[0.3em] mb-6 font-sans',
+                dark ? 'text-primary/80' : 'text-primary/80'
+              )}
+            />
+          )}
           <EditableText
             value={title}
             onChange={(v) => handleChange('title', v)}
@@ -639,27 +709,32 @@ export function JEPrinciplesRenderer({ block, isEditing, onUpdate }: BlockRender
             placeholder="Section Title"
             isEditing={isEditing}
             className={cn(
-              'text-3xl md:text-4xl font-serif italic mb-4',
-              dark ? 'text-white' : 'text-neutral-900'
+              getTitleClass(),
+              'font-serif italic font-light leading-[1.1] tracking-tight mb-6',
+              dark ? 'text-white' : 'text-foreground'
             )}
           />
-          <EditableText
-            value={subtitle}
-            onChange={(v) => handleChange('subtitle', v)}
-            tag="p"
-            placeholder="Subtitle..."
-            isEditing={isEditing}
-            className={cn(
-              'text-lg font-sans',
-              dark ? 'text-neutral-300' : 'text-neutral-600'
-            )}
-          />
+          {subtitle && (
+            <EditableText
+              value={subtitle}
+              onChange={(v) => handleChange('subtitle', v)}
+              tag="p"
+              placeholder="Subtitle..."
+              isEditing={isEditing}
+              className={cn(
+                getSubtitleClass(),
+                'font-sans font-light leading-relaxed',
+                dark ? 'text-neutral-400' : 'text-muted-foreground'
+              )}
+            />
+          )}
         </div>
 
-        {/* Principles Grid */}
+        {/* Principles Grid - Proper proportions */}
         <div className={cn(
-          'grid gap-8',
-          columns === 1 ? 'grid-cols-1 max-w-2xl mx-auto' :
+          'grid',
+          getGapClass(),
+          columns === 1 ? 'grid-cols-1 max-w-3xl mx-auto' :
           columns === 2 ? 'grid-cols-1 md:grid-cols-2' :
           'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
         )}>
@@ -667,21 +742,21 @@ export function JEPrinciplesRenderer({ block, isEditing, onUpdate }: BlockRender
             <div 
               key={index}
               className={cn(
-                'relative',
-                isEditing && 'border border-dashed border-neutral-300 rounded-lg p-4'
+                'relative group',
+                isEditing && 'border border-dashed border-neutral-300 rounded-xl p-6'
               )}
             >
               {isEditing && principles.length > 1 && (
                 <button
                   onClick={() => removePrinciple(index)}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 z-10"
+                  className="absolute -top-3 -right-3 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 z-10 shadow-lg"
                 >
                   <X className="w-4 h-4" />
                 </button>
               )}
 
-              <div className="flex gap-4">
-                {/* Number */}
+              <div className="flex gap-6 md:gap-8">
+                {/* Number - Large and prominent */}
                 <EditableText
                   value={principle.number}
                   onChange={(v) => handlePrincipleChange(index, 'number', v)}
@@ -689,12 +764,13 @@ export function JEPrinciplesRenderer({ block, isEditing, onUpdate }: BlockRender
                   placeholder="01"
                   isEditing={isEditing}
                   className={cn(
-                    'text-4xl font-serif italic',
-                    dark ? 'text-amber-400' : 'text-amber-500'
+                    getNumberClass(),
+                    'font-serif italic flex-shrink-0',
+                    dark ? 'text-primary/60' : 'text-primary/40'
                   )}
                 />
 
-                <div className="flex-1">
+                <div className="flex-1 pt-2">
                   <EditableText
                     value={principle.title}
                     onChange={(v) => handlePrincipleChange(index, 'title', v)}
@@ -702,8 +778,8 @@ export function JEPrinciplesRenderer({ block, isEditing, onUpdate }: BlockRender
                     placeholder="Principle Title"
                     isEditing={isEditing}
                     className={cn(
-                      'text-xl font-serif italic mb-2',
-                      dark ? 'text-white' : 'text-neutral-900'
+                      'text-2xl md:text-3xl font-serif italic mb-4',
+                      dark ? 'text-white' : 'text-foreground'
                     )}
                   />
                   <EditableText
@@ -714,8 +790,9 @@ export function JEPrinciplesRenderer({ block, isEditing, onUpdate }: BlockRender
                     multiline
                     isEditing={isEditing}
                     className={cn(
-                      'text-base font-sans leading-relaxed whitespace-pre-wrap',
-                      dark ? 'text-neutral-400' : 'text-neutral-600'
+                      getDescriptionClass(),
+                      'font-sans font-light leading-relaxed whitespace-pre-wrap',
+                      dark ? 'text-neutral-400' : 'text-muted-foreground'
                     )}
                   />
                 </div>
@@ -725,9 +802,9 @@ export function JEPrinciplesRenderer({ block, isEditing, onUpdate }: BlockRender
         </div>
 
         {isEditing && (
-          <div className="text-center mt-8">
-            <button onClick={addPrinciple} className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
-              <Plus className="w-4 h-4" /> Add Principle
+          <div className="text-center mt-12">
+            <button onClick={addPrinciple} className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors">
+              <Plus className="w-5 h-5" /> Add Principle
             </button>
           </div>
         )}
