@@ -127,17 +127,21 @@ export default function AdminZoneEditor() {
   const handleSave = async () => {
     if (!pageSlug || !zoneName) return;
     setIsSaving(true);
+    console.log('[ZoneEditor] Saving zone:', { pageSlug, zoneName, blocksCount: blocks.length });
+    console.log('[ZoneEditor] Blocks data:', JSON.stringify(blocks, null, 2));
     try {
-      await upsertZone.mutateAsync({
+      const result = await upsertZone.mutateAsync({
         pageSlug,
         zoneName,
         blocks: JSON.stringify(blocks),
         isActive: true,
       });
+      console.log('[ZoneEditor] Save result:', result);
       alert('Zone saved successfully!');
-    } catch (error) {
-      console.error('Failed to save zone:', error);
-      alert('Failed to save zone');
+    } catch (error: any) {
+      console.error('[ZoneEditor] Failed to save zone:', error);
+      console.error('[ZoneEditor] Error details:', error?.message, error?.data);
+      alert(`Failed to save zone: ${error?.message || 'Unknown error'}`);
     } finally {
       setIsSaving(false);
     }

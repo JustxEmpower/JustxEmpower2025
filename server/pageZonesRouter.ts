@@ -73,8 +73,12 @@ export const pageZonesRouter = router({
       isActive: z.boolean().optional().default(true),
     }))
     .mutation(async ({ input }) => {
+      console.log('[pageZonesRouter] upsertZone called:', { pageSlug: input.pageSlug, zoneName: input.zoneName, blocksLength: input.blocks?.length });
       const db = await getDb();
-      if (!db) throw new Error('Database not available');
+      if (!db) {
+        console.error('[pageZonesRouter] Database not available');
+        throw new Error('Database not available');
+      }
 
       // Check if zone exists
       const existing = await db
