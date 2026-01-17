@@ -34,7 +34,7 @@ export default function AdminBrandEnhanced() {
   }, [isAuthenticated, isChecking, setLocation]);
 
   useEffect(() => {
-    if (brandQuery.data) setFormData(prev => ({ ...prev, ...brandQuery.data }));
+    if (brandQuery.data && typeof brandQuery.data === 'object') setFormData(prev => ({ ...prev, ...brandQuery.data as Record<string, string> }));
   }, [brandQuery.data]);
 
   const handleSave = async () => {

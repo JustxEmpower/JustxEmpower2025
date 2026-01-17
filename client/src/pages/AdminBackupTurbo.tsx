@@ -411,7 +411,7 @@ export default function AdminBackupTurbo() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs font-medium text-emerald-400 uppercase tracking-wide">Avg Backup Size</p>
-                        <p className="text-2xl font-bold text-white mt-1">{formatBytes(stats.averageSize || 0)}</p>
+                        <p className="text-2xl font-bold text-white mt-1">{formatBytes((stats as any).averageSize || 0)}</p>
                         <p className="text-xs text-white/40 mt-1">Per backup</p>
                       </div>
                       <div className="w-12 h-12 rounded-xl bg-emerald-500/20 flex items-center justify-center">
@@ -675,7 +675,7 @@ export default function AdminBackupTurbo() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    {Object.entries(analytics.byType).map(([type, count]: [string, number]) => (
+                    {Object.entries(analytics.byType).map(([type, count]) => (
                       <div key={type} className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <div className={`w-3 h-3 rounded-full ${
@@ -683,7 +683,7 @@ export default function AdminBackupTurbo() {
                           }`} />
                           <span className="text-sm capitalize text-white/80">{type}</span>
                         </div>
-                        <span className="font-medium text-white">{count}</span>
+                        <span className="font-medium text-white">{String(count)}</span>
                       </div>
                     ))}
                   </div>

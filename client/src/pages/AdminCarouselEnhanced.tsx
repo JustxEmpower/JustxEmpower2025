@@ -42,9 +42,9 @@ export default function AdminCarouselEnhanced() {
   const carouselQuery = trpc.carousel.list.useQuery();
   const items = carouselQuery.data || [];
 
-  const createMutation = trpc.carousel.create.useMutation({
+  const createMutation = (trpc.carousel as any).create.useMutation({
     onSuccess: () => { toast.success('Slide created'); carouselQuery.refetch(); setIsCreateOpen(false); resetForm(); },
-    onError: (e) => toast.error(e.message),
+    onError: (e: any) => toast.error(e.message),
   });
   const updateMutation = trpc.carousel.update.useMutation({
     onSuccess: () => { toast.success('Slide updated'); carouselQuery.refetch(); setEditingItem(null); resetForm(); },

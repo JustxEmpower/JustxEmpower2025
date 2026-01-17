@@ -21,10 +21,10 @@ interface LegalPageRendererProps {
 // Helper to extract unique sections from content data and build them dynamically
 function buildSectionsFromContent(contentData: Array<{ section: string; contentKey: string; contentValue: string }>) {
   // Get unique section names (excluding 'hero' and 'legalSections')
-  const sectionNames = [...new Set(contentData
+  const sectionNames = Array.from(new Set(contentData
     .filter(c => c.section && c.section !== 'hero' && c.section !== 'legalSections')
     .map(c => c.section)
-  )];
+  ));
 
   const sections: LegalSection[] = [];
 

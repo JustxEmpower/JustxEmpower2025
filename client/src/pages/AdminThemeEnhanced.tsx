@@ -34,7 +34,7 @@ export default function AdminThemeEnhanced() {
   }, [isAuthenticated, isChecking, setLocation]);
 
   useEffect(() => {
-    if (themeQuery.data) setFormData(prev => ({ ...prev, ...themeQuery.data }));
+    if (themeQuery.data && typeof themeQuery.data === 'object') setFormData(prev => ({ ...prev, ...(themeQuery.data as Record<string, string>) }));
   }, [themeQuery.data]);
 
   const handleGeneratePalette = async () => {

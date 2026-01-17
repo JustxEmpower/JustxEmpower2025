@@ -108,7 +108,7 @@ export default function AdminSEOEnhanced() {
     onError: (e) => toast.error(e.message),
   });
 
-  const generateAIMutation = trpc.admin.ai?.generateSEO?.useMutation?.({
+  const generateAIMutation = (trpc.admin as any).ai?.generateSEO?.useMutation?.({
     onSuccess: (data: any) => {
       if (data.metaTitle) setPageSEO(prev => ({ ...prev, metaTitle: data.metaTitle }));
       if (data.metaDescription) setPageSEO(prev => ({ ...prev, metaDescription: data.metaDescription }));

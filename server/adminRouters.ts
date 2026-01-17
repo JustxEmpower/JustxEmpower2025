@@ -4632,12 +4632,12 @@ export const aiTrainingRouter = router({
       
       await db.insert(schema.aiTrainingLogs).values({
         action: 'added',
-        knowledgeId: Number(result.insertId),
+        knowledgeId: Number((result as any).insertId || (result as any)[0]?.insertId || 0),
         details: JSON.stringify({ category: input.category }),
         performedBy: ctx.adminUsername || 'admin',
       });
       
-      return { success: true, id: Number(result.insertId) };
+      return { success: true, id: Number((result as any).insertId || (result as any)[0]?.insertId || 0) };
     }),
 
   updateKnowledge: adminProcedure

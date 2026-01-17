@@ -73,7 +73,7 @@ export default function AdminCarouselManagerEnhanced() {
   }));
 
   // Fetch page builder carousels (from content blocks)
-  const pageBuilderCarouselsQuery = trpc.content.getCarouselBlocks?.useQuery?.() || { data: [], isLoading: false };
+  const pageBuilderCarouselsQuery = (trpc.content as any).getCarouselBlocks?.useQuery?.() || { data: [], isLoading: false };
   const pageBuilderCarousels = pageBuilderCarouselsQuery.data || [];
 
   // Mutations for homepage carousel (legacy carouselOfferings)

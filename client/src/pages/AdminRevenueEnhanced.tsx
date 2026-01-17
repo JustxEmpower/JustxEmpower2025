@@ -80,10 +80,10 @@ export default function AdminRevenueEnhanced() {
                     <div><p className="text-xs font-medium text-emerald-600">Total Revenue</p><p className="text-2xl font-bold text-emerald-900">{stats ? formatPrice(stats.totalRevenue || 0) : "$0"}</p></div>
                     <DollarSign className="w-8 h-8 text-emerald-500" />
                   </div>
-                  {stats?.revenueChange !== undefined && (
-                    <div className={`flex items-center gap-1 mt-2 text-xs ${stats.revenueChange >= 0 ? "text-emerald-600" : "text-red-600"}`}>
-                      {stats.revenueChange >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-                      {Math.abs(stats.revenueChange)}% vs prev period
+                  {stats?.percentChange !== undefined && (
+                    <div className={`flex items-center gap-1 mt-2 text-xs ${stats.percentChange >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+                      {stats.percentChange >= 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+                      {Math.abs(stats.percentChange)}% vs prev period
                     </div>
                   )}
                 </CardContent>
@@ -103,7 +103,7 @@ export default function AdminRevenueEnhanced() {
               <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between">
-                    <div><p className="text-xs font-medium text-amber-600">Avg Order Value</p><p className="text-2xl font-bold text-amber-900">{stats ? formatPrice(stats.avgOrderValue || 0) : "$0"}</p></div>
+                    <div><p className="text-xs font-medium text-amber-600">Avg Order Value</p><p className="text-2xl font-bold text-amber-900">{stats ? formatPrice((stats as any).avgOrderValue || 0) : "$0"}</p></div>
                     <CreditCard className="w-8 h-8 text-amber-500" />
                   </div>
                 </CardContent>
@@ -113,8 +113,8 @@ export default function AdminRevenueEnhanced() {
               <Card className="bg-gradient-to-br from-purple-50 to-pink-50 border-purple-200">
                 <CardContent className="p-5">
                   <div className="flex items-center justify-between">
-                    <div><p className="text-xs font-medium text-purple-600">Growth</p><p className="text-2xl font-bold text-purple-900">{stats?.revenueChange !== undefined ? `${stats.revenueChange >= 0 ? "+" : ""}${stats.revenueChange}%` : "N/A"}</p></div>
-                    {stats?.revenueChange !== undefined && stats.revenueChange >= 0 ? <TrendingUp className="w-8 h-8 text-purple-500" /> : <TrendingDown className="w-8 h-8 text-purple-500" />}
+                    <div><p className="text-xs font-medium text-purple-600">Growth</p><p className="text-2xl font-bold text-purple-900">{stats?.percentChange !== undefined ? `${stats.percentChange >= 0 ? "+" : ""}${stats.percentChange}%` : "N/A"}</p></div>
+                    {stats?.percentChange !== undefined && stats.percentChange >= 0 ? <TrendingUp className="w-8 h-8 text-purple-500" /> : <TrendingDown className="w-8 h-8 text-purple-500" />}
                   </div>
                 </CardContent>
               </Card>

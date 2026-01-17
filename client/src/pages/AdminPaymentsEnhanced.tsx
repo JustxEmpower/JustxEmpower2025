@@ -40,7 +40,7 @@ export default function AdminPaymentsEnhanced() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const paymentsQuery = trpc.admin.payments?.list?.useQuery?.({ limit: 50 }) || { data: { payments: [], total: 0 }, refetch: () => {} };
+  const paymentsQuery = (trpc.admin as any).payments?.list?.useQuery?.({ limit: 50 }) || { data: { payments: [], total: 0 }, refetch: () => {} };
   const payments = paymentsQuery.data?.payments || [];
 
   useEffect(() => {

@@ -48,7 +48,7 @@ export default function AdminAITrainingEnhanced() {
   const [formData, setFormData] = useState({ question: "", answer: "", category: "" });
 
   const trainingQuery = trpc.aiTraining.listKnowledge.useQuery();
-  const createMutation = trpc.aiTraining.addKnowledge.useMutation({ onSuccess: () => { toast.success("Training data added"); trainingQuery.refetch(); setIsCreateOpen(false); setFormData({ question: "", answer: "", category: "" }); }, onError: (e: any) => toast.error(e.message) });
+  const createMutation = (trpc.aiTraining as any).addKnowledge.useMutation({ onSuccess: () => { toast.success("Training data added"); trainingQuery.refetch(); setIsCreateOpen(false); setFormData({ question: "", answer: "", category: "" }); }, onError: (e: any) => toast.error(e.message) });
   const deleteMutation = trpc.aiTraining.deleteKnowledge.useMutation({ onSuccess: () => { toast.success("Deleted"); trainingQuery.refetch(); }, onError: (e: any) => toast.error(e.message) });
 
   useEffect(() => {

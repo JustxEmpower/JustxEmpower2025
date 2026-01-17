@@ -35,7 +35,7 @@ export default function AdminReviewsEnhanced() {
   const [statusFilter, setStatusFilter] = useState("all");
 
   // Try to fetch reviews - will gracefully fail if not implemented
-  const reviewsQuery = trpc.admin.reviews?.list?.useQuery?.({}) || { data: null, isLoading: false, refetch: () => {} };
+  const reviewsQuery = (trpc.admin as any).reviews?.list?.useQuery?.({}) || { data: null, isLoading: false, refetch: () => {} };
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) setLocation("/admin/login");

@@ -22,10 +22,11 @@ interface BrandAsset {
   id: number;
   assetType: AssetType;
   assetUrl: string;
-  assetName: string;
-  width?: number;
-  height?: number;
+  assetName: string | null;
+  width?: number | null;
+  height?: number | null;
   createdAt?: string;
+  updatedAt?: Date;
 }
 
 const assetConfig: Record<AssetType, { 

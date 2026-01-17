@@ -26,7 +26,7 @@ export default function AdminCodeEnhanced() {
   }, [isAuthenticated, isChecking, setLocation]);
 
   useEffect(() => {
-    if (codeQuery.data) setFormData(prev => ({ ...prev, ...codeQuery.data }));
+    if (codeQuery.data && typeof codeQuery.data === 'object') setFormData(prev => ({ ...prev, ...codeQuery.data as Record<string, string> }));
   }, [codeQuery.data]);
 
   const handleSave = async () => {

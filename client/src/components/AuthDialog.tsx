@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "wouter";
 import { Lock, User, Sparkles, ArrowRight, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -65,13 +65,7 @@ export function AuthDialog({
   const [message] = useState(
     () => inspirationalMessages[Math.floor(Math.random() * inspirationalMessages.length)]
   );
-  
-  let navigate: ReturnType<typeof useNavigate> | null = null;
-  try {
-    navigate = useNavigate();
-  } catch {
-    // Not in router context
-  }
+  const [, setLocation] = useLocation();
 
   useEffect(() => {
     if (!onOpenChange) {
@@ -94,8 +88,8 @@ export function AuthDialog({
   const handleLogin = () => {
     if (onLogin) {
       onLogin();
-    } else if (navigate) {
-      navigate(redirectTo || "/admin/login");
+    } else if (setLocation) {
+      setLocation(redirectTo || "/admin/login");
     } else {
       window.location.href = redirectTo || "/admin/login";
     }
@@ -215,18 +209,13 @@ interface LoginPromptProps {
 }
 
 export function LoginPrompt({ message, onLogin }: LoginPromptProps) {
-  let navigate: ReturnType<typeof useNavigate> | null = null;
-  try {
-    navigate = useNavigate();
-  } catch {
-    // Not in router context
-  }
+  const [, setLocation] = useLocation();
 
   const handleLogin = () => {
     if (onLogin) {
       onLogin();
-    } else if (navigate) {
-      navigate("/admin/login");
+    } else if (setLocation) {
+      setLocation("/admin/login");
     } else {
       window.location.href = "/admin/login";
     }

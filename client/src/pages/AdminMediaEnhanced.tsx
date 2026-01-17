@@ -322,7 +322,7 @@ export default function AdminMediaEnhanced() {
         (typeFilter === 'image' && item.mimeType.startsWith('image/')) ||
         (typeFilter === 'video' && item.mimeType.startsWith('video/')) ||
         (typeFilter === 'audio' && item.mimeType.startsWith('audio/')) ||
-        (typeFilter === 'ai' && item.uploadedBy === 'AI Generator');
+        (typeFilter === 'ai' && (item as any).uploadedBy === 'AI Generator');
       return matchesSearch && matchesType;
     });
   }, [mediaList, searchQuery, typeFilter]);

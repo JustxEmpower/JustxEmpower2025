@@ -36,17 +36,17 @@ export default function AdminNavigationEnhanced() {
   const [editingItem, setEditingItem] = useState<any>(null);
   const [formData, setFormData] = useState({ label: "", url: "", order: 0, isExternal: false });
 
-  const navQuery = trpc.admin.navigation?.list?.useQuery?.() || { data: [], refetch: () => {} };
+  const navQuery = (trpc.admin.navigation as any)?.list?.useQuery?.() || { data: [], refetch: () => {} };
 
-  const createMutation = trpc.admin.navigation?.create?.useMutation?.({
+  const createMutation = (trpc.admin.navigation as any)?.create?.useMutation?.({
     onSuccess: () => { toast.success('Item created'); navQuery.refetch?.(); setIsCreateOpen(false); resetForm(); },
     onError: (e: any) => toast.error(e.message),
   }) || { mutate: () => {}, isPending: false };
-  const updateMutation = trpc.admin.navigation?.update?.useMutation?.({
+  const updateMutation = (trpc.admin.navigation as any)?.update?.useMutation?.({
     onSuccess: () => { toast.success('Item updated'); navQuery.refetch?.(); setEditingItem(null); resetForm(); },
     onError: (e: any) => toast.error(e.message),
   }) || { mutate: () => {}, isPending: false };
-  const deleteMutation = trpc.admin.navigation?.delete?.useMutation?.({
+  const deleteMutation = (trpc.admin.navigation as any)?.delete?.useMutation?.({
     onSuccess: () => { toast.success('Item deleted'); navQuery.refetch?.(); },
     onError: (e: any) => toast.error(e.message),
   }) || { mutate: () => {}, isPending: false };

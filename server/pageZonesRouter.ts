@@ -109,7 +109,7 @@ export const pageZonesRouter = router({
         });
 
         return {
-          id: Number(result.insertId),
+          id: Number((result as any).insertId || (result as any)[0]?.insertId || 0),
           pageSlug: input.pageSlug,
           zoneName: input.zoneName,
           blocks: input.blocks,

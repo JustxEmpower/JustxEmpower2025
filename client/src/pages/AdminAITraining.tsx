@@ -84,21 +84,21 @@ export default function AdminAITraining() {
   });
 
   // Queries
-  const knowledgeQuery = trpc.admin.aiTraining.listKnowledge.useQuery(undefined, {
+  const knowledgeQuery = (trpc.admin as any).aiTraining.listKnowledge.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
-  const statsQuery = trpc.admin.aiTraining.getStats.useQuery(undefined, {
+  const statsQuery = (trpc.admin as any).aiTraining.getStats.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
-  const recentConversationsQuery = trpc.admin.aiTraining.getRecentConversations.useQuery(
+  const recentConversationsQuery = (trpc.admin as any).aiTraining.getRecentConversations.useQuery(
     { limit: 20 },
     { enabled: isAuthenticated }
   );
 
   // Mutations
-  const createKnowledge = trpc.admin.aiTraining.createKnowledge.useMutation({
+  const createKnowledge = (trpc.admin as any).aiTraining.createKnowledge.useMutation({
     onSuccess: () => {
       toast.success("Knowledge added successfully!");
       setIsAddDialogOpen(false);
@@ -106,26 +106,26 @@ export default function AdminAITraining() {
       knowledgeQuery.refetch();
       statsQuery.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error: any) => toast.error(error.message),
   });
 
-  const updateKnowledge = trpc.admin.aiTraining.updateKnowledge.useMutation({
+  const updateKnowledge = (trpc.admin as any).aiTraining.updateKnowledge.useMutation({
     onSuccess: () => {
       toast.success("Knowledge updated!");
       setEditingItem(null);
       resetForm();
       knowledgeQuery.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error: any) => toast.error(error.message),
   });
 
-  const deleteKnowledge = trpc.admin.aiTraining.deleteKnowledge.useMutation({
+  const deleteKnowledge = (trpc.admin as any).aiTraining.deleteKnowledge.useMutation({
     onSuccess: () => {
       toast.success("Knowledge deleted");
       knowledgeQuery.refetch();
       statsQuery.refetch();
     },
-    onError: (error) => toast.error(error.message),
+    onError: (error: any) => toast.error(error.message),
   });
 
   useEffect(() => {

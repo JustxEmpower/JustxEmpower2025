@@ -54,7 +54,7 @@ export default function AdminCategoriesEnhanced() {
   const handleSubmit = () => {
     if (!formData.name) { toast.error("Name is required"); return; }
     const slug = formData.slug || formData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "");
-    createProductCategoryMutation.mutate?.({ name: formData.name, slug, description: formData.description || undefined });
+    (createProductCategoryMutation as any).mutate?.({ name: formData.name, slug, description: formData.description || undefined });
   };
 
   const productCategories = productCategoriesQuery.data || [];
