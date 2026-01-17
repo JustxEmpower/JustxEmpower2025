@@ -1,8 +1,50 @@
 import { z } from 'zod';
-import { router, publicProcedure, adminProcedure } from './_core/trpc';
+import { router, publicProcedure } from './_core/trpc';
+import { TRPCError } from '@trpc/server';
 import { getDb } from './db';
 import * as schema from '../drizzle/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, lt } from 'drizzle-orm';
+
+// Admin authentication middleware (matches adminRouters.ts pattern)
+async function validateAdminSession(token: string): Promise<string | null> {
+  const db = await getDb();
+  if (!db) return null;
+  
+  const [session] = await db
+    .select()
+    .from(schema.adminSessions)
+    .where(eq(schema.adminSessions.token, token))
+    .limit(1);
+  
+  if (!session) return null;
+  
+  // Check if expired
+  if (session.expiresAt < new Date()) {
+    await db.delete(schema.adminSessions).where(eq(schema.adminSessions.token, token));
+    return null;
+  }
+  
+  return session.username;
+}
+
+const adminProcedure = publicProcedure.use(async ({ ctx, next }) => {
+  const token = ctx.req.headers["x-admin-token"] as string;
+  if (!token) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Admin token required" });
+  }
+  
+  const username = await validateAdminSession(token);
+  if (!username) {
+    throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid or expired admin session" });
+  }
+  
+  return next({
+    ctx: {
+      ...ctx,
+      adminUsername: username,
+    },
+  });
+});
 
 /**
  * Page Zones Router
