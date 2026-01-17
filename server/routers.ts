@@ -12,6 +12,7 @@ import { contactRouter } from "./contactRouter";
 import { newsletterRouter } from "./newsletterRouter";
 import { aiRouter } from "./aiRouters";
 import { analyticsRouter } from "./analyticsRouters";
+import { pageZonesRouter } from "./pageZonesRouter";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -88,6 +89,9 @@ export const appRouter = router({
   
   // AI Training - knowledge base management
   aiTraining: aiTrainingRouter,
+  
+  // Page Zones - inject Page Builder blocks into existing pages
+  pageZones: pageZonesRouter,
 });
 
 export type AppRouter = typeof appRouter;

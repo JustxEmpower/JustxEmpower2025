@@ -5,6 +5,7 @@ import Section from '@/components/Section';
 import { ManagedCarousel } from '@/components/ManagedCarousel';
 import { usePageContent } from '@/hooks/usePageContent';
 import { getMediaUrl } from '@/lib/media';
+import { EditablePageZone } from '@/components/PageZone';
 
 interface HomeProps {
   slug?: string;
@@ -79,6 +80,9 @@ export default function Home({ slug = 'home' }: HomeProps) {
           />
         )}
         
+        {/* Page Builder Zone: After Hero */}
+        <EditablePageZone pageSlug="home" zoneName="after-hero" />
+        
         {/* Philosophy Section - only show if content exists */}
         {hasPhilosophyContent && (
           <Section 
@@ -99,6 +103,9 @@ export default function Home({ slug = 'home' }: HomeProps) {
         )}
 
         <ManagedCarousel />
+        
+        {/* Page Builder Zone: After Carousel */}
+        <EditablePageZone pageSlug="home" zoneName="after-carousel" />
 
         {/* Community Section - only show if content exists */}
         {hasCommunityContent && (
@@ -139,6 +146,9 @@ export default function Home({ slug = 'home' }: HomeProps) {
             }}
           />
         )}
+
+        {/* Page Builder Zone: Before Footer */}
+        <EditablePageZone pageSlug="home" zoneName="before-footer" />
 
         {/* Show message if no content */}
         {!hasHeroContent && !hasPhilosophyContent && !hasCommunityContent && !hasPointsOfAccessContent && !isLoading && (

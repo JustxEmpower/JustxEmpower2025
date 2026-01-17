@@ -1225,3 +1225,21 @@ export const carouselSlides = mysqlTable("carousel_slides", {
 
 export type CarouselSlide = typeof carouselSlides.$inferSelect;
 export type InsertCarouselSlide = typeof carouselSlides.$inferInsert;
+
+/**
+ * Page Zones table for injecting Page Builder blocks into existing React pages
+ * This enables hybrid editing: existing pages keep their structure, but zones
+ * can have dynamic blocks added/edited via Page Builder
+ */
+export const pageZones = mysqlTable("pageZones", {
+  id: int("id").autoincrement().primaryKey(),
+  pageSlug: varchar("pageSlug", { length: 100 }).notNull(), // 'home', 'about', 'philosophy', etc.
+  zoneName: varchar("zoneName", { length: 100 }).notNull(), // 'after-hero', 'before-footer', 'sidebar', etc.
+  blocks: longtext("blocks"), // JSON array of Page Builder blocks
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type PageZone = typeof pageZones.$inferSelect;
+export type InsertPageZone = typeof pageZones.$inferInsert;
