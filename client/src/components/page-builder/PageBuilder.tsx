@@ -972,62 +972,124 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
         </div>
       )}
 
-      {/* AI Page Generation Dialog */}
+      {/* AI Page Generation Dialog - TURBO ENHANCED */}
       <Dialog open={showAIDialog} onOpenChange={setShowAIDialog}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-purple-600" />
-              Generate Page with AI
+              ✨ AI Page Generator - Turbo
             </DialogTitle>
             <DialogDescription>
-              Describe the page you want to create and AI will generate the structure and content for you.
+              Describe your vision and AI will craft a beautiful JE-styled page in seconds.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
+          <div className="space-y-4 py-4 max-h-[65vh] overflow-y-auto">
+            {/* Quick Templates */}
             <div className="space-y-2">
-              <Label htmlFor="ai-page-type">Page Type</Label>
-              <Select value={aiPageType} onValueChange={(v) => setAiPageType(v as typeof aiPageType)}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select page type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="landing">Landing Page</SelectItem>
-                  <SelectItem value="about">About Page</SelectItem>
-                  <SelectItem value="services">Services Page</SelectItem>
-                  <SelectItem value="contact">Contact Page</SelectItem>
-                  <SelectItem value="blog">Blog/Article Page</SelectItem>
-                  <SelectItem value="custom">Custom Page</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quick Start Templates</Label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: '🌟 Workshop Landing', prompt: 'Create a workshop landing page with hero, program benefits using 3 pillars, testimonials from past participants, pricing section, and newsletter signup', type: 'landing' as const },
+                  { label: '👩‍💼 Leadership Program', prompt: 'Create a leadership program page with inspiring hero, numbered principles of leadership, program offerings grid, success stories, FAQ section, and call to action', type: 'services' as const },
+                  { label: '📖 Founder Story', prompt: 'Create an about page telling the founder story with split hero, two-column biography section, philosophy principles, inspirational quote, and community invitation', type: 'about' as const },
+                  { label: '🎉 Event Page', prompt: 'Create an event page with video hero, event details section, speaker/host bio, agenda using principles, testimonials, registration CTA, and FAQ', type: 'landing' as const },
+                  { label: '💫 Retreat Experience', prompt: 'Create a retreat page with immersive image hero, 3 pillars of transformation, daily schedule, testimonials carousel, pricing offerings, and booking form', type: 'services' as const },
+                  { label: '📬 Contact Page', prompt: 'Create a beautiful contact page with minimal hero, contact form, location info in two columns, FAQ for common questions, and newsletter signup', type: 'contact' as const },
+                ].map((template) => (
+                  <button
+                    key={template.label}
+                    onClick={() => { setAiPrompt(template.prompt); setAiPageType(template.type); }}
+                    className="text-left p-3 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all text-sm"
+                  >
+                    <span className="font-medium">{template.label}</span>
+                  </button>
+                ))}
+              </div>
             </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="ai-page-type">Page Type</Label>
+                <Select value={aiPageType} onValueChange={(v) => setAiPageType(v as typeof aiPageType)}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select page type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="landing">🚀 Landing Page</SelectItem>
+                    <SelectItem value="about">👤 About Page</SelectItem>
+                    <SelectItem value="services">💼 Services/Programs</SelectItem>
+                    <SelectItem value="contact">📬 Contact Page</SelectItem>
+                    <SelectItem value="blog">📝 Blog/Article</SelectItem>
+                    <SelectItem value="custom">✨ Custom Page</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Block Count</Label>
+                <div className="flex gap-2">
+                  {['5-7 blocks', '8-10 blocks', '10+ blocks'].map((count, i) => (
+                    <button
+                      key={count}
+                      className={`flex-1 py-2 px-3 rounded-lg text-xs border transition-all ${i === 1 ? 'border-purple-400 bg-purple-50 dark:bg-purple-900/30 text-purple-700' : 'border-neutral-200 dark:border-neutral-700 hover:border-purple-300'}`}
+                    >
+                      {count}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="ai-prompt">Describe Your Page</Label>
               <Textarea
                 id="ai-prompt"
                 value={aiPrompt}
                 onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder="E.g., A page about our women's leadership workshops with sections for program overview, benefits, testimonials, and a sign-up form..."
-                className="min-h-[120px] max-h-[200px] resize-none overflow-y-auto"
+                placeholder="E.g., Create a page for our women's leadership retreat in Sedona. Include sections for the transformational experience, daily schedule, testimonials from past attendees, pricing tiers, and a registration form. The tone should be warm, empowering, and luxurious."
+                className="min-h-[140px] max-h-[200px] resize-none"
               />
-              <p className="text-xs text-neutral-500">
-                Be specific about sections, content themes, and any special features you want.
-              </p>
             </div>
-            <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-3 border border-purple-200 dark:border-purple-800">
-              <p className="text-xs text-purple-700 dark:text-purple-300">
-                <strong>Tip:</strong> The AI will generate JE-styled blocks based on your description. You can edit, rearrange, or delete any generated blocks afterwards.
-              </p>
+
+            {/* Enhancement Options */}
+            <div className="space-y-2">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Enhance With</Label>
+              <div className="flex flex-wrap gap-2">
+                {['Testimonials', 'FAQ Section', 'Newsletter', 'Pricing', 'Video Hero', 'Gallery', 'Team Bios'].map((tag) => (
+                  <button
+                    key={tag}
+                    onClick={() => setAiPrompt(prev => prev + ` Include ${tag.toLowerCase()}.`)}
+                    className="px-3 py-1.5 rounded-full text-xs border border-neutral-200 dark:border-neutral-700 hover:border-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all"
+                  >
+                    + {tag}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg p-4 border border-purple-200 dark:border-purple-800">
+              <div className="flex items-start gap-3">
+                <Wand2 className="w-5 h-5 text-purple-600 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-purple-800 dark:text-purple-200">AI will generate:</p>
+                  <ul className="text-xs text-purple-700 dark:text-purple-300 mt-1 space-y-0.5">
+                    <li>• JE-styled blocks matching your brand</li>
+                    <li>• Compelling, on-brand copy</li>
+                    <li>• Proper page structure with hero and footer</li>
+                    <li>• Editable blocks you can customize further</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setShowAIDialog(false)} disabled={isGenerating}>
               Cancel
             </Button>
             <Button
               onClick={handleAIGenerate}
               disabled={isGenerating || !aiPrompt.trim()}
-              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 min-w-[160px]"
             >
               {isGenerating ? (
                 <>
@@ -1037,7 +1099,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
               ) : (
                 <>
                   <Wand2 className="w-4 h-4 mr-2" />
-                  Generate Page
+                  Generate Page ✨
                 </>
               )}
             </Button>
