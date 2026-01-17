@@ -4,7 +4,12 @@ import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
+import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X } from 'lucide-react';
 import { blockTypes } from '@/components/page-builder/blockTypes';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -124,6 +129,17 @@ export default function AdminZoneEditor() {
     if (selectedBlockId === id) setSelectedBlockId(null);
   };
 
+  const updateBlockContent = (id: string, key: string, value: unknown) => {
+    setBlocks(blocks.map(block => 
+      block.id === id 
+        ? { ...block, content: { ...block.content, [key]: value } }
+        : block
+    ));
+  };
+
+  const selectedBlock = blocks.find(b => b.id === selectedBlockId);
+  const selectedBlockDef = selectedBlock ? blockTypes.find(bt => bt.id === selectedBlock.type) : null;
+
   const handleSave = async () => {
     if (!pageSlug || !zoneName) return;
     setIsSaving(true);
@@ -192,36 +208,35 @@ export default function AdminZoneEditor() {
       </div>
 
       <div className="max-w-7xl mx-auto p-6">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Block Library Sidebar */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-2">
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Layers className="w-4 h-4" />
                   Add Blocks
                 </CardTitle>
-                <CardDescription>Click to add blocks to this zone</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
                 <ScrollArea className="h-[60vh]">
-                  <div className="p-4 space-y-4">
+                  <div className="p-3 space-y-3">
                     {Object.entries(blocksByCategory).map(([category, categoryBlocks]) => (
                       <div key={category}>
                         <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                           {category.replace('je-', 'JE ').replace('-', ' ')}
                         </h4>
-                        <div className="grid grid-cols-2 gap-2">
-                          {categoryBlocks.slice(0, 6).map((block) => {
+                        <div className="space-y-1">
+                          {categoryBlocks.slice(0, 8).map((block) => {
                             const Icon = block.icon;
                             return (
                               <button
                                 key={block.id}
                                 onClick={() => addBlock(block)}
-                                className="flex flex-col items-center gap-1 p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-center"
+                                className="flex items-center gap-2 w-full p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-left"
                               >
-                                <Icon className="w-5 h-5 text-primary" />
-                                <span className="text-xs font-medium truncate w-full">{block.name}</span>
+                                <Icon className="w-4 h-4 text-primary flex-shrink-0" />
+                                <span className="text-xs font-medium truncate">{block.name}</span>
                               </button>
                             );
                           })}
@@ -235,11 +250,11 @@ export default function AdminZoneEditor() {
           </div>
 
           {/* Canvas */}
-          <div className="lg:col-span-3">
+          <div className={selectedBlock ? "lg:col-span-6" : "lg:col-span-10"}>
             <Card>
               <CardHeader>
                 <CardTitle className="text-base">Zone Content ({blocks.length} blocks)</CardTitle>
-                <CardDescription>Drag blocks to reorder. Click to select and edit.</CardDescription>
+                <CardDescription>Click a block to edit its content</CardDescription>
               </CardHeader>
               <CardContent>
                 {blocks.length === 0 ? (
@@ -268,6 +283,186 @@ export default function AdminZoneEditor() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Block Settings Panel - Shows when a block is selected */}
+          {selectedBlock && (
+            <div className="lg:col-span-4">
+              <Card className="sticky top-20">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <Settings className="w-4 h-4" />
+                      Edit: {selectedBlockDef?.name || selectedBlock.type}
+                    </CardTitle>
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedBlockId(null)}>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[60vh]">
+                    <div className="space-y-4 pr-4">
+                      {/* Render editable fields based on block content */}
+                      {Object.entries(selectedBlock.content).map(([key, value]) => {
+                        // Skip complex objects like arrays for now
+                        if (Array.isArray(value)) {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
+                              <p className="text-xs text-muted-foreground">
+                                {(value as any[]).length} items - Edit in Page Builder for full control
+                              </p>
+                            </div>
+                          );
+                        }
+                        
+                        // Boolean fields
+                        if (typeof value === 'boolean') {
+                          return (
+                            <div key={key} className="flex items-center justify-between">
+                              <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
+                              <Switch
+                                checked={value}
+                                onCheckedChange={(checked) => updateBlockContent(selectedBlock.id, key, checked)}
+                              />
+                            </div>
+                          );
+                        }
+                        
+                        // Number fields
+                        if (typeof value === 'number') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
+                              <Input
+                                type="number"
+                                value={value}
+                                onChange={(e) => updateBlockContent(selectedBlock.id, key, Number(e.target.value))}
+                              />
+                            </div>
+                          );
+                        }
+
+                        // Sizing preset fields
+                        if (key === 'sectionPadding') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium">Section Padding</Label>
+                              <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="compact">Compact</SelectItem>
+                                  <SelectItem value="standard">Standard</SelectItem>
+                                  <SelectItem value="spacious">Spacious</SelectItem>
+                                  <SelectItem value="hero">Hero</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
+
+                        if (key === 'titleSize' || key === 'numberSize') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
+                              <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="small">Small</SelectItem>
+                                  <SelectItem value="medium">Medium</SelectItem>
+                                  <SelectItem value="large">Large</SelectItem>
+                                  <SelectItem value="hero">Hero</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
+
+                        if (key === 'descriptionSize' || key === 'subtitleSize' || key === 'bodySize') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
+                              <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="small">Small</SelectItem>
+                                  <SelectItem value="medium">Medium</SelectItem>
+                                  <SelectItem value="large">Large</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
+
+                        if (key === 'itemGap') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium">Item Spacing</Label>
+                              <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="tight">Tight</SelectItem>
+                                  <SelectItem value="standard">Standard</SelectItem>
+                                  <SelectItem value="spacious">Spacious</SelectItem>
+                                  <SelectItem value="wide">Wide</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
+
+                        if (key === 'maxWidth') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium">Container Width</Label>
+                              <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="max-w-4xl">Narrow</SelectItem>
+                                  <SelectItem value="max-w-5xl">Medium</SelectItem>
+                                  <SelectItem value="max-w-6xl">Wide</SelectItem>
+                                  <SelectItem value="max-w-7xl">Extra Wide</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
+                        
+                        // Long text fields (description, content, etc.)
+                        if (typeof value === 'string' && (key.includes('description') || key.includes('content') || key.includes('text') || key.includes('bio') || key.includes('quote') || (value as string).length > 100)) {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
+                              <Textarea
+                                value={value as string}
+                                onChange={(e) => updateBlockContent(selectedBlock.id, key, e.target.value)}
+                                rows={3}
+                              />
+                            </div>
+                          );
+                        }
+                        
+                        // Regular string fields
+                        if (typeof value === 'string') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
+                              <Input
+                                value={value as string}
+                                onChange={(e) => updateBlockContent(selectedBlock.id, key, e.target.value)}
+                              />
+                            </div>
+                          );
+                        }
+                        
+                        return null;
+                      })}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       </div>
     </div>
