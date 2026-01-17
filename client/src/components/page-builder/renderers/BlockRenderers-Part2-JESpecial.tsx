@@ -137,12 +137,13 @@ export function JEThreePillarsRenderer({ block, isEditing, onUpdate }: BlockRend
 
   return (
     <section className={cn(
-      'py-20 md:py-32',
-      dark ? 'bg-neutral-900' : 'bg-white'
+      getPaddingClass(),
+      'overflow-hidden',
+      dark ? 'bg-[#1a1a1a]' : 'bg-[#faf9f7]'
     )}>
-      <div className="container mx-auto px-6">
-        {/* Section Header */}
-        <div className="text-center mb-16 max-w-3xl mx-auto">
+      <div className={cn('mx-auto px-6 md:px-12', maxWidth)}>
+        {/* Section Header - Proper proportions */}
+        <div className="text-center mb-16 md:mb-24 max-w-4xl mx-auto">
           <EditableText
             value={label}
             onChange={(v) => handleChange('label', v)}
@@ -150,8 +151,8 @@ export function JEThreePillarsRenderer({ block, isEditing, onUpdate }: BlockRend
             placeholder="SECTION LABEL"
             isEditing={isEditing}
             className={cn(
-              'text-xs md:text-sm uppercase tracking-[0.3em] mb-4 font-sans',
-              dark ? 'text-amber-400' : 'text-amber-600'
+              'text-xs uppercase tracking-[0.3em] mb-6 font-sans',
+              dark ? 'text-primary/80' : 'text-primary/80'
             )}
           />
 
@@ -162,8 +163,9 @@ export function JEThreePillarsRenderer({ block, isEditing, onUpdate }: BlockRend
             placeholder="Section Title"
             isEditing={isEditing}
             className={cn(
-              'text-4xl md:text-5xl lg:text-6xl font-serif italic mb-6',
-              dark ? 'text-white' : 'text-neutral-900'
+              getTitleClass(),
+              'font-serif italic font-light leading-[1.1] tracking-tight mb-6',
+              dark ? 'text-white' : 'text-foreground'
             )}
           />
 
@@ -175,15 +177,17 @@ export function JEThreePillarsRenderer({ block, isEditing, onUpdate }: BlockRend
             multiline
             isEditing={isEditing}
             className={cn(
-              'text-lg md:text-xl font-sans leading-relaxed whitespace-pre-wrap',
-              dark ? 'text-neutral-300' : 'text-neutral-600'
+              getDescriptionClass(),
+              'font-sans font-light leading-relaxed whitespace-pre-wrap',
+              dark ? 'text-neutral-400' : 'text-muted-foreground'
             )}
           />
         </div>
 
-        {/* Pillars Grid */}
+        {/* Pillars Grid - Using gap presets */}
         <div className={cn(
-          'grid gap-8 md:gap-12',
+          'grid',
+          getGapClass(),
           pillars.length === 2 ? 'md:grid-cols-2' : 
           pillars.length === 3 ? 'md:grid-cols-3' :
           pillars.length === 4 ? 'md:grid-cols-4 lg:grid-cols-4' :
@@ -283,6 +287,12 @@ export function JEPillarGridRenderer({ block, isEditing, onUpdate }: BlockRender
     columns = 3,
     variant = 'cards',
     dark = false,
+    // Sizing controls
+    sectionPadding = 'spacious',
+    titleSize = 'large',
+    descriptionSize = 'medium',
+    itemGap = 'spacious',
+    maxWidth = 'max-w-6xl',
     pillars = [
       { icon: 'heart', title: 'Value One', description: 'Description of this value', link: '' },
       { icon: 'leaf', title: 'Value Two', description: 'Description of this value', link: '' },
@@ -315,15 +325,22 @@ export function JEPillarGridRenderer({ block, isEditing, onUpdate }: BlockRender
     4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
   };
 
+  // Get sizing classes
+  const getPaddingClass = () => SECTION_PADDING_PRESETS[sectionPadding as keyof typeof SECTION_PADDING_PRESETS] || SECTION_PADDING_PRESETS.spacious;
+  const getTitleClass = () => TITLE_SIZE_PRESETS[titleSize as keyof typeof TITLE_SIZE_PRESETS] || TITLE_SIZE_PRESETS.large;
+  const getDescriptionClass = () => BODY_SIZE_PRESETS[descriptionSize as keyof typeof BODY_SIZE_PRESETS] || BODY_SIZE_PRESETS.medium;
+  const getGapClass = () => GAP_PRESETS[itemGap as keyof typeof GAP_PRESETS] || GAP_PRESETS.spacious;
+
   return (
     <section className={cn(
-      'py-16 md:py-24',
-      dark ? 'bg-neutral-900' : 'bg-neutral-50'
+      getPaddingClass(),
+      'overflow-hidden',
+      dark ? 'bg-[#1a1a1a]' : 'bg-[#faf9f7]'
     )}>
-      <div className="container mx-auto px-6">
-        {/* Header */}
+      <div className={cn('mx-auto px-6 md:px-12', maxWidth)}>
+        {/* Header - Proper proportions */}
         {(title || label || isEditing) && (
-          <div className="text-center mb-12 max-w-3xl mx-auto">
+          <div className="text-center mb-16 md:mb-24 max-w-4xl mx-auto">
             <EditableText
               value={label}
               onChange={(v) => handleChange('label', v)}
@@ -331,8 +348,8 @@ export function JEPillarGridRenderer({ block, isEditing, onUpdate }: BlockRender
               placeholder="LABEL"
               isEditing={isEditing}
               className={cn(
-                'text-xs uppercase tracking-[0.3em] mb-4 font-sans',
-                dark ? 'text-amber-400' : 'text-amber-600'
+                'text-xs uppercase tracking-[0.3em] mb-6 font-sans',
+                dark ? 'text-primary/80' : 'text-primary/80'
               )}
             />
             <EditableText
@@ -342,8 +359,9 @@ export function JEPillarGridRenderer({ block, isEditing, onUpdate }: BlockRender
               placeholder="Section Title"
               isEditing={isEditing}
               className={cn(
-                'text-3xl md:text-4xl font-serif italic mb-4',
-                dark ? 'text-white' : 'text-neutral-900'
+                getTitleClass(),
+                'font-serif italic font-light leading-[1.1] tracking-tight mb-6',
+                dark ? 'text-white' : 'text-foreground'
               )}
             />
             <EditableText
@@ -354,15 +372,16 @@ export function JEPillarGridRenderer({ block, isEditing, onUpdate }: BlockRender
               multiline
               isEditing={isEditing}
               className={cn(
-                'text-lg font-sans',
-                dark ? 'text-neutral-300' : 'text-neutral-600'
+                getDescriptionClass(),
+                'font-sans font-light leading-relaxed',
+                dark ? 'text-neutral-400' : 'text-muted-foreground'
               )}
             />
           </div>
         )}
 
-        {/* Grid */}
-        <div className={cn('grid gap-6', columnClasses[columns] || columnClasses[3])}>
+        {/* Grid - Using gap presets */}
+        <div className={cn('grid', getGapClass(), columnClasses[columns] || columnClasses[3])}>
           {pillars.map((pillar: any, index: number) => {
             const IconComponent = getIcon(pillar.icon);
             const Wrapper = pillar.link ? 'a' : 'div';
@@ -464,12 +483,22 @@ export function JERootedUnityRenderer({ block, isEditing, onUpdate }: BlockRende
     dark = true,
     ctaText = '',
     ctaLink = '',
+    // Sizing controls
+    sectionPadding = 'hero',
+    titleSize = 'hero',
+    descriptionSize = 'large',
+    maxWidth = 'max-w-6xl',
     features = [
       'Ecological restoration projects',
       'Community building initiatives', 
       'Educational workshops and retreats',
     ],
   } = content;
+
+  // Get sizing classes
+  const getPaddingClass = () => SECTION_PADDING_PRESETS[sectionPadding as keyof typeof SECTION_PADDING_PRESETS] || SECTION_PADDING_PRESETS.hero;
+  const getTitleClass = () => TITLE_SIZE_PRESETS[titleSize as keyof typeof TITLE_SIZE_PRESETS] || TITLE_SIZE_PRESETS.hero;
+  const getDescriptionClass = () => BODY_SIZE_PRESETS[descriptionSize as keyof typeof BODY_SIZE_PRESETS] || BODY_SIZE_PRESETS.large;
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -517,8 +546,8 @@ export function JERootedUnityRenderer({ block, isEditing, onUpdate }: BlockRende
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
 
-      {/* Content */}
-      <div className="relative z-10 container mx-auto px-6 py-20 md:py-32">
+      {/* Content - Using sizing presets */}
+      <div className={cn('relative z-10 mx-auto px-6 md:px-12', getPaddingClass(), maxWidth)}>
         <div className="max-w-4xl">
           <EditableText
             value={label}
@@ -526,7 +555,7 @@ export function JERootedUnityRenderer({ block, isEditing, onUpdate }: BlockRende
             tag="p"
             placeholder="LABEL"
             isEditing={isEditing}
-            className="text-xs md:text-sm uppercase tracking-[0.3em] mb-4 font-sans text-white/70"
+            className="text-xs uppercase tracking-[0.3em] mb-6 font-sans text-white/70"
           />
 
           <EditableText
@@ -535,7 +564,7 @@ export function JERootedUnityRenderer({ block, isEditing, onUpdate }: BlockRende
             tag="h2"
             placeholder="Title"
             isEditing={isEditing}
-            className="text-5xl md:text-7xl lg:text-8xl font-serif italic mb-8 text-white leading-tight"
+            className={cn(getTitleClass(), 'font-serif italic font-light mb-8 text-white leading-tight')}
           />
 
           <EditableText
@@ -545,7 +574,7 @@ export function JERootedUnityRenderer({ block, isEditing, onUpdate }: BlockRende
             placeholder="Short description..."
             multiline
             isEditing={isEditing}
-            className="text-xl md:text-2xl font-sans mb-8 text-white/90 leading-relaxed max-w-2xl whitespace-pre-wrap"
+            className={cn(getDescriptionClass(), 'font-sans mb-8 text-white/90 leading-relaxed max-w-2xl whitespace-pre-wrap')}
           />
 
           {/* Long Description - CRITICAL: whitespace-pre-wrap for spacing */}
@@ -827,12 +856,24 @@ export function JEOfferingsGridRenderer({ block, isEditing, onUpdate }: BlockRen
     columns = 3,
     variant = 'cards',
     dark = false,
+    // Sizing controls
+    sectionPadding = 'spacious',
+    titleSize = 'large',
+    descriptionSize = 'medium',
+    itemGap = 'spacious',
+    maxWidth = 'max-w-6xl',
     offerings = [
       { title: 'Service One', description: 'Description of this service', imageUrl: '', price: '', link: '', badge: '' },
       { title: 'Service Two', description: 'Description of this service', imageUrl: '', price: '', link: '', badge: 'Popular' },
       { title: 'Service Three', description: 'Description of this service', imageUrl: '', price: '', link: '', badge: '' },
     ],
   } = content;
+
+  // Get sizing classes
+  const getPaddingClass = () => SECTION_PADDING_PRESETS[sectionPadding as keyof typeof SECTION_PADDING_PRESETS] || SECTION_PADDING_PRESETS.spacious;
+  const getTitleClass = () => TITLE_SIZE_PRESETS[titleSize as keyof typeof TITLE_SIZE_PRESETS] || TITLE_SIZE_PRESETS.large;
+  const getDescriptionClass = () => BODY_SIZE_PRESETS[descriptionSize as keyof typeof BODY_SIZE_PRESETS] || BODY_SIZE_PRESETS.medium;
+  const getGapClass = () => GAP_PRESETS[itemGap as keyof typeof GAP_PRESETS] || GAP_PRESETS.spacious;
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -854,19 +895,20 @@ export function JEOfferingsGridRenderer({ block, isEditing, onUpdate }: BlockRen
 
   return (
     <section className={cn(
-      'py-16 md:py-24',
-      dark ? 'bg-neutral-900' : 'bg-neutral-50'
+      getPaddingClass(),
+      'overflow-hidden',
+      dark ? 'bg-[#1a1a1a]' : 'bg-[#faf9f7]'
     )}>
-      <div className="container mx-auto px-6">
-        {/* Header */}
-        <div className="text-center mb-12 max-w-3xl mx-auto">
+      <div className={cn('mx-auto px-6 md:px-12', maxWidth)}>
+        {/* Header - Proper proportions */}
+        <div className="text-center mb-16 md:mb-24 max-w-4xl mx-auto">
           <EditableText
             value={label}
             onChange={(v) => handleChange('label', v)}
             tag="p"
             placeholder="LABEL"
             isEditing={isEditing}
-            className={cn('text-xs uppercase tracking-[0.3em] mb-4 font-sans', dark ? 'text-amber-400' : 'text-amber-600')}
+            className={cn('text-xs uppercase tracking-[0.3em] mb-6 font-sans', dark ? 'text-primary/80' : 'text-primary/80')}
           />
           <EditableText
             value={title}
@@ -874,7 +916,7 @@ export function JEOfferingsGridRenderer({ block, isEditing, onUpdate }: BlockRen
             tag="h2"
             placeholder="Section Title"
             isEditing={isEditing}
-            className={cn('text-3xl md:text-4xl font-serif italic mb-4', dark ? 'text-white' : 'text-neutral-900')}
+            className={cn(getTitleClass(), 'font-serif italic font-light leading-[1.1] tracking-tight mb-6', dark ? 'text-white' : 'text-foreground')}
           />
           <EditableText
             value={description}
@@ -883,13 +925,14 @@ export function JEOfferingsGridRenderer({ block, isEditing, onUpdate }: BlockRen
             placeholder="Description..."
             multiline
             isEditing={isEditing}
-            className={cn('text-lg font-sans whitespace-pre-wrap', dark ? 'text-neutral-300' : 'text-neutral-600')}
+            className={cn(getDescriptionClass(), 'font-sans font-light leading-relaxed whitespace-pre-wrap', dark ? 'text-neutral-400' : 'text-muted-foreground')}
           />
         </div>
 
-        {/* Grid */}
+        {/* Grid - Using gap presets */}
         <div className={cn(
-          'grid gap-6',
+          'grid',
+          getGapClass(),
           columns === 2 ? 'grid-cols-1 md:grid-cols-2' :
           columns === 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' :
           'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
