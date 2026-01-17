@@ -1243,3 +1243,27 @@ export const pageZones = mysqlTable("pageZones", {
 
 export type PageZone = typeof pageZones.$inferSelect;
 export type InsertPageZone = typeof pageZones.$inferInsert;
+
+/**
+ * Block Store table for custom reusable blocks created in Page Builder
+ * These blocks can be added to any page zone and appear in the Zone Manager sidebar
+ */
+export const blockStore = mysqlTable("blockStore", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(), // Display name in sidebar
+  description: text("description"), // Brief description of the block
+  category: varchar("category", { length: 100 }).default("custom").notNull(), // 'custom', 'hero', 'content', etc.
+  icon: varchar("icon", { length: 50 }).default("box"), // Lucide icon name
+  blockType: varchar("blockType", { length: 100 }).notNull(), // Base block type or 'custom-composite'
+  content: longtext("content").notNull(), // JSON: Full block content with all settings
+  thumbnail: varchar("thumbnail", { length: 1000 }), // Preview image URL
+  tags: text("tags"), // JSON array of tags for filtering
+  isPublic: int("isPublic").default(1).notNull(), // 1 = visible in sidebar, 0 = hidden/archived
+  usageCount: int("usageCount").default(0).notNull(), // Track how often this block is used
+  createdBy: varchar("createdBy", { length: 100 }), // Admin username who created it
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type BlockStoreItem = typeof blockStore.$inferSelect;
+export type InsertBlockStoreItem = typeof blockStore.$inferInsert;

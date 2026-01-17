@@ -9,7 +9,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X, Box, Sparkles, Star } from 'lucide-react';
 import { blockTypes } from '@/components/page-builder/blockTypes';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -81,6 +82,10 @@ export default function AdminZoneEditor() {
     { enabled: !!pageSlug && !!zoneName }
   );
 
+  // Fetch custom blocks from Block Store
+  const { data: customBlocks } = trpc.blockStore.getAll.useQuery({});
+  const incrementUsage = trpc.blockStore.incrementUsage.useMutation();
+
   const upsertZone = trpc.pageZones.upsertZone.useMutation();
 
   const sensors = useSensors(
@@ -122,6 +127,26 @@ export default function AdminZoneEditor() {
     setBlocks([...blocks, newBlock]);
     setSelectedBlockId(newBlock.id);
     setShowBlockLibrary(false);
+  };
+
+  // Add a custom block from Block Store
+  const addCustomBlock = (customBlock: NonNullable<typeof customBlocks>[0]) => {
+    try {
+      const content = JSON.parse(customBlock.content);
+      const newBlock: PageBlock = {
+        id: `block_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        type: customBlock.blockType,
+        content: content,
+        order: blocks.length,
+      };
+      setBlocks([...blocks, newBlock]);
+      setSelectedBlockId(newBlock.id);
+      // Track usage
+      incrementUsage.mutate({ id: customBlock.id });
+    } catch (e) {
+      console.error('Failed to parse custom block content:', e);
+      alert('Failed to add custom block');
+    }
   };
 
   const deleteBlock = (id: string) => {
@@ -209,42 +234,104 @@ export default function AdminZoneEditor() {
 
       <div className="max-w-7xl mx-auto p-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Block Library Sidebar */}
+          {/* Block Library Sidebar with Tabs for Preset and Custom Blocks */}
           <div className="lg:col-span-2">
             <Card>
-              <CardHeader className="pb-3">
+              <CardHeader className="pb-2">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Layers className="w-4 h-4" />
                   Add Blocks
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <ScrollArea className="h-[60vh]">
-                  <div className="p-3 space-y-3">
-                    {Object.entries(blocksByCategory).map(([category, categoryBlocks]) => (
-                      <div key={category}>
-                        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                          {category.replace('je-', 'JE ').replace('-', ' ')}
-                        </h4>
-                        <div className="space-y-1">
-                          {categoryBlocks.slice(0, 8).map((block) => {
-                            const Icon = block.icon;
-                            return (
-                              <button
-                                key={block.id}
-                                onClick={() => addBlock(block)}
-                                className="flex items-center gap-2 w-full p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-left"
-                              >
-                                <Icon className="w-4 h-4 text-primary flex-shrink-0" />
-                                <span className="text-xs font-medium truncate">{block.name}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
+                <Tabs defaultValue="preset" className="w-full">
+                  <TabsList className="w-full grid grid-cols-2 mx-3 mb-2" style={{ width: 'calc(100% - 24px)' }}>
+                    <TabsTrigger value="preset" className="text-xs">Preset</TabsTrigger>
+                    <TabsTrigger value="custom" className="text-xs">
+                      <Star className="w-3 h-3 mr-1" />
+                      My Blocks
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="preset" className="m-0">
+                    <ScrollArea className="h-[55vh]">
+                      <div className="p-3 space-y-3">
+                        {Object.entries(blocksByCategory).map(([category, categoryBlocks]) => (
+                          <div key={category}>
+                            <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                              {category.replace('je-', 'JE ').replace('-', ' ')}
+                            </h4>
+                            <div className="space-y-1">
+                              {categoryBlocks.slice(0, 8).map((block) => {
+                                const Icon = block.icon;
+                                return (
+                                  <button
+                                    key={block.id}
+                                    onClick={() => addBlock(block)}
+                                    className="flex items-center gap-2 w-full p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors text-left"
+                                  >
+                                    <Icon className="w-4 h-4 text-primary flex-shrink-0" />
+                                    <span className="text-xs font-medium truncate">{block.name}</span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                </ScrollArea>
+                    </ScrollArea>
+                  </TabsContent>
+                  
+                  <TabsContent value="custom" className="m-0">
+                    <ScrollArea className="h-[55vh]">
+                      <div className="p-3 space-y-2">
+                        {customBlocks && customBlocks.length > 0 ? (
+                          <>
+                            {customBlocks.map((customBlock) => (
+                              <button
+                                key={customBlock.id}
+                                onClick={() => addCustomBlock(customBlock)}
+                                className="flex items-center gap-2 w-full p-2 rounded-lg border border-amber-200 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-900/20 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors text-left"
+                              >
+                                <Box className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <span className="text-xs font-medium truncate block">{customBlock.name}</span>
+                                  <span className="text-[10px] text-muted-foreground truncate block">
+                                    {customBlock.category} · Used {customBlock.usageCount}x
+                                  </span>
+                                </div>
+                              </button>
+                            ))}
+                            <div className="pt-2 border-t mt-3">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full text-xs"
+                                onClick={() => navigate('/admin/block-creator')}
+                              >
+                                <Plus className="w-3 h-3 mr-1" />
+                                Create New Block
+                              </Button>
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-center py-6">
+                            <Sparkles className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+                            <p className="text-xs text-muted-foreground mb-3">No custom blocks yet</p>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => navigate('/admin/block-creator')}
+                            >
+                              <Plus className="w-3 h-3 mr-1" />
+                              Create Block
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
           </div>
