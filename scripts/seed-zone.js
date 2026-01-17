@@ -1,4 +1,5 @@
 // Script to seed test zone data
+import 'dotenv/config';
 import mysql from 'mysql2/promise';
 
 const blocksData = JSON.stringify([{
