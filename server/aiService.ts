@@ -1,4 +1,5 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { VertexAI } from "@google-cloud/vertexai";
 import dns from 'dns';
 
 // Force IPv4 for all DNS lookups - fixes IPv6 "Network is unreachable" on EC2
@@ -7,6 +8,7 @@ dns.setDefaultResultOrder('ipv4first');
 
 // Initialize Gemini AI
 let genAI: GoogleGenerativeAI | null = null;
+let vertexAI: VertexAI | null = null;
 
 export function initializeGemini(apiKey: string) {
   if (!apiKey) {
@@ -14,6 +16,18 @@ export function initializeGemini(apiKey: string) {
     return null;
   }
   genAI = new GoogleGenerativeAI(apiKey);
+  
+  // Initialize Vertex AI for Imagen (requires GOOGLE_CLOUD_PROJECT env var)
+  const projectId = process.env.GOOGLE_CLOUD_PROJECT;
+  if (projectId) {
+    try {
+      vertexAI = new VertexAI({ project: projectId, location: 'us-central1' });
+      console.log('Vertex AI initialized for project:', projectId);
+    } catch (e) {
+      console.warn('Vertex AI initialization failed:', e);
+    }
+  }
+  
   return genAI;
 }
 
@@ -1036,36 +1050,40 @@ Create a detailed video generation prompt that would result in a beautiful, calm
       finalPrompt = "A serene, calming nature scene with gentle movement. Soft light, peaceful atmosphere. Perfect for website background. Seamless loop.";
     }
 
-    // Try to use Veo for video generation
-    try {
-      // Note: Veo 2 model name - may need adjustment based on actual API availability
-      const veoModel = genAI.getGenerativeModel({ model: "veo-001" });
-      
-      const videoResult = await veoModel.generateContent({
-        contents: [{ role: "user", parts: [{ text: `Create a ${duration} second seamless looping video: ${finalPrompt}` }] }],
-      } as any);
-      
-      const videoResponse = videoResult.response;
-      const candidates = videoResponse.candidates;
-      
-      if (candidates && candidates[0]?.content?.parts) {
-        for (const part of candidates[0].content.parts) {
-          if ('inlineData' in part && part.inlineData) {
-            return {
-              videoData: part.inlineData.data,
-              mimeType: part.inlineData.mimeType || 'video/mp4',
-              description: finalPrompt
-            };
+    // Try to use Vertex AI for video generation
+    if (vertexAI) {
+      try {
+        // Note: Video generation via Vertex AI may require specific model access
+        const veoModel = vertexAI.preview.getGenerativeModel({
+          model: "videogeneration@001",
+        });
+        
+        const videoResult = await veoModel.generateContent({
+          contents: [{ role: "user", parts: [{ text: `Create a ${duration} second seamless looping video: ${finalPrompt}` }] }],
+        });
+        
+        const videoResponse = videoResult.response;
+        const candidates = videoResponse.candidates;
+        
+        if (candidates && candidates[0]?.content?.parts) {
+          for (const part of candidates[0].content.parts) {
+            if ('inlineData' in part && part.inlineData) {
+              return {
+                videoData: part.inlineData.data,
+                mimeType: part.inlineData.mimeType || 'video/mp4',
+                description: finalPrompt
+              };
+            }
           }
         }
+        
+        throw new Error("No video generated");
+      } catch (veoError: any) {
+        console.log("Vertex AI video generation error:", veoError.message);
+        throw new Error(`Video generation failed: ${veoError.message}. Prompt: "${finalPrompt.substring(0, 200)}..."`);
       }
-      
-      throw new Error("No video generated from Veo model");
-    } catch (veoError: any) {
-      console.log("Veo model not available:", veoError.message);
-      
-      // Return the generated prompt so user knows what would be created
-      throw new Error(`Video generation requires Veo API access. Generated prompt for external use: "${finalPrompt.substring(0, 300)}..."`);
+    } else {
+      throw new Error(`Vertex AI not configured. Set GOOGLE_CLOUD_PROJECT env var. Generated prompt: "${finalPrompt.substring(0, 200)}..."`);
     }
   } catch (error: any) {
     console.error('Error generating video loop:', error);
@@ -1135,33 +1153,40 @@ Return ONLY the image generation prompt, nothing else.`;
     const promptResult = await model.generateContent(generationPrompt);
     const finalPrompt = promptResult.response.text().trim();
 
-    // Use Imagen for actual image generation (Gemini 2.0 with imagen)
-    // Note: This requires the imagen model which may need separate API access
-    try {
-      const imagenModel = genAI.getGenerativeModel({ model: "imagen-3.0-generate-001" });
-      const imageResult = await imagenModel.generateContent(finalPrompt);
-      
-      // Check if we got an image back
-      const imageResponse = imageResult.response;
-      const candidates = imageResponse.candidates;
-      
-      if (candidates && candidates[0]?.content?.parts) {
-        for (const part of candidates[0].content.parts) {
-          if ('inlineData' in part && part.inlineData) {
-            return {
-              imageData: part.inlineData.data,
-              mimeType: part.inlineData.mimeType || 'image/png',
-              description: finalPrompt
-            };
+    // Use Vertex AI Imagen for image generation
+    if (vertexAI) {
+      try {
+        const imagenModel = vertexAI.preview.getGenerativeModel({
+          model: "imagegeneration@006",
+        });
+        
+        const imageResult = await imagenModel.generateContent({
+          contents: [{ role: "user", parts: [{ text: finalPrompt }] }],
+        });
+        
+        const imageResponse = imageResult.response;
+        const candidates = imageResponse.candidates;
+        
+        if (candidates && candidates[0]?.content?.parts) {
+          for (const part of candidates[0].content.parts) {
+            if ('inlineData' in part && part.inlineData) {
+              return {
+                imageData: part.inlineData.data,
+                mimeType: part.inlineData.mimeType || 'image/png',
+                description: finalPrompt
+              };
+            }
           }
         }
+        
+        throw new Error("No image generated from Imagen model");
+      } catch (imagenError: any) {
+        console.log("Vertex AI Imagen error:", imagenError.message);
+        throw new Error(`Image generation failed: ${imagenError.message}. Prompt: "${finalPrompt.substring(0, 150)}..."`);
       }
-      
-      throw new Error("No image generated from Imagen model");
-    } catch (imagenError) {
-      console.log("Imagen model not available, returning analysis only:", imagenError);
-      // If Imagen isn't available, return a helpful message with the prompt
-      throw new Error(`Image generation model not available. Generated prompt: "${finalPrompt.substring(0, 200)}..."`);
+    } else {
+      // Vertex AI not configured - provide setup instructions
+      throw new Error(`Vertex AI not configured. Set GOOGLE_CLOUD_PROJECT env var and ensure service account credentials. Generated prompt: "${finalPrompt.substring(0, 150)}..."`);
     }
   } catch (error: any) {
     console.error('Error generating image variation:', error);
