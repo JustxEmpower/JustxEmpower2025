@@ -79,6 +79,7 @@ const navItems = [
   { icon: Menu, label: 'Navigation', path: '/admin/navigation' },
   { icon: FormInput, label: 'Forms', path: '/admin/forms' },
   { icon: Mail, label: 'Messages', path: '/admin/messages' },
+  { icon: Users, label: 'Newsletter', path: '/admin/newsletter' },
   { icon: LinkIcon, label: 'Redirects', path: '/admin/redirects' },
   // Advanced
   { icon: Code, label: 'Custom Code', path: '/admin/code' },

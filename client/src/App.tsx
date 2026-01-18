@@ -36,6 +36,7 @@ import AdminPayments from "@/pages/AdminPaymentsEnhanced";
 import AdminFinancialAnalytics from "@/pages/AdminFinancialAnalyticsEnhanced";
 import AdminResourcesPage from "@/pages/AdminResourcesPage";
 import AdminContactMessages from "@/pages/AdminMessagesInbox";
+import AdminNewsletter from "@/pages/AdminNewsletter";
 import AdminCarousel from "@/pages/AdminCarouselEnhanced";
 import AdminCarouselManager from "@/pages/AdminCarouselManagerEnhanced";
 import AdminAITraining from "@/pages/AdminAITrainingTurbo";
@@ -116,6 +117,7 @@ function Router() {
       <Route path="/admin/financial-analytics" component={AdminFinancialAnalytics} />
       <Route path="/admin/resources" component={AdminResourcesPage} />
       <Route path="/admin/messages" component={AdminContactMessages} />
+      <Route path="/admin/newsletter" component={AdminNewsletter} />
       <Route path="/admin/carousel">{() => { window.location.href = '/admin/carousels'; return null; }}</Route>
       <Route path="/admin/carousels" component={AdminCarouselManager} />
       <Route path="/admin/ai-training" component={AdminAITraining} />
