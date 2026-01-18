@@ -65,13 +65,17 @@ export default function AdminSettingsTurbo() {
   // Fetch current settings
   const { data: settings, refetch: refetchSettings } = trpc.admin.getSettings.useQuery();
   
-  // Populate form when settings load
+  // Populate form when settings load - show masked values for existing keys
   useEffect(() => {
     if (settings) {
-      setMailchimpApiKey(settings.mailchimpApiKey || '');
+      // Show masked Mailchimp key if it exists
+      if (settings.mailchimpApiKey) {
+        setMailchimpApiKey(settings.mailchimpApiKeyMasked || settings.mailchimpApiKey);
+      }
       setMailchimpAudienceId(settings.mailchimpAudienceId || '');
-      // Don't populate the actual key, just show masked version
+      // Show masked Gemini key if it exists
       if (settings.geminiApiKey) {
+        setGeminiApiKey(settings.geminiApiKeyMasked || '••••••••••••');
         setGeminiStatus('connected');
       }
     }
@@ -81,7 +85,6 @@ export default function AdminSettingsTurbo() {
   const saveGeminiKeyMutation = trpc.admin.siteSettings.saveGeminiKey.useMutation({
     onSuccess: () => {
       toast.success('Gemini API key saved successfully!');
-      setGeminiApiKey('');
       refetchSettings();
       setGeminiStatus('connected');
     },
@@ -90,6 +93,10 @@ export default function AdminSettingsTurbo() {
       setGeminiStatus('error');
     },
   });
+  
+  // Check if the value is a masked key (starts with **** or contains only dots)
+  const isGeminiKeyMasked = geminiApiKey.startsWith('****') || geminiApiKey.match(/^[•]+$/);
+  const isMailchimpKeyMasked = mailchimpApiKey.startsWith('****');
 
   const testGeminiMutation = trpc.admin.siteSettings.testGeminiConnection.useMutation({
     onSuccess: (result) => {
@@ -168,6 +175,11 @@ export default function AdminSettingsTurbo() {
       toast.error('Please enter a valid API key');
       return;
     }
+    // Don't save masked values
+    if (isGeminiKeyMasked) {
+      toast.info('Key is already saved. Enter a new key to update.');
+      return;
+    }
     saveGeminiKeyMutation.mutate({ apiKey: geminiApiKey });
   };
 
@@ -179,6 +191,11 @@ export default function AdminSettingsTurbo() {
   const handleSaveMailchimp = () => {
     if (!mailchimpApiKey || !mailchimpAudienceId) {
       toast.error('Please fill in both Mailchimp fields');
+      return;
+    }
+    // Don't save if only the API key is masked (audience ID can be visible)
+    if (isMailchimpKeyMasked) {
+      toast.info('API key is already saved. Enter a new key to update.');
       return;
     }
     updateMailchimpMutation.mutate({
