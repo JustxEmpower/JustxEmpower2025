@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Plus, Trash2, Eye, Search, Box, Sparkles, 
   Type, Image, Layout, List, Grid, Heart, Star, Zap, 
-  FileText, MessageSquare, Users, MoreVertical, Copy
+  FileText, MessageSquare, Users, MoreVertical, Copy, ArrowLeft
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -78,6 +78,15 @@ export default function AdminBlockStore() {
         {/* Top Bar */}
         <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-stone-200">
           <div className="px-6 py-4">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => navigate('/admin/dashboard')}
+              className="mb-3 -ml-2"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Dashboard
+            </Button>
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-xl font-bold text-stone-900">Block Store</h1>
