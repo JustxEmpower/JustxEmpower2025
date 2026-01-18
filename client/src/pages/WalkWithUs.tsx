@@ -60,6 +60,24 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
   const quoteText = getContent('quote', 'text');
   const quoteImageUrl = getContent('quote', 'imageUrl');
 
+  // Get content section from CMS
+  const contentHeading = getContent('content', 'heading');
+  const contentDescription = getContent('content', 'description');
+
+  // Get options section from CMS
+  const optionsTitle = getContent('options', 'title');
+  const option1 = getContent('options', 'option1');
+  const option1ImageUrl = getContent('options', 'option1_imageUrl');
+  const option2 = getContent('options', 'option2');
+  const option2ImageUrl = getContent('options', 'option2_imageUrl');
+  const option3 = getContent('options', 'option3');
+  const option3ImageUrl = getContent('options', 'option3_imageUrl');
+
+  // Get overview section from CMS
+  const overviewTitle = getContent('overview', 'title');
+  const overviewParagraph1 = getContent('overview', 'paragraph1');
+  const overviewParagraph2 = getContent('overview', 'paragraph2');
+
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
@@ -146,6 +164,92 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
           </div>
         </div>
       </div>
+
+      {/* Options Section */}
+      {optionsTitle && (
+        <div className="py-20 px-6 md:px-12 bg-muted/20">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="font-serif text-3xl md:text-4xl italic text-center mb-12 text-foreground">
+              {optionsTitle}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {option1 && (
+                <div className="bg-background rounded-[1.5rem] overflow-hidden shadow-sm">
+                  {option1ImageUrl && (
+                    <img 
+                      src={getProperMediaUrl(option1ImageUrl)} 
+                      alt={option1}
+                      className="w-full h-48 object-cover"
+                    />
+                  )}
+                  <div className="p-6">
+                    <h3 className="font-serif text-xl italic text-foreground">{option1}</h3>
+                  </div>
+                </div>
+              )}
+              {option2 && (
+                <div className="bg-background rounded-[1.5rem] overflow-hidden shadow-sm">
+                  {option2ImageUrl && (
+                    <img 
+                      src={getProperMediaUrl(option2ImageUrl)} 
+                      alt={option2}
+                      className="w-full h-48 object-cover"
+                    />
+                  )}
+                  <div className="p-6">
+                    <h3 className="font-serif text-xl italic text-foreground">{option2}</h3>
+                  </div>
+                </div>
+              )}
+              {option3 && (
+                <div className="bg-background rounded-[1.5rem] overflow-hidden shadow-sm">
+                  {option3ImageUrl && (
+                    <img 
+                      src={getProperMediaUrl(option3ImageUrl)} 
+                      alt={option3}
+                      className="w-full h-48 object-cover"
+                    />
+                  )}
+                  <div className="p-6">
+                    <h3 className="font-serif text-xl italic text-foreground">{option3}</h3>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Content Section */}
+      {contentHeading && (
+        <div className="py-20 px-6 md:px-12">
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="font-serif text-3xl md:text-4xl italic mb-6 text-foreground">
+              {contentHeading}
+            </h2>
+            {contentDescription && (
+              <p className="text-lg text-muted-foreground leading-relaxed">
+                {contentDescription}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Overview Section */}
+      {overviewTitle && (
+        <div className="py-20 px-6 md:px-12 bg-muted/10">
+          <div className="max-w-4xl mx-auto">
+            <h2 className="font-serif text-3xl md:text-4xl italic text-center mb-8 text-foreground">
+              {overviewTitle}
+            </h2>
+            <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
+              {overviewParagraph1 && <p>{overviewParagraph1}</p>}
+              {overviewParagraph2 && <p>{overviewParagraph2}</p>}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
