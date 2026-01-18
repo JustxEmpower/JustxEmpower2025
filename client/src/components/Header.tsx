@@ -185,9 +185,10 @@ export default function Header() {
   };
 
   // Logo class - invert when scrolled (dark logo on white bg), normal when not scrolled (white logo on dark hero)
+  // In dark mode when scrolled, keep logo white (no invert needed)
   const getLogoClass = () => {
     if (isScrolled || isMobileMenuOpen) {
-      return 'invert brightness-0';
+      return 'invert brightness-0 dark:invert-0 dark:brightness-100';
     }
     return 'invert-0 brightness-100';
   };
@@ -212,7 +213,7 @@ export default function Header() {
     <header 
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out px-6 md:px-12 py-6",
-        isScrolled ? "bg-white/90 backdrop-blur-md shadow-sm py-4" : "bg-transparent"
+        isScrolled ? "bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md shadow-sm py-4" : "bg-transparent"
       )}
     >
       <div className="flex items-center justify-between max-w-[1920px] mx-auto">

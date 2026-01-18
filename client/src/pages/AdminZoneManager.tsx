@@ -30,63 +30,63 @@ const AVAILABLE_PAGES = [
     slug: 'home', 
     name: 'Home', 
     icon: Home,
-    zones: ['after-hero', 'after-carousel', 'before-footer'],
+    zones: ['after-hero', 'after-carousel', 'mid-page', 'after-content', 'before-newsletter', 'before-footer'],
     description: 'Main landing page'
   },
   { 
     slug: 'about', 
     name: 'About', 
     icon: Info,
-    zones: ['before-newsletter', 'before-footer'],
+    zones: ['after-hero', 'mid-page', 'after-content', 'before-newsletter', 'before-footer'],
     description: 'About the founder'
   },
   { 
     slug: 'philosophy', 
     name: 'Philosophy', 
     icon: Heart,
-    zones: ['before-newsletter', 'before-footer'],
+    zones: ['after-hero', 'mid-page', 'after-content', 'before-newsletter', 'before-footer'],
     description: 'Vision & ethos'
   },
   { 
     slug: 'offerings', 
     name: 'Offerings', 
     icon: Sparkles,
-    zones: ['before-footer'],
+    zones: ['after-hero', 'mid-page', 'after-content', 'before-newsletter', 'before-footer'],
     description: 'Programs & services'
   },
   { 
     slug: 'blog', 
     name: 'Journal', 
     icon: BookOpen,
-    zones: ['before-footer'],
+    zones: ['after-hero', 'mid-page', 'after-content', 'before-footer'],
     description: 'Blog & articles'
   },
   { 
     slug: 'events', 
     name: 'Events', 
     icon: Calendar,
-    zones: ['before-footer'],
+    zones: ['after-hero', 'mid-page', 'after-content', 'before-footer'],
     description: 'Upcoming events'
   },
   { 
     slug: 'shop', 
     name: 'Shop', 
     icon: ShoppingBag,
-    zones: ['before-footer'],
+    zones: ['after-hero', 'mid-page', 'after-content', 'before-footer'],
     description: 'Products'
   },
   { 
     slug: 'contact', 
     name: 'Contact', 
     icon: Mail,
-    zones: ['before-footer'],
+    zones: ['after-hero', 'mid-page', 'after-content', 'before-footer'],
     description: 'Contact form'
   },
   { 
     slug: 'resources', 
     name: 'Resources', 
     icon: FolderOpen,
-    zones: ['before-footer'],
+    zones: ['after-hero', 'mid-page', 'after-content', 'before-footer'],
     description: 'Downloads & files'
   },
 ];
