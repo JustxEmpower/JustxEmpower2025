@@ -105,12 +105,12 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
       if (stats.totalSubscribers > 0) {
         notifs.push({
           id: "subscribers",
-          type: "success",
+          type: "user",
           title: `${stats.totalSubscribers} newsletter subscribers`,
           description: "Your community is growing!",
           timestamp: new Date(Date.now() - 3600000),
           read: true,
-          link: "/admin/settings",
+          link: "/admin/newsletter",
           priority: "low",
         });
       }
