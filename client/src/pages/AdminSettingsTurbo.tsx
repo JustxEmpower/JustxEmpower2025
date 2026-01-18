@@ -65,34 +65,14 @@ export default function AdminSettingsTurbo() {
   // Fetch current settings
   const { data: settings, refetch: refetchSettings } = trpc.admin.getSettings.useQuery();
   
-  // Populate form when settings load
-  // Only show masked version if it looks like a real API key (long enough)
+  // Do NOT pre-populate form fields - let user enter fresh values
+  // The database may contain incorrect placeholder data
   useEffect(() => {
-    if (settings) {
-      // Mailchimp API key format: xxxxx-us1 (at least 10+ chars with a dash)
-      const isValidMailchimpKey = settings.mailchimpApiKey && 
-        settings.mailchimpApiKey.length > 10 && 
-        settings.mailchimpApiKey.includes('-');
-      if (isValidMailchimpKey) {
-        setMailchimpApiKey(settings.mailchimpApiKeyMasked || '');
-      }
-      
-      // Mailchimp Audience ID is typically a long alphanumeric string
-      const isValidAudienceId = settings.mailchimpAudienceId && 
-        settings.mailchimpAudienceId.length > 8 &&
-        /^[a-f0-9]+$/i.test(settings.mailchimpAudienceId);
-      if (isValidAudienceId) {
-        setMailchimpAudienceId(settings.mailchimpAudienceId);
-      }
-      
-      // Gemini API key format: AIza... (39+ chars, starts with AIza)
-      const isValidGeminiKey = settings.geminiApiKey && 
+    // Only set connected status if there's a valid-looking Gemini key
+    if (settings?.geminiApiKey && 
         settings.geminiApiKey.length > 30 && 
-        settings.geminiApiKey.startsWith('AIza');
-      if (isValidGeminiKey) {
-        setGeminiApiKey(settings.geminiApiKeyMasked || '');
-        setGeminiStatus('connected');
-      }
+        settings.geminiApiKey.startsWith('AIza')) {
+      setGeminiStatus('connected');
     }
   }, [settings]);
   
@@ -109,9 +89,6 @@ export default function AdminSettingsTurbo() {
     },
   });
   
-  // Check if the value is a masked key (starts with **** or contains only dots)
-  const isGeminiKeyMasked = geminiApiKey.startsWith('****') || geminiApiKey.match(/^[•]+$/);
-  const isMailchimpKeyMasked = mailchimpApiKey.startsWith('****');
 
   const testGeminiMutation = trpc.admin.siteSettings.testGeminiConnection.useMutation({
     onSuccess: (result) => {
@@ -190,9 +167,9 @@ export default function AdminSettingsTurbo() {
       toast.error('Please enter a valid API key');
       return;
     }
-    // Don't save masked values
-    if (isGeminiKeyMasked) {
-      toast.info('Key is already saved. Enter a new key to update.');
+    // Validate Gemini key format
+    if (!geminiApiKey.startsWith('AIza') || geminiApiKey.length < 30) {
+      toast.error('Invalid Gemini API key format. Key should start with AIza...');
       return;
     }
     saveGeminiKeyMutation.mutate({ apiKey: geminiApiKey });
@@ -208,9 +185,9 @@ export default function AdminSettingsTurbo() {
       toast.error('Please fill in both Mailchimp fields');
       return;
     }
-    // Don't save if only the API key is masked (audience ID can be visible)
-    if (isMailchimpKeyMasked) {
-      toast.info('API key is already saved. Enter a new key to update.');
+    // Validate Mailchimp key format (should contain a dash for server prefix)
+    if (!mailchimpApiKey.includes('-')) {
+      toast.error('Invalid Mailchimp API key format. Key should be like: xxxxx-us1');
       return;
     }
     updateMailchimpMutation.mutate({
