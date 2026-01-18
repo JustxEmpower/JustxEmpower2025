@@ -302,8 +302,11 @@ export const adminRouter = router({
         // Get recent pages
         const recentPages = await db
           .select({
+            id: schema.pages.id,
             title: schema.pages.title,
+            slug: schema.pages.slug,
             createdAt: schema.pages.createdAt,
+            updatedAt: schema.pages.updatedAt,
             type: sql<string>`'page'`,
           })
           .from(schema.pages)
@@ -313,27 +316,85 @@ export const adminRouter = router({
         // Get recent articles
         const recentArticles = await db
           .select({
+            id: schema.articles.id,
             title: schema.articles.title,
+            slug: schema.articles.slug,
             createdAt: schema.articles.createdAt,
+            updatedAt: schema.articles.updatedAt,
             type: sql<string>`'article'`,
           })
           .from(schema.articles)
           .orderBy(desc(schema.articles.createdAt))
           .limit(5);
+
+        // Get recent products
+        const recentProducts = await db
+          .select({
+            id: schema.products.id,
+            title: schema.products.name,
+            slug: schema.products.slug,
+            createdAt: schema.products.createdAt,
+            updatedAt: schema.products.updatedAt,
+            type: sql<string>`'product'`,
+          })
+          .from(schema.products)
+          .orderBy(desc(schema.products.createdAt))
+          .limit(5);
+
+        // Get recent events
+        const recentEvents = await db
+          .select({
+            id: schema.events.id,
+            title: schema.events.title,
+            slug: schema.events.slug,
+            createdAt: schema.events.createdAt,
+            updatedAt: schema.events.updatedAt,
+            type: sql<string>`'event'`,
+          })
+          .from(schema.events)
+          .orderBy(desc(schema.events.createdAt))
+          .limit(5);
         
         // Combine and sort
-        const activities = [...recentPages, ...recentArticles]
+        const activities = [...recentPages, ...recentArticles, ...recentProducts, ...recentEvents]
           .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-          .slice(0, 10)
-          .map(item => ({
-            description: `${item.type === 'page' ? 'Page' : 'Article'} "${item.title}" was ${item.type === 'page' ? 'created' : 'published'}`,
-            timestamp: new Date(item.createdAt).toLocaleString('en-US', {
-              month: 'short',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-            }),
-          }));
+          .slice(0, 15)
+          .map(item => {
+            const typeLabels: Record<string, string> = {
+              page: 'Page',
+              article: 'Article',
+              product: 'Product',
+              event: 'Event',
+            };
+            const actionLabels: Record<string, string> = {
+              page: 'created',
+              article: 'published',
+              product: 'added',
+              event: 'scheduled',
+            };
+            const linkPaths: Record<string, string> = {
+              page: '/admin/pages',
+              article: '/admin/articles',
+              product: '/admin/products',
+              event: '/admin/events',
+            };
+            return {
+              id: item.id,
+              type: item.type,
+              title: item.title,
+              slug: item.slug,
+              description: `${typeLabels[item.type] || 'Item'} "${item.title}" was ${actionLabels[item.type] || 'created'}`,
+              timestamp: new Date(item.createdAt).toLocaleString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+              }),
+              createdAt: item.createdAt,
+              updatedAt: item.updatedAt,
+              link: linkPaths[item.type] || '/admin/dashboard',
+            };
+          });
         
         return activities;
       }),

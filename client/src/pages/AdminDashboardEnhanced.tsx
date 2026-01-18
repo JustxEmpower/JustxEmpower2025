@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import AdminSidebar from "@/components/AdminSidebar";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -200,6 +201,7 @@ export default function AdminDashboardEnhanced() {
   const [, setLocation] = useLocation();
   const { isAuthenticated, isChecking, username } = useAdminAuth();
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<any>(null);
 
   const statsQuery = trpc.admin.dashboard.stats.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -515,7 +517,8 @@ export default function AdminDashboardEnhanced() {
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="flex items-start gap-4 p-3 rounded-lg hover:bg-stone-50 transition-colors group"
+                      className="flex items-start gap-4 p-3 rounded-lg hover:bg-stone-50 transition-colors group cursor-pointer"
+                      onClick={() => setSelectedActivity(activity)}
                     >
                       <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0">
                         <Activity className="w-5 h-5 text-primary" />
@@ -528,7 +531,7 @@ export default function AdminDashboardEnhanced() {
                         variant="ghost" 
                         size="icon" 
                         className="opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={() => activity.link && setLocation(activity.link)}
+                        onClick={(e) => { e.stopPropagation(); setSelectedActivity(activity); }}
                       >
                         <ChevronRight className="w-4 h-4" />
                       </Button>
@@ -540,6 +543,72 @@ export default function AdminDashboardEnhanced() {
           </Card>
         </div>
       </main>
+
+      {/* Activity Details Dialog */}
+      <Dialog open={!!selectedActivity} onOpenChange={(open) => !open && setSelectedActivity(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Activity className="w-5 h-5 text-primary" />
+              Activity Details
+            </DialogTitle>
+            <DialogDescription>
+              Information about this activity
+            </DialogDescription>
+          </DialogHeader>
+          {selectedActivity && (
+            <div className="space-y-4 pt-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="capitalize">
+                    {selectedActivity.type || 'Activity'}
+                  </Badge>
+                </div>
+                <h3 className="text-lg font-semibold text-stone-900">
+                  {selectedActivity.title || 'Untitled'}
+                </h3>
+                <p className="text-sm text-stone-600">
+                  {selectedActivity.description}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                <div>
+                  <p className="text-xs text-stone-500 uppercase tracking-wide">Created</p>
+                  <p className="text-sm font-medium text-stone-900">{selectedActivity.timestamp}</p>
+                </div>
+                {selectedActivity.slug && (
+                  <div>
+                    <p className="text-xs text-stone-500 uppercase tracking-wide">Slug</p>
+                    <p className="text-sm font-medium text-stone-900 truncate">{selectedActivity.slug}</p>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-4 border-t">
+                {selectedActivity.link && (
+                  <Button 
+                    className="flex-1"
+                    onClick={() => {
+                      setLocation(selectedActivity.link);
+                      setSelectedActivity(null);
+                    }}
+                  >
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    Go to {selectedActivity.type || 'Item'}
+                  </Button>
+                )}
+                <Button 
+                  variant="outline"
+                  onClick={() => setSelectedActivity(null)}
+                >
+                  Close
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
