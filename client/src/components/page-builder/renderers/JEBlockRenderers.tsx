@@ -1697,27 +1697,48 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
     text?: string;
     alignment?: 'left' | 'center' | 'right';
     size?: 'small' | 'medium' | 'large';
+    fontSize?: 'sm' | 'base' | 'lg' | 'xl';
     dark?: boolean;
-    maxWidthContent?: string;
+    maxWidth?: string;
+    maxWidthContent?: string; // Legacy support
   };
 
-  const alignClass = content.alignment === 'center' ? 'text-center' : content.alignment === 'right' ? 'text-right' : 'text-left';
-  const sizeClass = content.size === 'small' ? 'text-base' : content.size === 'large' ? 'text-xl' : 'text-lg';
+  // Static maxWidth classes - Tailwind cannot use dynamic class names
+  const maxWidthClasses: Record<string, string> = {
+    'narrow': 'max-w-2xl',      // 672px
+    'medium': 'max-w-4xl',      // 896px  
+    'wide': 'max-w-6xl',        // 1152px
+    'full': 'max-w-full',       // 100%
+  };
+
+  const alignmentClasses: Record<string, string> = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right',
+  };
+
+  // Support both maxWidth (new) and maxWidthContent (legacy)
+  const maxWidthValue = content.maxWidth || content.maxWidthContent || 'narrow';
+  const maxWidthClass = maxWidthClasses[maxWidthValue] || maxWidthClasses.narrow;
+  const alignClass = alignmentClasses[content.alignment || 'center'] || alignmentClasses.center;
+  
+  // Font size - support both old 'size' and new 'fontSize' fields
+  const fontSizeValue = content.fontSize || content.size;
+  const sizeClass = fontSizeValue === 'sm' || fontSizeValue === 'small' ? 'text-base md:text-lg' 
+    : fontSizeValue === 'lg' || fontSizeValue === 'large' ? 'text-lg md:text-xl' 
+    : fontSizeValue === 'xl' ? 'text-xl md:text-2xl'
+    : 'text-base md:text-lg';
   const textClass = content.dark ? 'text-white/70' : 'text-neutral-600';
 
   // Build inline styles from Style tab using helper functions
   const containerStyle: React.CSSProperties = {
     ...buildContainerStyles(content),
-    // Force apply backgroundColor if it exists
     backgroundColor: content.backgroundColor ? content.backgroundColor as string : undefined,
   };
-  const textStyle: React.CSSProperties = {
-    ...buildTextStyles(content),
-    maxWidth: content.maxWidthContent || '65ch',
-  };
+  const textStyle: React.CSSProperties = buildTextStyles(content);
 
   return (
-    <div className={`py-4 ${alignClass}`} style={containerStyle}>
+    <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`} style={containerStyle}>
       <InlineEditableText
         blockId={block.id}
         fieldName="text"
