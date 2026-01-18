@@ -58,6 +58,172 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationCenter";
+import { Sun, Moon, CloudRain, Cloud, CloudSnow, CloudLightning, Sunrise, Sunset } from "lucide-react";
+
+// Weather Widget Component
+function WeatherWidget() {
+  const [weather, setWeather] = useState<{
+    temp: number;
+    condition: string;
+    location: string;
+    humidity: number;
+    windSpeed: number;
+  } | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Update time every second
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    // Get weather data using browser geolocation + Open-Meteo API (free, no key required)
+    const fetchWeather = async () => {
+      try {
+        // Try to get user's location
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            async (position) => {
+              const { latitude, longitude } = position.coords;
+              const response = await fetch(
+                `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,weather_code,wind_speed_10m&temperature_unit=fahrenheit&wind_speed_unit=mph`
+              );
+              const data = await response.json();
+              
+              // Get location name via reverse geocoding
+              const geoResponse = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+              );
+              const geoData = await geoResponse.json();
+              
+              const weatherCodes: Record<number, string> = {
+                0: 'clear', 1: 'clear', 2: 'partly-cloudy', 3: 'cloudy',
+                45: 'foggy', 48: 'foggy', 51: 'drizzle', 53: 'drizzle', 55: 'drizzle',
+                61: 'rain', 63: 'rain', 65: 'rain', 66: 'rain', 67: 'rain',
+                71: 'snow', 73: 'snow', 75: 'snow', 77: 'snow',
+                80: 'rain', 81: 'rain', 82: 'rain',
+                85: 'snow', 86: 'snow', 95: 'thunderstorm', 96: 'thunderstorm', 99: 'thunderstorm',
+              };
+
+              setWeather({
+                temp: Math.round(data.current.temperature_2m),
+                condition: weatherCodes[data.current.weather_code] || 'clear',
+                location: geoData.address?.city || geoData.address?.town || geoData.address?.county || 'Your Location',
+                humidity: data.current.relative_humidity_2m,
+                windSpeed: Math.round(data.current.wind_speed_10m),
+              });
+              setLoading(false);
+            },
+            () => {
+              // Fallback if location denied - use Austin, TX
+              setWeather({ temp: 72, condition: 'clear', location: 'Austin, TX', humidity: 45, windSpeed: 8 });
+              setLoading(false);
+            }
+          );
+        } else {
+          setWeather({ temp: 72, condition: 'clear', location: 'Austin, TX', humidity: 45, windSpeed: 8 });
+          setLoading(false);
+        }
+      } catch (error) {
+        setWeather({ temp: 72, condition: 'clear', location: 'Austin, TX', humidity: 45, windSpeed: 8 });
+        setLoading(false);
+      }
+    };
+
+    fetchWeather();
+    // Refresh weather every 15 minutes
+    const weatherTimer = setInterval(fetchWeather, 15 * 60 * 1000);
+    return () => clearInterval(weatherTimer);
+  }, []);
+
+  const getWeatherIcon = (condition: string, isNight: boolean) => {
+    const iconClass = "w-8 h-8";
+    if (condition === 'thunderstorm') return <CloudLightning className={`${iconClass} text-purple-500`} />;
+    if (condition === 'rain' || condition === 'drizzle') return <CloudRain className={`${iconClass} text-blue-500`} />;
+    if (condition === 'snow') return <CloudSnow className={`${iconClass} text-sky-300`} />;
+    if (condition === 'cloudy' || condition === 'foggy') return <Cloud className={`${iconClass} text-stone-400`} />;
+    if (condition === 'partly-cloudy') return <Cloud className={`${iconClass} text-stone-300`} />;
+    return isNight ? <Moon className={`${iconClass} text-indigo-400`} /> : <Sun className={`${iconClass} text-amber-500`} />;
+  };
+
+  const hour = currentTime.getHours();
+  const isNight = hour < 6 || hour >= 20;
+  const timeString = currentTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  const dateString = currentTime.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+  const gradientClass = isNight 
+    ? 'from-indigo-900 via-purple-900 to-slate-900' 
+    : hour < 8 
+      ? 'from-orange-400 via-rose-400 to-pink-500'
+      : hour < 17
+        ? 'from-sky-400 via-blue-500 to-indigo-500'
+        : 'from-orange-500 via-rose-500 to-purple-600';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${gradientClass} p-6 text-white shadow-xl`}
+    >
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {!isNight && (
+          <>
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-pulse" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
+          </>
+        )}
+        {isNight && (
+          <>
+            <div className="absolute top-4 right-8 w-1 h-1 bg-white rounded-full animate-pulse" />
+            <div className="absolute top-12 right-20 w-0.5 h-0.5 bg-white/70 rounded-full animate-pulse delay-100" />
+            <div className="absolute top-8 right-32 w-1.5 h-1.5 bg-white rounded-full animate-pulse delay-200" />
+          </>
+        )}
+      </div>
+
+      <div className="relative z-10">
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-white/70 text-sm font-medium">{dateString}</p>
+            <p className="text-4xl font-bold tracking-tight">{timeString}</p>
+            {weather && (
+              <p className="text-white/80 text-sm mt-1 flex items-center gap-1">
+                <span>📍</span> {weather.location}
+              </p>
+            )}
+          </div>
+          <div className="text-right">
+            {loading ? (
+              <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : weather && (
+              <>
+                {getWeatherIcon(weather.condition, isNight)}
+                <p className="text-3xl font-bold mt-1">{weather.temp}°F</p>
+              </>
+            )}
+          </div>
+        </div>
+        {weather && !loading && (
+          <div className="flex items-center gap-4 mt-4 pt-4 border-t border-white/20">
+            <div className="flex items-center gap-1 text-sm text-white/80">
+              <span>💧</span> {weather.humidity}%
+            </div>
+            <div className="flex items-center gap-1 text-sm text-white/80">
+              <span>💨</span> {weather.windSpeed} mph
+            </div>
+            <div className="flex items-center gap-1 text-sm text-white/80">
+              {isNight ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+              {isNight ? 'Night' : 'Day'}
+            </div>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  );
+}
 
 // Animated counter component
 function AnimatedCounter({ value, prefix = "", suffix = "" }: { value: number; prefix?: string; suffix?: string }) {
@@ -292,6 +458,11 @@ export default function AdminDashboardEnhanced() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Weather & Time Widget */}
+          <div className="mb-6">
+            <WeatherWidget />
+          </div>
+
           {/* System Health Banner */}
           <AnimatePresence>
             {health && (
