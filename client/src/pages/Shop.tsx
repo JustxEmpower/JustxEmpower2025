@@ -5,6 +5,8 @@ import { ShoppingBag, ArrowLeft } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import CartSlideout from "@/components/CartSlideout";
 import { EditablePageZone } from '@/components/PageZone';
+import { usePageContent } from "@/hooks/usePageContent";
+import { getMediaUrl } from "@/lib/media";
 
 interface ShopProps {
   slug?: string;
@@ -14,6 +16,27 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
   const [, setLocation] = useLocation();
   const [categoryId, setCategoryId] = useState<number | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
+  
+  // Connect to CMS content
+  const { getContent, isLoading: contentLoading } = usePageContent(slug);
+  
+  // Get hero content from CMS
+  const heroTitle = getContent('hero', 'title') || 'Shop';
+  const heroSubtitle = getContent('hero', 'subtitle') || '';
+  const heroDescription = getContent('hero', 'description') || '';
+  const heroVideoUrl = getContent('hero', 'videoUrl');
+  const heroImageUrl = getContent('hero', 'imageUrl');
+  
+  // Get overview content from CMS
+  const overviewTitle = getContent('overview', 'title');
+  const overviewParagraph1 = getContent('overview', 'paragraph1');
+  const overviewParagraph2 = getContent('overview', 'paragraph2');
+  
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
   
   const { cart } = useCart();
   const cartItemCount = cart.reduce((sum: number, item: { quantity: number }) => sum + item.quantity, 0);

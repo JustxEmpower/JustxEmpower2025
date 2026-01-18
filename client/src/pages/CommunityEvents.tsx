@@ -47,6 +47,11 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
   const heroVideoUrl = getContent('hero', 'videoUrl');
   const heroImageUrl = getContent('hero', 'imageUrl');
   
+  // Get overview content from CMS
+  const overviewTitle = getContent('overview', 'title');
+  const overviewParagraph1 = getContent('overview', 'paragraph1');
+  const overviewParagraph2 = getContent('overview', 'paragraph2');
+  
   // Determine which media to use (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;
   const isVideo = heroMediaUrl ? /\.(mp4|webm|mov|ogg)$/i.test(heroMediaUrl) : false;
