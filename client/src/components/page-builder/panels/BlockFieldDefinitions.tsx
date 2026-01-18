@@ -537,10 +537,11 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'dropCap', label: 'Drop Cap', type: 'boolean' },
     { key: 'columns', label: 'Columns', type: 'number', min: 1, max: 3 },
     { key: 'fontSize', label: 'Font Size', type: 'select', options: [
-      { value: 'sm', label: 'Small' },
-      { value: 'base', label: 'Normal' },
-      { value: 'lg', label: 'Large' },
-      { value: 'xl', label: 'Extra Large' },
+      { value: '14px', label: '14px (Small)' },
+      { value: '16px', label: '16px (Normal)' },
+      { value: '18px', label: '18px (Medium)' },
+      { value: '20px', label: '20px (Large)' },
+      { value: '24px', label: '24px (X-Large)' },
     ]},
     { key: 'lineHeight', label: 'Line Height', type: 'select', options: [
       { value: 'tight', label: 'Tight' },

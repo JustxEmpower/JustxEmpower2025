@@ -1697,18 +1697,23 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
     text?: string;
     alignment?: 'left' | 'center' | 'right';
     size?: 'small' | 'medium' | 'large';
-    fontSize?: 'sm' | 'base' | 'lg' | 'xl';
+    fontSize?: string;
     dark?: boolean;
     maxWidth?: string;
     maxWidthContent?: string; // Legacy support
   };
 
   // Static maxWidth classes - Tailwind cannot use dynamic class names
+  // Support both lowercase and capitalized values
   const maxWidthClasses: Record<string, string> = {
     'narrow': 'max-w-2xl',      // 672px
+    'Narrow': 'max-w-2xl',
     'medium': 'max-w-4xl',      // 896px  
+    'Medium': 'max-w-4xl',
     'wide': 'max-w-6xl',        // 1152px
+    'Wide': 'max-w-6xl',
     'full': 'max-w-full',       // 100%
+    'Full': 'max-w-full',
   };
 
   const alignmentClasses: Record<string, string> = {
@@ -1719,15 +1724,9 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
 
   // Support both maxWidth (new) and maxWidthContent (legacy)
   const maxWidthValue = content.maxWidth || content.maxWidthContent || 'narrow';
-  const maxWidthClass = maxWidthClasses[maxWidthValue] || maxWidthClasses.narrow;
-  const alignClass = alignmentClasses[content.alignment || 'center'] || alignmentClasses.center;
+  const maxWidthClass = maxWidthClasses[maxWidthValue] || 'max-w-2xl';
+  const alignClass = alignmentClasses[content.alignment || 'center'] || 'text-center';
   
-  // Font size - support both old 'size' and new 'fontSize' fields
-  const fontSizeValue = content.fontSize || content.size;
-  const sizeClass = fontSizeValue === 'sm' || fontSizeValue === 'small' ? 'text-base md:text-lg' 
-    : fontSizeValue === 'lg' || fontSizeValue === 'large' ? 'text-lg md:text-xl' 
-    : fontSizeValue === 'xl' ? 'text-xl md:text-2xl'
-    : 'text-base md:text-lg';
   const textClass = content.dark ? 'text-white/70' : 'text-neutral-600';
 
   // Build inline styles from Style tab using helper functions
@@ -1735,7 +1734,14 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
     ...buildContainerStyles(content),
     backgroundColor: content.backgroundColor ? content.backgroundColor as string : undefined,
   };
-  const textStyle: React.CSSProperties = buildTextStyles(content);
+  
+  // Font size - support actual pixel values and legacy Tailwind values
+  const fontSizeValue = content.fontSize;
+  const textStyle: React.CSSProperties = {
+    ...buildTextStyles(content),
+    // Apply actual font size if it's a pixel value
+    fontSize: fontSizeValue && fontSizeValue.includes('px') ? fontSizeValue : undefined,
+  };
 
   return (
     <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`} style={containerStyle}>
@@ -1744,7 +1750,7 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
         fieldName="text"
         value={content.text || ''}
         placeholder="Add your paragraph text here..."
-        className={`font-sans ${sizeClass} leading-relaxed ${textClass}`}
+        className={`font-sans text-base md:text-lg leading-relaxed ${textClass}`}
         style={textStyle}
         as="p"
         multiline={true}
