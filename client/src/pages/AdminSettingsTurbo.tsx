@@ -306,8 +306,12 @@ export default function AdminSettingsTurbo() {
                           type={showGeminiKey ? 'text' : 'password'}
                           value={geminiApiKey}
                           onChange={(e) => setGeminiApiKey(e.target.value)}
-                          placeholder={settings?.geminiApiKeyMasked || 'Enter your Gemini API key'}
+                          placeholder="Enter your Gemini API key"
                           className="pr-10 font-mono text-sm"
+                          autoComplete="off"
+                          name="gemini-api-key-input"
+                          data-lpignore="true"
+                          data-1p-ignore="true"
                         />
                         <Button
                           type="button"
@@ -394,6 +398,10 @@ export default function AdminSettingsTurbo() {
                           onChange={(e) => setMailchimpApiKey(e.target.value)}
                           placeholder="Enter Mailchimp API key"
                           className="pr-10 font-mono text-sm"
+                          autoComplete="off"
+                          name="mailchimp-api-key-input"
+                          data-lpignore="true"
+                          data-1p-ignore="true"
                         />
                         <Button
                           type="button"
@@ -417,6 +425,10 @@ export default function AdminSettingsTurbo() {
                         onChange={(e) => setMailchimpAudienceId(e.target.value)}
                         placeholder="Enter Audience ID"
                         className="font-mono text-sm"
+                        autoComplete="off"
+                        name="mailchimp-audience-id-input"
+                        data-lpignore="true"
+                        data-1p-ignore="true"
                       />
                       <p className="text-xs text-stone-500">
                         Audience → Settings → Audience name and defaults
