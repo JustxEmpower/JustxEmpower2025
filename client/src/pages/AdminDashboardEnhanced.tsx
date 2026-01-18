@@ -336,7 +336,7 @@ export default function AdminDashboardEnhanced() {
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-stone-900">Quick Actions</h2>
-              <Button variant="ghost" size="sm" className="text-stone-500">
+              <Button variant="ghost" size="sm" className="text-stone-500" onClick={() => setLocation('/admin/settings')}>
                 Customize <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
@@ -493,7 +493,7 @@ export default function AdminDashboardEnhanced() {
                   </CardTitle>
                   <CardDescription>Latest changes and updates</CardDescription>
                 </div>
-                <Button variant="ghost" size="sm">View All</Button>
+                <Button variant="ghost" size="sm" onClick={() => setLocation('/admin/activity')}>View All</Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -524,7 +524,12 @@ export default function AdminDashboardEnhanced() {
                         <p className="text-sm text-stone-900 font-medium truncate">{activity.description}</p>
                         <p className="text-xs text-stone-500 mt-0.5">{activity.timestamp}</p>
                       </div>
-                      <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => activity.link && setLocation(activity.link)}
+                      >
                         <ChevronRight className="w-4 h-4" />
                       </Button>
                     </motion.div>
