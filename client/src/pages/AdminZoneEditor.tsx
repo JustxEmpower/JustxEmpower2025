@@ -505,10 +505,44 @@ export default function AdminZoneEditor() {
                               <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="max-w-4xl">Narrow</SelectItem>
-                                  <SelectItem value="max-w-5xl">Medium</SelectItem>
-                                  <SelectItem value="max-w-6xl">Wide</SelectItem>
-                                  <SelectItem value="max-w-7xl">Extra Wide</SelectItem>
+                                  <SelectItem value="narrow">Narrow (672px)</SelectItem>
+                                  <SelectItem value="medium">Medium (896px)</SelectItem>
+                                  <SelectItem value="wide">Wide (1152px)</SelectItem>
+                                  <SelectItem value="full">Full Width</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
+
+                        if (key === 'fontSize') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium">Font Size</Label>
+                              <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="14px">14px (Small)</SelectItem>
+                                  <SelectItem value="16px">16px (Normal)</SelectItem>
+                                  <SelectItem value="18px">18px (Medium)</SelectItem>
+                                  <SelectItem value="20px">20px (Large)</SelectItem>
+                                  <SelectItem value="24px">24px (X-Large)</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
+
+                        if (key === 'alignment') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium">Alignment</Label>
+                              <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="left">Left</SelectItem>
+                                  <SelectItem value="center">Center</SelectItem>
+                                  <SelectItem value="right">Right</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
