@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import AdminLogin from "@/pages/AdminLogin";
 import AdminDashboard from "@/pages/AdminDashboardEnhanced";
-import AdminSettings from "@/pages/AdminSettingsEnhanced";
+import AdminSettings from "@/pages/AdminSettingsTurbo";
 import AdminContent from "@/pages/AdminContent";
 import AdminArticles from "@/pages/AdminArticlesEnhanced";
 import AdminMedia from "@/pages/AdminMediaEnhanced";

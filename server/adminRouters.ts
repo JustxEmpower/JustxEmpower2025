@@ -1,8 +1,13 @@
 import { z } from "zod";
-import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo, generatePageBlocks, codeAssistant, initializeGemini, generateImageVariation, generateVideoLoop } from "./aiService";
+import { generateArticleContent, generateMetaDescription, generateImageAltText, generateContentSuggestions, generateBulkAltText, generatePageSeo, generatePageBlocks, codeAssistant, initializeGemini, generateImageVariation, generateVideoLoop, ensureGeminiFromDatabase } from "./aiService";
 
-// Ensure Gemini is initialized before AI calls
-function ensureGeminiInitialized() {
+// Ensure Gemini is initialized before AI calls - checks database first, then env var
+async function ensureGeminiInitialized() {
+  // First try to load from database
+  const dbLoaded = await ensureGeminiFromDatabase();
+  if (dbLoaded) return;
+  
+  // Fallback to environment variable
   const apiKey = process.env.GEMINI_API_KEY;
   if (apiKey) {
     initializeGemini(apiKey);
@@ -421,7 +426,7 @@ export const adminRouter = router({
     generateImageAlt: adminProcedure
       .input(z.object({ imageUrl: z.string(), context: z.string().optional() }))
       .mutation(async ({ input }) => {
-        ensureGeminiInitialized();
+        await ensureGeminiInitialized();
         const altText = await generateImageAltText(input.imageUrl, input.context);
         return { altText };
       }),
@@ -442,7 +447,7 @@ export const adminRouter = router({
     generateBulkAltText: adminProcedure
       .input(z.object({ imageUrls: z.array(z.string()) }))
       .mutation(async ({ input }) => {
-        ensureGeminiInitialized();
+        await ensureGeminiInitialized();
         const results = await generateBulkAltText(input.imageUrls);
         return { results };
       }),
@@ -464,7 +469,7 @@ export const adminRouter = router({
         prompt: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
-        ensureGeminiInitialized();
+        await ensureGeminiInitialized();
         const result = await generateImageVariation(input.sourceImageUrl, input.style, input.prompt);
         
         // Save the generated image to S3 and database
@@ -509,7 +514,7 @@ export const adminRouter = router({
         duration: z.number().min(2).max(10).default(4),
       }))
       .mutation(async ({ input }) => {
-        ensureGeminiInitialized();
+        await ensureGeminiInitialized();
         const result = await generateVideoLoop(input.sourceImageUrl, input.prompt, input.duration);
         
         // Save the generated video to S3 and database
@@ -554,11 +559,144 @@ export const adminRouter = router({
     if (!admin) {
       throw new TRPCError({ code: "NOT_FOUND", message: "Admin user not found" });
     }
+    
+    // Get Gemini API key from aiSettings table
+    const db = await getDb();
+    let geminiApiKey = '';
+    let mailchimpApiKey = admin.mailchimpApiKey || '';
+    let mailchimpAudienceId = admin.mailchimpAudienceId || '';
+    
+    if (db) {
+      try {
+        // Get Gemini key from aiSettings table
+        const [aiSetting] = await db.select().from(schema.aiSettings).limit(1);
+        if (aiSetting?.geminiApiKey) {
+          geminiApiKey = aiSetting.geminiApiKey;
+        }
+      } catch (e) {
+        console.log('aiSettings table may not exist yet');
+      }
+    }
+    
     return {
       username: admin.username,
-      mailchimpApiKey: admin.mailchimpApiKey || '',
-      mailchimpAudienceId: admin.mailchimpAudienceId || '',
+      mailchimpApiKey,
+      mailchimpAudienceId,
+      geminiApiKey,
+      // Mask API keys for display (show last 4 chars only)
+      geminiApiKeyMasked: geminiApiKey ? `****${geminiApiKey.slice(-4)}` : '',
+      mailchimpApiKeyMasked: mailchimpApiKey ? `****${mailchimpApiKey.slice(-4)}` : '',
     };
+  }),
+
+  // Site Settings Management (uses aiSettings for Gemini, siteSettings for general)
+  siteSettings: router({
+    // Get all settings
+    getAll: adminProcedure.query(async () => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+      
+      try {
+        const settings = await db.select().from(schema.siteSettings);
+        return settings;
+      } catch (e) {
+        return [];
+      }
+    }),
+
+    // Get a single setting
+    get: adminProcedure
+      .input(z.object({ key: z.string() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        const [setting] = await db.select()
+          .from(schema.siteSettings)
+          .where(eq(schema.siteSettings.settingKey, input.key));
+        
+        return setting || null;
+      }),
+
+    // Update or create a setting
+    upsert: adminProcedure
+      .input(z.object({
+        key: z.string(),
+        value: z.string().nullable(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Check if setting exists
+        const [existing] = await db.select()
+          .from(schema.siteSettings)
+          .where(eq(schema.siteSettings.settingKey, input.key));
+        
+        if (existing) {
+          await db.update(schema.siteSettings)
+            .set({ settingValue: input.value })
+            .where(eq(schema.siteSettings.settingKey, input.key));
+        } else {
+          await db.insert(schema.siteSettings).values({
+            settingKey: input.key,
+            settingValue: input.value,
+          });
+        }
+        
+        return { success: true };
+      }),
+
+    // Save Gemini API key specifically (uses aiSettings table)
+    saveGeminiKey: adminProcedure
+      .input(z.object({ apiKey: z.string() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Check if aiSettings row exists
+        const [existing] = await db.select().from(schema.aiSettings).limit(1);
+        
+        if (existing) {
+          await db.update(schema.aiSettings)
+            .set({ geminiApiKey: input.apiKey })
+            .where(eq(schema.aiSettings.id, existing.id));
+        } else {
+          await db.insert(schema.aiSettings).values({
+            geminiApiKey: input.apiKey,
+          });
+        }
+        
+        // Reinitialize Gemini with new key
+        initializeGemini(input.apiKey);
+        
+        return { success: true };
+      }),
+
+    // Test Gemini API connection
+    testGeminiConnection: adminProcedure
+      .mutation(async () => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Get the API key from aiSettings table
+        const [aiSetting] = await db.select().from(schema.aiSettings).limit(1);
+        
+        const apiKey = aiSetting?.geminiApiKey || process.env.GEMINI_API_KEY;
+        
+        if (!apiKey) {
+          return { success: false, error: 'No Gemini API key configured' };
+        }
+        
+        try {
+          initializeGemini(apiKey);
+          // Try a simple generation to test the connection
+          const testResult = await generateMetaDescription('Test', 'This is a test to verify the API connection.');
+          return { success: true, message: 'Gemini API connection successful!' };
+        } catch (error: any) {
+          return { success: false, error: error.message || 'Connection failed' };
+        }
+      }),
   }),
 
   // Authentication
@@ -1890,50 +2028,6 @@ export const adminRouter = router({
           .update(schema.formSubmissions)
           .set({ isRead: 1 })
           .where(eq(schema.formSubmissions.id, input.id));
-        
-        return { success: true };
-      }),
-  }),
-
-  // Site Settings Management
-  siteSettings: router({    get: adminProcedure
-      .query(async () => {
-        const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-        
-        const settings = await db
-          .select()
-          .from(schema.siteSettings);
-        
-        return settings;
-      }),
-
-    update: adminProcedure
-      .input(z.object({
-        settingKey: z.string(),
-        settingValue: z.string(),
-      }))
-      .mutation(async ({ input }) => {
-        const db = await getDb();
-        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
-        
-        // Check if setting exists
-        const existing = await db
-          .select()
-          .from(schema.siteSettings)
-          .where(eq(schema.siteSettings.settingKey, input.settingKey))
-          .limit(1);
-        
-        if (existing.length > 0) {
-          // Update existing
-          await db
-            .update(schema.siteSettings)
-            .set({ settingValue: input.settingValue })
-            .where(eq(schema.siteSettings.settingKey, input.settingKey));
-        } else {
-          // Insert new
-          await db.insert(schema.siteSettings).values(input);
-        }
         
         return { success: true };
       }),

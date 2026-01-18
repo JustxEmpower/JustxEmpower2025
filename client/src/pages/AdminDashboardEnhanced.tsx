@@ -160,20 +160,21 @@ function StatCard({
 
 // Quick action button
 function QuickAction({ icon: Icon, label, href, color, badge }: { icon: any; label: string; href: string; color: string; badge?: string }) {
+  const [, setLocation] = useLocation();
+  
   return (
-    <Link href={href}>
-      <motion.a
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className={`flex flex-col items-center gap-2 p-4 rounded-xl ${color} hover:shadow-md transition-all cursor-pointer relative`}
-      >
-        {badge && (
-          <Badge className="absolute -top-1 -right-1 text-xs px-1.5">{badge}</Badge>
-        )}
-        <Icon className="w-6 h-6" />
-        <span className="text-xs font-medium text-center">{label}</span>
-      </motion.a>
-    </Link>
+    <motion.div
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={() => setLocation(href)}
+      className={`flex flex-col items-center gap-2 p-4 rounded-xl ${color} hover:shadow-md transition-all cursor-pointer relative`}
+    >
+      {badge && (
+        <Badge className="absolute -top-1 -right-1 text-xs px-1.5">{badge}</Badge>
+      )}
+      <Icon className="w-6 h-6" />
+      <span className="text-xs font-medium text-center">{label}</span>
+    </motion.div>
   );
 }
 

@@ -41,6 +41,48 @@ export function getGeminiClient() {
 }
 
 /**
+ * Load Gemini API key from database (aiSettings table) and initialize if needed
+ */
+export async function ensureGeminiFromDatabase(): Promise<boolean> {
+  if (genAI) return true; // Already initialized
+  
+  try {
+    // Dynamic import to avoid circular dependency
+    const { getDb } = await import('./db');
+    const schema = await import('../drizzle/schema');
+    
+    const db = await getDb();
+    if (!db) return false;
+    
+    // Get from aiSettings table
+    const [aiSetting] = await db.select().from(schema.aiSettings).limit(1);
+    
+    if (aiSetting?.geminiApiKey) {
+      initializeGemini(aiSetting.geminiApiKey);
+      return true;
+    }
+    
+    // Fallback to environment variable
+    const envKey = process.env.GEMINI_API_KEY;
+    if (envKey) {
+      initializeGemini(envKey);
+      return true;
+    }
+    
+    return false;
+  } catch (e) {
+    console.warn('Failed to load Gemini API key from database:', e);
+    // Try environment variable as fallback
+    const envKey = process.env.GEMINI_API_KEY;
+    if (envKey) {
+      initializeGemini(envKey);
+      return true;
+    }
+    return false;
+  }
+}
+
+/**
  * Chat with Gemini AI - for visitor chat assistant
  */
 export async function chatWithAI(
