@@ -910,7 +910,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     alignment = 'center',
     dropCap = false,
     columns = 1,
-    fontSize = 'base',
+    fontSize = '16px',
     lineHeight = 'relaxed',
     maxWidth = 'narrow',
     color = '',
@@ -919,13 +919,6 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
-  };
-
-  const sizeClasses: Record<string, string> = {
-    sm: 'text-sm md:text-base',
-    base: 'text-base md:text-lg',
-    lg: 'text-lg md:text-xl',
-    xl: 'text-xl md:text-2xl',
   };
 
   const lineHeightClasses: Record<string, string> = {
@@ -942,22 +935,16 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     justify: 'text-justify',
   };
 
-  // Static maxWidth classes - Tailwind cannot use dynamic class names
+  // Static maxWidth classes - case insensitive support
   const maxWidthClasses: Record<string, string> = {
-    'xs': 'max-w-xs',           // 320px
-    'sm': 'max-w-sm',           // 384px
-    'md': 'max-w-md',           // 448px
-    'lg': 'max-w-lg',           // 512px
-    'xl': 'max-w-xl',           // 576px
-    '2xl': 'max-w-2xl',         // 672px
-    '3xl': 'max-w-3xl',         // 768px
-    '4xl': 'max-w-4xl',         // 896px
-    '5xl': 'max-w-5xl',         // 1024px
-    '6xl': 'max-w-6xl',         // 1152px
+    'narrow': 'max-w-2xl',      // 672px
+    'Narrow': 'max-w-2xl',
+    'medium': 'max-w-4xl',      // 896px
+    'Medium': 'max-w-4xl',
+    'wide': 'max-w-6xl',        // 1152px
+    'Wide': 'max-w-6xl',
     'full': 'max-w-full',       // 100%
-    'narrow': 'max-w-2xl',      // Narrow = 672px
-    'medium': 'max-w-4xl',      // Medium = 896px
-    'wide': 'max-w-6xl',        // Wide = 1152px
+    'Full': 'max-w-full',
   };
 
   // Static column classes
@@ -967,11 +954,17 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     3: 'columns-3 gap-8',
   };
 
+  // Build text style with actual font size
+  const textStyle: React.CSSProperties = {
+    ...(color ? { color } : {}),
+    ...(fontSize && fontSize.includes('px') ? { fontSize } : {}),
+  };
+
   return (
     <div className={cn(
       'py-8 px-6',
       alignmentClasses[alignment] || alignmentClasses.center,
-      maxWidthClasses[maxWidth] || maxWidthClasses.narrow
+      maxWidthClasses[maxWidth] || 'max-w-2xl'
     )}>
       <EditableText
         value={text}
@@ -981,7 +974,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
         multiline
         isEditing={isEditing}
         className={cn(
-          sizeClasses[fontSize] || sizeClasses.base,
+          'text-base md:text-lg',
           lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
           'font-sans whitespace-pre-wrap',
           'text-neutral-700 dark:text-neutral-300',
@@ -989,7 +982,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
           indent ? 'indent-8' : ''
         )}
-        style={color ? { color } : undefined}
+        style={textStyle}
       />
     </div>
   );
