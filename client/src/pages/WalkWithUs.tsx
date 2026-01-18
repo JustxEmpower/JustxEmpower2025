@@ -10,7 +10,7 @@ interface WalkWithUsProps {
 
 export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
   const [location] = useLocation();
-  const { getContent, getTextStyle, isLoading } = usePageContent(slug);
+  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent(slug);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -106,10 +106,10 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
         )}
         
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
-          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
+          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6" style={getInlineStyles('hero', 'title')}>
             {heroTitle}
           </h1>
-          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90">
+          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90" style={getInlineStyles('hero', 'subtitle')}>
             {heroSubtitle}
           </p>
         </div>
@@ -117,15 +117,15 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
 
       {/* Main Content */}
       <div className="py-24 px-6 md:px-12 max-w-4xl mx-auto text-center">
-        <h2 className="font-serif text-4xl italic mb-8 text-foreground">{mainTitle}</h2>
-        <p className="text-lg text-muted-foreground leading-relaxed mb-12">
+        <h2 className="font-serif text-4xl italic mb-8 text-foreground" style={getInlineStyles('main', 'title')}>{mainTitle}</h2>
+        <p className="text-lg text-muted-foreground leading-relaxed mb-12" style={getInlineStyles('main', 'description')}>
           {mainDescription}
         </p>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
           <div className="bg-muted/30 p-8 rounded-[1.5rem] text-left">
-            <h3 className="font-serif text-2xl italic mb-4">{partnerTitle}</h3>
-            <p className="text-muted-foreground mb-6">
+            <h3 className="font-serif text-2xl italic mb-4" style={getInlineStyles('partners', 'title')}>{partnerTitle}</h3>
+            <p className="text-muted-foreground mb-6" style={getInlineStyles('partners', 'description')}>
               {partnerDescription}
             </p>
             <Link href={partnerCtaLink}>
@@ -135,8 +135,8 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
             </Link>
           </div>
           <div className="bg-muted/30 p-8 rounded-[1.5rem] text-left">
-            <h3 className="font-serif text-2xl italic mb-4">{individualTitle}</h3>
-            <p className="text-muted-foreground mb-6">
+            <h3 className="font-serif text-2xl italic mb-4" style={getInlineStyles('individuals', 'title')}>{individualTitle}</h3>
+            <p className="text-muted-foreground mb-6" style={getInlineStyles('individuals', 'description')}>
               {individualDescription}
             </p>
             <Link href={individualCtaLink}>
@@ -158,7 +158,7 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
             <div className="w-full h-full bg-gradient-to-br from-neutral-300 to-neutral-500" />
           )}
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <p className="text-white font-serif text-3xl italic max-w-2xl px-4">
+            <p className="text-white font-serif text-3xl italic max-w-2xl px-4" style={getInlineStyles('quote', 'text')}>
               {quoteText}
             </p>
           </div>

@@ -13,7 +13,7 @@ interface AboutProps {
 }
 
 export default function About({ slug = 'about' }: AboutProps) {
-  const { getContent, getTextStyle, isLoading } = usePageContent(slug);
+  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent(slug);
   const heroRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -167,15 +167,15 @@ export default function About({ slug = 'about' }: AboutProps) {
         {/* Hero Content */}
         <div className="relative z-20 h-full flex flex-col items-center justify-center text-center px-4">
           <div className="about-hero-text">
-            <h2 className="font-sans text-white text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 opacity-90">
+            <h2 className="font-sans text-white text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 opacity-90" style={getInlineStyles('hero', 'subtitle')}>
               {heroSubtitle}
             </h2>
             
-            <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-white font-light italic tracking-wide leading-[1.1] mb-8">
+            <h1 className="font-serif text-5xl md:text-7xl lg:text-8xl text-white font-light italic tracking-wide leading-[1.1] mb-8" style={getInlineStyles('hero', 'title')}>
               {heroTitle}
             </h1>
             
-            <p className="font-sans text-white/90 text-lg md:text-xl font-light tracking-wide max-w-3xl leading-relaxed">
+            <p className="font-sans text-white/90 text-lg md:text-xl font-light tracking-wide max-w-3xl leading-relaxed" style={getInlineStyles('hero', 'description')}>
               {heroDescription}
             </p>
           </div>
@@ -186,99 +186,99 @@ export default function About({ slug = 'about' }: AboutProps) {
       <div className="container mx-auto px-4 py-24 md:py-32">
         {/* Opening Section */}
         <section className="content-section max-w-4xl mx-auto mb-24">
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('opening', 'paragraph1')}>
             {openingParagraph1}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('opening', 'paragraph2')}>
             {openingParagraph2}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light" style={getInlineStyles('opening', 'paragraph3')}>
             {openingParagraph3}
           </p>
         </section>
 
         {/* Just Empower Truth Section */}
         <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
-          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center">
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center" style={getInlineStyles('truth', 'title')}>
             {truthTitle}
           </h2>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center" style={getInlineStyles('truth', 'description')}>
             {truthDescription}
           </p>
         </section>
 
         {/* Depth Beneath Section */}
         <section className="content-section max-w-4xl mx-auto mb-24">
-          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12" style={getInlineStyles('depth', 'title')}>
             {depthTitle}
           </h2>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('depth', 'paragraph1')}>
             {depthParagraph1}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('depth', 'paragraph2')}>
             {depthParagraph2}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('depth', 'paragraph3')}>
             {depthParagraph3}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('depth', 'paragraph4')}>
             {depthParagraph4}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light" style={getInlineStyles('depth', 'paragraph5')}>
             {depthParagraph5}
           </p>
         </section>
 
         {/* Thread of Remembrance Section */}
         <section className="content-section max-w-4xl mx-auto mb-24">
-          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12" style={getInlineStyles('remembrance', 'title')}>
             {remembranceTitle}
           </h2>
-          <blockquote className="text-xl md:text-2xl text-foreground/90 leading-relaxed font-light italic mb-12 pl-8 border-l-2 border-primary">
+          <blockquote className="text-xl md:text-2xl text-foreground/90 leading-relaxed font-light italic mb-12 pl-8 border-l-2 border-primary" style={getInlineStyles('remembrance', 'quote')}>
             {remembranceQuote}
           </blockquote>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('remembrance', 'paragraph1')}>
             {remembranceParagraph1}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('remembrance', 'paragraph2')}>
             {remembranceParagraph2}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('remembrance', 'paragraph3')}>
             {remembranceParagraph3}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light" style={getInlineStyles('remembrance', 'paragraph4')}>
             {remembranceParagraph4}
           </p>
         </section>
 
         {/* Renewal Section */}
         <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
-          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center">
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center" style={getInlineStyles('renewal', 'title')}>
             {renewalTitle}
           </h2>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center mb-8" style={getInlineStyles('renewal', 'paragraph1')}>
             {renewalParagraph1}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center" style={getInlineStyles('renewal', 'paragraph2')}>
             {renewalParagraph2}
           </p>
         </section>
 
         {/* Future Section */}
         <section className="content-section max-w-4xl mx-auto mb-24">
-          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+          <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12" style={getInlineStyles('future', 'title')}>
             {futureTitle}
           </h2>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('future', 'paragraph1')}>
             {futureParagraph1}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('future', 'paragraph2')}>
             {futureParagraph2}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8" style={getInlineStyles('future', 'paragraph3')}>
             {futureParagraph3}
           </p>
-          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+          <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light" style={getInlineStyles('future', 'paragraph4')}>
             {futureParagraph4}
           </p>
         </section>
@@ -289,10 +289,10 @@ export default function About({ slug = 'about' }: AboutProps) {
         {/* Newsletter CTA */}
         <section className="content-section max-w-2xl mx-auto">
           <div className="bg-card rounded-3xl p-12 md:p-16 text-center border border-border">
-            <h3 className="font-serif text-2xl md:text-3xl text-card-foreground font-light italic mb-6">
+            <h3 className="font-serif text-2xl md:text-3xl text-card-foreground font-light italic mb-6" style={getInlineStyles('newsletter', 'title')}>
               {newsletterTitle}
             </h3>
-            <p className="text-base md:text-lg text-card-foreground/70 mb-8 leading-relaxed">
+            <p className="text-base md:text-lg text-card-foreground/70 mb-8 leading-relaxed" style={getInlineStyles('newsletter', 'description')}>
               {newsletterDescription}
             </p>
             <NewsletterSignup variant="inline" />

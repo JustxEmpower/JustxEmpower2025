@@ -8,7 +8,7 @@ import { EditablePageZone } from '@/components/PageZone';
 
 export default function Philosophy() {
   const [location] = useLocation();
-  const { getContent, getTextStyle, isLoading } = usePageContent('philosophy');
+  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent('philosophy');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -87,10 +87,10 @@ export default function Philosophy() {
         )}
         
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
-          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
+          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6" style={getInlineStyles('hero', 'title')}>
             {heroTitle}
           </h1>
-          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90">
+          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90" style={getInlineStyles('hero', 'description')}>
             {heroDescription}
           </p>
         </div>
@@ -100,19 +100,19 @@ export default function Philosophy() {
       <div className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
           <div>
-            <h2 className="font-serif text-4xl italic mb-8 text-foreground">{principlesTitle}</h2>
+            <h2 className="font-serif text-4xl italic mb-8 text-foreground" style={getInlineStyles('principles', 'title')}>{principlesTitle}</h2>
             <div className="space-y-12">
               <div>
-                <h3 className="font-sans text-sm tracking-widest uppercase mb-3 text-muted-foreground">01. {principle1Title}</h3>
-                <p className="text-lg leading-relaxed">{principle1Desc}</p>
+                <h3 className="font-sans text-sm tracking-widest uppercase mb-3 text-muted-foreground" style={getInlineStyles('principles', 'principle1_title')}>01. {principle1Title}</h3>
+                <p className="text-lg leading-relaxed" style={getInlineStyles('principles', 'principle1_description')}>{principle1Desc}</p>
               </div>
               <div>
-                <h3 className="font-sans text-sm tracking-widest uppercase mb-3 text-muted-foreground">02. {principle2Title}</h3>
-                <p className="text-lg leading-relaxed">{principle2Desc}</p>
+                <h3 className="font-sans text-sm tracking-widest uppercase mb-3 text-muted-foreground" style={getInlineStyles('principles', 'principle2_title')}>02. {principle2Title}</h3>
+                <p className="text-lg leading-relaxed" style={getInlineStyles('principles', 'principle2_description')}>{principle2Desc}</p>
               </div>
               <div>
-                <h3 className="font-sans text-sm tracking-widest uppercase mb-3 text-muted-foreground">03. {principle3Title}</h3>
-                <p className="text-lg leading-relaxed">{principle3Desc}</p>
+                <h3 className="font-sans text-sm tracking-widest uppercase mb-3 text-muted-foreground" style={getInlineStyles('principles', 'principle3_title')}>03. {principle3Title}</h3>
+                <p className="text-lg leading-relaxed" style={getInlineStyles('principles', 'principle3_description')}>{principle3Desc}</p>
               </div>
             </div>
           </div>
@@ -138,6 +138,11 @@ export default function Philosophy() {
         image={pillarsImageUrl ? getProperMediaUrl(pillarsImageUrl) : undefined}
         imageAlt="Three Pillars Symbol"
         dark
+        textStyles={{
+          title: getTextStyle('pillars', 'title'),
+          subtitle: getTextStyle('pillars', 'subtitle'),
+          description: getTextStyle('pillars', 'description'),
+        }}
       />
 
       {/* Page Builder Zone: Before Newsletter */}
@@ -146,10 +151,10 @@ export default function Philosophy() {
       {/* Newsletter CTA */}
       <div className="py-24 px-6 md:px-12 bg-neutral-50 dark:bg-neutral-900">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="font-serif text-3xl md:text-4xl italic mb-4 text-foreground">
+          <h2 className="font-serif text-3xl md:text-4xl italic mb-4 text-foreground" style={getInlineStyles('newsletter', 'title')}>
             {newsletterTitle}
           </h2>
-          <p className="font-sans text-muted-foreground mb-8">
+          <p className="font-sans text-muted-foreground mb-8" style={getInlineStyles('newsletter', 'description')}>
             {newsletterDesc}
           </p>
           <div className="max-w-md mx-auto">

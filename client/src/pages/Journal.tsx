@@ -18,7 +18,7 @@ export default function Journal({ slug = 'blog' }: JournalProps) {
   const [allArticles, setAllArticles] = useState<any[]>([]);
   
   // Get page content from database - use dynamic slug
-  const { getContent, isLoading: contentLoading } = usePageContent(slug);
+  const { getContent, getInlineStyles, isLoading: contentLoading } = usePageContent(slug);
 
   const { data: articles, isLoading, refetch } = trpc.articles.list.useQuery({
     limit,
@@ -107,10 +107,10 @@ export default function Journal({ slug = 'blog' }: JournalProps) {
         )}
         
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
-          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
+          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6 text-white" style={getInlineStyles('hero', 'title')}>
             {heroTitle}
           </h1>
-          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90">
+          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90 text-white/90" style={getInlineStyles('hero', 'description')}>
             {heroDescription}
           </p>
         </div>

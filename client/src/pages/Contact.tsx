@@ -33,7 +33,7 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
   const [location] = useLocation();
   const mapRef = useRef<google.maps.Map | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { getContent, getTextStyle, isLoading } = usePageContent(slug);
+  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent(slug);
 
   const {
     register,
@@ -121,10 +121,10 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
         )}
         
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
-          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
+          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6" style={getInlineStyles('hero', 'title')}>
             {heroTitle}
           </h1>
-          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90">
+          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90" style={getInlineStyles('hero', 'subtitle')}>
             {heroSubtitle}
           </p>
         </div>
@@ -135,8 +135,8 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
           {/* Contact Info */}
           <div className="space-y-12">
             <div>
-              <h2 className="font-serif text-4xl italic mb-6 text-foreground">{contactTitle}</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <h2 className="font-serif text-4xl italic mb-6 text-foreground" style={getInlineStyles('info', 'heading')}>{contactTitle}</h2>
+              <p className="text-lg text-muted-foreground leading-relaxed" style={getInlineStyles('info', 'description')}>
                 {contactDescription}
               </p>
             </div>

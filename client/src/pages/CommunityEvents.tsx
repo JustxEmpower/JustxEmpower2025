@@ -40,7 +40,7 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
   const [statusFilter, setStatusFilter] = useState<'upcoming' | 'past' | 'all'>('upcoming');
   
   // Get hero content from CMS - use dynamic slug
-  const { getContent, isLoading: contentLoading } = usePageContent(slug);
+  const { getContent, getInlineStyles, isLoading: contentLoading } = usePageContent(slug);
   
   const heroTitle = getContent('hero', 'title');
   const heroSubtitle = getContent('hero', 'subtitle');
@@ -110,8 +110,8 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
         
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-serif mb-6">{heroTitle}</h1>
-            <p className="text-xl text-white/70 mb-8">
+            <h1 className="text-4xl md:text-5xl font-serif mb-6" style={getInlineStyles('hero', 'title')}>{heroTitle}</h1>
+            <p className="text-xl text-white/70 mb-8" style={getInlineStyles('hero', 'subtitle')}>
               {heroSubtitle}
             </p>
             <div className="flex justify-center gap-4">

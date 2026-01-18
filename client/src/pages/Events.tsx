@@ -19,7 +19,7 @@ export default function Events({ slug = 'events' }: EventsProps) {
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
   
   // Get hero content from CMS - use dynamic slug
-  const { getContent, isLoading: contentLoading } = usePageContent(slug);
+  const { getContent, getInlineStyles, isLoading: contentLoading } = usePageContent(slug);
   
   const { data: upcomingData, isLoading: loadingUpcoming } = trpc.events.list.useQuery({
     status: "upcoming",
@@ -51,10 +51,10 @@ export default function Events({ slug = 'events' }: EventsProps) {
       <section className="relative py-20 bg-gradient-to-b from-black to-stone-900">
         <div className="container mx-auto px-4 text-center">
           {heroSubtitle && (
-            <p className="text-sm uppercase tracking-widest text-white/60 mb-4">{heroSubtitle}</p>
+            <p className="text-sm uppercase tracking-widest text-white/60 mb-4" style={getInlineStyles('hero', 'subtitle')}>{heroSubtitle}</p>
           )}
-          <h1 className="text-4xl md:text-5xl font-serif text-white mb-4">{heroTitle}</h1>
-          <p className="text-lg text-white/70 max-w-2xl mx-auto">
+          <h1 className="text-4xl md:text-5xl font-serif text-white mb-4" style={getInlineStyles('hero', 'title')}>{heroTitle}</h1>
+          <p className="text-lg text-white/70 max-w-2xl mx-auto" style={getInlineStyles('hero', 'description')}>
             {heroDescription}
           </p>
         </div>

@@ -7,7 +7,7 @@ import { EditablePageZone } from '@/components/PageZone';
 
 export default function Offerings() {
   const [location] = useLocation();
-  const { getContent, getTextStyle, isLoading } = usePageContent('offerings');
+  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent('offerings');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -90,10 +90,10 @@ export default function Offerings() {
         )}
         
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
-          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6">
+          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6" style={getInlineStyles('hero', 'title')}>
             {heroTitle}
           </h1>
-          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90">
+          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90" style={getInlineStyles('hero', 'description')}>
             {heroDescription}
           </p>
         </div>
@@ -106,6 +106,11 @@ export default function Offerings() {
         description={seedsDescription}
         image={seedsImage ? getProperMediaUrl(seedsImage) : undefined}
         imageAlt="Seeds of a New Paradigm"
+        textStyles={{
+          title: getTextStyle('seeds', 'title'),
+          subtitle: getTextStyle('seeds', 'subtitle'),
+          description: getTextStyle('seeds', 'description'),
+        }}
       />
 
       {/* She Writes */}
@@ -117,6 +122,11 @@ export default function Offerings() {
         imageAlt="She Writes"
         reversed
         dark
+        textStyles={{
+          title: getTextStyle('sheWrites', 'title'),
+          subtitle: getTextStyle('sheWrites', 'subtitle'),
+          description: getTextStyle('sheWrites', 'description'),
+        }}
       />
 
       {/* Emerge with Us */}
@@ -126,6 +136,11 @@ export default function Offerings() {
         description={emergeDescription}
         image={emergeImage ? getProperMediaUrl(emergeImage) : undefined}
         imageAlt="Emerge with Us"
+        textStyles={{
+          title: getTextStyle('emerge', 'title'),
+          subtitle: getTextStyle('emerge', 'subtitle'),
+          description: getTextStyle('emerge', 'description'),
+        }}
       />
 
       {/* Rooted Unity */}
@@ -137,6 +152,11 @@ export default function Offerings() {
         imageAlt="Rooted Unity"
         reversed
         dark
+        textStyles={{
+          title: getTextStyle('rootedUnity', 'title'),
+          subtitle: getTextStyle('rootedUnity', 'subtitle'),
+          description: getTextStyle('rootedUnity', 'description'),
+        }}
       />
 
       {/* Page Builder Zone: Before Footer */}
