@@ -9,6 +9,13 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Table,
   TableBody,
   TableCell,
@@ -299,9 +306,45 @@ export default function AdminNewsletter() {
                               }
                             </TableCell>
                             <TableCell>
-                              <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="w-4 h-4" />
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <MoreHorizontal className="w-4 h-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => {
+                                    navigator.clipboard.writeText(subscriber.email);
+                                    toast.success('Email copied to clipboard');
+                                  }}>
+                                    <Mail className="w-4 h-4 mr-2" />
+                                    Copy Email
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => {
+                                    window.open(`mailto:${subscriber.email}`, '_blank');
+                                  }}>
+                                    <Send className="w-4 h-4 mr-2" />
+                                    Send Email
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem onClick={() => {
+                                    toast.info('Sync to Mailchimp coming soon');
+                                  }}>
+                                    <RefreshCw className="w-4 h-4 mr-2" />
+                                    Sync to Mailchimp
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                    className="text-red-600"
+                                    onClick={() => {
+                                      toast.info('Delete functionality coming soon');
+                                    }}
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Unsubscribe
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </TableCell>
                           </TableRow>
                         ))}
