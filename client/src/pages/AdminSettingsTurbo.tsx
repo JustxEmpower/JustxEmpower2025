@@ -65,14 +65,21 @@ export default function AdminSettingsTurbo() {
   // Fetch current settings
   const { data: settings, refetch: refetchSettings } = trpc.admin.getSettings.useQuery();
   
-  // Do NOT pre-populate form fields - let user enter fresh values
-  // The database may contain incorrect placeholder data
+  // Pre-populate form fields with actual values from database
   useEffect(() => {
-    // Only set connected status if there's a valid-looking Gemini key
-    if (settings?.geminiApiKey && 
-        settings.geminiApiKey.length > 30 && 
-        settings.geminiApiKey.startsWith('AIza')) {
-      setGeminiStatus('connected');
+    if (settings) {
+      // Populate Gemini key
+      if (settings.geminiApiKey) {
+        setGeminiApiKey(settings.geminiApiKey);
+        setGeminiStatus('connected');
+      }
+      // Populate Mailchimp settings
+      if (settings.mailchimpApiKey) {
+        setMailchimpApiKey(settings.mailchimpApiKey);
+      }
+      if (settings.mailchimpAudienceId) {
+        setMailchimpAudienceId(settings.mailchimpAudienceId);
+      }
     }
   }, [settings]);
   
@@ -167,11 +174,6 @@ export default function AdminSettingsTurbo() {
       toast.error('Please enter a valid API key');
       return;
     }
-    // Validate Gemini key format
-    if (!geminiApiKey.startsWith('AIza') || geminiApiKey.length < 30) {
-      toast.error('Invalid Gemini API key format. Key should start with AIza...');
-      return;
-    }
     saveGeminiKeyMutation.mutate({ apiKey: geminiApiKey });
   };
 
@@ -183,11 +185,6 @@ export default function AdminSettingsTurbo() {
   const handleSaveMailchimp = () => {
     if (!mailchimpApiKey || !mailchimpAudienceId) {
       toast.error('Please fill in both Mailchimp fields');
-      return;
-    }
-    // Validate Mailchimp key format (should contain a dash for server prefix)
-    if (!mailchimpApiKey.includes('-')) {
-      toast.error('Invalid Mailchimp API key format. Key should be like: xxxxx-us1');
       return;
     }
     updateMailchimpMutation.mutate({
