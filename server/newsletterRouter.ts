@@ -1,8 +1,23 @@
 import { z } from 'zod';
 import { publicProcedure, router } from './_core/trpc.js';
 import { subscribeToNewsletter, updateMailchimpSettings } from './mailchimp.js';
+import { getDb } from './db.js';
+import * as schema from '../drizzle/schema.js';
 
 export const newsletterRouter = router({
+  getSubscribers: publicProcedure.query(async () => {
+    const db = await getDb();
+    if (!db) return [];
+    
+    try {
+      const subscribers = await db.select().from(schema.newsletterSubscribers).orderBy(schema.newsletterSubscribers.createdAt);
+      return subscribers;
+    } catch (error) {
+      console.error('Error fetching subscribers:', error);
+      return [];
+    }
+  }),
+
   subscribe: publicProcedure
     .input(
       z.object({
