@@ -65,17 +65,32 @@ export default function AdminSettingsTurbo() {
   // Fetch current settings
   const { data: settings, refetch: refetchSettings } = trpc.admin.getSettings.useQuery();
   
-  // Populate form when settings load - show masked values for existing keys
+  // Populate form when settings load
+  // Only show masked version if it looks like a real API key (long enough)
   useEffect(() => {
     if (settings) {
-      // Show masked Mailchimp key if it exists
-      if (settings.mailchimpApiKey) {
-        setMailchimpApiKey(settings.mailchimpApiKeyMasked || settings.mailchimpApiKey);
+      // Mailchimp API key format: xxxxx-us1 (at least 10+ chars with a dash)
+      const isValidMailchimpKey = settings.mailchimpApiKey && 
+        settings.mailchimpApiKey.length > 10 && 
+        settings.mailchimpApiKey.includes('-');
+      if (isValidMailchimpKey) {
+        setMailchimpApiKey(settings.mailchimpApiKeyMasked || '');
       }
-      setMailchimpAudienceId(settings.mailchimpAudienceId || '');
-      // Show masked Gemini key if it exists
-      if (settings.geminiApiKey) {
-        setGeminiApiKey(settings.geminiApiKeyMasked || '••••••••••••');
+      
+      // Mailchimp Audience ID is typically a long alphanumeric string
+      const isValidAudienceId = settings.mailchimpAudienceId && 
+        settings.mailchimpAudienceId.length > 8 &&
+        /^[a-f0-9]+$/i.test(settings.mailchimpAudienceId);
+      if (isValidAudienceId) {
+        setMailchimpAudienceId(settings.mailchimpAudienceId);
+      }
+      
+      // Gemini API key format: AIza... (39+ chars, starts with AIza)
+      const isValidGeminiKey = settings.geminiApiKey && 
+        settings.geminiApiKey.length > 30 && 
+        settings.geminiApiKey.startsWith('AIza');
+      if (isValidGeminiKey) {
+        setGeminiApiKey(settings.geminiApiKeyMasked || '');
         setGeminiStatus('connected');
       }
     }
