@@ -183,18 +183,43 @@ export function TextBlockRenderer({ block, isEditing, onUpdate }: BlockRendererP
   const {
     content: textContent = '',
     alignment = 'left',
-    maxWidth = '4xl',
+    maxWidth = 'narrow',
   } = content;
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
   };
 
+  // Static maxWidth classes - Tailwind cannot use dynamic class names
+  const maxWidthClasses: Record<string, string> = {
+    'narrow': 'max-w-2xl',
+    'medium': 'max-w-4xl',
+    'wide': 'max-w-6xl',
+    'full': 'max-w-full',
+    'xs': 'max-w-xs',
+    'sm': 'max-w-sm',
+    'md': 'max-w-md',
+    'lg': 'max-w-lg',
+    'xl': 'max-w-xl',
+    '2xl': 'max-w-2xl',
+    '3xl': 'max-w-3xl',
+    '4xl': 'max-w-4xl',
+    '5xl': 'max-w-5xl',
+    '6xl': 'max-w-6xl',
+  };
+
+  const alignmentClasses: Record<string, string> = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right',
+    justify: 'text-justify',
+  };
+
   return (
     <div className={cn(
-      'py-6 px-6',
-      `max-w-${maxWidth} mx-auto`,
-      `text-${alignment}`
+      'py-6 px-6 mx-auto',
+      maxWidthClasses[maxWidth] || maxWidthClasses.narrow,
+      alignmentClasses[alignment] || alignmentClasses.left
     )}>
       <EditableText
         value={textContent}
@@ -237,8 +262,14 @@ export function HeadingBlockRenderer({ block, isEditing, onUpdate }: BlockRender
     h6: 'text-base md:text-lg font-medium',
   };
 
+  const alignmentClasses: Record<string, string> = {
+    left: 'text-left',
+    center: 'text-center',
+    right: 'text-right',
+  };
+
   return (
-    <div className={cn('py-4 px-6', `text-${alignment}`)}>
+    <div className={cn('py-4 px-6', alignmentClasses[alignment] || alignmentClasses.left)}>
       <EditableText
         value={text}
         onChange={(v) => handleChange('text', v)}

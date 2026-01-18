@@ -1197,7 +1197,7 @@ export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererPro
           isEditing={isEditing}
           className={cn(
             'mt-4 text-sm text-neutral-500 font-sans',
-            alignmentClasses[alignment] ? `text-${alignment}` : 'text-center'
+            alignmentClasses[alignment] || 'text-center'
           )}
         />
       )}
@@ -1262,6 +1262,17 @@ export function JEVideoRenderer({ block, isEditing, onUpdate }: BlockRendererPro
     right: 'ml-auto',
   };
 
+  // Static rounded classes - Tailwind cannot use dynamic class names
+  const roundedClasses: Record<string, string> = {
+    none: 'rounded-none',
+    sm: 'rounded-sm',
+    md: 'rounded-md',
+    lg: 'rounded-lg',
+    xl: 'rounded-xl',
+    '2xl': 'rounded-2xl',
+    full: 'rounded-full',
+  };
+
   return (
     <div className="py-4 px-6">
       {(title || isEditing) && (
@@ -1280,7 +1291,7 @@ export function JEVideoRenderer({ block, isEditing, onUpdate }: BlockRendererPro
           'relative overflow-hidden',
           widthClasses[width] || widthClasses.full,
           alignmentClasses[alignment] || alignmentClasses.center,
-          `rounded-${rounded}`
+          roundedClasses[rounded] || roundedClasses.lg
         )}
         style={{ aspectRatio }}
       >
