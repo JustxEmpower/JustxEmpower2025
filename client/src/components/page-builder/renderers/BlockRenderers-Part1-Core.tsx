@@ -907,12 +907,12 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
 
   const {
     text = '',
-    alignment = 'left',
+    alignment = 'center',
     dropCap = false,
     columns = 1,
     fontSize = 'base',
     lineHeight = 'relaxed',
-    maxWidth = '4xl',
+    maxWidth = 'narrow',
     color = '',
     indent = false,
   } = content;
@@ -942,11 +942,36 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     justify: 'text-justify',
   };
 
+  // Static maxWidth classes - Tailwind cannot use dynamic class names
+  const maxWidthClasses: Record<string, string> = {
+    'xs': 'max-w-xs',           // 320px
+    'sm': 'max-w-sm',           // 384px
+    'md': 'max-w-md',           // 448px
+    'lg': 'max-w-lg',           // 512px
+    'xl': 'max-w-xl',           // 576px
+    '2xl': 'max-w-2xl',         // 672px
+    '3xl': 'max-w-3xl',         // 768px
+    '4xl': 'max-w-4xl',         // 896px
+    '5xl': 'max-w-5xl',         // 1024px
+    '6xl': 'max-w-6xl',         // 1152px
+    'full': 'max-w-full',       // 100%
+    'narrow': 'max-w-2xl',      // Narrow = 672px
+    'medium': 'max-w-4xl',      // Medium = 896px
+    'wide': 'max-w-6xl',        // Wide = 1152px
+  };
+
+  // Static column classes
+  const columnClasses: Record<number, string> = {
+    1: '',
+    2: 'columns-2 gap-8',
+    3: 'columns-3 gap-8',
+  };
+
   return (
     <div className={cn(
-      'py-4 px-6',
-      alignmentClasses[alignment] || alignmentClasses.left,
-      `max-w-${maxWidth}`
+      'py-8 px-6',
+      alignmentClasses[alignment] || alignmentClasses.center,
+      maxWidthClasses[maxWidth] || maxWidthClasses.narrow
     )}>
       <EditableText
         value={text}
@@ -959,8 +984,8 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           sizeClasses[fontSize] || sizeClasses.base,
           lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
           'font-sans whitespace-pre-wrap',
-          'text-neutral-700',
-          columns > 1 ? `columns-${columns} gap-8` : '',
+          'text-neutral-700 dark:text-neutral-300',
+          columnClasses[columns] || '',
           dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
           indent ? 'indent-8' : ''
         )}
