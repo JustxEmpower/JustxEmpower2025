@@ -45,6 +45,7 @@ import AdminZoneEditor from "@/pages/AdminZoneEditor";
 import AdminZoneManager from "@/pages/AdminZoneManager";
 import AdminBlockStore from "@/pages/AdminBlockStore";
 import AdminBlockCreator from "@/pages/AdminBlockCreator";
+import AdminActivity from "@/pages/AdminActivity";
 import { Route, Switch, useLocation } from "wouter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
@@ -127,6 +128,7 @@ function Router() {
       <Route path="/admin/zones" component={AdminZoneManager} />
       <Route path="/admin/block-store" component={AdminBlockStore} />
       <Route path="/admin/block-creator" component={AdminBlockCreator} />
+      <Route path="/admin/activity" component={AdminActivity} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/about">{() => <About />}</Route>
       <Route path="/about-just-empower" component={AboutJustEmpower} />
