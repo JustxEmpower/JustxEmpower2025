@@ -484,7 +484,7 @@ function RenderBlock({ block }: { block: BlockData }) {
         return (
           <blockquote className="border-l-4 border-amber-500 pl-6 py-4 my-8">
             <p className="text-2xl font-light italic text-neutral-700 dark:text-neutral-300 mb-2">
-              "{cleanContent.text}"
+              {cleanContent.text}
             </p>
             {cleanContent.author && (
               <cite className="text-sm text-neutral-500 dark:text-neutral-400 not-italic">

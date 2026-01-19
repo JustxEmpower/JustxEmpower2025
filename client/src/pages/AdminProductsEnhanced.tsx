@@ -35,8 +35,14 @@ export default function AdminProductsEnhanced() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-  const productsQuery = trpc.admin.products?.list?.useQuery?.({}) || { data: { products: [] }, refetch: () => {}, isLoading: false };
-  const deleteProduct = trpc.admin.products?.delete?.useMutation?.({ onSuccess: () => { toast.success("Product deleted"); productsQuery.refetch?.(); }, onError: (e: any) => toast.error(e.message) }) || { mutate: () => {} };
+  const productsQuery = trpc.admin.products.list.useQuery({});
+  const deleteProduct = trpc.admin.products.delete.useMutation({ 
+    onSuccess: () => { 
+      toast.success("Product deleted"); 
+      productsQuery.refetch(); 
+    }, 
+    onError: (e: any) => toast.error(e.message) 
+  });
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) setLocation("/admin/login");
@@ -58,7 +64,7 @@ export default function AdminProductsEnhanced() {
 
   const formatPrice = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
-  if (isChecking || productsQuery.isLoading) {
+  if (isChecking || productsQuery.isPending) {
     return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" /></div>;
   }
   if (!isAuthenticated) return null;
@@ -72,7 +78,7 @@ export default function AdminProductsEnhanced() {
             <div className="flex items-center justify-between">
               <div><h1 className="text-2xl font-bold text-stone-900">Products</h1><p className="text-stone-500 text-sm">Manage your product catalog</p></div>
               <div className="flex items-center gap-3">
-                <Button variant="outline" size="sm" onClick={() => productsQuery.refetch?.()}><RefreshCw className="w-4 h-4 mr-2" />Refresh</Button>
+                <Button variant="outline" size="sm" onClick={() => productsQuery.refetch()}><RefreshCw className="w-4 h-4 mr-2" />Refresh</Button>
                 <Button onClick={() => setLocation("/admin/products/new")} className="bg-amber-600 hover:bg-amber-700"><Plus className="w-4 h-4 mr-2" />Add Product</Button>
               </div>
             </div>
@@ -119,7 +125,7 @@ export default function AdminProductsEnhanced() {
                         <span className="text-sm text-stone-500">{product.stockQuantity || 0} in stock</span>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" onClick={() => setLocation(`/admin/products/${product.id}`)}><Edit className="w-4 h-4" /></Button>
-                          <Button variant="ghost" size="icon" onClick={() => { if (confirm("Delete?")) deleteProduct.mutate?.({ id: product.id }); }}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => { if (confirm("Delete?")) deleteProduct.mutate({ id: product.id }); }}><Trash2 className="w-4 h-4 text-red-500" /></Button>
                         </div>
                       </div>
                     </CardContent>
@@ -143,7 +149,7 @@ export default function AdminProductsEnhanced() {
                       <p className="text-lg font-bold text-amber-600">{formatPrice(product.price || 0)}</p>
                       <div className="flex gap-2">
                         <Button variant="ghost" size="icon" onClick={() => setLocation(`/admin/products/${product.id}`)}><Edit className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => { if (confirm("Delete?")) deleteProduct.mutate?.({ id: product.id }); }}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => { if (confirm("Delete?")) deleteProduct.mutate({ id: product.id }); }}><Trash2 className="w-4 h-4 text-red-500" /></Button>
                       </div>
                     </CardContent>
                   </Card>

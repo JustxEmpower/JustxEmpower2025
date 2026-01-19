@@ -642,8 +642,14 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
       
       {/* Content */}
       <div 
-        className={`relative h-full min-h-[500px] flex flex-col ${verticalAlignClass} ${horizontalAlignClass} pt-${paddingTop} pb-${paddingBottom} pl-${paddingLeft} pr-${paddingRight}`}
-        style={{ zIndex: 10 }}
+        className={`relative h-full min-h-[500px] flex flex-col ${verticalAlignClass} ${horizontalAlignClass}`}
+        style={{ 
+          zIndex: 10,
+          paddingTop: `max(${toSpacing(paddingTop) || '4rem'}, 100px)`,
+          paddingBottom: toSpacing(paddingBottom) || '4rem',
+          paddingLeft: toSpacing(paddingLeft) || '1.5rem',
+          paddingRight: toSpacing(paddingRight) || '1.5rem',
+        }}
       >
         <div className={maxWidthClass}>
           {content.subtitle && (
@@ -1272,7 +1278,7 @@ export function JEQuoteRenderer({ block, isEditing = false, isBlockSelected = fa
     <div className={`py-24 px-6 ${bgClass}`}>
       <blockquote className="max-w-4xl mx-auto text-center">
         <p className="font-serif text-3xl md:text-4xl italic leading-relaxed mb-8">
-          "{content.quote || 'A meaningful quote that represents your brand.'}"
+          {content.quote || 'A meaningful quote that represents your brand.'}
         </p>
         {content.author && (
           <cite className="font-sans text-sm uppercase tracking-[0.2em] opacity-60 not-italic">
