@@ -259,7 +259,7 @@ export default function AdminMediaEnhanced() {
     });
   };
 
-  // AI Video Loop Generation
+  // AI Video Loop Generation (from image)
   const [generatingVideoLoopFor, setGeneratingVideoLoopFor] = useState<number | null>(null);
   
   const generateVideoLoopMutation = trpc.admin.ai.generateVideoLoop.useMutation({
@@ -267,6 +267,8 @@ export default function AdminMediaEnhanced() {
       toast.success(`AI video loop generated and saved! View it in your media library.`);
       refetch();
       setGeneratingVideoLoopFor(null);
+      setTextToVideoDialogOpen(false);
+      setVideoPrompt('');
     },
     onError: (e) => {
       toast.error(`Video generation failed: ${e.message}`);
@@ -280,6 +282,23 @@ export default function AdminMediaEnhanced() {
     generateVideoLoopMutation.mutate({
       sourceImageUrl: getMediaUrl(item.url),
       duration: 4,
+    });
+  };
+
+  // Text-to-Video Generation (from prompt only)
+  const [textToVideoDialogOpen, setTextToVideoDialogOpen] = useState(false);
+  const [videoPrompt, setVideoPrompt] = useState('');
+  const [videoDuration, setVideoDuration] = useState(4);
+
+  const handleGenerateTextToVideo = () => {
+    if (!videoPrompt.trim()) {
+      toast.error("Please enter a video description");
+      return;
+    }
+    toast.info("Generating AI video from prompt... This may take a moment.");
+    generateVideoLoopMutation.mutate({
+      prompt: videoPrompt,
+      duration: videoDuration,
     });
   };
 
@@ -434,6 +453,12 @@ export default function AdminMediaEnhanced() {
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => refetch()}>
                   <RefreshCw className="w-4 h-4 mr-2" />Refresh
+                </Button>
+                <Button 
+                  onClick={() => setTextToVideoDialogOpen(true)} 
+                  className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white shadow-lg"
+                >
+                  <Film className="w-4 h-4 mr-2" />AI Video
                 </Button>
                 <Button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="bg-amber-600 hover:bg-amber-700">
                   <Upload className="w-4 h-4 mr-2" />{uploading ? 'Uploading...' : 'Upload'}
@@ -702,6 +727,87 @@ export default function AdminMediaEnhanced() {
                 </div>
               </div>
             )}
+          </DialogContent>
+        </Dialog>
+
+        {/* Text-to-Video Generation Dialog */}
+        <Dialog open={textToVideoDialogOpen} onOpenChange={setTextToVideoDialogOpen}>
+          <DialogContent className="sm:max-w-lg border-2 border-blue-200 overflow-hidden p-0">
+            <div className="h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" />
+            <div className="p-6">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-3">
+                  <div className="p-2.5 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl shadow-lg shadow-blue-500/30">
+                    <Film className="w-5 h-5 text-white" />
+                  </div>
+                  <span className="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent text-xl">
+                    Generate AI Video
+                  </span>
+                </DialogTitle>
+              </DialogHeader>
+              
+              <div className="space-y-4 pt-4">
+                <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-100">
+                  <label className="text-sm font-semibold text-blue-900 mb-2 block">
+                    Video Description
+                  </label>
+                  <textarea
+                    value={videoPrompt}
+                    onChange={(e) => setVideoPrompt(e.target.value)}
+                    placeholder="Describe your video... e.g., 'A serene sunrise over mountains with soft clouds drifting by, calming ambient light'"
+                    className="w-full h-24 p-3 rounded-lg border border-blue-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 resize-none text-sm"
+                  />
+                  <p className="text-xs text-blue-600 mt-2">
+                    💡 Be descriptive! Include details about motion, lighting, mood, and style.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-xl bg-stone-50 border border-stone-100">
+                  <label className="text-sm font-semibold text-stone-700 mb-2 block">
+                    Duration: {videoDuration} seconds
+                  </label>
+                  <input
+                    type="range"
+                    min={2}
+                    max={10}
+                    value={videoDuration}
+                    onChange={(e) => setVideoDuration(Number(e.target.value))}
+                    className="w-full accent-blue-500"
+                  />
+                  <div className="flex justify-between text-xs text-stone-500 mt-1">
+                    <span>2s</span>
+                    <span>10s</span>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setTextToVideoDialogOpen(false)}
+                    className="flex-1 border-blue-200 text-blue-700 hover:bg-blue-50"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleGenerateTextToVideo}
+                    disabled={generateVideoLoopMutation.isPending || !videoPrompt.trim()}
+                    className="flex-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white shadow-lg shadow-blue-500/30"
+                  >
+                    {generateVideoLoopMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Generate Video
+                      </>
+                    )}
+                  </Button>
+                </div>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       </main>
