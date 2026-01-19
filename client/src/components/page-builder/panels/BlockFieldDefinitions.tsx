@@ -211,11 +211,11 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'paddingRight', label: 'Padding Right', type: 'text', placeholder: '6', group: 'layout' },
     
     // === TITLE TYPOGRAPHY GROUP ===
-    { key: 'titleFontSize', label: 'Title Font Size (Mobile)', type: 'text', placeholder: '5rem', group: 'advanced' },
-    { key: 'titleFontSizeMd', label: 'Title Font Size (Tablet)', type: 'text', placeholder: '7rem', group: 'advanced' },
-    { key: 'titleFontSizeLg', label: 'Title Font Size (Desktop)', type: 'text', placeholder: '8rem', group: 'advanced' },
+    { key: 'titleFontSize', label: 'Title Font Size (Mobile)', type: 'text', placeholder: '48px', group: 'advanced' },
+    { key: 'titleFontSizeMd', label: 'Title Font Size (Tablet)', type: 'text', placeholder: '64px', group: 'advanced' },
+    { key: 'titleFontSizeLg', label: 'Title Font Size (Desktop)', type: 'text', placeholder: '80px', group: 'advanced' },
     { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.1', group: 'advanced' },
-    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '24px', group: 'advanced' },
     { key: 'titleFontWeight', label: 'Title Font Weight', type: 'select', options: [
       { value: '100', label: 'Thin (100)' },
       { value: '200', label: 'Extra Light (200)' },
@@ -231,13 +231,13 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     ], group: 'advanced' },
     
     // === SUBTITLE TYPOGRAPHY GROUP ===
-    { key: 'subtitleFontSize', label: 'Subtitle Font Size', type: 'text', placeholder: '0.75rem', group: 'advanced' },
+    { key: 'subtitleFontSize', label: 'Subtitle Font Size', type: 'text', placeholder: '12px', group: 'advanced' },
     { key: 'subtitleLetterSpacing', label: 'Subtitle Letter Spacing', type: 'text', placeholder: '0.3em', group: 'advanced' },
-    { key: 'subtitleMarginBottom', label: 'Subtitle Margin Bottom', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    { key: 'subtitleMarginBottom', label: 'Subtitle Margin Bottom', type: 'text', placeholder: '24px', group: 'advanced' },
     
     // === DESCRIPTION TYPOGRAPHY GROUP ===
-    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '1.125rem', group: 'advanced' },
-    { key: 'descriptionFontSizeMd', label: 'Description Size (Tablet)', type: 'text', placeholder: '1.25rem', group: 'advanced' },
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '18px', group: 'advanced' },
+    { key: 'descriptionFontSizeMd', label: 'Description Size (Tablet)', type: 'text', placeholder: '20px', group: 'advanced' },
     { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.6', group: 'advanced' },
     { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '3rem', group: 'advanced' },
     { key: 'descriptionMaxWidth', label: 'Description Max Width', type: 'text', placeholder: '32rem', group: 'advanced' },
@@ -306,11 +306,11 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'paddingRight', label: 'Padding Right', type: 'text', placeholder: '6', group: 'layout' },
     
     // === TITLE TYPOGRAPHY GROUP ===
-    { key: 'titleFontSize', label: 'Title Font Size (Mobile)', type: 'text', placeholder: '5rem', group: 'advanced' },
-    { key: 'titleFontSizeMd', label: 'Title Font Size (Tablet)', type: 'text', placeholder: '7rem', group: 'advanced' },
-    { key: 'titleFontSizeLg', label: 'Title Font Size (Desktop)', type: 'text', placeholder: '8rem', group: 'advanced' },
+    { key: 'titleFontSize', label: 'Title Font Size (Mobile)', type: 'text', placeholder: '48px', group: 'advanced' },
+    { key: 'titleFontSizeMd', label: 'Title Font Size (Tablet)', type: 'text', placeholder: '64px', group: 'advanced' },
+    { key: 'titleFontSizeLg', label: 'Title Font Size (Desktop)', type: 'text', placeholder: '80px', group: 'advanced' },
     { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.1', group: 'advanced' },
-    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '24px', group: 'advanced' },
     { key: 'titleFontWeight', label: 'Title Font Weight', type: 'select', options: [
       { value: '100', label: 'Thin (100)' },
       { value: '200', label: 'Extra Light (200)' },
@@ -326,13 +326,13 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     ], group: 'advanced' },
     
     // === SUBTITLE TYPOGRAPHY GROUP ===
-    { key: 'subtitleFontSize', label: 'Subtitle Font Size', type: 'text', placeholder: '0.75rem', group: 'advanced' },
+    { key: 'subtitleFontSize', label: 'Subtitle Font Size', type: 'text', placeholder: '12px', group: 'advanced' },
     { key: 'subtitleLetterSpacing', label: 'Subtitle Letter Spacing', type: 'text', placeholder: '0.3em', group: 'advanced' },
-    { key: 'subtitleMarginBottom', label: 'Subtitle Margin Bottom', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    { key: 'subtitleMarginBottom', label: 'Subtitle Margin Bottom', type: 'text', placeholder: '24px', group: 'advanced' },
     
     // === DESCRIPTION TYPOGRAPHY GROUP ===
-    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '1.125rem', group: 'advanced' },
-    { key: 'descriptionFontSizeMd', label: 'Description Size (Tablet)', type: 'text', placeholder: '1.25rem', group: 'advanced' },
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '18px', group: 'advanced' },
+    { key: 'descriptionFontSizeMd', label: 'Description Size (Tablet)', type: 'text', placeholder: '20px', group: 'advanced' },
     { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.6', group: 'advanced' },
     { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '3rem', group: 'advanced' },
     { key: 'descriptionMaxWidth', label: 'Description Max Width', type: 'text', placeholder: '32rem', group: 'advanced' },
@@ -422,22 +422,22 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'titleFontSize', label: 'Title Font Size', type: 'text', placeholder: '3rem', group: 'advanced' },
     { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.2', group: 'advanced' },
     { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '2rem', group: 'advanced' },
-    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '1.125rem', group: 'advanced' },
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '18px', group: 'advanced' },
     { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.75', group: 'advanced' },
     { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '2rem', group: 'advanced' },
-    { key: 'labelFontSize', label: 'Label Font Size', type: 'text', placeholder: '0.75rem', group: 'advanced' },
+    { key: 'labelFontSize', label: 'Label Font Size', type: 'text', placeholder: '12px', group: 'advanced' },
     { key: 'labelMarginBottom', label: 'Label Margin Bottom', type: 'text', placeholder: '1rem', group: 'advanced' },
     
     // === CTA ELEMENT CONTROLS ===
     { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'text', placeholder: '9999px', group: 'advanced' },
-    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'text', placeholder: '1.5rem', group: 'advanced' },
-    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'text', placeholder: '0.75rem', group: 'advanced' },
+    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'text', placeholder: '24px', group: 'advanced' },
+    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'text', placeholder: '12px', group: 'advanced' },
     { key: 'ctaFontSize', label: 'Button Font Size', type: 'text', placeholder: '0.875rem', group: 'advanced' },
     
     // === LAYOUT CONTROLS ===
     { key: 'contentGap', label: 'Content Gap', type: 'text', placeholder: '4rem', group: 'layout' },
     { key: 'sectionPaddingY', label: 'Section Padding Y', type: 'text', placeholder: '6rem', group: 'layout' },
-    { key: 'sectionPaddingX', label: 'Section Padding X', type: 'text', placeholder: '1.5rem', group: 'layout' },
+    { key: 'sectionPaddingX', label: 'Section Padding X', type: 'text', placeholder: '24px', group: 'layout' },
     { key: 'contentTextAlign', label: 'Content Text Align', type: 'select', options: [
       { value: 'left', label: 'Left' },
       { value: 'center', label: 'Center' },
@@ -486,11 +486,11 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     // === TEXT ELEMENT CONTROLS ===
     { key: 'titleFontSize', label: 'Title Font Size', type: 'text', placeholder: '3.5rem', group: 'advanced' },
     { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.2', group: 'advanced' },
-    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '1.5rem', group: 'advanced' },
-    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '1.25rem', group: 'advanced' },
+    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '24px', group: 'advanced' },
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '20px', group: 'advanced' },
     { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.75', group: 'advanced' },
     { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '2rem', group: 'advanced' },
-    { key: 'labelFontSize', label: 'Label Font Size', type: 'text', placeholder: '0.75rem', group: 'advanced' },
+    { key: 'labelFontSize', label: 'Label Font Size', type: 'text', placeholder: '12px', group: 'advanced' },
     { key: 'labelMarginBottom', label: 'Label Margin Bottom', type: 'text', placeholder: '1rem', group: 'advanced' },
     
     // === CTA ELEMENT CONTROLS ===
@@ -502,7 +502,7 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     // === LAYOUT CONTROLS ===
     { key: 'minHeight', label: 'Minimum Height', type: 'text', placeholder: '70vh', group: 'layout' },
     { key: 'sectionPaddingY', label: 'Section Padding Y', type: 'text', placeholder: '6rem', group: 'layout' },
-    { key: 'sectionPaddingX', label: 'Section Padding X', type: 'text', placeholder: '1.5rem', group: 'layout' },
+    { key: 'sectionPaddingX', label: 'Section Padding X', type: 'text', placeholder: '24px', group: 'layout' },
     { key: 'contentMaxWidth', label: 'Content Max Width', type: 'text', placeholder: '48rem', group: 'layout' },
     { key: 'contentTextAlign', label: 'Content Text Align', type: 'select', options: [
       { value: 'left', label: 'Left' },
@@ -898,7 +898,7 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'textColor', label: 'Text Color', type: 'color', group: 'style' },
     
     // === SHAPE & SIZE GROUP ===
-    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '1.5rem', group: 'layout' },
+    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '24px', group: 'layout' },
     { key: 'maxWidth', label: 'Max Width', type: 'text', placeholder: '2xl', group: 'layout' },
     { key: 'formWidth', label: 'Form Width', type: 'text', placeholder: '100%', group: 'layout' },
     
@@ -953,7 +953,7 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
     
     // === SHAPE & SIZE GROUP ===
-    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '1.5rem', group: 'layout' },
+    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '24px', group: 'layout' },
     { key: 'maxWidth', label: 'Max Width', type: 'select', options: [
       { value: '4xl', label: 'Medium (4xl)' },
       { value: '5xl', label: 'Large (5xl)' },
@@ -1277,7 +1277,7 @@ export const STANDARD_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
       { value: '6xl', label: 'Wide' },
     ], group: 'layout' },
     // === TYPOGRAPHY ===
-    { key: 'quoteFontSize', label: 'Quote Font Size', type: 'text', placeholder: '1.5rem', group: 'advanced' },
+    { key: 'quoteFontSize', label: 'Quote Font Size', type: 'text', placeholder: '24px', group: 'advanced' },
     { key: 'quoteFontStyle', label: 'Quote Font Style', type: 'select', options: [
       { value: 'normal', label: 'Normal' },
       { value: 'italic', label: 'Italic' },

@@ -165,6 +165,8 @@ export default function AdminZoneEditor() {
   const selectedBlock = blocks.find(b => b.id === selectedBlockId);
   const selectedBlockDef = selectedBlock ? blockTypes.find(bt => bt.id === selectedBlock.type) : null;
 
+  const utils = trpc.useUtils();
+
   const handleSave = async () => {
     if (!pageSlug || !zoneName) return;
     setIsSaving(true);
@@ -178,7 +180,13 @@ export default function AdminZoneEditor() {
         isActive: true,
       });
       console.log('[ZoneEditor] Save result:', result);
-      alert('Zone saved successfully!');
+      
+      // Invalidate queries to ensure live pages get fresh data
+      await utils.pageZones.getZone.invalidate({ pageSlug, zoneName });
+      await utils.pageZones.getAllZones.invalidate();
+      await utils.pageZones.getPageZones.invalidate({ pageSlug });
+      
+      alert('Zone saved successfully! Refresh the live page to see changes.');
     } catch (error: any) {
       console.error('[ZoneEditor] Failed to save zone:', error);
       console.error('[ZoneEditor] Error details:', error?.message, error?.data);
