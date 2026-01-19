@@ -19,8 +19,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, 
   Box, Sparkles, Type, Image, Layout, List, Grid, 
-  Heart, Star, Zap, FileText, MessageSquare, Users, Wand2, Palette
+  Heart, Star, Zap, FileText, MessageSquare, Users, Wand2, Palette,
+  Link, AlignLeft, AlignCenter, AlignRight, ImageIcon, Video,
+  ChevronDown, ChevronUp, Copy, RotateCcw, Paintbrush, Settings2
 } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { blockTypes } from '@/components/page-builder/blockTypes';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
 import AdminSidebar from '@/components/AdminSidebar';
@@ -358,214 +364,574 @@ export default function AdminBlockCreator() {
                   <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50">
                     <CardTitle className="text-base flex items-center gap-2">
                       <div className="p-1.5 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg text-white">
-                        <Palette className="w-4 h-4" />
+                        <Settings2 className="w-4 h-4" />
                       </div>
                       Edit Block Content
                     </CardTitle>
                     <CardDescription>Customize all text, images, and settings</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4">
                     {selectedBlockType ? (
                       <ScrollArea className="h-[60vh]">
-                        <div className="space-y-4 pr-4">
-                          {Object.entries(blockContent).map(([key, value]) => {
-                            // Array fields - render each item
-                            if (Array.isArray(value)) {
-                              return (
-                                <div key={key} className="space-y-3 border rounded-lg p-4">
-                                  <div className="flex items-center justify-between">
-                                    <Label className="text-sm font-semibold capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm"
-                                      onClick={() => addArrayItem(key, value[0] ? { ...value[0] } : {})}
-                                    >
-                                      <Plus className="w-3 h-3 mr-1" /> Add
-                                    </Button>
+                        <div className="space-y-3 pr-4">
+                          {/* Text Content Section */}
+                          {(() => {
+                            const excludePatterns = [
+                              'image', 'Image', 'url', 'Url', 'video', 'Video',
+                              'color', 'Color', 'background', 'Background', 'gradient', 'Gradient',
+                              'align', 'Align', 'width', 'Width', 'height', 'Height',
+                              'padding', 'Padding', 'margin', 'Margin', 'radius', 'Radius',
+                              'size', 'Size', 'gap', 'Gap', 'spacing', 'Spacing',
+                              'font', 'Font', 'lineHeight', 'LineHeight', 'letterSpacing', 'LetterSpacing',
+                              'weight', 'Weight', 'style', 'Style', 'columns', 'Columns', 'position', 'Position'
+                            ];
+                            const textFields = Object.entries(blockContent).filter(([key, value]) => {
+                              if (typeof value !== 'string') return false;
+                              return !excludePatterns.some(p => key.includes(p));
+                            });
+                            if (textFields.length === 0) return null;
+                            return (
+                              <Collapsible defaultOpen className="border border-purple-200 rounded-lg overflow-hidden">
+                                <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 transition-colors">
+                                  <div className="flex items-center gap-2">
+                                    <Type className="w-4 h-4 text-purple-600" />
+                                    <span className="font-semibold text-purple-900">Text Content</span>
+                                    <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+                                      {textFields.length}
+                                    </Badge>
                                   </div>
+                                  <ChevronDown className="w-4 h-4 text-purple-600" />
+                                </CollapsibleTrigger>
+                                <CollapsibleContent className="p-3 space-y-3 bg-white">
+                                  {textFields.map(([key, value]) => {
+                                    const isLongText = key.includes('description') || key.includes('content') || 
+                                                       key.includes('text') || key.includes('subtitle') || 
+                                                       (value as string).length > 60;
+                                    return (
+                                      <div key={key} className="space-y-1.5">
+                                        <Label className="text-sm font-medium text-purple-800 capitalize flex items-center gap-2">
+                                          {key.replace(/([A-Z])/g, ' $1')}
+                                          {key.includes('title') && !key.includes('Size') && <Badge variant="outline" className="text-xs">Primary</Badge>}
+                                        </Label>
+                                        {isLongText ? (
+                                          <Textarea
+                                            value={value as string}
+                                            onChange={(e) => updateContent(key, e.target.value)}
+                                            rows={3}
+                                            className="border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+                                            placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}...`}
+                                          />
+                                        ) : (
+                                          <Input
+                                            value={value as string}
+                                            onChange={(e) => updateContent(key, e.target.value)}
+                                            className="border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+                                            placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}...`}
+                                          />
+                                        )}
+                                      </div>
+                                    );
+                                  })}
+                                </CollapsibleContent>
+                              </Collapsible>
+                            );
+                          })()}
+
+                          {/* Media & Images Section */}
+                          <Collapsible defaultOpen className="border border-green-200 rounded-lg overflow-hidden">
+                            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gradient-to-r from-green-50 to-emerald-50 hover:from-green-100 hover:to-emerald-100 transition-colors">
+                              <div className="flex items-center gap-2">
+                                <ImageIcon className="w-4 h-4 text-green-600" />
+                                <span className="font-semibold text-green-900">Media & Images</span>
+                                <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                                  {Object.keys(blockContent).filter(k => 
+                                    (k.includes('image') || k.includes('Image') || 
+                                     k.includes('video') || k.includes('Video') ||
+                                     (k.includes('url') || k.includes('Url')) && 
+                                     typeof blockContent[k] === 'string')
+                                  ).length}
+                                </Badge>
+                              </div>
+                              <ChevronDown className="w-4 h-4 text-green-600" />
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="p-3 space-y-3 bg-white">
+                              {Object.entries(blockContent).map(([key, value]) => {
+                                if (typeof value !== 'string') return null;
+                                if (!key.includes('image') && !key.includes('Image') && 
+                                    !key.includes('video') && !key.includes('Video') &&
+                                    !(key.includes('url') || key.includes('Url'))) return null;
+                                if (key.includes('color') || key.includes('Color')) return null;
+                                
+                                return (
+                                  <div key={key} className="space-y-1.5">
+                                    <Label className="text-sm font-medium text-green-800 capitalize flex items-center gap-2">
+                                      {key.includes('video') || key.includes('Video') ? (
+                                        <Video className="w-3 h-3" />
+                                      ) : (
+                                        <ImageIcon className="w-3 h-3" />
+                                      )}
+                                      {key.replace(/([A-Z])/g, ' $1')}
+                                    </Label>
+                                    <div className="flex gap-2">
+                                      <Input
+                                        value={value}
+                                        onChange={(e) => updateContent(key, e.target.value)}
+                                        className="border-green-200 focus:border-green-400 focus:ring-green-400"
+                                        placeholder="Enter URL or path..."
+                                      />
+                                      {value && (
+                                        <TooltipProvider>
+                                          <Tooltip>
+                                            <TooltipTrigger asChild>
+                                              <div className="w-10 h-10 rounded border border-green-200 overflow-hidden flex-shrink-0">
+                                                <img src={value} alt="" className="w-full h-full object-cover" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />
+                                              </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent>Preview</TooltipContent>
+                                          </Tooltip>
+                                        </TooltipProvider>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              {Object.keys(blockContent).filter(k => 
+                                k.includes('image') || k.includes('Image') || 
+                                k.includes('video') || k.includes('Video')
+                              ).length === 0 && (
+                                <p className="text-sm text-green-600/70 text-center py-2">No media fields for this block</p>
+                              )}
+                            </CollapsibleContent>
+                          </Collapsible>
+
+                          {/* Colors & Styling Section */}
+                          <Collapsible defaultOpen className="border border-fuchsia-200 rounded-lg overflow-hidden">
+                            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gradient-to-r from-fuchsia-50 to-pink-50 hover:from-fuchsia-100 hover:to-pink-100 transition-colors">
+                              <div className="flex items-center gap-2">
+                                <Paintbrush className="w-4 h-4 text-fuchsia-600" />
+                                <span className="font-semibold text-fuchsia-900">Colors & Styling</span>
+                              </div>
+                              <ChevronDown className="w-4 h-4 text-fuchsia-600" />
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="p-3 space-y-3 bg-white">
+                              {Object.entries(blockContent).map(([key, value]) => {
+                                if (typeof value !== 'string') return null;
+                                if (!key.includes('color') && !key.includes('Color') && 
+                                    !key.includes('background') && !key.includes('Background') &&
+                                    !key.includes('gradient') && !key.includes('Gradient')) return null;
+                                
+                                return (
+                                  <div key={key} className="space-y-1.5">
+                                    <Label className="text-sm font-medium text-fuchsia-800 capitalize">
+                                      {key.replace(/([A-Z])/g, ' $1')}
+                                    </Label>
+                                    <div className="flex gap-2 items-center">
+                                      <input
+                                        type="color"
+                                        value={value.startsWith('#') ? value : '#7c3aed'}
+                                        onChange={(e) => updateContent(key, e.target.value)}
+                                        className="w-10 h-10 rounded border border-fuchsia-200 cursor-pointer"
+                                      />
+                                      <Input
+                                        value={value}
+                                        onChange={(e) => updateContent(key, e.target.value)}
+                                        className="border-fuchsia-200 focus:border-fuchsia-400 focus:ring-fuchsia-400 font-mono text-sm"
+                                        placeholder="#hex or color name"
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              {Object.keys(blockContent).filter(k => 
+                                k.includes('color') || k.includes('Color') || 
+                                k.includes('background') || k.includes('Background')
+                              ).length === 0 && (
+                                <p className="text-sm text-fuchsia-600/70 text-center py-2">No color fields for this block</p>
+                              )}
+                            </CollapsibleContent>
+                          </Collapsible>
+
+                          {/* Layout & Sizing Section */}
+                          {(() => {
+                            const layoutFields = Object.entries(blockContent).filter(([key, value]) => {
+                              if (typeof value !== 'string') return false;
+                              const layoutPatterns = [
+                                'align', 'Align', 'width', 'Width', 'height', 'Height',
+                                'padding', 'Padding', 'margin', 'Margin', 'radius', 'Radius',
+                                'size', 'Size', 'gap', 'Gap', 'spacing', 'Spacing',
+                                'columns', 'Columns', 'position', 'Position'
+                              ];
+                              return layoutPatterns.some(p => key.includes(p));
+                            });
+                            if (layoutFields.length === 0) return null;
+                            return (
+                              <Collapsible defaultOpen className="border border-blue-200 rounded-lg overflow-hidden">
+                                <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gradient-to-r from-blue-50 to-cyan-50 hover:from-blue-100 hover:to-cyan-100 transition-colors">
+                                  <div className="flex items-center gap-2">
+                                    <Layout className="w-4 h-4 text-blue-600" />
+                                    <span className="font-semibold text-blue-900">Layout & Sizing</span>
+                                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                                      {layoutFields.length}
+                                    </Badge>
+                                  </div>
+                                  <ChevronDown className="w-4 h-4 text-blue-600" />
+                                </CollapsibleTrigger>
+                                <CollapsibleContent className="p-3 space-y-3 bg-white">
+                                  {layoutFields.map(([key, value]) => {
+                                    const isAlignment = key.toLowerCase().includes('align');
+                                    const isMaxWidth = key.toLowerCase().includes('maxwidth') || key.toLowerCase().includes('contentmaxwidth');
+                                    
+                                    if (isAlignment) {
+                                      return (
+                                        <div key={key} className="space-y-1.5">
+                                          <Label className="text-sm font-medium text-blue-800 capitalize">
+                                            {key.replace(/([A-Z])/g, ' $1')}
+                                          </Label>
+                                          <div className="flex gap-1">
+                                            {['left', 'center', 'right'].map((align) => (
+                                              <Button
+                                                key={align}
+                                                variant={value === align ? 'default' : 'outline'}
+                                                size="sm"
+                                                onClick={() => updateContent(key, align)}
+                                                className="flex-1"
+                                              >
+                                                {align === 'left' && <AlignLeft className="w-4 h-4" />}
+                                                {align === 'center' && <AlignCenter className="w-4 h-4" />}
+                                                {align === 'right' && <AlignRight className="w-4 h-4" />}
+                                              </Button>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      );
+                                    }
+                                    
+                                    if (isMaxWidth) {
+                                      return (
+                                        <div key={key} className="space-y-1.5">
+                                          <Label className="text-sm font-medium text-blue-800 capitalize">
+                                            {key.replace(/([A-Z])/g, ' $1')}
+                                          </Label>
+                                          <Select value={value as string} onValueChange={(v) => updateContent(key, v)}>
+                                            <SelectTrigger className="border-blue-200"><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                              <SelectItem value="sm">Small (sm)</SelectItem>
+                                              <SelectItem value="md">Medium (md)</SelectItem>
+                                              <SelectItem value="lg">Large (lg)</SelectItem>
+                                              <SelectItem value="xl">XL</SelectItem>
+                                              <SelectItem value="2xl">2XL</SelectItem>
+                                              <SelectItem value="3xl">3XL</SelectItem>
+                                              <SelectItem value="4xl">4XL</SelectItem>
+                                              <SelectItem value="5xl">5XL</SelectItem>
+                                              <SelectItem value="6xl">6XL</SelectItem>
+                                              <SelectItem value="7xl">7XL</SelectItem>
+                                              <SelectItem value="full">Full</SelectItem>
+                                            </SelectContent>
+                                          </Select>
+                                        </div>
+                                      );
+                                    }
+
+                                    return (
+                                      <div key={key} className="space-y-1.5">
+                                        <Label className="text-sm font-medium text-blue-800 capitalize flex items-center gap-2">
+                                          {key.replace(/([A-Z])/g, ' $1')}
+                                          <span className="text-xs text-blue-500 font-mono">{value as string}</span>
+                                        </Label>
+                                        <Input
+                                          value={value as string}
+                                          onChange={(e) => updateContent(key, e.target.value)}
+                                          className="border-blue-200 focus:border-blue-400 font-mono text-sm"
+                                          placeholder="e.g. 1rem, 16px, 100vh"
+                                        />
+                                      </div>
+                                    );
+                                  })}
+                                  {/* Numeric columns */}
+                                  {typeof blockContent.columns === 'number' && (
+                                    <div className="space-y-1.5">
+                                      <Label className="text-sm font-medium text-blue-800">Columns: {blockContent.columns}</Label>
+                                      <Slider
+                                        value={[blockContent.columns]}
+                                        onValueChange={([v]) => updateContent('columns', v)}
+                                        min={1}
+                                        max={6}
+                                        step={1}
+                                        className="py-2"
+                                      />
+                                    </div>
+                                  )}
+                                </CollapsibleContent>
+                              </Collapsible>
+                            );
+                          })()}
+
+                          {/* Typography Section */}
+                          {(() => {
+                            const typographyFields = Object.entries(blockContent).filter(([key, value]) => {
+                              if (typeof value !== 'string') return false;
+                              const typoPatterns = [
+                                'font', 'Font', 'lineHeight', 'LineHeight', 'letterSpacing', 'LetterSpacing',
+                                'weight', 'Weight', 'style', 'Style'
+                              ];
+                              const excludePatterns = ['color', 'Color', 'image', 'Image', 'url', 'Url'];
+                              return typoPatterns.some(p => key.includes(p)) && 
+                                     !excludePatterns.some(p => key.includes(p));
+                            });
+                            if (typographyFields.length === 0) return null;
+                            return (
+                              <Collapsible defaultOpen className="border border-violet-200 rounded-lg overflow-hidden">
+                                <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gradient-to-r from-violet-50 to-purple-50 hover:from-violet-100 hover:to-purple-100 transition-colors">
+                                  <div className="flex items-center gap-2">
+                                    <Type className="w-4 h-4 text-violet-600" />
+                                    <span className="font-semibold text-violet-900">Typography</span>
+                                    <Badge variant="secondary" className="text-xs bg-violet-100 text-violet-700">
+                                      {typographyFields.length}
+                                    </Badge>
+                                  </div>
+                                  <ChevronDown className="w-4 h-4 text-violet-600" />
+                                </CollapsibleTrigger>
+                                <CollapsibleContent className="p-3 space-y-3 bg-white">
+                                  {typographyFields.map(([key, value]) => (
+                                    <div key={key} className="space-y-1.5">
+                                      <Label className="text-sm font-medium text-violet-800 capitalize flex items-center gap-2">
+                                        {key.replace(/([A-Z])/g, ' $1')}
+                                        <span className="text-xs text-violet-500 font-mono">{value as string}</span>
+                                      </Label>
+                                      <Input
+                                        value={value as string}
+                                        onChange={(e) => updateContent(key, e.target.value)}
+                                        className="border-violet-200 focus:border-violet-400 font-mono text-sm"
+                                        placeholder="e.g. 1.5rem, bold, italic"
+                                      />
+                                    </div>
+                                  ))}
+                                </CollapsibleContent>
+                              </Collapsible>
+                            );
+                          })()}
+
+                          {/* Toggle Options Section */}
+                          <Collapsible defaultOpen className="border border-amber-200 rounded-lg overflow-hidden">
+                            <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 transition-colors">
+                              <div className="flex items-center gap-2">
+                                <Settings2 className="w-4 h-4 text-amber-600" />
+                                <span className="font-semibold text-amber-900">Toggle Options</span>
+                                <Badge variant="secondary" className="text-xs bg-amber-100 text-amber-700">
+                                  {Object.keys(blockContent).filter(k => typeof blockContent[k] === 'boolean').length}
+                                </Badge>
+                              </div>
+                              <ChevronDown className="w-4 h-4 text-amber-600" />
+                            </CollapsibleTrigger>
+                            <CollapsibleContent className="p-3 space-y-2 bg-white">
+                              {Object.entries(blockContent).map(([key, value]) => {
+                                if (typeof value !== 'boolean') return null;
+                                return (
+                                  <div key={key} className="flex items-center justify-between p-2 rounded-lg hover:bg-amber-50 transition-colors">
+                                    <Label className="text-sm font-medium text-amber-800 capitalize cursor-pointer">
+                                      {key.replace(/([A-Z])/g, ' $1')}
+                                    </Label>
+                                    <Switch
+                                      checked={value}
+                                      onCheckedChange={(checked) => updateContent(key, checked)}
+                                      className="data-[state=checked]:bg-amber-500"
+                                    />
+                                  </div>
+                                );
+                              })}
+                              {Object.keys(blockContent).filter(k => typeof blockContent[k] === 'boolean').length === 0 && (
+                                <p className="text-sm text-amber-600/70 text-center py-2">No toggle options for this block</p>
+                              )}
+                            </CollapsibleContent>
+                          </Collapsible>
+
+                          {/* Number Values Section */}
+                          {Object.keys(blockContent).filter(k => 
+                            typeof blockContent[k] === 'number' && 
+                            k !== 'columns'
+                          ).length > 0 && (
+                            <Collapsible defaultOpen className="border border-indigo-200 rounded-lg overflow-hidden">
+                              <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gradient-to-r from-indigo-50 to-violet-50 hover:from-indigo-100 hover:to-violet-100 transition-colors">
+                                <div className="flex items-center gap-2">
+                                  <Zap className="w-4 h-4 text-indigo-600" />
+                                  <span className="font-semibold text-indigo-900">Number Values</span>
+                                </div>
+                                <ChevronDown className="w-4 h-4 text-indigo-600" />
+                              </CollapsibleTrigger>
+                              <CollapsibleContent className="p-3 space-y-3 bg-white">
+                                {Object.entries(blockContent).map(([key, value]) => {
+                                  if (typeof value !== 'number' || key === 'columns') return null;
+                                  const isPercentage = key.includes('opacity') || key.includes('Opacity') || key.includes('percent');
+                                  const isSpeed = key.includes('speed') || key.includes('Speed') || key.includes('duration') || key.includes('Duration') || key.includes('interval');
+                                  return (
+                                    <div key={key} className="space-y-1.5">
+                                      <Label className="text-sm font-medium text-indigo-800 capitalize flex items-center justify-between">
+                                        {key.replace(/([A-Z])/g, ' $1')}
+                                        <span className="font-mono text-indigo-600">
+                                          {value}{isPercentage ? '%' : isSpeed ? 'ms' : ''}
+                                        </span>
+                                      </Label>
+                                      {isPercentage ? (
+                                        <Slider
+                                          value={[value]}
+                                          onValueChange={([v]) => updateContent(key, v)}
+                                          min={0}
+                                          max={100}
+                                          step={5}
+                                          className="py-2"
+                                        />
+                                      ) : isSpeed ? (
+                                        <Slider
+                                          value={[value]}
+                                          onValueChange={([v]) => updateContent(key, v)}
+                                          min={100}
+                                          max={10000}
+                                          step={100}
+                                          className="py-2"
+                                        />
+                                      ) : (
+                                        <Input
+                                          type="number"
+                                          value={value}
+                                          onChange={(e) => updateContent(key, Number(e.target.value))}
+                                          className="border-indigo-200 focus:border-indigo-400"
+                                        />
+                                      )}
+                                    </div>
+                                  );
+                                })}
+                              </CollapsibleContent>
+                            </Collapsible>
+                          )}
+
+                          {/* Array Items Section */}
+                          {Object.entries(blockContent).map(([key, value]) => {
+                            if (!Array.isArray(value)) return null;
+                            return (
+                              <Collapsible key={key} defaultOpen className="border border-rose-200 rounded-lg overflow-hidden">
+                                <CollapsibleTrigger className="flex items-center justify-between w-full p-3 bg-gradient-to-r from-rose-50 to-pink-50 hover:from-rose-100 hover:to-pink-100 transition-colors">
+                                  <div className="flex items-center gap-2">
+                                    <List className="w-4 h-4 text-rose-600" />
+                                    <span className="font-semibold text-rose-900 capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+                                    <Badge variant="secondary" className="text-xs bg-rose-100 text-rose-700">
+                                      {value.length} items
+                                    </Badge>
+                                  </div>
+                                  <ChevronDown className="w-4 h-4 text-rose-600" />
+                                </CollapsibleTrigger>
+                                <CollapsibleContent className="p-3 space-y-3 bg-white">
                                   {value.map((item: any, index: number) => (
-                                    <div key={index} className="border rounded p-3 space-y-2 bg-neutral-50 dark:bg-neutral-800">
+                                    <motion.div 
+                                      key={index} 
+                                      initial={{ opacity: 0, y: -10 }}
+                                      animate={{ opacity: 1, y: 0 }}
+                                      className="border border-rose-100 rounded-lg p-3 space-y-2 bg-rose-50/30"
+                                    >
                                       <div className="flex items-center justify-between mb-2">
-                                        <span className="text-xs font-medium text-muted-foreground">Item {index + 1}</span>
-                                        <Button 
-                                          variant="ghost" 
-                                          size="sm"
-                                          onClick={() => removeArrayItem(key, index)}
-                                        >
-                                          <Trash2 className="w-3 h-3 text-destructive" />
-                                        </Button>
+                                        <span className="text-xs font-semibold text-rose-700 flex items-center gap-2">
+                                          <span className="w-5 h-5 rounded-full bg-rose-200 flex items-center justify-center text-rose-700">
+                                            {index + 1}
+                                          </span>
+                                          Item {index + 1}
+                                        </span>
+                                        <div className="flex gap-1">
+                                          <TooltipProvider>
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <Button 
+                                                  variant="ghost" 
+                                                  size="sm"
+                                                  onClick={() => {
+                                                    const newItem = { ...item };
+                                                    addArrayItem(key, newItem);
+                                                  }}
+                                                  className="h-7 w-7 p-0 text-rose-500 hover:text-rose-700 hover:bg-rose-100"
+                                                >
+                                                  <Copy className="w-3 h-3" />
+                                                </Button>
+                                              </TooltipTrigger>
+                                              <TooltipContent>Duplicate</TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
+                                          <TooltipProvider>
+                                            <Tooltip>
+                                              <TooltipTrigger asChild>
+                                                <Button 
+                                                  variant="ghost" 
+                                                  size="sm"
+                                                  onClick={() => removeArrayItem(key, index)}
+                                                  className="h-7 w-7 p-0 text-red-500 hover:text-red-700 hover:bg-red-100"
+                                                >
+                                                  <Trash2 className="w-3 h-3" />
+                                                </Button>
+                                              </TooltipTrigger>
+                                              <TooltipContent>Remove</TooltipContent>
+                                            </Tooltip>
+                                          </TooltipProvider>
+                                        </div>
                                       </div>
                                       {Object.entries(item).map(([itemKey, itemValue]) => (
                                         <div key={itemKey} className="space-y-1">
-                                          <Label className="text-xs capitalize">{itemKey.replace(/([A-Z])/g, ' $1')}</Label>
-                                          {typeof itemValue === 'string' && itemValue.length > 50 ? (
+                                          <Label className="text-xs text-rose-700 capitalize font-medium">
+                                            {itemKey.replace(/([A-Z])/g, ' $1')}
+                                          </Label>
+                                          {typeof itemValue === 'boolean' ? (
+                                            <Switch
+                                              checked={itemValue as boolean}
+                                              onCheckedChange={(checked) => updateArrayItem(key, index, itemKey, checked)}
+                                              className="data-[state=checked]:bg-rose-500"
+                                            />
+                                          ) : typeof itemValue === 'string' && (itemValue.length > 50 || itemKey.includes('description') || itemKey.includes('content')) ? (
                                             <Textarea
-                                              value={itemValue}
+                                              value={itemValue as string}
                                               onChange={(e) => updateArrayItem(key, index, itemKey, e.target.value)}
                                               rows={2}
-                                              className="text-sm"
+                                              className="text-sm border-rose-200 focus:border-rose-400"
                                             />
+                                          ) : itemKey.includes('color') || itemKey.includes('Color') ? (
+                                            <div className="flex gap-2 items-center">
+                                              <input
+                                                type="color"
+                                                value={(itemValue as string)?.startsWith('#') ? itemValue as string : '#7c3aed'}
+                                                onChange={(e) => updateArrayItem(key, index, itemKey, e.target.value)}
+                                                className="w-8 h-8 rounded border cursor-pointer"
+                                              />
+                                              <Input
+                                                value={String(itemValue || '')}
+                                                onChange={(e) => updateArrayItem(key, index, itemKey, e.target.value)}
+                                                className="text-sm border-rose-200 font-mono"
+                                              />
+                                            </div>
                                           ) : (
                                             <Input
                                               value={String(itemValue || '')}
                                               onChange={(e) => updateArrayItem(key, index, itemKey, e.target.value)}
-                                              className="text-sm"
+                                              className="text-sm border-rose-200 focus:border-rose-400"
                                             />
                                           )}
                                         </div>
                                       ))}
-                                    </div>
+                                    </motion.div>
                                   ))}
-                                </div>
-                              );
-                            }
-                            
-                            // Boolean fields
-                            if (typeof value === 'boolean') {
-                              return (
-                                <div key={key} className="flex items-center justify-between">
-                                  <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
-                                  <Switch
-                                    checked={value}
-                                    onCheckedChange={(checked) => updateContent(key, checked)}
-                                  />
-                                </div>
-                              );
-                            }
-                            
-                            // Number fields
-                            if (typeof value === 'number') {
-                              return (
-                                <div key={key} className="space-y-2">
-                                  <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
-                                  <Input
-                                    type="number"
-                                    value={value}
-                                    onChange={(e) => updateContent(key, Number(e.target.value))}
-                                  />
-                                </div>
-                              );
-                            }
-
-                            // Sizing presets
-                            if (key === 'sectionPadding') {
-                              return (
-                                <div key={key} className="space-y-2">
-                                  <Label className="text-sm font-medium">Section Padding</Label>
-                                  <Select value={value as string} onValueChange={(v) => updateContent(key, v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="compact">Compact</SelectItem>
-                                      <SelectItem value="standard">Standard</SelectItem>
-                                      <SelectItem value="spacious">Spacious</SelectItem>
-                                      <SelectItem value="hero">Hero</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              );
-                            }
-
-                            if (key === 'titleSize' || key === 'numberSize') {
-                              return (
-                                <div key={key} className="space-y-2">
-                                  <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
-                                  <Select value={value as string} onValueChange={(v) => updateContent(key, v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="small">Small</SelectItem>
-                                      <SelectItem value="medium">Medium</SelectItem>
-                                      <SelectItem value="large">Large</SelectItem>
-                                      <SelectItem value="hero">Hero</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              );
-                            }
-
-                            if (key === 'descriptionSize' || key === 'subtitleSize') {
-                              return (
-                                <div key={key} className="space-y-2">
-                                  <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
-                                  <Select value={value as string} onValueChange={(v) => updateContent(key, v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="small">Small</SelectItem>
-                                      <SelectItem value="medium">Medium</SelectItem>
-                                      <SelectItem value="large">Large</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              );
-                            }
-
-                            if (key === 'itemGap') {
-                              return (
-                                <div key={key} className="space-y-2">
-                                  <Label className="text-sm font-medium">Item Spacing</Label>
-                                  <Select value={value as string} onValueChange={(v) => updateContent(key, v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="tight">Tight</SelectItem>
-                                      <SelectItem value="standard">Standard</SelectItem>
-                                      <SelectItem value="spacious">Spacious</SelectItem>
-                                      <SelectItem value="wide">Wide</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              );
-                            }
-
-                            if (key === 'maxWidth') {
-                              return (
-                                <div key={key} className="space-y-2">
-                                  <Label className="text-sm font-medium">Container Width</Label>
-                                  <Select value={value as string} onValueChange={(v) => updateContent(key, v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="max-w-4xl">Narrow</SelectItem>
-                                      <SelectItem value="max-w-5xl">Medium</SelectItem>
-                                      <SelectItem value="max-w-6xl">Wide</SelectItem>
-                                      <SelectItem value="max-w-7xl">Extra Wide</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                </div>
-                              );
-                            }
-                            
-                            // Long text fields
-                            if (typeof value === 'string' && (key.includes('description') || key.includes('content') || key.includes('text') || (value as string).length > 80)) {
-                              return (
-                                <div key={key} className="space-y-2">
-                                  <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
-                                  <Textarea
-                                    value={value}
-                                    onChange={(e) => updateContent(key, e.target.value)}
-                                    rows={3}
-                                  />
-                                </div>
-                              );
-                            }
-                            
-                            // Regular string fields
-                            if (typeof value === 'string') {
-                              return (
-                                <div key={key} className="space-y-2">
-                                  <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
-                                  <Input
-                                    value={value}
-                                    onChange={(e) => updateContent(key, e.target.value)}
-                                  />
-                                </div>
-                              );
-                            }
-                            
-                            return null;
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm"
+                                    onClick={() => addArrayItem(key, value[0] ? { ...value[0] } : {})}
+                                    className="w-full border-rose-300 text-rose-600 hover:bg-rose-100"
+                                  >
+                                    <Plus className="w-3 h-3 mr-1" /> Add {key.replace(/([A-Z])/g, ' $1').replace(/s$/, '')}
+                                  </Button>
+                                </CollapsibleContent>
+                              </Collapsible>
+                            );
                           })}
                         </div>
                       </ScrollArea>
                     ) : (
-                      <div className="text-center py-8 text-muted-foreground">
-                        Select a block type to start editing
+                      <div className="text-center py-12 text-blue-600/70">
+                        <Settings2 className="w-12 h-12 mx-auto mb-4 text-blue-400" />
+                        <h3 className="text-lg font-semibold text-blue-900 mb-2">No Block Selected</h3>
+                        <p>Select a block type to start editing its content.</p>
                       </div>
                     )}
                   </CardContent>
