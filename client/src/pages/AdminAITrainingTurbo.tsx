@@ -80,6 +80,10 @@ export default function AdminAITrainingTurbo() {
     onSuccess: () => { toast.success("Training data added!"); trainingQuery.refetch(); setIsCreateOpen(false); setFormData({ question: "", answer: "", category: "" }); }, 
     onError: (e: any) => toast.error(e.message) 
   });
+  const updateMutation = trpc.aiTraining.updateKnowledge.useMutation({
+    onSuccess: () => { toast.success("Training data updated!"); trainingQuery.refetch(); setIsEditOpen(false); setEditingItem(null); setFormData({ question: "", answer: "", category: "" }); },
+    onError: (e: any) => toast.error(e.message)
+  });
   const deleteMutation = trpc.aiTraining.deleteKnowledge.useMutation({ 
     onSuccess: () => { toast.success("Deleted"); trainingQuery.refetch(); }, 
     onError: (e: any) => toast.error(e.message) 
@@ -312,7 +316,7 @@ export default function AdminAITrainingTurbo() {
               <div><Label className="text-slate-300">Question</Label><Textarea value={formData.question} onChange={(e) => setFormData({ ...formData, question: e.target.value })} rows={2} className="mt-1 bg-white/10 border-white/20 text-white" /></div>
               <div><Label className="text-slate-300">Answer</Label><Textarea value={formData.answer} onChange={(e) => setFormData({ ...formData, answer: e.target.value })} rows={12} className="mt-1 bg-white/10 border-white/20 text-white min-h-[200px] resize-y" /></div>
             </div>
-            <DialogFooter><Button variant="outline" onClick={() => setIsEditOpen(false)} className="border-white/20 text-white">Cancel</Button><Button onClick={() => { deleteMutation.mutate({ id: editingItem.id }); createMutation.mutate(formData); setIsEditOpen(false); }} disabled={!formData.question || !formData.answer} className="bg-gradient-to-r from-blue-500 to-cyan-500">Save Changes</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={() => setIsEditOpen(false)} className="border-white/20 text-white">Cancel</Button><Button onClick={() => updateMutation.mutate({ id: editingItem.id, ...formData })} disabled={updateMutation.isPending || !formData.question || !formData.answer} className="bg-gradient-to-r from-blue-500 to-cyan-500">{updateMutation.isPending ? "Saving..." : "Save Changes"}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
 
