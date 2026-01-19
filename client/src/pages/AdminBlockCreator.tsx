@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react';
 import { useLocation } from 'wouter';
 import { trpc } from '@/lib/trpc';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,11 +19,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, 
   Box, Sparkles, Type, Image, Layout, List, Grid, 
-  Heart, Star, Zap, FileText, MessageSquare, Users
+  Heart, Star, Zap, FileText, MessageSquare, Users, Wand2, Palette
 } from 'lucide-react';
 import { blockTypes } from '@/components/page-builder/blockTypes';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
 import AdminSidebar from '@/components/AdminSidebar';
+
+// Category color schemes for vibrant styling
+const categoryColors: Record<string, { bg: string; border: string; text: string; icon: string; gradient: string }> = {
+  'je-hero': { bg: 'bg-gradient-to-br from-purple-50 to-pink-50', border: 'border-purple-200', text: 'text-purple-700', icon: 'text-purple-500', gradient: 'from-purple-500 to-pink-500' },
+  'je-content': { bg: 'bg-gradient-to-br from-blue-50 to-cyan-50', border: 'border-blue-200', text: 'text-blue-700', icon: 'text-blue-500', gradient: 'from-blue-500 to-cyan-500' },
+  'je-interactive': { bg: 'bg-gradient-to-br from-amber-50 to-orange-50', border: 'border-amber-200', text: 'text-amber-700', icon: 'text-amber-500', gradient: 'from-amber-500 to-orange-500' },
+  'je-media': { bg: 'bg-gradient-to-br from-green-50 to-emerald-50', border: 'border-green-200', text: 'text-green-700', icon: 'text-green-500', gradient: 'from-green-500 to-emerald-500' },
+  'je-layout': { bg: 'bg-gradient-to-br from-indigo-50 to-violet-50', border: 'border-indigo-200', text: 'text-indigo-700', icon: 'text-indigo-500', gradient: 'from-indigo-500 to-violet-500' },
+  'hero': { bg: 'bg-gradient-to-br from-rose-50 to-pink-50', border: 'border-rose-200', text: 'text-rose-700', icon: 'text-rose-500', gradient: 'from-rose-500 to-pink-500' },
+  'content': { bg: 'bg-gradient-to-br from-teal-50 to-cyan-50', border: 'border-teal-200', text: 'text-teal-700', icon: 'text-teal-500', gradient: 'from-teal-500 to-cyan-500' },
+  'media': { bg: 'bg-gradient-to-br from-fuchsia-50 to-purple-50', border: 'border-fuchsia-200', text: 'text-fuchsia-700', icon: 'text-fuchsia-500', gradient: 'from-fuchsia-500 to-purple-500' },
+  'layout': { bg: 'bg-gradient-to-br from-sky-50 to-blue-50', border: 'border-sky-200', text: 'text-sky-700', icon: 'text-sky-500', gradient: 'from-sky-500 to-blue-500' },
+  'interactive': { bg: 'bg-gradient-to-br from-lime-50 to-green-50', border: 'border-lime-200', text: 'text-lime-700', icon: 'text-lime-500', gradient: 'from-lime-500 to-green-500' },
+};
 
 const ICON_OPTIONS = [
   { value: 'box', label: 'Box', icon: Box },
@@ -170,29 +185,51 @@ export default function AdminBlockCreator() {
     content: blockContent,
   };
 
+  const getCategoryColor = (category: string) => categoryColors[category] || { bg: 'bg-gradient-to-br from-stone-50 to-stone-100', border: 'border-stone-200', text: 'text-stone-700', icon: 'text-stone-500', gradient: 'from-stone-500 to-stone-600' };
+
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50">
+    <div className="flex min-h-screen bg-gradient-to-br from-violet-50 via-white to-fuchsia-50">
       <AdminSidebar />
       
       <main className="flex-1 overflow-auto">
-        {/* Top Bar */}
-        <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-stone-200">
-          <div className="px-6 py-4">
+        {/* Vibrant Header */}
+        <div className="sticky top-0 z-40 bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 text-white shadow-lg">
+          <div className="px-6 py-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <Button variant="ghost" size="sm" onClick={() => navigate('/admin/block-store')}>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/admin/block-store')} className="text-white/80 hover:text-white hover:bg-white/10">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Block Store
                 </Button>
-                <div>
-                  <h1 className="text-xl font-bold text-stone-900">Block Creator</h1>
-                  <p className="text-sm text-stone-500">Create a custom reusable block</p>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white/20 rounded-xl">
+                    <Wand2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h1 className="text-2xl font-bold">Block Creator</h1>
+                    <p className="text-sm text-white/80">Design your custom reusable block</p>
+                  </div>
                 </div>
               </div>
-              <Button onClick={handleSave} disabled={isSaving || !blockName || !selectedBlockType}>
-                <Save className="w-4 h-4 mr-2" />
-                {isSaving ? 'Saving...' : 'Save to Block Store'}
-              </Button>
+              <div className="flex items-center gap-3">
+                {selectedBlockType && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="px-3 py-1.5 bg-white/20 rounded-full text-sm font-medium"
+                  >
+                    ✨ {blockTypes.find(b => b.id === selectedBlockType)?.name}
+                  </motion.div>
+                )}
+                <Button 
+                  onClick={handleSave} 
+                  disabled={isSaving || !blockName || !selectedBlockType}
+                  className="bg-white text-purple-600 hover:bg-white/90 shadow-lg"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  {isSaving ? 'Saving...' : 'Save to Block Store'}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -201,75 +238,115 @@ export default function AdminBlockCreator() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           
           {/* Left Panel - Block Type Selection */}
-          <div className="lg:col-span-3">
-            <Card>
-              <CardHeader className="pb-3">
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="lg:col-span-3"
+          >
+            <Card className="border-2 border-purple-100 shadow-lg overflow-hidden">
+              <CardHeader className="pb-3 bg-gradient-to-r from-purple-50 to-fuchsia-50">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Layers className="w-4 h-4" />
+                  <div className="p-1.5 bg-gradient-to-br from-purple-500 to-fuchsia-500 rounded-lg text-white">
+                    <Layers className="w-4 h-4" />
+                  </div>
                   Choose Base Block
                 </CardTitle>
                 <CardDescription>Select a starting template</CardDescription>
               </CardHeader>
               <CardContent className="p-0">
-                <ScrollArea className="h-[50vh]">
-                  <div className="p-3 space-y-3">
-                    {Object.entries(blocksByCategory).map(([category, categoryBlocks]) => (
-                      <div key={category}>
-                        <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
-                          {category.replace('je-', 'JE ').replace('-', ' ')}
-                        </h4>
-                        <div className="space-y-1">
-                          {categoryBlocks.map((block) => {
-                            const Icon = block.icon;
-                            const isSelected = selectedBlockType === block.id;
-                            return (
-                              <button
-                                key={block.id}
-                                onClick={() => handleSelectBlockType(block.id)}
-                                className={`flex items-center gap-2 w-full p-2 rounded-lg border transition-colors text-left ${
-                                  isSelected 
-                                    ? 'border-primary bg-primary/10 text-primary' 
-                                    : 'border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800'
-                                }`}
-                              >
-                                <Icon className="w-4 h-4 flex-shrink-0" />
-                                <span className="text-xs font-medium truncate">{block.name}</span>
-                              </button>
-                            );
-                          })}
+                <ScrollArea className="h-[55vh]">
+                  <div className="p-3 space-y-4">
+                    {Object.entries(blocksByCategory).map(([category, categoryBlocks]) => {
+                      const colors = getCategoryColor(category);
+                      return (
+                        <div key={category}>
+                          <div className={`flex items-center gap-2 mb-2 px-2 py-1 rounded-lg ${colors.bg}`}>
+                            <div className={`w-2 h-2 rounded-full bg-gradient-to-r ${colors.gradient}`} />
+                            <h4 className={`text-xs font-bold uppercase tracking-wider ${colors.text}`}>
+                              {category.replace('je-', 'JE ').replace('-', ' ')}
+                            </h4>
+                            <span className={`text-[10px] px-1.5 py-0.5 rounded-full bg-white/60 ${colors.text}`}>
+                              {categoryBlocks.length}
+                            </span>
+                          </div>
+                          <div className="space-y-1">
+                            {categoryBlocks.map((block) => {
+                              const Icon = block.icon;
+                              const isSelected = selectedBlockType === block.id;
+                              return (
+                                <motion.button
+                                  key={block.id}
+                                  onClick={() => handleSelectBlockType(block.id)}
+                                  whileHover={{ scale: 1.02 }}
+                                  whileTap={{ scale: 0.98 }}
+                                  className={`flex items-center gap-2 w-full p-2.5 rounded-lg border-2 transition-all text-left ${
+                                    isSelected 
+                                      ? `${colors.bg} ${colors.border} ${colors.text} shadow-md` 
+                                      : 'border-transparent hover:border-purple-100 hover:bg-purple-50/50'
+                                  }`}
+                                >
+                                  <Icon className={`w-4 h-4 flex-shrink-0 ${isSelected ? colors.icon : 'text-stone-400'}`} />
+                                  <span className="text-xs font-medium truncate">{block.name}</span>
+                                  {isSelected && <Sparkles className="w-3 h-3 ml-auto text-purple-500" />}
+                                </motion.button>
+                              );
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </ScrollArea>
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
 
           {/* Center - Preview & Content Editor */}
-          <div className="lg:col-span-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="lg:col-span-6"
+          >
             <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="mb-4">
-                <TabsTrigger value="design">Design & Preview</TabsTrigger>
-                <TabsTrigger value="content">Edit Content</TabsTrigger>
+              <TabsList className="mb-4 bg-gradient-to-r from-purple-100 to-fuchsia-100 p-1">
+                <TabsTrigger value="design" className="data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-md">
+                  <Eye className="w-4 h-4 mr-2" />
+                  Design & Preview
+                </TabsTrigger>
+                <TabsTrigger value="content" className="data-[state=active]:bg-white data-[state=active]:text-purple-700 data-[state=active]:shadow-md">
+                  <Palette className="w-4 h-4 mr-2" />
+                  Edit Content
+                </TabsTrigger>
               </TabsList>
 
               <TabsContent value="design">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Live Preview</CardTitle>
+                <Card className="border-2 border-fuchsia-100 shadow-lg overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-fuchsia-50 to-pink-50">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <div className="p-1.5 bg-gradient-to-br from-fuchsia-500 to-pink-500 rounded-lg text-white">
+                        <Eye className="w-4 h-4" />
+                      </div>
+                      Live Preview
+                    </CardTitle>
                     <CardDescription>See your block as it will appear</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="p-4">
                     {selectedBlockType ? (
-                      <div className="border rounded-lg overflow-hidden bg-white">
+                      <motion.div 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        className="border-2 border-purple-100 rounded-xl overflow-hidden bg-white shadow-inner"
+                      >
                         <BlockRenderer block={previewBlock} isPreviewMode={true} />
-                      </div>
+                      </motion.div>
                     ) : (
-                      <div className="border-2 border-dashed border-neutral-300 rounded-lg p-12 text-center">
-                        <Layers className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                        <h3 className="text-lg font-medium mb-2">Select a Base Block</h3>
-                        <p className="text-muted-foreground">Choose a block type from the left panel to start customizing</p>
+                      <div className="border-2 border-dashed border-purple-200 rounded-xl p-12 text-center bg-gradient-to-br from-purple-50/50 to-fuchsia-50/50">
+                        <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-purple-100 to-fuchsia-100 flex items-center justify-center">
+                          <Layers className="w-8 h-8 text-purple-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-purple-900 mb-2">Select a Base Block</h3>
+                        <p className="text-purple-600/70">Choose a block type from the left panel to start customizing</p>
                       </div>
                     )}
                   </CardContent>
@@ -277,9 +354,14 @@ export default function AdminBlockCreator() {
               </TabsContent>
 
               <TabsContent value="content">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Edit Block Content</CardTitle>
+                <Card className="border-2 border-blue-100 shadow-lg overflow-hidden">
+                  <CardHeader className="bg-gradient-to-r from-blue-50 to-cyan-50">
+                    <CardTitle className="text-base flex items-center gap-2">
+                      <div className="p-1.5 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg text-white">
+                        <Palette className="w-4 h-4" />
+                      </div>
+                      Edit Block Content
+                    </CardTitle>
                     <CardDescription>Customize all text, images, and settings</CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -490,42 +572,51 @@ export default function AdminBlockCreator() {
                 </Card>
               </TabsContent>
             </Tabs>
-          </div>
+          </motion.div>
 
           {/* Right Panel - Block Metadata */}
-          <div className="lg:col-span-3">
-            <Card className="sticky top-20">
-              <CardHeader className="pb-3">
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.2 }}
+            className="lg:col-span-3"
+          >
+            <Card className="sticky top-24 border-2 border-amber-100 shadow-lg overflow-hidden">
+              <CardHeader className="pb-3 bg-gradient-to-r from-amber-50 to-orange-50">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Box className="w-4 h-4" />
+                  <div className="p-1.5 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg text-white">
+                    <Box className="w-4 h-4" />
+                  </div>
                   Block Details
                 </CardTitle>
                 <CardDescription>Name and categorize your block</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-4 pt-4">
                 <div className="space-y-2">
-                  <Label>Block Name *</Label>
+                  <Label className="text-amber-800 font-medium">Block Name *</Label>
                   <Input
                     value={blockName}
                     onChange={(e) => setBlockName(e.target.value)}
                     placeholder="My Custom Block"
+                    className="border-amber-200 focus:border-amber-400 focus:ring-amber-400"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Description</Label>
+                  <Label className="text-amber-800 font-medium">Description</Label>
                   <Textarea
                     value={blockDescription}
                     onChange={(e) => setBlockDescription(e.target.value)}
                     placeholder="What this block is for..."
                     rows={2}
+                    className="border-amber-200 focus:border-amber-400 focus:ring-amber-400"
                   />
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Category</Label>
+                  <Label className="text-amber-800 font-medium">Category</Label>
                   <Select value={blockCategory} onValueChange={setBlockCategory}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="border-amber-200"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {CATEGORY_OPTIONS.map(opt => (
                         <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
@@ -535,9 +626,9 @@ export default function AdminBlockCreator() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label>Icon</Label>
+                  <Label className="text-amber-800 font-medium">Icon</Label>
                   <Select value={blockIcon} onValueChange={setBlockIcon}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="border-amber-200"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {ICON_OPTIONS.map(opt => {
                         const IconComp = opt.icon;
@@ -555,15 +646,22 @@ export default function AdminBlockCreator() {
                 </div>
 
                 {selectedBlockType && (
-                  <div className="pt-4 border-t">
-                    <p className="text-xs text-muted-foreground">
-                      Base: <span className="font-medium">{blockTypes.find(b => b.id === selectedBlockType)?.name}</span>
-                    </p>
-                  </div>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="pt-4 border-t border-amber-200"
+                  >
+                    <div className="flex items-center gap-2 px-3 py-2 bg-gradient-to-r from-amber-100 to-orange-100 rounded-lg">
+                      <Sparkles className="w-4 h-4 text-amber-600" />
+                      <p className="text-xs text-amber-800">
+                        Base: <span className="font-semibold">{blockTypes.find(b => b.id === selectedBlockType)?.name}</span>
+                      </p>
+                    </div>
+                  </motion.div>
                 )}
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         </div>
         </div>
       </main>
