@@ -1127,7 +1127,18 @@ Create a detailed video generation prompt that would result in a beautiful, calm
         throw new Error("No video generated");
       } catch (veoError: any) {
         console.log("Vertex AI video generation error:", veoError.message);
-        throw new Error(`Video generation failed: ${veoError.message}. Prompt: "${finalPrompt.substring(0, 200)}..."`);
+        
+        // Handle quota exceeded errors with user-friendly message
+        if (veoError.message?.includes('429') || veoError.message?.includes('RESOURCE_EXHAUSTED') || veoError.message?.includes('quota')) {
+          throw new Error("AI Video generation quota temporarily exceeded. Please try again in a few minutes, or use an existing image to create a video loop instead.");
+        }
+        
+        // Handle other common errors
+        if (veoError.message?.includes('not found') || veoError.message?.includes('404')) {
+          throw new Error("Video generation model not available. Please contact support.");
+        }
+        
+        throw new Error(`Video generation failed. Please try again later or with a simpler prompt.`);
       }
     } else {
       throw new Error(`Vertex AI not configured. Set GOOGLE_CLOUD_PROJECT env var. Generated prompt: "${finalPrompt.substring(0, 200)}..."`);
