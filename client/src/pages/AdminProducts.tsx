@@ -321,14 +321,35 @@ export default function AdminProducts() {
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="featuredImage">Featured Image URL</Label>
-                    <Input
-                      id="featuredImage"
-                      value={formData.featuredImage}
-                      onChange={(e) => setFormData({ ...formData, featuredImage: e.target.value })}
-                      placeholder="https://example.com/image.jpg"
-                    />
+                    <Label htmlFor="featuredImage">Featured Image</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="featuredImage"
+                        value={formData.featuredImage}
+                        onChange={(e) => setFormData({ ...formData, featuredImage: e.target.value })}
+                        placeholder="Click 'Browse' to select an image"
+                        className="flex-1"
+                      />
+                      <Button type="button" variant="outline" onClick={() => setMediaPickerOpen(true)}>
+                        <Image className="w-4 h-4 mr-2" />
+                        Browse
+                      </Button>
+                    </div>
+                    {formData.featuredImage && (
+                      <div className="mt-2 relative w-32 h-32 rounded-lg overflow-hidden bg-stone-100">
+                        <img src={formData.featuredImage} alt="Preview" className="w-full h-full object-cover" />
+                      </div>
+                    )}
                   </div>
+                  <MediaPicker
+                    open={mediaPickerOpen}
+                    onClose={() => setMediaPickerOpen(false)}
+                    onSelect={(url) => {
+                      setFormData({ ...formData, featuredImage: url });
+                      setMediaPickerOpen(false);
+                    }}
+                    mediaType="image"
+                  />
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => {

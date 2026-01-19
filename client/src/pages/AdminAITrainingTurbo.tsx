@@ -76,7 +76,7 @@ export default function AdminAITrainingTurbo() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const trainingQuery = trpc.aiTraining.listKnowledge.useQuery();
-  const createMutation = (trpc.aiTraining as any).addKnowledge.useMutation({ 
+  const createMutation = trpc.aiTraining.createKnowledge.useMutation({ 
     onSuccess: () => { toast.success("Training data added!"); trainingQuery.refetch(); setIsCreateOpen(false); setFormData({ question: "", answer: "", category: "" }); }, 
     onError: (e: any) => toast.error(e.message) 
   });
