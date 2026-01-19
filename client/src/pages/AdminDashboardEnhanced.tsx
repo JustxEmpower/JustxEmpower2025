@@ -656,52 +656,70 @@ export default function AdminDashboardEnhanced() {
           </div>
 
           {/* Recent Activity */}
-          <Card>
-            <CardHeader>
+          <Card className="border-2 border-emerald-100 shadow-lg overflow-hidden">
+            <div className="h-1 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+            <CardHeader className="bg-gradient-to-r from-emerald-50/50 to-teal-50/50">
               <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-green-500" />
-                    Recent Activity
-                  </CardTitle>
-                  <CardDescription>Latest changes and updates</CardDescription>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-500 rounded-xl shadow-lg shadow-emerald-500/30">
+                    <Activity className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-emerald-900">Recent Activity</CardTitle>
+                    <CardDescription className="text-emerald-600">Latest changes and updates</CardDescription>
+                  </div>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => setLocation('/admin/activity')}>View All</Button>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setLocation('/admin/activity')}
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                >
+                  View All
+                </Button>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4">
               {activityQuery.isLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                  <div className="w-10 h-10 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin" />
                 </div>
               ) : activities.length === 0 ? (
                 <div className="text-center py-12">
-                  <Clock className="w-12 h-12 mx-auto mb-4 text-stone-300" />
-                  <p className="text-stone-500">No recent activity</p>
-                  <p className="text-sm text-stone-400 mt-1">Start creating content to see activity here</p>
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-emerald-100 to-teal-100 flex items-center justify-center">
+                    <Clock className="w-8 h-8 text-emerald-400" />
+                  </div>
+                  <p className="text-emerald-700 font-medium">No recent activity</p>
+                  <p className="text-sm text-emerald-500 mt-1">Start creating content to see activity here</p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2">
                   {activities.slice(0, 8).map((activity: any, index: number) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
-                      className="flex items-start gap-4 p-3 rounded-lg hover:bg-stone-50 transition-colors group cursor-pointer"
+                      className="flex items-start gap-4 p-3 rounded-xl hover:bg-gradient-to-r hover:from-emerald-50 hover:to-teal-50 transition-all duration-300 group cursor-pointer border border-transparent hover:border-emerald-200"
                       onClick={() => setSelectedActivity(activity)}
                     >
-                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0">
-                        <Activity className="w-5 h-5 text-primary" />
-                      </div>
+                      <motion.div 
+                        whileHover={{ scale: 1.1, rotate: 5 }}
+                        className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0 shadow-md"
+                      >
+                        <Activity className="w-5 h-5 text-white" />
+                      </motion.div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm text-stone-900 font-medium truncate">{activity.description}</p>
-                        <p className="text-xs text-stone-500 mt-0.5">{activity.timestamp}</p>
+                        <p className="text-sm text-stone-900 font-semibold truncate group-hover:text-emerald-700 transition-colors">{activity.description}</p>
+                        <p className="text-xs text-emerald-600 mt-0.5 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {activity.timestamp}
+                        </p>
                       </div>
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-emerald-600 hover:text-emerald-700 hover:bg-emerald-100"
                         onClick={(e) => { e.stopPropagation(); setSelectedActivity(activity); }}
                       >
                         <ChevronRight className="w-4 h-4" />
@@ -717,67 +735,75 @@ export default function AdminDashboardEnhanced() {
 
       {/* Activity Details Dialog */}
       <Dialog open={!!selectedActivity} onOpenChange={(open) => !open && setSelectedActivity(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Activity className="w-5 h-5 text-primary" />
-              Activity Details
-            </DialogTitle>
-            <DialogDescription>
-              Information about this activity
-            </DialogDescription>
-          </DialogHeader>
-          {selectedActivity && (
-            <div className="space-y-4 pt-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary" className="capitalize">
-                    {selectedActivity.type || 'Activity'}
-                  </Badge>
+        <DialogContent className="sm:max-w-md border-2 border-emerald-200 overflow-hidden p-0">
+          <div className="h-2 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500" />
+          <div className="p-6">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-3">
+                <div className="p-2.5 bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-xl shadow-lg shadow-emerald-500/30">
+                  <Activity className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-lg font-semibold text-stone-900">
-                  {selectedActivity.title || 'Untitled'}
-                </h3>
-                <p className="text-sm text-stone-600">
-                  {selectedActivity.description}
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 pt-4 border-t">
-                <div>
-                  <p className="text-xs text-stone-500 uppercase tracking-wide">Created</p>
-                  <p className="text-sm font-medium text-stone-900">{selectedActivity.timestamp}</p>
-                </div>
-                {selectedActivity.slug && (
-                  <div>
-                    <p className="text-xs text-stone-500 uppercase tracking-wide">Slug</p>
-                    <p className="text-sm font-medium text-stone-900 truncate">{selectedActivity.slug}</p>
+                <span className="bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent text-xl">
+                  Activity Details
+                </span>
+              </DialogTitle>
+              <DialogDescription className="text-emerald-600">
+                Information about this activity
+              </DialogDescription>
+            </DialogHeader>
+            {selectedActivity && (
+              <div className="space-y-4 pt-4">
+                <div className="space-y-3 p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50 border border-emerald-100">
+                  <div className="flex items-center gap-2">
+                    <Badge className="capitalize bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 shadow-md">
+                      {selectedActivity.type || 'Activity'}
+                    </Badge>
                   </div>
-                )}
-              </div>
+                  <h3 className="text-lg font-bold text-emerald-900">
+                    {selectedActivity.title || 'Untitled'}
+                  </h3>
+                  <p className="text-sm text-emerald-700">
+                    {selectedActivity.description}
+                  </p>
+                </div>
 
-              <div className="flex gap-2 pt-4 border-t">
-                {selectedActivity.link && (
+                <div className="grid grid-cols-2 gap-4 p-4 rounded-xl bg-stone-50 border border-stone-100">
+                  <div>
+                    <p className="text-xs text-emerald-600 uppercase tracking-wide font-semibold">Created</p>
+                    <p className="text-sm font-medium text-stone-900 mt-1">{selectedActivity.timestamp}</p>
+                  </div>
+                  {selectedActivity.slug && (
+                    <div>
+                      <p className="text-xs text-emerald-600 uppercase tracking-wide font-semibold">Slug</p>
+                      <p className="text-sm font-medium text-stone-900 truncate mt-1">{selectedActivity.slug}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-3 pt-2">
+                  {selectedActivity.link && (
+                    <Button 
+                      className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/30"
+                      onClick={() => {
+                        setLocation(selectedActivity.link);
+                        setSelectedActivity(null);
+                      }}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Go to {selectedActivity.type || 'page'}
+                    </Button>
+                  )}
                   <Button 
-                    className="flex-1"
-                    onClick={() => {
-                      setLocation(selectedActivity.link);
-                      setSelectedActivity(null);
-                    }}
+                    variant="outline"
+                    onClick={() => setSelectedActivity(null)}
+                    className="border-emerald-200 text-emerald-700 hover:bg-emerald-50"
                   >
-                    <ExternalLink className="w-4 h-4 mr-2" />
-                    Go to {selectedActivity.type || 'Item'}
+                    Close
                   </Button>
-                )}
-                <Button 
-                  variant="outline"
-                  onClick={() => setSelectedActivity(null)}
-                >
-                  Close
-                </Button>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>
