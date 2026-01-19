@@ -33,9 +33,8 @@ export default function AdminShopEnhanced() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const [isSaving, setIsSaving] = useState(false);
 
-  const shopQuery = (trpc.admin as any).shop?.settings?.useQuery?.() || { data: null, refetch: () => {} };
-  const productsQuery = trpc.admin.products?.list?.useQuery?.({}) || { data: { products: [] }, refetch: () => {} };
-  const ordersQuery = trpc.admin.orders?.list?.useQuery?.({ limit: 10 }) || { data: { orders: [] }, refetch: () => {} };
+  const productsQuery = trpc.admin.products.list.useQuery({});
+  const ordersQuery = trpc.admin.orders.list.useQuery({ limit: 10 });
 
   const [settings, setSettings] = useState({
     shopEnabled: true,
@@ -50,9 +49,7 @@ export default function AdminShopEnhanced() {
     if (!isChecking && !isAuthenticated) setLocation("/admin/login");
   }, [isAuthenticated, isChecking, setLocation]);
 
-  useEffect(() => {
-    if (shopQuery.data) setSettings(prev => ({ ...prev, ...shopQuery.data }));
-  }, [shopQuery.data]);
+  // Settings are stored locally - no shop settings query needed
 
   const products = productsQuery.data?.products || [];
   const orders = ordersQuery.data?.orders || [];
