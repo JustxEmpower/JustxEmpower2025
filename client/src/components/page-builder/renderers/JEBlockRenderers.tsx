@@ -382,7 +382,8 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
   const renderCurveDivider = () => {
     if (!bottomCurve || curveType === 'none') return null;
     
-    const curveColor = 'var(--background, #ffffff)'; // Use CSS variable or white
+    // Use explicit white color for consistent rendering in both editor and preview
+    const curveColor = content.curveColor || '#ffffff';
     
     const curves: Record<string, React.ReactElement> = {
       wave: (
