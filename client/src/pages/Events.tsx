@@ -63,6 +63,9 @@ export default function Events({ slug = 'events' }: EventsProps) {
       {/* Page Builder Zone: After Hero */}
       <EditablePageZone pageSlug="events" zoneName="after-hero" />
 
+      {/* Page Builder Zone: Mid Page */}
+      <EditablePageZone pageSlug="events" zoneName="mid-page" />
+
       {/* Events Tabs */}
       <section className="py-12">
         <div className="container mx-auto px-4">
@@ -99,6 +102,12 @@ export default function Events({ slug = 'events' }: EventsProps) {
           </Tabs>
         </div>
       </section>
+
+      {/* Page Builder Zone: After Content */}
+      <EditablePageZone pageSlug="events" zoneName="after-content" />
+
+      {/* Page Builder Zone: Before Newsletter */}
+      <EditablePageZone pageSlug="events" zoneName="before-newsletter" />
 
       {/* Page Builder Zone: Before Footer */}
       <EditablePageZone pageSlug="events" zoneName="before-footer" />

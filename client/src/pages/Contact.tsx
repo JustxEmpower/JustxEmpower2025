@@ -133,6 +133,9 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
       {/* Page Builder Zone: After Hero */}
       <EditablePageZone pageSlug="contact" zoneName="after-hero" />
 
+      {/* Page Builder Zone: Mid Page */}
+      <EditablePageZone pageSlug="contact" zoneName="mid-page" />
+
       <div className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
           {/* Contact Info */}
@@ -268,6 +271,12 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
           </div>
         </div>
       </div>
+
+      {/* Page Builder Zone: After Content */}
+      <EditablePageZone pageSlug="contact" zoneName="after-content" />
+
+      {/* Page Builder Zone: Before Newsletter */}
+      <EditablePageZone pageSlug="contact" zoneName="before-newsletter" />
 
       {/* Page Builder Zone: Before Footer */}
       <EditablePageZone pageSlug="contact" zoneName="before-footer" />

@@ -107,6 +107,9 @@ export default function Home({ slug = 'home' }: HomeProps) {
         {/* Page Builder Zone: After Carousel */}
         <EditablePageZone pageSlug="home" zoneName="after-carousel" />
 
+        {/* Page Builder Zone: Mid Page */}
+        <EditablePageZone pageSlug="home" zoneName="mid-page" />
+
         {/* Community Section - only show if content exists */}
         {hasCommunityContent && (
           <Section 
@@ -146,6 +149,12 @@ export default function Home({ slug = 'home' }: HomeProps) {
             }}
           />
         )}
+
+        {/* Page Builder Zone: After Content */}
+        <EditablePageZone pageSlug="home" zoneName="after-content" />
+
+        {/* Page Builder Zone: Before Newsletter */}
+        <EditablePageZone pageSlug="home" zoneName="before-newsletter" />
 
         {/* Page Builder Zone: Before Footer */}
         <EditablePageZone pageSlug="home" zoneName="before-footer" />

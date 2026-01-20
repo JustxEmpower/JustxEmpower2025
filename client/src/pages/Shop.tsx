@@ -108,6 +108,9 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
       {/* Page Builder Zone: After Hero */}
       <EditablePageZone pageSlug="shop" zoneName="after-hero" />
 
+      {/* Page Builder Zone: Mid Page */}
+      <EditablePageZone pageSlug="shop" zoneName="mid-page" />
+
       {/* Products Grid - Yeezy Style */}
       <main className="pt-[140px] pb-20">
         {isLoading ? (
@@ -134,6 +137,12 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
         )}
       </main>
       
+      {/* Page Builder Zone: After Content */}
+      <EditablePageZone pageSlug="shop" zoneName="after-content" />
+
+      {/* Page Builder Zone: Before Newsletter */}
+      <EditablePageZone pageSlug="shop" zoneName="before-newsletter" />
+
       {/* Page Builder Zone: Before Footer */}
       <EditablePageZone pageSlug="shop" zoneName="before-footer" />
       

@@ -173,6 +173,9 @@ export default function Journal({ slug = 'blog' }: JournalProps) {
           </div>
         )}
 
+        {/* Page Builder Zone: Mid Page */}
+        <EditablePageZone pageSlug="blog" zoneName="mid-page" />
+
         {/* Recent Articles Grid */}
         {regularPosts.length > 0 && (
           <div className="mb-16">
@@ -252,6 +255,12 @@ export default function Journal({ slug = 'blog' }: JournalProps) {
             </p>
           </div>
         )}
+
+        {/* Page Builder Zone: After Content */}
+        <EditablePageZone pageSlug="blog" zoneName="after-content" />
+
+        {/* Page Builder Zone: Before Newsletter */}
+        <EditablePageZone pageSlug="blog" zoneName="before-newsletter" />
 
         {/* Page Builder Zone: Before Footer */}
         <EditablePageZone pageSlug="blog" zoneName="before-footer" />

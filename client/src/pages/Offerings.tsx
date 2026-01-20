@@ -116,6 +116,9 @@ export default function Offerings() {
         }}
       />
 
+      {/* Page Builder Zone: Mid Page */}
+      <EditablePageZone pageSlug="offerings" zoneName="mid-page" />
+
       {/* She Writes */}
       <Section 
         title={sheWritesTitle}
@@ -161,6 +164,12 @@ export default function Offerings() {
           description: getTextStyle('rootedUnity', 'description'),
         }}
       />
+
+      {/* Page Builder Zone: After Content */}
+      <EditablePageZone pageSlug="offerings" zoneName="after-content" />
+
+      {/* Page Builder Zone: Before Newsletter */}
+      <EditablePageZone pageSlug="offerings" zoneName="before-newsletter" />
 
       {/* Page Builder Zone: Before Footer */}
       <EditablePageZone pageSlug="offerings" zoneName="before-footer" />

@@ -133,6 +133,9 @@ export default function Philosophy() {
         </div>
       </div>
 
+      {/* Page Builder Zone: Mid Page */}
+      <EditablePageZone pageSlug="philosophy" zoneName="mid-page" />
+
       {/* Three Pillars */}
       <Section 
         title={pillarsTitle}
@@ -147,6 +150,9 @@ export default function Philosophy() {
           description: getTextStyle('pillars', 'description'),
         }}
       />
+
+      {/* Page Builder Zone: After Content */}
+      <EditablePageZone pageSlug="philosophy" zoneName="after-content" />
 
       {/* Page Builder Zone: Before Newsletter */}
       <EditablePageZone pageSlug="philosophy" zoneName="before-newsletter" />

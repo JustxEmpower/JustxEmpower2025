@@ -407,6 +407,9 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
       {/* Page Builder Zone: After Hero */}
       <EditablePageZone pageSlug="resources" zoneName="after-hero" />
 
+      {/* Page Builder Zone: Mid Page */}
+      <EditablePageZone pageSlug="resources" zoneName="mid-page" />
+
       <div className="container mx-auto px-4 py-12">
         {/* Featured Resources */}
         {featuredQuery.data && featuredQuery.data.length > 0 && !searchQuery && !selectedCategory && (
@@ -738,6 +741,12 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Page Builder Zone: After Content */}
+      <EditablePageZone pageSlug="resources" zoneName="after-content" />
+
+      {/* Page Builder Zone: Before Newsletter */}
+      <EditablePageZone pageSlug="resources" zoneName="before-newsletter" />
 
       {/* Page Builder Zone: Before Footer */}
       <EditablePageZone pageSlug="resources" zoneName="before-footer" />
