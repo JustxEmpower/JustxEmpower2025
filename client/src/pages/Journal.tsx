@@ -116,6 +116,9 @@ export default function Journal({ slug = 'blog' }: JournalProps) {
         </div>
       </div>
 
+      {/* Page Builder Zone: After Hero */}
+      <EditablePageZone pageSlug="blog" zoneName="after-hero" />
+
       <div className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
         
         {/* Featured Post */}

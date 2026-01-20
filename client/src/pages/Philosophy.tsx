@@ -96,6 +96,9 @@ export default function Philosophy() {
         </div>
       </div>
 
+      {/* Page Builder Zone: After Hero */}
+      <EditablePageZone pageSlug="philosophy" zoneName="after-hero" />
+
       {/* Core Principles */}
       <div className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">

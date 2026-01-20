@@ -60,6 +60,9 @@ export default function Events({ slug = 'events' }: EventsProps) {
         </div>
       </section>
 
+      {/* Page Builder Zone: After Hero */}
+      <EditablePageZone pageSlug="events" zoneName="after-hero" />
+
       {/* Events Tabs */}
       <section className="py-12">
         <div className="container mx-auto px-4">

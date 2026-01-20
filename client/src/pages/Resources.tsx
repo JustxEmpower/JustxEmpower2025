@@ -404,6 +404,9 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
         </div>
       </section>
 
+      {/* Page Builder Zone: After Hero */}
+      <EditablePageZone pageSlug="resources" zoneName="after-hero" />
+
       <div className="container mx-auto px-4 py-12">
         {/* Featured Resources */}
         {featuredQuery.data && featuredQuery.data.length > 0 && !searchQuery && !selectedCategory && (

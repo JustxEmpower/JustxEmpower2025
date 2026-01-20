@@ -105,6 +105,9 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
         </div>
       </div>
 
+      {/* Page Builder Zone: After Hero */}
+      <EditablePageZone pageSlug="shop" zoneName="after-hero" />
+
       {/* Products Grid - Yeezy Style */}
       <main className="pt-[140px] pb-20">
         {isLoading ? (

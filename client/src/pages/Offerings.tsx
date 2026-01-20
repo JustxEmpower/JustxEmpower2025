@@ -99,6 +99,9 @@ export default function Offerings() {
         </div>
       </div>
 
+      {/* Page Builder Zone: After Hero */}
+      <EditablePageZone pageSlug="offerings" zoneName="after-hero" />
+
       {/* Seeds of a New Paradigm */}
       <Section 
         title={seedsTitle}

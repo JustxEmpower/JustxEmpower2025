@@ -182,6 +182,9 @@ export default function About({ slug = 'about' }: AboutProps) {
         </div>
       </div>
 
+      {/* Page Builder Zone: After Hero */}
+      <EditablePageZone pageSlug="about" zoneName="after-hero" />
+
       {/* Main Content */}
       <div className="container mx-auto px-4 py-24 md:py-32">
         {/* Opening Section */}
@@ -196,6 +199,9 @@ export default function About({ slug = 'about' }: AboutProps) {
             {openingParagraph3}
           </p>
         </section>
+
+        {/* Page Builder Zone: Mid Page */}
+        <EditablePageZone pageSlug="about" zoneName="mid-page" />
 
         {/* Just Empower Truth Section */}
         <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
@@ -282,6 +288,9 @@ export default function About({ slug = 'about' }: AboutProps) {
             {futureParagraph4}
           </p>
         </section>
+
+        {/* Page Builder Zone: After Content */}
+        <EditablePageZone pageSlug="about" zoneName="after-content" />
 
         {/* Page Builder Zone: Before Newsletter */}
         <EditablePageZone pageSlug="about" zoneName="before-newsletter" />
