@@ -7,6 +7,7 @@ interface TextStyle {
   isUnderline: boolean;
   fontSize?: string | null;
   fontColor?: string | null;
+  fontOverride?: string | null;
 }
 
 /**
@@ -100,7 +101,7 @@ export function usePageContent(page: string) {
     return classes.join(' ');
   };
 
-  // Helper to get inline styles for text styling (includes font size and color)
+  // Helper to get inline styles for text styling (includes font size, color, and font family)
   const getInlineStyles = (section: string, key: string): React.CSSProperties => {
     const style = getTextStyle(section, key);
     const inlineStyles: React.CSSProperties = {};
@@ -109,6 +110,7 @@ export function usePageContent(page: string) {
     if (style.isUnderline) inlineStyles.textDecoration = 'underline';
     if (style.fontSize) inlineStyles.fontSize = style.fontSize;
     if (style.fontColor) inlineStyles.color = style.fontColor;
+    if (style.fontOverride) inlineStyles.fontFamily = style.fontOverride;
     return inlineStyles;
   };
 

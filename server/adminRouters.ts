@@ -3555,6 +3555,7 @@ export const publicContentRouter = router({
             isUnderline: s.isUnderline === 1,
             fontSize: s.fontSize || null,
             fontColor: s.fontColor || null,
+            fontOverride: s.fontOverride || null,
           };
         });
       

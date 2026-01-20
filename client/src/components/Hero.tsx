@@ -13,6 +13,7 @@ interface TextStyle {
   isUnderline: boolean;
   fontSize?: string | null;
   fontColor?: string | null;
+  fontOverride?: string | null;
 }
 
 interface HeroProps {
@@ -44,7 +45,7 @@ function getStyleClasses(style?: TextStyle): string {
   return classes.join(' ');
 }
 
-// Helper to convert TextStyle to inline styles (includes fontSize and fontColor)
+// Helper to convert TextStyle to inline styles (includes fontSize, fontColor, fontFamily)
 function getInlineStyles(style?: TextStyle): React.CSSProperties {
   if (!style) return {};
   const styles: React.CSSProperties = {};
@@ -53,6 +54,7 @@ function getInlineStyles(style?: TextStyle): React.CSSProperties {
   if (style.isUnderline) styles.textDecoration = 'underline';
   if (style.fontSize) styles.fontSize = style.fontSize;
   if (style.fontColor) styles.color = style.fontColor;
+  if (style.fontOverride) styles.fontFamily = style.fontOverride;
   return styles;
 }
 
