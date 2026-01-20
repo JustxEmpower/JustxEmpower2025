@@ -684,7 +684,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
           
           {content.description && (
             <p 
-              className="je-hero-desc font-sans drop-shadow-lg" 
+              className="je-hero-desc font-sans drop-shadow-lg whitespace-pre-wrap" 
               style={{ 
                 color: descriptionColor, 
                 opacity: isEditing ? 1 : 0.9,
@@ -943,7 +943,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           
           {content.description && (
             <p 
-              className="je-section-desc font-sans" 
+              className="je-section-desc font-sans whitespace-pre-wrap" 
               style={{ 
                 color: descriptionColor, 
                 opacity: isEditing ? 1 : 0.8,
@@ -1278,7 +1278,7 @@ export function JEQuoteRenderer({ block, isEditing = false, isBlockSelected = fa
   return (
     <div className={`py-24 px-6 ${bgClass}`}>
       <blockquote className="max-w-4xl mx-auto text-center">
-        <p className="font-serif text-3xl md:text-4xl italic leading-relaxed mb-8">
+        <p className="font-serif text-3xl md:text-4xl italic leading-relaxed mb-8 whitespace-pre-wrap">
           {content.quote || 'A meaningful quote that represents your brand.'}
         </p>
         {content.author && (
