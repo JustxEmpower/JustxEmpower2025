@@ -40,6 +40,10 @@ export function usePageContent(page: string) {
   // This ensures each field has independent styling (e.g., hero.title vs philosophy.title)
   const stylesMap = new Map<string, TextStyle>();
   if (textStylesData) {
+    // Debug: Log text styles data for this page
+    if (page === 'home') {
+      console.log('[usePageContent] Text styles for home page:', textStylesData);
+    }
     textStylesData.forEach((style) => {
       // Use section.contentKey as the key for unique per-field styling
       const key = style.section ? `${style.section}.${style.contentKey}` : style.contentKey;
