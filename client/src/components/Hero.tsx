@@ -40,8 +40,7 @@ function getStyleClasses(style?: TextStyle): string {
   if (style.isBold) classes.push('!font-bold');
   if (style.isItalic) classes.push('!italic');
   if (style.isUnderline) classes.push('!underline');
-  // Override default color if custom color is set
-  if (style.fontColor) classes.push('!text-inherit');
+  // Don't add any color class - let inline style handle it
   return classes.join(' ');
 }
 
