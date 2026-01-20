@@ -206,7 +206,8 @@ export default function Section({
             {subtitle && (
               <span 
                 className={cn(
-                  "subtitle font-sans text-xs uppercase tracking-[0.3em] text-primary/80 mb-8 block pl-1",
+                  "subtitle font-sans text-xs uppercase tracking-[0.3em] mb-8 block pl-1",
+                  textStyles.subtitle?.fontColor ? '' : 'text-primary/80',
                   getStyleClasses(textStyles.subtitle)
                 )}
                 style={getInlineStyles(textStyles.subtitle)}
@@ -217,7 +218,8 @@ export default function Section({
             
             <h2 
               className={cn(
-                "font-serif text-5xl md:text-6xl lg:text-7xl font-light mb-8 leading-[1.1] text-foreground tracking-tight",
+                "font-serif text-5xl md:text-6xl lg:text-7xl font-light mb-8 leading-[1.1] tracking-tight",
+                textStyles.title?.fontColor ? '' : 'text-foreground',
                 getStyleClasses(textStyles.title)
               )}
               style={getInlineStyles(textStyles.title)}
@@ -229,7 +231,8 @@ export default function Section({
             
             <p 
               className={cn(
-                "font-sans text-muted-foreground text-lg md:text-xl leading-relaxed mb-12 max-w-xl font-light",
+                "font-sans text-lg md:text-xl leading-relaxed mb-12 max-w-xl font-light",
+                textStyles.description?.fontColor ? '' : 'text-muted-foreground',
                 getStyleClasses(textStyles.description)
               )}
               style={getInlineStyles(textStyles.description)}
@@ -246,7 +249,8 @@ export default function Section({
                   <span 
                     className={cn(
                       "relative z-10 font-sans text-xs uppercase tracking-[0.25em] transition-colors duration-500",
-                      "text-foreground group-hover:text-white",
+                      textStyles.ctaText?.fontColor ? '' : 'text-foreground',
+                      'group-hover:text-white',
                       getStyleClasses(textStyles.ctaText)
                     )}
                     style={getInlineStyles(textStyles.ctaText)}

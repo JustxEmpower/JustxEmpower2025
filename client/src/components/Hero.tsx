@@ -174,7 +174,8 @@ export default function Hero(props: HeroProps = {}) {
         {subtitle && (
           <h2 
             className={cn(
-              "hero-subtitle font-sans text-white text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 drop-shadow-lg",
+              "hero-subtitle font-sans text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 drop-shadow-lg",
+              textStyles.subtitle?.fontColor ? '' : 'text-white',
               getStyleClasses(textStyles.subtitle)
             )}
             style={getInlineStyles(textStyles.subtitle)}
@@ -187,7 +188,8 @@ export default function Hero(props: HeroProps = {}) {
           <div className="overflow-hidden mb-2">
             <h1 
               className={cn(
-                "hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light tracking-wide leading-[1.1] drop-shadow-lg",
+                "hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl font-light tracking-wide leading-[1.1] drop-shadow-lg",
+                textStyles.title?.fontColor ? '' : 'text-white',
                 getStyleClasses(textStyles.title)
               )}
               style={getInlineStyles(textStyles.title)}
@@ -201,7 +203,8 @@ export default function Hero(props: HeroProps = {}) {
           <div className="overflow-hidden mb-8 md:mb-12">
             <h1 
               className={cn(
-                "hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl text-white font-light tracking-wide leading-[1.1] drop-shadow-lg",
+                "hero-title-line font-serif text-5xl md:text-7xl lg:text-9xl font-light tracking-wide leading-[1.1] drop-shadow-lg",
+                textStyles.title?.fontColor ? '' : 'text-white',
                 getStyleClasses(textStyles.title)
               )}
               style={getInlineStyles(textStyles.title)}
@@ -214,7 +217,8 @@ export default function Hero(props: HeroProps = {}) {
         {description && (
           <p 
             className={cn(
-              "hero-desc font-sans text-white/90 text-lg md:text-xl font-light tracking-wide max-w-2xl mb-12 leading-relaxed drop-shadow-lg",
+              "hero-desc font-sans text-lg md:text-xl font-light tracking-wide max-w-2xl mb-12 leading-relaxed drop-shadow-lg",
+              textStyles.description?.fontColor ? '' : 'text-white/90',
               getStyleClasses(textStyles.description)
             )}
             style={getInlineStyles(textStyles.description)}
@@ -228,7 +232,8 @@ export default function Hero(props: HeroProps = {}) {
             <div className="hero-btn group relative px-12 py-6 overflow-hidden rounded-full border border-white/30 hover:border-white transition-all duration-500 cursor-pointer">
               <span 
                 className={cn(
-                  "relative z-10 font-sans text-xs uppercase tracking-[0.25em] text-white group-hover:text-black transition-colors duration-500",
+                  "relative z-10 font-sans text-xs uppercase tracking-[0.25em] group-hover:text-black transition-colors duration-500",
+                  textStyles.ctaText?.fontColor ? '' : 'text-white',
                   getStyleClasses(textStyles.ctaText)
                 )}
                 style={getInlineStyles(textStyles.ctaText)}
