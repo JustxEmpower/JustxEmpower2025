@@ -41,20 +41,26 @@ export function usePageContent(page: string) {
 
   // Dynamically load Google Fonts that are being used (must be before any conditional returns)
   useEffect(() => {
+    console.log('[usePageContent] useEffect triggered, textStylesData:', textStylesData);
     if (!textStylesData) return;
     
     const fontsToLoad = new Set<string>();
     textStylesData.forEach((style: { fontOverride?: string | null }) => {
       if (style.fontOverride) {
+        console.log('[usePageContent] Found fontOverride:', style.fontOverride);
         fontsToLoad.add(style.fontOverride);
       }
     });
     
+    console.log('[usePageContent] Fonts to load:', Array.from(fontsToLoad));
     if (fontsToLoad.size === 0) return;
     
     const fontNames = Array.from(fontsToLoad)
       .map(f => f.replace(/ /g, '+') + ':wght@300;400;500;600;700')
       .join('&family=');
+    
+    const fontUrl = `https://fonts.googleapis.com/css2?family=${fontNames}&display=swap`;
+    console.log('[usePageContent] Loading Google Font URL:', fontUrl);
     
     const linkId = 'dynamic-page-fonts';
     let link = document.getElementById(linkId) as HTMLLinkElement;
@@ -64,9 +70,10 @@ export function usePageContent(page: string) {
       link.id = linkId;
       link.rel = 'stylesheet';
       document.head.appendChild(link);
+      console.log('[usePageContent] Created new font link element');
     }
     
-    link.href = `https://fonts.googleapis.com/css2?family=${fontNames}&display=swap`;
+    link.href = fontUrl;
   }, [textStylesData]);
   
   // DEBUG: Log any errors fetching text styles
@@ -141,7 +148,7 @@ export function usePageContent(page: string) {
     if (style.isUnderline) inlineStyles.textDecoration = 'underline';
     if (style.fontSize) inlineStyles.fontSize = style.fontSize;
     if (style.fontColor) inlineStyles.color = style.fontColor;
-    if (style.fontOverride) inlineStyles.fontFamily = style.fontOverride;
+    if (style.fontOverride) inlineStyles.fontFamily = `"${style.fontOverride}", serif`;
     return inlineStyles;
   };
 

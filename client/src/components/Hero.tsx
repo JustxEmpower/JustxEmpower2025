@@ -54,7 +54,10 @@ function getInlineStyles(style?: TextStyle): React.CSSProperties {
   if (style.isUnderline) styles.textDecoration = 'underline';
   if (style.fontSize) styles.fontSize = style.fontSize;
   if (style.fontColor) styles.color = style.fontColor;
-  if (style.fontOverride) styles.fontFamily = style.fontOverride;
+  if (style.fontOverride) {
+    styles.fontFamily = `"${style.fontOverride}", serif`;
+    console.log('[Hero] Applying fontFamily:', styles.fontFamily);
+  }
   return styles;
 }
 
