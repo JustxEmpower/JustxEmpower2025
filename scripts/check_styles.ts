@@ -12,7 +12,7 @@ async function checkStyles() {
   const [result] = await connection.execute(`
     SELECT 
       sc.id, sc.page, sc.section, sc.contentKey,
-      cts.isBold, cts.isItalic, cts.isUnderline, cts.fontSize, cts.fontColor
+      cts.isBold, cts.isItalic, cts.isUnderline, cts.fontSize, cts.fontColor, cts.fontOverride
     FROM siteContent sc
     LEFT JOIN contentTextStyles cts ON sc.id = cts.contentId
     WHERE sc.page = 'home' AND sc.section = 'hero'
