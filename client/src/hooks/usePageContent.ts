@@ -27,15 +27,21 @@ export function usePageContent(page: string) {
   );
 
   // Fetch text styles for this page
-  const { data: textStylesData } = trpc.content.getTextStylesByPage.useQuery(
+  const { data: textStylesData, error: textStylesError, isError: textStylesIsError } = trpc.content.getTextStylesByPage.useQuery(
     { page },
     {
       enabled: !!page, // Only fetch when page is defined
       staleTime: 0,
       refetchOnMount: 'always',
       refetchOnWindowFocus: true,
+      retry: 3, // Retry failed requests
     }
   );
+  
+  // DEBUG: Log any errors fetching text styles
+  if (textStylesIsError) {
+    console.error('[usePageContent] Error fetching text styles:', textStylesError);
+  }
 
   // Build a map of section.contentKey -> styles for easy lookup
   // This ensures each field has independent styling (e.g., hero.title vs philosophy.title)

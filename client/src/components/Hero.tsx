@@ -62,6 +62,9 @@ export default function Hero(props: HeroProps = {}) {
   const textRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   
+  // DEBUG: Log received textStyles on every render
+  console.log('[Hero] textStyles received:', JSON.stringify(props.textStyles, null, 2));
+  
   // Get all hero content from props - NO FALLBACK DEFAULTS
   // Convert URLs to proper S3 URLs if they're relative paths
   const rawVideoUrl = props.videoUrl || '';

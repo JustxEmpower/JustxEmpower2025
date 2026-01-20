@@ -3510,13 +3510,9 @@ export const publicContentRouter = router({
   
   // Get text styles for a page (public)
   getTextStylesByPage: publicProcedure
-    .input(z.object({ page: z.string() }).optional())
+    .input(z.object({ page: z.string() }))
     .query(async ({ input }) => {
-      // Handle undefined input gracefully
-      if (!input || !input.page) {
-        console.log('[getTextStylesByPage] No page specified, returning empty');
-        return [];
-      }
+      console.log('[getTextStylesByPage] Called with page:', input.page);
       
       const db = await getDb();
       if (!db) {
