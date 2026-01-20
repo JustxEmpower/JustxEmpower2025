@@ -1,5 +1,5 @@
 import { trpc } from '@/lib/trpc';
-import React from 'react';
+import React, { useEffect } from 'react';
 
 interface TextStyle {
   isBold: boolean;
@@ -61,9 +61,40 @@ export function usePageContent(page: string) {
         isUnderline: style.isUnderline,
         fontSize: style.fontSize,
         fontColor: style.fontColor,
+        fontOverride: style.fontOverride,
       });
     });
   }
+
+  // Dynamically load Google Fonts that are being used
+  useEffect(() => {
+    if (!textStylesData) return;
+    
+    const fontsToLoad = new Set<string>();
+    textStylesData.forEach((style) => {
+      if (style.fontOverride) {
+        fontsToLoad.add(style.fontOverride);
+      }
+    });
+    
+    if (fontsToLoad.size === 0) return;
+    
+    const fontNames = Array.from(fontsToLoad)
+      .map(f => f.replace(/ /g, '+') + ':wght@300;400;500;600;700')
+      .join('&family=');
+    
+    const linkId = 'dynamic-page-fonts';
+    let link = document.getElementById(linkId) as HTMLLinkElement;
+    
+    if (!link) {
+      link = document.createElement('link');
+      link.id = linkId;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+    
+    link.href = `https://fonts.googleapis.com/css2?family=${fontNames}&display=swap`;
+  }, [textStylesData]);
 
   // Helper function to get a specific content value
   const getContent = (section: string, key: string, defaultValue: string = ''): string => {

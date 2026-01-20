@@ -4635,12 +4635,13 @@ export const contentTextStylesRouter = router({
       isUnderline: z.boolean(),
       fontSize: z.string().optional(),
       fontColor: z.string().optional(),
+      fontOverride: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
       const db = await getDb();
       if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
       
-      const { contentId, isBold, isItalic, isUnderline, fontSize, fontColor } = input;
+      const { contentId, isBold, isItalic, isUnderline, fontSize, fontColor, fontOverride } = input;
       
       // Check if style exists
       const existing = await db
@@ -4658,6 +4659,7 @@ export const contentTextStylesRouter = router({
           isUnderline: isUnderline ? 1 : 0,
           fontSize: fontSize || null,
           fontColor: fontColor || null,
+          fontOverride: fontOverride || null,
         });
       } else {
         // Update existing style
@@ -4669,6 +4671,7 @@ export const contentTextStylesRouter = router({
             isUnderline: isUnderline ? 1 : 0,
             fontSize: fontSize || null,
             fontColor: fontColor || null,
+            fontOverride: fontOverride || null,
           })
           .where(eq(schema.contentTextStyles.contentId, contentId));
       }
