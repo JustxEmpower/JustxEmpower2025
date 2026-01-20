@@ -1,28 +1,8 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { Bold, Italic, Underline, Type, Palette, ChevronDown } from 'lucide-react';
+import { Bold, Italic, Underline, Type, Palette, ChevronDown, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { trpc } from '@/lib/trpc';
-
-// Available fonts for per-field override
-const AVAILABLE_FONTS = [
-  { value: '', label: 'Default (Site Font)' },
-  { value: 'Cormorant Garamond', label: 'Cormorant Garamond', category: 'serif' },
-  { value: 'Playfair Display', label: 'Playfair Display', category: 'serif' },
-  { value: 'Libre Baskerville', label: 'Libre Baskerville', category: 'serif' },
-  { value: 'Lora', label: 'Lora', category: 'serif' },
-  { value: 'Crimson Text', label: 'Crimson Text', category: 'serif' },
-  { value: 'EB Garamond', label: 'EB Garamond', category: 'serif' },
-  { value: 'Merriweather', label: 'Merriweather', category: 'serif' },
-  { value: 'Source Serif Pro', label: 'Source Serif Pro', category: 'serif' },
-  { value: 'Inter', label: 'Inter', category: 'sans-serif' },
-  { value: 'Open Sans', label: 'Open Sans', category: 'sans-serif' },
-  { value: 'Lato', label: 'Lato', category: 'sans-serif' },
-  { value: 'Montserrat', label: 'Montserrat', category: 'sans-serif' },
-  { value: 'Poppins', label: 'Poppins', category: 'sans-serif' },
-  { value: 'Roboto', label: 'Roboto', category: 'sans-serif' },
-  { value: 'Work Sans', label: 'Work Sans', category: 'sans-serif' },
-];
 
 // Predefined font sizes
 const FONT_SIZES = [
@@ -144,6 +124,7 @@ export default function TextFormatToolbar({
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showFontDropdown, setShowFontDropdown] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const [fontSearchQuery, setFontSearchQuery] = useState('');
   
   const sizeDropdownRef = useRef<HTMLDivElement>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
@@ -157,6 +138,18 @@ export default function TextFormatToolbar({
     { contentId },
     { enabled: !!contentId }
   );
+
+  // Fetch available fonts from the library
+  const { data: availableFonts } = trpc.fontSettings.availableFonts.useQuery();
+
+  // Filter fonts based on search query
+  const filteredFonts = useMemo(() => {
+    if (!availableFonts) return [];
+    if (!fontSearchQuery) return availableFonts;
+    return availableFonts.filter((font: { name: string }) => 
+      font.name.toLowerCase().includes(fontSearchQuery.toLowerCase())
+    );
+  }, [availableFonts, fontSearchQuery]);
 
   // Mutation to save styles
   const utils = trpc.useUtils();
@@ -333,9 +326,7 @@ export default function TextFormatToolbar({
   const iconSize = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
 
   // Get current font display name
-  const currentFontLabel = fontOverride 
-    ? AVAILABLE_FONTS.find(f => f.value === fontOverride)?.label || fontOverride
-    : 'Font';
+  const currentFontLabel = fontOverride || 'Font';
 
   // Render font dropdown using portal
   const renderFontDropdown = () => {
@@ -344,26 +335,59 @@ export default function TextFormatToolbar({
     return createPortal(
       <div 
         ref={fontDropdownRef}
-        className="fixed bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-xl z-[9999] max-h-80 overflow-y-auto min-w-[200px]"
+        className="fixed bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-xl z-[9999] w-[280px]"
         style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
       >
-        <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400 px-3 py-2 border-b border-neutral-200 dark:border-neutral-700">
-          Select Font
+        {/* Header with count */}
+        <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400 px-3 py-2 border-b border-neutral-200 dark:border-neutral-700 flex justify-between">
+          <span>Select Font</span>
+          <span>{availableFonts?.length || 0} fonts</span>
         </div>
-        {AVAILABLE_FONTS.map((fontOption) => (
-          <button
-            key={fontOption.value}
-            type="button"
-            onClick={() => handleFontChange(fontOption.value)}
-            className={cn(
-              "w-full px-3 py-2 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors",
-              fontOverride === fontOption.value && "bg-neutral-100 dark:bg-neutral-700 font-medium"
-            )}
-            style={{ fontFamily: fontOption.value || 'inherit' }}
-          >
-            {fontOption.label}
-          </button>
-        ))}
+        
+        {/* Search input */}
+        <div className="p-2 border-b border-neutral-200 dark:border-neutral-700">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
+            <input
+              type="text"
+              placeholder="Search fonts..."
+              value={fontSearchQuery}
+              onChange={(e) => setFontSearchQuery(e.target.value)}
+              className="w-full pl-7 pr-2 py-1.5 text-sm bg-neutral-100 dark:bg-neutral-700 border-0 rounded focus:outline-none focus:ring-1 focus:ring-primary"
+            />
+          </div>
+        </div>
+        
+        {/* Default option */}
+        <button
+          type="button"
+          onClick={() => handleFontChange('')}
+          className={cn(
+            "w-full px-3 py-2 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors border-b border-neutral-200 dark:border-neutral-700",
+            !fontOverride && "bg-neutral-100 dark:bg-neutral-700 font-medium"
+          )}
+        >
+          Default (Site Font)
+        </button>
+        
+        {/* Font list */}
+        <div className="max-h-64 overflow-y-auto">
+          {filteredFonts.map((font: { name: string; category: string }) => (
+            <button
+              key={font.name}
+              type="button"
+              onClick={() => handleFontChange(font.name)}
+              className={cn(
+                "w-full px-3 py-2 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors flex justify-between items-center",
+                fontOverride === font.name && "bg-neutral-100 dark:bg-neutral-700 font-medium"
+              )}
+              style={{ fontFamily: font.name }}
+            >
+              <span>{font.name}</span>
+              <span className="text-[10px] text-neutral-400 capitalize">{font.category}</span>
+            </button>
+          ))}
+        </div>
       </div>,
       document.body
     );
