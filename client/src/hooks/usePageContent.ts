@@ -38,6 +38,36 @@ export function usePageContent(page: string) {
       retry: 3, // Retry failed requests
     }
   );
+
+  // Dynamically load Google Fonts that are being used (must be before any conditional returns)
+  useEffect(() => {
+    if (!textStylesData) return;
+    
+    const fontsToLoad = new Set<string>();
+    textStylesData.forEach((style: { fontOverride?: string | null }) => {
+      if (style.fontOverride) {
+        fontsToLoad.add(style.fontOverride);
+      }
+    });
+    
+    if (fontsToLoad.size === 0) return;
+    
+    const fontNames = Array.from(fontsToLoad)
+      .map(f => f.replace(/ /g, '+') + ':wght@300;400;500;600;700')
+      .join('&family=');
+    
+    const linkId = 'dynamic-page-fonts';
+    let link = document.getElementById(linkId) as HTMLLinkElement;
+    
+    if (!link) {
+      link = document.createElement('link');
+      link.id = linkId;
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+    
+    link.href = `https://fonts.googleapis.com/css2?family=${fontNames}&display=swap`;
+  }, [textStylesData]);
   
   // DEBUG: Log any errors fetching text styles
   if (textStylesIsError) {
@@ -65,36 +95,6 @@ export function usePageContent(page: string) {
       });
     });
   }
-
-  // Dynamically load Google Fonts that are being used
-  useEffect(() => {
-    if (!textStylesData) return;
-    
-    const fontsToLoad = new Set<string>();
-    textStylesData.forEach((style) => {
-      if (style.fontOverride) {
-        fontsToLoad.add(style.fontOverride);
-      }
-    });
-    
-    if (fontsToLoad.size === 0) return;
-    
-    const fontNames = Array.from(fontsToLoad)
-      .map(f => f.replace(/ /g, '+') + ':wght@300;400;500;600;700')
-      .join('&family=');
-    
-    const linkId = 'dynamic-page-fonts';
-    let link = document.getElementById(linkId) as HTMLLinkElement;
-    
-    if (!link) {
-      link = document.createElement('link');
-      link.id = linkId;
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
-    }
-    
-    link.href = `https://fonts.googleapis.com/css2?family=${fontNames}&display=swap`;
-  }, [textStylesData]);
 
   // Helper function to get a specific content value
   const getContent = (section: string, key: string, defaultValue: string = ''): string => {
