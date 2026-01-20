@@ -137,8 +137,14 @@ export default function TextFormatToolbar({
   // Mutation to save styles
   const utils = trpc.useUtils();
   const saveMutation = trpc.contentTextStyles.save.useMutation({
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log('[TextFormatToolbar] Style saved successfully for contentId:', contentId, data);
       utils.contentTextStyles.get.invalidate({ contentId });
+      // Also invalidate public content styles cache so live site picks up changes
+      utils.content.getTextStylesByPage.invalidate();
+    },
+    onError: (error) => {
+      console.error('[TextFormatToolbar] Failed to save style for contentId:', contentId, error);
     },
   });
 
@@ -215,13 +221,14 @@ export default function TextFormatToolbar({
 
     // Save to database
     setIsLoading(true);
+    console.log('[TextFormatToolbar] Saving styles for contentId:', contentId, newStyles);
     try {
       await saveMutation.mutateAsync({
         contentId,
         ...newStyles,
       });
     } catch (error) {
-      console.error('Failed to save text style:', error);
+      console.error('[TextFormatToolbar] Failed to save text style:', error);
     } finally {
       setIsLoading(false);
     }

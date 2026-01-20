@@ -33,26 +33,28 @@ interface SectionProps {
   };
 }
 
-// Helper to convert TextStyle to CSS classes
+// Helper to convert TextStyle to CSS classes with !important to override defaults
 function getStyleClasses(style?: TextStyle): string {
   if (!style) return '';
   const classes = [];
-  if (style.isBold) classes.push('font-bold');
-  if (style.isItalic) classes.push('italic');
-  if (style.isUnderline) classes.push('underline');
+  if (style.isBold) classes.push('!font-bold');
+  if (style.isItalic) classes.push('!italic');
+  if (style.isUnderline) classes.push('!underline');
+  // Override default color if custom color is set
+  if (style.fontColor) classes.push('!text-inherit');
   return classes.join(' ');
 }
 
 // Helper to convert TextStyle to inline styles (includes fontSize and fontColor)
 function getInlineStyles(style?: TextStyle): React.CSSProperties {
   if (!style) return {};
-  return {
-    fontWeight: style.isBold ? 'bold' : undefined,
-    fontStyle: style.isItalic ? 'italic' : undefined,
-    textDecoration: style.isUnderline ? 'underline' : undefined,
-    fontSize: style.fontSize || undefined,
-    color: style.fontColor || undefined,
-  };
+  const styles: React.CSSProperties = {};
+  if (style.isBold) styles.fontWeight = 'bold';
+  if (style.isItalic) styles.fontStyle = 'italic';
+  if (style.isUnderline) styles.textDecoration = 'underline';
+  if (style.fontSize) styles.fontSize = style.fontSize;
+  if (style.fontColor) styles.color = style.fontColor;
+  return styles;
 }
 
 export default function Section({ 

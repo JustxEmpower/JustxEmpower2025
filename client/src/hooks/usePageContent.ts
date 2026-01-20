@@ -72,29 +72,37 @@ export function usePageContent(page: string) {
   const getTextStyle = (section: string, key: string): TextStyle => {
     // Try section-specific key first, then fall back to just key
     const sectionKey = `${section}.${key}`;
-    return stylesMap.get(sectionKey) || stylesMap.get(key) || { isBold: false, isItalic: false, isUnderline: false };
+    const style = stylesMap.get(sectionKey) || stylesMap.get(key) || { isBold: false, isItalic: false, isUnderline: false };
+    
+    // Debug: Log when fetching hero styles
+    if (section === 'hero' && (style.isBold || style.isItalic || style.fontSize || style.fontColor)) {
+      console.log(`[usePageContent] getTextStyle('${section}', '${key}'):`, style);
+    }
+    
+    return style;
   };
 
-  // Helper to get CSS classes for text styling
+  // Helper to get CSS classes for text styling (with !important to override defaults)
   const getStyleClasses = (section: string, key: string): string => {
     const style = getTextStyle(section, key);
     const classes = [];
-    if (style.isBold) classes.push('font-bold');
-    if (style.isItalic) classes.push('italic');
-    if (style.isUnderline) classes.push('underline');
+    if (style.isBold) classes.push('!font-bold');
+    if (style.isItalic) classes.push('!italic');
+    if (style.isUnderline) classes.push('!underline');
+    if (style.fontColor) classes.push('!text-inherit');
     return classes.join(' ');
   };
 
   // Helper to get inline styles for text styling (includes font size and color)
   const getInlineStyles = (section: string, key: string): React.CSSProperties => {
     const style = getTextStyle(section, key);
-    return {
-      fontWeight: style.isBold ? 'bold' : undefined,
-      fontStyle: style.isItalic ? 'italic' : undefined,
-      textDecoration: style.isUnderline ? 'underline' : undefined,
-      fontSize: style.fontSize || undefined,
-      color: style.fontColor || undefined,
-    };
+    const inlineStyles: React.CSSProperties = {};
+    if (style.isBold) inlineStyles.fontWeight = 'bold';
+    if (style.isItalic) inlineStyles.fontStyle = 'italic';
+    if (style.isUnderline) inlineStyles.textDecoration = 'underline';
+    if (style.fontSize) inlineStyles.fontSize = style.fontSize;
+    if (style.fontColor) inlineStyles.color = style.fontColor;
+    return inlineStyles;
   };
 
   // Helper to get all content for a section as an object
