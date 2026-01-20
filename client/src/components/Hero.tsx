@@ -189,12 +189,12 @@ export default function Hero(props: HeroProps = {}) {
           </h2>
         )}
         
-        {/* DEBUG: Show font info */}
-        {textStyles.title?.fontOverride && (
-          <div className="fixed top-4 left-4 bg-black/80 text-white text-xs p-2 rounded z-50">
-            Font: {textStyles.title.fontOverride}
-          </div>
-        )}
+        {/* DEBUG: Show font info - always visible */}
+        <div className="fixed top-4 left-4 bg-black/80 text-white text-xs p-2 rounded z-50 max-w-xs">
+          <div>fontOverride: {textStyles.title?.fontOverride || 'NONE'}</div>
+          <div>fontColor: {textStyles.title?.fontColor || 'NONE'}</div>
+          <div>hasTitle: {textStyles.title ? 'YES' : 'NO'}</div>
+        </div>
         
         {titleLine1 && (
           <div className="overflow-hidden mb-2">

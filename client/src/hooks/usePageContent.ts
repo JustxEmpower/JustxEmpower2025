@@ -120,9 +120,9 @@ export function usePageContent(page: string) {
     const sectionKey = `${section}.${key}`;
     const style = stylesMap.get(sectionKey) || stylesMap.get(key) || { isBold: false, isItalic: false, isUnderline: false };
     
-    // Debug: Log when fetching hero styles
-    if (section === 'hero' && (style.isBold || style.isItalic || style.fontSize || style.fontColor)) {
-      console.log(`[usePageContent] getTextStyle('${section}', '${key}'):`, style);
+    // Debug: Always log hero.title to trace fontOverride
+    if (section === 'hero' && key === 'title') {
+      console.log(`[usePageContent] getTextStyle hero.title:`, style, 'stylesMap size:', stylesMap.size);
     }
     
     return style;
