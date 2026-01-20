@@ -55,8 +55,8 @@ function getInlineStyles(style?: TextStyle): React.CSSProperties {
   if (style.fontSize) styles.fontSize = style.fontSize;
   if (style.fontColor) styles.color = style.fontColor;
   if (style.fontOverride) {
+    // Use the exact font name as Google Fonts expects
     styles.fontFamily = `"${style.fontOverride}", serif`;
-    console.log('[Hero] Applying fontFamily:', styles.fontFamily);
   }
   return styles;
 }
@@ -98,12 +98,27 @@ export default function Hero(props: HeroProps = {}) {
       const linkId = `font-${fontName.replace(/\s/g, '-')}`;
       if (document.getElementById(linkId)) return;
       
+      // Add Google Font link
       const link = document.createElement('link');
       link.id = linkId;
       link.rel = 'stylesheet';
-      link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;500;600;700&display=swap`;
+      link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;500;600;700;900&display=swap`;
       document.head.appendChild(link);
     });
+
+    // Add CSS rule with !important to override Tailwind
+    const styleId = 'hero-font-override';
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement;
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = styleId;
+      document.head.appendChild(styleEl);
+    }
+    
+    const cssRules = fontsToLoad.map(fontName => 
+      `.hero-title-line[style*="font-family"] { font-family: "${fontName}", serif !important; }`
+    ).join('\n');
+    styleEl.textContent = cssRules;
   }, [fontsToLoad]);
   
   // Determine if we have a video or image - check both raw URL and converted URL
