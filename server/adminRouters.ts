@@ -3510,10 +3510,19 @@ export const publicContentRouter = router({
   
   // Get text styles for a page (public)
   getTextStylesByPage: publicProcedure
-    .input(z.object({ page: z.string() }))
+    .input(z.object({ page: z.string() }).optional())
     .query(async ({ input }) => {
+      // Handle undefined input gracefully
+      if (!input || !input.page) {
+        console.log('[getTextStylesByPage] No page specified, returning empty');
+        return [];
+      }
+      
       const db = await getDb();
-      if (!db) return [];
+      if (!db) {
+        console.log('[getTextStylesByPage] No database connection');
+        return [];
+      }
       
       // Get content IDs for this page
       const pageContent = await db
@@ -3522,12 +3531,15 @@ export const publicContentRouter = router({
         .where(eq(schema.siteContent.page, input.page));
       
       const contentIds = pageContent.map(c => c.id);
+      console.log(`[getTextStylesByPage] Page: ${input.page}, Content IDs: ${contentIds.length}`);
       if (contentIds.length === 0) return [];
       
       // Get styles for these content items
       const styles = await db
         .select()
         .from(schema.contentTextStyles);
+      
+      console.log(`[getTextStylesByPage] Total styles in DB: ${styles.length}`);
       
       // Map styles with content keys and section for easier lookup on frontend
       const stylesWithKeys = styles
@@ -3546,6 +3558,7 @@ export const publicContentRouter = router({
           };
         });
       
+      console.log(`[getTextStylesByPage] Returning ${stylesWithKeys.length} styles for page ${input.page}:`, JSON.stringify(stylesWithKeys));
       return stylesWithKeys;
     }),
 });

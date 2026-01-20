@@ -30,6 +30,7 @@ export function usePageContent(page: string) {
   const { data: textStylesData } = trpc.content.getTextStylesByPage.useQuery(
     { page },
     {
+      enabled: !!page, // Only fetch when page is defined
       staleTime: 0,
       refetchOnMount: 'always',
       refetchOnWindowFocus: true,

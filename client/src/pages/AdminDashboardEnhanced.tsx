@@ -58,7 +58,7 @@ import {
   LayoutDashboard,
 } from "lucide-react";
 import { NotificationBell } from "@/components/NotificationCenter";
-import { Sun, Moon, CloudRain, Cloud, CloudSnow, CloudLightning, Sunrise, Sunset } from "lucide-react";
+import { Sun, Moon, CloudRain, CloudSnow, CloudLightning, Sunrise, Sunset } from "lucide-react";
 
 // Weather Widget Component
 function WeatherWidget() {
