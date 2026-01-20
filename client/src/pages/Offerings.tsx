@@ -91,10 +91,10 @@ export default function Offerings() {
         )}
         
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
-          <h1 className={cn("font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6", getTextStyle('hero', 'title')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'title')}>
+          <h1 className={cn("text-5xl md:text-7xl font-light tracking-wide italic mb-6", getTextStyle('hero', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('hero', 'title')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'title')}>
             {heroTitle}
           </h1>
-          <p className={cn("font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90", getTextStyle('hero', 'description')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'description')}>
+          <p className={cn("text-sm md:text-base tracking-[0.2em] uppercase opacity-90", getTextStyle('hero', 'description')?.fontOverride ? '' : 'font-sans', getTextStyle('hero', 'description')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'description')}>
             {heroDescription}
           </p>
         </div>

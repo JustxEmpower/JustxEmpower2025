@@ -168,15 +168,15 @@ export default function About({ slug = 'about' }: AboutProps) {
         {/* Hero Content */}
         <div className="relative z-20 h-full flex flex-col items-center justify-center text-center px-4">
           <div className="about-hero-text">
-            <h2 className={cn("font-sans text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 opacity-90", getTextStyle('hero', 'subtitle')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'subtitle')}>
+            <h2 className={cn("text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 opacity-90", getTextStyle('hero', 'subtitle')?.fontOverride ? '' : 'font-sans', getTextStyle('hero', 'subtitle')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'subtitle')}>
               {heroSubtitle}
             </h2>
             
-            <h1 className={cn("font-serif text-5xl md:text-7xl lg:text-8xl font-light italic tracking-wide leading-[1.1] mb-8", getTextStyle('hero', 'title')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'title')}>
+            <h1 className={cn("text-5xl md:text-7xl lg:text-8xl font-light italic tracking-wide leading-[1.1] mb-8", getTextStyle('hero', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('hero', 'title')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'title')}>
               {heroTitle}
             </h1>
             
-            <p className={cn("font-sans text-lg md:text-xl font-light tracking-wide max-w-3xl leading-relaxed", getTextStyle('hero', 'description')?.fontColor ? '' : 'text-white/90')} style={getInlineStyles('hero', 'description')}>
+            <p className={cn("text-lg md:text-xl font-light tracking-wide max-w-3xl leading-relaxed", getTextStyle('hero', 'description')?.fontOverride ? '' : 'font-sans', getTextStyle('hero', 'description')?.fontColor ? '' : 'text-white/90')} style={getInlineStyles('hero', 'description')}>
               {heroDescription}
             </p>
           </div>
@@ -206,7 +206,7 @@ export default function About({ slug = 'about' }: AboutProps) {
 
         {/* Just Empower Truth Section */}
         <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
-          <h2 className={cn("font-serif text-3xl md:text-4xl font-light italic mb-8 text-center", getTextStyle('truth', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('truth', 'title')}>
+          <h2 className={cn("text-3xl md:text-4xl font-light italic mb-8 text-center", getTextStyle('truth', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('truth', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('truth', 'title')}>
             {truthTitle}
           </h2>
           <p className={cn("text-lg md:text-xl leading-relaxed font-light text-center", getTextStyle('truth', 'description')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('truth', 'description')}>
@@ -216,7 +216,7 @@ export default function About({ slug = 'about' }: AboutProps) {
 
         {/* Depth Beneath Section */}
         <section className="content-section max-w-4xl mx-auto mb-24">
-          <h2 className={cn("font-serif text-3xl md:text-4xl font-light mb-12", getTextStyle('depth', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('depth', 'title')}>
+          <h2 className={cn("text-3xl md:text-4xl font-light mb-12", getTextStyle('depth', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('depth', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('depth', 'title')}>
             {depthTitle}
           </h2>
           <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('depth', 'paragraph1')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('depth', 'paragraph1')}>
@@ -238,7 +238,7 @@ export default function About({ slug = 'about' }: AboutProps) {
 
         {/* Thread of Remembrance Section */}
         <section className="content-section max-w-4xl mx-auto mb-24">
-          <h2 className={cn("font-serif text-3xl md:text-4xl font-light mb-12", getTextStyle('remembrance', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('remembrance', 'title')}>
+          <h2 className={cn("text-3xl md:text-4xl font-light mb-12", getTextStyle('remembrance', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('remembrance', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('remembrance', 'title')}>
             {remembranceTitle}
           </h2>
           <blockquote className={cn("text-xl md:text-2xl leading-relaxed font-light italic mb-12 pl-8 border-l-2 border-primary", getTextStyle('remembrance', 'quote')?.fontColor ? '' : 'text-foreground/90')} style={getInlineStyles('remembrance', 'quote')}>
@@ -260,7 +260,7 @@ export default function About({ slug = 'about' }: AboutProps) {
 
         {/* Renewal Section */}
         <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
-          <h2 className={cn("font-serif text-3xl md:text-4xl font-light italic mb-8 text-center", getTextStyle('renewal', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('renewal', 'title')}>
+          <h2 className={cn("text-3xl md:text-4xl font-light italic mb-8 text-center", getTextStyle('renewal', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('renewal', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('renewal', 'title')}>
             {renewalTitle}
           </h2>
           <p className={cn("text-lg md:text-xl leading-relaxed font-light text-center mb-8", getTextStyle('renewal', 'paragraph1')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('renewal', 'paragraph1')}>
@@ -273,7 +273,7 @@ export default function About({ slug = 'about' }: AboutProps) {
 
         {/* Future Section */}
         <section className="content-section max-w-4xl mx-auto mb-24">
-          <h2 className={cn("font-serif text-3xl md:text-4xl font-light mb-12", getTextStyle('future', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('future', 'title')}>
+          <h2 className={cn("text-3xl md:text-4xl font-light mb-12", getTextStyle('future', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('future', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('future', 'title')}>
             {futureTitle}
           </h2>
           <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('future', 'paragraph1')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('future', 'paragraph1')}>
@@ -299,7 +299,7 @@ export default function About({ slug = 'about' }: AboutProps) {
         {/* Newsletter CTA */}
         <section className="content-section max-w-2xl mx-auto">
           <div className="bg-card rounded-3xl p-12 md:p-16 text-center border border-border">
-            <h3 className={cn("font-serif text-2xl md:text-3xl font-light italic mb-6", getTextStyle('newsletter', 'title')?.fontColor ? '' : 'text-card-foreground')} style={getInlineStyles('newsletter', 'title')}>
+            <h3 className={cn("text-2xl md:text-3xl font-light italic mb-6", getTextStyle('newsletter', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('newsletter', 'title')?.fontColor ? '' : 'text-card-foreground')} style={getInlineStyles('newsletter', 'title')}>
               {newsletterTitle}
             </h3>
             <p className={cn("text-base md:text-lg mb-8 leading-relaxed", getTextStyle('newsletter', 'description')?.fontColor ? '' : 'text-card-foreground/70')} style={getInlineStyles('newsletter', 'description')}>
