@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
@@ -66,9 +66,6 @@ export default function Hero(props: HeroProps = {}) {
   const textRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   
-  // DEBUG: Log received textStyles on every render
-  console.log('[Hero] textStyles received:', JSON.stringify(props.textStyles, null, 2));
-  
   // Get all hero content from props - NO FALLBACK DEFAULTS
   // Convert URLs to proper S3 URLs if they're relative paths
   const rawVideoUrl = props.videoUrl || '';
@@ -83,6 +80,31 @@ export default function Hero(props: HeroProps = {}) {
   const ctaText = props.ctaText || '';
   const ctaLink = props.ctaLink || '';
   const textStyles = props.textStyles || {};
+
+  // Load Google Fonts dynamically based on fontOverride
+  const fontsToLoad = useMemo(() => {
+    const fonts = new Set<string>();
+    if (textStyles.title?.fontOverride) fonts.add(textStyles.title.fontOverride);
+    if (textStyles.subtitle?.fontOverride) fonts.add(textStyles.subtitle.fontOverride);
+    if (textStyles.description?.fontOverride) fonts.add(textStyles.description.fontOverride);
+    if (textStyles.ctaText?.fontOverride) fonts.add(textStyles.ctaText.fontOverride);
+    return Array.from(fonts);
+  }, [textStyles]);
+
+  useEffect(() => {
+    if (fontsToLoad.length === 0) return;
+    
+    fontsToLoad.forEach(fontName => {
+      const linkId = `font-${fontName.replace(/\s/g, '-')}`;
+      if (document.getElementById(linkId)) return;
+      
+      const link = document.createElement('link');
+      link.id = linkId;
+      link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;500;600;700&display=swap`;
+      document.head.appendChild(link);
+    });
+  }, [fontsToLoad]);
   
   // Determine if we have a video or image - check both raw URL and converted URL
   const isVideo = videoUrl && /\.(mp4|webm|mov|ogg|m4v|avi|mkv)(?:[?#]|$)/i.test(videoUrl);
@@ -189,13 +211,7 @@ export default function Hero(props: HeroProps = {}) {
           </h2>
         )}
         
-        {/* DEBUG: Show font info - always visible */}
-        <div className="fixed top-4 left-4 bg-black/80 text-white text-xs p-2 rounded z-50 max-w-xs">
-          <div>fontOverride: {textStyles.title?.fontOverride || 'NONE'}</div>
-          <div>fontColor: {textStyles.title?.fontColor || 'NONE'}</div>
-          <div>hasTitle: {textStyles.title ? 'YES' : 'NO'}</div>
-        </div>
-        
+                
         {titleLine1 && (
           <div className="overflow-hidden mb-2">
             <h1 
