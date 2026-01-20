@@ -4,6 +4,26 @@ import { Bold, Italic, Underline, Type, Palette, ChevronDown } from 'lucide-reac
 import { cn } from '@/lib/utils';
 import { trpc } from '@/lib/trpc';
 
+// Available fonts for per-field override
+const AVAILABLE_FONTS = [
+  { value: '', label: 'Default (Site Font)' },
+  { value: 'Cormorant Garamond', label: 'Cormorant Garamond', category: 'serif' },
+  { value: 'Playfair Display', label: 'Playfair Display', category: 'serif' },
+  { value: 'Libre Baskerville', label: 'Libre Baskerville', category: 'serif' },
+  { value: 'Lora', label: 'Lora', category: 'serif' },
+  { value: 'Crimson Text', label: 'Crimson Text', category: 'serif' },
+  { value: 'EB Garamond', label: 'EB Garamond', category: 'serif' },
+  { value: 'Merriweather', label: 'Merriweather', category: 'serif' },
+  { value: 'Source Serif Pro', label: 'Source Serif Pro', category: 'serif' },
+  { value: 'Inter', label: 'Inter', category: 'sans-serif' },
+  { value: 'Open Sans', label: 'Open Sans', category: 'sans-serif' },
+  { value: 'Lato', label: 'Lato', category: 'sans-serif' },
+  { value: 'Montserrat', label: 'Montserrat', category: 'sans-serif' },
+  { value: 'Poppins', label: 'Poppins', category: 'sans-serif' },
+  { value: 'Roboto', label: 'Roboto', category: 'sans-serif' },
+  { value: 'Work Sans', label: 'Work Sans', category: 'sans-serif' },
+];
+
 // Predefined font sizes
 const FONT_SIZES = [
   { value: '', label: 'Default' },
@@ -118,15 +138,19 @@ export default function TextFormatToolbar({
   const [isUnderline, setIsUnderline] = useState(false);
   const [fontSize, setFontSize] = useState('');
   const [fontColor, setFontColor] = useState('');
+  const [fontOverride, setFontOverride] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showSizeDropdown, setShowSizeDropdown] = useState(false);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showFontDropdown, setShowFontDropdown] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   
   const sizeDropdownRef = useRef<HTMLDivElement>(null);
   const colorPickerRef = useRef<HTMLDivElement>(null);
+  const fontDropdownRef = useRef<HTMLDivElement>(null);
   const sizeButtonRef = useRef<HTMLButtonElement>(null);
   const colorButtonRef = useRef<HTMLButtonElement>(null);
+  const fontButtonRef = useRef<HTMLButtonElement>(null);
 
   // Fetch existing styles for this content item
   const { data: styleData } = trpc.contentTextStyles.get.useQuery(
@@ -156,6 +180,7 @@ export default function TextFormatToolbar({
       setIsUnderline(styleData.isUnderline);
       setFontSize(styleData.fontSize || '');
       setFontColor(styleData.fontColor || '');
+      setFontOverride(styleData.fontOverride || '');
     }
   }, [styleData]);
 
@@ -195,6 +220,10 @@ export default function TextFormatToolbar({
           colorButtonRef.current && !colorButtonRef.current.contains(event.target as Node)) {
         setShowColorPicker(false);
       }
+      if (fontDropdownRef.current && !fontDropdownRef.current.contains(event.target as Node) &&
+          fontButtonRef.current && !fontButtonRef.current.contains(event.target as Node)) {
+        setShowFontDropdown(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -207,6 +236,7 @@ export default function TextFormatToolbar({
     isUnderline?: boolean;
     fontSize?: string;
     fontColor?: string;
+    fontOverride?: string;
   }) => {
     const newStyles = {
       isBold: updates.isBold ?? isBold,
@@ -214,6 +244,7 @@ export default function TextFormatToolbar({
       isUnderline: updates.isUnderline ?? isUnderline,
       fontSize: updates.fontSize ?? fontSize,
       fontColor: updates.fontColor ?? fontColor,
+      fontOverride: updates.fontOverride ?? fontOverride,
     };
 
     // Notify parent of style change
@@ -262,6 +293,21 @@ export default function TextFormatToolbar({
     await saveStyles({ fontSize: newSize });
   };
 
+  const handleFontChange = async (newFont: string) => {
+    setFontOverride(newFont);
+    setShowFontDropdown(false);
+    await saveStyles({ fontOverride: newFont });
+  };
+
+  const handleFontButtonClick = () => {
+    if (!showFontDropdown) {
+      updateDropdownPosition(fontButtonRef);
+    }
+    setShowFontDropdown(!showFontDropdown);
+    setShowSizeDropdown(false);
+    setShowColorPicker(false);
+  };
+
   const handleColorChange = async (newColor: string) => {
     setFontColor(newColor);
     await saveStyles({ fontColor: newColor });
@@ -285,6 +331,43 @@ export default function TextFormatToolbar({
 
   const buttonSize = size === 'sm' ? 'p-1.5' : 'p-2';
   const iconSize = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
+
+  // Get current font display name
+  const currentFontLabel = fontOverride 
+    ? AVAILABLE_FONTS.find(f => f.value === fontOverride)?.label || fontOverride
+    : 'Font';
+
+  // Render font dropdown using portal
+  const renderFontDropdown = () => {
+    if (!showFontDropdown) return null;
+    
+    return createPortal(
+      <div 
+        ref={fontDropdownRef}
+        className="fixed bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-xl z-[9999] max-h-80 overflow-y-auto min-w-[200px]"
+        style={{ top: dropdownPosition.top, left: dropdownPosition.left }}
+      >
+        <div className="text-xs font-medium text-neutral-500 dark:text-neutral-400 px-3 py-2 border-b border-neutral-200 dark:border-neutral-700">
+          Select Font
+        </div>
+        {AVAILABLE_FONTS.map((fontOption) => (
+          <button
+            key={fontOption.value}
+            type="button"
+            onClick={() => handleFontChange(fontOption.value)}
+            className={cn(
+              "w-full px-3 py-2 text-left text-sm hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-colors",
+              fontOverride === fontOption.value && "bg-neutral-100 dark:bg-neutral-700 font-medium"
+            )}
+            style={{ fontFamily: fontOption.value || 'inherit' }}
+          >
+            {fontOption.label}
+          </button>
+        ))}
+      </div>,
+      document.body
+    );
+  };
 
   // Render dropdown using portal to avoid overflow issues
   const renderSizeDropdown = () => {
@@ -461,6 +544,26 @@ export default function TextFormatToolbar({
             {/* Separator */}
             <div className="w-px h-5 bg-neutral-300 dark:bg-neutral-600 mx-0.5" />
 
+            {/* Font Selector */}
+            <button
+              ref={fontButtonRef}
+              type="button"
+              onClick={handleFontButtonClick}
+              disabled={isLoading}
+              className={cn(
+                "rounded transition-all duration-200 flex items-center gap-1",
+                buttonSize,
+                fontOverride 
+                  ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 shadow-md" 
+                  : "text-neutral-400 dark:text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700 hover:text-neutral-700 dark:hover:text-neutral-200"
+              )}
+              title="Font Family"
+              style={{ fontFamily: fontOverride || 'inherit' }}
+            >
+              <span className="text-xs max-w-[80px] truncate">{currentFontLabel}</span>
+              <ChevronDown className="w-3 h-3" />
+            </button>
+
             {/* Font Size Dropdown */}
             <button
               ref={sizeButtonRef}
@@ -510,6 +613,7 @@ export default function TextFormatToolbar({
       </div>
 
       {/* Render dropdowns via portal */}
+      {renderFontDropdown()}
       {renderSizeDropdown()}
       {renderColorPicker()}
     </>
