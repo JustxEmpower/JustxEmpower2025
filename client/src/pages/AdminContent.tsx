@@ -602,7 +602,7 @@ export default function AdminContent() {
                           ].filter(Boolean).join(' ');
                           const inlineStyles: React.CSSProperties = {
                             ...(itemStyles.fontSize ? { fontSize: itemStyles.fontSize } : {}),
-                            ...(itemStyles.fontColor ? { color: itemStyles.fontColor } : {}),
+                            // Don't apply fontColor in admin editor - only on live site
                           };
 
                           return (
