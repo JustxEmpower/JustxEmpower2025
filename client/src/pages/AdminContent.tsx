@@ -10,7 +10,6 @@ import { LogOut, FileText, Settings, Layout, Save, ChevronDown, ChevronUp, Folde
 import MediaPicker from '@/components/MediaPicker';
 import AdminSidebar from '@/components/AdminSidebar';
 import SectionVisualizer from '@/components/SectionVisualizer';
-import FontSelectorEnhanced from '@/components/FontSelectorEnhanced';
 import TextFormatToolbar from '@/components/TextFormatToolbar';
 import LegalPageEditorNew, { LegalSection } from '@/components/LegalPageEditorNew';
 
@@ -434,15 +433,6 @@ export default function AdminContent() {
             activeSection={activeSection}
             onSectionClick={handleSectionClick}
           />
-          
-          {/* Font Typography Settings */}
-          <div className="mt-4">
-            <FontSelectorEnhanced 
-              content={content}
-              selectedPage={selectedPage}
-              activeSection={activeSection}
-            />
-          </div>
 
           {/* Quick Link to Page Zones */}
           <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-neutral-800">
