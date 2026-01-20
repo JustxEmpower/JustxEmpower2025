@@ -67,14 +67,14 @@ export default function Home({ slug = 'home' }: HomeProps) {
             imageUrl={heroSection.imageUrl}
             subtitle={heroSection.subtitle}
             title={heroSection.title}
-            description={heroSection.subDescription || heroSection.description}
+            description={heroSection.description}
             ctaText={heroSection.ctaText || heroSection.buttonText}
             ctaLink={heroSection.ctaLink || heroSection.buttonLink}
             isLoading={isLoading}
             textStyles={{
               title: getTextStyle('hero', 'title'),
               subtitle: getTextStyle('hero', 'subtitle'),
-              description: getTextStyle('hero', 'subDescription') || getTextStyle('hero', 'description'),
+              description: getTextStyle('hero', 'description'),
               ctaText: getTextStyle('hero', 'ctaText') || getTextStyle('hero', 'buttonText'),
             }}
           />
