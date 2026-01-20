@@ -3,6 +3,7 @@ import { useLocation, Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { getMediaUrl } from '@/lib/media';
 import { usePageContent } from '@/hooks/usePageContent';
+import { cn } from '@/lib/utils';
 
 interface WalkWithUsProps {
   slug?: string;
@@ -105,11 +106,11 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
           <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
         )}
         
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
-          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6" style={getInlineStyles('hero', 'title')}>
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
+          <h1 className={cn("font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6", getTextStyle('hero', 'title')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'title')}>
             {heroTitle}
           </h1>
-          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90" style={getInlineStyles('hero', 'subtitle')}>
+          <p className={cn("font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90", getTextStyle('hero', 'subtitle')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'subtitle')}>
             {heroSubtitle}
           </p>
         </div>
@@ -117,8 +118,8 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
 
       {/* Main Content */}
       <div className="py-24 px-6 md:px-12 max-w-4xl mx-auto text-center">
-        <h2 className="font-serif text-4xl italic mb-8 text-foreground" style={getInlineStyles('main', 'title')}>{mainTitle}</h2>
-        <p className="text-lg text-muted-foreground leading-relaxed mb-12" style={getInlineStyles('main', 'description')}>
+        <h2 className={cn("font-serif text-4xl italic mb-8", getTextStyle('main', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('main', 'title')}>{mainTitle}</h2>
+        <p className={cn("text-lg leading-relaxed mb-12", getTextStyle('main', 'description')?.fontColor ? '' : 'text-muted-foreground')} style={getInlineStyles('main', 'description')}>
           {mainDescription}
         </p>
         
@@ -158,7 +159,7 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
             <div className="w-full h-full bg-gradient-to-br from-neutral-300 to-neutral-500" />
           )}
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-            <p className="text-white font-serif text-3xl italic max-w-2xl px-4" style={getInlineStyles('quote', 'text')}>
+            <p className={cn("font-serif text-3xl italic max-w-2xl px-4", getTextStyle('quote', 'text')?.fontColor ? '' : 'text-white')} style={getInlineStyles('quote', 'text')}>
               {quoteText}
             </p>
           </div>

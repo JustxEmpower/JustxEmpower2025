@@ -120,11 +120,11 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
           <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
         )}
         
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
-          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6" style={getInlineStyles('hero', 'title')}>
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
+          <h1 className={cn("font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6", getTextStyle('hero', 'title')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'title')}>
             {heroTitle}
           </h1>
-          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90" style={getInlineStyles('hero', 'subtitle')}>
+          <p className={cn("font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90", getTextStyle('hero', 'subtitle')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'subtitle')}>
             {heroSubtitle}
           </p>
         </div>
@@ -141,8 +141,8 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
           {/* Contact Info */}
           <div className="space-y-12">
             <div>
-              <h2 className="font-serif text-4xl italic mb-6 text-foreground" style={getInlineStyles('info', 'heading')}>{contactTitle}</h2>
-              <p className="text-lg text-muted-foreground leading-relaxed" style={getInlineStyles('info', 'description')}>
+              <h2 className={cn("font-serif text-4xl italic mb-6", getTextStyle('info', 'heading')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('info', 'heading')}>{contactTitle}</h2>
+              <p className={cn("text-lg leading-relaxed", getTextStyle('info', 'description')?.fontColor ? '' : 'text-muted-foreground')} style={getInlineStyles('info', 'description')}>
                 {contactDescription}
               </p>
             </div>

@@ -5,6 +5,7 @@ import { getMediaUrl } from '@/lib/media';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { usePageContent } from '@/hooks/usePageContent';
 import { EditablePageZone } from '@/components/PageZone';
+import { cn } from '@/lib/utils';
 
 export default function Philosophy() {
   const [location] = useLocation();
@@ -86,11 +87,11 @@ export default function Philosophy() {
           <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
         )}
         
-        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-white text-center px-4">
-          <h1 className="font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6" style={getInlineStyles('hero', 'title')}>
+        <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
+          <h1 className={cn("font-serif text-5xl md:text-7xl font-light tracking-wide italic mb-6", getTextStyle('hero', 'title')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'title')}>
             {heroTitle}
           </h1>
-          <p className="font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90" style={getInlineStyles('hero', 'description')}>
+          <p className={cn("font-sans text-sm md:text-base tracking-[0.2em] uppercase opacity-90", getTextStyle('hero', 'description')?.fontColor ? '' : 'text-white')} style={getInlineStyles('hero', 'description')}>
             {heroDescription}
           </p>
         </div>
@@ -103,18 +104,18 @@ export default function Philosophy() {
       <div className="py-24 px-6 md:px-12 max-w-7xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
           <div>
-            <h2 className="font-serif text-4xl italic mb-8 text-foreground" style={getInlineStyles('principles', 'title')}>{principlesTitle}</h2>
+            <h2 className={cn("font-serif text-4xl italic mb-8", getTextStyle('principles', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('principles', 'title')}>{principlesTitle}</h2>
             <div className="space-y-12">
               <div>
-                <h3 className="font-sans text-sm tracking-widest uppercase mb-3 text-muted-foreground" style={getInlineStyles('principles', 'principle1_title')}>01. {principle1Title}</h3>
+                <h3 className={cn("font-sans text-sm tracking-widest uppercase mb-3", getTextStyle('principles', 'principle1_title')?.fontColor ? '' : 'text-muted-foreground')} style={getInlineStyles('principles', 'principle1_title')}>01. {principle1Title}</h3>
                 <p className="text-lg leading-relaxed" style={getInlineStyles('principles', 'principle1_description')}>{principle1Desc}</p>
               </div>
               <div>
-                <h3 className="font-sans text-sm tracking-widest uppercase mb-3 text-muted-foreground" style={getInlineStyles('principles', 'principle2_title')}>02. {principle2Title}</h3>
+                <h3 className={cn("font-sans text-sm tracking-widest uppercase mb-3", getTextStyle('principles', 'principle2_title')?.fontColor ? '' : 'text-muted-foreground')} style={getInlineStyles('principles', 'principle2_title')}>02. {principle2Title}</h3>
                 <p className="text-lg leading-relaxed" style={getInlineStyles('principles', 'principle2_description')}>{principle2Desc}</p>
               </div>
               <div>
-                <h3 className="font-sans text-sm tracking-widest uppercase mb-3 text-muted-foreground" style={getInlineStyles('principles', 'principle3_title')}>03. {principle3Title}</h3>
+                <h3 className={cn("font-sans text-sm tracking-widest uppercase mb-3", getTextStyle('principles', 'principle3_title')?.fontColor ? '' : 'text-muted-foreground')} style={getInlineStyles('principles', 'principle3_title')}>03. {principle3Title}</h3>
                 <p className="text-lg leading-relaxed" style={getInlineStyles('principles', 'principle3_description')}>{principle3Desc}</p>
               </div>
             </div>
