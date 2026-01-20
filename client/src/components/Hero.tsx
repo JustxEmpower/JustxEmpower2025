@@ -189,6 +189,13 @@ export default function Hero(props: HeroProps = {}) {
           </h2>
         )}
         
+        {/* DEBUG: Show font info */}
+        {textStyles.title?.fontOverride && (
+          <div className="fixed top-4 left-4 bg-black/80 text-white text-xs p-2 rounded z-50">
+            Font: {textStyles.title.fontOverride}
+          </div>
+        )}
+        
         {titleLine1 && (
           <div className="overflow-hidden mb-2">
             <h1 
