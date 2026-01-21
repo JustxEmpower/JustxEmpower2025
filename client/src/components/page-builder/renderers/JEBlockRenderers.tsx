@@ -1073,7 +1073,7 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
   const showTitle = content.showTitle !== false;
   const enableHorizontalScroll = content.enableHorizontalScroll !== false; // Default true
 
-  // GSAP horizontal scroll pinning (matching original Carousel component)
+  // GSAP horizontal scroll pinning (optimized for smooth performance)
   useEffect(() => {
     if (!sectionRef.current || !trackRef.current || isEditing || animationInitialized.current) return;
     if (!enableHorizontalScroll) return;
@@ -1086,29 +1086,44 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
 
       if (!section || !track) return;
 
-      // Calculate scroll amount
+      // Cache scroll amount calculation
+      let cachedScrollAmount: number | null = null;
       const getScrollAmount = () => {
-        const trackWidth = track.scrollWidth;
-        const viewportWidth = window.innerWidth;
-        return -(trackWidth - viewportWidth + 100);
+        if (cachedScrollAmount === null) {
+          const trackWidth = track.scrollWidth;
+          const viewportWidth = window.innerWidth;
+          cachedScrollAmount = -(trackWidth - viewportWidth + 100);
+        }
+        return cachedScrollAmount;
       };
 
-      // Create the scroll tween
+      // Set GPU acceleration
+      gsap.set(track, {
+        willChange: 'transform',
+        force3D: true,
+      });
+
+      // Create the scroll tween with GPU acceleration
       const tween = gsap.to(track, {
         x: getScrollAmount,
         ease: 'none',
+        force3D: true,
       });
 
-      // Create the ScrollTrigger
+      // Create optimized ScrollTrigger
       ScrollTrigger.create({
         trigger: section,
         start: 'top top',
         end: () => `+=${track.scrollWidth - window.innerWidth}`,
         pin: true,
         animation: tween,
-        scrub: 1,
+        scrub: 0.5, // Reduced for snappier response
         invalidateOnRefresh: true,
         anticipatePin: 1,
+        fastScrollEnd: true,
+        onRefresh: () => {
+          cachedScrollAmount = null;
+        },
       });
     }, sectionRef);
 
@@ -1176,7 +1191,7 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
   return <Carousel />;
 }
 
-// Carousel Card Component with curved edges
+// Carousel Card Component with GPU-accelerated animations
 function CarouselCard({ 
   item, 
   cardRadius, 
@@ -1191,10 +1206,19 @@ function CarouselCard({
   
   return (
     <div 
-      className="relative w-[80vw] md:w-[40vw] lg:w-[30vw] group overflow-hidden cursor-pointer shadow-2xl shadow-black/5 transition-all duration-500 hover:-translate-y-4 bg-gray-900"
+      className="relative w-[80vw] md:w-[40vw] lg:w-[30vw] group overflow-hidden cursor-pointer shadow-2xl shadow-black/5 bg-gray-900"
       style={{ 
         borderRadius: cardRadius,
         height: useFullHeight ? '100%' : cardHeight,
+        willChange: 'transform',
+        transform: 'translate3d(0,0,0)',
+        transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      }}
+      onMouseEnter={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = 'translate3d(0,-16px,0)';
+      }}
+      onMouseLeave={(e) => {
+        (e.currentTarget as HTMLElement).style.transform = 'translate3d(0,0,0)';
       }}
     >
       {/* Image Background */}
@@ -1204,8 +1228,13 @@ function CarouselCard({
       >
         {item.imageUrl ? (
           <div 
-            className="absolute inset-0 w-full h-full bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
-            style={{ backgroundImage: `url(${getMediaUrl(item.imageUrl)})` }}
+            className="absolute inset-0 w-full h-full bg-cover bg-center group-hover:scale-110"
+            style={{ 
+              backgroundImage: `url(${getMediaUrl(item.imageUrl)})`,
+              willChange: 'transform',
+              transform: 'translate3d(0,0,0) scale(1)',
+              transition: 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+            }}
           />
         ) : (
           <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-neutral-700 to-neutral-900 flex items-center justify-center">
@@ -1216,12 +1245,18 @@ function CarouselCard({
       
       {/* Gradient Overlay */}
       <div 
-        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 transition-opacity duration-500"
+        className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80"
         style={{ borderRadius: cardRadius }}
       />
       
       {/* Content */}
-      <div className="absolute bottom-0 left-0 p-8 md:p-10 w-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 z-20">
+      <div 
+        className="absolute bottom-0 left-0 p-8 md:p-10 w-full z-20"
+        style={{
+          transform: 'translate3d(0,16px,0)',
+          transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+        }}
+      >
         <span className="font-sans text-xs uppercase tracking-[0.2em] text-white/90 mb-4 block border-l-2 border-white/50 pl-3">
           Explore
         </span>
@@ -1229,7 +1264,13 @@ function CarouselCard({
           {item.title}
         </h3>
         {item.description && (
-          <p className="font-sans text-white/90 text-sm tracking-wide opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 transform translate-y-4 group-hover:translate-y-0 drop-shadow-md">
+          <p 
+            className="font-sans text-white/90 text-sm tracking-wide opacity-0 group-hover:opacity-100 drop-shadow-md"
+            style={{
+              transform: 'translate3d(0,16px,0)',
+              transition: 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s',
+            }}
+          >
             {item.description}
           </p>
         )}

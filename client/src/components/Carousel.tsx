@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
@@ -10,14 +10,33 @@ if (typeof window !== 'undefined') {
   gsap.registerPlugin(ScrollTrigger);
 }
 
+// Preload images for smooth rendering
+const preloadImage = (src: string): Promise<void> => {
+  return new Promise((resolve) => {
+    if (!src) {
+      resolve();
+      return;
+    }
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = src;
+  });
+};
+
 export default function Carousel() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const gsapContextRef = useRef<gsap.Context | null>(null);
+  const scrollTriggerRef = useRef<ScrollTrigger | null>(null);
   const [isReady, setIsReady] = useState(false);
+  const [imagesLoaded, setImagesLoaded] = useState(false);
 
   // Fetch carousel offerings from database
-  const { data: dbOfferings, isLoading } = trpc.carousel.getAll.useQuery();
+  const { data: dbOfferings, isLoading } = trpc.carousel.getAll.useQuery(undefined, {
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    refetchOnWindowFocus: false,
+  });
 
   // Only use database offerings - no fallback content
   const offerings = dbOfferings && dbOfferings.length > 0 
@@ -30,14 +49,45 @@ export default function Carousel() {
       }))
     : [];
 
-  // Set ready state after component mounts
+  // Preload all images when offerings are available
   useEffect(() => {
-    // Small delay to ensure DOM is fully rendered
-    const timer = setTimeout(() => {
+    if (offerings.length > 0 && !imagesLoaded) {
+      Promise.all(offerings.map(o => preloadImage(o.imageUrl)))
+        .then(() => setImagesLoaded(true));
+    }
+  }, [offerings, imagesLoaded]);
+
+  // Set ready state after component mounts and images are loaded
+  useEffect(() => {
+    if (!imagesLoaded || isLoading) return;
+    
+    // Use RAF for smoother initialization
+    const rafId = requestAnimationFrame(() => {
       setIsReady(true);
-    }, 100);
-    return () => clearTimeout(timer);
+    });
+    return () => cancelAnimationFrame(rafId);
+  }, [imagesLoaded, isLoading]);
+
+  // Debounced resize handler
+  const handleResize = useCallback(() => {
+    if (scrollTriggerRef.current) {
+      scrollTriggerRef.current.refresh();
+    }
   }, []);
+
+  useEffect(() => {
+    let resizeTimeout: NodeJS.Timeout;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(handleResize, 150);
+    };
+    
+    window.addEventListener('resize', debouncedResize);
+    return () => {
+      window.removeEventListener('resize', debouncedResize);
+      clearTimeout(resizeTimeout);
+    };
+  }, [handleResize]);
 
   useEffect(() => {
     // Wait for everything to be ready
@@ -56,30 +106,47 @@ export default function Carousel() {
 
     // Create new GSAP context
     const ctx = gsap.context(() => {
-      // Calculate scroll amount
+      // Cache scroll amount calculation
+      let cachedScrollAmount: number | null = null;
       const getScrollAmount = () => {
-        const trackWidth = track.scrollWidth;
-        const viewportWidth = window.innerWidth;
-        return -(trackWidth - viewportWidth + 100);
+        if (cachedScrollAmount === null) {
+          const trackWidth = track.scrollWidth;
+          const viewportWidth = window.innerWidth;
+          cachedScrollAmount = -(trackWidth - viewportWidth + 100);
+        }
+        return cachedScrollAmount;
       };
 
-      // Create the scroll tween
-      const tween = gsap.to(track, {
-        x: getScrollAmount,
-        ease: "none",
+      // Set initial GPU-accelerated state
+      gsap.set(track, {
+        willChange: 'transform',
+        force3D: true,
       });
 
-      // Create the ScrollTrigger
-      ScrollTrigger.create({
+      // Create the scroll tween with GPU acceleration
+      const tween = gsap.to(track, {
+        x: getScrollAmount,
+        ease: 'none',
+        force3D: true,
+      });
+
+      // Create the ScrollTrigger with optimized settings
+      const trigger = ScrollTrigger.create({
         trigger: section,
-        start: "top top",
+        start: 'top top',
         end: () => `+=${track.scrollWidth - window.innerWidth}`,
         pin: true,
         animation: tween,
-        scrub: 1,
+        scrub: 0.5, // Reduced from 1 for snappier response
         invalidateOnRefresh: true,
         anticipatePin: 1,
+        fastScrollEnd: true, // Optimize for fast scrolling
+        onRefresh: () => {
+          cachedScrollAmount = null; // Reset cache on refresh
+        },
       });
+
+      scrollTriggerRef.current = trigger;
 
     }, sectionRef);
 
@@ -90,6 +157,7 @@ export default function Carousel() {
         gsapContextRef.current.revert();
         gsapContextRef.current = null;
       }
+      scrollTriggerRef.current = null;
     };
   }, [isReady, isLoading, offerings.length]);
 
@@ -100,6 +168,7 @@ export default function Carousel() {
         gsapContextRef.current.revert();
         gsapContextRef.current = null;
       }
+      scrollTriggerRef.current = null;
       // Kill all ScrollTriggers associated with this component
       ScrollTrigger.getAll().forEach(trigger => {
         if (trigger.vars.trigger === sectionRef.current) {
@@ -132,26 +201,52 @@ export default function Carousel() {
         </h2>
       </div>
 
-      <div ref={trackRef} className="flex gap-8 md:gap-12 px-6 md:px-12 w-max items-center h-[60vh] md:h-[70vh] pl-[10vw] md:pl-[20vw] z-20">
+      <div 
+        ref={trackRef} 
+        className="flex gap-8 md:gap-12 px-6 md:px-12 w-max items-center h-[60vh] md:h-[70vh] pl-[10vw] md:pl-[20vw] z-20"
+        style={{ willChange: 'transform', transform: 'translate3d(0,0,0)' }}
+      >
         {offerings.map((item) => (
           <Link key={item.id} href={item.link} className="block h-full shrink-0">
             <div 
-              className="relative w-[80vw] md:w-[40vw] lg:w-[30vw] h-full group overflow-hidden cursor-pointer rounded-[2rem] shadow-2xl shadow-black/5 transition-all duration-500 hover:-translate-y-4 bg-gray-900"
+              className="relative w-[80vw] md:w-[40vw] lg:w-[30vw] h-full group overflow-hidden cursor-pointer rounded-[2rem] shadow-2xl shadow-black/5 bg-gray-900"
+              style={{ 
+                willChange: 'transform',
+                transform: 'translate3d(0,0,0)',
+                transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLElement).style.transform = 'translate3d(0,-16px,0)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement).style.transform = 'translate3d(0,0,0)';
+              }}
             >
               <div className="absolute inset-0 overflow-hidden rounded-[2rem]">
                 {item.imageUrl ? (
                   <div 
-                    className="absolute inset-0 w-full h-full bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
-                    style={{ backgroundImage: `url(${item.imageUrl})` }}
+                    className="absolute inset-0 w-full h-full bg-cover bg-center group-hover:scale-110"
+                    style={{ 
+                      backgroundImage: `url(${item.imageUrl})`,
+                      willChange: 'transform',
+                      transform: 'translate3d(0,0,0) scale(1)',
+                      transition: 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                    }}
                   />
                 ) : (
                   <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-neutral-700 to-neutral-900" />
                 )}
               </div>
               
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 transition-opacity duration-500 rounded-[2rem]" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-80 rounded-[2rem]" />
               
-              <div className="absolute bottom-0 left-0 p-8 md:p-10 w-full transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500 z-20">
+              <div 
+                className="absolute bottom-0 left-0 p-8 md:p-10 w-full z-20"
+                style={{
+                  transform: 'translate3d(0,16px,0)',
+                  transition: 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                }}
+              >
                 <span className="font-sans text-xs uppercase tracking-[0.2em] text-white/90 mb-4 block border-l-2 border-white/50 pl-3">
                   Explore
                 </span>
@@ -159,7 +254,13 @@ export default function Carousel() {
                   {item.title}
                 </h3>
                 {item.description && (
-                  <p className="font-sans text-white/90 text-sm tracking-wide opacity-0 group-hover:opacity-100 transition-all duration-500 delay-100 transform translate-y-4 group-hover:translate-y-0 drop-shadow-md">
+                  <p 
+                    className="font-sans text-white/90 text-sm tracking-wide opacity-0 group-hover:opacity-100 drop-shadow-md"
+                    style={{
+                      transform: 'translate3d(0,16px,0)',
+                      transition: 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.1s',
+                    }}
+                  >
                     {item.description}
                   </p>
                 )}
