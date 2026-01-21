@@ -531,6 +531,7 @@ function RenderBlock({ block }: { block: BlockData }) {
         return <hr className="border-neutral-200 dark:border-neutral-700 my-8" />;
 
       // JE Block Types - Hero
+      case "je-hero":
       case "je-hero-video":
       case "je-hero-image":
       case "je-hero-split":
