@@ -7,7 +7,6 @@ import {
   JESectionRenderer,
   JECarouselRenderer,
   JENewsletterRenderer,
-  JEQuoteRenderer,
   JEPillarGridRenderer,
   JECommunityRenderer,
   JERootedUnityRenderer,
@@ -32,6 +31,7 @@ import {
   JEFeatureCardRenderer,
   JECalendarRenderer,
 } from './page-builder/renderers/JEBlockRenderers';
+import { JEQuoteRenderer } from './page-builder/renderers/BlockRenderers-Part1-Core';
 
 interface BlockData {
   id: number;
