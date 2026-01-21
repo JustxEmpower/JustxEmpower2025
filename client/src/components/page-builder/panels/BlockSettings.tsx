@@ -2938,7 +2938,13 @@ export default function BlockSettings() {
 
   const handleContentChange = (key: string, value: unknown) => {
     if (selectedBlockId) {
+      console.log('[BlockSettings] handleContentChange called:', { key, value, selectedBlockId });
       updateBlock(selectedBlockId, { [key]: value });
+      // Debug: verify the update was applied
+      setTimeout(() => {
+        const updatedBlock = usePageBuilderStore.getState().blocks.find(b => b.id === selectedBlockId);
+        console.log('[BlockSettings] After update, block content:', updatedBlock?.content);
+      }, 100);
     }
   };
 
