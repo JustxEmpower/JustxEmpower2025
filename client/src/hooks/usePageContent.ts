@@ -39,28 +39,25 @@ export function usePageContent(page: string) {
     }
   );
 
-  // Dynamically load Google Fonts that are being used (must be before any conditional returns)
+  // Dynamically load Google Fonts and add CSS rules with !important
   useEffect(() => {
-    console.log('[usePageContent] useEffect triggered, textStylesData:', textStylesData);
     if (!textStylesData) return;
     
     const fontsToLoad = new Set<string>();
     textStylesData.forEach((style: { fontOverride?: string | null }) => {
       if (style.fontOverride) {
-        console.log('[usePageContent] Found fontOverride:', style.fontOverride);
         fontsToLoad.add(style.fontOverride);
       }
     });
     
-    console.log('[usePageContent] Fonts to load:', Array.from(fontsToLoad));
     if (fontsToLoad.size === 0) return;
     
+    // Load Google Fonts
     const fontNames = Array.from(fontsToLoad)
-      .map(f => f.replace(/ /g, '+') + ':wght@300;400;500;600;700')
+      .map(f => f.replace(/ /g, '+') + ':wght@300;400;500;600;700;900')
       .join('&family=');
     
     const fontUrl = `https://fonts.googleapis.com/css2?family=${fontNames}&display=swap`;
-    console.log('[usePageContent] Loading Google Font URL:', fontUrl);
     
     const linkId = 'dynamic-page-fonts';
     let link = document.getElementById(linkId) as HTMLLinkElement;
@@ -70,10 +67,24 @@ export function usePageContent(page: string) {
       link.id = linkId;
       link.rel = 'stylesheet';
       document.head.appendChild(link);
-      console.log('[usePageContent] Created new font link element');
     }
     
     link.href = fontUrl;
+
+    // Add CSS rules with !important to override Tailwind font classes
+    const styleId = 'font-override-styles';
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement;
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = styleId;
+      document.head.appendChild(styleEl);
+    }
+    
+    // Generate CSS rules for each font that override any element with inline font-family
+    const cssRules = Array.from(fontsToLoad).map(fontName => 
+      `[style*="font-family"][style*="${fontName}"] { font-family: "${fontName}", serif !important; }`
+    ).join('\n');
+    styleEl.textContent = cssRules;
   }, [textStylesData]);
   
   // DEBUG: Log any errors fetching text styles

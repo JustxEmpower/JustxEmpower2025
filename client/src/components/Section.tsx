@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useMemo } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
@@ -76,6 +76,47 @@ export default function Section({
   const imageRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const lineRef = useRef<HTMLDivElement>(null);
+
+  // Load Google Fonts dynamically based on fontOverride
+  const fontsToLoad = useMemo(() => {
+    const fonts = new Set<string>();
+    if (textStyles.title?.fontOverride) fonts.add(textStyles.title.fontOverride);
+    if (textStyles.subtitle?.fontOverride) fonts.add(textStyles.subtitle.fontOverride);
+    if (textStyles.description?.fontOverride) fonts.add(textStyles.description.fontOverride);
+    if (textStyles.ctaText?.fontOverride) fonts.add(textStyles.ctaText.fontOverride);
+    return Array.from(fonts);
+  }, [textStyles]);
+
+  useEffect(() => {
+    if (fontsToLoad.length === 0) return;
+    
+    fontsToLoad.forEach(fontName => {
+      const linkId = `font-${fontName.replace(/\s/g, '-')}`;
+      if (document.getElementById(linkId)) return;
+      
+      const link = document.createElement('link');
+      link.id = linkId;
+      link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(/ /g, '+')}:wght@300;400;500;600;700;900&display=swap`;
+      document.head.appendChild(link);
+    });
+
+    // Add CSS rules with !important
+    const styleId = 'section-font-override';
+    let styleEl = document.getElementById(styleId) as HTMLStyleElement;
+    if (!styleEl) {
+      styleEl = document.createElement('style');
+      styleEl.id = styleId;
+      document.head.appendChild(styleEl);
+    }
+    
+    const existingRules = styleEl.textContent || '';
+    const newRules = fontsToLoad
+      .filter(fontName => !existingRules.includes(fontName))
+      .map(fontName => `[style*="font-family"][style*="${fontName}"] { font-family: "${fontName}", serif !important; }`)
+      .join('\n');
+    if (newRules) styleEl.textContent = existingRules + '\n' + newRules;
+  }, [fontsToLoad]);
 
   useEffect(() => {
     const ctx = gsap.context(() => {
