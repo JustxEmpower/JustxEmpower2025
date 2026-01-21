@@ -11,7 +11,6 @@ import {
   JECommunityRenderer,
   JERootedUnityRenderer,
   JEHeadingRenderer,
-  JEParagraphRenderer,
   JEImageRenderer,
   JEVideoRenderer,
   JEButtonRenderer,
@@ -31,7 +30,7 @@ import {
   JEFeatureCardRenderer,
   JECalendarRenderer,
 } from './page-builder/renderers/JEBlockRenderers';
-import { JEQuoteRenderer } from './page-builder/renderers/BlockRenderers-Part1-Core';
+import { JEQuoteRenderer, JEParagraphRenderer as JEParagraphRendererCore } from './page-builder/renderers/BlockRenderers-Part1-Core';
 
 interface BlockData {
   id: number;
@@ -546,7 +545,7 @@ function RenderBlock({ block }: { block: BlockData }) {
       case "je-heading":
         return <JEHeadingRenderer block={pageBlock} />;
       case "je-paragraph":
-        return <JEParagraphRenderer block={pageBlock} />;
+        return <JEParagraphRendererCore block={pageBlock} />;
       case "je-blockquote":
         return <JEQuoteRenderer block={pageBlock} />;
       case "je-image":
