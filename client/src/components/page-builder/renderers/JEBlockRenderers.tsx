@@ -1755,8 +1755,14 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
     fontFamily: hasCustomFont ? `"${fontFamilyValue}", sans-serif` : undefined,
   };
 
+  // Apply fontFamily to container so it cascades to all children
+  const finalContainerStyle: React.CSSProperties = {
+    ...containerStyle,
+    ...(hasCustomFont ? { fontFamily: `"${fontFamilyValue}", sans-serif` } : {}),
+  };
+
   return (
-    <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`} style={containerStyle}>
+    <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`} style={finalContainerStyle}>
       <InlineEditableText
         blockId={block.id}
         fieldName="text"
