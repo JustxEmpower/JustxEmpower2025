@@ -969,11 +969,9 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     ? { fontFamily: `"${fontFamily}", sans-serif` } 
     : {};
 
-  // Force font style directly on the text
-  const fontStyle: React.CSSProperties = hasCustomFont 
-    ? { fontFamily: `'${fontFamily}', cursive, sans-serif` } 
-    : {};
-
+  // FINAL FIX: Apply font using CSS class with !important
+  const fontClassName = hasCustomFont ? `je-font-${block.id.replace(/[^a-z0-9]/gi, '')}` : '';
+  
   return (
     <div 
       className={cn(
@@ -981,10 +979,18 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
         alignmentClasses[alignment] || alignmentClasses.center,
         maxWidthClasses[maxWidth] || 'max-w-2xl'
       )}
-      style={fontStyle}
     >
+      {/* Inject CSS to force font family with !important */}
+      {hasCustomFont && (
+        <style dangerouslySetInnerHTML={{ __html: `
+          .${fontClassName}, .${fontClassName} * { 
+            font-family: '${fontFamily}', cursive, sans-serif !important; 
+          }
+        `}} />
+      )}
       <p
         className={cn(
+          fontClassName,
           'text-base md:text-lg',
           lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
           !hasCustomFont && 'font-sans',
@@ -994,7 +1000,6 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
           indent ? 'indent-8' : ''
         )}
-        style={fontStyle}
       >
         <EditableText
           value={text}
@@ -1004,7 +1009,6 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           multiline
           isEditing={isEditing}
           className=""
-          style={fontStyle}
         />
       </p>
     </div>
