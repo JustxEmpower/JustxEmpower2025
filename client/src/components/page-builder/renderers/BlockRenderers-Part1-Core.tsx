@@ -903,24 +903,21 @@ export function JEHeadingRenderer({ block, isEditing, onUpdate }: BlockRendererP
 // ============================================================================
 
 export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+  // Read content directly without destructuring to avoid stale closure issues
   const content = block.content || {};
+  const contentAny = content as Record<string, any>;
   
-  // DEBUG: Log raw content to see what's actually there
-  console.log('[JEParagraphRenderer] Raw block.content:', JSON.stringify(content));
-  console.log('[JEParagraphRenderer] content.fontFamily directly:', (content as any).fontFamily);
-
-  const {
-    text = '',
-    alignment = 'center',
-    dropCap = false,
-    columns = 1,
-    fontSize = '16px',
-    fontFamily = '',
-    lineHeight = 'relaxed',
-    maxWidth = 'narrow',
-    color = '',
-    indent = false,
-  } = content as Record<string, any>;
+  // Read values directly from content object
+  const text = contentAny.text || '';
+  const alignment = contentAny.alignment || 'center';
+  const dropCap = contentAny.dropCap || false;
+  const columns = contentAny.columns || 1;
+  const fontSize = contentAny.fontSize || '16px';
+  const fontFamily = contentAny.fontFamily || '';
+  const lineHeight = contentAny.lineHeight || 'relaxed';
+  const maxWidth = contentAny.maxWidth || 'narrow';
+  const color = contentAny.color || '';
+  const indent = contentAny.indent || false;
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -980,16 +977,9 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
         maxWidthClasses[maxWidth] || 'max-w-2xl'
       )}
     >
-      {/* DEBUG: Show raw content keys and fontFamily */}
-      <div style={{ fontSize: '11px', background: '#f0f0ff', padding: '6px', marginBottom: '8px', border: '1px solid #99f', borderRadius: '4px' }}>
-        <div><strong>Raw content keys:</strong> {Object.keys(content).join(', ') || 'none'}</div>
-        <div><strong>content.fontFamily:</strong> "{(content as any).fontFamily || 'undefined'}"</div>
-        <div><strong>Destructured fontFamily:</strong> "{fontFamily}"</div>
-        <div><strong>hasCustomFont:</strong> {String(hasCustomFont)}</div>
-      </div>
-      {/* Test: Hardcoded font test */}
-      <div style={{ fontFamily: "'Retro Signature', cursive", fontSize: '28px', marginBottom: '10px', color: 'purple' }}>
-        TEST: Retro Signature (hardcoded)
+      {/* DEBUG: Compact debug info */}
+      <div style={{ fontSize: '10px', background: '#fffbe6', padding: '4px 8px', marginBottom: '6px', borderRadius: '3px', fontFamily: 'monospace' }}>
+        fontFamily="{fontFamily}" | hasCustomFont={String(hasCustomFont)} | keys=[{Object.keys(content).slice(0, 5).join(',')}...]
       </div>
       <p
         className={cn(
