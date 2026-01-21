@@ -1025,8 +1025,8 @@ export function JEQuoteRenderer({ block, isEditing, onUpdate }: BlockRendererPro
         'max-w-3xl mx-auto',
         variant === 'card' && 'bg-neutral-50 p-8 rounded-lg shadow-sm'
       )}>
-        {/* Decorative Quote Mark */}
-        {variant === 'elegant' && (
+        {/* Decorative Quote Mark - only show if there's a quote */}
+        {variant === 'elegant' && quote && (
           <div className={cn(
             'text-6xl font-serif mb-4',
             dark ? 'text-amber-500/30' : 'text-amber-500/30'
@@ -1087,17 +1087,20 @@ export function JEQuoteRenderer({ block, isEditing, onUpdate }: BlockRendererPro
               dark ? 'text-white' : 'text-neutral-900'
             )}
           />
-          <EditableText
-            value={role}
-            onChange={(v) => handleChange('role', v)}
-            tag="span"
-            placeholder="Author role"
-            isEditing={isEditing}
-            className={cn(
-              'text-sm font-sans block mt-1',
-              dark ? 'text-neutral-400' : 'text-neutral-500'
-            )}
-          />
+          {/* Only show role if editing or if role has content */}
+          {(isEditing || role) && (
+            <EditableText
+              value={role}
+              onChange={(v) => handleChange('role', v)}
+              tag="span"
+              placeholder="Author role"
+              isEditing={isEditing}
+              className={cn(
+                'text-sm font-sans block mt-1',
+                dark ? 'text-neutral-400' : 'text-neutral-500'
+              )}
+            />
+          )}
         </footer>
       </div>
     </blockquote>
