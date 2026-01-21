@@ -904,6 +904,10 @@ export function JEHeadingRenderer({ block, isEditing, onUpdate }: BlockRendererP
 
 export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
+  
+  // DEBUG: Log raw content to see what's actually there
+  console.log('[JEParagraphRenderer] Raw block.content:', JSON.stringify(content));
+  console.log('[JEParagraphRenderer] content.fontFamily directly:', (content as any).fontFamily);
 
   const {
     text = '',
@@ -916,7 +920,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     maxWidth = 'narrow',
     color = '',
     indent = false,
-  } = content;
+  } = content as Record<string, any>;
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -976,13 +980,16 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
         maxWidthClasses[maxWidth] || 'max-w-2xl'
       )}
     >
-      {/* Test: Hardcoded font test */}
-      <div style={{ fontFamily: "'Retro Signature', cursive", fontSize: '24px', marginBottom: '10px', color: 'purple' }}>
-        TEST: This should be in Retro Signature font (hardcoded)
+      {/* DEBUG: Show raw content keys and fontFamily */}
+      <div style={{ fontSize: '11px', background: '#f0f0ff', padding: '6px', marginBottom: '8px', border: '1px solid #99f', borderRadius: '4px' }}>
+        <div><strong>Raw content keys:</strong> {Object.keys(content).join(', ') || 'none'}</div>
+        <div><strong>content.fontFamily:</strong> "{(content as any).fontFamily || 'undefined'}"</div>
+        <div><strong>Destructured fontFamily:</strong> "{fontFamily}"</div>
+        <div><strong>hasCustomFont:</strong> {String(hasCustomFont)}</div>
       </div>
-      {/* Show current fontFamily from block content */}
-      <div style={{ fontSize: '12px', background: '#ffe', padding: '4px', marginBottom: '8px' }}>
-        fontFamily from content: "{fontFamily}" | hasCustomFont: {String(hasCustomFont)}
+      {/* Test: Hardcoded font test */}
+      <div style={{ fontFamily: "'Retro Signature', cursive", fontSize: '28px', marginBottom: '10px', color: 'purple' }}>
+        TEST: Retro Signature (hardcoded)
       </div>
       <p
         className={cn(
