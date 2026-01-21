@@ -963,12 +963,20 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     ...(hasCustomFont ? { fontFamily: `"${fontFamily}", sans-serif` } : {}),
   };
 
+  // Container style - apply font family here too so it cascades
+  const containerStyle: React.CSSProperties = hasCustomFont 
+    ? { fontFamily: `"${fontFamily}", sans-serif` } 
+    : {};
+
   return (
-    <div className={cn(
-      'py-8 px-6',
-      alignmentClasses[alignment] || alignmentClasses.center,
-      maxWidthClasses[maxWidth] || 'max-w-2xl'
-    )}>
+    <div 
+      className={cn(
+        'py-8 px-6',
+        alignmentClasses[alignment] || alignmentClasses.center,
+        maxWidthClasses[maxWidth] || 'max-w-2xl'
+      )}
+      style={containerStyle}
+    >
       <EditableText
         value={text}
         onChange={(v) => handleChange('text', v)}
