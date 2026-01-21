@@ -53,7 +53,7 @@ export function usePageContent(page: string) {
     if (fontsToLoad.size === 0) return;
     
     // Custom fonts already loaded via @font-face in index.html
-    const customFonts = ['Retro Signature'];
+    const customFonts = ['Retro Signature', 'Aphrodite', 'Bonnevarc', 'Catchye', 'Cherolina', 'Faithfull Signature', 'Hertine', 'Kalivo', 'Rise of Beauty Script', 'Rise of Beauty', 'Vonique'];
     const googleFonts = Array.from(fontsToLoad).filter(f => !customFonts.includes(f));
     
     // Load Google Fonts (skip custom fonts)

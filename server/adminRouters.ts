@@ -4481,8 +4481,11 @@ export const fontSettingsRouter = router({
       { name: "Amiri", category: "serif", googleFont: true, style: "elegant" },
       { name: "Gilda Display", category: "serif", googleFont: true, style: "display" },
       { name: "Vidaloka", category: "serif", googleFont: true, style: "display" },
+      { name: "Rise of Beauty", category: "serif", googleFont: false, style: "elegant" },
       
       // === SANS-SERIF FONTS (50+) ===
+      { name: "Kalivo", category: "sans-serif", googleFont: false, style: "modern" },
+      { name: "Vonique", category: "sans-serif", googleFont: false, style: "modern" },
       { name: "Inter", category: "sans-serif", googleFont: true, style: "modern" },
       { name: "Montserrat", category: "sans-serif", googleFont: true, style: "geometric" },
       { name: "Raleway", category: "sans-serif", googleFont: true, style: "elegant" },
@@ -4554,6 +4557,13 @@ export const fontSettingsRouter = router({
       
       // === SCRIPT/HANDWRITING FONTS (10+) ===
       { name: "Retro Signature", category: "script", googleFont: false, style: "signature" },
+      { name: "Aphrodite", category: "script", googleFont: false, style: "elegant" },
+      { name: "Bonnevarc", category: "script", googleFont: false, style: "script" },
+      { name: "Catchye", category: "script", googleFont: false, style: "script" },
+      { name: "Cherolina", category: "script", googleFont: false, style: "elegant" },
+      { name: "Faithfull Signature", category: "script", googleFont: false, style: "signature" },
+      { name: "Hertine", category: "script", googleFont: false, style: "script" },
+      { name: "Rise of Beauty Script", category: "script", googleFont: false, style: "elegant" },
       { name: "Dancing Script", category: "script", googleFont: true, style: "script" },
       { name: "Pacifico", category: "script", googleFont: true, style: "script" },
       { name: "Great Vibes", category: "script", googleFont: true, style: "script" },

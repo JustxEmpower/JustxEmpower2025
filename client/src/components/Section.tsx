@@ -91,7 +91,7 @@ export default function Section({
     if (fontsToLoad.length === 0) return;
     
     // Custom fonts already loaded via @font-face in index.html
-    const customFonts = ['Retro Signature'];
+    const customFonts = ['Retro Signature', 'Aphrodite', 'Bonnevarc', 'Catchye', 'Cherolina', 'Faithfull Signature', 'Hertine', 'Kalivo', 'Rise of Beauty Script', 'Rise of Beauty', 'Vonique'];
     
     fontsToLoad.forEach(fontName => {
       // Skip custom fonts - they're already loaded
