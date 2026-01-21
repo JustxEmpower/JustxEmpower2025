@@ -90,7 +90,13 @@ export default function Section({
   useEffect(() => {
     if (fontsToLoad.length === 0) return;
     
+    // Custom fonts already loaded via @font-face in index.html
+    const customFonts = ['Retro Signature'];
+    
     fontsToLoad.forEach(fontName => {
+      // Skip custom fonts - they're already loaded
+      if (customFonts.includes(fontName)) return;
+      
       const linkId = `font-${fontName.replace(/\s/g, '-')}`;
       if (document.getElementById(linkId)) return;
       

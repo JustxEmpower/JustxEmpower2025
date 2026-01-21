@@ -4553,6 +4553,7 @@ export const fontSettingsRouter = router({
       { name: "Rampart One", category: "display", googleFont: true, style: "display" },
       
       // === SCRIPT/HANDWRITING FONTS (10+) ===
+      { name: "Retro Signature", category: "script", googleFont: false, style: "signature" },
       { name: "Dancing Script", category: "script", googleFont: true, style: "script" },
       { name: "Pacifico", category: "script", googleFont: true, style: "script" },
       { name: "Great Vibes", category: "script", googleFont: true, style: "script" },

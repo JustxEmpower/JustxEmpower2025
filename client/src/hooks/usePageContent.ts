@@ -52,24 +52,30 @@ export function usePageContent(page: string) {
     
     if (fontsToLoad.size === 0) return;
     
-    // Load Google Fonts
-    const fontNames = Array.from(fontsToLoad)
-      .map(f => f.replace(/ /g, '+') + ':wght@300;400;500;600;700;900')
-      .join('&family=');
+    // Custom fonts already loaded via @font-face in index.html
+    const customFonts = ['Retro Signature'];
+    const googleFonts = Array.from(fontsToLoad).filter(f => !customFonts.includes(f));
     
-    const fontUrl = `https://fonts.googleapis.com/css2?family=${fontNames}&display=swap`;
+    // Load Google Fonts (skip custom fonts)
+    if (googleFonts.length > 0) {
+      const fontNames = googleFonts
+        .map(f => f.replace(/ /g, '+') + ':wght@300;400;500;600;700;900')
+        .join('&family=');
     
-    const linkId = 'dynamic-page-fonts';
-    let link = document.getElementById(linkId) as HTMLLinkElement;
+      const fontUrl = `https://fonts.googleapis.com/css2?family=${fontNames}&display=swap`;
     
-    if (!link) {
-      link = document.createElement('link');
-      link.id = linkId;
-      link.rel = 'stylesheet';
-      document.head.appendChild(link);
+      const linkId = 'dynamic-page-fonts';
+      let link = document.getElementById(linkId) as HTMLLinkElement;
+    
+      if (!link) {
+        link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+      }
+    
+      link.href = fontUrl;
     }
-    
-    link.href = fontUrl;
 
     // Add CSS rules with !important to override Tailwind font classes
     const styleId = 'font-override-styles';
