@@ -537,7 +537,7 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'dropCap', label: 'Drop Cap', type: 'boolean' },
     { key: 'columns', label: 'Columns', type: 'number', min: 1, max: 3 },
     { key: 'fontFamily', label: 'Font Family', type: 'select', options: [
-      { value: '', label: 'Default (Sans)' },
+      { value: 'default', label: 'Default (Sans)' },
       { value: 'Inter', label: 'Inter' },
       { value: 'Playfair Display', label: 'Playfair Display' },
       { value: 'Lora', label: 'Lora' },

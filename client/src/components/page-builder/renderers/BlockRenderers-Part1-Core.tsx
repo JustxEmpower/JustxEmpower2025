@@ -956,10 +956,11 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
   };
 
   // Build text style with actual font size and font family
+  const hasCustomFont = fontFamily && fontFamily !== 'default';
   const textStyle: React.CSSProperties = {
     ...(color ? { color } : {}),
     ...(fontSize && fontSize.includes('px') ? { fontSize } : {}),
-    ...(fontFamily ? { fontFamily: `"${fontFamily}", sans-serif` } : {}),
+    ...(hasCustomFont ? { fontFamily: `"${fontFamily}", sans-serif` } : {}),
   };
 
   return (
@@ -978,7 +979,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
         className={cn(
           'text-base md:text-lg',
           lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
-          !fontFamily && 'font-sans',
+          !hasCustomFont && 'font-sans',
           'whitespace-pre-wrap',
           'text-neutral-700 dark:text-neutral-300',
           columnClasses[columns] || '',
