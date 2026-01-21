@@ -971,9 +971,6 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
   // Debug: log what font is being applied
   console.log('[JEParagraphRenderer] fontFamily from content:', fontFamily, 'hasCustomFont:', hasCustomFont);
 
-  // Generate a unique ID for this block's font style
-  const blockFontStyleId = `font-style-${block.id}`;
-
   return (
     <div 
       className={cn(
@@ -981,43 +978,35 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
         alignmentClasses[alignment] || alignmentClasses.center,
         maxWidthClasses[maxWidth] || 'max-w-2xl'
       )}
-      style={containerStyle}
+      style={hasCustomFont ? { fontFamily: `'${fontFamily}', cursive` } : undefined}
     >
-      {/* Inject CSS with !important to override Tailwind */}
-      {hasCustomFont && (
-        <style dangerouslySetInnerHTML={{
-          __html: `
-            #${blockFontStyleId} * {
-              font-family: "${fontFamily}", cursive !important;
-            }
-          `
-        }} />
-      )}
-      {/* Debug: show current font */}
-      {hasCustomFont && (
-        <div className="text-xs text-amber-600 mb-2">Font: {fontFamily}</div>
-      )}
-      <div id={blockFontStyleId}>
+      <p
+        className={cn(
+          'text-base md:text-lg',
+          lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
+          !hasCustomFont && 'font-sans',
+          'whitespace-pre-wrap',
+          'text-neutral-700 dark:text-neutral-300',
+          columnClasses[columns] || '',
+          dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
+          indent ? 'indent-8' : ''
+        )}
+        style={{
+          ...textStyle,
+          ...(hasCustomFont ? { fontFamily: `'${fontFamily}', cursive` } : {}),
+        }}
+      >
         <EditableText
           value={text}
           onChange={(v) => handleChange('text', v)}
-          tag="p"
+          tag="span"
           placeholder="Enter paragraph text here..."
           multiline
           isEditing={isEditing}
-          className={cn(
-            'text-base md:text-lg',
-            lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
-            !hasCustomFont && 'font-sans',
-            'whitespace-pre-wrap',
-            'text-neutral-700 dark:text-neutral-300',
-            columnClasses[columns] || '',
-            dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
-            indent ? 'indent-8' : ''
-          )}
-          style={textStyle}
+          className="inherit"
+          style={{ fontFamily: 'inherit' }}
         />
-      </div>
+      </p>
     </div>
   );
 }

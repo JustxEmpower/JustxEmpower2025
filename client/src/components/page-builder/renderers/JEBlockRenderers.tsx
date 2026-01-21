@@ -1762,17 +1762,25 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
   };
 
   return (
-    <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`} style={finalContainerStyle}>
-      <InlineEditableText
-        blockId={block.id}
-        fieldName="text"
-        value={content.text || ''}
-        placeholder="Add your paragraph text here..."
+    <div 
+      className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`} 
+      style={hasCustomFont ? { fontFamily: `'${fontFamilyValue}', cursive` } : undefined}
+    >
+      <p
         className={`${hasCustomFont ? '' : 'font-sans '}text-base md:text-lg leading-relaxed whitespace-pre-wrap ${textClass}`}
-        style={textStyle}
-        as="p"
-        multiline={true}
-      />
+        style={hasCustomFont ? { fontFamily: `'${fontFamilyValue}', cursive` } : undefined}
+      >
+        <InlineEditableText
+          blockId={block.id}
+          fieldName="text"
+          value={content.text || ''}
+          placeholder="Add your paragraph text here..."
+          className="inherit"
+          style={{ fontFamily: 'inherit' }}
+          as="span"
+          multiline={true}
+        />
+      </p>
     </div>
   );
 }
