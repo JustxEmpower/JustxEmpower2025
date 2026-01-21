@@ -911,6 +911,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     dropCap = false,
     columns = 1,
     fontSize = '16px',
+    fontFamily = '',
     lineHeight = 'relaxed',
     maxWidth = 'narrow',
     color = '',
@@ -954,10 +955,11 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     3: 'columns-3 gap-8',
   };
 
-  // Build text style with actual font size
+  // Build text style with actual font size and font family
   const textStyle: React.CSSProperties = {
     ...(color ? { color } : {}),
     ...(fontSize && fontSize.includes('px') ? { fontSize } : {}),
+    ...(fontFamily ? { fontFamily: `"${fontFamily}", sans-serif` } : {}),
   };
 
   return (
@@ -976,7 +978,8 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
         className={cn(
           'text-base md:text-lg',
           lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
-          'font-sans whitespace-pre-wrap',
+          !fontFamily && 'font-sans',
+          'whitespace-pre-wrap',
           'text-neutral-700 dark:text-neutral-300',
           columnClasses[columns] || '',
           dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',

@@ -1705,6 +1705,7 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
     alignment?: 'left' | 'center' | 'right';
     size?: 'small' | 'medium' | 'large';
     fontSize?: string;
+    fontFamily?: string;
     dark?: boolean;
     maxWidth?: string;
     maxWidthContent?: string; // Legacy support
@@ -1742,12 +1743,15 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
     backgroundColor: content.backgroundColor ? content.backgroundColor as string : undefined,
   };
   
-  // Font size - support actual pixel values and legacy Tailwind values
+  // Font size and font family - support actual pixel values and legacy Tailwind values
   const fontSizeValue = content.fontSize;
+  const fontFamilyValue = content.fontFamily;
   const textStyle: React.CSSProperties = {
     ...buildTextStyles(content),
     // Apply actual font size if it's a pixel value
     fontSize: fontSizeValue && fontSizeValue.includes('px') ? fontSizeValue : undefined,
+    // Apply font family if set
+    fontFamily: fontFamilyValue ? `"${fontFamilyValue}", sans-serif` : undefined,
   };
 
   return (
@@ -1757,7 +1761,7 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
         fieldName="text"
         value={content.text || ''}
         placeholder="Add your paragraph text here..."
-        className={`font-sans text-base md:text-lg leading-relaxed whitespace-pre-wrap ${textClass}`}
+        className={`${fontFamilyValue ? '' : 'font-sans '}text-base md:text-lg leading-relaxed whitespace-pre-wrap ${textClass}`}
         style={textStyle}
         as="p"
         multiline={true}
