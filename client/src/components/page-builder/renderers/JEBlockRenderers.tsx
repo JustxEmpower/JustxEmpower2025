@@ -1761,22 +1761,22 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
     ...(hasCustomFont ? { fontFamily: `"${fontFamilyValue}", sans-serif` } : {}),
   };
 
+  // Generate unique class for this block's font
+  const fontClass = hasCustomFont ? `font-block-${block.id.replace(/[^a-z0-9]/gi, '')}` : '';
+
   return (
-    <div 
-      className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`} 
-      style={hasCustomFont ? { fontFamily: `'${fontFamilyValue}', cursive` } : undefined}
-    >
-      <p
-        className={`${hasCustomFont ? '' : 'font-sans '}text-base md:text-lg leading-relaxed whitespace-pre-wrap ${textClass}`}
-        style={hasCustomFont ? { fontFamily: `'${fontFamilyValue}', cursive` } : undefined}
-      >
+    <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`}>
+      {/* Inject scoped CSS for custom font with !important */}
+      {hasCustomFont && (
+        <style>{`.${fontClass}, .${fontClass} * { font-family: '${fontFamilyValue}', cursive, sans-serif !important; }`}</style>
+      )}
+      <p className={`${fontClass} ${hasCustomFont ? '' : 'font-sans '}text-base md:text-lg leading-relaxed whitespace-pre-wrap ${textClass}`}>
         <InlineEditableText
           blockId={block.id}
           fieldName="text"
           value={content.text || ''}
           placeholder="Add your paragraph text here..."
-          className="inherit"
-          style={{ fontFamily: 'inherit' }}
+          className=""
           as="span"
           multiline={true}
         />
