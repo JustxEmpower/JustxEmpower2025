@@ -969,7 +969,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     ? { fontFamily: `"${fontFamily}", sans-serif` } 
     : {};
 
-  // FINAL FIX: Apply font using CSS class with !important
+  // Apply font using CSS class with !important
   const fontClassName = hasCustomFont ? `je-font-${block.id.replace(/[^a-z0-9]/gi, '')}` : '';
   
   return (
@@ -980,6 +980,10 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
         maxWidthClasses[maxWidth] || 'max-w-2xl'
       )}
     >
+      {/* DEBUG: Show fontFamily value - REMOVE AFTER DEBUGGING */}
+      <div style={{fontSize:'11px',background:'#fef3c7',padding:'4px 8px',marginBottom:'8px',borderRadius:'4px',border:'1px solid #f59e0b'}}>
+        <strong>DEBUG:</strong> fontFamily="{fontFamily}" | hasCustomFont={String(hasCustomFont)} | blockId={block.id.substring(0,8)}
+      </div>
       {/* Inject CSS to force font family with !important */}
       {hasCustomFont && (
         <style dangerouslySetInnerHTML={{ __html: `
