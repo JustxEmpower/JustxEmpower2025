@@ -968,8 +968,8 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     ? { fontFamily: `"${fontFamily}", sans-serif` } 
     : {};
 
-  // Debug: log what font is being applied
-  console.log('[JEParagraphRenderer] fontFamily from content:', fontFamily, 'hasCustomFont:', hasCustomFont);
+  // The actual font-family CSS value
+  const fontFamilyCSS = hasCustomFont ? `'${fontFamily}', sans-serif` : undefined;
 
   return (
     <div 
@@ -978,8 +978,11 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
         alignmentClasses[alignment] || alignmentClasses.center,
         maxWidthClasses[maxWidth] || 'max-w-2xl'
       )}
-      style={hasCustomFont ? { fontFamily: `'${fontFamily}', cursive` } : undefined}
     >
+      {/* Debug: show raw fontFamily value from content */}
+      <div className="text-xs bg-yellow-100 p-1 mb-2 rounded">
+        Raw fontFamily: "{fontFamily || 'undefined'}" | hasCustomFont: {String(hasCustomFont)} | CSS: {fontFamilyCSS || 'none'}
+      </div>
       <p
         className={cn(
           'text-base md:text-lg',
@@ -991,10 +994,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
           indent ? 'indent-8' : ''
         )}
-        style={{
-          ...textStyle,
-          ...(hasCustomFont ? { fontFamily: `'${fontFamily}', cursive` } : {}),
-        }}
+        style={fontFamilyCSS ? { fontFamily: fontFamilyCSS } : undefined}
       >
         <EditableText
           value={text}
@@ -1003,8 +1003,8 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           placeholder="Enter paragraph text here..."
           multiline
           isEditing={isEditing}
-          className="inherit"
-          style={{ fontFamily: 'inherit' }}
+          className=""
+          style={fontFamilyCSS ? { fontFamily: fontFamilyCSS } : undefined}
         />
       </p>
     </div>
