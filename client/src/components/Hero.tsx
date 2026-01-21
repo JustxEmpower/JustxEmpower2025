@@ -234,7 +234,7 @@ export default function Hero(props: HeroProps = {}) {
         
                 
         {titleLine1 && (
-          <div className="overflow-hidden mb-2">
+          <div className="mb-2">
             <h1 
               className={cn(
                 "hero-title-line text-5xl md:text-7xl lg:text-9xl font-light tracking-wide leading-[1.1] drop-shadow-lg",
@@ -250,7 +250,7 @@ export default function Hero(props: HeroProps = {}) {
         )}
         
         {titleLine2 && (
-          <div className="overflow-hidden mb-8 md:mb-12">
+          <div className="mb-8 md:mb-12">
             <h1 
               className={cn(
                 "hero-title-line text-5xl md:text-7xl lg:text-9xl font-light tracking-wide leading-[1.1] drop-shadow-lg",
