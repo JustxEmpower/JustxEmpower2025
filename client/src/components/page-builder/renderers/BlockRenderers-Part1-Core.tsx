@@ -968,9 +968,6 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     ? { fontFamily: `"${fontFamily}", sans-serif` } 
     : {};
 
-  // Generate unique class for this block's font
-  const fontClass = hasCustomFont ? `font-block-${block.id.replace(/[^a-z0-9]/gi, '')}` : '';
-
   return (
     <div 
       className={cn(
@@ -979,13 +976,16 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
         maxWidthClasses[maxWidth] || 'max-w-2xl'
       )}
     >
-      {/* Inject scoped CSS for custom font with !important */}
-      {hasCustomFont && (
-        <style>{`.${fontClass}, .${fontClass} * { font-family: '${fontFamily}', cursive, sans-serif !important; }`}</style>
-      )}
+      {/* Test: Hardcoded font test */}
+      <div style={{ fontFamily: "'Retro Signature', cursive", fontSize: '24px', marginBottom: '10px', color: 'purple' }}>
+        TEST: This should be in Retro Signature font (hardcoded)
+      </div>
+      {/* Show current fontFamily from block content */}
+      <div style={{ fontSize: '12px', background: '#ffe', padding: '4px', marginBottom: '8px' }}>
+        fontFamily from content: "{fontFamily}" | hasCustomFont: {String(hasCustomFont)}
+      </div>
       <p
         className={cn(
-          fontClass,
           'text-base md:text-lg',
           lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
           !hasCustomFont && 'font-sans',
@@ -995,6 +995,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
           indent ? 'indent-8' : ''
         )}
+        style={hasCustomFont ? { fontFamily: `'${fontFamily}', cursive` } : undefined}
       >
         <EditableText
           value={text}
@@ -1004,6 +1005,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           multiline
           isEditing={isEditing}
           className=""
+          style={hasCustomFont ? { fontFamily: `'${fontFamily}', cursive` } : undefined}
         />
       </p>
     </div>
