@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, Link } from "wouter";
+import { useLocation, Link, useRoute } from "wouter";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
@@ -51,6 +51,7 @@ import {
 
 export default function AdminProducts() {
   const [location, setLocation] = useLocation();
+  const [, params] = useRoute("/admin/products/:id");
   const { isAuthenticated, isChecking, username, logout } = useAdminAuth();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -108,6 +109,35 @@ export default function AdminProducts() {
       setLocation("/admin/login");
     }
   }, [isAuthenticated, isChecking, setLocation]);
+
+  // Auto-open create dialog when navigating to /admin/products/new
+  useEffect(() => {
+    if (location === '/admin/products/new') {
+      setIsCreateOpen(true);
+    }
+  }, [location]);
+
+  // Auto-open edit dialog when navigating to /admin/products/:id
+  useEffect(() => {
+    if (params?.id && params.id !== 'new' && productsQuery.data?.products) {
+      const productId = parseInt(params.id);
+      const product = productsQuery.data.products.find((p: any) => p.id === productId);
+      if (product) {
+        setEditingProduct(product);
+        setFormData({
+          name: product.name || '',
+          slug: product.slug || '',
+          description: product.description || '',
+          price: product.price ? (product.price / 100).toString() : '',
+          compareAtPrice: product.compareAtPrice ? (product.compareAtPrice / 100).toString() : '',
+          sku: product.sku || '',
+          stock: product.stock?.toString() || '0',
+          status: product.status || 'draft',
+          featuredImage: product.featuredImage || '',
+        });
+      }
+    }
+  }, [params?.id, productsQuery.data?.products]);
 
   const resetForm = () => {
     setFormData({

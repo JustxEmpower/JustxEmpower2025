@@ -106,6 +106,8 @@ function Router() {
       <Route path="/admin/backup" component={AdminBackupTurbo} />
       <Route path="/admin/users" component={AdminUsers} />
       <Route path="/admin/products" component={AdminProducts} />
+      <Route path="/admin/products/new" component={AdminProducts} />
+      <Route path="/admin/products/:id" component={AdminProducts} />
       <Route path="/admin/events" component={AdminEvents} />
       <Route path="/admin/orders" component={AdminOrders} />
       <Route path="/admin/shop" component={AdminShop} />
