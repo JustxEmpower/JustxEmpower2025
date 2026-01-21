@@ -968,6 +968,9 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     ? { fontFamily: `"${fontFamily}", sans-serif` } 
     : {};
 
+  // Debug: log what font is being applied
+  console.log('[JEParagraphRenderer] fontFamily from content:', fontFamily, 'hasCustomFont:', hasCustomFont);
+
   return (
     <div 
       className={cn(
@@ -977,6 +980,10 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
       )}
       style={containerStyle}
     >
+      {/* Debug: show current font */}
+      {hasCustomFont && (
+        <div className="text-xs text-amber-600 mb-2">Font: {fontFamily}</div>
+      )}
       <EditableText
         value={text}
         onChange={(v) => handleChange('text', v)}
