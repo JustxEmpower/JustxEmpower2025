@@ -270,8 +270,8 @@ export function BlockTemplates({ selectedBlocks, onLoadTemplate }: BlockTemplate
   const filteredTemplates = allTemplates.filter(template => {
     const matchesCategory = selectedCategory === 'all' || template.category === selectedCategory;
     const matchesSearch = !searchQuery || 
-      template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      template.description.toLowerCase().includes(searchQuery.toLowerCase());
+      (template.name && template.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (template.description && template.description.toLowerCase().includes(searchQuery.toLowerCase()));
     return matchesCategory && matchesSearch;
   });
 

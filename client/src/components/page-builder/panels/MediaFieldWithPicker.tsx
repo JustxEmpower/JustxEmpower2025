@@ -458,6 +458,9 @@ export function MediaFieldWithPicker({
  * Check if a field key represents a media field
  */
 export function isMediaField(key: string): boolean {
+  if (!key || typeof key !== 'string') {
+    return false;
+  }
   const lowerKey = key.toLowerCase();
   
   const mediaPatterns = [

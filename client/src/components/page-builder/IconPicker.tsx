@@ -313,7 +313,7 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
 
   // Filter icons based on search and category
   const filteredIcons = useMemo(() => {
-    const searchLower = search.toLowerCase();
+    const searchLower = (search || '').toLowerCase();
     
     if (selectedCategory === 'Favorites') {
       return favorites.filter(name => name.includes(searchLower));

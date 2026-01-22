@@ -171,8 +171,8 @@ export default function BlockLibrary() {
   const filteredBlocks = searchQuery
     ? blockTypes.filter(
         (block) =>
-          block.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          block.description.toLowerCase().includes(searchQuery.toLowerCase())
+          (block.name && block.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+          (block.description && block.description.toLowerCase().includes(searchQuery.toLowerCase()))
       )
     : blockTypes;
 
