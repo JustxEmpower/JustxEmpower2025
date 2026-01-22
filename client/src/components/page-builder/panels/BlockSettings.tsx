@@ -1067,6 +1067,10 @@ const BLOCK_TYPE_OVERRIDES: Record<string, Record<string, 'video' | 'image' | 'a
  * Determine the media type for a field based on its key and block type
  */
 function getMediaTypeForField(key: string, blockType: string): 'video' | 'image' | 'all' {
+  // Guard against null/undefined keys
+  if (!key || typeof key !== 'string') {
+    return 'all';
+  }
   const lowerKey = key.toLowerCase();
   
   // Priority 1: Check block-type specific overrides
