@@ -151,6 +151,7 @@ function Router() {
       <Route path="/community-events">{() => <CommunityEvents />}</Route>
       <Route path="/resources">{() => <Resources />}</Route>
       <Route path="/events">{() => <Events />}</Route>
+      <Route path="/walk-with-us">{() => <WalkWithUs />}</Route>
       {/* Product and event detail routes must come before dynamic router */}
       <Route path="/shop/:slug" component={ProductDetail} />
       <Route path="/checkout" component={Checkout} />
