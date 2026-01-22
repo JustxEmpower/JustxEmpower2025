@@ -65,10 +65,16 @@ export default function AdminPagesEnhanced() {
   const resetForm = () => setFormData({ title: "", slug: "", template: "default", status: "published" });
   const handleEdit = (page: any) => { setEditingPage(page); setFormData({ title: page.title, slug: page.slug, template: page.template || "default", status: page.status || "published" }); };
   const handleSubmit = () => {
+    const submitData = {
+      title: formData.title,
+      slug: formData.slug || formData.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
+      template: formData.template || 'page-builder',
+      published: formData.status === 'published' ? 1 : 0,
+    };
     if (editingPage) {
-      updateMutation.mutate?.({ id: editingPage.id, ...formData });
+      updateMutation.mutate?.({ id: editingPage.id, ...submitData });
     } else {
-      createMutation.mutate?.(formData);
+      createMutation.mutate?.(submitData);
     }
   };
   const handleDelete = (id: number) => {
