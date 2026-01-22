@@ -76,7 +76,7 @@ function renderField(
         <Label htmlFor={key} className="text-sm font-medium">
           {label}
         </Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -98,7 +98,7 @@ function renderField(
         <Label htmlFor={key} className="text-sm font-medium">
           {label}
         </Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -121,7 +121,7 @@ function renderField(
     return (
       <div key={key} className="space-y-2">
         <Label htmlFor={key} className="text-sm font-medium">Section Padding</Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -141,7 +141,7 @@ function renderField(
     return (
       <div key={key} className="space-y-2">
         <Label htmlFor={key} className="text-sm font-medium">Title Size</Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -161,7 +161,7 @@ function renderField(
     return (
       <div key={key} className="space-y-2">
         <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -180,7 +180,7 @@ function renderField(
     return (
       <div key={key} className="space-y-2">
         <Label htmlFor={key} className="text-sm font-medium">Number Size</Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -200,7 +200,7 @@ function renderField(
     return (
       <div key={key} className="space-y-2">
         <Label htmlFor={key} className="text-sm font-medium">Item Spacing</Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -220,7 +220,7 @@ function renderField(
     return (
       <div key={key} className="space-y-2">
         <Label htmlFor={key} className="text-sm font-medium">Container Width</Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -241,7 +241,7 @@ function renderField(
     return (
       <div key={key} className="space-y-2">
         <Label htmlFor={key} className="text-sm font-medium">Header Bottom Margin</Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -261,7 +261,7 @@ function renderField(
     return (
       <div key={key} className="space-y-2">
         <Label htmlFor={key} className="text-sm font-medium">Image Size</Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -282,7 +282,7 @@ function renderField(
     return (
       <div key={key} className="space-y-2">
         <Label htmlFor={key} className="text-sm font-medium">Button Size</Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -348,7 +348,7 @@ function renderField(
         <Label htmlFor={key} className="text-sm font-medium">
           Heading Level
         </Label>
-        <Select value={value as string} onValueChange={(v) => onChange(key, v)}>
+        <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(key, v)}>
           <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
             <SelectValue />
           </SelectTrigger>
@@ -830,16 +830,18 @@ function renderDefinedField(
       );
     
     case 'select':
+      // Ensure value is always a string for Radix Select (it calls toLowerCase internally)
+      const selectValue = value != null ? String(value) : '';
       return (
         <div key={key} className="space-y-2">
           <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
-          <Select value={(value as string) || ''} onValueChange={(v) => onChange(key, v)}>
+          <Select value={selectValue} onValueChange={(v) => onChange(key, v)}>
             <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800">
               <SelectValue placeholder={placeholder || `Select ${label}`} />
             </SelectTrigger>
             <SelectContent>
               {options?.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>
+                <SelectItem key={opt.value} value={String(opt.value)}>
                   {opt.label}
                 </SelectItem>
               ))}
