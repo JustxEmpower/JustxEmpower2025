@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { useLocation } from 'wouter';
 import { trpc } from '@/lib/trpc';
+import { Label } from '@/components/ui/label';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
 import { 
   FileText, 
   Navigation, 
@@ -66,10 +74,29 @@ export default function PageLibrary() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('page-builder');
   const [deletePageId, setDeletePageId] = useState<number | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [newPageTitle, setNewPageTitle] = useState('');
+  const [newPageSlug, setNewPageSlug] = useState('');
+  const [saveAsDraft, setSaveAsDraft] = useState(false);
 
   // Fetch all pages
   const { data: pages, isLoading, refetch } = trpc.admin.pages.list.useQuery();
   const deleteMutation = trpc.admin.pages.delete.useMutation();
+  const createMutation = trpc.admin.pages.create.useMutation({
+    onSuccess: (newPage) => {
+      toast.success('Page created successfully');
+      refetch();
+      setIsCreateOpen(false);
+      setNewPageTitle('');
+      setNewPageSlug('');
+      setSaveAsDraft(false);
+      // Navigate to the new page in page builder
+      setLocation(`/admin/page-builder/${newPage.id}`);
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to create page');
+    },
+  });
 
   const isPageBuilderPage = (page: Page) => {
     return page.template === 'page-builder';
@@ -144,7 +171,21 @@ export default function PageLibrary() {
   };
 
   const handleCreateNew = () => {
-    setLocation('/admin/page-builder');
+    setIsCreateOpen(true);
+  };
+
+  const handleCreateSubmit = () => {
+    if (!newPageTitle.trim()) {
+      toast.error('Please enter a page title');
+      return;
+    }
+    const slug = newPageSlug.trim() || newPageTitle.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+    createMutation.mutate({
+      title: newPageTitle.trim(),
+      slug,
+      template: 'page-builder',
+      published: saveAsDraft ? 0 : 1,
+    });
   };
 
   const handleViewPage = (page: Page) => {
@@ -428,6 +469,71 @@ export default function PageLibrary() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Create New Page Dialog */}
+        <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Create New Page</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="pageTitle">Page Title</Label>
+                <Input
+                  id="pageTitle"
+                  value={newPageTitle}
+                  onChange={(e) => setNewPageTitle(e.target.value)}
+                  placeholder="Enter page title"
+                  onKeyDown={(e) => e.key === 'Enter' && handleCreateSubmit()}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="pageSlug">URL Slug (optional)</Label>
+                <Input
+                  id="pageSlug"
+                  value={newPageSlug}
+                  onChange={(e) => setNewPageSlug(e.target.value)}
+                  placeholder="auto-generated-from-title"
+                />
+                <p className="text-xs text-neutral-500">Leave empty to auto-generate from title</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="saveAsDraft"
+                  checked={saveAsDraft}
+                  onChange={(e) => setSaveAsDraft(e.target.checked)}
+                  className="h-4 w-4 rounded border-neutral-300"
+                />
+                <Label htmlFor="saveAsDraft" className="text-sm font-normal cursor-pointer">
+                  Save as draft (don't publish yet)
+                </Label>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsCreateOpen(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleCreateSubmit} 
+                disabled={createMutation.isPending}
+                className="bg-purple-600 hover:bg-purple-700"
+              >
+                {createMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Page
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   );
