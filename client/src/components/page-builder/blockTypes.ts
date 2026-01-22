@@ -499,10 +499,11 @@ export const blockTypes: BlockType[] = [
         { url: '', alt: 'Image 2', caption: '' },
         { url: '', alt: 'Image 3', caption: '' },
       ],
-      layout: 'grid',
+      variant: 'grid',
       columns: 3,
-      gap: 'medium',
+      gap: 4,
       lightbox: true,
+      title: '',
     },
   },
   {
