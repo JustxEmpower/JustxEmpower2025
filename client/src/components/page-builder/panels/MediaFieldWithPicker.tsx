@@ -130,6 +130,10 @@ const BLOCK_TYPE_OVERRIDES: Record<string, Record<string, MediaType>> = {
  * 4. Default to 'all' (lowest priority)
  */
 export function getMediaTypeForField(key: string, blockType: string): MediaType {
+  // Guard against null/undefined keys
+  if (!key || typeof key !== 'string') {
+    return 'all';
+  }
   const lowerKey = key.toLowerCase();
   
   // Priority 1: Check block-type specific overrides

@@ -25,6 +25,11 @@ function renderField(
   onChange: (key: string, value: unknown) => void,
   blockType: string
 ): React.ReactNode {
+  // Guard against null/undefined keys
+  if (!key || typeof key !== 'string') {
+    return null;
+  }
+  
   const label = key
     .replace(/([A-Z])/g, ' $1')
     .replace(/^./, (str) => str.toUpperCase());
