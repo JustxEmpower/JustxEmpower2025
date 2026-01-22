@@ -860,33 +860,45 @@ export function JEGalleryRenderer({ block, isEditing, onUpdate }: BlockRendererP
   const {
     title = '',
     columns = 3,
-    gap = '4',
+    gap = 4,
     variant = 'grid',
     lightbox = true,
-    images = [
-      { url: '', alt: '', caption: '' },
-      { url: '', alt: '', caption: '' },
-      { url: '', alt: '', caption: '' },
-    ],
+    images = [],
   } = content;
+
+  // Ensure images is always an array
+  const safeImages = Array.isArray(images) ? images : [];
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
   };
 
   const handleImageChange = (index: number, key: string, value: string) => {
-    const newImages = [...images];
+    const newImages = [...safeImages];
     newImages[index] = { ...newImages[index], [key]: value };
     onUpdate?.({ ...content, images: newImages });
   };
 
   const addImage = () => {
-    onUpdate?.({ ...content, images: [...images, { url: '', alt: '', caption: '' }] });
+    onUpdate?.({ ...content, images: [...safeImages, { url: '', alt: '', caption: '' }] });
   };
 
   const removeImage = (index: number) => {
-    onUpdate?.({ ...content, images: images.filter((_: any, i: number) => i !== index) });
+    onUpdate?.({ ...content, images: safeImages.filter((_: any, i: number) => i !== index) });
   };
+
+  // Column class mapping (Tailwind needs static classes)
+  const columnClasses: Record<number, string> = {
+    1: 'grid-cols-1',
+    2: 'grid-cols-2',
+    3: 'grid-cols-2 md:grid-cols-3',
+    4: 'grid-cols-2 md:grid-cols-4',
+    5: 'grid-cols-2 md:grid-cols-5',
+    6: 'grid-cols-3 md:grid-cols-6',
+  };
+
+  // Gap value (use inline style for dynamic gap)
+  const gapValue = typeof gap === 'number' ? gap : parseInt(gap) || 4;
 
   return (
     <section className="py-8 px-6">
@@ -894,40 +906,49 @@ export function JEGalleryRenderer({ block, isEditing, onUpdate }: BlockRendererP
         <EditableText value={title} onChange={(v) => handleChange('title', v)} tag="h2" placeholder="Gallery Title" isEditing={isEditing} className="text-2xl font-serif italic mb-6 text-center text-neutral-900" />
       )}
 
-      <div className={cn(
-        'grid',
-        `grid-cols-2 md:grid-cols-${columns}`,
-        `gap-${gap}`
-      )}>
-        {images.map((image: any, index: number) => (
-          <div key={index} className={cn('relative group', isEditing && 'border border-dashed border-neutral-300 rounded')}>
-            {isEditing && (
-              <button onClick={() => removeImage(index)} className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 z-10 opacity-0 group-hover:opacity-100">
-                <X className="w-4 h-4" />
-              </button>
-            )}
+      <div 
+        className={cn('grid', columnClasses[columns] || 'grid-cols-2 md:grid-cols-3')}
+        style={{ gap: `${gapValue * 4}px` }}
+      >
+        {safeImages.length === 0 && isEditing ? (
+          <div className="col-span-full text-center py-12 border-2 border-dashed border-neutral-300 rounded-lg">
+            <ImageIcon className="w-12 h-12 mx-auto text-neutral-400 mb-3" />
+            <p className="text-neutral-500 mb-3">No images yet</p>
+            <button onClick={addImage} className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
+              <Plus className="w-4 h-4" /> Add First Image
+            </button>
+          </div>
+        ) : (
+          safeImages.map((image: any, index: number) => (
+            <div key={index} className={cn('relative group', isEditing && 'border border-dashed border-neutral-300 rounded')}>
+              {isEditing && (
+                <button onClick={() => removeImage(index)} className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 z-10 opacity-0 group-hover:opacity-100">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
 
-            <div
-              className="aspect-square overflow-hidden rounded-lg cursor-pointer"
-              onClick={() => lightbox && !isEditing && setLightboxIndex(index)}
-            >
-              {image.url ? (
-                <img src={image.url} alt={image.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-              ) : (
-                <div className="w-full h-full bg-neutral-200 flex items-center justify-center">
-                  <ImageIcon className="w-8 h-8 text-neutral-400" />
-                </div>
+              <div
+                className="aspect-square overflow-hidden rounded-lg cursor-pointer"
+                onClick={() => lightbox && !isEditing && setLightboxIndex(index)}
+              >
+                {image?.url ? (
+                  <img src={image.url} alt={image.alt || ''} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                ) : (
+                  <div className="w-full h-full bg-neutral-200 flex items-center justify-center">
+                    <ImageIcon className="w-8 h-8 text-neutral-400" />
+                  </div>
+                )}
+              </div>
+
+              {image?.caption && (
+                <EditableText value={image.caption} onChange={(v) => handleImageChange(index, 'caption', v)} tag="p" placeholder="Caption..." isEditing={isEditing} className="mt-2 text-sm text-neutral-600 text-center" />
               )}
             </div>
-
-            {image.caption && (
-              <EditableText value={image.caption} onChange={(v) => handleImageChange(index, 'caption', v)} tag="p" placeholder="Caption..." isEditing={isEditing} className="mt-2 text-sm text-neutral-600 text-center" />
-            )}
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
-      {isEditing && (
+      {isEditing && safeImages.length > 0 && (
         <div className="text-center mt-6">
           <button onClick={addImage} className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
             <Plus className="w-4 h-4" /> Add Image
@@ -936,16 +957,16 @@ export function JEGalleryRenderer({ block, isEditing, onUpdate }: BlockRendererP
       )}
 
       {/* Lightbox */}
-      {lightboxIndex !== null && (
+      {lightboxIndex !== null && safeImages[lightboxIndex] && (
         <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center" onClick={() => setLightboxIndex(null)}>
           <button className="absolute top-4 right-4 text-white" onClick={() => setLightboxIndex(null)}>
             <X className="w-8 h-8" />
           </button>
-          <button className="absolute left-4 text-white" onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + images.length) % images.length); }}>
+          <button className="absolute left-4 text-white" onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex - 1 + safeImages.length) % safeImages.length); }}>
             <ChevronLeft className="w-8 h-8" />
           </button>
-          <img src={images[lightboxIndex].url} alt="" className="max-w-[90%] max-h-[90%] object-contain" />
-          <button className="absolute right-4 text-white" onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % images.length); }}>
+          <img src={safeImages[lightboxIndex]?.url || ''} alt="" className="max-w-[90%] max-h-[90%] object-contain" />
+          <button className="absolute right-4 text-white" onClick={(e) => { e.stopPropagation(); setLightboxIndex((lightboxIndex + 1) % safeImages.length); }}>
             <ChevronRight className="w-8 h-8" />
           </button>
         </div>
