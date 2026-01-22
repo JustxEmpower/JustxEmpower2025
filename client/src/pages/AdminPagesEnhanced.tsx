@@ -39,7 +39,17 @@ export default function AdminPagesEnhanced() {
   const [formData, setFormData] = useState({ title: "", slug: "", template: "default", status: "published" });
 
   const pagesQuery = trpc.admin.pages.list.useQuery();
-  const createMutation = trpc.admin.pages.create?.useMutation?.({ onSuccess: () => { toast.success("Page created"); pagesQuery.refetch(); setIsCreateOpen(false); resetForm(); }, onError: (e: any) => toast.error(e.message) }) || { mutate: () => {}, isPending: false };
+  const createMutation = trpc.admin.pages.create.useMutation({
+    onSuccess: (newPage: any) => {
+      toast.success("Page created! Opening in Page Builder...");
+      pagesQuery.refetch();
+      setIsCreateOpen(false);
+      resetForm();
+      // Redirect to Page Builder to edit the new page
+      setLocation(`/admin/page-builder/${newPage.id}`);
+    },
+    onError: (e: any) => toast.error(e.message || "Failed to create page")
+  });
   const updateMutation = trpc.admin.pages.update?.useMutation?.({ onSuccess: () => { toast.success("Page updated"); pagesQuery.refetch(); setEditingPage(null); resetForm(); }, onError: (e: any) => toast.error(e.message) }) || { mutate: () => {}, isPending: false };
   const deleteMutation = trpc.admin.pages.delete?.useMutation?.({ onSuccess: () => { toast.success("Page deleted"); pagesQuery.refetch(); }, onError: (e: any) => toast.error(e.message) }) || { mutate: () => {}, isPending: false };
 
@@ -51,19 +61,22 @@ export default function AdminPagesEnhanced() {
   const filteredPages = useMemo(() => {
     return pages.filter((p: any) => {
       const matchesSearch = searchQuery === "" || p.title?.toLowerCase().includes(searchQuery.toLowerCase()) || p.slug?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = statusFilter === "all" || p.status === statusFilter;
+      const matchesStatus = statusFilter === "all" || (statusFilter === "published" && p.published === 1) || (statusFilter === "draft" && p.published === 0);
       return matchesSearch && matchesStatus;
     });
   }, [pages, searchQuery, statusFilter]);
 
   const stats = useMemo(() => ({
     total: pages.length,
-    published: pages.filter((p: any) => p.status === "published").length,
-    draft: pages.filter((p: any) => p.status === "draft").length,
+    published: pages.filter((p: any) => p.published === 1).length,
+    draft: pages.filter((p: any) => p.published === 0).length,
   }), [pages]);
 
-  const resetForm = () => setFormData({ title: "", slug: "", template: "default", status: "published" });
-  const handleEdit = (page: any) => { setEditingPage(page); setFormData({ title: page.title, slug: page.slug, template: page.template || "default", status: page.status || "published" }); };
+  const resetForm = () => setFormData({ title: "", slug: "", template: "page-builder", status: "published" });
+  const handleEdit = (page: any) => {
+    // Go directly to Page Builder for editing
+    setLocation(`/admin/page-builder/${page.id}`);
+  };
   const handleSubmit = () => {
     const submitData = {
       title: formData.title,
@@ -128,7 +141,7 @@ export default function AdminPagesEnhanced() {
                     <CardContent className="flex items-center gap-4 p-4">
                       <div className="w-12 h-12 rounded-xl bg-stone-100 flex items-center justify-center flex-shrink-0"><FileText className="w-6 h-6 text-stone-500" /></div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1"><h3 className="font-semibold">{page.title}</h3><Badge className={page.status === "published" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}>{page.status}</Badge></div>
+                        <div className="flex items-center gap-2 mb-1"><h3 className="font-semibold">{page.title}</h3><Badge className={page.published === 1 ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}>{page.published === 1 ? 'Published' : 'Draft'}</Badge></div>
                         <p className="text-sm text-stone-500">/{page.slug}</p>
                       </div>
                       <div className="flex items-center gap-2">
@@ -144,15 +157,15 @@ export default function AdminPagesEnhanced() {
           )}
         </div>
 
-        <Dialog open={isCreateOpen || !!editingPage} onOpenChange={(open) => { if (!open) { setIsCreateOpen(false); setEditingPage(null); resetForm(); } }}>
+        <Dialog open={isCreateOpen} onOpenChange={(open) => { if (!open) { setIsCreateOpen(false); resetForm(); } }}>
           <DialogContent>
-            <DialogHeader><DialogTitle>{editingPage ? "Edit Page" : "New Page"}</DialogTitle></DialogHeader>
+            <DialogHeader><DialogTitle>Create New Page</DialogTitle></DialogHeader>
             <div className="space-y-4 py-4">
-              <div className="space-y-2"><Label>Title</Label><Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} /></div>
-              <div className="space-y-2"><Label>Slug</Label><Input value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} placeholder="page-url" /></div>
-              <div className="space-y-2"><Label>Status</Label><Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="published">Published</SelectItem><SelectItem value="draft">Draft</SelectItem></SelectContent></Select></div>
+              <div className="space-y-2"><Label>Title</Label><Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value })} placeholder="Enter page title" /></div>
+              <div className="space-y-2"><Label>Slug (optional)</Label><Input value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} placeholder="auto-generated-from-title" /><p className="text-xs text-stone-500">Leave empty to auto-generate from title</p></div>
+              <div className="space-y-2"><Label>Status</Label><Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="published">Published (visible on site)</SelectItem><SelectItem value="draft">Draft (edit before publishing)</SelectItem></SelectContent></Select></div>
             </div>
-            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingPage(null); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending} className="bg-amber-600 hover:bg-amber-700">{editingPage ? "Update" : "Create"}</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending} className="bg-amber-600 hover:bg-amber-700">Create & Edit in Page Builder</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </main>
