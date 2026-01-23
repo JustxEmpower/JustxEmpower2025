@@ -160,6 +160,7 @@ interface ProductCardProps {
     price: number;
     compareAtPrice?: number | null;
     images?: string[] | string | null;
+    featuredImage?: string | null;
     status: string;
     stockQuantity?: number | null;
     formattedPrice: string;
@@ -189,8 +190,9 @@ function ProductCard({ product }: ProductCardProps) {
   
   // Safely parse images using helper
   const images = safeParseImages(product.images);
-  const mainImage = images[0] || "/placeholder-product.jpg";
-  const hoverImage = images[1] || mainImage;
+  // Use featuredImage first, then fall back to images array
+  const mainImage = product.featuredImage || images[0] || "/placeholder-product.jpg";
+  const hoverImage = images[1] || images[0] || product.featuredImage || mainImage;
   
   // Extract product code from name or generate one
   const productCode = product.name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2) + '-' + String(product.id).padStart(2, '0');
@@ -210,7 +212,7 @@ function ProductCard({ product }: ProductCardProps) {
             </div>
           ) : (
             <img
-              src={isHovered ? hoverImage : mainImage}
+              src={getMediaUrl(isHovered ? hoverImage : mainImage)}
               alt={product.name}
               className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
               onError={() => setImageError(true)}
