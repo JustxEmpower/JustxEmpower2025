@@ -216,8 +216,8 @@ export default function Header() {
         isScrolled ? "bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md shadow-sm py-4" : "bg-transparent"
       )}
     >
-      <div className="flex items-center justify-between max-w-[1920px] mx-auto">
-        <Link href="/" className="block w-16 h-16 relative transition-transform duration-300 hover:scale-105 z-50">
+      <div className="flex items-center justify-between max-w-[1920px] mx-auto w-full">
+        <Link href="/" className="block w-12 h-12 md:w-14 md:h-14 relative transition-transform duration-300 hover:scale-105 z-50 flex-shrink-0">
           <img 
             src={logoUrl} 
             alt={siteName} 
@@ -229,7 +229,7 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className={cn("hidden md:flex items-center", navGap)}>
+        <nav className={cn("hidden md:flex items-center flex-shrink-0", navGap)}>
           {/* Regular Navigation Items */}
           {regularNavItems.map((link) => (
             <div 
