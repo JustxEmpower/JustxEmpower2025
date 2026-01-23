@@ -154,9 +154,19 @@ export default function AdminProducts() {
   };
 
   const handleSubmit = () => {
+    // Validate required fields
+    if (!formData.name.trim()) {
+      toast.error("Product name is required");
+      return;
+    }
+    if (!formData.price || parseFloat(formData.price) < 0) {
+      toast.error("Please enter a valid price");
+      return;
+    }
+
     const data = {
-      name: formData.name,
-      slug: formData.slug || formData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+      name: formData.name.trim(),
+      slug: formData.slug.trim() || formData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
       description: formData.description || undefined,
       price: Math.round(parseFloat(formData.price || "0") * 100), // Convert to cents
       compareAtPrice: formData.compareAtPrice ? Math.round(parseFloat(formData.compareAtPrice) * 100) : undefined,
