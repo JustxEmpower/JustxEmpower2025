@@ -519,6 +519,7 @@ export const adminRouter = router({
         pageType: z.enum(['landing', 'about', 'services', 'contact', 'blog', 'custom']).default('custom')
       }))
       .mutation(async ({ input }) => {
+        await ensureGeminiInitialized();
         const result = await generatePageBlocks(input.description, input.pageType);
         return result;
       }),
