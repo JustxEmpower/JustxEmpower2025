@@ -46,15 +46,16 @@ export default function AdminProductsEnhanced() {
     name: "",
     slug: "",
     description: "",
-    shortDescription: "",
+    subDescription: "", // Short tagline for shop page
     price: "",
     compareAtPrice: "",
     sku: "",
     stock: "0",
     status: "draft" as "draft" | "active" | "archived",
     featuredImage: "",
-    sizes: "" as string, // JSON array of sizes or empty for N/A
-    showSizes: true,
+    sizeType: "none" as "none" | "preset" | "custom", // none, preset range, or custom
+    sizePreset: "" as string, // e.g., "XS-XL", "S-3XL", "One Size"
+    customSizes: "" as string, // comma-separated custom sizes
     shippingInfo: "Free shipping on orders over $100.",
     returnPolicy: "Returns accepted within 30 days of purchase.",
   });
@@ -86,9 +87,10 @@ export default function AdminProductsEnhanced() {
 
   const resetForm = () => {
     setFormData({ 
-      name: "", slug: "", description: "", shortDescription: "", price: "", compareAtPrice: "", 
+      name: "", slug: "", description: "", subDescription: "", price: "", compareAtPrice: "", 
       sku: "", stock: "0", status: "draft", featuredImage: "",
-      sizes: "", showSizes: true, shippingInfo: "Free shipping on orders over $100.", returnPolicy: "Returns accepted within 30 days of purchase."
+      sizeType: "none", sizePreset: "", customSizes: "",
+      shippingInfo: "Free shipping on orders over $100.", returnPolicy: "Returns accepted within 30 days of purchase."
     });
   };
 
@@ -108,54 +110,88 @@ export default function AdminProductsEnhanced() {
   const openEditDialog = (product: any) => {
     setEditingProduct(product);
     // Parse dimensions for sizes
-    let sizes = "";
-    let showSizes = true;
+    let sizeType: "none" | "preset" | "custom" = "none";
+    let sizePreset = "";
+    let customSizes = "";
     if (product.dimensions) {
       try {
         const parsed = JSON.parse(product.dimensions);
-        if (parsed.sizes) sizes = parsed.sizes.join(", ");
-        if (parsed.showSizes === false) showSizes = false;
+        if (parsed.sizeType) sizeType = parsed.sizeType;
+        if (parsed.sizePreset) sizePreset = parsed.sizePreset;
+        if (parsed.customSizes) customSizes = parsed.customSizes;
+        // Backwards compatibility with old format
+        if (!parsed.sizeType && parsed.sizes && parsed.sizes.length > 0) {
+          sizeType = "custom";
+          customSizes = parsed.sizes.join(", ");
+        }
       } catch (e) {}
     }
-    // Parse shortDescription for shipping/return info
+    // Parse shortDescription for sub-description and shipping/return info
+    let subDescription = "";
     let shippingInfo = "Free shipping on orders over $100.";
     let returnPolicy = "Returns accepted within 30 days of purchase.";
     if (product.shortDescription) {
       try {
         const parsed = JSON.parse(product.shortDescription);
+        if (parsed.subDescription) subDescription = parsed.subDescription;
         if (parsed.shippingInfo) shippingInfo = parsed.shippingInfo;
         if (parsed.returnPolicy) returnPolicy = parsed.returnPolicy;
-      } catch (e) {}
+      } catch (e) {
+        // If it's not JSON, treat it as subDescription
+        subDescription = product.shortDescription;
+      }
     }
     setFormData({
       name: product.name || "",
       slug: product.slug || "",
       description: product.description || "",
-      shortDescription: product.shortDescription || "",
+      subDescription,
       price: product.price ? String(product.price / 100) : "",
       compareAtPrice: product.compareAtPrice ? String(product.compareAtPrice / 100) : "",
       sku: product.sku || "",
       stock: String(product.stock || 0),
       status: product.status || "draft",
       featuredImage: product.featuredImage || "",
-      sizes,
-      showSizes,
+      sizeType,
+      sizePreset,
+      customSizes,
       shippingInfo,
       returnPolicy,
     });
     setIsDialogOpen(true);
   };
 
+  // Size preset options
+  const sizePresets = [
+    { value: "XS-XL", label: "XS - XL", sizes: ["XS", "S", "M", "L", "XL"] },
+    { value: "S-3XL", label: "S - 3XL", sizes: ["S", "M", "L", "XL", "2XL", "3XL"] },
+    { value: "XS-3XL", label: "XS - 3XL", sizes: ["XS", "S", "M", "L", "XL", "2XL", "3XL"] },
+    { value: "ONE", label: "One Size", sizes: ["One Size"] },
+    { value: "NUMERIC", label: "Numeric (0-14)", sizes: ["0", "2", "4", "6", "8", "10", "12", "14"] },
+  ];
+
   const handleSubmit = () => {
     if (!formData.name.trim()) { toast.error("Product name is required"); return; }
     if (!formData.price || parseFloat(formData.price) < 0) { toast.error("Please enter a valid price"); return; }
     
     // Build dimensions JSON with sizes
-    const sizesArray = formData.sizes.trim() ? formData.sizes.split(",").map(s => s.trim()).filter(Boolean) : [];
-    const dimensions = JSON.stringify({ sizes: sizesArray, showSizes: formData.showSizes });
+    let sizes: string[] = [];
+    if (formData.sizeType === "preset" && formData.sizePreset) {
+      const preset = sizePresets.find(p => p.value === formData.sizePreset);
+      sizes = preset?.sizes || [];
+    } else if (formData.sizeType === "custom" && formData.customSizes) {
+      sizes = formData.customSizes.split(",").map(s => s.trim()).filter(Boolean);
+    }
+    const dimensions = JSON.stringify({ 
+      sizeType: formData.sizeType, 
+      sizePreset: formData.sizePreset,
+      customSizes: formData.customSizes,
+      sizes 
+    });
     
-    // Build shortDescription JSON with shipping/return info
+    // Build shortDescription JSON with sub-description and shipping/return info
     const shortDescription = JSON.stringify({ 
+      subDescription: formData.subDescription,
       shippingInfo: formData.shippingInfo, 
       returnPolicy: formData.returnPolicy 
     });
@@ -375,48 +411,78 @@ export default function AdminProductsEnhanced() {
               )}
             </div>
             
-            {/* Size Options */}
-            <div className="space-y-3 p-4 bg-stone-50 rounded-lg">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Product Sizes</Label>
-                <label className="flex items-center gap-2 text-sm">
-                  <input 
-                    type="checkbox" 
-                    checked={formData.showSizes} 
-                    onChange={(e) => setFormData({ ...formData, showSizes: e.target.checked })}
-                    className="rounded border-stone-300"
-                  />
-                  Show sizes on listing
+            {/* Sub-Description for Shop Page */}
+            <div className="space-y-2">
+              <Label htmlFor="subDescription">Shop Page Tagline</Label>
+              <Input 
+                id="subDescription"
+                value={formData.subDescription} 
+                onChange={(e) => setFormData({ ...formData, subDescription: e.target.value })} 
+                placeholder="A short tagline shown under the product name on shop page"
+              />
+              <p className="text-xs text-stone-500">Optional short description displayed on the shop listing</p>
+            </div>
+
+            {/* Size Options - Improved */}
+            <div className="space-y-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+              <Label className="text-sm font-semibold text-amber-900">Product Sizes</Label>
+              
+              <div className="flex gap-4">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="sizeType" checked={formData.sizeType === "none"} onChange={() => setFormData({ ...formData, sizeType: "none", sizePreset: "", customSizes: "" })} className="text-amber-600" />
+                  <span className="text-sm">No Sizes (N/A)</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="sizeType" checked={formData.sizeType === "preset"} onChange={() => setFormData({ ...formData, sizeType: "preset" })} className="text-amber-600" />
+                  <span className="text-sm">Size Range</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input type="radio" name="sizeType" checked={formData.sizeType === "custom"} onChange={() => setFormData({ ...formData, sizeType: "custom" })} className="text-amber-600" />
+                  <span className="text-sm">Custom Sizes</span>
                 </label>
               </div>
-              <Input 
-                value={formData.sizes} 
-                onChange={(e) => setFormData({ ...formData, sizes: e.target.value })} 
-                placeholder="XS, S, M, L, XL (comma separated, leave empty for N/A)"
-                disabled={!formData.showSizes}
-              />
-              <p className="text-xs text-stone-500">Leave empty if product doesn't have sizes (e.g., journals, accessories)</p>
+
+              {formData.sizeType === "preset" && (
+                <Select value={formData.sizePreset} onValueChange={(value) => setFormData({ ...formData, sizePreset: value })}>
+                  <SelectTrigger className="bg-white"><SelectValue placeholder="Select size range" /></SelectTrigger>
+                  <SelectContent>
+                    {sizePresets.map(preset => (
+                      <SelectItem key={preset.value} value={preset.value}>{preset.label} ({preset.sizes.join(", ")})</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+
+              {formData.sizeType === "custom" && (
+                <Input 
+                  value={formData.customSizes} 
+                  onChange={(e) => setFormData({ ...formData, customSizes: e.target.value })} 
+                  placeholder="Enter sizes: XS, S, M, L, XL, 2XL"
+                  className="bg-white"
+                />
+              )}
             </div>
             
-            {/* Shipping & Returns */}
-            <div className="space-y-3 p-4 bg-stone-50 rounded-lg">
-              <Label className="text-sm font-medium">Shipping & Returns Info</Label>
-              <div className="space-y-2">
-                <Label htmlFor="shippingInfo" className="text-xs text-stone-500">Shipping Info</Label>
-                <Input 
-                  id="shippingInfo"
+            {/* Shipping & Returns - Better Separated */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <Label className="text-sm font-semibold text-blue-900">Shipping Info</Label>
+                <Textarea 
                   value={formData.shippingInfo} 
                   onChange={(e) => setFormData({ ...formData, shippingInfo: e.target.value })} 
                   placeholder="Free shipping on orders over $100."
+                  rows={2}
+                  className="bg-white"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="returnPolicy" className="text-xs text-stone-500">Return Policy</Label>
-                <Input 
-                  id="returnPolicy"
+              <div className="space-y-2 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                <Label className="text-sm font-semibold text-emerald-900">Return Policy</Label>
+                <Textarea 
                   value={formData.returnPolicy} 
                   onChange={(e) => setFormData({ ...formData, returnPolicy: e.target.value })} 
                   placeholder="Returns accepted within 30 days of purchase."
+                  rows={2}
+                  className="bg-white"
                 />
               </div>
             </div>

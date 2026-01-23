@@ -161,6 +161,7 @@ interface ProductCardProps {
     compareAtPrice?: number | null;
     images?: string[] | string | null;
     featuredImage?: string | null;
+    shortDescription?: string | null;
     status: string;
     stockQuantity?: number | null;
     formattedPrice: string;
@@ -194,6 +195,18 @@ function ProductCard({ product }: ProductCardProps) {
   const mainImage = product.featuredImage || images[0] || "/placeholder-product.jpg";
   const hoverImage = images[1] || images[0] || product.featuredImage || mainImage;
   
+  // Parse sub-description from shortDescription JSON
+  const getSubDescription = (): string => {
+    if (!product.shortDescription) return "";
+    try {
+      const parsed = JSON.parse(product.shortDescription);
+      return parsed.subDescription || "";
+    } catch {
+      return product.shortDescription; // Fallback to raw string
+    }
+  };
+  const subDescription = getSubDescription();
+  
   return (
     <Link href={`/shop/${product.slug}`}>
       <div 
@@ -221,6 +234,9 @@ function ProductCard({ product }: ProductCardProps) {
         {/* Product Info - Always visible */}
         <div className="pt-3 px-1">
           <h3 className="text-sm font-medium text-stone-900 dark:text-foreground truncate">{product.name}</h3>
+          {subDescription && (
+            <p className="text-xs text-stone-500 dark:text-muted-foreground/70 mt-0.5 truncate">{subDescription}</p>
+          )}
           <p className="text-sm text-stone-600 dark:text-muted-foreground mt-1">
             {product.formattedPrice}
           </p>
