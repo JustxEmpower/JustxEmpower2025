@@ -186,7 +186,10 @@ export default function Hero(props: HeroProps = {}) {
             loop
             playsInline
             preload="auto"
-            className="absolute inset-0 w-full h-full object-cover"
+            disablePictureInPicture
+            controlsList="nodownload nofullscreen noremoteplayback"
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none [&::-webkit-media-controls]:hidden [&::-webkit-media-controls-enclosure]:hidden [&::-webkit-media-controls-panel]:hidden [&::-webkit-media-controls-start-playback-button]:hidden"
+            style={{ WebkitAppearance: 'none' } as React.CSSProperties}
             onError={(e) => console.log('Video error:', e)}
           >
             <source src={videoUrl} type={videoUrl.endsWith('.mov') ? 'video/quicktime' : videoUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} />
