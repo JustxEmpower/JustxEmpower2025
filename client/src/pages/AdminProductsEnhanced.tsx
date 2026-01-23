@@ -46,12 +46,17 @@ export default function AdminProductsEnhanced() {
     name: "",
     slug: "",
     description: "",
+    shortDescription: "",
     price: "",
     compareAtPrice: "",
     sku: "",
     stock: "0",
     status: "draft" as "draft" | "active" | "archived",
     featuredImage: "",
+    sizes: "" as string, // JSON array of sizes or empty for N/A
+    showSizes: true,
+    shippingInfo: "Free shipping on orders over $100.",
+    returnPolicy: "Returns accepted within 30 days of purchase.",
   });
 
   const productsQuery = trpc.admin.products.list.useQuery({});
@@ -80,7 +85,11 @@ export default function AdminProductsEnhanced() {
   });
 
   const resetForm = () => {
-    setFormData({ name: "", slug: "", description: "", price: "", compareAtPrice: "", sku: "", stock: "0", status: "draft", featuredImage: "" });
+    setFormData({ 
+      name: "", slug: "", description: "", shortDescription: "", price: "", compareAtPrice: "", 
+      sku: "", stock: "0", status: "draft", featuredImage: "",
+      sizes: "", showSizes: true, shippingInfo: "Free shipping on orders over $100.", returnPolicy: "Returns accepted within 30 days of purchase."
+    });
   };
 
   const closeDialog = () => {
@@ -98,16 +107,41 @@ export default function AdminProductsEnhanced() {
 
   const openEditDialog = (product: any) => {
     setEditingProduct(product);
+    // Parse dimensions for sizes
+    let sizes = "";
+    let showSizes = true;
+    if (product.dimensions) {
+      try {
+        const parsed = JSON.parse(product.dimensions);
+        if (parsed.sizes) sizes = parsed.sizes.join(", ");
+        if (parsed.showSizes === false) showSizes = false;
+      } catch (e) {}
+    }
+    // Parse shortDescription for shipping/return info
+    let shippingInfo = "Free shipping on orders over $100.";
+    let returnPolicy = "Returns accepted within 30 days of purchase.";
+    if (product.shortDescription) {
+      try {
+        const parsed = JSON.parse(product.shortDescription);
+        if (parsed.shippingInfo) shippingInfo = parsed.shippingInfo;
+        if (parsed.returnPolicy) returnPolicy = parsed.returnPolicy;
+      } catch (e) {}
+    }
     setFormData({
       name: product.name || "",
       slug: product.slug || "",
       description: product.description || "",
+      shortDescription: product.shortDescription || "",
       price: product.price ? String(product.price / 100) : "",
       compareAtPrice: product.compareAtPrice ? String(product.compareAtPrice / 100) : "",
       sku: product.sku || "",
       stock: String(product.stock || 0),
       status: product.status || "draft",
       featuredImage: product.featuredImage || "",
+      sizes,
+      showSizes,
+      shippingInfo,
+      returnPolicy,
     });
     setIsDialogOpen(true);
   };
@@ -116,16 +150,28 @@ export default function AdminProductsEnhanced() {
     if (!formData.name.trim()) { toast.error("Product name is required"); return; }
     if (!formData.price || parseFloat(formData.price) < 0) { toast.error("Please enter a valid price"); return; }
     
+    // Build dimensions JSON with sizes
+    const sizesArray = formData.sizes.trim() ? formData.sizes.split(",").map(s => s.trim()).filter(Boolean) : [];
+    const dimensions = JSON.stringify({ sizes: sizesArray, showSizes: formData.showSizes });
+    
+    // Build shortDescription JSON with shipping/return info
+    const shortDescription = JSON.stringify({ 
+      shippingInfo: formData.shippingInfo, 
+      returnPolicy: formData.returnPolicy 
+    });
+    
     const data = {
       name: formData.name.trim(),
       slug: formData.slug.trim() || formData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
       description: formData.description || undefined,
+      shortDescription,
       price: Math.round(parseFloat(formData.price) * 100),
       compareAtPrice: formData.compareAtPrice ? Math.round(parseFloat(formData.compareAtPrice) * 100) : undefined,
       sku: formData.sku || undefined,
       stock: parseInt(formData.stock) || 0,
       status: formData.status,
       featuredImage: formData.featuredImage || undefined,
+      dimensions,
     };
 
     if (editingProduct) {
@@ -328,6 +374,53 @@ export default function AdminProductsEnhanced() {
                 </div>
               )}
             </div>
+            
+            {/* Size Options */}
+            <div className="space-y-3 p-4 bg-stone-50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">Product Sizes</Label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input 
+                    type="checkbox" 
+                    checked={formData.showSizes} 
+                    onChange={(e) => setFormData({ ...formData, showSizes: e.target.checked })}
+                    className="rounded border-stone-300"
+                  />
+                  Show sizes on listing
+                </label>
+              </div>
+              <Input 
+                value={formData.sizes} 
+                onChange={(e) => setFormData({ ...formData, sizes: e.target.value })} 
+                placeholder="XS, S, M, L, XL (comma separated, leave empty for N/A)"
+                disabled={!formData.showSizes}
+              />
+              <p className="text-xs text-stone-500">Leave empty if product doesn't have sizes (e.g., journals, accessories)</p>
+            </div>
+            
+            {/* Shipping & Returns */}
+            <div className="space-y-3 p-4 bg-stone-50 rounded-lg">
+              <Label className="text-sm font-medium">Shipping & Returns Info</Label>
+              <div className="space-y-2">
+                <Label htmlFor="shippingInfo" className="text-xs text-stone-500">Shipping Info</Label>
+                <Input 
+                  id="shippingInfo"
+                  value={formData.shippingInfo} 
+                  onChange={(e) => setFormData({ ...formData, shippingInfo: e.target.value })} 
+                  placeholder="Free shipping on orders over $100."
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="returnPolicy" className="text-xs text-stone-500">Return Policy</Label>
+                <Input 
+                  id="returnPolicy"
+                  value={formData.returnPolicy} 
+                  onChange={(e) => setFormData({ ...formData, returnPolicy: e.target.value })} 
+                  placeholder="Returns accepted within 30 days of purchase."
+                />
+              </div>
+            </div>
+            
             <MediaPicker open={mediaPickerOpen} onClose={() => setMediaPickerOpen(false)} onSelect={(url) => { setFormData({ ...formData, featuredImage: url }); setMediaPickerOpen(false); }} mediaType="image" />
           </div>
           <DialogFooter>

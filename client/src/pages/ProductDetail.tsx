@@ -67,18 +67,37 @@ export default function ProductDetail() {
   const formatPrice = (cents: number) => `$${(cents / 100).toFixed(2)}`;
   
   // Parse sizes from product dimensions or use default
-  const parseSizes = (): string[] => {
+  const parseSizes = (): { sizes: string[], showSizes: boolean } => {
     if (product.dimensions) {
       try {
         const parsed = JSON.parse(product.dimensions);
-        if (Array.isArray(parsed)) return parsed;
-        if (parsed.sizes && Array.isArray(parsed.sizes)) return parsed.sizes;
+        const sizes = Array.isArray(parsed) ? parsed : (parsed.sizes || []);
+        const showSizes = parsed.showSizes !== false;
+        return { sizes, showSizes };
       } catch (e) {}
     }
-    return [];
+    return { sizes: [], showSizes: true };
   };
-  const availableSizes = parseSizes();
-  const hasSizes = availableSizes.length > 0;
+  const { sizes: availableSizes, showSizes } = parseSizes();
+  const hasSizes = showSizes && availableSizes.length > 0;
+  
+  // Parse shipping and return info from shortDescription
+  const parseShippingInfo = (): { shippingInfo: string, returnPolicy: string } => {
+    if (product.shortDescription) {
+      try {
+        const parsed = JSON.parse(product.shortDescription);
+        return {
+          shippingInfo: parsed.shippingInfo || "Free shipping on orders over $100.",
+          returnPolicy: parsed.returnPolicy || "Returns accepted within 30 days of purchase."
+        };
+      } catch (e) {}
+    }
+    return {
+      shippingInfo: "Free shipping on orders over $100.",
+      returnPolicy: "Returns accepted within 30 days of purchase."
+    };
+  };
+  const { shippingInfo, returnPolicy } = parseShippingInfo();
 
   const handleAddToCart = () => {
     if (!isOutOfStock) {
@@ -268,8 +287,8 @@ export default function ProductDetail() {
                   </button>
                   {expandedSection === 'shipping' && (
                     <div className="py-4 text-sm text-stone-600 dark:text-muted-foreground">
-                      <p className="mb-2">Free shipping on orders over $100.</p>
-                      <p>Returns accepted within 30 days of purchase.</p>
+                      <p className="mb-2">{shippingInfo}</p>
+                      <p>{returnPolicy}</p>
                     </div>
                   )}
                 </div>
