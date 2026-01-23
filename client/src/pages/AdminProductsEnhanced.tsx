@@ -42,20 +42,40 @@ export default function AdminProductsEnhanced() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  // Product type definitions
+  type ProductType = "apparel" | "book" | "course" | "digital" | "physical";
+  
   const [formData, setFormData] = useState({
     name: "",
     slug: "",
     description: "",
-    subDescription: "", // Short tagline for shop page
+    subDescription: "",
     price: "",
     compareAtPrice: "",
     sku: "",
     stock: "0",
     status: "draft" as "draft" | "active" | "archived",
     featuredImage: "",
-    sizeType: "none" as "none" | "preset" | "custom", // none, preset range, or custom
-    sizePreset: "" as string, // e.g., "XS-XL", "S-3XL", "One Size"
-    customSizes: "" as string, // comma-separated custom sizes
+    productType: "physical" as ProductType,
+    // Apparel fields
+    sizeType: "none" as "none" | "preset" | "custom",
+    sizePreset: "",
+    customSizes: "",
+    colors: "",
+    material: "",
+    // Book fields
+    isbn: "",
+    author: "",
+    publisher: "",
+    pageCount: "",
+    // Course fields
+    duration: "",
+    accessType: "lifetime" as "lifetime" | "limited" | "subscription",
+    modules: "",
+    // Digital fields
+    fileType: "",
+    downloadLink: "",
+    // Common
     shippingInfo: "Free shipping on orders over $100.",
     returnPolicy: "Returns accepted within 30 days of purchase.",
   });
@@ -89,7 +109,11 @@ export default function AdminProductsEnhanced() {
     setFormData({ 
       name: "", slug: "", description: "", subDescription: "", price: "", compareAtPrice: "", 
       sku: "", stock: "0", status: "draft", featuredImage: "",
-      sizeType: "none", sizePreset: "", customSizes: "",
+      productType: "physical",
+      sizeType: "none", sizePreset: "", customSizes: "", colors: "", material: "",
+      isbn: "", author: "", publisher: "", pageCount: "",
+      duration: "", accessType: "lifetime", modules: "",
+      fileType: "", downloadLink: "",
       shippingInfo: "Free shipping on orders over $100.", returnPolicy: "Returns accepted within 30 days of purchase."
     });
   };
@@ -109,24 +133,45 @@ export default function AdminProductsEnhanced() {
 
   const openEditDialog = (product: any) => {
     setEditingProduct(product);
-    // Parse dimensions for sizes
+    // Parse dimensions for product type and type-specific fields
+    let productType: ProductType = "physical";
     let sizeType: "none" | "preset" | "custom" = "none";
-    let sizePreset = "";
-    let customSizes = "";
+    let sizePreset = "", customSizes = "", colors = "", material = "";
+    let isbn = "", author = "", publisher = "", pageCount = "";
+    let duration = "", accessType: "lifetime" | "limited" | "subscription" = "lifetime", modules = "";
+    let fileType = "", downloadLink = "";
+    
     if (product.dimensions) {
       try {
         const parsed = JSON.parse(product.dimensions);
+        if (parsed.productType) productType = parsed.productType;
+        // Apparel
         if (parsed.sizeType) sizeType = parsed.sizeType;
         if (parsed.sizePreset) sizePreset = parsed.sizePreset;
         if (parsed.customSizes) customSizes = parsed.customSizes;
-        // Backwards compatibility with old format
-        if (!parsed.sizeType && parsed.sizes && parsed.sizes.length > 0) {
+        if (parsed.colors) colors = parsed.colors;
+        if (parsed.material) material = parsed.material;
+        // Book
+        if (parsed.isbn) isbn = parsed.isbn;
+        if (parsed.author) author = parsed.author;
+        if (parsed.publisher) publisher = parsed.publisher;
+        if (parsed.pageCount) pageCount = parsed.pageCount;
+        // Course
+        if (parsed.duration) duration = parsed.duration;
+        if (parsed.accessType) accessType = parsed.accessType;
+        if (parsed.modules) modules = parsed.modules;
+        // Digital
+        if (parsed.fileType) fileType = parsed.fileType;
+        if (parsed.downloadLink) downloadLink = parsed.downloadLink;
+        // Backwards compatibility
+        if (!parsed.productType && parsed.sizes && parsed.sizes.length > 0) {
+          productType = "apparel";
           sizeType = "custom";
           customSizes = parsed.sizes.join(", ");
         }
       } catch (e) {}
     }
-    // Parse shortDescription for sub-description and shipping/return info
+    // Parse shortDescription
     let subDescription = "";
     let shippingInfo = "Free shipping on orders over $100.";
     let returnPolicy = "Returns accepted within 30 days of purchase.";
@@ -137,7 +182,6 @@ export default function AdminProductsEnhanced() {
         if (parsed.shippingInfo) shippingInfo = parsed.shippingInfo;
         if (parsed.returnPolicy) returnPolicy = parsed.returnPolicy;
       } catch (e) {
-        // If it's not JSON, treat it as subDescription
         subDescription = product.shortDescription;
       }
     }
@@ -152,11 +196,11 @@ export default function AdminProductsEnhanced() {
       stock: String(product.stock || 0),
       status: product.status || "draft",
       featuredImage: product.featuredImage || "",
-      sizeType,
-      sizePreset,
-      customSizes,
-      shippingInfo,
-      returnPolicy,
+      productType, sizeType, sizePreset, customSizes, colors, material,
+      isbn, author, publisher, pageCount,
+      duration, accessType, modules,
+      fileType, downloadLink,
+      shippingInfo, returnPolicy,
     });
     setIsDialogOpen(true);
   };
@@ -174,22 +218,54 @@ export default function AdminProductsEnhanced() {
     if (!formData.name.trim()) { toast.error("Product name is required"); return; }
     if (!formData.price || parseFloat(formData.price) < 0) { toast.error("Please enter a valid price"); return; }
     
-    // Build dimensions JSON with sizes
+    // Build dimensions JSON based on product type
     let sizes: string[] = [];
-    if (formData.sizeType === "preset" && formData.sizePreset) {
-      const preset = sizePresets.find(p => p.value === formData.sizePreset);
-      sizes = preset?.sizes || [];
-    } else if (formData.sizeType === "custom" && formData.customSizes) {
-      sizes = formData.customSizes.split(",").map(s => s.trim()).filter(Boolean);
+    if (formData.productType === "apparel") {
+      if (formData.sizeType === "preset" && formData.sizePreset) {
+        const preset = sizePresets.find(p => p.value === formData.sizePreset);
+        sizes = preset?.sizes || [];
+      } else if (formData.sizeType === "custom" && formData.customSizes) {
+        sizes = formData.customSizes.split(",").map(s => s.trim()).filter(Boolean);
+      }
     }
-    const dimensions = JSON.stringify({ 
-      sizeType: formData.sizeType, 
-      sizePreset: formData.sizePreset,
-      customSizes: formData.customSizes,
-      sizes 
-    });
     
-    // Build shortDescription JSON with sub-description and shipping/return info
+    const dimensionsData: Record<string, any> = {
+      productType: formData.productType,
+    };
+    
+    // Add type-specific fields
+    if (formData.productType === "apparel") {
+      Object.assign(dimensionsData, {
+        sizeType: formData.sizeType,
+        sizePreset: formData.sizePreset,
+        customSizes: formData.customSizes,
+        sizes,
+        colors: formData.colors,
+        material: formData.material,
+      });
+    } else if (formData.productType === "book") {
+      Object.assign(dimensionsData, {
+        isbn: formData.isbn,
+        author: formData.author,
+        publisher: formData.publisher,
+        pageCount: formData.pageCount,
+      });
+    } else if (formData.productType === "course") {
+      Object.assign(dimensionsData, {
+        duration: formData.duration,
+        accessType: formData.accessType,
+        modules: formData.modules,
+      });
+    } else if (formData.productType === "digital") {
+      Object.assign(dimensionsData, {
+        fileType: formData.fileType,
+        downloadLink: formData.downloadLink,
+      });
+    }
+    
+    const dimensions = JSON.stringify(dimensionsData);
+    
+    // Build shortDescription JSON
     const shortDescription = JSON.stringify({ 
       subDescription: formData.subDescription,
       shippingInfo: formData.shippingInfo, 
@@ -420,48 +496,154 @@ export default function AdminProductsEnhanced() {
                 onChange={(e) => setFormData({ ...formData, subDescription: e.target.value })} 
                 placeholder="A short tagline shown under the product name on shop page"
               />
-              <p className="text-xs text-stone-500">Optional short description displayed on the shop listing</p>
             </div>
 
-            {/* Size Options - Improved */}
-            <div className="space-y-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
-              <Label className="text-sm font-semibold text-amber-900">Product Sizes</Label>
-              
-              <div className="flex gap-4">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="sizeType" checked={formData.sizeType === "none"} onChange={() => setFormData({ ...formData, sizeType: "none", sizePreset: "", customSizes: "" })} className="text-amber-600" />
-                  <span className="text-sm">No Sizes (N/A)</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="sizeType" checked={formData.sizeType === "preset"} onChange={() => setFormData({ ...formData, sizeType: "preset" })} className="text-amber-600" />
-                  <span className="text-sm">Size Range</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="radio" name="sizeType" checked={formData.sizeType === "custom"} onChange={() => setFormData({ ...formData, sizeType: "custom" })} className="text-amber-600" />
-                  <span className="text-sm">Custom Sizes</span>
-                </label>
+            {/* Product Type Selector */}
+            <div className="space-y-3 p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-lg border border-violet-200">
+              <Label className="text-sm font-semibold text-violet-900">Product Type</Label>
+              <div className="grid grid-cols-5 gap-2">
+                {[
+                  { value: "physical", label: "Physical", icon: "📦" },
+                  { value: "apparel", label: "Apparel", icon: "👕" },
+                  { value: "book", label: "Book", icon: "📚" },
+                  { value: "course", label: "Course", icon: "🎓" },
+                  { value: "digital", label: "Digital", icon: "💾" },
+                ].map((type) => (
+                  <button
+                    key={type.value}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, productType: type.value as ProductType })}
+                    className={`p-3 rounded-lg border-2 text-center transition-all ${
+                      formData.productType === type.value 
+                        ? "border-violet-500 bg-violet-100 shadow-sm" 
+                        : "border-stone-200 bg-white hover:border-violet-300"
+                    }`}
+                  >
+                    <span className="text-xl block mb-1">{type.icon}</span>
+                    <span className="text-xs font-medium">{type.label}</span>
+                  </button>
+                ))}
               </div>
-
-              {formData.sizeType === "preset" && (
-                <Select value={formData.sizePreset} onValueChange={(value) => setFormData({ ...formData, sizePreset: value })}>
-                  <SelectTrigger className="bg-white"><SelectValue placeholder="Select size range" /></SelectTrigger>
-                  <SelectContent>
-                    {sizePresets.map(preset => (
-                      <SelectItem key={preset.value} value={preset.value}>{preset.label} ({preset.sizes.join(", ")})</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-
-              {formData.sizeType === "custom" && (
-                <Input 
-                  value={formData.customSizes} 
-                  onChange={(e) => setFormData({ ...formData, customSizes: e.target.value })} 
-                  placeholder="Enter sizes: XS, S, M, L, XL, 2XL"
-                  className="bg-white"
-                />
-              )}
             </div>
+
+            {/* APPAREL FIELDS */}
+            {formData.productType === "apparel" && (
+              <div className="space-y-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
+                <Label className="text-sm font-semibold text-amber-900">👕 Apparel Details</Label>
+                
+                <div className="space-y-3">
+                  <Label className="text-xs text-amber-700">Size Options</Label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="sizeType" checked={formData.sizeType === "none"} onChange={() => setFormData({ ...formData, sizeType: "none", sizePreset: "", customSizes: "" })} />
+                      <span className="text-sm">No Sizes</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="sizeType" checked={formData.sizeType === "preset"} onChange={() => setFormData({ ...formData, sizeType: "preset" })} />
+                      <span className="text-sm">Size Range</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input type="radio" name="sizeType" checked={formData.sizeType === "custom"} onChange={() => setFormData({ ...formData, sizeType: "custom" })} />
+                      <span className="text-sm">Custom</span>
+                    </label>
+                  </div>
+                  {formData.sizeType === "preset" && (
+                    <Select value={formData.sizePreset} onValueChange={(value) => setFormData({ ...formData, sizePreset: value })}>
+                      <SelectTrigger className="bg-white"><SelectValue placeholder="Select size range" /></SelectTrigger>
+                      <SelectContent>
+                        {sizePresets.map(preset => (
+                          <SelectItem key={preset.value} value={preset.value}>{preset.label} ({preset.sizes.join(", ")})</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  {formData.sizeType === "custom" && (
+                    <Input value={formData.customSizes} onChange={(e) => setFormData({ ...formData, customSizes: e.target.value })} placeholder="XS, S, M, L, XL, 2XL" className="bg-white" />
+                  )}
+                </div>
+                
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-amber-700">Colors Available</Label>
+                    <Input value={formData.colors} onChange={(e) => setFormData({ ...formData, colors: e.target.value })} placeholder="Black, White, Navy" className="bg-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-amber-700">Material</Label>
+                    <Input value={formData.material} onChange={(e) => setFormData({ ...formData, material: e.target.value })} placeholder="100% Cotton" className="bg-white" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* BOOK FIELDS */}
+            {formData.productType === "book" && (
+              <div className="space-y-4 p-4 bg-sky-50 rounded-lg border border-sky-200">
+                <Label className="text-sm font-semibold text-sky-900">📚 Book Details</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-sky-700">ISBN</Label>
+                    <Input value={formData.isbn} onChange={(e) => setFormData({ ...formData, isbn: e.target.value })} placeholder="978-0-123456-78-9" className="bg-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-sky-700">Author</Label>
+                    <Input value={formData.author} onChange={(e) => setFormData({ ...formData, author: e.target.value })} placeholder="Author name" className="bg-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-sky-700">Publisher</Label>
+                    <Input value={formData.publisher} onChange={(e) => setFormData({ ...formData, publisher: e.target.value })} placeholder="Publisher name" className="bg-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-sky-700">Page Count</Label>
+                    <Input type="number" value={formData.pageCount} onChange={(e) => setFormData({ ...formData, pageCount: e.target.value })} placeholder="256" className="bg-white" />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* COURSE FIELDS */}
+            {formData.productType === "course" && (
+              <div className="space-y-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
+                <Label className="text-sm font-semibold text-emerald-900">🎓 Course Details</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-emerald-700">Duration</Label>
+                    <Input value={formData.duration} onChange={(e) => setFormData({ ...formData, duration: e.target.value })} placeholder="6 weeks, 12 hours total" className="bg-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-emerald-700">Access Type</Label>
+                    <Select value={formData.accessType} onValueChange={(value: "lifetime" | "limited" | "subscription") => setFormData({ ...formData, accessType: value })}>
+                      <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="lifetime">Lifetime Access</SelectItem>
+                        <SelectItem value="limited">Limited Time</SelectItem>
+                        <SelectItem value="subscription">Subscription</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-emerald-700">Modules/Lessons</Label>
+                  <Input value={formData.modules} onChange={(e) => setFormData({ ...formData, modules: e.target.value })} placeholder="10 modules, 45 lessons" className="bg-white" />
+                </div>
+              </div>
+            )}
+
+            {/* DIGITAL FIELDS */}
+            {formData.productType === "digital" && (
+              <div className="space-y-4 p-4 bg-pink-50 rounded-lg border border-pink-200">
+                <Label className="text-sm font-semibold text-pink-900">💾 Digital Product Details</Label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-2">
+                    <Label className="text-xs text-pink-700">File Type</Label>
+                    <Input value={formData.fileType} onChange={(e) => setFormData({ ...formData, fileType: e.target.value })} placeholder="PDF, MP3, ZIP" className="bg-white" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs text-pink-700">Download Link (optional)</Label>
+                    <Input value={formData.downloadLink} onChange={(e) => setFormData({ ...formData, downloadLink: e.target.value })} placeholder="https://..." className="bg-white" />
+                  </div>
+                </div>
+              </div>
+            )}
             
             {/* Shipping & Returns - Better Separated */}
             <div className="grid grid-cols-2 gap-4">
