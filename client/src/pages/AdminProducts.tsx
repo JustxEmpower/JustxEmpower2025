@@ -251,19 +251,21 @@ export default function AdminProducts() {
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Refresh
                 </Button>
+                <Button onClick={() => setIsCreateOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Product
+                </Button>
                 <Dialog open={isCreateOpen || !!editingProduct} onOpenChange={(open) => {
               if (!open) {
                 setIsCreateOpen(false);
                 setEditingProduct(null);
                 resetForm();
+                // Navigate back to products list if on /new route
+                if (location === '/admin/products/new') {
+                  setLocation('/admin/products');
+                }
               }
             }}>
-              <DialogTrigger asChild>
-                <Button onClick={() => setIsCreateOpen(true)}>
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Product
-                </Button>
-              </DialogTrigger>
               <DialogContent className="max-w-2xl">
                 <DialogHeader>
                   <DialogTitle>{editingProduct ? "Edit Product" : "Create Product"}</DialogTitle>
