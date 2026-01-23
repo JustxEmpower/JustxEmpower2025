@@ -216,7 +216,7 @@ export default function AdminProductsEnhanced() {
                 <motion.div key={product.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.03 }}>
                   <Card className="overflow-hidden hover:shadow-lg transition-shadow">
                     <div className="aspect-square bg-stone-100 relative">
-                      {product.images?.[0] ? <img src={getMediaUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-12 h-12 text-stone-300" /></div>}
+                      {(product.featuredImage || product.images?.[0]) ? <img src={getMediaUrl(product.featuredImage || product.images[0])} alt={product.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-12 h-12 text-stone-300" /></div>}
                       <Badge className={`absolute top-2 right-2 ${product.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{product.status}</Badge>
                     </div>
                     <CardContent className="p-4">
@@ -241,7 +241,7 @@ export default function AdminProductsEnhanced() {
                   <Card className="hover:shadow-md transition-shadow">
                     <CardContent className="flex items-center gap-4 p-4">
                       <div className="w-16 h-16 bg-stone-100 rounded-lg overflow-hidden flex-shrink-0">
-                        {product.images?.[0] ? <img src={getMediaUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-6 h-6 text-stone-300" /></div>}
+                        {(product.featuredImage || product.images?.[0]) ? <img src={getMediaUrl(product.featuredImage || product.images[0])} alt={product.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-6 h-6 text-stone-300" /></div>}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2"><h3 className="font-semibold truncate">{product.name}</h3><Badge className={product.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}>{product.status}</Badge></div>
