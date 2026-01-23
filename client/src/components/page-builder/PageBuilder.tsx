@@ -375,20 +375,22 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
     setShowSaveDialog(true);
   };
 
-  const handleSaveConfirm = async () => {
+  const handleSaveConfirm = async (publishStatus?: boolean) => {
+    const shouldPublish = publishStatus !== undefined ? publishStatus : isPublished;
     console.log('handleSaveConfirm called');
     console.log('onSave exists:', !!onSave);
     console.log('blocks:', blocks);
     console.log('pageTitle:', pageTitle);
     console.log('pageSlug:', pageSlug);
     console.log('showInNav:', showInNav);
-    console.log('isPublished:', isPublished);
+    console.log('shouldPublish:', shouldPublish);
     
     if (onSave) {
       setSaving(true);
+      setIsPublished(shouldPublish);
       try {
         console.log('Calling onSave...');
-        await onSave(blocks, pageTitle, pageSlug, showInNav, isPublished);
+        await onSave(blocks, pageTitle, pageSlug, showInNav, shouldPublish);
         console.log('onSave completed successfully');
         markAsSaved(); // Clear auto-save and mark as saved
         setShowSaveDialog(false);
@@ -894,7 +896,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
             </Button>
             <Button 
               variant="secondary"
-              onClick={() => { setIsPublished(false); handleSaveConfirm(); }} 
+              onClick={() => handleSaveConfirm(false)} 
               disabled={isSaving || !pageTitle}
             >
               {isSaving && !isPublished ? (
@@ -907,7 +909,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
               )}
             </Button>
             <Button 
-              onClick={() => { setIsPublished(true); handleSaveConfirm(); }} 
+              onClick={() => handleSaveConfirm(true)} 
               disabled={isSaving || !pageTitle}
             >
               {isSaving && isPublished ? (
