@@ -887,34 +887,36 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                 Show in navigation menu
               </Label>
             </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="is-published"
-                checked={isPublished}
-                onCheckedChange={(checked) => setIsPublished(checked as boolean)}
-              />
-              <Label htmlFor="is-published" className="text-sm font-normal">
-                Publish immediately
-              </Label>
             </div>
-            {!isPublished && (
-              <p className="text-xs text-amber-600 dark:text-amber-400">
-                Page will be saved as draft and won't be visible to visitors
-              </p>
-            )}
-          </div>
-          <DialogFooter>
+          <DialogFooter className="flex gap-2 sm:gap-2">
             <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveConfirm} disabled={isSaving || !pageTitle}>
-              {isSaving ? (
+            <Button 
+              variant="secondary"
+              onClick={() => { setIsPublished(false); handleSaveConfirm(); }} 
+              disabled={isSaving || !pageTitle}
+            >
+              {isSaving && !isPublished ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   Saving...
                 </>
               ) : (
-                'Save Page'
+                'Save as Draft'
+              )}
+            </Button>
+            <Button 
+              onClick={() => { setIsPublished(true); handleSaveConfirm(); }} 
+              disabled={isSaving || !pageTitle}
+            >
+              {isSaving && isPublished ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Publishing...
+                </>
+              ) : (
+                'Save & Publish'
               )}
             </Button>
           </DialogFooter>
