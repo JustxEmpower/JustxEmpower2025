@@ -163,7 +163,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
   const [showSaveDialog, setShowSaveDialog] = React.useState(false);
   const [pageSlug, setPageSlug] = React.useState('');
   const [showInNav, setShowInNav] = React.useState(false);
-  const [isPublished, setIsPublished] = React.useState(true);
+  const [isPublished, setIsPublished] = React.useState(false);
   const [showRecoveryDialog, setShowRecoveryDialog] = React.useState(false);
   const [recoveryData, setRecoveryData] = React.useState<{
     pageTitle: string;
