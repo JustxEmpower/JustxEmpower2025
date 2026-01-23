@@ -17,6 +17,7 @@ import { IconPicker } from '../IconPicker';
 import BlockAnimationSettings, { BlockAnimationConfig, DEFAULT_ANIMATION_CONFIG } from '../BlockAnimationSettings';
 import CustomCSSEditor from '../CustomCSSEditor';
 import { getBlockFields, getGroupedFields, FieldDefinition } from './BlockFieldDefinitions';
+import { JEGallerySettingsPanel } from './JEGallerySettingsPanel';
 
 // Generic field renderer based on content type
 function renderField(
@@ -3066,21 +3067,28 @@ export default function BlockSettings() {
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-4"
               >
-                {/* Use definition-based field rendering when available */}
-                {(() => {
-                  const blockFields = getBlockFields(selectedBlock.type);
-                  if (blockFields.length > 0) {
-                    // Render fields from definitions, grouped by category
-                    return renderFieldsFromDefinitions(selectedBlock.type, selectedBlock.content, handleContentChange);
-                  }
-                  // Fallback to legacy rendering for blocks without definitions
-                  return Object.entries(selectedBlock.content).map(([key, value]) => {
-                    if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-                      return null;
-                    }
-                    return renderField(key, value, handleContentChange, selectedBlock.type);
-                  });
-                })()}
+                {/* Custom inline settings for je-gallery - avoids Select component issues */}
+                {selectedBlock.type === 'je-gallery' ? (
+                  <JEGallerySettingsPanel content={selectedBlock.content} onChange={handleContentChange} />
+                ) : (
+                  <>
+                    {/* Use definition-based field rendering when available */}
+                    {(() => {
+                      const blockFields = getBlockFields(selectedBlock.type);
+                      if (blockFields.length > 0) {
+                        // Render fields from definitions, grouped by category
+                        return renderFieldsFromDefinitions(selectedBlock.type, selectedBlock.content, handleContentChange);
+                      }
+                      // Fallback to legacy rendering for blocks without definitions
+                      return Object.entries(selectedBlock.content).map(([key, value]) => {
+                        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                          return null;
+                        }
+                        return renderField(key, value, handleContentChange, selectedBlock.type);
+                      });
+                    })()}
+                  </>
+                )}
               </motion.div>
             </AnimatePresence>
               </div>

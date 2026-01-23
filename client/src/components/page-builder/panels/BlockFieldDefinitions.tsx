@@ -629,21 +629,7 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'rounded', label: 'Border Radius', type: 'select', options: ROUNDED_OPTIONS },
   ],
 
-  'je-gallery': [
-    { key: 'title', label: 'Gallery Title', type: 'text' },
-    { key: 'columns', label: 'Columns', type: 'number', min: 2, max: 6 },
-    { key: 'gap', label: 'Gap', type: 'number', min: 0, max: 12 },
-    { key: 'variant', label: 'Layout', type: 'select', options: [
-      { value: 'grid', label: 'Grid' },
-      { value: 'masonry', label: 'Masonry' },
-    ]},
-    { key: 'lightbox', label: 'Enable Lightbox', type: 'boolean' },
-    { key: 'images', label: 'Images', type: 'array', itemFields: [
-      { key: 'url', label: 'Image URL', type: 'image' },
-      { key: 'alt', label: 'Alt Text', type: 'text' },
-      { key: 'caption', label: 'Caption', type: 'text' },
-    ]},
-  ],
+  // je-gallery uses custom inline settings panel - removed from definitions to avoid Select issues
 
   // ========================================
   // JE SPECIAL BLOCKS
