@@ -66,20 +66,40 @@ export default function ProductDetail() {
   
   const formatPrice = (cents: number) => `$${(cents / 100).toFixed(2)}`;
   
-  // Parse sizes from product dimensions or use default
-  const parseSizes = (): { sizes: string[], showSizes: boolean } => {
+  // Parse product type and type-specific fields from dimensions
+  const parseProductInfo = () => {
+    let productType = "physical";
+    let sizes: string[] = [];
+    let showSizes = false;
+    let colors = "", material = "";
+    let isbn = "", author = "", publisher = "", pageCount = "";
+    let duration = "", accessType = "", modules = "";
+    let fileType = "", downloadLink = "";
+    
     if (product.dimensions) {
       try {
         const parsed = JSON.parse(product.dimensions);
-        const sizes = Array.isArray(parsed) ? parsed : (parsed.sizes || []);
-        const showSizes = parsed.showSizes !== false;
-        return { sizes, showSizes };
+        productType = parsed.productType || "physical";
+        sizes = Array.isArray(parsed) ? parsed : (parsed.sizes || []);
+        showSizes = parsed.sizeType && parsed.sizeType !== "none";
+        colors = parsed.colors || "";
+        material = parsed.material || "";
+        isbn = parsed.isbn || "";
+        author = parsed.author || "";
+        publisher = parsed.publisher || "";
+        pageCount = parsed.pageCount || "";
+        duration = parsed.duration || "";
+        accessType = parsed.accessType || "";
+        modules = parsed.modules || "";
+        fileType = parsed.fileType || "";
+        downloadLink = parsed.downloadLink || "";
       } catch (e) {}
     }
-    return { sizes: [], showSizes: true };
+    return { productType, sizes, showSizes, colors, material, isbn, author, publisher, pageCount, duration, accessType, modules, fileType, downloadLink };
   };
-  const { sizes: availableSizes, showSizes } = parseSizes();
-  const hasSizes = showSizes && availableSizes.length > 0;
+  const productInfo = parseProductInfo();
+  const availableSizes = productInfo.sizes;
+  const hasSizes = productInfo.showSizes && availableSizes.length > 0;
   
   // Parse shipping and return info from shortDescription
   const parseShippingInfo = (): { shippingInfo: string, returnPolicy: string } => {
@@ -115,7 +135,7 @@ export default function ProductDetail() {
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Minimal Top Bar */}
-      <div className="fixed top-20 left-0 right-0 z-40 bg-white dark:bg-background border-b border-stone-200 dark:border-border">
+      <div className="fixed top-20 left-0 right-0 z-[60] bg-white dark:bg-background border-b border-stone-200 dark:border-border">
         <div className="flex items-center justify-between px-6 py-3">
           <button
             type="button"
@@ -124,7 +144,7 @@ export default function ProductDetail() {
               e.stopPropagation();
               setLocation('/shop');
             }}
-            className="text-[11px] uppercase tracking-[0.2em] text-stone-600 dark:text-muted-foreground hover:text-stone-900 dark:hover:text-foreground transition-colors flex items-center gap-2 cursor-pointer z-50"
+            className="text-[11px] uppercase tracking-[0.2em] text-stone-600 dark:text-muted-foreground hover:text-stone-900 dark:hover:text-foreground transition-colors flex items-center gap-2 cursor-pointer relative"
           >
             <ChevronLeft className="w-3 h-3" />
             Back
@@ -277,8 +297,44 @@ export default function ProductDetail() {
                     <Plus className={`w-4 h-4 transition-transform ${expandedSection === 'details' ? 'rotate-45' : ''}`} />
                   </button>
                   {expandedSection === 'details' && (
-                    <div className="py-4 text-sm text-stone-600 dark:text-muted-foreground">
-                      {product.description || 'No additional details available.'}
+                    <div className="py-4 text-sm text-stone-600 dark:text-muted-foreground space-y-2">
+                      {product.description && <p>{product.description}</p>}
+                      
+                      {/* Apparel details */}
+                      {productInfo.productType === "apparel" && (
+                        <>
+                          {productInfo.material && <p><span className="font-medium">Material:</span> {productInfo.material}</p>}
+                          {productInfo.colors && <p><span className="font-medium">Colors:</span> {productInfo.colors}</p>}
+                        </>
+                      )}
+                      
+                      {/* Book details */}
+                      {productInfo.productType === "book" && (
+                        <>
+                          {productInfo.author && <p><span className="font-medium">Author:</span> {productInfo.author}</p>}
+                          {productInfo.publisher && <p><span className="font-medium">Publisher:</span> {productInfo.publisher}</p>}
+                          {productInfo.isbn && <p><span className="font-medium">ISBN:</span> {productInfo.isbn}</p>}
+                          {productInfo.pageCount && <p><span className="font-medium">Pages:</span> {productInfo.pageCount}</p>}
+                        </>
+                      )}
+                      
+                      {/* Course details */}
+                      {productInfo.productType === "course" && (
+                        <>
+                          {productInfo.duration && <p><span className="font-medium">Duration:</span> {productInfo.duration}</p>}
+                          {productInfo.accessType && <p><span className="font-medium">Access:</span> {productInfo.accessType === "lifetime" ? "Lifetime Access" : productInfo.accessType === "subscription" ? "Subscription" : "Limited Time"}</p>}
+                          {productInfo.modules && <p><span className="font-medium">Content:</span> {productInfo.modules}</p>}
+                        </>
+                      )}
+                      
+                      {/* Digital details */}
+                      {productInfo.productType === "digital" && (
+                        <>
+                          {productInfo.fileType && <p><span className="font-medium">File Type:</span> {productInfo.fileType}</p>}
+                        </>
+                      )}
+                      
+                      {!product.description && productInfo.productType === "physical" && 'No additional details available.'}
                     </div>
                   )}
                 </div>
