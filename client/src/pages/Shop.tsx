@@ -194,21 +194,18 @@ function ProductCard({ product }: ProductCardProps) {
   const mainImage = product.featuredImage || images[0] || "/placeholder-product.jpg";
   const hoverImage = images[1] || images[0] || product.featuredImage || mainImage;
   
-  // Extract product code from name or generate one
-  const productCode = product.name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2) + '-' + String(product.id).padStart(2, '0');
-
   return (
     <Link href={`/shop/${product.slug}`}>
       <div 
-        className="group relative cursor-pointer"
+        className="group relative cursor-pointer p-2"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* Product Image */}
-        <div className="aspect-square bg-muted overflow-hidden">
+        <div className="aspect-square bg-stone-100 dark:bg-muted overflow-hidden rounded-lg">
           {imageError ? (
-            <div className="w-full h-full flex items-center justify-center bg-muted">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground">No Image</span>
+            <div className="w-full h-full flex items-center justify-center bg-stone-100 dark:bg-muted">
+              <span className="text-[10px] uppercase tracking-[0.2em] text-stone-500 dark:text-muted-foreground">No Image</span>
             </div>
           ) : (
             <img
@@ -221,16 +218,10 @@ function ProductCard({ product }: ProductCardProps) {
           )}
         </div>
         
-        {/* Product Code Overlay - Yeezy Style */}
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <span className="text-[11px] uppercase tracking-[0.3em] text-foreground font-medium bg-background/90 px-4 py-2">
-            {productCode}
-          </span>
-        </div>
-        
-        {/* Minimal Product Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-          <p className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground mb-1">
+        {/* Product Info - Always visible */}
+        <div className="pt-3 px-1">
+          <h3 className="text-sm font-medium text-stone-900 dark:text-foreground truncate">{product.name}</h3>
+          <p className="text-sm text-stone-600 dark:text-muted-foreground mt-1">
             {product.formattedPrice}
           </p>
         </div>
