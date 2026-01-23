@@ -548,7 +548,7 @@ export function JERootedUnityRenderer({ block, isEditing, onUpdate }: BlockRende
 
       {/* Content - Using sizing presets */}
       <div className={cn('relative z-10 mx-auto px-6 md:px-12', getPaddingClass(), maxWidth)}>
-        <div className="max-w-4xl">
+        <div className="max-w-4xl mx-auto text-center">
           <EditableText
             value={label}
             onChange={(v) => handleChange('label', v)}
@@ -574,7 +574,7 @@ export function JERootedUnityRenderer({ block, isEditing, onUpdate }: BlockRende
             placeholder="Short description..."
             multiline
             isEditing={isEditing}
-            className={cn(getDescriptionClass(), 'font-sans mb-8 text-white/90 leading-relaxed max-w-2xl whitespace-pre-wrap')}
+            className={cn(getDescriptionClass(), 'font-sans mb-8 text-white/90 leading-relaxed max-w-2xl mx-auto whitespace-pre-wrap')}
           />
 
           {/* Long Description - CRITICAL: whitespace-pre-wrap for spacing */}
