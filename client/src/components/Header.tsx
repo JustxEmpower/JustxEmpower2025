@@ -5,6 +5,7 @@ import { ChevronDown } from 'lucide-react';
 import gsap from 'gsap';
 import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
+import ThemeToggle from '@/components/ThemeToggle';
 
 interface NavPage {
   id: number;
@@ -287,6 +288,9 @@ export default function Header() {
               )}
             </div>
           ))}
+          
+          {/* Theme Toggle */}
+          <ThemeToggle isScrolled={isScrolled} />
           
           {/* Button Navigation Items (CTA buttons) */}
           {buttonNavItems.map((link) => (
