@@ -162,6 +162,7 @@ interface ProductCardProps {
     images?: string[] | string | null;
     featuredImage?: string | null;
     shortDescription?: string | null;
+    dimensions?: string | null;
     status: string;
     stockQuantity?: number | null;
     formattedPrice: string;
@@ -185,6 +186,15 @@ function safeParseImages(images: string | string[] | null | undefined): string[]
   }
 }
 
+// Font size mapping for Tailwind classes
+const fontSizeMap: Record<string, string> = {
+  xs: "text-xs",
+  sm: "text-sm",
+  base: "text-base",
+  lg: "text-lg",
+  xl: "text-xl",
+};
+
 function ProductCard({ product }: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [imageError, setImageError] = useState(false);
@@ -194,6 +204,21 @@ function ProductCard({ product }: ProductCardProps) {
   // Use featuredImage first, then fall back to images array
   const mainImage = product.featuredImage || images[0] || "/placeholder-product.jpg";
   const hoverImage = images[1] || images[0] || product.featuredImage || mainImage;
+  
+  // Parse display settings from dimensions JSON
+  const getDisplaySettings = () => {
+    if (!product.dimensions) return { nameFontSize: "sm", priceFontSize: "sm" };
+    try {
+      const parsed = JSON.parse(product.dimensions);
+      return {
+        nameFontSize: parsed.nameFontSize || "sm",
+        priceFontSize: parsed.priceFontSize || "sm",
+      };
+    } catch {
+      return { nameFontSize: "sm", priceFontSize: "sm" };
+    }
+  };
+  const displaySettings = getDisplaySettings();
   
   // Parse sub-description from shortDescription JSON
   const getSubDescription = (): string => {
@@ -233,11 +258,11 @@ function ProductCard({ product }: ProductCardProps) {
         
         {/* Product Info - Always visible */}
         <div className="pt-3 px-1">
-          <h3 className="text-sm font-medium text-stone-900 dark:text-foreground truncate">{product.name}</h3>
+          <h3 className={`${fontSizeMap[displaySettings.nameFontSize] || 'text-sm'} font-medium text-stone-900 dark:text-foreground truncate`}>{product.name}</h3>
           {subDescription && (
             <p className="text-xs text-stone-500 dark:text-muted-foreground/70 mt-0.5 truncate">{subDescription}</p>
           )}
-          <p className="text-sm text-stone-600 dark:text-muted-foreground mt-1">
+          <p className={`${fontSizeMap[displaySettings.priceFontSize] || 'text-sm'} text-stone-600 dark:text-muted-foreground mt-1`}>
             {product.formattedPrice}
           </p>
         </div>

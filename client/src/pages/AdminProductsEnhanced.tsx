@@ -78,6 +78,9 @@ export default function AdminProductsEnhanced() {
     // Common
     shippingInfo: "Free shipping on orders over $100.",
     returnPolicy: "Returns accepted within 30 days of purchase.",
+    // Display settings
+    nameFontSize: "sm" as "xs" | "sm" | "base" | "lg" | "xl",
+    priceFontSize: "sm" as "xs" | "sm" | "base" | "lg" | "xl",
   });
 
   const productsQuery = trpc.admin.products.list.useQuery({});
@@ -114,7 +117,8 @@ export default function AdminProductsEnhanced() {
       isbn: "", author: "", publisher: "", pageCount: "",
       duration: "", accessType: "lifetime", modules: "",
       fileType: "", downloadLink: "",
-      shippingInfo: "Free shipping on orders over $100.", returnPolicy: "Returns accepted within 30 days of purchase."
+      shippingInfo: "Free shipping on orders over $100.", returnPolicy: "Returns accepted within 30 days of purchase.",
+      nameFontSize: "sm", priceFontSize: "sm"
     });
   };
 
@@ -140,6 +144,7 @@ export default function AdminProductsEnhanced() {
     let isbn = "", author = "", publisher = "", pageCount = "";
     let duration = "", accessType: "lifetime" | "limited" | "subscription" = "lifetime", modules = "";
     let fileType = "", downloadLink = "";
+    let nameFontSize = "sm", priceFontSize = "sm";
     
     if (product.dimensions) {
       try {
@@ -163,6 +168,9 @@ export default function AdminProductsEnhanced() {
         // Digital
         if (parsed.fileType) fileType = parsed.fileType;
         if (parsed.downloadLink) downloadLink = parsed.downloadLink;
+        // Display settings
+        if (parsed.nameFontSize) nameFontSize = parsed.nameFontSize;
+        if (parsed.priceFontSize) priceFontSize = parsed.priceFontSize;
         // Backwards compatibility
         if (!parsed.productType && parsed.sizes && parsed.sizes.length > 0) {
           productType = "apparel";
@@ -201,6 +209,7 @@ export default function AdminProductsEnhanced() {
       duration, accessType, modules,
       fileType, downloadLink,
       shippingInfo, returnPolicy,
+      nameFontSize, priceFontSize,
     });
     setIsDialogOpen(true);
   };
@@ -262,6 +271,10 @@ export default function AdminProductsEnhanced() {
         downloadLink: formData.downloadLink,
       });
     }
+    
+    // Always add display settings
+    dimensionsData.nameFontSize = formData.nameFontSize;
+    dimensionsData.priceFontSize = formData.priceFontSize;
     
     const dimensions = JSON.stringify(dimensionsData);
     
@@ -666,6 +679,39 @@ export default function AdminProductsEnhanced() {
                   rows={2}
                   className="bg-white"
                 />
+              </div>
+            </div>
+            
+            {/* Display Settings */}
+            <div className="space-y-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <Label className="text-sm font-semibold text-slate-900">🎨 Display Settings</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label className="text-xs text-slate-700">Product Name Font Size</Label>
+                  <Select value={formData.nameFontSize} onValueChange={(value: "xs" | "sm" | "base" | "lg" | "xl") => setFormData({ ...formData, nameFontSize: value })}>
+                    <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="xs">Extra Small</SelectItem>
+                      <SelectItem value="sm">Small (Default)</SelectItem>
+                      <SelectItem value="base">Medium</SelectItem>
+                      <SelectItem value="lg">Large</SelectItem>
+                      <SelectItem value="xl">Extra Large</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs text-slate-700">Price Font Size</Label>
+                  <Select value={formData.priceFontSize} onValueChange={(value: "xs" | "sm" | "base" | "lg" | "xl") => setFormData({ ...formData, priceFontSize: value })}>
+                    <SelectTrigger className="bg-white"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="xs">Extra Small</SelectItem>
+                      <SelectItem value="sm">Small (Default)</SelectItem>
+                      <SelectItem value="base">Medium</SelectItem>
+                      <SelectItem value="lg">Large</SelectItem>
+                      <SelectItem value="xl">Extra Large</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
             
