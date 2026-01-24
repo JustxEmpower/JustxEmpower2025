@@ -1836,6 +1836,7 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
     shadow?: boolean;
     borderRadius?: string;
     maxWidth?: string;
+    width?: string;
     alignment?: 'left' | 'center' | 'right';
   };
 
@@ -1843,34 +1844,42 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   // Default to rounded unless explicitly set to false
   const isRounded = content.rounded !== false;
   const borderRadius = content.borderRadius || '2rem';
-  const maxWidth = content.maxWidth || '100%';
+  
+  // Support both maxWidth (new) and width (legacy) - convert legacy values
+  let widthValue = content.maxWidth || content.width || '100%';
+  // Convert legacy text values to percentages
+  if (widthValue === 'small') widthValue = '33%';
+  else if (widthValue === 'medium') widthValue = '66%';
+  else if (widthValue === 'large' || widthValue === 'full') widthValue = '100%';
+  
   const alignment = content.alignment || 'center';
-
-  const alignmentClass = alignment === 'left' ? 'mr-auto' : alignment === 'right' ? 'ml-auto' : 'mx-auto';
+  const justifyClass = alignment === 'left' ? 'justify-start' : alignment === 'right' ? 'justify-end' : 'justify-center';
 
   return (
     <figure className="py-8">
-      {imageUrl ? (
-        <div 
-          className={`relative overflow-hidden ${alignmentClass} ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
-          style={{ borderRadius: isRounded ? borderRadius : '0', maxWidth }}
-        >
-          <img
-            src={imageUrl}
-            alt={content.alt || 'Image'}
-            className="w-full h-auto"
-            style={{ borderRadius: isRounded ? borderRadius : '0' }}
-            onError={(e) => console.error('[JEImageRenderer] Image error:', e)}
-          />
-        </div>
-      ) : (
-        <div 
-          className={`aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center ${alignmentClass}`}
-          style={{ borderRadius: borderRadius, maxWidth }}
-        >
-          <span className="text-neutral-400">Add an image</span>
-        </div>
-      )}
+      <div className={`flex ${justifyClass}`}>
+        {imageUrl ? (
+          <div 
+            className={`relative overflow-hidden ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
+            style={{ borderRadius: isRounded ? borderRadius : '0', width: widthValue, maxWidth: widthValue }}
+          >
+            <img
+              src={imageUrl}
+              alt={content.alt || 'Image'}
+              className="w-full h-auto"
+              style={{ borderRadius: isRounded ? borderRadius : '0' }}
+              onError={(e) => console.error('[JEImageRenderer] Image error:', e)}
+            />
+          </div>
+        ) : (
+          <div 
+            className="aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+            style={{ borderRadius: borderRadius, width: widthValue, maxWidth: widthValue }}
+          >
+            <span className="text-neutral-400">Add an image</span>
+          </div>
+        )}
+      </div>
       {content.caption && (
         <figcaption className="mt-4 text-center text-sm text-neutral-500 dark:text-neutral-400 italic">
           {content.caption}
