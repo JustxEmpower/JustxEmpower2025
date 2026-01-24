@@ -201,8 +201,8 @@ export default function About({ slug = 'about' }: AboutProps) {
           </p>
         </section>
 
-        {/* Page Builder Zone: Mid Page */}
-        <EditablePageZone pageSlug="about" zoneName="mid-page" />
+        {/* Page Builder Zone: After Opening */}
+        <EditablePageZone pageSlug="about" zoneName="after-opening" />
 
         {/* Just Empower Truth Section */}
         <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
@@ -213,6 +213,9 @@ export default function About({ slug = 'about' }: AboutProps) {
             {truthDescription}
           </p>
         </section>
+
+        {/* Page Builder Zone: After Truth */}
+        <EditablePageZone pageSlug="about" zoneName="after-truth" />
 
         {/* Depth Beneath Section */}
         <section className="content-section max-w-4xl mx-auto mb-24">
@@ -236,6 +239,9 @@ export default function About({ slug = 'about' }: AboutProps) {
           </p>
         </section>
 
+        {/* Page Builder Zone: After Depth */}
+        <EditablePageZone pageSlug="about" zoneName="after-depth" />
+
         {/* Thread of Remembrance Section */}
         <section className="content-section max-w-4xl mx-auto mb-24">
           <h2 className={cn("text-3xl md:text-4xl font-light mb-12", getTextStyle('remembrance', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('remembrance', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('remembrance', 'title')}>
@@ -258,6 +264,9 @@ export default function About({ slug = 'about' }: AboutProps) {
           </p>
         </section>
 
+        {/* Page Builder Zone: After Remembrance */}
+        <EditablePageZone pageSlug="about" zoneName="after-remembrance" />
+
         {/* Renewal Section */}
         <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
           <h2 className={cn("text-3xl md:text-4xl font-light italic mb-8 text-center", getTextStyle('renewal', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('renewal', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('renewal', 'title')}>
@@ -270,6 +279,9 @@ export default function About({ slug = 'about' }: AboutProps) {
             {renewalParagraph2}
           </p>
         </section>
+
+        {/* Page Builder Zone: After Renewal */}
+        <EditablePageZone pageSlug="about" zoneName="after-renewal" />
 
         {/* Future Section */}
         <section className="content-section max-w-4xl mx-auto mb-24">
@@ -290,8 +302,8 @@ export default function About({ slug = 'about' }: AboutProps) {
           </p>
         </section>
 
-        {/* Page Builder Zone: After Content */}
-        <EditablePageZone pageSlug="about" zoneName="after-content" />
+        {/* Page Builder Zone: After Future */}
+        <EditablePageZone pageSlug="about" zoneName="after-future" />
 
         {/* Page Builder Zone: Before Newsletter */}
         <EditablePageZone pageSlug="about" zoneName="before-newsletter" />

@@ -43,7 +43,7 @@ const AVAILABLE_PAGES = [
     slug: 'about', 
     name: 'About', 
     icon: Info,
-    zones: ['after-hero', 'mid-page', 'after-content', 'before-newsletter', 'before-footer'],
+    zones: ['after-hero', 'after-opening', 'after-truth', 'after-depth', 'after-remembrance', 'after-renewal', 'after-future', 'before-newsletter', 'before-footer'],
     description: 'About the founder'
   },
   { 
