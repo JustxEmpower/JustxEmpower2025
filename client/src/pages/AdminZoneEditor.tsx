@@ -626,6 +626,65 @@ export default function AdminZoneEditor() {
                         </>
                       )}
                       
+                      {/* Special handling for JE Image blocks - show size controls */}
+                      {selectedBlock.type === 'je-image' && (
+                        <>
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Image Size</Label>
+                            <div className="grid grid-cols-4 gap-1">
+                              {['25%', '50%', '75%', '100%'].map((size) => (
+                                <Button
+                                  key={size}
+                                  size="sm"
+                                  variant={(selectedBlock.content as any).maxWidth === size || (!((selectedBlock.content as any).maxWidth) && size === '100%') ? 'default' : 'outline'}
+                                  className="text-xs"
+                                  onClick={() => updateBlockContent(selectedBlock.id, 'maxWidth', size)}
+                                >
+                                  {size}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Alignment</Label>
+                            <div className="grid grid-cols-3 gap-1">
+                              {[
+                                { value: 'left', label: 'Left' },
+                                { value: 'center', label: 'Center' },
+                                { value: 'right', label: 'Right' },
+                              ].map((opt) => (
+                                <Button
+                                  key={opt.value}
+                                  size="sm"
+                                  variant={(selectedBlock.content as any).alignment === opt.value || (!((selectedBlock.content as any).alignment) && opt.value === 'center') ? 'default' : 'outline'}
+                                  className="text-xs"
+                                  onClick={() => updateBlockContent(selectedBlock.id, 'alignment', opt.value)}
+                                >
+                                  {opt.label}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Rounded Corners</Label>
+                            <Switch
+                              checked={(selectedBlock.content as any).rounded !== false}
+                              onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'rounded', v)}
+                            />
+                          </div>
+                          
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Shadow</Label>
+                            <Switch
+                              checked={(selectedBlock.content as any).shadow === true}
+                              onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'shadow', v)}
+                            />
+                          </div>
+                        </>
+                      )}
+                      
                       {/* Special handling for JE Gallery blocks - always show image picker first */}
                       {selectedBlock.type === 'je-gallery' && (
                         <>

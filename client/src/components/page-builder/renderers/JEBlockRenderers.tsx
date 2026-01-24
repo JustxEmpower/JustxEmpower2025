@@ -1835,19 +1835,25 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
     rounded?: boolean;
     shadow?: boolean;
     borderRadius?: string;
+    maxWidth?: string;
+    alignment?: 'left' | 'center' | 'right';
   };
 
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
   // Default to rounded unless explicitly set to false
   const isRounded = content.rounded !== false;
   const borderRadius = content.borderRadius || '2rem';
+  const maxWidth = content.maxWidth || '100%';
+  const alignment = content.alignment || 'center';
+
+  const alignmentClass = alignment === 'left' ? 'mr-auto' : alignment === 'right' ? 'ml-auto' : 'mx-auto';
 
   return (
     <figure className="py-8">
       {imageUrl ? (
         <div 
-          className={`relative overflow-hidden ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
-          style={{ borderRadius: isRounded ? borderRadius : '0' }}
+          className={`relative overflow-hidden ${alignmentClass} ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
+          style={{ borderRadius: isRounded ? borderRadius : '0', maxWidth }}
         >
           <img
             src={imageUrl}
@@ -1859,8 +1865,8 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
         </div>
       ) : (
         <div 
-          className="aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
-          style={{ borderRadius: borderRadius }}
+          className={`aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center ${alignmentClass}`}
+          style={{ borderRadius: borderRadius, maxWidth }}
         >
           <span className="text-neutral-400">Add an image</span>
         </div>
