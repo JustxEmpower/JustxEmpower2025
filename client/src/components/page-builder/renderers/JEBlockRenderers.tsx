@@ -1848,27 +1848,27 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   // Support both maxWidth (new) and width (legacy) - map to Tailwind classes
   const sizeValue = content.maxWidth || content.width || '100%';
   
-  // Map size values to Tailwind width classes or inline styles for smaller sizes
-  const getWidthStyle = (size: string): { class: string; style?: React.CSSProperties } => {
+  // Map size values to inline maxWidth styles for precise control
+  const getWidthStyle = (size: string): React.CSSProperties => {
     switch(size) {
-      case '10%': return { class: '', style: { width: '10%' } };
-      case '15%': return { class: '', style: { width: '15%' } };
-      case '20%': return { class: 'w-1/5', style: undefined };
-      case '25%': return { class: 'w-1/4', style: undefined };
+      case '10%': return { maxWidth: '10%', width: '10%' };
+      case '15%': return { maxWidth: '15%', width: '15%' };
+      case '20%': return { maxWidth: '20%', width: '20%' };
+      case '25%': return { maxWidth: '25%', width: '25%' };
       case '33%':
-      case 'small': return { class: 'w-1/3', style: undefined };
-      case '50%': return { class: 'w-1/2', style: undefined };
+      case 'small': return { maxWidth: '33.333%', width: '33.333%' };
+      case '50%': return { maxWidth: '50%', width: '50%' };
       case '66%':
-      case 'medium': return { class: 'w-2/3', style: undefined };
-      case '75%': return { class: 'w-3/4', style: undefined };
+      case 'medium': return { maxWidth: '66.666%', width: '66.666%' };
+      case '75%': return { maxWidth: '75%', width: '75%' };
       case '100%':
       case 'large':
       case 'full':
-      default: return { class: 'w-full', style: undefined };
+      default: return { maxWidth: '100%', width: '100%' };
     }
   };
   
-  const widthInfo = getWidthStyle(sizeValue);
+  const widthStyles = getWidthStyle(sizeValue);
   const alignment = content.alignment || 'center';
   const alignmentClass = alignment === 'left' ? 'mr-auto' : alignment === 'right' ? 'ml-auto' : 'mx-auto';
 
@@ -1876,8 +1876,8 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
     <figure className="py-8">
       {imageUrl ? (
         <div 
-          className={`relative overflow-hidden ${widthInfo.class} ${alignmentClass} ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
-          style={{ borderRadius: isRounded ? borderRadius : '0', ...widthInfo.style }}
+          className={`relative overflow-hidden ${alignmentClass} ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
+          style={{ borderRadius: isRounded ? borderRadius : '0', ...widthStyles }}
         >
           <img
             src={imageUrl}
@@ -1889,8 +1889,8 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
         </div>
       ) : (
         <div 
-          className={`aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center ${widthInfo.class} ${alignmentClass}`}
-          style={{ borderRadius: borderRadius, ...widthInfo.style }}
+          className={`aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center ${alignmentClass}`}
+          style={{ borderRadius: borderRadius, ...widthStyles }}
         >
           <span className="text-neutral-400">Add an image</span>
         </div>
