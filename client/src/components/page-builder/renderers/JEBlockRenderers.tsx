@@ -1848,24 +1848,27 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   // Support both maxWidth (new) and width (legacy) - map to Tailwind classes
   const sizeValue = content.maxWidth || content.width || '100%';
   
-  // Map size values to Tailwind width classes
-  const getWidthClass = (size: string) => {
+  // Map size values to Tailwind width classes or inline styles for smaller sizes
+  const getWidthStyle = (size: string): { class: string; style?: React.CSSProperties } => {
     switch(size) {
-      case '25%': return 'w-1/4';
+      case '10%': return { class: '', style: { width: '10%' } };
+      case '15%': return { class: '', style: { width: '15%' } };
+      case '20%': return { class: 'w-1/5', style: undefined };
+      case '25%': return { class: 'w-1/4', style: undefined };
       case '33%':
-      case 'small': return 'w-1/3';
-      case '50%': return 'w-1/2';
+      case 'small': return { class: 'w-1/3', style: undefined };
+      case '50%': return { class: 'w-1/2', style: undefined };
       case '66%':
-      case 'medium': return 'w-2/3';
-      case '75%': return 'w-3/4';
+      case 'medium': return { class: 'w-2/3', style: undefined };
+      case '75%': return { class: 'w-3/4', style: undefined };
       case '100%':
       case 'large':
       case 'full':
-      default: return 'w-full';
+      default: return { class: 'w-full', style: undefined };
     }
   };
   
-  const widthClass = getWidthClass(sizeValue);
+  const widthInfo = getWidthStyle(sizeValue);
   const alignment = content.alignment || 'center';
   const alignmentClass = alignment === 'left' ? 'mr-auto' : alignment === 'right' ? 'ml-auto' : 'mx-auto';
 
@@ -1873,8 +1876,8 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
     <figure className="py-8">
       {imageUrl ? (
         <div 
-          className={`relative overflow-hidden ${widthClass} ${alignmentClass} ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
-          style={{ borderRadius: isRounded ? borderRadius : '0' }}
+          className={`relative overflow-hidden ${widthInfo.class} ${alignmentClass} ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
+          style={{ borderRadius: isRounded ? borderRadius : '0', ...widthInfo.style }}
         >
           <img
             src={imageUrl}
@@ -1886,8 +1889,8 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
         </div>
       ) : (
         <div 
-          className={`aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center ${widthClass} ${alignmentClass}`}
-          style={{ borderRadius: borderRadius }}
+          className={`aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center ${widthInfo.class} ${alignmentClass}`}
+          style={{ borderRadius: borderRadius, ...widthInfo.style }}
         >
           <span className="text-neutral-400">Add an image</span>
         </div>

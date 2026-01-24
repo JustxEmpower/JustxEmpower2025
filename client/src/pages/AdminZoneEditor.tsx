@@ -631,8 +631,21 @@ export default function AdminZoneEditor() {
                         <>
                           <div className="space-y-2">
                             <Label className="text-sm font-medium">Image Size</Label>
+                            <div className="grid grid-cols-5 gap-1">
+                              {['10%', '15%', '20%', '25%', '33%'].map((size) => (
+                                <Button
+                                  key={size}
+                                  size="sm"
+                                  variant={(selectedBlock.content as any).maxWidth === size ? 'default' : 'outline'}
+                                  className="text-xs px-1"
+                                  onClick={() => updateBlockContent(selectedBlock.id, 'maxWidth', size)}
+                                >
+                                  {size}
+                                </Button>
+                              ))}
+                            </div>
                             <div className="grid grid-cols-4 gap-1">
-                              {['25%', '50%', '75%', '100%'].map((size) => (
+                              {['50%', '75%', '100%'].map((size) => (
                                 <Button
                                   key={size}
                                   size="sm"
