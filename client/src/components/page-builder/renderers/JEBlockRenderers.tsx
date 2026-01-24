@@ -2489,13 +2489,6 @@ export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = 
               ))}
             </div>
           )}
-
-          {/* Image Counter */}
-          {images.length > 1 && (
-            <p className={`text-center mt-4 text-sm font-light tracking-wider ${content.dark ? 'text-white/60' : 'text-neutral-500'}`}>
-              {currentIndex + 1} / {images.length}
-            </p>
-          )}
         </div>
       </section>
     );

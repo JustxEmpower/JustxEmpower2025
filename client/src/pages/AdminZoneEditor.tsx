@@ -10,7 +10,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X, Box, Sparkles, Star } from 'lucide-react';
+import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X, Box, Sparkles, Star, Image as ImageIcon } from 'lucide-react';
+import MediaPicker from '@/components/MediaPicker';
 import { blockTypes } from '@/components/page-builder/blockTypes';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
@@ -63,6 +64,101 @@ function SortableBlock({ block, onDelete, isSelected, onSelect }: {
       <div className="pointer-events-none">
         <BlockRenderer block={block} isPreviewMode={true} />
       </div>
+    </div>
+  );
+}
+
+// Image Array Editor for Gallery blocks
+function ImageArrayEditor({ 
+  images, 
+  onChange 
+}: { 
+  images: Array<{ url: string; alt?: string }>; 
+  onChange: (images: Array<{ url: string; alt?: string }>) => void;
+}) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [editIndex, setEditIndex] = useState<number>(-1);
+
+  const addImage = (url: string) => {
+    if (editIndex >= 0 && editIndex < images.length) {
+      // Replace existing image
+      const newImages = [...images];
+      newImages[editIndex] = { url, alt: '' };
+      onChange(newImages);
+    } else {
+      // Add new image
+      onChange([...images, { url, alt: '' }]);
+    }
+    setPickerOpen(false);
+    setEditIndex(-1);
+  };
+
+  const removeImage = (index: number) => {
+    onChange(images.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Images ({images.length})</Label>
+        <Button 
+          size="sm" 
+          onClick={() => { setEditIndex(-1); setPickerOpen(true); }}
+          className="h-8"
+        >
+          <Plus className="w-4 h-4 mr-1" /> Add Image
+        </Button>
+      </div>
+      
+      {images.length === 0 ? (
+        <div className="text-center py-6 border-2 border-dashed border-neutral-300 rounded-lg bg-neutral-50 dark:bg-neutral-800 dark:border-neutral-600">
+          <ImageIcon className="w-8 h-8 mx-auto text-neutral-400 mb-2" />
+          <p className="text-neutral-500 text-sm mb-3">No images added</p>
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={() => { setEditIndex(-1); setPickerOpen(true); }}
+          >
+            <Plus className="w-4 h-4 mr-1" /> Add First Image
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-2">
+          {images.map((img, i) => (
+            <div key={i} className="relative aspect-square bg-neutral-200 dark:bg-neutral-700 rounded-lg overflow-hidden group">
+              {img?.url && <img src={img.url} alt="" className="w-full h-full object-cover" />}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 transition-opacity">
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="text-white hover:bg-white/20 h-8 w-8 p-0"
+                  onClick={() => { setEditIndex(i); setPickerOpen(true); }}
+                >
+                  <ImageIcon className="w-4 h-4" />
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="text-red-400 hover:bg-white/20 h-8 w-8 p-0"
+                  onClick={() => removeImage(i)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                {i + 1}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      <MediaPicker
+        open={pickerOpen}
+        onClose={() => { setPickerOpen(false); setEditIndex(-1); }}
+        onSelect={addImage}
+        mediaType="image"
+      />
     </div>
   );
 }
@@ -399,13 +495,24 @@ export default function AdminZoneEditor() {
                     <div className="space-y-4 pr-4">
                       {/* Render editable fields based on block content */}
                       {Object.entries(selectedBlock.content).map(([key, value]) => {
-                        // Skip complex objects like arrays for now
+                        // Handle images array for gallery blocks
+                        if (key === 'images' && Array.isArray(value)) {
+                          return (
+                            <ImageArrayEditor
+                              key={key}
+                              images={value as Array<{ url: string; alt?: string }>}
+                              onChange={(newImages) => updateBlockContent(selectedBlock.id, 'images', newImages)}
+                            />
+                          );
+                        }
+                        
+                        // Skip other complex arrays
                         if (Array.isArray(value)) {
                           return (
                             <div key={key} className="space-y-2">
                               <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
                               <p className="text-xs text-muted-foreground">
-                                {(value as any[]).length} items - Edit in Page Builder for full control
+                                {(value as any[]).length} items
                               </p>
                             </div>
                           );
