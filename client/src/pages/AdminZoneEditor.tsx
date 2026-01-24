@@ -682,6 +682,33 @@ export default function AdminZoneEditor() {
                               onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'shadow', v)}
                             />
                           </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Image URL</Label>
+                            <Input
+                              value={(selectedBlock.content as any).imageUrl || ''}
+                              onChange={(e) => updateBlockContent(selectedBlock.id, 'imageUrl', e.target.value)}
+                              placeholder="https://..."
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Alt Text</Label>
+                            <Input
+                              value={(selectedBlock.content as any).alt || ''}
+                              onChange={(e) => updateBlockContent(selectedBlock.id, 'alt', e.target.value)}
+                              placeholder="Image description"
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Caption</Label>
+                            <Input
+                              value={(selectedBlock.content as any).caption || ''}
+                              onChange={(e) => updateBlockContent(selectedBlock.id, 'caption', e.target.value)}
+                              placeholder="Optional caption"
+                            />
+                          </div>
                         </>
                       )}
                       
@@ -746,8 +773,8 @@ export default function AdminZoneEditor() {
                         </>
                       )}
                       
-                      {/* Render editable fields based on block content (skip for je-gallery which is handled above) */}
-                      {selectedBlock.type !== 'je-gallery' && Object.entries(selectedBlock.content).map(([key, value]) => {
+                      {/* Render editable fields based on block content (skip for blocks with custom controls) */}
+                      {selectedBlock.type !== 'je-gallery' && selectedBlock.type !== 'je-image' && selectedBlock.type !== 'je-carousel' && Object.entries(selectedBlock.content).map(([key, value]) => {
                         // Handle images array for other blocks
                         if (key === 'images' && Array.isArray(value)) {
                           return (
