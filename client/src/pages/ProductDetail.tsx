@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { ChevronLeft, Minus, Plus, ShoppingBag } from "lucide-react";
+import { ChevronLeft, ChevronRight, Minus, Plus, ShoppingBag, Play } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import CartSlideout from "@/components/CartSlideout";
 import { getMediaUrl } from "@/lib/media";
@@ -12,8 +12,12 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [cartOpen, setCartOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string | null>(null);
   const [expandedSection, setExpandedSection] = useState<string | null>(null);
+  
+  // Gold accent color for premium feel
+  const goldColor = '#C9A962';
   
   const { addToCart, getCartCount } = useCart();
   
@@ -45,23 +49,62 @@ export default function ProductDetail() {
     );
   }
 
-  // Safely parse images JSON with error handling
-  const parseImages = (imgData: string | string[] | null | undefined): string[] => {
-    if (!imgData) return [];
-    if (Array.isArray(imgData)) return imgData;
-    if (typeof imgData !== 'string' || !imgData.trim() || imgData === 'null') return [];
+  // Safely parse images/media JSON with error handling
+  const parseMedia = (mediaData: string | string[] | null | undefined): Array<{ url: string; type: 'image' | 'video' }> => {
+    if (!mediaData) return [];
+    if (Array.isArray(mediaData)) {
+      return mediaData.map(item => {
+        if (typeof item === 'string') {
+          const isVideo = item.match(/\.(mp4|webm|mov|ogg)$/i) || item.includes('youtube') || item.includes('vimeo');
+          return { url: item, type: isVideo ? 'video' : 'image' };
+        }
+        return item;
+      });
+    }
+    if (typeof mediaData !== 'string' || !mediaData.trim() || mediaData === 'null') return [];
     try {
-      const parsed = JSON.parse(imgData);
-      return Array.isArray(parsed) ? parsed : [];
+      const parsed = JSON.parse(mediaData);
+      if (Array.isArray(parsed)) {
+        return parsed.map((item: any) => {
+          if (typeof item === 'string') {
+            const isVideo = item.match(/\.(mp4|webm|mov|ogg)$/i) || item.includes('youtube') || item.includes('vimeo');
+            return { url: item, type: isVideo ? 'video' : 'image' };
+          }
+          return item;
+        });
+      }
+      return [];
     } catch (e) {
-      console.warn('[ProductDetail] Failed to parse images:', imgData?.substring?.(0, 50));
+      console.warn('[ProductDetail] Failed to parse media:', mediaData?.substring?.(0, 50));
       return [];
     }
   };
-  const images = parseImages(product.images as unknown as string);
-  // Use featuredImage first, then fall back to images array
-  const allImages = product.featuredImage ? [product.featuredImage, ...images] : images;
-  const mainImage = allImages[selectedImage] || "/placeholder-product.jpg";
+  const mediaItems = parseMedia(product.images as unknown as string);
+  // Use featuredImage first, then fall back to media array
+  const allMedia = product.featuredImage 
+    ? [{ url: product.featuredImage, type: 'image' as const }, ...mediaItems] 
+    : mediaItems;
+  const currentMedia = allMedia[selectedImage] || { url: "/placeholder-product.jpg", type: 'image' };
+  
+  // Premium carousel navigation
+  const goToMedia = (index: number) => {
+    if (isTransitioning || index === selectedImage) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setSelectedImage(index);
+      setTimeout(() => setIsTransitioning(false), 500);
+    }, 100);
+  };
+  
+  const goNext = () => {
+    if (allMedia.length <= 1 || isTransitioning) return;
+    goToMedia((selectedImage + 1) % allMedia.length);
+  };
+  
+  const goPrev = () => {
+    if (allMedia.length <= 1 || isTransitioning) return;
+    goToMedia((selectedImage - 1 + allMedia.length) % allMedia.length);
+  };
   const isOutOfStock = product.stock != null && product.stock <= 0;
   
   const formatPrice = (cents: number) => `$${(cents / 100).toFixed(2)}`;
@@ -167,29 +210,123 @@ export default function ProductDetail() {
       {/* Product Content */}
       <main className="pt-32 pb-20">
         <div className="grid lg:grid-cols-2 min-h-[calc(100vh-200px)]">
-          {/* Image Gallery - Left Side */}
-          <div className="relative">
-            {/* Main Image */}
+          {/* Image Gallery - Left Side - Premium Apple-inspired Carousel */}
+          <div className="relative group">
+            {/* Main Media Display */}
             <div className="sticky top-32 h-[calc(100vh-200px)]">
-              <div className="h-full bg-stone-100 dark:bg-muted flex items-center justify-center p-8">
-                <img
-                  src={getMediaUrl(mainImage)}
-                  alt={product.name}
-                  className="max-w-full max-h-full object-contain"
-                />
+              <div className="h-full bg-white dark:bg-[#0a0a0a] flex items-center justify-center p-8 relative">
+                {currentMedia.type === 'video' ? (
+                  <video
+                    key={selectedImage}
+                    src={getMediaUrl(currentMedia.url)}
+                    controls
+                    className="max-w-full max-h-full object-contain"
+                    style={{ 
+                      opacity: isTransitioning ? 0 : 1,
+                      transform: isTransitioning ? 'scale(0.98)' : 'scale(1)',
+                      transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}
+                  />
+                ) : (
+                  <img
+                    key={selectedImage}
+                    src={getMediaUrl(currentMedia.url)}
+                    alt={product.name}
+                    className="max-w-full max-h-full object-contain"
+                    style={{ 
+                      opacity: isTransitioning ? 0 : 1,
+                      transform: isTransitioning ? 'scale(0.98)' : 'scale(1)',
+                      transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                    }}
+                  />
+                )}
+                
+                {/* Navigation Arrows - Gold accented */}
+                {allMedia.length > 1 && (
+                  <>
+                    <button
+                      onClick={goPrev}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20"
+                      style={{ 
+                        background: 'rgba(0,0,0,0.03)',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
+                        border: `1px solid ${goldColor}40`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(0,0,0,0.06)';
+                        e.currentTarget.style.borderColor = goldColor;
+                        e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(0,0,0,0.03)';
+                        e.currentTarget.style.borderColor = `${goldColor}40`;
+                        e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+                      }}
+                      aria-label="Previous"
+                    >
+                      <ChevronLeft className="w-6 h-6" style={{ color: goldColor }} />
+                    </button>
+                    <button
+                      onClick={goNext}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20"
+                      style={{ 
+                        background: 'rgba(0,0,0,0.03)',
+                        backdropFilter: 'blur(10px)',
+                        WebkitBackdropFilter: 'blur(10px)',
+                        border: `1px solid ${goldColor}40`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'rgba(0,0,0,0.06)';
+                        e.currentTarget.style.borderColor = goldColor;
+                        e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'rgba(0,0,0,0.03)';
+                        e.currentTarget.style.borderColor = `${goldColor}40`;
+                        e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+                      }}
+                      aria-label="Next"
+                    >
+                      <ChevronRight className="w-6 h-6" style={{ color: goldColor }} />
+                    </button>
+                  </>
+                )}
               </div>
               
-              {/* Thumbnail Navigation */}
-              {allImages.length > 1 && (
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2">
-                  {allImages.map((_: string, idx: number) => (
+              {/* Thumbnail/Dot Navigation - Premium gold accent */}
+              {allMedia.length > 1 && (
+                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3">
+                  {allMedia.map((media, idx: number) => (
                     <button
                       key={idx}
-                      onClick={() => setSelectedImage(idx)}
-                      className={`w-2 h-2 rounded-full transition-colors ${
-                        selectedImage === idx ? "bg-foreground" : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
-                      }`}
-                    />
+                      onClick={() => goToMedia(idx)}
+                      className="relative transition-all duration-500 ease-out"
+                      style={{
+                        width: selectedImage === idx ? '24px' : '8px',
+                        height: '8px',
+                        borderRadius: '4px',
+                        background: selectedImage === idx ? goldColor : 'rgba(0,0,0,0.15)',
+                        transform: selectedImage === idx ? 'scale(1)' : 'scale(0.9)',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (idx !== selectedImage) {
+                          e.currentTarget.style.background = 'rgba(0,0,0,0.25)';
+                          e.currentTarget.style.transform = 'scale(1)';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (idx !== selectedImage) {
+                          e.currentTarget.style.background = 'rgba(0,0,0,0.15)';
+                          e.currentTarget.style.transform = 'scale(0.9)';
+                        }
+                      }}
+                      aria-label={`View ${media.type === 'video' ? 'video' : 'image'} ${idx + 1}`}
+                    >
+                      {media.type === 'video' && (
+                        <Play className="absolute -top-3 left-1/2 -translate-x-1/2 w-3 h-3" style={{ color: selectedImage === idx ? goldColor : 'rgba(0,0,0,0.3)' }} />
+                      )}
+                    </button>
                   ))}
                 </div>
               )}

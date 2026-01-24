@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import AdminSidebar from '@/components/AdminSidebar';
 import MediaPicker from '@/components/MediaPicker';
 import { motion } from "framer-motion";
-import { Package, Plus, Edit, Trash2, Search, RefreshCw, Filter, DollarSign, Eye, LayoutGrid, List, ShoppingBag, Image } from "lucide-react";
+import { Package, Plus, Edit, Trash2, Search, RefreshCw, Filter, DollarSign, Eye, LayoutGrid, List, ShoppingBag, Image, Play, Video } from "lucide-react";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media";
 
@@ -42,6 +42,7 @@ export default function AdminProductsEnhanced() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+  const [galleryPickerOpen, setGalleryPickerOpen] = useState(false);
   // Product type definitions
   type ProductType = "apparel" | "book" | "course" | "digital" | "physical";
   
@@ -56,6 +57,7 @@ export default function AdminProductsEnhanced() {
     stock: "0",
     status: "draft" as "draft" | "active" | "archived",
     featuredImage: "",
+    mediaGallery: [] as Array<{ url: string; type: 'image' | 'video' }>,
     productType: "physical" as ProductType,
     // Apparel fields
     sizeType: "none" as "none" | "preset" | "custom",
@@ -111,7 +113,7 @@ export default function AdminProductsEnhanced() {
   const resetForm = () => {
     setFormData({ 
       name: "", slug: "", description: "", subDescription: "", price: "", compareAtPrice: "", 
-      sku: "", stock: "0", status: "draft", featuredImage: "",
+      sku: "", stock: "0", status: "draft", featuredImage: "", mediaGallery: [],
       productType: "physical",
       sizeType: "none", sizePreset: "", customSizes: "", colors: "", material: "",
       isbn: "", author: "", publisher: "", pageCount: "",
@@ -193,6 +195,23 @@ export default function AdminProductsEnhanced() {
         subDescription = product.shortDescription;
       }
     }
+    // Parse media gallery from images field
+    let mediaGallery: Array<{ url: string; type: 'image' | 'video' }> = [];
+    if (product.images) {
+      try {
+        const parsed = JSON.parse(product.images);
+        if (Array.isArray(parsed)) {
+          mediaGallery = parsed.map((item: any) => {
+            if (typeof item === 'string') {
+              const isVideo = item.match(/\.(mp4|webm|mov|ogg)$/i) || item.includes('youtube') || item.includes('vimeo');
+              return { url: item, type: isVideo ? 'video' : 'image' };
+            }
+            return item;
+          });
+        }
+      } catch (e) {}
+    }
+    
     setFormData({
       name: product.name || "",
       slug: product.slug || "",
@@ -204,6 +223,7 @@ export default function AdminProductsEnhanced() {
       stock: String(product.stock || 0),
       status: product.status || "draft",
       featuredImage: product.featuredImage || "",
+      mediaGallery,
       productType, sizeType, sizePreset, customSizes, colors, material,
       isbn, author, publisher, pageCount,
       duration, accessType, modules,
@@ -285,6 +305,9 @@ export default function AdminProductsEnhanced() {
       returnPolicy: formData.returnPolicy 
     });
     
+    // Build images JSON from media gallery
+    const images = formData.mediaGallery.length > 0 ? JSON.stringify(formData.mediaGallery) : undefined;
+    
     const data = {
       name: formData.name.trim(),
       slug: formData.slug.trim() || formData.name.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
@@ -296,6 +319,7 @@ export default function AdminProductsEnhanced() {
       stock: parseInt(formData.stock) || 0,
       status: formData.status,
       featuredImage: formData.featuredImage || undefined,
+      images,
       dimensions,
     };
 
@@ -496,6 +520,59 @@ export default function AdminProductsEnhanced() {
               {formData.featuredImage && (
                 <div className="mt-2 relative w-32 h-32 rounded-lg overflow-hidden bg-stone-100">
                   <img src={getMediaUrl(formData.featuredImage)} alt="Preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
+            
+            {/* Media Gallery - Multiple Images & Videos */}
+            <div className="space-y-3 p-4 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-lg border border-amber-200">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold text-amber-900">📸 Media Gallery (Images & Videos)</Label>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setGalleryPickerOpen(true)}
+                  className="border-amber-300 hover:bg-amber-100"
+                >
+                  <Plus className="w-4 h-4 mr-1" /> Add Media
+                </Button>
+              </div>
+              <p className="text-xs text-amber-700">Add additional images and videos to showcase your product</p>
+              
+              {formData.mediaGallery.length > 0 ? (
+                <div className="grid grid-cols-4 gap-3">
+                  {formData.mediaGallery.map((media, idx) => (
+                    <div key={idx} className="relative group">
+                      <div className="aspect-square rounded-lg overflow-hidden bg-stone-100 border-2 border-stone-200">
+                        {media.type === 'video' ? (
+                          <div className="w-full h-full flex items-center justify-center bg-stone-800">
+                            <Play className="w-8 h-8 text-white" />
+                          </div>
+                        ) : (
+                          <img src={getMediaUrl(media.url)} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" />
+                        )}
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newGallery = [...formData.mediaGallery];
+                          newGallery.splice(idx, 1);
+                          setFormData({ ...formData, mediaGallery: newGallery });
+                        }}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                      <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded">
+                        {media.type === 'video' ? '🎬 Video' : '🖼️ Image'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-6 text-stone-400 text-sm border-2 border-dashed border-stone-200 rounded-lg">
+                  No additional media added yet
                 </div>
               )}
             </div>
@@ -716,6 +793,18 @@ export default function AdminProductsEnhanced() {
             </div>
             
             <MediaPicker open={mediaPickerOpen} onClose={() => setMediaPickerOpen(false)} onSelect={(url) => { setFormData({ ...formData, featuredImage: url }); setMediaPickerOpen(false); }} mediaType="image" />
+            <MediaPicker 
+              open={galleryPickerOpen} 
+              onClose={() => setGalleryPickerOpen(false)} 
+              onSelect={(url) => { 
+                const isVideo = url.match(/\.(mp4|webm|mov|ogg)$/i) || url.includes('youtube') || url.includes('vimeo');
+                setFormData({ 
+                  ...formData, 
+                  mediaGallery: [...formData.mediaGallery, { url, type: isVideo ? 'video' : 'image' }] 
+                }); 
+                setGalleryPickerOpen(false); 
+              }} 
+            />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={closeDialog}>Cancel</Button>
