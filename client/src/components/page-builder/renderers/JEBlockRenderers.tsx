@@ -1845,52 +1845,56 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   const isRounded = content.rounded !== false;
   const borderRadius = content.borderRadius || '2rem';
   
-  // Support both maxWidth (new) and width (legacy) - convert legacy values
-  let widthValue = content.maxWidth || content.width || '100%';
-  // Convert legacy text values to percentages
-  if (widthValue === 'small') widthValue = '33%';
-  else if (widthValue === 'medium') widthValue = '66%';
-  else if (widthValue === 'large' || widthValue === 'full') widthValue = '100%';
+  // Support both maxWidth (new) and width (legacy) - map to Tailwind classes
+  const sizeValue = content.maxWidth || content.width || '100%';
   
+  // Map size values to Tailwind width classes
+  const getWidthClass = (size: string) => {
+    switch(size) {
+      case '25%': return 'w-1/4';
+      case '33%':
+      case 'small': return 'w-1/3';
+      case '50%': return 'w-1/2';
+      case '66%':
+      case 'medium': return 'w-2/3';
+      case '75%': return 'w-3/4';
+      case '100%':
+      case 'large':
+      case 'full':
+      default: return 'w-full';
+    }
+  };
+  
+  const widthClass = getWidthClass(sizeValue);
   const alignment = content.alignment || 'center';
-  const justifyClass = alignment === 'left' ? 'justify-start' : alignment === 'right' ? 'justify-end' : 'justify-center';
+  const alignmentClass = alignment === 'left' ? 'mr-auto' : alignment === 'right' ? 'ml-auto' : 'mx-auto';
 
   // Debug log
-  console.log('[JEImageRenderer] widthValue:', widthValue, 'maxWidth:', content.maxWidth, 'content:', content);
+  console.log('[JEImageRenderer] sizeValue:', sizeValue, 'widthClass:', widthClass, 'content:', content);
 
   return (
-    <figure className="py-8 w-full">
-      <div className={`w-full flex ${justifyClass}`}>
-        {imageUrl ? (
-          <div 
-            className={`relative overflow-hidden ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
-            style={{ 
-              borderRadius: isRounded ? borderRadius : '0', 
-              width: widthValue,
-              flexShrink: 0,
-            }}
-          >
-            <img
-              src={imageUrl}
-              alt={content.alt || 'Image'}
-              className="w-full h-auto block"
-              style={{ borderRadius: isRounded ? borderRadius : '0' }}
-              onError={(e) => console.error('[JEImageRenderer] Image error:', e)}
-            />
-          </div>
-        ) : (
-          <div 
-            className="aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
-            style={{ 
-              borderRadius: borderRadius, 
-              width: widthValue,
-              flexShrink: 0,
-            }}
-          >
-            <span className="text-neutral-400">Add an image</span>
-          </div>
-        )}
-      </div>
+    <figure className="py-8">
+      {imageUrl ? (
+        <div 
+          className={`relative overflow-hidden ${widthClass} ${alignmentClass} ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
+          style={{ borderRadius: isRounded ? borderRadius : '0' }}
+        >
+          <img
+            src={imageUrl}
+            alt={content.alt || 'Image'}
+            className="w-full h-auto block"
+            style={{ borderRadius: isRounded ? borderRadius : '0' }}
+            onError={(e) => console.error('[JEImageRenderer] Image error:', e)}
+          />
+        </div>
+      ) : (
+        <div 
+          className={`aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center ${widthClass} ${alignmentClass}`}
+          style={{ borderRadius: borderRadius }}
+        >
+          <span className="text-neutral-400">Add an image</span>
+        </div>
+      )}
       {content.caption && (
         <figcaption className="mt-4 text-center text-sm text-neutral-500 dark:text-neutral-400 italic">
           {content.caption}
