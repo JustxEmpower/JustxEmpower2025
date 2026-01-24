@@ -248,12 +248,10 @@ function CheckoutForm() {
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
       <div className="container mx-auto px-4 py-8">
-        <Link href="/shop">
-          <Button variant="outline" className="mb-8">
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Back to Shop
-          </Button>
-        </Link>
+        <Button variant="outline" className="mb-8" onClick={() => navigate("/shop")}>
+          <ChevronLeft className="h-4 w-4 mr-2" />
+          Back to Shop
+        </Button>
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Checkout Form */}
