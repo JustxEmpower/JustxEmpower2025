@@ -248,9 +248,11 @@ function CheckoutForm() {
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
       <div className="container mx-auto px-4 py-8">
-        <Link href="/shop" className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8">
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to Shop
+        <Link href="/shop">
+          <Button variant="outline" className="mb-8">
+            <ChevronLeft className="h-4 w-4 mr-2" />
+            Back to Shop
+          </Button>
         </Link>
 
         <div className="grid lg:grid-cols-2 gap-12">
@@ -436,17 +438,9 @@ function CheckoutForm() {
                   </CardContent>
                 </Card>
 
-                <div className="flex gap-4">
-                  <Link href="/shop" className="flex-1">
-                    <Button type="button" variant="outline" className="w-full" size="lg">
-                      <ChevronLeft className="h-4 w-4 mr-2" />
-                      Back to Shop
-                    </Button>
-                  </Link>
-                  <Button type="submit" className="flex-1" size="lg">
-                    Continue to Payment
-                  </Button>
-                </div>
+                <Button type="submit" className="w-full" size="lg">
+                  Continue to Payment
+                </Button>
               </form>
             )}
 
