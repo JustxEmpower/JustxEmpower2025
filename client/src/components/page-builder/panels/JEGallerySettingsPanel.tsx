@@ -45,12 +45,11 @@ export function JEGallerySettingsPanel({ content, onChange }: Props) {
           </button>
         </div>
       </div>
-
-      <div><Label>Title</Label><Input value={title} onChange={e => onChange('title', e.target.value)} /></div>
       
       {/* Grid-specific options */}
       {displayMode === 'grid' && (
         <>
+          <div><Label>Title (optional)</Label><Input value={title} onChange={e => onChange('title', e.target.value)} placeholder="Gallery title..." /></div>
           <div><Label>Columns</Label><div className="flex gap-1">{[2,3,4,5,6].map(n => <button key={n} className={btn(columns===n)} onClick={() => onChange('columns', n)}>{n}</button>)}</div></div>
           <div><Label>Gap</Label><div className="flex gap-1">{[2,4,6,8].map(n => <button key={n} className={btn(gap===n)} onClick={() => onChange('gap', n)}>{n}</button>)}</div></div>
           <div className="flex justify-between"><Label>Lightbox</Label><Switch checked={lightbox} onCheckedChange={v => onChange('lightbox', v)} /></div>
@@ -91,20 +90,60 @@ export function JEGallerySettingsPanel({ content, onChange }: Props) {
         </>
       )}
 
-      <div className="flex items-center justify-between">
-        <Label>Images ({images.length})</Label>
-        <Button size="sm" onClick={() => { setPickIdx(images.length); setPickerOpen(true); }}><Plus className="w-3 h-3 mr-1" /> Add</Button>
-      </div>
-      <div className="grid grid-cols-3 gap-2">{images.map((img: any, i: number) => (
-        <div key={i} className="relative aspect-square bg-neutral-200 rounded overflow-hidden group">
-          {img?.url && <img src={img.url} className="w-full h-full object-cover" />}
-          <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1">
-            <Button size="sm" variant="ghost" className="text-white" onClick={() => { setPickIdx(i); setPickerOpen(true); }}><Image className="w-4 h-4" /></Button>
-            <Button size="sm" variant="ghost" className="text-red-400" onClick={() => onChange('images', images.filter((_: any, j: number) => j !== i))}><Trash2 className="w-4 h-4" /></Button>
-          </div>
+      {/* Images Section - Always visible */}
+      <div className="border-t pt-4 mt-4">
+        <div className="flex items-center justify-between mb-3">
+          <Label className="text-base font-medium">Images ({images.length})</Label>
+          <Button size="sm" variant="default" onClick={() => { setPickIdx(images.length); setPickerOpen(true); }}>
+            <Plus className="w-4 h-4 mr-1" /> Add Image
+          </Button>
         </div>
-      ))}</div>
-      <MediaPicker open={pickerOpen} onClose={() => setPickerOpen(false)} onSelect={url => { const newImgs = [...images]; if (pickIdx >= images.length) newImgs.push({ url, alt: '', caption: '' }); else newImgs[pickIdx] = { ...newImgs[pickIdx], url }; onChange('images', newImgs); setPickerOpen(false); }} mediaType="image" />
+        
+        {images.length === 0 ? (
+          <div className="text-center py-8 border-2 border-dashed border-neutral-300 rounded-lg bg-neutral-50">
+            <Image className="w-10 h-10 mx-auto text-neutral-400 mb-2" />
+            <p className="text-neutral-500 text-sm mb-3">No images added yet</p>
+            <Button size="sm" onClick={() => { setPickIdx(0); setPickerOpen(true); }}>
+              <Plus className="w-4 h-4 mr-1" /> Add First Image
+            </Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-2">
+            {images.map((img: any, i: number) => (
+              <div key={i} className="relative aspect-square bg-neutral-200 rounded-lg overflow-hidden group">
+                {img?.url && <img src={img.url} alt="" className="w-full h-full object-cover" />}
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 transition-opacity">
+                  <Button size="sm" variant="ghost" className="text-white hover:bg-white/20" onClick={() => { setPickIdx(i); setPickerOpen(true); }}>
+                    <Image className="w-4 h-4" />
+                  </Button>
+                  <Button size="sm" variant="ghost" className="text-red-400 hover:bg-white/20" onClick={() => onChange('images', images.filter((_: any, j: number) => j !== i))}>
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+                <div className="absolute bottom-1 left-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
+                  {i + 1}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      
+      <MediaPicker 
+        open={pickerOpen} 
+        onClose={() => setPickerOpen(false)} 
+        onSelect={url => { 
+          const newImgs = [...images]; 
+          if (pickIdx >= images.length) {
+            newImgs.push({ url, alt: '', caption: '' }); 
+          } else {
+            newImgs[pickIdx] = { ...newImgs[pickIdx], url }; 
+          }
+          onChange('images', newImgs); 
+          setPickerOpen(false); 
+        }} 
+        mediaType="image" 
+      />
     </div>
   );
 }

@@ -2414,10 +2414,10 @@ export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = 
     goToSlide((currentIndex + 1) % images.length);
   };
 
-  // Carousel Mode
+  // Carousel Mode - Pure image carousel without captions
   if (displayMode === 'carousel') {
     return (
-      <section className={`py-16 md:py-24 px-6 ${bgClass}`}>
+      <section className={`py-12 md:py-16 px-6 ${bgClass}`}>
         <div className="mx-auto" style={{ maxWidth: carouselMaxWidth }}>
           {/* Main Image */}
           <div className="relative">
@@ -2426,28 +2426,18 @@ export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = 
               style={{ borderRadius: borderRadius }}
             >
               {images.length > 0 ? (
-                <>
-                  <img
-                    src={getMediaUrl(images[currentIndex]?.url || '')}
-                    alt={images[currentIndex]?.alt || `Image ${currentIndex + 1}`}
-                    className="w-full object-cover transition-opacity duration-500"
-                    style={{ 
-                      height: 'auto',
-                      minHeight: '20rem',
-                      maxHeight: '36rem',
-                      borderRadius: borderRadius,
-                      opacity: isTransitioning ? 0.7 : 1,
-                    }}
-                  />
-                  {images[currentIndex]?.caption && (
-                    <figcaption 
-                      className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white"
-                      style={{ borderBottomLeftRadius: borderRadius, borderBottomRightRadius: borderRadius }}
-                    >
-                      <p className="text-lg font-light text-center">{images[currentIndex].caption}</p>
-                    </figcaption>
-                  )}
-                </>
+                <img
+                  src={getMediaUrl(images[currentIndex]?.url || '')}
+                  alt={images[currentIndex]?.alt || `Image ${currentIndex + 1}`}
+                  className="w-full object-cover transition-opacity duration-500"
+                  style={{ 
+                    height: 'auto',
+                    minHeight: '20rem',
+                    maxHeight: '36rem',
+                    borderRadius: borderRadius,
+                    opacity: isTransitioning ? 0.7 : 1,
+                  }}
+                />
               ) : (
                 <div className="w-full h-64 bg-neutral-300 flex items-center justify-center" style={{ borderRadius }}>
                   <p className="text-neutral-500">No images</p>
