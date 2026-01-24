@@ -37,7 +37,7 @@ export function AnalyticsTracker() {
     if (!sessionIdRef.current) return;
 
     // Don't track admin pages
-    if (location.startsWith("/admin")) return;
+    if (typeof location === 'string' && location.startsWith("/admin")) return;
 
     trackPageViewMutation.mutate({
       visitorId: visitorIdRef.current,

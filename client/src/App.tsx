@@ -173,7 +173,7 @@ function App() {
   const [location] = useLocation();
   
   // Check if we're on an admin page
-  const isAdminPage = location.startsWith('/admin');
+  const isAdminPage = typeof location === 'string' && location.startsWith('/admin');
 
   // Only show preloader on initial load or home page refresh
   useEffect(() => {
