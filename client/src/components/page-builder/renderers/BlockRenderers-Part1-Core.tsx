@@ -1146,6 +1146,7 @@ export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererPro
     alt = '',
     caption = '',
     width = 'full',
+    maxWidth = '',
     alignment = 'center',
     rounded = 'lg',
     shadow = true,
@@ -1158,13 +1159,31 @@ export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererPro
     onUpdate?.({ ...content, [key]: value });
   };
 
-  const widthClasses: Record<string, string> = {
-    auto: 'w-auto',
-    full: 'w-full',
-    '3/4': 'w-3/4',
-    '1/2': 'w-1/2',
-    '1/3': 'w-1/3',
-    '1/4': 'w-1/4',
+  // Support percentage-based sizes from maxWidth (new) or fall back to width (legacy)
+  const getWidthStyle = (): { className?: string; style?: React.CSSProperties } => {
+    const sizeValue = maxWidth || width;
+    
+    // Check if it's a percentage value
+    if (sizeValue && sizeValue.endsWith('%')) {
+      return { style: { width: sizeValue, maxWidth: sizeValue } };
+    }
+    
+    // Legacy Tailwind class mapping
+    const widthClasses: Record<string, string> = {
+      auto: 'w-auto',
+      full: 'w-full',
+      '100%': 'w-full',
+      '3/4': 'w-3/4',
+      '75%': 'w-3/4',
+      '1/2': 'w-1/2',
+      '50%': 'w-1/2',
+      '1/3': 'w-1/3',
+      '33%': 'w-1/3',
+      '1/4': 'w-1/4',
+      '25%': 'w-1/4',
+    };
+    
+    return { className: widthClasses[sizeValue] || widthClasses.full };
   };
 
   const alignmentClasses: Record<string, string> = {
@@ -1184,6 +1203,7 @@ export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererPro
   };
 
   const ImageWrapper = link ? 'a' : 'div';
+  const widthInfo = getWidthStyle();
 
   return (
     <figure className="py-4 px-6">
@@ -1191,12 +1211,12 @@ export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererPro
         {...(link ? { href: link, target: '_blank', rel: 'noopener noreferrer' } : {})}
         className={cn(
           'block overflow-hidden',
-          widthClasses[width] || widthClasses.full,
+          widthInfo.className,
           alignmentClasses[alignment] || alignmentClasses.center,
           roundedClasses[rounded] || roundedClasses.lg,
           shadow && 'shadow-lg'
         )}
-        style={aspectRatio !== 'auto' ? { aspectRatio } : undefined}
+        style={{ ...(aspectRatio !== 'auto' ? { aspectRatio } : {}), ...widthInfo.style }}
       >
         {imageUrl ? (
           <img
