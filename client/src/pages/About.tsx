@@ -313,12 +313,12 @@ export default function About({ slug = 'about' }: AboutProps) {
         {/* Blog CTA - Read She Writes */}
         <section className="content-section max-w-2xl mx-auto">
           <div className="bg-card rounded-3xl p-12 md:p-16 text-center border border-border">
-            <h3 className="font-serif text-2xl md:text-3xl text-card-foreground font-light italic mb-6">
-              Read She Writes
+            <h3 className="font-serif text-2xl md:text-3xl text-card-foreground font-light mb-6">
+              Read <em>She Writes</em>
             </h3>
             <p className="text-base md:text-lg text-card-foreground/70 mb-8 leading-relaxed">
-              Reflections shaped by lived experience and embodied truth.<br />
-              Offered with intention and care.
+              A blog series on embodiment, meaning, and the patterns that shape human experience—<br />
+              written through lived reflection and inquiry.
             </p>
             <Link href="/blog">
               <Button size="lg" className="gap-2">
