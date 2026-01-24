@@ -44,7 +44,7 @@ export default function CartSlideout({ open, onClose }: CartSlideoutProps) {
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
               {cart.map((item) => (
                 <CartItemRow
                   key={item.id}
@@ -113,22 +113,22 @@ function CartItemRow({ item, onRemove, onUpdateQuantity }: CartItemRowProps) {
   const formatPrice = (cents: number) => `$${(cents / 100).toFixed(2)}`;
   
   return (
-    <div className="flex gap-4">
-      <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
+    <div className="flex gap-4 items-start">
+      <div className="w-24 h-24 rounded-lg overflow-hidden bg-muted flex-shrink-0">
         <img
           src={item.image || `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="100%" height="100%" fill="#f8f8f7"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="8" fill="#c9a86c">JE</text></svg>')}`}
           alt={item.name}
           className="w-full h-full object-cover"
         />
       </div>
-      <div className="flex-1 min-w-0">
-        <h4 className="font-medium text-sm line-clamp-2">{item.name}</h4>
+      <div className="flex-1 min-w-0 pt-1">
+        <h4 className="font-medium text-sm leading-tight">{item.name}</h4>
         {item.variant && (
-          <p className="text-xs text-muted-foreground mt-0.5">{item.variant}</p>
+          <p className="text-xs text-muted-foreground mt-1">{item.variant}</p>
         )}
-        <p className="text-sm font-semibold mt-1">{formatPrice(item.price)}</p>
+        <p className="text-sm font-semibold mt-2">{formatPrice(item.price)}</p>
         
-        <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center justify-between mt-3">
           <div className="flex items-center border rounded-md">
             <Button
               variant="ghost"
