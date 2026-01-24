@@ -567,15 +567,17 @@ export function JERootedUnityRenderer({ block, isEditing, onUpdate }: BlockRende
             className={cn(getTitleClass(), 'font-serif italic font-light mb-8 text-white leading-tight')}
           />
 
-          <EditableText
-            value={description}
-            onChange={(v) => handleChange('description', v)}
-            tag="p"
-            placeholder="Short description..."
-            multiline
-            isEditing={isEditing}
-            className={cn(getDescriptionClass(), 'font-sans mb-8 text-white/90 leading-relaxed max-w-2xl mx-auto text-center whitespace-pre-wrap')}
-          />
+          <div className="w-full flex justify-center">
+            <EditableText
+              value={description}
+              onChange={(v) => handleChange('description', v)}
+              tag="p"
+              placeholder="Short description..."
+              multiline
+              isEditing={isEditing}
+              className={cn(getDescriptionClass(), 'font-sans mb-8 text-white/90 leading-relaxed max-w-2xl text-center whitespace-pre-wrap')}
+            />
+          </div>
 
           {/* Long Description - CRITICAL: whitespace-pre-wrap for spacing */}
           {(longDescription || isEditing) && (
