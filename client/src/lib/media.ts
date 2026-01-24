@@ -16,8 +16,18 @@ const LEGACY_FILES = [
  * @param path - Local path like "/media/11/image.jpg" or already an S3 URL
  * @returns Full S3 URL
  */
-export function getMediaUrl(path: string | undefined | null): string {
-  if (!path) return '';
+export function getMediaUrl(input: string | undefined | null | { url?: string }): string {
+  if (!input) return '';
+  
+  // Ensure we have a string path
+  let path: string;
+  if (typeof input === 'string') {
+    path = input;
+  } else if (typeof input === 'object' && input?.url) {
+    path = input.url;
+  } else {
+    return '';
+  }
   
   // If already an absolute URL (S3 or other), check if it needs fixing
   if (path.startsWith('http://') || path.startsWith('https://')) {

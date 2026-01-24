@@ -175,11 +175,16 @@ interface ProductCardProps {
 // Safe JSON parse helper for product images
 function safeParseImages(images: string | string[] | null | undefined): string[] {
   if (!images) return [];
-  if (Array.isArray(images)) return images;
+  if (Array.isArray(images)) {
+    return images.map(item => typeof item === 'object' && item?.url ? item.url : item).filter(Boolean);
+  }
   if (typeof images !== 'string' || !images.trim() || images === 'null') return [];
   try {
     const parsed = JSON.parse(images);
-    return Array.isArray(parsed) ? parsed : [];
+    if (Array.isArray(parsed)) {
+      return parsed.map((item: any) => typeof item === 'object' && item?.url ? item.url : item).filter(Boolean);
+    }
+    return [];
   } catch (e) {
     console.warn('[ProductCard] Failed to parse images:', images?.substring?.(0, 50));
     return [];
