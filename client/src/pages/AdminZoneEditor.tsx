@@ -493,9 +493,70 @@ export default function AdminZoneEditor() {
                 <CardContent>
                   <ScrollArea className="h-[60vh]">
                     <div className="space-y-4 pr-4">
-                      {/* Render editable fields based on block content */}
-                      {Object.entries(selectedBlock.content).map(([key, value]) => {
-                        // Handle images array for gallery blocks
+                      {/* Special handling for JE Gallery blocks - always show image picker first */}
+                      {selectedBlock.type === 'je-gallery' && (
+                        <>
+                          {/* Display Mode Toggle */}
+                          <div className="space-y-2">
+                            <Label className="text-sm font-medium">Display Mode</Label>
+                            <div className="flex gap-2">
+                              <Button
+                                size="sm"
+                                variant={(selectedBlock.content as any).displayMode !== 'carousel' ? 'default' : 'outline'}
+                                className="flex-1"
+                                onClick={() => updateBlockContent(selectedBlock.id, 'displayMode', 'grid')}
+                              >
+                                Grid
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant={(selectedBlock.content as any).displayMode === 'carousel' ? 'default' : 'outline'}
+                                className="flex-1"
+                                onClick={() => updateBlockContent(selectedBlock.id, 'displayMode', 'carousel')}
+                              >
+                                Carousel
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          {/* Carousel options */}
+                          {(selectedBlock.content as any).displayMode === 'carousel' && (
+                            <>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm">Show Arrows</Label>
+                                <Switch
+                                  checked={(selectedBlock.content as any).showArrows !== false}
+                                  onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'showArrows', v)}
+                                />
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm">Show Dots</Label>
+                                <Switch
+                                  checked={(selectedBlock.content as any).showDots !== false}
+                                  onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'showDots', v)}
+                                />
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm">Auto Play</Label>
+                                <Switch
+                                  checked={(selectedBlock.content as any).autoPlay === true}
+                                  onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'autoPlay', v)}
+                                />
+                              </div>
+                            </>
+                          )}
+                          
+                          {/* Images Editor - Always visible for gallery */}
+                          <ImageArrayEditor
+                            images={Array.isArray((selectedBlock.content as any).images) ? (selectedBlock.content as any).images : []}
+                            onChange={(newImages) => updateBlockContent(selectedBlock.id, 'images', newImages)}
+                          />
+                        </>
+                      )}
+                      
+                      {/* Render editable fields based on block content (skip for je-gallery which is handled above) */}
+                      {selectedBlock.type !== 'je-gallery' && Object.entries(selectedBlock.content).map(([key, value]) => {
+                        // Handle images array for other blocks
                         if (key === 'images' && Array.isArray(value)) {
                           return (
                             <ImageArrayEditor
