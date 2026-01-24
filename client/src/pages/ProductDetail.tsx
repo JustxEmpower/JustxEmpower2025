@@ -164,11 +164,13 @@ export default function ProductDetail() {
 
   const handleAddToCart = () => {
     if (!isOutOfStock) {
+      // Get the first image URL for the cart
+      const cartImage = product.featuredImage || (allMedia[0]?.url) || "/placeholder-product.jpg";
       addToCart({
         id: product.id,
         name: product.name,
         price: product.price,
-        image: mainImage,
+        image: cartImage,
         quantity,
       });
       setCartOpen(true);
