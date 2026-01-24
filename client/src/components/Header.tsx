@@ -174,21 +174,24 @@ export default function Header() {
   const logoUrl = brandAssets?.logo_header || siteSettings?.logoUrl || getMediaUrl('/media/logo-white.png');
   const siteName = siteSettings?.siteName || 'Site Logo';
 
-  // Navigation text color classes - when scrolled, always dark text on white bg
-  // When not scrolled, white text for dark hero backgrounds (default)
+  // Pages without dark hero backgrounds - need dark text from the start
+  const pagesWithLightBackground = ['/shop', '/admin', '/cart', '/checkout'];
+  const hasLightBackground = pagesWithLightBackground.some(path => location.startsWith(path));
+  
+  // Navigation text color classes - when scrolled OR on light background pages, use dark text
   const getNavTextClass = () => {
-    if (isScrolled) {
+    if (isScrolled || hasLightBackground) {
       // In light mode: dark text, in dark mode: light text
       return 'text-stone-900 dark:text-white';
     }
-    // Not scrolled - assume dark hero background, use white text
+    // Not scrolled on dark hero pages - use white text
     return 'text-white';
   };
 
-  // Logo class - invert when scrolled (dark logo on white bg), normal when not scrolled (white logo on dark hero)
+  // Logo class - invert when scrolled OR on light background pages
   // In dark mode when scrolled, keep logo white (no invert needed)
   const getLogoClass = () => {
-    if (isScrolled || isMobileMenuOpen) {
+    if (isScrolled || isMobileMenuOpen || hasLightBackground) {
       return 'invert brightness-0 dark:invert-0 dark:brightness-100';
     }
     return 'invert-0 brightness-100';
@@ -196,7 +199,7 @@ export default function Header() {
 
   // CTA button class
   const getCtaClass = () => {
-    if (isScrolled) {
+    if (isScrolled || hasLightBackground) {
       return 'border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-stone-900';
     }
     return 'border-white text-white hover:bg-white hover:text-stone-900';
@@ -204,8 +207,8 @@ export default function Header() {
 
   // Hamburger menu class
   const getHamburgerClass = () => {
-    if (isScrolled || isMobileMenuOpen) {
-      return 'text-foreground bg-foreground';
+    if (isScrolled || isMobileMenuOpen || hasLightBackground) {
+      return 'text-stone-900 bg-stone-900 dark:text-white dark:bg-white';
     }
     return 'text-white bg-white';
   };
@@ -214,7 +217,7 @@ export default function Header() {
     <header 
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ease-in-out px-6 md:px-12 py-6",
-        isScrolled ? "bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md shadow-sm py-4" : "bg-transparent"
+        (isScrolled || hasLightBackground) ? "bg-white/90 dark:bg-neutral-900/90 backdrop-blur-md shadow-sm py-4" : "bg-transparent"
       )}
     >
       <div className="flex items-center justify-between max-w-[1920px] mx-auto w-full">
