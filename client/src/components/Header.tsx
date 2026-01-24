@@ -178,7 +178,8 @@ export default function Header() {
   // When not scrolled, white text for dark hero backgrounds (default)
   const getNavTextClass = () => {
     if (isScrolled) {
-      return 'text-foreground';
+      // In light mode: dark text, in dark mode: light text
+      return 'text-stone-900 dark:text-white';
     }
     // Not scrolled - assume dark hero background, use white text
     return 'text-white';
@@ -196,9 +197,9 @@ export default function Header() {
   // CTA button class
   const getCtaClass = () => {
     if (isScrolled) {
-      return 'border-foreground text-foreground hover:bg-foreground hover:text-white';
+      return 'border-stone-900 text-stone-900 hover:bg-stone-900 hover:text-white dark:border-white dark:text-white dark:hover:bg-white dark:hover:text-stone-900';
     }
-    return 'border-white text-white hover:bg-white hover:text-foreground';
+    return 'border-white text-white hover:bg-white hover:text-stone-900';
   };
 
   // Hamburger menu class

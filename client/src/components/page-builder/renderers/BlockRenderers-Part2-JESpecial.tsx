@@ -574,7 +574,7 @@ export function JERootedUnityRenderer({ block, isEditing, onUpdate }: BlockRende
             placeholder="Short description..."
             multiline
             isEditing={isEditing}
-            className={cn(getDescriptionClass(), 'font-sans mb-8 text-white/90 leading-relaxed max-w-2xl mx-auto whitespace-pre-wrap')}
+            className={cn(getDescriptionClass(), 'font-sans mb-8 text-white/90 leading-relaxed max-w-2xl mx-auto text-center whitespace-pre-wrap')}
           />
 
           {/* Long Description - CRITICAL: whitespace-pre-wrap for spacing */}
