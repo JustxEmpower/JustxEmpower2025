@@ -1023,12 +1023,13 @@ export function JEOfferingsGridRenderer({ block, isEditing, onUpdate }: BlockRen
 }
 
 // ============================================================================
-// JE CAROUSEL RENDERER - Pure Image Carousel
+// JE CAROUSEL RENDERER - Premium Apple/Jony Ive Inspired Design
 // ============================================================================
 
 export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const autoplayRef = useRef<NodeJS.Timeout | null>(null);
 
   // Support both 'slides' and 'items' for backwards compatibility
@@ -1041,26 +1042,33 @@ export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRenderer
     showDots = true,
     showArrows = true,
     dark = false,
-    borderRadius = '1rem',
-    maxWidth = '100%',
-    aspectRatio = '16/9',
+    maxWidth = '900px',
   } = content;
 
+  // Gold accent color
+  const goldColor = '#C9A962';
+  const goldHover = '#D4B978';
+
   const goTo = (index: number) => {
-    setCurrentIndex(index);
+    if (isTransitioning || index === currentIndex) return;
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentIndex(index);
+      setTimeout(() => setIsTransitioning(false), 600);
+    }, 150);
   };
   
   const goNext = () => {
-    if (slides.length <= 1) return;
-    setCurrentIndex((prev) => (prev + 1) % slides.length);
+    if (slides.length <= 1 || isTransitioning) return;
+    goTo((currentIndex + 1) % slides.length);
   };
   
   const goPrev = () => {
-    if (slides.length <= 1) return;
-    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
+    if (slides.length <= 1 || isTransitioning) return;
+    goTo((currentIndex - 1 + slides.length) % slides.length);
   };
 
-  // Autoplay - using ref to avoid stale closure issues
+  // Autoplay with graceful timing
   useEffect(() => {
     if (autoplayRef.current) {
       clearInterval(autoplayRef.current);
@@ -1069,7 +1077,11 @@ export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRenderer
     
     if (autoplay && slides.length > 1 && !isEditing) {
       autoplayRef.current = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % slides.length);
+        setIsTransitioning(true);
+        setTimeout(() => {
+          setCurrentIndex((prev) => (prev + 1) % slides.length);
+          setTimeout(() => setIsTransitioning(false), 600);
+        }, 150);
       }, interval);
     }
     
@@ -1080,83 +1092,123 @@ export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRenderer
     };
   }, [autoplay, interval, slides.length, isEditing]);
 
-  const bgClass = dark ? 'bg-[#1a1a1a]' : 'bg-[#faf9f7]';
+  const bgClass = dark ? 'bg-[#0a0a0a]' : 'bg-white';
 
-  // Pure image carousel - no text, labels, or descriptions
+  // Premium carousel - clean, minimal, elegant
   return (
-    <section className={cn('py-8 md:py-12 px-4 md:px-6', bgClass)}>
+    <section className={cn('py-12 md:py-20 px-4 md:px-8', bgClass)}>
       <div className="mx-auto" style={{ maxWidth }}>
-        {/* Main Image Container */}
-        <div className="relative">
-          <figure 
-            className="relative overflow-hidden shadow-xl"
-            style={{ 
-              borderRadius,
-              aspectRatio,
-              background: 'linear-gradient(145deg, #e8e8e8 0%, #d4d4d4 50%, #c9c9c9 100%)',
-            }}
-          >
-            {/* Inner glass effect overlay */}
-            <div 
-              className="absolute inset-0 w-full h-full pointer-events-none"
-              style={{ 
-                borderRadius,
-                background: 'linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 40%, rgba(0,0,0,0.05) 100%)',
-                boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.8), inset 0 -1px 2px rgba(0,0,0,0.1)',
-              }}
-            />
-            
+        {/* Main Image Container - Clean, no background */}
+        <div className="relative group">
+          {/* Image Display - No container background, image fills naturally */}
+          <div className="relative flex items-center justify-center min-h-[300px] md:min-h-[500px]">
             {slides.length > 0 && slides[currentIndex]?.imageUrl ? (
               <img
                 key={currentIndex}
                 src={slides[currentIndex].imageUrl}
                 alt=""
-                className="absolute inset-0 w-full h-full object-contain z-10"
-                style={{ borderRadius }}
+                className="max-w-full max-h-[70vh] w-auto h-auto object-contain"
+                style={{ 
+                  opacity: isTransitioning ? 0 : 1,
+                  transform: isTransitioning ? 'scale(0.98)' : 'scale(1)',
+                  transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
               />
             ) : (
-              <div className="absolute inset-0 w-full h-full flex items-center justify-center z-10">
-                <Star className="w-16 h-16 text-neutral-500/40" />
+              <div className="flex items-center justify-center w-full h-[400px]">
+                <div 
+                  className="w-24 h-24 rounded-full flex items-center justify-center"
+                  style={{ 
+                    background: `linear-gradient(135deg, ${goldColor}20 0%, ${goldColor}10 100%)`,
+                    border: `1px solid ${goldColor}30`,
+                  }}
+                >
+                  <Star className="w-10 h-10" style={{ color: goldColor, opacity: 0.6 }} />
+                </div>
               </div>
             )}
-          </figure>
+          </div>
 
-          {/* Navigation Arrows */}
+          {/* Navigation Arrows - Gold accented, minimal */}
           {showArrows && slides.length > 1 && (
             <>
               <button
                 onClick={goPrev}
-                className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center hover:bg-white transition-all duration-300 hover:scale-110 z-10"
+                className="absolute left-0 md:-left-6 top-1/2 -translate-y-1/2 w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20"
+                style={{ 
+                  background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.03)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  border: `1px solid ${goldColor}40`,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)';
+                  e.currentTarget.style.borderColor = goldColor;
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.03)';
+                  e.currentTarget.style.borderColor = `${goldColor}40`;
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+                }}
                 aria-label="Previous image"
               >
-                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-neutral-700" />
+                <ChevronLeft className="w-6 h-6 md:w-7 md:h-7" style={{ color: goldColor }} />
               </button>
               <button
                 onClick={goNext}
-                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center hover:bg-white transition-all duration-300 hover:scale-110 z-10"
+                className="absolute right-0 md:-right-6 top-1/2 -translate-y-1/2 w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 ease-out z-20"
+                style={{ 
+                  background: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.03)',
+                  backdropFilter: 'blur(10px)',
+                  WebkitBackdropFilter: 'blur(10px)',
+                  border: `1px solid ${goldColor}40`,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.06)';
+                  e.currentTarget.style.borderColor = goldColor;
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.03)';
+                  e.currentTarget.style.borderColor = `${goldColor}40`;
+                  e.currentTarget.style.transform = 'translateY(-50%) scale(1)';
+                }}
                 aria-label="Next image"
               >
-                <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-neutral-700" />
+                <ChevronRight className="w-6 h-6 md:w-7 md:h-7" style={{ color: goldColor }} />
               </button>
             </>
           )}
         </div>
 
-        {/* Dots Navigation */}
+        {/* Dots Navigation - Refined, gold accent */}
         {showDots && slides.length > 1 && (
-          <div className="flex justify-center gap-2 md:gap-3 mt-4 md:mt-6">
+          <div className="flex justify-center items-center gap-3 mt-8 md:mt-12">
             {slides.map((_: any, index: number) => (
               <button
                 key={index}
                 onClick={() => goTo(index)}
-                className={cn(
-                  'w-2.5 h-2.5 md:w-3 md:h-3 rounded-full transition-all duration-300',
-                  index === currentIndex
-                    ? 'bg-primary scale-125'
-                    : dark 
-                      ? 'bg-white/40 hover:bg-white/60' 
-                      : 'bg-neutral-400 hover:bg-neutral-600'
-                )}
+                className="transition-all duration-500 ease-out"
+                style={{
+                  width: index === currentIndex ? '24px' : '8px',
+                  height: '8px',
+                  borderRadius: '4px',
+                  background: index === currentIndex ? goldColor : (dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.15)'),
+                  transform: index === currentIndex ? 'scale(1)' : 'scale(0.9)',
+                }}
+                onMouseEnter={(e) => {
+                  if (index !== currentIndex) {
+                    e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.25)';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (index !== currentIndex) {
+                    e.currentTarget.style.background = dark ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.15)';
+                    e.currentTarget.style.transform = 'scale(0.9)';
+                  }
+                }}
                 aria-label={`Go to image ${index + 1}`}
               />
             ))}
