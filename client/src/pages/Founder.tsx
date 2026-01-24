@@ -1,8 +1,10 @@
 import { useEffect, useRef, useMemo } from 'react';
+import { Link } from 'wouter';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import NewsletterSignup from '@/components/NewsletterSignup';
+import { Button } from '@/components/ui/button';
 import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
+import { BookOpen } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -295,20 +297,24 @@ export default function Founder() {
           </section>
         )}
 
-        {/* Newsletter CTA - 100% database driven */}
-        {(newsletterSection.title || newsletterSection.description) && (
-          <section className="content-section max-w-2xl mx-auto">
-            <div className="bg-card rounded-3xl p-12 md:p-16 text-center border border-border">
-              <h3 className="font-serif text-2xl md:text-3xl text-card-foreground font-light italic mb-6">
-                {newsletterSection.title || ''}
-              </h3>
-              <p className="text-base md:text-lg text-card-foreground/70 mb-8 leading-relaxed">
-                {newsletterSection.description || ''}
-              </p>
-              <NewsletterSignup variant="inline" />
-            </div>
-          </section>
-        )}
+        {/* Blog CTA - Read She Writes */}
+        <section className="content-section max-w-2xl mx-auto">
+          <div className="bg-card rounded-3xl p-12 md:p-16 text-center border border-border">
+            <h3 className="font-serif text-2xl md:text-3xl text-card-foreground font-light italic mb-6">
+              Read She Writes
+            </h3>
+            <p className="text-base md:text-lg text-card-foreground/70 mb-8 leading-relaxed">
+              Reflections shaped by lived experience and embodied truth.<br />
+              Offered with intention and care.
+            </p>
+            <Link href="/blog">
+              <Button size="lg" className="gap-2">
+                <BookOpen className="w-4 h-4" />
+                Begin Reading
+              </Button>
+            </Link>
+          </div>
+        </section>
       </div>
     </div>
   );
