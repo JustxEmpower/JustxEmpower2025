@@ -30,8 +30,11 @@ export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZ
   const { data: zone, isLoading, error } = trpc.pageZones.getZone.useQuery(
     { pageSlug, zoneName },
     { 
-      staleTime: 0, // Disable caching for debugging
-      refetchOnWindowFocus: true 
+      staleTime: 0, // Disable caching
+      cacheTime: 0, // Don't cache results
+      refetchOnWindowFocus: true,
+      refetchOnMount: 'always', // Always refetch when component mounts
+      refetchOnReconnect: true,
     }
   );
 
