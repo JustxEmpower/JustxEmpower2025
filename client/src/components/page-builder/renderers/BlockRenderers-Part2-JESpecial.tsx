@@ -1029,79 +1029,87 @@ export function JEOfferingsGridRenderer({ block, isEditing, onUpdate }: BlockRen
 export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [isTransitioning, setIsTransitioning] = useState(false);
+  const autoplayRef = useRef<NodeJS.Timeout | null>(null);
 
   // Support both 'slides' and 'items' for backwards compatibility
   const slides = Array.isArray(content.slides) ? content.slides : 
                  Array.isArray(content.items) ? content.items : [];
   
   const {
-    autoplay = false,
+    autoplay = true,
     interval = 5000,
     showDots = true,
     showArrows = true,
     dark = false,
     borderRadius = '1rem',
-    maxWidth = '48rem',
+    maxWidth = '100%',
+    aspectRatio = '16/9',
   } = content;
 
   const goTo = (index: number) => {
-    if (isTransitioning) return;
-    setIsTransitioning(true);
     setCurrentIndex(index);
-    setTimeout(() => setIsTransitioning(false), 500);
   };
   
   const goNext = () => {
-    if (slides.length <= 1 || isTransitioning) return;
-    goTo((currentIndex + 1) % slides.length);
+    if (slides.length <= 1) return;
+    setCurrentIndex((prev) => (prev + 1) % slides.length);
   };
   
   const goPrev = () => {
-    if (slides.length <= 1 || isTransitioning) return;
-    goTo((currentIndex - 1 + slides.length) % slides.length);
+    if (slides.length <= 1) return;
+    setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
-  // Autoplay
+  // Autoplay - using ref to avoid stale closure issues
   useEffect(() => {
-    if (autoplay && slides.length > 1 && !isEditing) {
-      const timer = setInterval(goNext, interval);
-      return () => clearInterval(timer);
+    if (autoplayRef.current) {
+      clearInterval(autoplayRef.current);
+      autoplayRef.current = null;
     }
-  }, [autoplay, interval, slides.length, isEditing, currentIndex]);
+    
+    if (autoplay && slides.length > 1 && !isEditing) {
+      autoplayRef.current = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % slides.length);
+      }, interval);
+    }
+    
+    return () => {
+      if (autoplayRef.current) {
+        clearInterval(autoplayRef.current);
+      }
+    };
+  }, [autoplay, interval, slides.length, isEditing]);
 
   const bgClass = dark ? 'bg-[#1a1a1a]' : 'bg-[#faf9f7]';
 
   // Pure image carousel - no text, labels, or descriptions
   return (
-    <section className={cn('py-12 md:py-16 px-6', bgClass)}>
+    <section className={cn('py-8 md:py-12 px-4 md:px-6', bgClass)}>
       <div className="mx-auto" style={{ maxWidth }}>
-        {/* Main Image */}
+        {/* Main Image Container */}
         <div className="relative">
           <figure 
-            className="relative overflow-hidden shadow-2xl"
-            style={{ borderRadius }}
+            className="relative overflow-hidden shadow-xl"
+            style={{ 
+              borderRadius,
+              aspectRatio,
+            }}
           >
             {slides.length > 0 && slides[currentIndex]?.imageUrl ? (
               <img
+                key={currentIndex}
                 src={slides[currentIndex].imageUrl}
                 alt=""
-                className="w-full object-cover transition-opacity duration-500"
-                style={{ 
-                  height: 'auto',
-                  minHeight: '20rem',
-                  maxHeight: '36rem',
-                  borderRadius,
-                  opacity: isTransitioning ? 0.7 : 1,
-                }}
+                className="absolute inset-0 w-full h-full object-contain bg-black/5"
+                style={{ borderRadius }}
               />
             ) : (
               <div 
                 className={cn(
-                  'w-full flex items-center justify-center',
+                  'absolute inset-0 w-full h-full flex items-center justify-center',
                   dark ? 'bg-neutral-800' : 'bg-neutral-200'
                 )}
-                style={{ borderRadius, minHeight: '20rem' }}
+                style={{ borderRadius }}
               >
                 <Star className={cn('w-16 h-16', dark ? 'text-neutral-600' : 'text-neutral-400')} />
               </div>
@@ -1113,17 +1121,17 @@ export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRenderer
             <>
               <button
                 onClick={goPrev}
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center hover:bg-white transition-all duration-300 hover:scale-110"
+                className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center hover:bg-white transition-all duration-300 hover:scale-110 z-10"
                 aria-label="Previous image"
               >
-                <ChevronLeft className="w-6 h-6 text-neutral-700" />
+                <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-neutral-700" />
               </button>
               <button
                 onClick={goNext}
-                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center hover:bg-white transition-all duration-300 hover:scale-110"
+                className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center hover:bg-white transition-all duration-300 hover:scale-110 z-10"
                 aria-label="Next image"
               >
-                <ChevronRight className="w-6 h-6 text-neutral-700" />
+                <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-neutral-700" />
               </button>
             </>
           )}
@@ -1131,13 +1139,13 @@ export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRenderer
 
         {/* Dots Navigation */}
         {showDots && slides.length > 1 && (
-          <div className="flex justify-center gap-3 mt-6">
+          <div className="flex justify-center gap-2 md:gap-3 mt-4 md:mt-6">
             {slides.map((_: any, index: number) => (
               <button
                 key={index}
                 onClick={() => goTo(index)}
                 className={cn(
-                  'w-3 h-3 rounded-full transition-all duration-300',
+                  'w-2.5 h-2.5 md:w-3 md:h-3 rounded-full transition-all duration-300',
                   index === currentIndex
                     ? 'bg-primary scale-125'
                     : dark 
