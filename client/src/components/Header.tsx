@@ -176,7 +176,7 @@ export default function Header() {
 
   // Pages without dark hero backgrounds - need dark text from the start
   const pagesWithLightBackground = ['/shop', '/admin', '/cart', '/checkout', '/privacy-policy', '/terms-of-service', '/terms', '/cookie-policy', '/accessibility-statement', '/accessibility'];
-  const hasLightBackground = pagesWithLightBackground.some(path => location.startsWith(path));
+  const hasLightBackground = typeof location === 'string' && pagesWithLightBackground.some(path => location.startsWith(path));
   
   // Navigation text color classes - when scrolled OR on light background pages, use dark text
   const getNavTextClass = () => {
