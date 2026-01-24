@@ -1869,9 +1869,6 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   const alignment = content.alignment || 'center';
   const alignmentClass = alignment === 'left' ? 'mr-auto' : alignment === 'right' ? 'ml-auto' : 'mx-auto';
 
-  // Debug log
-  console.log('[JEImageRenderer] sizeValue:', sizeValue, 'widthClass:', widthClass, 'content:', content);
-
   return (
     <figure className="py-8">
       {imageUrl ? (
