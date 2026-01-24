@@ -1093,18 +1093,16 @@ export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRenderer
             style={{ 
               borderRadius,
               aspectRatio,
+              background: 'linear-gradient(145deg, #e8e8e8 0%, #d4d4d4 50%, #c9c9c9 100%)',
             }}
           >
-            {/* Frosted glass background - always visible */}
+            {/* Inner glass effect overlay */}
             <div 
-              className="absolute inset-0 w-full h-full"
+              className="absolute inset-0 w-full h-full pointer-events-none"
               style={{ 
                 borderRadius,
-                background: 'linear-gradient(135deg, rgba(200,200,200,0.3) 0%, rgba(255,255,255,0.1) 100%)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                boxShadow: 'inset 0 0 30px rgba(255,255,255,0.15)',
+                background: 'linear-gradient(180deg, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0.1) 40%, rgba(0,0,0,0.05) 100%)',
+                boxShadow: 'inset 0 1px 2px rgba(255,255,255,0.8), inset 0 -1px 2px rgba(0,0,0,0.1)',
               }}
             />
             
@@ -1118,7 +1116,7 @@ export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRenderer
               />
             ) : (
               <div className="absolute inset-0 w-full h-full flex items-center justify-center z-10">
-                <Star className="w-16 h-16 text-neutral-400/50" />
+                <Star className="w-16 h-16 text-neutral-500/40" />
               </div>
             )}
           </figure>
