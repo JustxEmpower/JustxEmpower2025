@@ -108,6 +108,7 @@ interface SortableNavItemProps {
   children?: Page[];
   onEdit: (page: Page) => void;
   onToggleNav: (page: Page) => void;
+  onDelete: (page: Page) => void;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
 }
@@ -119,6 +120,7 @@ function SortableNavItem({
   children = [],
   onEdit, 
   onToggleNav,
+  onDelete,
   isExpanded,
   onToggleExpand,
 }: SortableNavItemProps) {
@@ -200,6 +202,15 @@ function SortableNavItem({
               <ExternalLink className="w-4 h-4" />
             </Button>
           </Link>
+
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => onDelete(page)}
+            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
         </div>
       </div>
 
@@ -214,6 +225,7 @@ function SortableNavItem({
               parentTitle={page.title}
               onEdit={onEdit}
               onToggleNav={onToggleNav}
+              onDelete={onDelete}
             />
           ))}
         </div>
@@ -252,6 +264,13 @@ export default function AdminNavigationManager() {
       pagesQuery.refetch();
     },
     onError: (e) => toast.error(e.message),
+  });
+  const deleteMutation = trpc.admin.pages.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Page deleted");
+      pagesQuery.refetch();
+    },
+    onError: (e) => toast.error(e.message || "Failed to delete page"),
   });
 
   const sensors = useSensors(
@@ -306,6 +325,17 @@ export default function AdminNavigationManager() {
         id: page.id,
         showInNav: page.showInNav === 1 ? 0 : 1,
       });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDeletePage = async (page: Page) => {
+    if (!confirm(`Are you sure you want to delete "${page.title}"? This action cannot be undone.`)) {
+      return;
+    }
+    try {
+      await deleteMutation.mutateAsync({ id: page.id });
     } catch (error) {
       console.error(error);
     }
@@ -474,6 +504,7 @@ export default function AdminNavigationManager() {
                       children={childPagesMap.get(page.id) || []}
                       onEdit={handleEditPage}
                       onToggleNav={handleToggleNav}
+                      onDelete={handleDeletePage}
                       isExpanded={expandedItems.has(page.id)}
                       onToggleExpand={() => toggleExpand(page.id)}
                     />
