@@ -1100,18 +1100,27 @@ export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRenderer
                 key={currentIndex}
                 src={slides[currentIndex].imageUrl}
                 alt=""
-                className="absolute inset-0 w-full h-full object-contain bg-black/5"
-                style={{ borderRadius }}
+                className="absolute inset-0 w-full h-full object-contain"
+                style={{ 
+                  borderRadius,
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                }}
               />
             ) : (
               <div 
-                className={cn(
-                  'absolute inset-0 w-full h-full flex items-center justify-center',
-                  dark ? 'bg-neutral-800' : 'bg-neutral-200'
-                )}
-                style={{ borderRadius }}
+                className="absolute inset-0 w-full h-full flex items-center justify-center"
+                style={{ 
+                  borderRadius,
+                  background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  boxShadow: 'inset 0 0 20px rgba(255,255,255,0.1)',
+                }}
               >
-                <Star className={cn('w-16 h-16', dark ? 'text-neutral-600' : 'text-neutral-400')} />
+                <Star className="w-16 h-16 text-white/30" />
               </div>
             )}
           </figure>
