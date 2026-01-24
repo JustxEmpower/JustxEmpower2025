@@ -1604,7 +1604,7 @@ export function JERootedUnityRenderer({ block, isEditing = false, isBlockSelecte
               fieldName="description"
               value={content.description}
               placeholder="Short description..."
-              className={`font-sans text-lg leading-relaxed mb-6 ${descClass}`}
+              className={`font-sans text-lg leading-relaxed mb-6 text-center lg:text-left ${descClass}`}
               as="p"
               multiline
             />
