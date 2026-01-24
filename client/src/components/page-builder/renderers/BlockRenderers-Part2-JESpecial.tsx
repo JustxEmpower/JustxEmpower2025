@@ -1023,150 +1023,130 @@ export function JEOfferingsGridRenderer({ block, isEditing, onUpdate }: BlockRen
 }
 
 // ============================================================================
-// JE OFFERINGS CAROUSEL RENDERER
+// JE CAROUSEL RENDERER - Pure Image Carousel
 // ============================================================================
 
 export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
+  // Support both 'slides' and 'items' for backwards compatibility
+  const slides = Array.isArray(content.slides) ? content.slides : 
+                 Array.isArray(content.items) ? content.items : [];
+  
   const {
-    label = '',
-    title = 'Featured',
-    subtitle = '',
     autoplay = false,
     interval = 5000,
     showDots = true,
     showArrows = true,
-    items = [
-      { title: 'Item One', description: 'Description', imageUrl: '', link: '' },
-      { title: 'Item Two', description: 'Description', imageUrl: '', link: '' },
-      { title: 'Item Three', description: 'Description', imageUrl: '', link: '' },
-    ],
+    dark = false,
+    borderRadius = '1rem',
+    maxWidth = '48rem',
   } = content;
 
-  const handleChange = (key: string, value: any) => {
-    onUpdate?.({ ...content, [key]: value });
+  const goTo = (index: number) => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex(index);
+    setTimeout(() => setIsTransitioning(false), 500);
   };
-
-  const handleItemChange = (index: number, key: string, value: string) => {
-    const newItems = [...items];
-    newItems[index] = { ...newItems[index], [key]: value };
-    onUpdate?.({ ...content, items: newItems });
+  
+  const goNext = () => {
+    if (slides.length <= 1 || isTransitioning) return;
+    goTo((currentIndex + 1) % slides.length);
   };
-
-  const addItem = () => {
-    onUpdate?.({ ...content, items: [...items, { title: 'New Item', description: 'Description', imageUrl: '', link: '' }] });
+  
+  const goPrev = () => {
+    if (slides.length <= 1 || isTransitioning) return;
+    goTo((currentIndex - 1 + slides.length) % slides.length);
   };
-
-  const removeItem = (index: number) => {
-    onUpdate?.({ ...content, items: items.filter((_: any, i: number) => i !== index) });
-    if (currentIndex >= items.length - 1) setCurrentIndex(Math.max(0, items.length - 2));
-  };
-
-  const goTo = (index: number) => setCurrentIndex(index);
-  const goNext = () => setCurrentIndex((prev) => (prev + 1) % items.length);
-  const goPrev = () => setCurrentIndex((prev) => (prev - 1 + items.length) % items.length);
 
   // Autoplay
   useEffect(() => {
-    if (autoplay && items.length > 1 && !isEditing) {
+    if (autoplay && slides.length > 1 && !isEditing) {
       const timer = setInterval(goNext, interval);
       return () => clearInterval(timer);
     }
-  }, [autoplay, interval, items.length, isEditing]);
+  }, [autoplay, interval, slides.length, isEditing, currentIndex]);
 
+  const bgClass = dark ? 'bg-[#1a1a1a]' : 'bg-[#faf9f7]';
+
+  // Pure image carousel - no text, labels, or descriptions
   return (
-    <section className="py-16 md:py-24 bg-white">
-      <div className="container mx-auto px-6">
-        {/* Header */}
-        <div className="text-center mb-12 max-w-3xl mx-auto">
-          <EditableText value={label} onChange={(v) => handleChange('label', v)} tag="p" placeholder="LABEL" isEditing={isEditing} className="text-xs uppercase tracking-[0.3em] mb-4 font-sans text-amber-600" />
-          <EditableText value={title} onChange={(v) => handleChange('title', v)} tag="h2" placeholder="Title" isEditing={isEditing} className="text-3xl md:text-4xl font-serif italic mb-4 text-neutral-900" />
-          <EditableText value={subtitle} onChange={(v) => handleChange('subtitle', v)} tag="p" placeholder="Subtitle..." isEditing={isEditing} className="text-lg font-sans text-neutral-600" />
-        </div>
-
-        {/* Carousel */}
+    <section className={cn('py-12 md:py-16 px-6', bgClass)}>
+      <div className="mx-auto" style={{ maxWidth }}>
+        {/* Main Image */}
         <div className="relative">
-          {/* Slides Container */}
-          <div className="overflow-hidden rounded-lg">
-            <div 
-              className="flex transition-transform duration-500"
-              style={{ transform: `translateX(-${currentIndex * 100}%)` }}
-            >
-              {items.map((item: any, index: number) => (
-                <div key={index} className="w-full flex-shrink-0 relative">
-                  {isEditing && (
-                    <button
-                      onClick={() => removeItem(index)}
-                      className="absolute top-4 right-4 w-8 h-8 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 z-10"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  )}
-                  
-                  <div className="grid md:grid-cols-2 gap-8 items-center">
-                    {/* Image */}
-                    <div className="aspect-[4/3] rounded-lg overflow-hidden bg-neutral-100">
-                      {item.imageUrl ? (
-                        <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <Star className="w-16 h-16 text-neutral-300" />
-                        </div>
-                      )}
-                    </div>
+          <figure 
+            className="relative overflow-hidden shadow-2xl"
+            style={{ borderRadius }}
+          >
+            {slides.length > 0 && slides[currentIndex]?.imageUrl ? (
+              <img
+                src={slides[currentIndex].imageUrl}
+                alt=""
+                className="w-full object-cover transition-opacity duration-500"
+                style={{ 
+                  height: 'auto',
+                  minHeight: '20rem',
+                  maxHeight: '36rem',
+                  borderRadius,
+                  opacity: isTransitioning ? 0.7 : 1,
+                }}
+              />
+            ) : (
+              <div 
+                className={cn(
+                  'w-full flex items-center justify-center',
+                  dark ? 'bg-neutral-800' : 'bg-neutral-200'
+                )}
+                style={{ borderRadius, minHeight: '20rem' }}
+              >
+                <Star className={cn('w-16 h-16', dark ? 'text-neutral-600' : 'text-neutral-400')} />
+              </div>
+            )}
+          </figure>
 
-                    {/* Content */}
-                    <div className="p-4">
-                      <EditableText value={item.title} onChange={(v) => handleItemChange(index, 'title', v)} tag="h3" placeholder="Item Title" isEditing={isEditing} className="text-2xl md:text-3xl font-serif italic mb-4 text-neutral-900" />
-                      <EditableText value={item.description} onChange={(v) => handleItemChange(index, 'description', v)} tag="p" placeholder="Description..." multiline isEditing={isEditing} className="text-base font-sans text-neutral-600 whitespace-pre-wrap mb-6" />
-                      {item.link && (
-                        <a href={item.link} className="inline-flex items-center gap-2 text-amber-600 hover:text-amber-700">
-                          Learn More <ArrowRight className="w-4 h-4" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Arrows */}
-          {showArrows && items.length > 1 && (
+          {/* Navigation Arrows */}
+          {showArrows && slides.length > 1 && (
             <>
-              <button onClick={goPrev} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-neutral-50">
-                <ChevronLeft className="w-5 h-5" />
+              <button
+                onClick={goPrev}
+                className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center hover:bg-white transition-all duration-300 hover:scale-110"
+                aria-label="Previous image"
+              >
+                <ChevronLeft className="w-6 h-6 text-neutral-700" />
               </button>
-              <button onClick={goNext} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white shadow-lg rounded-full flex items-center justify-center hover:bg-neutral-50">
-                <ChevronRight className="w-5 h-5" />
+              <button
+                onClick={goNext}
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 shadow-lg flex items-center justify-center hover:bg-white transition-all duration-300 hover:scale-110"
+                aria-label="Next image"
+              >
+                <ChevronRight className="w-6 h-6 text-neutral-700" />
               </button>
             </>
           )}
         </div>
 
-        {/* Dots */}
-        {showDots && items.length > 1 && (
-          <div className="flex justify-center gap-2 mt-6">
-            {items.map((_: any, index: number) => (
+        {/* Dots Navigation */}
+        {showDots && slides.length > 1 && (
+          <div className="flex justify-center gap-3 mt-6">
+            {slides.map((_: any, index: number) => (
               <button
                 key={index}
                 onClick={() => goTo(index)}
                 className={cn(
-                  'w-2 h-2 rounded-full transition-all',
-                  currentIndex === index ? 'bg-amber-500 w-6' : 'bg-neutral-300 hover:bg-neutral-400'
+                  'w-3 h-3 rounded-full transition-all duration-300',
+                  index === currentIndex
+                    ? 'bg-primary scale-125'
+                    : dark 
+                      ? 'bg-white/40 hover:bg-white/60' 
+                      : 'bg-neutral-400 hover:bg-neutral-600'
                 )}
+                aria-label={`Go to image ${index + 1}`}
               />
             ))}
-          </div>
-        )}
-
-        {isEditing && (
-          <div className="text-center mt-8">
-            <button onClick={addItem} className="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600">
-              <Plus className="w-4 h-4" /> Add Slide
-            </button>
           </div>
         )}
       </div>
