@@ -2355,14 +2355,23 @@ export function JEComingSoonRenderer({ block, isEditing = false, isBlockSelected
   );
 }
 
-// JE Gallery Renderer
+// JE Gallery Renderer with Carousel Mode
 export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  
   const content = block.content as {
     images?: Array<{ url: string; alt?: string; caption?: string }>;
     columns?: number;
     dark?: boolean;
     imageBorderRadius?: string;
     imageHeight?: string;
+    displayMode?: 'grid' | 'carousel';
+    autoPlay?: boolean;
+    autoPlayInterval?: number;
+    showDots?: boolean;
+    showArrows?: boolean;
+    carouselMaxWidth?: string;
   };
 
   const images = content.images || [];
@@ -2370,7 +2379,139 @@ export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = 
   const bgClass = content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]';
   const borderRadius = content.imageBorderRadius || '2rem';
   const imageHeight = content.imageHeight || '16rem';
+  const displayMode = content.displayMode || 'grid';
+  const autoPlay = content.autoPlay ?? false;
+  const autoPlayInterval = content.autoPlayInterval || 5000;
+  const showDots = content.showDots ?? true;
+  const showArrows = content.showArrows ?? true;
+  const carouselMaxWidth = content.carouselMaxWidth || '48rem';
 
+  // Auto-play functionality for carousel
+  useEffect(() => {
+    if (displayMode !== 'carousel' || !autoPlay || images.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % images.length);
+    }, autoPlayInterval);
+    
+    return () => clearInterval(interval);
+  }, [displayMode, autoPlay, autoPlayInterval, images.length]);
+
+  const goToSlide = (index: number) => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setCurrentIndex(index);
+    setTimeout(() => setIsTransitioning(false), 500);
+  };
+
+  const goToPrev = () => {
+    if (isTransitioning || images.length <= 1) return;
+    goToSlide((currentIndex - 1 + images.length) % images.length);
+  };
+
+  const goToNext = () => {
+    if (isTransitioning || images.length <= 1) return;
+    goToSlide((currentIndex + 1) % images.length);
+  };
+
+  // Carousel Mode
+  if (displayMode === 'carousel') {
+    return (
+      <section className={`py-16 md:py-24 px-6 ${bgClass}`}>
+        <div className="mx-auto" style={{ maxWidth: carouselMaxWidth }}>
+          {/* Main Image */}
+          <div className="relative">
+            <figure 
+              className="relative overflow-hidden shadow-2xl"
+              style={{ borderRadius: borderRadius }}
+            >
+              {images.length > 0 ? (
+                <>
+                  <img
+                    src={getMediaUrl(images[currentIndex]?.url || '')}
+                    alt={images[currentIndex]?.alt || `Image ${currentIndex + 1}`}
+                    className="w-full object-cover transition-opacity duration-500"
+                    style={{ 
+                      height: 'auto',
+                      minHeight: '20rem',
+                      maxHeight: '36rem',
+                      borderRadius: borderRadius,
+                      opacity: isTransitioning ? 0.7 : 1,
+                    }}
+                  />
+                  {images[currentIndex]?.caption && (
+                    <figcaption 
+                      className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white"
+                      style={{ borderBottomLeftRadius: borderRadius, borderBottomRightRadius: borderRadius }}
+                    >
+                      <p className="text-lg font-light text-center">{images[currentIndex].caption}</p>
+                    </figcaption>
+                  )}
+                </>
+              ) : (
+                <div className="w-full h-64 bg-neutral-300 flex items-center justify-center" style={{ borderRadius }}>
+                  <p className="text-neutral-500">No images</p>
+                </div>
+              )}
+            </figure>
+
+            {/* Navigation Arrows */}
+            {showArrows && images.length > 1 && (
+              <>
+                <button
+                  onClick={goToPrev}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 dark:bg-black/70 shadow-lg flex items-center justify-center hover:bg-white dark:hover:bg-black transition-all duration-300 hover:scale-110"
+                  aria-label="Previous image"
+                >
+                  <svg className="w-6 h-6 text-neutral-700 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={goToNext}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 dark:bg-black/70 shadow-lg flex items-center justify-center hover:bg-white dark:hover:bg-black transition-all duration-300 hover:scale-110"
+                  aria-label="Next image"
+                >
+                  <svg className="w-6 h-6 text-neutral-700 dark:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Dots Navigation */}
+          {showDots && images.length > 1 && (
+            <div className="flex justify-center gap-3 mt-6">
+              {images.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentIndex
+                      ? 'bg-primary scale-125'
+                      : content.dark 
+                        ? 'bg-white/40 hover:bg-white/60' 
+                        : 'bg-neutral-400 hover:bg-neutral-600'
+                  }`}
+                  aria-label={`Go to image ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Image Counter */}
+          {images.length > 1 && (
+            <p className={`text-center mt-4 text-sm font-light tracking-wider ${content.dark ? 'text-white/60' : 'text-neutral-500'}`}>
+              {currentIndex + 1} / {images.length}
+            </p>
+          )}
+        </div>
+      </section>
+    );
+  }
+
+  // Grid Mode (default)
   return (
     <section className={`py-24 px-6 ${bgClass}`}>
       <div className="max-w-7xl mx-auto">
