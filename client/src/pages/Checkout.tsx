@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/contexts/CartContext";
-import { ChevronLeft, CreditCard, Loader2, CheckCircle, Shield } from "lucide-react";
+import { ChevronLeft, CreditCard, Loader2, CheckCircle, Shield, Gift, MessageSquare } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { loadStripe } from "@stripe/stripe-js";
@@ -80,6 +81,9 @@ function CheckoutForm() {
     country: "US",
   });
   const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
+  const [orderNotes, setOrderNotes] = useState("");
+  const [isGift, setIsGift] = useState(false);
+  const [hideReceipt, setHideReceipt] = useState(false);
 
   const sessionId = getSessionId();
   
@@ -380,9 +384,69 @@ function CheckoutForm() {
                   </CardContent>
                 </Card>
 
-                <Button type="submit" className="w-full" size="lg">
-                  Continue to Payment
-                </Button>
+                {/* Gift Options */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Gift className="h-5 w-5" />
+                      Gift Options
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="isGift"
+                        checked={isGift}
+                        onCheckedChange={(checked) => setIsGift(checked as boolean)}
+                      />
+                      <Label htmlFor="isGift" className="text-sm font-normal cursor-pointer">
+                        This is a gift
+                      </Label>
+                    </div>
+                    {isGift && (
+                      <div className="flex items-center space-x-2 ml-6">
+                        <Checkbox
+                          id="hideReceipt"
+                          checked={hideReceipt}
+                          onCheckedChange={(checked) => setHideReceipt(checked as boolean)}
+                        />
+                        <Label htmlFor="hideReceipt" className="text-sm font-normal cursor-pointer">
+                          Hide prices/receipt from package
+                        </Label>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Notes to Seller */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5" />
+                      Notes to Seller
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <Textarea
+                      placeholder="Add any special instructions or notes for your order..."
+                      value={orderNotes}
+                      onChange={(e) => setOrderNotes(e.target.value)}
+                      className="min-h-[100px]"
+                    />
+                  </CardContent>
+                </Card>
+
+                <div className="flex gap-4">
+                  <Link href="/shop" className="flex-1">
+                    <Button type="button" variant="outline" className="w-full" size="lg">
+                      <ChevronLeft className="h-4 w-4 mr-2" />
+                      Back to Shop
+                    </Button>
+                  </Link>
+                  <Button type="submit" className="flex-1" size="lg">
+                    Continue to Payment
+                  </Button>
+                </div>
               </form>
             )}
 
