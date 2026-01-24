@@ -1095,32 +1095,30 @@ export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRenderer
               aspectRatio,
             }}
           >
+            {/* Frosted glass background - always visible */}
+            <div 
+              className="absolute inset-0 w-full h-full"
+              style={{ 
+                borderRadius,
+                background: 'linear-gradient(135deg, rgba(200,200,200,0.3) 0%, rgba(255,255,255,0.1) 100%)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                boxShadow: 'inset 0 0 30px rgba(255,255,255,0.15)',
+              }}
+            />
+            
             {slides.length > 0 && slides[currentIndex]?.imageUrl ? (
               <img
                 key={currentIndex}
                 src={slides[currentIndex].imageUrl}
                 alt=""
-                className="absolute inset-0 w-full h-full object-contain"
-                style={{ 
-                  borderRadius,
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                }}
+                className="absolute inset-0 w-full h-full object-contain z-10"
+                style={{ borderRadius }}
               />
             ) : (
-              <div 
-                className="absolute inset-0 w-full h-full flex items-center justify-center"
-                style={{ 
-                  borderRadius,
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0.1) 100%)',
-                  backdropFilter: 'blur(20px)',
-                  WebkitBackdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  boxShadow: 'inset 0 0 20px rgba(255,255,255,0.1)',
-                }}
-              >
-                <Star className="w-16 h-16 text-white/30" />
+              <div className="absolute inset-0 w-full h-full flex items-center justify-center z-10">
+                <Star className="w-16 h-16 text-neutral-400/50" />
               </div>
             )}
           </figure>
