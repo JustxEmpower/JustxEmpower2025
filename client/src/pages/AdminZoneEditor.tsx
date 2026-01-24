@@ -68,6 +68,107 @@ function SortableBlock({ block, onDelete, isSelected, onSelect }: {
   );
 }
 
+// Slide Image Editor for Carousel blocks - simplified to just images
+function SlideImageEditor({ 
+  slides, 
+  onChange 
+}: { 
+  slides: Array<{ imageUrl?: string; title?: string; description?: string }>; 
+  onChange: (slides: Array<{ imageUrl?: string; title?: string; description?: string }>) => void;
+}) {
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [editIndex, setEditIndex] = useState<number>(-1);
+
+  const addSlide = (url: string) => {
+    if (editIndex >= 0 && editIndex < slides.length) {
+      // Replace existing slide image
+      const newSlides = [...slides];
+      newSlides[editIndex] = { ...newSlides[editIndex], imageUrl: url };
+      onChange(newSlides);
+    } else {
+      // Add new slide with just the image
+      onChange([...slides, { imageUrl: url, title: '', description: '' }]);
+    }
+    setPickerOpen(false);
+    setEditIndex(-1);
+  };
+
+  const removeSlide = (index: number) => {
+    onChange(slides.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Images ({slides.length})</Label>
+        <Button 
+          size="sm" 
+          onClick={() => { setEditIndex(-1); setPickerOpen(true); }}
+          className="h-8"
+        >
+          <Plus className="w-4 h-4 mr-1" /> Add Image
+        </Button>
+      </div>
+      
+      {slides.length === 0 ? (
+        <div className="text-center py-6 border-2 border-dashed border-neutral-300 rounded-lg bg-neutral-50 dark:bg-neutral-800 dark:border-neutral-600">
+          <ImageIcon className="w-8 h-8 mx-auto text-neutral-400 mb-2" />
+          <p className="text-neutral-500 text-sm mb-3">No images added</p>
+          <Button 
+            size="sm" 
+            variant="outline"
+            onClick={() => { setEditIndex(-1); setPickerOpen(true); }}
+          >
+            <Plus className="w-4 h-4 mr-1" /> Add First Image
+          </Button>
+        </div>
+      ) : (
+        <div className="grid grid-cols-3 gap-2">
+          {slides.map((slide, i) => (
+            <div key={i} className="relative aspect-square bg-neutral-200 dark:bg-neutral-700 rounded-lg overflow-hidden group">
+              {slide?.imageUrl ? (
+                <img src={slide.imageUrl} alt="" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <ImageIcon className="w-6 h-6 text-neutral-400" />
+                </div>
+              )}
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center gap-1 transition-opacity">
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="text-white hover:bg-white/20 h-8 w-8 p-0"
+                  onClick={() => { setEditIndex(i); setPickerOpen(true); }}
+                >
+                  <ImageIcon className="w-4 h-4" />
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="ghost" 
+                  className="text-red-400 hover:bg-white/20 h-8 w-8 p-0"
+                  onClick={() => removeSlide(i)}
+                >
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+              </div>
+              <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                {i + 1}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      <MediaPicker
+        open={pickerOpen}
+        onClose={() => { setPickerOpen(false); setEditIndex(-1); }}
+        onSelect={addSlide}
+        mediaType="image"
+      />
+    </div>
+  );
+}
+
 // Image Array Editor for Gallery blocks
 function ImageArrayEditor({ 
   images, 
@@ -493,6 +594,38 @@ export default function AdminZoneEditor() {
                 <CardContent>
                   <ScrollArea className="h-[60vh]">
                     <div className="space-y-4 pr-4">
+                      {/* Special handling for JE Carousel blocks - show image picker for slides */}
+                      {selectedBlock.type === 'je-carousel' && (
+                        <>
+                          <SlideImageEditor
+                            slides={Array.isArray((selectedBlock.content as any).slides) ? (selectedBlock.content as any).slides : []}
+                            onChange={(newSlides) => updateBlockContent(selectedBlock.id, 'slides', newSlides)}
+                          />
+                          
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Show Arrows</Label>
+                            <Switch
+                              checked={(selectedBlock.content as any).showArrows !== false}
+                              onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'showArrows', v)}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Show Dots</Label>
+                            <Switch
+                              checked={(selectedBlock.content as any).showDots !== false}
+                              onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'showDots', v)}
+                            />
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <Label className="text-sm">Auto Play</Label>
+                            <Switch
+                              checked={(selectedBlock.content as any).autoplay !== false}
+                              onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'autoplay', v)}
+                            />
+                          </div>
+                        </>
+                      )}
+                      
                       {/* Special handling for JE Gallery blocks - always show image picker first */}
                       {selectedBlock.type === 'je-gallery' && (
                         <>
