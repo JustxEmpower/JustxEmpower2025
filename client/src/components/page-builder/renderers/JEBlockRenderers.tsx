@@ -1855,18 +1855,25 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   const alignment = content.alignment || 'center';
   const justifyClass = alignment === 'left' ? 'justify-start' : alignment === 'right' ? 'justify-end' : 'justify-center';
 
+  // Debug log
+  console.log('[JEImageRenderer] widthValue:', widthValue, 'maxWidth:', content.maxWidth, 'content:', content);
+
   return (
-    <figure className="py-8">
-      <div className={`flex ${justifyClass}`}>
+    <figure className="py-8 w-full">
+      <div className={`w-full flex ${justifyClass}`}>
         {imageUrl ? (
           <div 
             className={`relative overflow-hidden ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
-            style={{ borderRadius: isRounded ? borderRadius : '0', width: widthValue, maxWidth: widthValue }}
+            style={{ 
+              borderRadius: isRounded ? borderRadius : '0', 
+              width: widthValue,
+              flexShrink: 0,
+            }}
           >
             <img
               src={imageUrl}
               alt={content.alt || 'Image'}
-              className="w-full h-auto"
+              className="w-full h-auto block"
               style={{ borderRadius: isRounded ? borderRadius : '0' }}
               onError={(e) => console.error('[JEImageRenderer] Image error:', e)}
             />
@@ -1874,7 +1881,11 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
         ) : (
           <div 
             className="aspect-video bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
-            style={{ borderRadius: borderRadius, width: widthValue, maxWidth: widthValue }}
+            style={{ 
+              borderRadius: borderRadius, 
+              width: widthValue,
+              flexShrink: 0,
+            }}
           >
             <span className="text-neutral-400">Add an image</span>
           </div>
