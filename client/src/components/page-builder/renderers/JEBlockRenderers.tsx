@@ -684,7 +684,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
           
           {content.description && (
             <p 
-              className="je-hero-desc font-sans drop-shadow-lg whitespace-pre-wrap" 
+              className="je-hero-desc font-sans drop-shadow-lg whitespace-pre-wrap text-center mx-auto" 
               style={{ 
                 color: descriptionColor, 
                 opacity: isEditing ? 1 : 0.9,
