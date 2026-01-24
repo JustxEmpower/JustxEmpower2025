@@ -247,7 +247,7 @@ function CheckoutForm() {
 
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 pt-28 pb-8">
         <Button variant="outline" className="mb-8" onClick={() => navigate("/shop")}>
           <ChevronLeft className="h-4 w-4 mr-2" />
           Back to Shop
