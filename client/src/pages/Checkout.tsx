@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/contexts/CartContext";
-import { ChevronLeft, CreditCard, Loader2, CheckCircle } from "lucide-react";
+import { ChevronLeft, CreditCard, Loader2, CheckCircle, Shield } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
@@ -19,6 +20,17 @@ interface ShippingInfo {
   lastName: string;
   email: string;
   phone: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+}
+
+interface BillingInfo {
+  firstName: string;
+  lastName: string;
   address1: string;
   address2: string;
   city: string;
@@ -57,6 +69,17 @@ function CheckoutForm() {
     postalCode: "",
     country: "US",
   });
+  const [billingInfo, setBillingInfo] = useState<BillingInfo>({
+    firstName: "",
+    lastName: "",
+    address1: "",
+    address2: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    country: "US",
+  });
+  const [billingSameAsShipping, setBillingSameAsShipping] = useState(true);
 
   const sessionId = getSessionId();
   
@@ -127,20 +150,22 @@ function CheckoutForm() {
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) throw new Error("Card element not found");
 
+      // Use billing address for payment (fraud protection)
+      const billing = billingSameAsShipping ? shippingInfo : billingInfo;
       const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: cardElement,
           billing_details: {
-            name: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
+            name: `${billing.firstName} ${billing.lastName}`,
             email: shippingInfo.email,
             phone: shippingInfo.phone,
             address: {
-              line1: shippingInfo.address1,
-              line2: shippingInfo.address2,
-              city: shippingInfo.city,
-              state: shippingInfo.state,
-              postal_code: shippingInfo.postalCode,
-              country: shippingInfo.country,
+              line1: billing.address1,
+              line2: billing.address2,
+              city: billing.city,
+              state: billing.state,
+              postal_code: billing.postalCode,
+              country: billing.country,
             },
           },
         },
@@ -384,6 +409,109 @@ function CheckoutForm() {
                         }}
                       />
                     </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Shield className="h-5 w-5" />
+                      Billing Address
+                    </CardTitle>
+                    <p className="text-sm text-muted-foreground">Required for fraud protection</p>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="billingSame"
+                        checked={billingSameAsShipping}
+                        onCheckedChange={(checked) => setBillingSameAsShipping(checked as boolean)}
+                      />
+                      <Label htmlFor="billingSame" className="text-sm font-normal cursor-pointer">
+                        Same as shipping address
+                      </Label>
+                    </div>
+
+                    {!billingSameAsShipping && (
+                      <div className="space-y-4 pt-4 border-t">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="billingFirstName">First Name *</Label>
+                            <Input
+                              id="billingFirstName"
+                              value={billingInfo.firstName}
+                              onChange={(e) => setBillingInfo({ ...billingInfo, firstName: e.target.value })}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="billingLastName">Last Name *</Label>
+                            <Input
+                              id="billingLastName"
+                              value={billingInfo.lastName}
+                              onChange={(e) => setBillingInfo({ ...billingInfo, lastName: e.target.value })}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <Label htmlFor="billingAddress1">Address *</Label>
+                          <Input
+                            id="billingAddress1"
+                            value={billingInfo.address1}
+                            onChange={(e) => setBillingInfo({ ...billingInfo, address1: e.target.value })}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <Label htmlFor="billingAddress2">Apartment, suite, etc.</Label>
+                          <Input
+                            id="billingAddress2"
+                            value={billingInfo.address2}
+                            onChange={(e) => setBillingInfo({ ...billingInfo, address2: e.target.value })}
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="billingCity">City *</Label>
+                            <Input
+                              id="billingCity"
+                              value={billingInfo.city}
+                              onChange={(e) => setBillingInfo({ ...billingInfo, city: e.target.value })}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="billingState">State *</Label>
+                            <Input
+                              id="billingState"
+                              value={billingInfo.state}
+                              onChange={(e) => setBillingInfo({ ...billingInfo, state: e.target.value })}
+                              required
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="billingPostalCode">ZIP Code *</Label>
+                            <Input
+                              id="billingPostalCode"
+                              value={billingInfo.postalCode}
+                              onChange={(e) => setBillingInfo({ ...billingInfo, postalCode: e.target.value })}
+                              required
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="billingCountry">Country</Label>
+                            <Input
+                              id="billingCountry"
+                              value={billingInfo.country}
+                              onChange={(e) => setBillingInfo({ ...billingInfo, country: e.target.value })}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
 
