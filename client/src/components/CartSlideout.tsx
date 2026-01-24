@@ -27,8 +27,8 @@ export default function CartSlideout({ open, onClose }: CartSlideoutProps) {
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent className="w-full sm:max-w-lg flex flex-col">
-        <SheetHeader>
+      <SheetContent className="w-full sm:max-w-md flex flex-col p-0">
+        <SheetHeader className="px-6 pt-6 pb-4 border-b">
           <SheetTitle className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5" />
             Cart ({cart.length})
@@ -36,7 +36,7 @@ export default function CartSlideout({ open, onClose }: CartSlideoutProps) {
         </SheetHeader>
         
         {cart.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center py-12">
+          <div className="flex-1 flex flex-col items-center justify-center text-center px-6 py-12">
             <ShoppingBag className="h-16 w-16 text-muted-foreground/30 mb-4" />
             <h3 className="text-lg font-medium text-foreground mb-2">Your cart is empty</h3>
             <p className="text-muted-foreground mb-6">Add some products to get started</p>
@@ -44,7 +44,7 @@ export default function CartSlideout({ open, onClose }: CartSlideoutProps) {
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-y-auto py-4 space-y-4">
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
               {cart.map((item) => (
                 <CartItemRow
                   key={item.id}
@@ -55,15 +55,15 @@ export default function CartSlideout({ open, onClose }: CartSlideoutProps) {
               ))}
             </div>
             
-            <div className="border-t pt-4 space-y-4">
+            <div className="border-t px-6 py-4 space-y-4 bg-background">
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>{formatPrice(subtotal)}</span>
+                  <span className="font-medium">{formatPrice(subtotal)}</span>
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
+                  <span className="font-medium">{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
                 </div>
                 {subtotal < 10000 && (
                   <p className="text-xs text-muted-foreground">
@@ -74,12 +74,12 @@ export default function CartSlideout({ open, onClose }: CartSlideoutProps) {
               
               <Separator />
               
-              <div className="flex justify-between font-semibold text-lg">
+              <div className="flex justify-between items-center font-semibold text-lg">
                 <span>Total</span>
                 <span>{formatPrice(total)}</span>
               </div>
               
-              <div className="space-y-2">
+              <div className="space-y-2 pb-2">
                 <Button onClick={handleCheckout} className="w-full" size="lg">
                   Checkout
                 </Button>

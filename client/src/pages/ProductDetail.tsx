@@ -220,11 +220,15 @@ export default function ProductDetail() {
                     key={selectedImage}
                     src={getMediaUrl(currentMedia.url)}
                     controls
-                    className="max-w-full max-h-full object-contain"
+                    playsInline
+                    preload="metadata"
+                    className="max-w-full max-h-full object-contain rounded-lg"
                     style={{ 
                       opacity: isTransitioning ? 0 : 1,
                       transform: isTransitioning ? 'scale(0.98)' : 'scale(1)',
                       transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+                      minWidth: '300px',
+                      minHeight: '200px',
                     }}
                   />
                 ) : (
