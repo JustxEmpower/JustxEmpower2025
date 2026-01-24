@@ -305,10 +305,14 @@ export default function LegalPageRenderer({ pageKey, defaultTitle, defaultConten
 
   // Render body text with paragraph spacing and markdown-style bold
   const renderBody = (body: string) => {
-    const paragraphs = body.split('\n\n').filter(p => p.trim());
-    return paragraphs.map((para, index) => {
+    // Split by double newlines first for major paragraphs, then handle single newlines for list items
+    const lines = body.split('\n').filter(line => line.trim());
+    
+    return lines.map((line, index) => {
+      const trimmedLine = line.trim();
+      
       // Handle markdown-style bold **text**
-      const parts = para.split(/(\*\*[^*]+\*\*)/g);
+      const parts = trimmedLine.split(/(\*\*[^*]+\*\*)/g);
       const rendered = parts.map((part, i) => {
         if (part.startsWith('**') && part.endsWith('**')) {
           return <strong key={i}>{part.slice(2, -2)}</strong>;
@@ -316,8 +320,11 @@ export default function LegalPageRenderer({ pageKey, defaultTitle, defaultConten
         return part;
       });
       
+      // Check if line starts with bullet character (· or •)
+      const isBulletItem = trimmedLine.startsWith('·') || trimmedLine.startsWith('•');
+      
       return (
-        <p key={index} className="mb-4 text-foreground/80 leading-relaxed">
+        <p key={index} className={`text-foreground/80 leading-relaxed ${isBulletItem ? 'mb-2 pl-2' : 'mb-4'}`}>
           {rendered}
         </p>
       );
