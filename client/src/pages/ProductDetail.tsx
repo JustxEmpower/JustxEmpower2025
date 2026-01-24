@@ -219,9 +219,12 @@ export default function ProductDetail() {
                   <video
                     key={selectedImage}
                     src={getMediaUrl(currentMedia.url)}
+                    autoPlay
+                    muted
+                    loop
                     controls
                     playsInline
-                    preload="metadata"
+                    preload="auto"
                     className="max-w-full max-h-full object-contain rounded-lg"
                     style={{ 
                       opacity: isTransitioning ? 0 : 1,
@@ -229,6 +232,10 @@ export default function ProductDetail() {
                       transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
                       minWidth: '300px',
                       minHeight: '200px',
+                    }}
+                    onLoadedData={(e) => {
+                      const video = e.currentTarget;
+                      video.play().catch(() => {});
                     }}
                   />
                 ) : (
