@@ -1321,6 +1321,18 @@ export const adminRouter = router({
   // Pages Management
   pages: router({
     list: adminProcedure.query(async () => {
+      // Ensure home page exists in database
+      const db = await getDb();
+      if (db) {
+        try {
+          await db.run(sql`
+            INSERT OR IGNORE INTO pages (slug, title, published, showInNav, template, createdAt, updatedAt) 
+            VALUES ('home', 'Home', 1, 0, 'default', datetime('now'), datetime('now'))
+          `);
+        } catch (e) {
+          console.log('Home page already exists or error:', e);
+        }
+      }
       return await getAllPages();
     }),
 
