@@ -164,7 +164,7 @@ export const shopRouter = router({
           ...product,
           images: safeJsonParse<string[]>(product.images, []),
           tags: safeJsonParse<string[]>(product.tags, []),
-          dimensions: safeJsonParse<Record<string, number>>(product.dimensions, {}),
+          dimensions: safeJsonParse<Record<string, any>>(product.dimensions, {}),
           formattedPrice: formatPrice(product.price),
           formattedCompareAtPrice: product.compareAtPrice ? formatPrice(product.compareAtPrice) : null,
         };
@@ -181,7 +181,7 @@ export const shopRouter = router({
           ...product,
           images: safeJsonParse<string[]>(product.images, []),
           tags: safeJsonParse<string[]>(product.tags, []),
-          dimensions: safeJsonParse<Record<string, number>>(product.dimensions, {}),
+          dimensions: safeJsonParse<Record<string, any>>(product.dimensions, {}),
           formattedPrice: formatPrice(product.price),
           formattedCompareAtPrice: product.compareAtPrice ? formatPrice(product.compareAtPrice) : null,
         };
