@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Edit, Trash2, Save, X, Sparkles, Loader2, 
   Search, RefreshCw, FileText, Eye, Calendar, Filter, LayoutGrid, List,
-  Type, GripVertical, Copy
+  Type, GripVertical, Copy, Maximize2, Minimize2
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -62,6 +62,16 @@ export default function AdminArticlesEnhanced() {
     { id: '1', type: 'heading', content: 'Section Heading' },
     { id: '2', type: 'text', content: 'Enter your text here...' }
   ]);
+  const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
+
+  const toggleExpand = (id: string) => {
+    setExpandedBlocks(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const addBlock = (type: 'heading' | 'text') => {
     const newBlock: ContentBlock = {
@@ -444,6 +454,11 @@ export default function AdminArticlesEnhanced() {
                           </span>
                           <div className="flex-1" />
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                            {block.type === 'text' && (
+                              <button type="button" onClick={() => toggleExpand(block.id)} className="p-1.5 rounded bg-amber-100 dark:bg-amber-900/30 hover:bg-amber-200 dark:hover:bg-amber-900/50 text-amber-700 dark:text-amber-400 transition-colors" title={expandedBlocks.has(block.id) ? "Collapse" : "Expand"}>
+                                {expandedBlocks.has(block.id) ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                              </button>
+                            )}
                             <button type="button" onClick={() => duplicateBlock(block.id)} className="p-1.5 rounded bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 transition-colors" title="Duplicate">
                               <Copy className="w-3.5 h-3.5" />
                             </button>
@@ -466,8 +481,8 @@ export default function AdminArticlesEnhanced() {
                           <textarea
                             value={block.content}
                             onChange={(e) => updateBlock(block.id, e.target.value)}
-                            rows={4}
-                            className="w-full px-4 py-3 text-base bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg focus:border-amber-400 dark:focus:border-amber-600 focus:outline-none transition-colors resize-y"
+                            rows={expandedBlocks.has(block.id) ? 16 : 4}
+                            className={`w-full px-4 py-3 text-base bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg focus:border-amber-400 dark:focus:border-amber-600 focus:outline-none transition-all duration-200 ${expandedBlocks.has(block.id) ? 'min-h-[400px]' : ''}`}
                             placeholder="Enter your text here..."
                           />
                         )}
