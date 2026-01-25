@@ -21,6 +21,20 @@ interface ContentItem {
   contentValue: string;
 }
 
+// Pages that use the pageSections system instead of siteContent
+const PAGE_SECTIONS_PAGES = ['founder', 'philosophy', 'vision-ethos', 'offerings', 'workshops-programs', 'community-events', 'resources', 'walk-with-us', 'contact', 'about', 'about-justxempower'];
+
+interface PageSection {
+  id: number;
+  pageId: number;
+  sectionType: string;
+  sectionOrder: number;
+  title: string | null;
+  content: Record<string, any>;
+  requiredFields: string[];
+  isVisible: number;
+}
+
 export default function AdminContent() {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, isChecking, username, logout } = useAdminAuth();
@@ -45,6 +59,13 @@ export default function AdminContent() {
     'cookie-policy': 'Cookie Policy',
   };
   
+  // State for pageSections data (newer system)
+  const [pageSectionsData, setPageSectionsData] = useState<PageSection[]>([]);
+  const [editedPageSections, setEditedPageSections] = useState<Record<string, Record<string, string>>>({});
+  
+  // Check if current page uses pageSections system
+  const usesPageSections = PAGE_SECTIONS_PAGES.includes(selectedPage);
+  
   // Refs for scrolling to sections
   const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
@@ -52,6 +73,12 @@ export default function AdminContent() {
   const { data: pagesData } = trpc.admin.pages.list.useQuery(undefined, {
     enabled: isAuthenticated,
   });
+  
+  // Fetch pageSections data for pages that use the newer system
+  const { data: fetchedPageSections, refetch: refetchPageSections } = trpc.admin.pageSections.getByPageSlug.useQuery(
+    { slug: selectedPage },
+    { enabled: isAuthenticated && usesPageSections }
+  );
 
   // Build pages list from database, with fallback to hardcoded list
   // MUST be before any conditional returns to avoid React hooks error
@@ -156,6 +183,35 @@ export default function AdminContent() {
       await refetch();
     },
   });
+  
+  // Mutation for updating pageSections (newer system)
+  const updatePageSectionMutation = trpc.admin.pageSections.updateField.useMutation({
+    onSuccess: async () => {
+      await utils.admin.pageSections.getByPageSlug.invalidate({ slug: selectedPage });
+      await refetchPageSections();
+    },
+  });
+
+  // Populate pageSectionsData when fetchedPageSections changes
+  useEffect(() => {
+    if (fetchedPageSections && usesPageSections) {
+      setPageSectionsData(fetchedPageSections);
+      // Auto-expand all sections
+      const sections = fetchedPageSections.reduce((acc: Record<string, boolean>, section) => {
+        const sectionId = section.content?.sectionId || section.sectionType;
+        acc[sectionId] = true;
+        return acc;
+      }, {});
+      setExpandedSections(prev => ({ ...prev, ...sections }));
+      // Clear edited pageSections when data changes
+      setEditedPageSections({});
+      // Set first section as active
+      if (fetchedPageSections.length > 0 && !activeSection) {
+        const firstSectionId = fetchedPageSections[0].content?.sectionId || fetchedPageSections[0].sectionType;
+        setActiveSection(firstSectionId);
+      }
+    }
+  }, [fetchedPageSections, usesPageSections, selectedPage]);
 
   useEffect(() => {
     if (contentData) {
@@ -251,13 +307,30 @@ export default function AdminContent() {
     setContent(prev => prev.map(item => item.id === id ? { ...item, contentValue: value } : item));
   };
 
+  // Handler for pageSections content changes
+  const handlePageSectionChange = (sectionId: number, fieldKey: string, value: string) => {
+    // Track edited fields
+    setEditedPageSections(prev => ({
+      ...prev,
+      [sectionId]: { ...(prev[sectionId] || {}), [fieldKey]: value }
+    }));
+    // Update local state for immediate UI feedback
+    setPageSectionsData(prev => prev.map(section => {
+      if (section.id === sectionId) {
+        return { ...section, content: { ...section.content, [fieldKey]: value } };
+      }
+      return section;
+    }));
+  };
+
   const handleSaveAll = async () => {
     const isLegal = ['privacy-policy', 'terms-of-service', 'accessibility', 'cookie-policy'].includes(selectedPage);
     const hasEditedContent = Object.keys(editedContent).length > 0;
+    const hasEditedPageSections = Object.keys(editedPageSections).length > 0;
     // Always save legal sections on legal pages (even if empty array, to clear old content)
     const shouldSaveLegalSections = isLegal;
     
-    if (!hasEditedContent && !shouldSaveLegalSections) {
+    if (!hasEditedContent && !shouldSaveLegalSections && !hasEditedPageSections) {
       toast.info('No changes to save');
       return;
     }
@@ -284,7 +357,7 @@ export default function AdminContent() {
       }
     }
     
-    // Save all other updates sequentially
+    // Save all other updates sequentially (siteContent)
     for (const [id, value] of updates) {
       try {
         await updateMutation.mutateAsync({
@@ -295,6 +368,23 @@ export default function AdminContent() {
       } catch (error) {
         console.error(`Failed to update content ID ${id}:`, error);
         errorCount++;
+      }
+    }
+    
+    // Save pageSections updates (newer system)
+    for (const [sectionId, fields] of Object.entries(editedPageSections)) {
+      for (const [fieldKey, fieldValue] of Object.entries(fields)) {
+        try {
+          await updatePageSectionMutation.mutateAsync({
+            sectionId: parseInt(sectionId),
+            fieldKey,
+            fieldValue,
+          });
+          successCount++;
+        } catch (error) {
+          console.error(`Failed to update pageSection ${sectionId}.${fieldKey}:`, error);
+          errorCount++;
+        }
       }
     }
     
@@ -309,7 +399,11 @@ export default function AdminContent() {
     
     // Clear edited content and refetch after all saves complete
     setEditedContent({});
+    setEditedPageSections({});
     await refetch();
+    if (usesPageSections) {
+      await refetchPageSections();
+    }
   };
 
   const toggleSection = (section: string) => {
@@ -420,10 +514,21 @@ export default function AdminContent() {
            value.length > 100;
   };
 
-  const hasUnsavedChanges = Object.keys(editedContent).length > 0;
+  const hasUnsavedChanges = Object.keys(editedContent).length > 0 || Object.keys(editedPageSections).length > 0;
+  const totalUnsavedCount = Object.keys(editedContent).length + Object.values(editedPageSections).reduce((acc, fields) => acc + Object.keys(fields).length, 0);
 
   // Check if this is a legal page that should use free-form editor
   const isLegalPage = ['privacy-policy', 'terms-of-service', 'accessibility', 'cookie-policy'].includes(selectedPage);
+
+  // Group pageSections by sectionId or sectionType for rendering
+  const groupedPageSections = pageSectionsData.reduce((acc, section) => {
+    const sectionKey = section.content?.sectionId || section.sectionType;
+    if (!acc[sectionKey]) {
+      acc[sectionKey] = [];
+    }
+    acc[sectionKey].push(section);
+    return acc;
+  }, {} as Record<string, PageSection[]>);
 
   return (
     <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950 flex">
@@ -435,10 +540,11 @@ export default function AdminContent() {
         {/* Section Visualizer - Left Panel */}
         <div className="w-64 flex-shrink-0 p-4 overflow-y-auto border-r border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950">
           <SectionVisualizer
-            content={content}
+            content={usesPageSections ? [] : content}
             selectedPage={selectedPage}
             activeSection={activeSection}
             onSectionClick={handleSectionClick}
+            pageSections={usesPageSections ? pageSectionsData : undefined}
           />
 
           {/* Quick Link to Page Zones */}
@@ -466,11 +572,11 @@ export default function AdminContent() {
                 {hasUnsavedChanges && (
                   <Button
                     onClick={handleSaveAll}
-                    disabled={updateMutation.isPending}
+                    disabled={updateMutation.isPending || updatePageSectionMutation.isPending}
                     className="gap-2"
                   >
                     <Save className="w-4 h-4" />
-                    {updateMutation.isPending ? 'Saving...' : `Save All Changes (${Object.keys(editedContent).length})`}
+                    {(updateMutation.isPending || updatePageSectionMutation.isPending) ? 'Saving...' : `Save All Changes (${totalUnsavedCount})`}
                   </Button>
                 )}
               </div>
@@ -527,9 +633,122 @@ export default function AdminContent() {
                 </div>
               )}
 
-              {/* Content Sections - Hide for legal pages since they use LegalPageEditorNew */}
+              {/* Page Sections Editor - For pages using the newer pageSections system */}
+              {!isLegalPage && usesPageSections && pageSectionsData.length > 0 && (
+                <div className="space-y-4">
+                  {pageSectionsData.map((section) => {
+                    const sectionKey = section.content?.sectionId || section.sectionType;
+                    const sectionTitle = section.title || formatSectionName(sectionKey);
+                    const contentFields = section.content || {};
+                    
+                    return (
+                      <div
+                        key={section.id}
+                        ref={(el) => { sectionRefs.current[sectionKey] = el; }}
+                        className={`bg-white dark:bg-neutral-900 rounded-xl border-2 overflow-hidden transition-all ${
+                          activeSection === sectionKey 
+                            ? 'border-orange-400 ring-2 ring-orange-200' 
+                            : 'border-neutral-200 dark:border-neutral-800'
+                        }`}
+                        onClick={() => setActiveSection(sectionKey)}
+                      >
+                        {/* Section Header */}
+                        <button
+                          onClick={() => toggleSection(sectionKey)}
+                          className="w-full flex items-center justify-between p-6 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100">
+                              {sectionTitle}
+                            </h2>
+                            {activeSection === sectionKey && (
+                              <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-bold rounded">
+                                EDITING
+                              </span>
+                            )}
+                          </div>
+                          {expandedSections[sectionKey] ? (
+                            <ChevronUp className="w-5 h-5 text-neutral-400" />
+                          ) : (
+                            <ChevronDown className="w-5 h-5 text-neutral-400" />
+                          )}
+                        </button>
+
+                        {/* Section Content */}
+                        {expandedSections[sectionKey] && (
+                          <div className="px-6 pb-6 space-y-4 border-t border-neutral-100 dark:border-neutral-800">
+                            <div className="pt-4 flex items-center gap-2">
+                              <span className="text-xs text-neutral-500">Section Type:</span>
+                              <span className="text-xs px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-600 dark:text-neutral-400">
+                                {section.sectionType}
+                              </span>
+                            </div>
+                            
+                            {Object.entries(contentFields)
+                              .filter(([key]) => key !== 'sectionId')
+                              .map(([fieldKey, fieldValue]) => {
+                                const currentValue = editedPageSections[section.id]?.[fieldKey] ?? (fieldValue as string) ?? '';
+                                const isModified = editedPageSections[section.id]?.[fieldKey] !== undefined;
+                                const inputType = getInputType(fieldKey);
+                                const useTextarea = isLongText(fieldKey, currentValue);
+                                const isMediaField = fieldKey.toLowerCase().includes('url') || fieldKey.toLowerCase().includes('image') || fieldKey.toLowerCase().includes('video');
+                                
+                                return (
+                                  <div key={fieldKey} className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <label className="text-sm font-medium text-neutral-700 dark:text-neutral-300 flex items-center gap-2">
+                                        {formatSectionName(fieldKey)}
+                                        {isModified && (
+                                          <span className="text-xs text-orange-500">(Modified)</span>
+                                        )}
+                                      </label>
+                                    </div>
+                                    
+                                    {isMediaField ? (
+                                      <div className="space-y-2">
+                                        <Input
+                                          value={currentValue}
+                                          onChange={(e) => handlePageSectionChange(section.id, fieldKey, e.target.value)}
+                                          placeholder={`Enter ${fieldKey}...`}
+                                          className={isModified ? 'border-orange-300' : ''}
+                                        />
+                                        {currentValue && (
+                                          <div className="text-xs text-neutral-500">
+                                            Preview: <a href={currentValue} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{currentValue.substring(0, 60)}...</a>
+                                          </div>
+                                        )}
+                                      </div>
+                                    ) : useTextarea ? (
+                                      <Textarea
+                                        value={currentValue}
+                                        onChange={(e) => handlePageSectionChange(section.id, fieldKey, e.target.value)}
+                                        placeholder={`Enter ${fieldKey}...`}
+                                        rows={4}
+                                        className={isModified ? 'border-orange-300' : ''}
+                                      />
+                                    ) : (
+                                      <Input
+                                        type={inputType}
+                                        value={currentValue}
+                                        onChange={(e) => handlePageSectionChange(section.id, fieldKey, e.target.value)}
+                                        placeholder={`Enter ${fieldKey}...`}
+                                        className={isModified ? 'border-orange-300' : ''}
+                                      />
+                                    )}
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Content Sections - Hide for legal pages and pageSections pages */}
               <div className="space-y-4">
-                {!isLegalPage && Object.entries(groupedContent)
+                {!isLegalPage && !usesPageSections && Object.entries(groupedContent)
                   .filter(([section]) => section !== 'legalSections')
                   .map(([section, items]) => (
                   <div

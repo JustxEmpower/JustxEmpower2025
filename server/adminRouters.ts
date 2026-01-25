@@ -980,6 +980,121 @@ export const adminRouter = router({
         return { success: true };
       }),
   }),
+
+  // Page Sections management (newer system used by Founder, Philosophy, etc.)
+  pageSections: router({
+    // Get all sections for a page by pageId
+    getByPageId: adminProcedure
+      .input(z.object({ pageId: z.number() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        
+        const sections = await db
+          .select()
+          .from(schema.pageSections)
+          .where(eq(schema.pageSections.pageId, input.pageId))
+          .orderBy(schema.pageSections.sectionOrder);
+        
+        // Parse JSON content for each section
+        return sections.map(section => ({
+          ...section,
+          content: section.content ? JSON.parse(section.content) : {},
+          requiredFields: section.requiredFields ? JSON.parse(section.requiredFields) : [],
+        }));
+      }),
+
+    // Get sections by page slug (maps slug to pageId)
+    getByPageSlug: adminProcedure
+      .input(z.object({ slug: z.string() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        
+        // Map slug to pageId
+        const pageIdMap: Record<string, number> = {
+          home: 18, philosophy: 2, founder: 3, 'vision-ethos': 5,
+          offerings: 6, 'workshops-programs': 7, 'vix-journal-trilogy': 8,
+          'vi-x-journal-trilogy': 19, blog: 20, 'blog-she-writes': 9,
+          shop: 10, 'community-events': 1, resources: 12, 'walk-with-us': 13,
+          contact: 14, 'rooted-unity': 15, overview: 16, about: 21,
+          'about-justxempower': 22, accessibility: 23, 'privacy-policy': 24,
+          'terms-of-service': 25, 'cookie-policy': 26,
+        };
+        
+        const pageId = pageIdMap[input.slug];
+        if (!pageId) return [];
+        
+        const sections = await db
+          .select()
+          .from(schema.pageSections)
+          .where(eq(schema.pageSections.pageId, pageId))
+          .orderBy(schema.pageSections.sectionOrder);
+        
+        return sections.map(section => ({
+          ...section,
+          content: section.content ? JSON.parse(section.content) : {},
+          requiredFields: section.requiredFields ? JSON.parse(section.requiredFields) : [],
+        }));
+      }),
+
+    // Update a section's content
+    updateSection: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        content: z.record(z.any()),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db
+          .update(schema.pageSections)
+          .set({
+            content: JSON.stringify(input.content),
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.pageSections.id, input.id));
+        
+        return { success: true };
+      }),
+
+    // Update a specific field within a section's content
+    updateField: adminProcedure
+      .input(z.object({
+        sectionId: z.number(),
+        fieldKey: z.string(),
+        fieldValue: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        // Get current content
+        const [section] = await db
+          .select()
+          .from(schema.pageSections)
+          .where(eq(schema.pageSections.id, input.sectionId));
+        
+        if (!section) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Section not found" });
+        }
+        
+        // Parse and update content
+        const content = section.content ? JSON.parse(section.content) : {};
+        content[input.fieldKey] = input.fieldValue;
+        
+        await db
+          .update(schema.pageSections)
+          .set({
+            content: JSON.stringify(content),
+            updatedAt: new Date(),
+          })
+          .where(eq(schema.pageSections.id, input.sectionId));
+        
+        return { success: true };
+      }),
+  }),
   
   // Media library management
   media: router({
