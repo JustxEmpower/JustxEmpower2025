@@ -141,6 +141,7 @@ function Router() {
       <Route path="/founder">{() => <About />}</Route>
       <Route path="/vision-ethos" component={Philosophy} />
       <Route path="/workshops-programs" component={Offerings} />
+      <Route path="/overview" component={Offerings} />
       <Route path="/vix-journal-trilogy">{() => <Journal />}</Route>
       <Route path="/journal-trilogy">{() => <Journal />}</Route>
       <Route path="/blog-she-writes">{() => <Journal />}</Route>

@@ -8,7 +8,16 @@ import { cn } from '@/lib/utils';
 
 export default function Offerings() {
   const [location] = useLocation();
-  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent('offerings');
+  
+  // Determine page slug based on current URL path
+  const getPageSlug = () => {
+    if (location === '/overview') return 'workshops-programs';
+    if (location === '/workshops-programs') return 'workshops-programs';
+    return 'offerings';
+  };
+  
+  const pageSlug = getPageSlug();
+  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent(pageSlug);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -101,7 +110,7 @@ export default function Offerings() {
       </div>
 
       {/* Page Builder Zone: After Hero */}
-      <EditablePageZone pageSlug="offerings" zoneName="after-hero" />
+      <EditablePageZone pageSlug={pageSlug} zoneName="after-hero" />
 
       {/* Seeds of a New Paradigm */}
       <Section 
@@ -118,7 +127,7 @@ export default function Offerings() {
       />
 
       {/* Page Builder Zone: Mid Page */}
-      <EditablePageZone pageSlug="offerings" zoneName="mid-page" />
+      <EditablePageZone pageSlug={pageSlug} zoneName="mid-page" />
 
       {/* She Writes */}
       <Section 
@@ -167,13 +176,13 @@ export default function Offerings() {
       />
 
       {/* Page Builder Zone: After Content */}
-      <EditablePageZone pageSlug="offerings" zoneName="after-content" />
+      <EditablePageZone pageSlug={pageSlug} zoneName="after-content" />
 
       {/* Page Builder Zone: Before Newsletter */}
-      <EditablePageZone pageSlug="offerings" zoneName="before-newsletter" />
+      <EditablePageZone pageSlug={pageSlug} zoneName="before-newsletter" />
 
       {/* Page Builder Zone: Before Footer */}
-      <EditablePageZone pageSlug="offerings" zoneName="before-footer" />
+      <EditablePageZone pageSlug={pageSlug} zoneName="before-footer" />
     </div>
   );
 }
