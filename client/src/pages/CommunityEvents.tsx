@@ -86,9 +86,9 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
   };
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-300">
-      {/* Hero Section - Now reads from CMS */}
-      <section className="relative overflow-hidden text-white py-20">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
+      {/* Hero Section - Apple-inspired minimal design */}
+      <section className="relative overflow-hidden py-32 md:py-40">
         {/* Background Media */}
         <div className="absolute inset-0">
           {heroMediaUrl && isVideo ? (
@@ -102,177 +102,197 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
               style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900" />
+            <div className="w-full h-full bg-gradient-to-b from-stone-100 to-white dark:from-stone-900 dark:to-[#0a0a0a]" />
           )}
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/40" />
+          {/* Subtle overlay */}
+          <div className="absolute inset-0 bg-black/30" />
         </div>
         
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-serif mb-6" style={getInlineStyles('hero', 'title')}>{heroTitle}</h1>
-            <p className="text-xl text-white/70 mb-8" style={getInlineStyles('hero', 'subtitle')}>
-              {heroSubtitle}
-            </p>
-            <div className="flex justify-center gap-4">
-              <Button
-                variant={viewMode === 'calendar' ? 'default' : 'outline'}
-                onClick={() => setViewMode('calendar')}
-                className={viewMode === 'calendar' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}
-              >
-                <Calendar className="w-4 h-4 mr-2" />
-                Calendar View
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'outline'}
-                onClick={() => setViewMode('list')}
-                className={viewMode === 'list' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-white/10 border-white/20 text-white hover:bg-white/20'}
-              >
-                <List className="w-4 h-4 mr-2" />
-                List View
-              </Button>
-            </div>
+        <div className="relative z-10 max-w-4xl mx-auto px-8 text-center">
+          <h1 
+            className="text-5xl md:text-6xl lg:text-7xl font-light text-white mb-6 tracking-tight"
+            style={getInlineStyles('hero', 'title')}
+          >
+            {heroTitle || 'Community Events'}
+          </h1>
+          <p 
+            className="text-lg md:text-xl text-white/70 mb-12 max-w-2xl mx-auto font-light tracking-wide"
+            style={getInlineStyles('hero', 'subtitle')}
+          >
+            {heroSubtitle}
+          </p>
+          {/* Apple-style pill toggle */}
+          <div className="inline-flex items-center bg-white/10 backdrop-blur-md rounded-full p-1.5">
+            <button
+              onClick={() => setViewMode('calendar')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
+                viewMode === 'calendar' 
+                  ? 'bg-white text-stone-900 shadow-lg' 
+                  : 'text-white/70 hover:text-white'
+              }`}
+            >
+              <Calendar className="w-4 h-4" />
+              Calendar
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300 ${
+                viewMode === 'list' 
+                  ? 'bg-white text-stone-900 shadow-lg' 
+                  : 'text-white/70 hover:text-white'
+              }`}
+            >
+              <List className="w-4 h-4" />
+              List
+            </button>
           </div>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 py-12">
+      <div className="max-w-6xl mx-auto px-8 py-16 md:py-24">
         {viewMode === 'calendar' ? (
           /* Calendar View */
           <EventCalendar showFilters={true} linkToDetail={true} />
         ) : (
-          /* List View */
-          <div className="space-y-6">
-            {/* Status Filter Tabs */}
-            <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as any)}>
-              <TabsList>
-                <TabsTrigger value="upcoming">Upcoming Events</TabsTrigger>
-                <TabsTrigger value="past">Past Events</TabsTrigger>
-                <TabsTrigger value="all">All Events</TabsTrigger>
-              </TabsList>
-            </Tabs>
+          /* List View - Apple-style */
+          <div className="space-y-12">
+            {/* Status Filter - Apple-style pill tabs */}
+            <div className="flex justify-center">
+              <div className="inline-flex items-center bg-stone-100 dark:bg-stone-800/50 rounded-full p-1">
+                {(['upcoming', 'past', 'all'] as const).map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setStatusFilter(status)}
+                    className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 ${
+                      statusFilter === status 
+                        ? 'bg-white dark:bg-stone-900 text-stone-900 dark:text-white shadow-sm' 
+                        : 'text-stone-500 dark:text-stone-400 hover:text-stone-700 dark:hover:text-stone-300'
+                    }`}
+                  >
+                    {status === 'upcoming' ? 'Upcoming' : status === 'past' ? 'Past' : 'All Events'}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             {/* Events List */}
             {eventsQuery.isLoading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading events...</p>
+              <div className="text-center py-20">
+                <p className="text-stone-400 dark:text-stone-500">Loading events...</p>
               </div>
             ) : eventsQuery.data?.events.length === 0 ? (
-              <Card className="text-center py-12">
-                <CardContent>
-                  <CalendarDays className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">No events found</h3>
-                  <p className="text-muted-foreground">
-                    {statusFilter === 'upcoming' 
-                      ? 'Check back soon for upcoming events'
-                      : 'No events to display'
-                    }
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="text-center py-20 bg-stone-50 dark:bg-stone-900/30 rounded-3xl">
+                <CalendarDays className="w-12 h-12 mx-auto text-stone-300 dark:text-stone-600 mb-4" />
+                <h3 className="text-lg font-medium text-stone-900 dark:text-white mb-2">No events found</h3>
+                <p className="text-stone-400 dark:text-stone-500">
+                  {statusFilter === 'upcoming' 
+                    ? 'Check back soon for upcoming events'
+                    : 'No events to display'
+                  }
+                </p>
+              </div>
             ) : (
-              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
                 {eventsQuery.data?.events.map((event) => {
                   const colors = eventTypeColors[event.eventType] || eventTypeColors.other;
                   
                   return (
-                    <Card key={event.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                    <div 
+                      key={event.id} 
+                      className="group bg-stone-50 dark:bg-stone-900/30 rounded-3xl overflow-hidden hover:shadow-xl transition-all duration-500 hover:-translate-y-1"
+                    >
                       {/* Event Image */}
                       {event.featuredImage && (
-                        <div className="aspect-video relative overflow-hidden">
+                        <div className="aspect-[4/3] relative overflow-hidden">
                           <img
                             src={event.featuredImage}
                             alt={event.title}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
-                          <div className="absolute top-3 left-3">
-                            <Badge className={`${colors.bg} ${colors.text}`}>
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                          <div className="absolute bottom-4 left-4 flex items-center gap-2">
+                            <span className="text-xs uppercase tracking-wider text-white/90 font-medium bg-black/30 backdrop-blur-sm px-3 py-1 rounded-full">
                               {event.eventType}
-                            </Badge>
+                            </span>
+                            {event.isFree === 1 && (
+                              <span className="text-xs uppercase tracking-wider text-white font-medium bg-emerald-500/80 backdrop-blur-sm px-3 py-1 rounded-full">
+                                Free
+                              </span>
+                            )}
                           </div>
-                          {event.isFree === 1 && (
-                            <div className="absolute top-3 right-3">
-                              <Badge className="bg-green-500 text-white">Free</Badge>
-                            </div>
-                          )}
                         </div>
                       )}
                       
-                      <CardHeader className={event.featuredImage ? 'pt-4' : ''}>
+                      <div className="p-6">
                         {!event.featuredImage && (
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge className={`${colors.bg} ${colors.text}`}>
+                          <div className="flex items-center gap-2 mb-4">
+                            <span className="text-xs uppercase tracking-wider text-stone-500 dark:text-stone-400 font-medium">
                               {event.eventType}
-                            </Badge>
-                            {event.isFree === 1 && (
-                              <Badge className="bg-green-100 dark:bg-green-900/50 text-green-700 dark:text-green-300">Free</Badge>
-                            )}
-                          </div>
-                        )}
-                        <CardTitle className="line-clamp-2">{event.title}</CardTitle>
-                        {event.shortDescription && (
-                          <CardDescription className="line-clamp-2">
-                            {event.shortDescription}
-                          </CardDescription>
-                        )}
-                      </CardHeader>
-                      
-                      <CardContent className="space-y-3">
-                        {/* Date & Time */}
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="w-4 h-4" />
-                          <span>{formatDate(event.startDate)}</span>
-                          <span>•</span>
-                          <span>{formatTime(event.startDate)}</span>
-                        </div>
-                        
-                        {/* Location */}
-                        {(event.venue || event.city || event.locationType === 'virtual') && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            {event.locationType === 'virtual' ? (
-                              <>
-                                <Video className="w-4 h-4" />
-                                <span>Virtual Event</span>
-                              </>
-                            ) : (
-                              <>
-                                <MapPin className="w-4 h-4" />
-                                <span>{event.venue || event.city}</span>
-                              </>
-                            )}
-                          </div>
-                        )}
-                        
-                        {/* Capacity */}
-                        {event.capacity && (
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Users className="w-4 h-4" />
-                            <span>
-                              {event.spotsRemaining !== null 
-                                ? `${event.spotsRemaining} spots left`
-                                : `${event.capacity} capacity`
-                              }
                             </span>
+                            {event.isFree === 1 && (
+                              <span className="text-xs uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-medium">• Free</span>
+                            )}
                           </div>
                         )}
+                        <h3 className="text-xl font-medium text-stone-900 dark:text-white mb-3 leading-snug line-clamp-2">
+                          {event.title}
+                        </h3>
+                        {event.shortDescription && (
+                          <p className="text-stone-500 dark:text-stone-400 text-sm leading-relaxed line-clamp-2 mb-5">
+                            {event.shortDescription}
+                          </p>
+                        )}
+                        
+                        {/* Event Meta */}
+                        <div className="space-y-2 mb-6">
+                          <div className="flex items-center gap-2 text-sm text-stone-400 dark:text-stone-500">
+                            <Clock className="w-4 h-4" />
+                            <span>{formatDate(event.startDate)} • {formatTime(event.startDate)}</span>
+                          </div>
+                          
+                          {(event.venue || event.city || event.locationType === 'virtual') && (
+                            <div className="flex items-center gap-2 text-sm text-stone-400 dark:text-stone-500">
+                              {event.locationType === 'virtual' ? (
+                                <>
+                                  <Video className="w-4 h-4" />
+                                  <span>Virtual Event</span>
+                                </>
+                              ) : (
+                                <>
+                                  <MapPin className="w-4 h-4" />
+                                  <span>{event.venue || event.city}</span>
+                                </>
+                              )}
+                            </div>
+                          )}
+                          
+                          {event.capacity && (
+                            <div className="flex items-center gap-2 text-sm text-stone-400 dark:text-stone-500">
+                              <Users className="w-4 h-4" />
+                              <span>
+                                {event.spotsRemaining !== null 
+                                  ? `${event.spotsRemaining} spots left`
+                                  : `${event.capacity} capacity`
+                                }
+                              </span>
+                            </div>
+                          )}
+                        </div>
                         
                         {/* Price & CTA */}
-                        <div className="flex items-center justify-between pt-3 border-t border-border">
-                          {event.isFree !== 1 && (
-                            <span className="font-semibold text-foreground">
-                              {event.formattedPrice}
-                            </span>
-                          )}
-                          {event.isFree === 1 && <span />}
+                        <div className="flex items-center justify-between pt-5 border-t border-stone-200 dark:border-stone-700">
+                          <span className="font-medium text-stone-900 dark:text-white">
+                            {event.isFree === 1 ? 'Free' : event.formattedPrice}
+                          </span>
                           <Link href={`/events/${event.slug}`}>
-                            <Button size="sm" className="bg-amber-600 hover:bg-amber-700">
+                            <button className="flex items-center gap-2 text-sm font-medium text-stone-900 dark:text-white hover:text-amber-600 dark:hover:text-amber-400 transition-colors">
                               {event.isPast ? 'View Details' : 'Register'}
-                              <ArrowRight className="w-4 h-4 ml-1" />
-                            </Button>
+                              <ArrowRight className="w-4 h-4" />
+                            </button>
                           </Link>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+                    </div>
                   );
                 })}
               </div>
@@ -280,29 +300,30 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
             
             {/* Load More */}
             {eventsQuery.data?.hasMore && (
-              <div className="text-center pt-6">
-                <Button variant="outline" size="lg">
+              <div className="text-center pt-8">
+                <button className="px-8 py-3 bg-stone-900 dark:bg-white text-white dark:text-stone-900 rounded-full text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-100 transition-colors">
                   Load More Events
-                </Button>
+                </button>
               </div>
             )}
           </div>
         )}
       </div>
 
-      {/* CTA Section */}
-      <section className="bg-stone-100 dark:bg-stone-900 py-16">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl font-serif text-foreground mb-4">
+      {/* CTA Section - Apple-style */}
+      <section className="bg-stone-50 dark:bg-stone-900/50 py-24 md:py-32">
+        <div className="max-w-3xl mx-auto px-8 text-center">
+          <p className="text-xs uppercase tracking-[0.3em] text-stone-400 dark:text-stone-500 mb-4">Collaborate</p>
+          <h2 className="text-3xl md:text-4xl font-light text-stone-900 dark:text-white mb-6">
             Want to host an event with us?
           </h2>
-          <p className="text-muted-foreground mb-6 max-w-xl mx-auto">
+          <p className="text-stone-500 dark:text-stone-400 mb-10 text-lg font-light leading-relaxed">
             We're always looking for collaborators and partners to create meaningful experiences for our community.
           </p>
           <Link href="/contact">
-            <Button className="bg-amber-600 hover:bg-amber-700">
+            <button className="px-8 py-4 bg-stone-900 dark:bg-white text-white dark:text-stone-900 rounded-full text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-100 transition-colors">
               Get in Touch
-            </Button>
+            </button>
           </Link>
         </div>
       </section>
