@@ -225,11 +225,15 @@ function ProductCard({ product }: ProductCardProps) {
   // Safely parse images using helper
   const images = safeParseImages(product.images);
   // Use featuredImage first, then fall back to images array
-  // Ensure we properly get the image URL - check if featuredImage exists and is not empty
-  const mainImage = (product.featuredImage && product.featuredImage.trim()) 
+  const hasFeaturedImage = product.featuredImage && product.featuredImage.trim();
+  const mainImage = hasFeaturedImage 
     ? product.featuredImage 
     : (images[0] || "/placeholder-product.jpg");
-  const hoverImage = images[1] || images[0] || product.featuredImage || mainImage;
+  // If using featuredImage as main, hover should be first gallery image (images[0])
+  // If using images[0] as main, hover should be second gallery image (images[1])
+  const hoverImage = hasFeaturedImage 
+    ? (images[0] || mainImage)
+    : (images[1] || images[0] || mainImage);
   
   // Parse display settings from dimensions JSON
   const getDisplaySettings = () => {
