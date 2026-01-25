@@ -82,8 +82,15 @@ export default function AdminContent() {
     };
 
     if (pagesData && pagesData.length > 0) {
+      // Ensure "home" is always in the list
+      const hasHome = pagesData.some(p => p.slug === 'home');
+      const pagesWithHome = hasHome ? pagesData : [
+        { slug: 'home', title: 'Home', published: 1, showInNav: 0, template: 'default' },
+        ...pagesData
+      ];
+      
       // Sort pages: by priority order, then alphabetically
-      return pagesData
+      return pagesWithHome
         .sort((a, b) => {
           const orderA = pageOrder[a.slug] || 50; // Default to middle if not in list
           const orderB = pageOrder[b.slug] || 50;
