@@ -95,6 +95,13 @@ export default function AdminProductsEnhanced() {
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [galleryPickerOpen, setGalleryPickerOpen] = useState(false);
+  
+  // DnD sensors for media gallery reordering
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+  
   // Product type definitions
   type ProductType = "apparel" | "book" | "course" | "digital" | "physical";
   
@@ -601,10 +608,7 @@ export default function AdminProductsEnhanced() {
               
               {formData.mediaGallery.length > 0 ? (
                 <DndContext
-                  sensors={useSensors(
-                    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-                    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-                  )}
+                  sensors={sensors}
                   collisionDetection={closestCenter}
                   onDragEnd={(event: DragEndEvent) => {
                     const { active, over } = event;
