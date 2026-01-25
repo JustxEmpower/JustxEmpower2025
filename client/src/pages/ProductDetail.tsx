@@ -374,18 +374,18 @@ export default function ProductDetail() {
           {/* Product Info - Right Side */}
           <div className="flex flex-col justify-center px-8 lg:px-16 py-12">
             {/* Product Name */}
-            <h1 className="text-2xl font-semibold text-stone-900 dark:text-foreground mb-2">
+            <h1 className="text-3xl md:text-4xl font-semibold text-stone-900 dark:text-foreground mb-3">
               {product.name}
             </h1>
             
             {/* Price */}
-            <p className="text-xl text-stone-700 dark:text-muted-foreground mb-8">
+            <p className="text-2xl md:text-3xl text-stone-700 dark:text-muted-foreground mb-8">
               {formatPrice(product.price)}
             </p>
             
             {/* Description */}
             {product.description && (
-              <p className="text-sm leading-relaxed text-stone-600 dark:text-muted-foreground mb-8 max-w-md">
+              <p className="text-base md:text-lg leading-relaxed text-stone-600 dark:text-muted-foreground mb-8 max-w-md">
                 {product.description}
               </p>
             )}
@@ -507,9 +507,9 @@ export default function ProductDetail() {
                     <Plus className={`w-4 h-4 transition-transform ${expandedSection === 'details' ? 'rotate-45' : ''}`} />
                   </button>
                   {expandedSection === 'details' && (
-                    <div className="py-4 text-sm text-stone-600 dark:text-muted-foreground space-y-2">
-                      {/* Product Details - separate editable field */}
-                      {productInfo.productDetails && <p>{productInfo.productDetails}</p>}
+                    <div className="py-4 text-base text-stone-600 dark:text-muted-foreground space-y-3">
+                      {/* Product Details - separate editable field with preserved line breaks */}
+                      {productInfo.productDetails && <div className="whitespace-pre-line">{productInfo.productDetails}</div>}
                       {/* Fall back to description if no productDetails */}
                       {!productInfo.productDetails && product.description && <p>{product.description}</p>}
                       
