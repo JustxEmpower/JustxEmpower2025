@@ -62,7 +62,7 @@ import {
 import { storagePut, getPresignedUploadUrl } from "./storage";
 import { getDb } from "./db";
 import * as schema from "../drizzle/schema";
-import { eq, and, sql, desc, lt, gte, isNotNull } from "drizzle-orm";
+import { eq, and, sql, desc, asc, lt, gte, isNotNull } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { generateColorPalette, suggestFontPairings } from "./aiService";
 
