@@ -470,9 +470,11 @@ export const adminRouter = router({
   }),
 
   // AI Content Generation
-  ai: router({    generateArticle: adminProcedure
+  ai: router({
+    generateArticle: adminProcedure
       .input(z.object({ topic: z.string(), tone: z.string().optional() }))
       .mutation(async ({ input }) => {
+        await ensureGeminiInitialized();
         const content = await generateArticleContent(input.topic, input.tone);
         return { content };
       }),
@@ -480,6 +482,7 @@ export const adminRouter = router({
     generateMetaDescription: adminProcedure
       .input(z.object({ title: z.string(), content: z.string() }))
       .mutation(async ({ input }) => {
+        await ensureGeminiInitialized();
         const description = await generateMetaDescription(input.title, input.content);
         return { description };
       }),
@@ -869,11 +872,25 @@ export const adminRouter = router({
         date: z.string().optional(),
         excerpt: z.string().optional(),
         content: z.string(),
-        imageUrl: z.string().optional(),
+        imageUrl: z.string().nullable().optional(),
         published: z.number().optional(),
+        status: z.string().optional(),
+        publishDate: z.string().nullable().optional(),
       }))
       .mutation(async ({ input }) => {
-        await createArticle(input);
+        const articleData: any = {
+          title: input.title,
+          slug: input.slug,
+          content: input.content,
+          category: input.category || null,
+          date: input.date || null,
+          excerpt: input.excerpt || null,
+          imageUrl: input.imageUrl || null,
+          published: input.status === 'published' ? 1 : (input.published ?? 1),
+          status: input.status || 'published',
+          publishDate: input.publishDate ? new Date(input.publishDate) : null,
+        };
+        await createArticle(articleData);
         return { success: true };
       }),
     
@@ -886,12 +903,22 @@ export const adminRouter = router({
         date: z.string().optional(),
         excerpt: z.string().optional(),
         content: z.string().optional(),
-        imageUrl: z.string().optional(),
+        imageUrl: z.string().nullable().optional(),
         published: z.number().optional(),
+        status: z.string().optional(),
+        publishDate: z.string().nullable().optional(),
         displayOrder: z.number().optional(),
       }))
       .mutation(async ({ input }) => {
-        const { id, ...data } = input;
+        const { id, publishDate, status, ...rest } = input;
+        const data: any = { ...rest };
+        if (status) {
+          data.status = status;
+          data.published = status === 'published' ? 1 : 0;
+        }
+        if (publishDate !== undefined) {
+          data.publishDate = publishDate ? new Date(publishDate) : null;
+        }
         await updateArticle(id, data);
         return { success: true };
       }),

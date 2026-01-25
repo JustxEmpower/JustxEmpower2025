@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRoute, Link } from 'wouter';
 import { trpc } from '@/lib/trpc';
 import { getMediaUrl } from '@/lib/media';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, ArrowRight, Calendar, Clock, Share2, BookOpen } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, Clock, Share2, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Helper function to convert plain text with line breaks to HTML paragraphs
@@ -49,12 +49,48 @@ export default function ArticleDetail() {
 
   // Fetch recent articles for "Read Next" section
   const { data: recentArticles } = trpc.articles.list.useQuery(
-    { limit: 4, status: 'published' },
+    { limit: 10, status: 'published' },
     { enabled: !!article }
   );
 
   // Filter out current article and get next articles
-  const nextArticles = recentArticles?.filter(a => a.slug !== slug).slice(0, 3) || [];
+  const nextArticles = recentArticles?.filter(a => a.slug !== slug) || [];
+
+  // Scroll ref for Read Next carousel
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScrollButtons = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+
+  useEffect(() => {
+    checkScrollButtons();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollButtons);
+      window.addEventListener('resize', checkScrollButtons);
+      return () => {
+        container.removeEventListener('scroll', checkScrollButtons);
+        window.removeEventListener('resize', checkScrollButtons);
+      };
+    }
+  }, [nextArticles]);
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 400;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -202,19 +238,54 @@ export default function ArticleDetail() {
         />
       </article>
 
-      {/* Read Next Section - Apple-style */}
+      {/* Read Next Section - Apple-style with scroll arrows */}
       {nextArticles.length > 0 && (
         <section className="bg-stone-50 dark:bg-stone-900/50 py-20 md:py-28">
-          <div className="max-w-6xl mx-auto px-8">
-            <div className="text-center mb-14">
-              <p className="text-xs uppercase tracking-[0.3em] text-stone-400 dark:text-stone-500 mb-3">Continue Reading</p>
-              <h2 className="text-3xl md:text-4xl font-light text-stone-900 dark:text-white">Read Next</h2>
+          <div className="max-w-7xl mx-auto px-8">
+            <div className="flex items-end justify-between mb-14">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-stone-400 dark:text-stone-500 mb-3">Continue Reading</p>
+                <h2 className="text-3xl md:text-4xl font-light text-stone-900 dark:text-white">Read Next</h2>
+              </div>
+              
+              {/* Navigation Arrows */}
+              {nextArticles.length > 3 && (
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => scrollCarousel('left')}
+                    disabled={!canScrollLeft}
+                    className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                      canScrollLeft 
+                        ? 'border-stone-900 dark:border-white text-stone-900 dark:text-white hover:bg-stone-900 hover:text-white dark:hover:bg-white dark:hover:text-stone-900' 
+                        : 'border-stone-300 dark:border-stone-700 text-stone-300 dark:text-stone-700 cursor-not-allowed'
+                    }`}
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => scrollCarousel('right')}
+                    disabled={!canScrollRight}
+                    className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                      canScrollRight 
+                        ? 'border-stone-900 dark:border-white text-stone-900 dark:text-white hover:bg-stone-900 hover:text-white dark:hover:bg-white dark:hover:text-stone-900' 
+                        : 'border-stone-300 dark:border-stone-700 text-stone-300 dark:text-stone-700 cursor-not-allowed'
+                    }`}
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
             </div>
             
-            <div className="grid md:grid-cols-3 gap-8">
+            {/* Scrollable Articles Container */}
+            <div 
+              ref={scrollContainerRef}
+              className="flex gap-8 overflow-x-auto scrollbar-hide pb-4 -mx-8 px-8 snap-x snap-mandatory"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
               {nextArticles.map((nextArticle) => (
                 <Link key={nextArticle.id} href={`/blog/${nextArticle.slug}`}>
-                  <article className="group cursor-pointer">
+                  <article className="group cursor-pointer flex-shrink-0 w-[320px] md:w-[380px] snap-start">
                     {/* Article Image */}
                     <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-5 bg-stone-200 dark:bg-stone-800">
                       {nextArticle.imageUrl ? (

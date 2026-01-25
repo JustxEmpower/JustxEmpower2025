@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useLocation } from 'wouter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,8 @@ import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Edit, Trash2, Save, X, Sparkles, Loader2, ChevronUp, ChevronDown, 
-  Image, Search, RefreshCw, FileText, Eye, Calendar, Filter, LayoutGrid, List
+  Image, Search, RefreshCw, FileText, Eye, Calendar, Filter, LayoutGrid, List,
+  Heading1, Heading2, Heading3, Type, Bold, Italic, AlignLeft, Quote
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -54,6 +55,63 @@ export default function AdminArticlesEnhanced() {
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
   const [aiTopic, setAiTopic] = useState('');
   const [aiTone, setAiTone] = useState('professional');
+  const [fontSize, setFontSize] = useState('base');
+  const contentRef = useRef<HTMLTextAreaElement>(null);
+
+  // Insert HTML tag at cursor position
+  const insertTag = (openTag: string, closeTag: string = '') => {
+    const textarea = contentRef.current;
+    if (!textarea) return;
+    
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const selectedText = content.substring(start, end);
+    const beforeText = content.substring(0, start);
+    const afterText = content.substring(end);
+    
+    const newContent = beforeText + openTag + selectedText + closeTag + afterText;
+    setContent(newContent);
+    
+    // Set cursor position after the inserted text
+    setTimeout(() => {
+      textarea.focus();
+      const newCursorPos = start + openTag.length + selectedText.length;
+      textarea.setSelectionRange(newCursorPos, newCursorPos);
+    }, 0);
+  };
+
+  const insertHeading = (level: number) => {
+    insertTag(`<h${level}>`, `</h${level}>\n\n`);
+  };
+
+  const insertParagraph = () => {
+    insertTag('<p>', '</p>\n\n');
+  };
+
+  const insertBold = () => {
+    insertTag('<strong>', '</strong>');
+  };
+
+  const insertItalic = () => {
+    insertTag('<em>', '</em>');
+  };
+
+  const insertBlockquote = () => {
+    insertTag('<blockquote>', '</blockquote>\n\n');
+  };
+
+  const insertFontSize = (size: string) => {
+    const sizeMap: Record<string, string> = {
+      'xs': 'font-size: 0.75rem',
+      'sm': 'font-size: 0.875rem',
+      'base': 'font-size: 1rem',
+      'lg': 'font-size: 1.125rem',
+      'xl': 'font-size: 1.25rem',
+      '2xl': 'font-size: 1.5rem',
+      '3xl': 'font-size: 1.875rem',
+    };
+    insertTag(`<span style="${sizeMap[size]}">`, '</span>');
+  };
 
   const { data: articles, isLoading, refetch } = trpc.admin.articles.list.useQuery(undefined, { enabled: isAuthenticated });
 
@@ -348,7 +406,68 @@ export default function AdminArticlesEnhanced() {
                       </DialogContent>
                     </Dialog>
                   </div>
-                  <Textarea value={content} onChange={(e) => setContent(e.target.value)} placeholder="Article content (supports HTML)" rows={12} required />
+                  
+                  {/* Rich Text Toolbar */}
+                  <div className="flex flex-wrap items-center gap-1 p-2 bg-stone-100 dark:bg-stone-800 rounded-t-lg border border-b-0 border-stone-200 dark:border-stone-700">
+                    {/* Headings */}
+                    <div className="flex items-center gap-1 pr-2 border-r border-stone-300 dark:border-stone-600">
+                      <Button type="button" variant="ghost" size="sm" onClick={() => insertHeading(1)} title="Heading 1" className="h-8 w-8 p-0">
+                        <Heading1 className="w-4 h-4" />
+                      </Button>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => insertHeading(2)} title="Heading 2" className="h-8 w-8 p-0">
+                        <Heading2 className="w-4 h-4" />
+                      </Button>
+                      <Button type="button" variant="ghost" size="sm" onClick={() => insertHeading(3)} title="Heading 3" className="h-8 w-8 p-0">
+                        <Heading3 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    
+                    {/* Text formatting */}
+                    <div className="flex items-center gap-1 px-2 border-r border-stone-300 dark:border-stone-600">
+                      <Button type="button" variant="ghost" size="sm" onClick={insertParagraph} title="Paragraph" className="h-8 w-8 p-0">
+                        <AlignLeft className="w-4 h-4" />
+                      </Button>
+                      <Button type="button" variant="ghost" size="sm" onClick={insertBold} title="Bold" className="h-8 w-8 p-0">
+                        <Bold className="w-4 h-4" />
+                      </Button>
+                      <Button type="button" variant="ghost" size="sm" onClick={insertItalic} title="Italic" className="h-8 w-8 p-0">
+                        <Italic className="w-4 h-4" />
+                      </Button>
+                      <Button type="button" variant="ghost" size="sm" onClick={insertBlockquote} title="Blockquote" className="h-8 w-8 p-0">
+                        <Quote className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    
+                    {/* Font Size */}
+                    <div className="flex items-center gap-2 pl-2">
+                      <Type className="w-4 h-4 text-stone-500" />
+                      <Select value={fontSize} onValueChange={(v) => { setFontSize(v); insertFontSize(v); }}>
+                        <SelectTrigger className="w-24 h-8 text-xs">
+                          <SelectValue placeholder="Size" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="xs">XS (12px)</SelectItem>
+                          <SelectItem value="sm">SM (14px)</SelectItem>
+                          <SelectItem value="base">Base (16px)</SelectItem>
+                          <SelectItem value="lg">LG (18px)</SelectItem>
+                          <SelectItem value="xl">XL (20px)</SelectItem>
+                          <SelectItem value="2xl">2XL (24px)</SelectItem>
+                          <SelectItem value="3xl">3XL (30px)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  
+                  <Textarea 
+                    ref={contentRef}
+                    value={content} 
+                    onChange={(e) => setContent(e.target.value)} 
+                    placeholder="Article content (supports HTML)" 
+                    rows={12} 
+                    required 
+                    className="rounded-t-none font-mono text-sm"
+                  />
+                  <p className="text-xs text-stone-500">Tip: Select text then click a format button to wrap it in HTML tags</p>
                 </div>
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
