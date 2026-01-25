@@ -3,7 +3,7 @@ import { useRoute, Link } from 'wouter';
 import { trpc } from '@/lib/trpc';
 import { getMediaUrl } from '@/lib/media';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar, Clock, Share2, BookOpen } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, Clock, Share2, BookOpen } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Helper function to convert plain text with line breaks to HTML paragraphs
@@ -46,6 +46,15 @@ export default function ArticleDetail() {
     { slug },
     { enabled: !!slug }
   );
+
+  // Fetch recent articles for "Read Next" section
+  const { data: recentArticles } = trpc.articles.list.useQuery(
+    { limit: 4, status: 'published' },
+    { enabled: !!article }
+  );
+
+  // Filter out current article and get next articles
+  const nextArticles = recentArticles?.filter(a => a.slug !== slug).slice(0, 3) || [];
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -193,14 +202,69 @@ export default function ArticleDetail() {
         />
       </article>
 
-      {/* Back to Blog */}
-      <div className="border-t border-border">
-        <div className="max-w-4xl mx-auto px-6 py-12 flex justify-center">
+      {/* Read Next Section - Apple-style */}
+      {nextArticles.length > 0 && (
+        <section className="bg-stone-50 dark:bg-stone-900/50 py-20 md:py-28">
+          <div className="max-w-6xl mx-auto px-8">
+            <div className="text-center mb-14">
+              <p className="text-xs uppercase tracking-[0.3em] text-stone-400 dark:text-stone-500 mb-3">Continue Reading</p>
+              <h2 className="text-3xl md:text-4xl font-light text-stone-900 dark:text-white">Read Next</h2>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              {nextArticles.map((nextArticle) => (
+                <Link key={nextArticle.id} href={`/blog/${nextArticle.slug}`}>
+                  <article className="group cursor-pointer">
+                    {/* Article Image */}
+                    <div className="aspect-[4/3] rounded-2xl overflow-hidden mb-5 bg-stone-200 dark:bg-stone-800">
+                      {nextArticle.imageUrl ? (
+                        <img
+                          src={getProperMediaUrl(nextArticle.imageUrl)}
+                          alt={nextArticle.title}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-stone-300 to-stone-400 dark:from-stone-700 dark:to-stone-800" />
+                      )}
+                    </div>
+                    
+                    {/* Article Meta */}
+                    {nextArticle.category && (
+                      <p className="text-xs uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 mb-2">
+                        {nextArticle.category}
+                      </p>
+                    )}
+                    
+                    <h3 className="text-xl font-medium text-stone-900 dark:text-white mb-3 leading-snug group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors line-clamp-2">
+                      {nextArticle.title}
+                    </h3>
+                    
+                    {nextArticle.excerpt && (
+                      <p className="text-stone-500 dark:text-stone-400 text-sm leading-relaxed line-clamp-2 mb-4">
+                        {nextArticle.excerpt}
+                      </p>
+                    )}
+                    
+                    <span className="inline-flex items-center gap-2 text-sm font-medium text-stone-900 dark:text-white group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">
+                      Read Article
+                      <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                    </span>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Back to Blog - Apple-style */}
+      <div className="border-t border-stone-200 dark:border-stone-800 bg-white dark:bg-[#0a0a0a]">
+        <div className="max-w-4xl mx-auto px-8 py-16 flex justify-center">
           <Link href="/blog">
-            <Button variant="outline" className="rounded-full px-12 py-6 text-base tracking-wider">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              BACK TO BLOG
-            </Button>
+            <button className="flex items-center gap-3 px-10 py-4 bg-stone-900 dark:bg-white text-white dark:text-stone-900 rounded-full text-sm font-medium hover:bg-stone-800 dark:hover:bg-stone-100 transition-colors">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Blog
+            </button>
           </Link>
         </div>
       </div>
