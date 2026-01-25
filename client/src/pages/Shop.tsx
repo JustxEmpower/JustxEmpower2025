@@ -111,25 +111,25 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
       {/* Page Builder Zone: Mid Page */}
       <EditablePageZone pageSlug="shop" zoneName="mid-page" />
 
-      {/* Products Grid - Yeezy Style */}
-      <main className="pt-[140px] pb-20">
+      {/* Products Grid - Apple-inspired elegant layout */}
+      <main className="pt-[140px] pb-20 px-8 md:px-12 lg:px-16">
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-            {[...Array(10)].map((_, i) => (
-              <div key={i} className="aspect-square bg-muted animate-pulse" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-12 max-w-7xl mx-auto">
+            {[...Array(8)].map((_, i) => (
+              <div key={i} className="aspect-square bg-muted animate-pulse rounded-2xl" />
             ))}
           </div>
         ) : products.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-            <p className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground mb-4">
+            <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-4">
               No products available
             </p>
-            <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60">
+            <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground/60">
               Check back soon
             </p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-12 max-w-7xl mx-auto">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -243,34 +243,34 @@ function ProductCard({ product }: ProductCardProps) {
   return (
     <Link href={`/shop/${product.slug}`}>
       <div 
-        className="group relative cursor-pointer p-2"
+        className="group relative cursor-pointer"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Product Image */}
-        <div className="aspect-square bg-stone-100 dark:bg-muted overflow-hidden rounded-lg">
+        {/* Product Image - Apple-inspired with subtle shadow and rounded corners */}
+        <div className="aspect-[4/5] bg-gradient-to-b from-stone-50 to-stone-100 dark:from-muted dark:to-muted/80 overflow-hidden rounded-2xl shadow-sm group-hover:shadow-lg transition-shadow duration-500">
           {imageError ? (
-            <div className="w-full h-full flex items-center justify-center bg-stone-100 dark:bg-muted">
-              <span className="text-[10px] uppercase tracking-[0.2em] text-stone-500 dark:text-muted-foreground">No Image</span>
+            <div className="w-full h-full flex items-center justify-center">
+              <span className="text-sm uppercase tracking-[0.15em] text-stone-400 dark:text-muted-foreground">No Image</span>
             </div>
           ) : (
             <img
               src={getMediaUrl(isHovered ? hoverImage : mainImage)}
               alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-[1.03]"
               onError={() => setImageError(true)}
               loading="lazy"
             />
           )}
         </div>
         
-        {/* Product Info - Always visible */}
-        <div className="pt-3 px-1">
-          <h3 className={`${fontSizeMap[displaySettings.nameFontSize] || 'text-lg'} font-medium text-stone-900 dark:text-foreground`}>{product.name}</h3>
+        {/* Product Info - Clean Apple-style typography */}
+        <div className="pt-5 px-1">
+          <h3 className={`${fontSizeMap[displaySettings.nameFontSize] || 'text-lg'} font-medium text-stone-900 dark:text-foreground leading-snug`}>{product.name}</h3>
           {subDescription && (
-            <p className="text-sm text-stone-500 dark:text-muted-foreground/70 mt-1 line-clamp-3">{subDescription}</p>
+            <p className="text-sm text-stone-500 dark:text-muted-foreground/70 mt-2 leading-relaxed line-clamp-3">{subDescription}</p>
           )}
-          <p className={`${fontSizeMap[displaySettings.priceFontSize] || 'text-lg'} text-stone-600 dark:text-muted-foreground mt-2`}>
+          <p className={`${fontSizeMap[displaySettings.priceFontSize] || 'text-lg'} text-stone-600 dark:text-muted-foreground mt-3 font-medium`}>
             {product.formattedPrice}
           </p>
         </div>
