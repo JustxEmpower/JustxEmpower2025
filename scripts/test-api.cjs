@@ -15,7 +15,7 @@ function safeJsonParse(jsonString, defaultValue) {
 
 async function testApi() {
   const conn = await mysql.createConnection(process.env.DATABASE_URL);
-  const [rows] = await conn.execute("SELECT * FROM products WHERE slug = 'mom-vix-the-becoming-of-you'");
+  const [rows] = await conn.execute("SELECT * FROM products WHERE id = 4");
   
   if (rows.length > 0) {
     const product = rows[0];
