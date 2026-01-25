@@ -122,7 +122,10 @@ export default function ProductDetail() {
     
     if (product.dimensions) {
       try {
-        const parsed = JSON.parse(product.dimensions);
+        // Handle both string (needs parsing) and object (already parsed by API)
+        const parsed = typeof product.dimensions === 'string' 
+          ? JSON.parse(product.dimensions) 
+          : product.dimensions;
         productType = parsed.productType || "physical";
         sizes = Array.isArray(parsed) ? parsed : (parsed.sizes || []);
         showSizes = parsed.sizeType && parsed.sizeType !== "none";
