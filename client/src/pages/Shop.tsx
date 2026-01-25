@@ -113,10 +113,10 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
 
       {/* Products Grid - Apple-inspired elegant layout */}
       <main className="pt-[140px] pb-20">
-        <div className="max-w-6xl mx-auto px-6 md:px-8">
+        <div className="max-w-7xl mx-auto px-6 md:px-8">
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-              {[...Array(6)].map((_, i) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+              {[...Array(8)].map((_, i) => (
                 <div key={i} className="aspect-square bg-muted animate-pulse rounded-2xl" />
               ))}
             </div>
@@ -130,7 +130,7 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 justify-items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 justify-items-center">
               {products.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
