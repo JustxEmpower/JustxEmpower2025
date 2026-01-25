@@ -172,17 +172,35 @@ interface ProductCardProps {
   };
 }
 
-// Safe JSON parse helper for product images
+// Safe JSON parse helper for product images - filters out videos
 function safeParseImages(images: string | string[] | null | undefined): string[] {
   if (!images) return [];
+  
+  // Helper to check if item is an image (not video)
+  const isImageItem = (item: any): boolean => {
+    if (typeof item === 'object' && item?.type) {
+      return item.type === 'image';
+    }
+    // If it's a string URL, check extension
+    const url = typeof item === 'string' ? item : item?.url;
+    if (!url) return false;
+    const ext = url.split('.').pop()?.toLowerCase();
+    return !['mov', 'mp4', 'webm', 'avi', 'mkv'].includes(ext || '');
+  };
+  
+  // Helper to extract URL from item
+  const getUrl = (item: any): string => {
+    return typeof item === 'object' && item?.url ? item.url : item;
+  };
+  
   if (Array.isArray(images)) {
-    return images.map(item => typeof item === 'object' && item?.url ? item.url : item).filter(Boolean);
+    return images.filter(isImageItem).map(getUrl).filter(Boolean);
   }
   if (typeof images !== 'string' || !images.trim() || images === 'null') return [];
   try {
     const parsed = JSON.parse(images);
     if (Array.isArray(parsed)) {
-      return parsed.map((item: any) => typeof item === 'object' && item?.url ? item.url : item).filter(Boolean);
+      return parsed.filter(isImageItem).map(getUrl).filter(Boolean);
     }
     return [];
   } catch (e) {
