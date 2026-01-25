@@ -407,67 +407,75 @@ export default function AdminArticlesEnhanced() {
                     </Dialog>
                   </div>
                   
-                  {/* Rich Text Toolbar */}
-                  <div className="flex flex-wrap items-center gap-1 p-2 bg-stone-100 dark:bg-stone-800 rounded-t-lg border border-b-0 border-stone-200 dark:border-stone-700">
-                    {/* Headings */}
-                    <div className="flex items-center gap-1 pr-2 border-r border-stone-300 dark:border-stone-600">
-                      <Button type="button" variant="ghost" size="sm" onClick={() => insertHeading(1)} title="Heading 1" className="h-8 w-8 p-0">
-                        <Heading1 className="w-4 h-4" />
-                      </Button>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => insertHeading(2)} title="Heading 2" className="h-8 w-8 p-0">
-                        <Heading2 className="w-4 h-4" />
-                      </Button>
-                      <Button type="button" variant="ghost" size="sm" onClick={() => insertHeading(3)} title="Heading 3" className="h-8 w-8 p-0">
-                        <Heading3 className="w-4 h-4" />
-                      </Button>
+                  {/* Rich Text Toolbar - Sleek Apple-style */}
+                  <div className="rounded-xl border border-amber-200 dark:border-amber-800 overflow-hidden">
+                    <div className="flex flex-wrap items-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border-b border-amber-200 dark:border-amber-800">
+                      {/* Headings */}
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-medium text-amber-700 dark:text-amber-400 mr-2">Headings</span>
+                        <button type="button" onClick={() => insertHeading(1)} title="Heading 1" className="h-8 px-3 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors text-xs font-bold">
+                          H1
+                        </button>
+                        <button type="button" onClick={() => insertHeading(2)} title="Heading 2" className="h-8 px-3 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors text-xs font-bold">
+                          H2
+                        </button>
+                        <button type="button" onClick={() => insertHeading(3)} title="Heading 3" className="h-8 px-3 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors text-xs font-bold">
+                          H3
+                        </button>
+                      </div>
+                      
+                      <div className="w-px h-6 bg-amber-300 dark:bg-amber-700" />
+                      
+                      {/* Text formatting */}
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-medium text-amber-700 dark:text-amber-400 mr-2">Format</span>
+                        <button type="button" onClick={insertParagraph} title="Paragraph" className="h-8 w-8 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors flex items-center justify-center">
+                          <AlignLeft className="w-4 h-4" />
+                        </button>
+                        <button type="button" onClick={insertBold} title="Bold" className="h-8 w-8 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors flex items-center justify-center font-bold">
+                          B
+                        </button>
+                        <button type="button" onClick={insertItalic} title="Italic" className="h-8 w-8 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors flex items-center justify-center italic">
+                          I
+                        </button>
+                        <button type="button" onClick={insertBlockquote} title="Blockquote" className="h-8 w-8 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors flex items-center justify-center">
+                          <Quote className="w-4 h-4" />
+                        </button>
+                      </div>
+                      
+                      <div className="w-px h-6 bg-amber-300 dark:bg-amber-700" />
+                      
+                      {/* Font Size */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-amber-700 dark:text-amber-400">Size</span>
+                        <Select value={fontSize} onValueChange={(v) => { setFontSize(v); insertFontSize(v); }}>
+                          <SelectTrigger className="w-28 h-8 text-xs bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700">
+                            <SelectValue placeholder="Font Size" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="xs">XS (12px)</SelectItem>
+                            <SelectItem value="sm">SM (14px)</SelectItem>
+                            <SelectItem value="base">Base (16px)</SelectItem>
+                            <SelectItem value="lg">LG (18px)</SelectItem>
+                            <SelectItem value="xl">XL (20px)</SelectItem>
+                            <SelectItem value="2xl">2XL (24px)</SelectItem>
+                            <SelectItem value="3xl">3XL (30px)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     
-                    {/* Text formatting */}
-                    <div className="flex items-center gap-1 px-2 border-r border-stone-300 dark:border-stone-600">
-                      <Button type="button" variant="ghost" size="sm" onClick={insertParagraph} title="Paragraph" className="h-8 w-8 p-0">
-                        <AlignLeft className="w-4 h-4" />
-                      </Button>
-                      <Button type="button" variant="ghost" size="sm" onClick={insertBold} title="Bold" className="h-8 w-8 p-0">
-                        <Bold className="w-4 h-4" />
-                      </Button>
-                      <Button type="button" variant="ghost" size="sm" onClick={insertItalic} title="Italic" className="h-8 w-8 p-0">
-                        <Italic className="w-4 h-4" />
-                      </Button>
-                      <Button type="button" variant="ghost" size="sm" onClick={insertBlockquote} title="Blockquote" className="h-8 w-8 p-0">
-                        <Quote className="w-4 h-4" />
-                      </Button>
-                    </div>
-                    
-                    {/* Font Size */}
-                    <div className="flex items-center gap-2 pl-2">
-                      <Type className="w-4 h-4 text-stone-500" />
-                      <Select value={fontSize} onValueChange={(v) => { setFontSize(v); insertFontSize(v); }}>
-                        <SelectTrigger className="w-24 h-8 text-xs">
-                          <SelectValue placeholder="Size" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="xs">XS (12px)</SelectItem>
-                          <SelectItem value="sm">SM (14px)</SelectItem>
-                          <SelectItem value="base">Base (16px)</SelectItem>
-                          <SelectItem value="lg">LG (18px)</SelectItem>
-                          <SelectItem value="xl">XL (20px)</SelectItem>
-                          <SelectItem value="2xl">2XL (24px)</SelectItem>
-                          <SelectItem value="3xl">3XL (30px)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    <Textarea 
+                      ref={contentRef}
+                      value={content} 
+                      onChange={(e) => setContent(e.target.value)} 
+                      placeholder="Write your article content here. Select text and use the toolbar above to format it with HTML tags." 
+                      rows={14} 
+                      required 
+                      className="border-0 rounded-none focus:ring-0 font-mono text-sm bg-white dark:bg-stone-900"
+                    />
                   </div>
-                  
-                  <Textarea 
-                    ref={contentRef}
-                    value={content} 
-                    onChange={(e) => setContent(e.target.value)} 
-                    placeholder="Article content (supports HTML)" 
-                    rows={12} 
-                    required 
-                    className="rounded-t-none font-mono text-sm"
-                  />
-                  <p className="text-xs text-stone-500">Tip: Select text then click a format button to wrap it in HTML tags</p>
+                  <p className="text-xs text-stone-500 mt-2">Tip: Select text, then click a format button to wrap it in HTML tags</p>
                 </div>
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
