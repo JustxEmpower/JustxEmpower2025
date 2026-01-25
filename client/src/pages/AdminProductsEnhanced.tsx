@@ -13,9 +13,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import AdminSidebar from '@/components/AdminSidebar';
 import MediaPicker from '@/components/MediaPicker';
 import { motion } from "framer-motion";
-import { Package, Plus, Edit, Trash2, Search, RefreshCw, Filter, DollarSign, Eye, LayoutGrid, List, ShoppingBag, Image, Play, Video } from "lucide-react";
+import { Package, Plus, Edit, Trash2, Search, RefreshCw, Filter, DollarSign, Eye, LayoutGrid, List, ShoppingBag, Image, Play, Video, GripVertical } from "lucide-react";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, rectSortingStrategy } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 function AnimatedCounter({ value, prefix = "" }: { value: number; prefix?: string }) {
   const [displayValue, setDisplayValue] = useState(0);
@@ -30,6 +33,55 @@ function AnimatedCounter({ value, prefix = "" }: { value: number; prefix?: strin
     return () => clearInterval(timer);
   }, [value]);
   return <span>{prefix}{displayValue.toLocaleString()}</span>;
+}
+
+interface SortableMediaItemProps {
+  id: string;
+  media: { url: string; type: 'image' | 'video' };
+  index: number;
+  onRemove: (index: number) => void;
+}
+
+function SortableMediaItem({ id, media, index, onRemove }: SortableMediaItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 1,
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} className="relative group">
+      <div className={`aspect-square rounded-lg overflow-hidden bg-stone-100 border-2 ${isDragging ? 'border-amber-500' : 'border-stone-200'}`}>
+        {media.type === 'video' ? (
+          <div className="w-full h-full flex items-center justify-center bg-stone-800">
+            <Play className="w-8 h-8 text-white" />
+          </div>
+        ) : (
+          <img src={getMediaUrl(media.url)} alt={`Gallery ${index + 1}`} className="w-full h-full object-cover" />
+        )}
+      </div>
+      <div 
+        {...attributes} 
+        {...listeners}
+        className="absolute top-1 left-1 w-6 h-6 bg-white/80 rounded cursor-grab active:cursor-grabbing flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm"
+      >
+        <GripVertical className="w-4 h-4 text-stone-600" />
+      </div>
+      <button
+        type="button"
+        onClick={() => onRemove(index)}
+        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+      >
+        <Trash2 className="w-3 h-3" />
+      </button>
+      <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded">
+        {media.type === 'video' ? '🎬 Video' : '🖼️ Image'}
+      </span>
+    </div>
+  );
 }
 
 export default function AdminProductsEnhanced() {
@@ -80,6 +132,7 @@ export default function AdminProductsEnhanced() {
     // Common
     shippingInfo: "Free shipping on orders over $100.",
     returnPolicy: "Returns accepted within 30 days of purchase.",
+    productDetails: "", // Separate editable details text
     // Display settings
     nameFontSize: "sm" as "xs" | "sm" | "base" | "lg" | "xl",
     priceFontSize: "sm" as "xs" | "sm" | "base" | "lg" | "xl",
@@ -120,6 +173,7 @@ export default function AdminProductsEnhanced() {
       duration: "", accessType: "lifetime", modules: "",
       fileType: "", downloadLink: "",
       shippingInfo: "Free shipping on orders over $100.", returnPolicy: "Returns accepted within 30 days of purchase.",
+      productDetails: "",
       nameFontSize: "sm", priceFontSize: "sm"
     });
   };
@@ -146,6 +200,7 @@ export default function AdminProductsEnhanced() {
     let isbn = "", author = "", publisher = "", pageCount = "";
     let duration = "", accessType: "lifetime" | "limited" | "subscription" = "lifetime", modules = "";
     let fileType = "", downloadLink = "";
+    let productDetails = "";
     let nameFontSize = "sm", priceFontSize = "sm";
     
     if (product.dimensions) {
@@ -170,6 +225,8 @@ export default function AdminProductsEnhanced() {
         // Digital
         if (parsed.fileType) fileType = parsed.fileType;
         if (parsed.downloadLink) downloadLink = parsed.downloadLink;
+        // Product details
+        if (parsed.productDetails) productDetails = parsed.productDetails;
         // Display settings
         if (parsed.nameFontSize) nameFontSize = parsed.nameFontSize;
         if (parsed.priceFontSize) priceFontSize = parsed.priceFontSize;
@@ -229,6 +286,7 @@ export default function AdminProductsEnhanced() {
       duration, accessType, modules,
       fileType, downloadLink,
       shippingInfo, returnPolicy,
+      productDetails,
       nameFontSize, priceFontSize,
     });
     setIsDialogOpen(true);
@@ -292,9 +350,10 @@ export default function AdminProductsEnhanced() {
       });
     }
     
-    // Always add display settings
+    // Always add display settings and product details
     dimensionsData.nameFontSize = formData.nameFontSize;
     dimensionsData.priceFontSize = formData.priceFontSize;
+    if (formData.productDetails) dimensionsData.productDetails = formData.productDetails;
     
     const dimensions = JSON.stringify(dimensionsData);
     
@@ -541,35 +600,42 @@ export default function AdminProductsEnhanced() {
               <p className="text-xs text-amber-700">Add additional images and videos to showcase your product</p>
               
               {formData.mediaGallery.length > 0 ? (
-                <div className="grid grid-cols-4 gap-3">
-                  {formData.mediaGallery.map((media, idx) => (
-                    <div key={idx} className="relative group">
-                      <div className="aspect-square rounded-lg overflow-hidden bg-stone-100 border-2 border-stone-200">
-                        {media.type === 'video' ? (
-                          <div className="w-full h-full flex items-center justify-center bg-stone-800">
-                            <Play className="w-8 h-8 text-white" />
-                          </div>
-                        ) : (
-                          <img src={getMediaUrl(media.url)} alt={`Gallery ${idx + 1}`} className="w-full h-full object-cover" />
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const newGallery = [...formData.mediaGallery];
-                          newGallery.splice(idx, 1);
-                          setFormData({ ...formData, mediaGallery: newGallery });
-                        }}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                      <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded">
-                        {media.type === 'video' ? '🎬 Video' : '🖼️ Image'}
-                      </span>
+                <DndContext
+                  sensors={useSensors(
+                    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+                    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+                  )}
+                  collisionDetection={closestCenter}
+                  onDragEnd={(event: DragEndEvent) => {
+                    const { active, over } = event;
+                    if (over && active.id !== over.id) {
+                      const oldIndex = formData.mediaGallery.findIndex((_, i) => `media-${i}` === active.id);
+                      const newIndex = formData.mediaGallery.findIndex((_, i) => `media-${i}` === over.id);
+                      setFormData({
+                        ...formData,
+                        mediaGallery: arrayMove(formData.mediaGallery, oldIndex, newIndex)
+                      });
+                    }
+                  }}
+                >
+                  <SortableContext items={formData.mediaGallery.map((_, i) => `media-${i}`)} strategy={rectSortingStrategy}>
+                    <div className="grid grid-cols-4 gap-3">
+                      {formData.mediaGallery.map((media, idx) => (
+                        <SortableMediaItem
+                          key={`media-${idx}`}
+                          id={`media-${idx}`}
+                          media={media}
+                          index={idx}
+                          onRemove={(index) => {
+                            const newGallery = [...formData.mediaGallery];
+                            newGallery.splice(index, 1);
+                            setFormData({ ...formData, mediaGallery: newGallery });
+                          }}
+                        />
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </SortableContext>
+                </DndContext>
               ) : (
                 <div className="text-center py-6 text-stone-400 text-sm border-2 border-dashed border-stone-200 rounded-lg">
                   No additional media added yet
@@ -757,6 +823,19 @@ export default function AdminProductsEnhanced() {
                   className="bg-white"
                 />
               </div>
+            </div>
+            
+            {/* Product Details - Separate editable section */}
+            <div className="space-y-2 p-4 bg-purple-50 rounded-lg border border-purple-200">
+              <Label className="text-sm font-semibold text-purple-900">📝 Product Details</Label>
+              <p className="text-xs text-purple-700">This content appears in the expandable "Details" section on the product page</p>
+              <Textarea 
+                value={formData.productDetails} 
+                onChange={(e) => setFormData({ ...formData, productDetails: e.target.value })} 
+                placeholder="Enter detailed product information, features, specifications..."
+                rows={4}
+                className="bg-white"
+              />
             </div>
             
             {/* Display Settings */}

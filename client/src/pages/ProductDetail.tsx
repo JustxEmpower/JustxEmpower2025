@@ -118,6 +118,7 @@ export default function ProductDetail() {
     let isbn = "", author = "", publisher = "", pageCount = "";
     let duration = "", accessType = "", modules = "";
     let fileType = "", downloadLink = "";
+    let productDetails = "";
     
     if (product.dimensions) {
       try {
@@ -136,9 +137,10 @@ export default function ProductDetail() {
         modules = parsed.modules || "";
         fileType = parsed.fileType || "";
         downloadLink = parsed.downloadLink || "";
+        productDetails = parsed.productDetails || "";
       } catch (e) {}
     }
-    return { productType, sizes, showSizes, colors, material, isbn, author, publisher, pageCount, duration, accessType, modules, fileType, downloadLink };
+    return { productType, sizes, showSizes, colors, material, isbn, author, publisher, pageCount, duration, accessType, modules, fileType, downloadLink, productDetails };
   };
   const productInfo = parseProductInfo();
   const availableSizes = productInfo.sizes;
@@ -307,40 +309,63 @@ export default function ProductDetail() {
                 )}
               </div>
               
-              {/* Thumbnail/Dot Navigation - Premium gold accent */}
+              {/* Thumbnail Navigation - Premium design */}
               {allMedia.length > 1 && (
-                <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-3">
-                  {allMedia.map((media, idx: number) => (
-                    <button
-                      key={idx}
-                      onClick={() => goToMedia(idx)}
-                      className="relative transition-all duration-500 ease-out"
-                      style={{
-                        width: selectedImage === idx ? '24px' : '8px',
-                        height: '8px',
-                        borderRadius: '4px',
-                        background: selectedImage === idx ? goldColor : 'rgba(0,0,0,0.15)',
-                        transform: selectedImage === idx ? 'scale(1)' : 'scale(0.9)',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (idx !== selectedImage) {
-                          e.currentTarget.style.background = 'rgba(0,0,0,0.25)';
-                          e.currentTarget.style.transform = 'scale(1)';
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (idx !== selectedImage) {
-                          e.currentTarget.style.background = 'rgba(0,0,0,0.15)';
-                          e.currentTarget.style.transform = 'scale(0.9)';
-                        }
-                      }}
-                      aria-label={`View ${media.type === 'video' ? 'video' : 'image'} ${idx + 1}`}
-                    >
-                      {media.type === 'video' && (
-                        <Play className="absolute -top-3 left-1/2 -translate-x-1/2 w-3 h-3" style={{ color: selectedImage === idx ? goldColor : 'rgba(0,0,0,0.3)' }} />
-                      )}
-                    </button>
-                  ))}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3">
+                  {/* Dot indicators */}
+                  <div className="flex items-center gap-2">
+                    {allMedia.map((media, idx: number) => (
+                      <button
+                        key={`dot-${idx}`}
+                        onClick={() => goToMedia(idx)}
+                        className="relative transition-all duration-500 ease-out"
+                        style={{
+                          width: selectedImage === idx ? '20px' : '6px',
+                          height: '6px',
+                          borderRadius: '3px',
+                          background: selectedImage === idx ? goldColor : 'rgba(0,0,0,0.15)',
+                        }}
+                        aria-label={`View ${media.type === 'video' ? 'video' : 'image'} ${idx + 1}`}
+                      />
+                    ))}
+                  </div>
+                  {/* Thumbnail images */}
+                  <div className="flex items-center gap-2 bg-white/80 dark:bg-black/50 backdrop-blur-sm rounded-lg p-2">
+                    {allMedia.map((media, idx: number) => (
+                      <button
+                        key={`thumb-${idx}`}
+                        onClick={() => goToMedia(idx)}
+                        className={`relative w-14 h-14 rounded-md overflow-hidden transition-all duration-300 ${
+                          selectedImage === idx 
+                            ? 'ring-2 ring-offset-1 scale-105' 
+                            : 'opacity-60 hover:opacity-100'
+                        }`}
+                        style={{ 
+                          ringColor: selectedImage === idx ? goldColor : 'transparent',
+                          borderColor: selectedImage === idx ? goldColor : 'transparent',
+                        }}
+                        aria-label={`View ${media.type === 'video' ? 'video' : 'image'} ${idx + 1}`}
+                      >
+                        {media.type === 'video' ? (
+                          <div className="w-full h-full bg-stone-800 flex items-center justify-center">
+                            <Play className="w-5 h-5 text-white" />
+                          </div>
+                        ) : (
+                          <img 
+                            src={getMediaUrl(media.url)} 
+                            alt={`Thumbnail ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                        {selectedImage === idx && (
+                          <div 
+                            className="absolute inset-0 pointer-events-none"
+                            style={{ boxShadow: `inset 0 0 0 2px ${goldColor}` }}
+                          />
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -385,6 +410,41 @@ export default function ProductDetail() {
                       {size}
                     </button>
                   ))}
+                </div>
+              </div>
+            )}
+            
+            {/* Book Details - Prominent display for book products */}
+            {productInfo.productType === "book" && (productInfo.author || productInfo.publisher || productInfo.isbn || productInfo.pageCount) && (
+              <div className="mb-8 p-4 bg-stone-50 dark:bg-muted/30 rounded-lg border border-stone-200 dark:border-border">
+                <p className="text-xs uppercase tracking-wider text-stone-500 dark:text-muted-foreground mb-3 font-medium">
+                  📚 Book Details
+                </p>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  {productInfo.author && (
+                    <div>
+                      <span className="text-stone-500 dark:text-muted-foreground">Author</span>
+                      <p className="text-stone-900 dark:text-foreground font-medium">{productInfo.author}</p>
+                    </div>
+                  )}
+                  {productInfo.publisher && (
+                    <div>
+                      <span className="text-stone-500 dark:text-muted-foreground">Publisher</span>
+                      <p className="text-stone-900 dark:text-foreground font-medium">{productInfo.publisher}</p>
+                    </div>
+                  )}
+                  {productInfo.isbn && (
+                    <div>
+                      <span className="text-stone-500 dark:text-muted-foreground">ISBN</span>
+                      <p className="text-stone-900 dark:text-foreground font-medium">{productInfo.isbn}</p>
+                    </div>
+                  )}
+                  {productInfo.pageCount && (
+                    <div>
+                      <span className="text-stone-500 dark:text-muted-foreground">Pages</span>
+                      <p className="text-stone-900 dark:text-foreground font-medium">{productInfo.pageCount}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -448,7 +508,10 @@ export default function ProductDetail() {
                   </button>
                   {expandedSection === 'details' && (
                     <div className="py-4 text-sm text-stone-600 dark:text-muted-foreground space-y-2">
-                      {product.description && <p>{product.description}</p>}
+                      {/* Product Details - separate editable field */}
+                      {productInfo.productDetails && <p>{productInfo.productDetails}</p>}
+                      {/* Fall back to description if no productDetails */}
+                      {!productInfo.productDetails && product.description && <p>{product.description}</p>}
                       
                       {/* Apparel details */}
                       {productInfo.productType === "apparel" && (
