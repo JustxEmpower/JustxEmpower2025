@@ -9,9 +9,9 @@ import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Plus, Edit, Trash2, Save, X, Sparkles, Loader2, ChevronUp, ChevronDown, 
-  Image, Search, RefreshCw, FileText, Eye, Calendar, Filter, LayoutGrid, List,
-  Heading1, Heading2, Heading3, Type, Bold, Italic, AlignLeft, Quote
+  Plus, Edit, Trash2, Save, X, Sparkles, Loader2, 
+  Search, RefreshCw, FileText, Eye, Calendar, Filter, LayoutGrid, List,
+  Type, GripVertical, Copy
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -55,62 +55,81 @@ export default function AdminArticlesEnhanced() {
   const [aiDialogOpen, setAiDialogOpen] = useState(false);
   const [aiTopic, setAiTopic] = useState('');
   const [aiTone, setAiTone] = useState('professional');
-  const [fontSize, setFontSize] = useState('base');
-  const contentRef = useRef<HTMLTextAreaElement>(null);
+  
+  // Block-based content editor
+  type ContentBlock = { id: string; type: 'heading' | 'text'; content: string };
+  const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([
+    { id: '1', type: 'heading', content: 'Section Heading' },
+    { id: '2', type: 'text', content: 'Enter your text here...' }
+  ]);
 
-  // Insert HTML tag at cursor position
-  const insertTag = (openTag: string, closeTag: string = '') => {
-    const textarea = contentRef.current;
-    if (!textarea) return;
-    
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = content.substring(start, end);
-    const beforeText = content.substring(0, start);
-    const afterText = content.substring(end);
-    
-    const newContent = beforeText + openTag + selectedText + closeTag + afterText;
-    setContent(newContent);
-    
-    // Set cursor position after the inserted text
-    setTimeout(() => {
-      textarea.focus();
-      const newCursorPos = start + openTag.length + selectedText.length;
-      textarea.setSelectionRange(newCursorPos, newCursorPos);
-    }, 0);
-  };
-
-  const insertHeading = (level: number) => {
-    insertTag(`<h${level}>`, `</h${level}>\n\n`);
-  };
-
-  const insertParagraph = () => {
-    insertTag('<p>', '</p>\n\n');
-  };
-
-  const insertBold = () => {
-    insertTag('<strong>', '</strong>');
-  };
-
-  const insertItalic = () => {
-    insertTag('<em>', '</em>');
-  };
-
-  const insertBlockquote = () => {
-    insertTag('<blockquote>', '</blockquote>\n\n');
-  };
-
-  const insertFontSize = (size: string) => {
-    const sizeMap: Record<string, string> = {
-      'xs': 'font-size: 0.75rem',
-      'sm': 'font-size: 0.875rem',
-      'base': 'font-size: 1rem',
-      'lg': 'font-size: 1.125rem',
-      'xl': 'font-size: 1.25rem',
-      '2xl': 'font-size: 1.5rem',
-      '3xl': 'font-size: 1.875rem',
+  const addBlock = (type: 'heading' | 'text') => {
+    const newBlock: ContentBlock = {
+      id: Date.now().toString(),
+      type,
+      content: type === 'heading' ? 'New Heading' : 'Enter your text here...'
     };
-    insertTag(`<span style="${sizeMap[size]}">`, '</span>');
+    setContentBlocks([...contentBlocks, newBlock]);
+  };
+
+  const updateBlock = (id: string, content: string) => {
+    setContentBlocks(contentBlocks.map(b => b.id === id ? { ...b, content } : b));
+  };
+
+  const deleteBlock = (id: string) => {
+    if (contentBlocks.length > 1) {
+      setContentBlocks(contentBlocks.filter(b => b.id !== id));
+    }
+  };
+
+  const duplicateBlock = (id: string) => {
+    const block = contentBlocks.find(b => b.id === id);
+    if (block) {
+      const newBlock = { ...block, id: Date.now().toString() };
+      const index = contentBlocks.findIndex(b => b.id === id);
+      const newBlocks = [...contentBlocks];
+      newBlocks.splice(index + 1, 0, newBlock);
+      setContentBlocks(newBlocks);
+    }
+  };
+
+  // Convert blocks to HTML for storage
+  const blocksToHtml = () => {
+    return contentBlocks.map(block => {
+      if (block.type === 'heading') {
+        return `<h2>${block.content}</h2>`;
+      }
+      return `<p>${block.content}</p>`;
+    }).join('\n\n');
+  };
+
+  // Parse HTML back to blocks when editing
+  const htmlToBlocks = (html: string): ContentBlock[] => {
+    if (!html || html.trim() === '') {
+      return [{ id: '1', type: 'text', content: 'Enter your text here...' }];
+    }
+    const blocks: ContentBlock[] = [];
+    const headingRegex = /<h[1-3][^>]*>(.*?)<\/h[1-3]>/gi;
+    const paragraphRegex = /<p[^>]*>(.*?)<\/p>/gi;
+    let match;
+    let lastIndex = 0;
+    
+    // Simple parsing - extract headings and paragraphs
+    const tempDiv = html.replace(/<h[1-3][^>]*>(.*?)<\/h[1-3]>/gi, '|||HEADING:$1|||')
+                        .replace(/<p[^>]*>(.*?)<\/p>/gi, '|||TEXT:$1|||');
+    const parts = tempDiv.split('|||').filter(p => p.trim());
+    
+    parts.forEach((part, i) => {
+      if (part.startsWith('HEADING:')) {
+        blocks.push({ id: `${Date.now()}-${i}`, type: 'heading', content: part.replace('HEADING:', '').trim() });
+      } else if (part.startsWith('TEXT:')) {
+        blocks.push({ id: `${Date.now()}-${i}`, type: 'text', content: part.replace('TEXT:', '').trim() });
+      } else if (part.trim()) {
+        blocks.push({ id: `${Date.now()}-${i}`, type: 'text', content: part.trim() });
+      }
+    });
+    
+    return blocks.length > 0 ? blocks : [{ id: '1', type: 'text', content: 'Enter your text here...' }];
   };
 
   const { data: articles, isLoading, refetch } = trpc.admin.articles.list.useQuery(undefined, { enabled: isAuthenticated });
@@ -162,6 +181,10 @@ export default function AdminArticlesEnhanced() {
   const resetForm = () => {
     setIsEditing(false); setEditingId(null); setTitle(''); setSubtitle('');
     setContent(''); setCategory(''); setStatus('published'); setPublishDate(''); setImageUrl('');
+    setContentBlocks([
+      { id: '1', type: 'heading', content: 'Section Heading' },
+      { id: '2', type: 'text', content: 'Enter your text here...' }
+    ]);
   };
 
   const handleEdit = (article: any) => {
@@ -170,6 +193,7 @@ export default function AdminArticlesEnhanced() {
     setTitle(article.title);
     setSubtitle(article.excerpt || '');
     setContent(article.content);
+    setContentBlocks(htmlToBlocks(article.content || ''));
     setCategory(article.category || '');
     setStatus(article.status || 'published');
     setImageUrl(article.imageUrl || '');
@@ -181,10 +205,11 @@ export default function AdminArticlesEnhanced() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || !content) { toast.error('Title and content required'); return; }
+    const htmlContent = blocksToHtml();
+    if (!title || !htmlContent) { toast.error('Title and content required'); return; }
     const data: any = {
       title, slug: title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, ''),
-      excerpt: subtitle, content, category, status, imageUrl: imageUrl || null,
+      excerpt: subtitle, content: htmlContent, category, status, imageUrl: imageUrl || null,
       publishDate: publishDate ? new Date(publishDate).toISOString() : (status === 'published' ? new Date().toISOString() : null),
     };
     if (editingId) updateMutation.mutate({ id: editingId, ...data });
@@ -370,7 +395,7 @@ export default function AdminArticlesEnhanced() {
                   <Input value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://..." />
                   {imageUrl && <img src={imageUrl} alt="Preview" className="mt-2 w-full h-32 object-cover rounded-lg" onError={(e) => (e.target as HTMLImageElement).style.display = 'none'} />}
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <Label>Content *</Label>
                     <Dialog open={aiDialogOpen} onOpenChange={setAiDialogOpen}>
@@ -407,75 +432,70 @@ export default function AdminArticlesEnhanced() {
                     </Dialog>
                   </div>
                   
-                  {/* Rich Text Toolbar - Sleek Apple-style */}
-                  <div className="rounded-xl border border-amber-200 dark:border-amber-800 overflow-hidden">
-                    <div className="flex flex-wrap items-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/30 dark:to-orange-900/30 border-b border-amber-200 dark:border-amber-800">
-                      {/* Headings */}
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs font-medium text-amber-700 dark:text-amber-400 mr-2">Headings</span>
-                        <button type="button" onClick={() => insertHeading(1)} title="Heading 1" className="h-8 px-3 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors text-xs font-bold">
-                          H1
-                        </button>
-                        <button type="button" onClick={() => insertHeading(2)} title="Heading 2" className="h-8 px-3 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors text-xs font-bold">
-                          H2
-                        </button>
-                        <button type="button" onClick={() => insertHeading(3)} title="Heading 3" className="h-8 px-3 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors text-xs font-bold">
-                          H3
-                        </button>
+                  {/* Visual Block Editor */}
+                  <div className="space-y-3 bg-stone-50 dark:bg-stone-900 rounded-xl p-4 border border-stone-200 dark:border-stone-700">
+                    {contentBlocks.map((block, index) => (
+                      <div key={block.id} className="group relative">
+                        {/* Block Label */}
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-stone-800 dark:bg-stone-700 text-white text-xs font-medium rounded-md">
+                            <Type className="w-3 h-3" />
+                            {block.type === 'heading' ? 'Heading' : 'Text Block'}
+                          </span>
+                          <div className="flex-1" />
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                            <button type="button" onClick={() => duplicateBlock(block.id)} className="p-1.5 rounded bg-stone-200 dark:bg-stone-700 hover:bg-stone-300 dark:hover:bg-stone-600 transition-colors" title="Duplicate">
+                              <Copy className="w-3.5 h-3.5" />
+                            </button>
+                            <button type="button" onClick={() => deleteBlock(block.id)} className="p-1.5 rounded bg-red-100 dark:bg-red-900/30 hover:bg-red-200 dark:hover:bg-red-900/50 text-red-600 dark:text-red-400 transition-colors" title="Delete">
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Block Content */}
+                        {block.type === 'heading' ? (
+                          <input
+                            type="text"
+                            value={block.content}
+                            onChange={(e) => updateBlock(block.id, e.target.value)}
+                            className="w-full px-4 py-3 text-2xl font-serif bg-white dark:bg-stone-800 border-2 border-amber-200 dark:border-amber-800 rounded-lg focus:border-amber-400 dark:focus:border-amber-600 focus:outline-none transition-colors"
+                            placeholder="Section Heading"
+                          />
+                        ) : (
+                          <textarea
+                            value={block.content}
+                            onChange={(e) => updateBlock(block.id, e.target.value)}
+                            rows={4}
+                            className="w-full px-4 py-3 text-base bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg focus:border-amber-400 dark:focus:border-amber-600 focus:outline-none transition-colors resize-y"
+                            placeholder="Enter your text here..."
+                          />
+                        )}
                       </div>
-                      
-                      <div className="w-px h-6 bg-amber-300 dark:bg-amber-700" />
-                      
-                      {/* Text formatting */}
-                      <div className="flex items-center gap-1">
-                        <span className="text-xs font-medium text-amber-700 dark:text-amber-400 mr-2">Format</span>
-                        <button type="button" onClick={insertParagraph} title="Paragraph" className="h-8 w-8 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors flex items-center justify-center">
-                          <AlignLeft className="w-4 h-4" />
-                        </button>
-                        <button type="button" onClick={insertBold} title="Bold" className="h-8 w-8 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors flex items-center justify-center font-bold">
-                          B
-                        </button>
-                        <button type="button" onClick={insertItalic} title="Italic" className="h-8 w-8 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors flex items-center justify-center italic">
-                          I
-                        </button>
-                        <button type="button" onClick={insertBlockquote} title="Blockquote" className="h-8 w-8 rounded-lg bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors flex items-center justify-center">
-                          <Quote className="w-4 h-4" />
-                        </button>
-                      </div>
-                      
-                      <div className="w-px h-6 bg-amber-300 dark:bg-amber-700" />
-                      
-                      {/* Font Size */}
+                    ))}
+                    
+                    {/* Add Block Button */}
+                    <div className="flex items-center justify-center pt-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-medium text-amber-700 dark:text-amber-400">Size</span>
-                        <Select value={fontSize} onValueChange={(v) => { setFontSize(v); insertFontSize(v); }}>
-                          <SelectTrigger className="w-28 h-8 text-xs bg-white dark:bg-stone-800 border-stone-200 dark:border-stone-700">
-                            <SelectValue placeholder="Font Size" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="xs">XS (12px)</SelectItem>
-                            <SelectItem value="sm">SM (14px)</SelectItem>
-                            <SelectItem value="base">Base (16px)</SelectItem>
-                            <SelectItem value="lg">LG (18px)</SelectItem>
-                            <SelectItem value="xl">XL (20px)</SelectItem>
-                            <SelectItem value="2xl">2XL (24px)</SelectItem>
-                            <SelectItem value="3xl">3XL (30px)</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <button
+                          type="button"
+                          onClick={() => addBlock('heading')}
+                          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-full hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:border-amber-300 dark:hover:border-amber-700 transition-colors text-sm"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Heading
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => addBlock('text')}
+                          className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-full hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:border-amber-300 dark:hover:border-amber-700 transition-colors text-sm"
+                        >
+                          <Plus className="w-4 h-4" />
+                          Text Block
+                        </button>
                       </div>
                     </div>
-                    
-                    <Textarea 
-                      ref={contentRef}
-                      value={content} 
-                      onChange={(e) => setContent(e.target.value)} 
-                      placeholder="Write your article content here. Select text and use the toolbar above to format it with HTML tags." 
-                      rows={14} 
-                      required 
-                      className="border-0 rounded-none focus:ring-0 font-mono text-sm bg-white dark:bg-stone-900"
-                    />
                   </div>
-                  <p className="text-xs text-stone-500 mt-2">Tip: Select text, then click a format button to wrap it in HTML tags</p>
                 </div>
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
