@@ -1,4 +1,4 @@
-const Database = require('better-sqlite3');
+import Database from 'better-sqlite3';
 const db = new Database('./data/justxempower.db');
 
 // Check current footer navigation
