@@ -1,5 +1,8 @@
-const Database = require('better-sqlite3');
-const db = new Database('./data/justxempower.db');
+// Use require with module path resolution
+const path = require('path');
+const dbPath = path.resolve(__dirname, '../node_modules/better-sqlite3');
+const Database = require(dbPath);
+const db = new Database(path.resolve(__dirname, '../data/justxempower.db'));
 
 // Add home page if it doesn't exist
 const result = db.prepare(`
