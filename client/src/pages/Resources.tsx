@@ -368,18 +368,21 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
       <section className="relative overflow-hidden py-32 md:py-40">
         {/* Background Media */}
         <div className="absolute inset-0">
-          {heroMediaUrl && isVideo ? (
+          {/* Default gradient background (always present as fallback) */}
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-b from-stone-100 to-white dark:from-stone-900 dark:to-[#0a0a0a]" />
+          
+          {heroMediaUrl && isVideo && (
             <AutoplayVideo
+              key={heroMediaUrl}
               src={getProperMediaUrl(heroMediaUrl)}
-              className="w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
             />
-          ) : heroMediaUrl ? (
+          )}
+          {heroMediaUrl && !isVideo && (
             <div 
-              className="w-full h-full bg-cover bg-center"
+              className="absolute inset-0 w-full h-full bg-cover bg-center"
               style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
             />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-b from-stone-100 to-white dark:from-stone-900 dark:to-[#0a0a0a]" />
           )}
           {/* Subtle overlay */}
           <div className="absolute inset-0 bg-black/30" />
