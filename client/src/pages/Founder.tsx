@@ -105,10 +105,14 @@ export default function Founder() {
         <div className="absolute inset-0 w-full h-[120%] -top-[10%]">
           <div className="absolute inset-0 bg-black/40 z-10" />
           
-          {/* Video or Image Background */}
-          {heroMediaUrl && isHeroVideo ? (
+          {/* Fallback gradient (always present) */}
+          <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-neutral-400 to-neutral-600" />
+          
+          {/* Video Background */}
+          {heroMediaUrl && isHeroVideo && (
             <video
               ref={videoRef}
+              key={heroMediaUrl}
               src={getProperMediaUrl(heroMediaUrl)}
               autoPlay
               muted
@@ -116,15 +120,16 @@ export default function Founder() {
               playsInline
               crossOrigin="anonymous"
               preload="auto"
-              className="w-full h-full object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
             />
-          ) : heroMediaUrl ? (
+          )}
+          
+          {/* Image Background */}
+          {heroMediaUrl && !isHeroVideo && (
             <div 
-              className="w-full h-full bg-cover bg-center"
+              className="absolute inset-0 w-full h-full bg-cover bg-center"
               style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
             />
-          ) : (
-            <div className="w-full h-full bg-gradient-to-br from-neutral-400 to-neutral-600" />
           )}
         </div>
 

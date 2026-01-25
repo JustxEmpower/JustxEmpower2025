@@ -66,9 +66,13 @@ export default function Philosophy() {
       <div className="relative h-[60vh] w-full overflow-hidden rounded-b-[2.5rem]">
         <div className="absolute inset-0 bg-black/30 z-10" />
         
-        {/* Video or Image Background */}
-        {heroMediaUrl && isHeroVideo ? (
+        {/* Fallback gradient (always present) */}
+        <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
+        
+        {/* Video Background */}
+        {heroMediaUrl && isHeroVideo && (
           <video
+            key={heroMediaUrl}
             src={getProperMediaUrl(heroMediaUrl)}
             autoPlay
             loop
@@ -78,13 +82,14 @@ export default function Philosophy() {
             preload="auto"
             className="absolute inset-0 w-full h-full object-cover"
           />
-        ) : heroMediaUrl ? (
+        )}
+        
+        {/* Image Background */}
+        {heroMediaUrl && !isHeroVideo && (
           <div 
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
           />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-neutral-400 to-neutral-600" />
         )}
         
         <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-4">
