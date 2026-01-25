@@ -62,8 +62,21 @@ export default function Footer() {
     { label: 'Cookie Policy', url: '/cookie-policy' }
   ];
 
-  const displayExploreLinks = exploreLinks.length > 0 ? exploreLinks : defaultExploreLinks;
-  const displayConnectLinks = connectLinks.length > 0 ? connectLinks : defaultConnectLinks;
+  // Transform links to fix labels and URLs
+  const transformLinks = (links: any[]) => links.map(item => {
+    // Journal -> Blog with /blog URL
+    if (item.label === 'Journal' || item.url?.includes('/journal')) {
+      return { ...item, label: 'Blog', url: '/blog' };
+    }
+    // Events -> /community-events
+    if (item.label === 'Events' && !item.url?.includes('/community-events')) {
+      return { ...item, url: '/community-events' };
+    }
+    return item;
+  });
+
+  const displayExploreLinks = transformLinks(exploreLinks.length > 0 ? exploreLinks : defaultExploreLinks);
+  const displayConnectLinks = transformLinks(connectLinks.length > 0 ? connectLinks : defaultConnectLinks);
   const displayLegalLinks = legalLinks.length > 0 ? legalLinks : defaultLegalLinks;
 
   // Get content from database with fallbacks
