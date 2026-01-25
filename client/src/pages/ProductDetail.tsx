@@ -19,12 +19,57 @@ export default function ProductDetail() {
   // Gold accent color for premium feel
   const goldColor = '#C9A962';
   
+  // Shop Next carousel state
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+  
   const { addToCart, getCartCount } = useCart();
   
   const { data: product, isLoading, error } = trpc.shop.products.bySlug.useQuery(
     { slug: slug || "" },
     { enabled: !!slug }
   );
+  
+  // Fetch other products for "Shop Next" section
+  const { data: allProducts } = trpc.shop.products.list.useQuery(
+    { limit: 10 },
+    { enabled: !!product }
+  );
+  
+  // Filter out current product
+  const nextProducts = (allProducts?.products || []).filter(p => p.slug !== slug);
+  
+  const checkScrollButtons = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setCanScrollLeft(scrollLeft > 0);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
+    }
+  };
+  
+  useEffect(() => {
+    checkScrollButtons();
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', checkScrollButtons);
+      window.addEventListener('resize', checkScrollButtons);
+      return () => {
+        container.removeEventListener('scroll', checkScrollButtons);
+        window.removeEventListener('resize', checkScrollButtons);
+      };
+    }
+  }, [nextProducts]);
+  
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 350;
+      scrollContainerRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   if (isLoading) {
     return (
@@ -566,6 +611,82 @@ export default function ProductDetail() {
           </div>
         </div>
       </main>
+
+      {/* Shop Next Section - Apple-style with scroll arrows */}
+      {nextProducts.length > 0 && (
+        <section className="bg-stone-50 dark:bg-stone-900/50 py-16 md:py-20">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <div className="flex items-end justify-between mb-10">
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-stone-400 dark:text-stone-500 mb-2">Continue Shopping</p>
+                <h2 className="text-2xl md:text-3xl font-light text-stone-900 dark:text-white">You May Also Like</h2>
+              </div>
+              
+              {/* Navigation Arrows */}
+              {nextProducts.length > 3 && (
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => scrollCarousel('left')}
+                    disabled={!canScrollLeft}
+                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                      canScrollLeft 
+                        ? 'border-stone-900 dark:border-white text-stone-900 dark:text-white hover:bg-stone-900 hover:text-white dark:hover:bg-white dark:hover:text-stone-900' 
+                        : 'border-stone-300 dark:border-stone-700 text-stone-300 dark:text-stone-700 cursor-not-allowed'
+                    }`}
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={() => scrollCarousel('right')}
+                    disabled={!canScrollRight}
+                    className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-300 ${
+                      canScrollRight 
+                        ? 'border-stone-900 dark:border-white text-stone-900 dark:text-white hover:bg-stone-900 hover:text-white dark:hover:bg-white dark:hover:text-stone-900' 
+                        : 'border-stone-300 dark:border-stone-700 text-stone-300 dark:text-stone-700 cursor-not-allowed'
+                    }`}
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
+            </div>
+            
+            {/* Scrollable Products Container */}
+            <div 
+              ref={scrollContainerRef}
+              className="flex gap-6 overflow-x-auto scrollbar-hide pb-4 -mx-6 px-6 snap-x snap-mandatory"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {nextProducts.map((nextProduct) => (
+                <Link key={nextProduct.id} href={`/shop/${nextProduct.slug}`}>
+                  <div className="group cursor-pointer flex-shrink-0 w-[280px] md:w-[320px] snap-start">
+                    {/* Product Image */}
+                    <div className="aspect-square rounded-2xl overflow-hidden mb-4 bg-stone-200 dark:bg-stone-800">
+                      {nextProduct.featuredImage ? (
+                        <img
+                          src={getMediaUrl(nextProduct.featuredImage)}
+                          alt={nextProduct.name}
+                          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-stone-300 to-stone-400 dark:from-stone-700 dark:to-stone-800" />
+                      )}
+                    </div>
+                    
+                    {/* Product Info */}
+                    <h3 className="text-base font-medium text-stone-900 dark:text-white mb-1 group-hover:text-amber-700 dark:group-hover:text-amber-500 transition-colors line-clamp-2">
+                      {nextProduct.name}
+                    </h3>
+                    <p className="text-sm text-stone-500 dark:text-stone-400">
+                      {nextProduct.formattedPrice}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Cart Slideout */}
       <CartSlideout open={cartOpen} onClose={() => setCartOpen(false)} />

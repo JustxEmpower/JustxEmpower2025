@@ -482,8 +482,9 @@ export default function AdminArticlesEnhanced() {
                             value={block.content}
                             onChange={(e) => updateBlock(block.id, e.target.value)}
                             rows={expandedBlocks.has(block.id) ? 16 : 4}
-                            className={`w-full px-4 py-3 text-base bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg focus:border-amber-400 dark:focus:border-amber-600 focus:outline-none transition-all duration-200 ${expandedBlocks.has(block.id) ? 'min-h-[400px]' : ''}`}
+                            className={`w-full px-4 py-3 text-base bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg focus:border-amber-400 dark:focus:border-amber-600 focus:outline-none transition-all duration-200 resize-y cursor-ns-resize ${expandedBlocks.has(block.id) ? 'min-h-[400px]' : 'min-h-[100px]'}`}
                             placeholder="Enter your text here..."
+                            style={{ resize: 'vertical' }}
                           />
                         )}
                       </div>

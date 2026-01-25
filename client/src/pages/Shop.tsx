@@ -112,29 +112,31 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
       <EditablePageZone pageSlug="shop" zoneName="mid-page" />
 
       {/* Products Grid - Apple-inspired elegant layout */}
-      <main className="pt-[140px] pb-20 px-8 md:px-12 lg:px-16">
-        {isLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-12 max-w-7xl mx-auto">
-            {[...Array(8)].map((_, i) => (
-              <div key={i} className="aspect-square bg-muted animate-pulse rounded-2xl" />
-            ))}
-          </div>
-        ) : products.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
-            <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-4">
-              No products available
-            </p>
-            <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground/60">
-              Check back soon
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10 lg:gap-12 max-w-7xl mx-auto">
-            {products.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        )}
+      <main className="pt-[140px] pb-20">
+        <div className="max-w-6xl mx-auto px-6 md:px-8">
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="aspect-square bg-muted animate-pulse rounded-2xl" />
+              ))}
+            </div>
+          ) : products.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+              <p className="text-sm uppercase tracking-[0.2em] text-muted-foreground mb-4">
+                No products available
+              </p>
+              <p className="text-xs uppercase tracking-[0.15em] text-muted-foreground/60">
+                Check back soon
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10 justify-items-center">
+              {products.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          )}
+        </div>
       </main>
       
       {/* Page Builder Zone: After Content */}
