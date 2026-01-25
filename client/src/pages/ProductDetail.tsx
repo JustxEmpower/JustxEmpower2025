@@ -312,9 +312,9 @@ export default function ProductDetail() {
                 )}
               </div>
               
-              {/* Thumbnail Navigation - Premium design */}
+              {/* Thumbnail Navigation - Premium Apple-style design */}
               {allMedia.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3">
+                <div className="absolute bottom-8 left-0 right-0 flex flex-col items-center gap-3 px-8">
                   {/* Dot indicators */}
                   <div className="flex items-center gap-2">
                     {allMedia.map((media, idx: number) => (
@@ -332,42 +332,44 @@ export default function ProductDetail() {
                       />
                     ))}
                   </div>
-                  {/* Thumbnail images */}
-                  <div className="flex items-center gap-2 bg-white/80 dark:bg-black/50 backdrop-blur-sm rounded-lg p-2">
-                    {allMedia.map((media, idx: number) => (
-                      <button
-                        key={`thumb-${idx}`}
-                        onClick={() => goToMedia(idx)}
-                        className={`relative w-14 h-14 rounded-md overflow-hidden transition-all duration-300 ${
-                          selectedImage === idx 
-                            ? 'ring-2 ring-offset-1 scale-105' 
-                            : 'opacity-60 hover:opacity-100'
-                        }`}
-                        style={{ 
-                          ringColor: selectedImage === idx ? goldColor : 'transparent',
-                          borderColor: selectedImage === idx ? goldColor : 'transparent',
-                        }}
-                        aria-label={`View ${media.type === 'video' ? 'video' : 'image'} ${idx + 1}`}
-                      >
-                        {media.type === 'video' ? (
-                          <div className="w-full h-full bg-stone-800 flex items-center justify-center">
-                            <Play className="w-5 h-5 text-white" />
-                          </div>
-                        ) : (
-                          <img 
-                            src={getMediaUrl(media.url)} 
-                            alt={`Thumbnail ${idx + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                        {selectedImage === idx && (
-                          <div 
-                            className="absolute inset-0 pointer-events-none"
-                            style={{ boxShadow: `inset 0 0 0 2px ${goldColor}` }}
-                          />
-                        )}
-                      </button>
-                    ))}
+                  {/* Thumbnail images - scrollable container constrained to column */}
+                  <div className="w-full max-w-full overflow-x-auto scrollbar-hide">
+                    <div className="flex items-center justify-center gap-2 bg-white/80 dark:bg-black/50 backdrop-blur-sm rounded-lg p-2 mx-auto w-fit max-w-full">
+                      {allMedia.map((media, idx: number) => (
+                        <button
+                          key={`thumb-${idx}`}
+                          onClick={() => goToMedia(idx)}
+                          className={`relative flex-shrink-0 w-12 h-12 rounded-md overflow-hidden transition-all duration-300 ${
+                            selectedImage === idx 
+                              ? 'ring-2 ring-offset-1 scale-105' 
+                              : 'opacity-60 hover:opacity-100'
+                          }`}
+                          style={{ 
+                            ringColor: selectedImage === idx ? goldColor : 'transparent',
+                            borderColor: selectedImage === idx ? goldColor : 'transparent',
+                          }}
+                          aria-label={`View ${media.type === 'video' ? 'video' : 'image'} ${idx + 1}`}
+                        >
+                          {media.type === 'video' ? (
+                            <div className="w-full h-full bg-stone-800 flex items-center justify-center">
+                              <Play className="w-4 h-4 text-white" />
+                            </div>
+                          ) : (
+                            <img 
+                              src={getMediaUrl(media.url)} 
+                              alt={`Thumbnail ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                          {selectedImage === idx && (
+                            <div 
+                              className="absolute inset-0 pointer-events-none"
+                              style={{ boxShadow: `inset 0 0 0 2px ${goldColor}` }}
+                            />
+                          )}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
