@@ -524,16 +524,6 @@ export default function ProductDetail() {
                         </>
                       )}
                       
-                      {/* Book details */}
-                      {productInfo.productType === "book" && (
-                        <>
-                          {productInfo.author && <p><span className="font-medium">Author:</span> {productInfo.author}</p>}
-                          {productInfo.publisher && <p><span className="font-medium">Publisher:</span> {productInfo.publisher}</p>}
-                          {productInfo.isbn && <p><span className="font-medium">ISBN:</span> {productInfo.isbn}</p>}
-                          {productInfo.pageCount && <p><span className="font-medium">Pages:</span> {productInfo.pageCount}</p>}
-                        </>
-                      )}
-                      
                       {/* Course details */}
                       {productInfo.productType === "course" && (
                         <>
