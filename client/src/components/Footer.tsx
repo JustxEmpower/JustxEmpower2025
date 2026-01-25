@@ -30,7 +30,7 @@ export default function Footer() {
   
   // Split footer navigation into columns
   const exploreLinks = footerNav?.filter((item: NavItem) => 
-    ['/about', '/philosophy', '/offerings', '/journal', '/blog'].some(path => item.url.includes(path))
+    ['/about', '/founder', '/philosophy', '/offerings', '/journal', '/blog'].some(path => item.url.includes(path))
   ) || [];
   
   const connectLinks = footerNav?.filter((item: NavItem) => 
@@ -43,15 +43,16 @@ export default function Footer() {
 
   // Fallback links if database is empty
   const defaultExploreLinks = [
-    { label: 'About', url: '/about' },
+    { label: 'About', url: '/founder' },
     { label: 'Philosophy', url: '/philosophy' },
     { label: 'Offerings', url: '/offerings' },
-    { label: 'Journal', url: '/journal' }
+    { label: 'Blog', url: '/blog' }
   ];
   
   const defaultConnectLinks = [
-    { label: 'Contact', url: '/contact' },
-    { label: 'Walk With Us', url: '/walk-with-us' }
+    { label: 'Shop', url: '/shop' },
+    { label: 'Events', url: '/community-events' },
+    { label: 'Contact', url: '/contact' }
   ];
   
   const defaultLegalLinks = [
@@ -70,7 +71,7 @@ export default function Footer() {
   const copyright = footer.copyright || `© ${currentYear} Just Empower™. All Rights Reserved.`;
   const instagramUrl = footer.instagramUrl || '#';
   const linkedinUrl = footer.linkedinUrl || '#';
-  const facebookUrl = footer.facebookUrl || '#';
+  const facebookUrl = footer.facebookUrl || 'https://www.facebook.com/justxempower';
   const youtubeUrl = footer.youtubeUrl || '#';
   const newsletterTitle = footer.newsletterTitle || 'Stay Connected';
   const newsletterDescription = footer.newsletterDescription || 'Join our monthly mailing list for insights and updates.';
