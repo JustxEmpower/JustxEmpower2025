@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef, useMemo, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Link } from 'wouter';
@@ -65,6 +65,7 @@ export default function Hero(props: HeroProps = {}) {
   const heroRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [videoLoaded, setVideoLoaded] = useState(false);
   
   // Get all hero content from props - NO FALLBACK DEFAULTS
   // Convert URLs to proper S3 URLs if they're relative paths
@@ -163,6 +164,7 @@ export default function Hero(props: HeroProps = {}) {
 
   // Handle video autoplay when video URL changes
   useEffect(() => {
+    setVideoLoaded(false); // Reset loading state when URL changes
     if (videoRef.current && isVideo) {
       // Reset and reload video when URL changes
       videoRef.current.load();
@@ -176,6 +178,14 @@ export default function Hero(props: HeroProps = {}) {
     <div ref={heroRef} className="hero-section relative h-screen w-full overflow-hidden bg-black rounded-b-[2.5rem]">
       {/* Background Media Container */}
       <div className="absolute inset-0 w-full h-full">
+        {/* Loading placeholder gradient - shows while video loads */}
+        <div 
+          className={cn(
+            "absolute inset-0 w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900 transition-opacity duration-500",
+            videoLoaded ? "opacity-0" : "opacity-100"
+          )} 
+        />
+        
         {/* Video Background - key prop forces re-render when URL changes */}
         {isVideo && videoUrl && (
           <video
@@ -185,15 +195,20 @@ export default function Hero(props: HeroProps = {}) {
             muted
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
             disablePictureInPicture
             controlsList="nodownload nofullscreen noremoteplayback"
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none [&::-webkit-media-controls]:hidden [&::-webkit-media-controls-enclosure]:hidden [&::-webkit-media-controls-panel]:hidden [&::-webkit-media-controls-start-playback-button]:hidden"
+            className={cn(
+              "absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-500",
+              "[&::-webkit-media-controls]:hidden [&::-webkit-media-controls-enclosure]:hidden [&::-webkit-media-controls-panel]:hidden [&::-webkit-media-controls-start-playback-button]:hidden",
+              videoLoaded ? "opacity-100" : "opacity-0"
+            )}
             style={{ WebkitAppearance: 'none' } as React.CSSProperties}
+            onCanPlayThrough={() => setVideoLoaded(true)}
+            onLoadedData={() => setVideoLoaded(true)}
             onError={(e) => console.log('Video error:', e)}
           >
             <source src={videoUrl} type={videoUrl.endsWith('.mov') ? 'video/quicktime' : videoUrl.endsWith('.webm') ? 'video/webm' : 'video/mp4'} />
-            <source src={videoUrl} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
         )}
@@ -208,7 +223,7 @@ export default function Hero(props: HeroProps = {}) {
         )}
         
         {/* Fallback gradient when no media is provided */}
-        {!heroMediaUrl && (
+        {!heroMediaUrl && !isVideo && (
           <div className="absolute inset-0 w-full h-full bg-gradient-to-br from-neutral-800 to-neutral-900" />
         )}
 

@@ -89,33 +89,44 @@ export function ManagedCarousel({ className = '', slug, title }: ManagedCarousel
 
   const displayTitle = title || (slug ? carouselData?.name : 'Our Offerings') || 'Our Offerings';
 
-  const handleScroll = useCallback(() => {
-    const container = containerRef.current;
-    const track = trackRef.current;
-    if (!container || !track) return;
+  const rafRef = useRef<number | null>(null);
+  const lastProgressRef = useRef(0);
 
-    const rect = container.getBoundingClientRect();
-    const windowHeight = window.innerHeight;
-    const containerHeight = container.offsetHeight;
-    
-    // Calculate how far we've scrolled into the container
-    // When top of container hits top of viewport, we start (progress = 0)
-    // When bottom of container hits bottom of viewport, we end (progress = 1)
-    const scrollStart = rect.top;
-    const scrollEnd = rect.bottom - windowHeight;
-    const scrollRange = containerHeight - windowHeight;
-    
-    if (scrollStart > 0) {
-      // Haven't reached the section yet
-      setProgress(0);
-    } else if (scrollEnd < 0) {
-      // Past the section
-      setProgress(1);
-    } else {
-      // In the section - calculate progress
-      const currentProgress = Math.abs(scrollStart) / scrollRange;
-      setProgress(Math.max(0, Math.min(1, currentProgress)));
+  const handleScroll = useCallback(() => {
+    // Cancel any pending animation frame
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
     }
+
+    // Use requestAnimationFrame for smooth updates
+    rafRef.current = requestAnimationFrame(() => {
+      const container = containerRef.current;
+      const track = trackRef.current;
+      if (!container || !track) return;
+
+      const rect = container.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      const containerHeight = container.offsetHeight;
+      
+      // Calculate how far we've scrolled into the container
+      const scrollStart = rect.top;
+      const scrollRange = containerHeight - windowHeight;
+      
+      let newProgress: number;
+      if (scrollStart > 0) {
+        newProgress = 0;
+      } else if (rect.bottom - windowHeight < 0) {
+        newProgress = 1;
+      } else {
+        newProgress = Math.max(0, Math.min(1, Math.abs(scrollStart) / scrollRange));
+      }
+
+      // Only update if there's a meaningful change (reduces re-renders)
+      if (Math.abs(newProgress - lastProgressRef.current) > 0.001) {
+        lastProgressRef.current = newProgress;
+        setProgress(newProgress);
+      }
+    });
   }, []);
 
   useEffect(() => {
@@ -130,6 +141,9 @@ export function ManagedCarousel({ className = '', slug, title }: ManagedCarousel
     return () => {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
     };
   }, [slides, handleScroll]);
 
@@ -179,8 +193,7 @@ export function ManagedCarousel({ className = '', slug, title }: ManagedCarousel
             ref={trackRef}
             className="flex items-center h-full will-change-transform"
             style={{ 
-              transform: `translateX(${translateX}vw)`,
-              transition: 'transform 0.1s ease-out',
+              transform: `translate3d(${translateX}vw, 0, 0)`,
               paddingLeft: '10vw',
               gap: `${gap}vw`,
             }}
