@@ -191,13 +191,13 @@ function safeParseImages(images: string | string[] | null | undefined): string[]
   }
 }
 
-// Font size mapping for Tailwind classes
+// Font size mapping for Tailwind classes - increased defaults
 const fontSizeMap: Record<string, string> = {
-  xs: "text-xs",
-  sm: "text-sm",
-  base: "text-base",
-  lg: "text-lg",
-  xl: "text-xl",
+  xs: "text-sm",
+  sm: "text-base",
+  base: "text-lg",
+  lg: "text-xl",
+  xl: "text-2xl",
 };
 
 function ProductCard({ product }: ProductCardProps) {
@@ -207,20 +207,23 @@ function ProductCard({ product }: ProductCardProps) {
   // Safely parse images using helper
   const images = safeParseImages(product.images);
   // Use featuredImage first, then fall back to images array
-  const mainImage = product.featuredImage || images[0] || "/placeholder-product.jpg";
+  // Ensure we properly get the image URL - check if featuredImage exists and is not empty
+  const mainImage = (product.featuredImage && product.featuredImage.trim()) 
+    ? product.featuredImage 
+    : (images[0] || "/placeholder-product.jpg");
   const hoverImage = images[1] || images[0] || product.featuredImage || mainImage;
   
   // Parse display settings from dimensions JSON
   const getDisplaySettings = () => {
-    if (!product.dimensions) return { nameFontSize: "sm", priceFontSize: "sm" };
+    if (!product.dimensions) return { nameFontSize: "base", priceFontSize: "base" };
     try {
       const parsed = JSON.parse(product.dimensions);
       return {
-        nameFontSize: parsed.nameFontSize || "sm",
-        priceFontSize: parsed.priceFontSize || "sm",
+        nameFontSize: parsed.nameFontSize || "base",
+        priceFontSize: parsed.priceFontSize || "base",
       };
     } catch {
-      return { nameFontSize: "sm", priceFontSize: "sm" };
+      return { nameFontSize: "base", priceFontSize: "base" };
     }
   };
   const displaySettings = getDisplaySettings();
@@ -263,11 +266,11 @@ function ProductCard({ product }: ProductCardProps) {
         
         {/* Product Info - Always visible */}
         <div className="pt-3 px-1">
-          <h3 className={`${fontSizeMap[displaySettings.nameFontSize] || 'text-sm'} font-medium text-stone-900 dark:text-foreground truncate`}>{product.name}</h3>
+          <h3 className={`${fontSizeMap[displaySettings.nameFontSize] || 'text-lg'} font-medium text-stone-900 dark:text-foreground`}>{product.name}</h3>
           {subDescription && (
-            <p className="text-xs text-stone-500 dark:text-muted-foreground/70 mt-0.5 truncate">{subDescription}</p>
+            <p className="text-sm text-stone-500 dark:text-muted-foreground/70 mt-1 line-clamp-3">{subDescription}</p>
           )}
-          <p className={`${fontSizeMap[displaySettings.priceFontSize] || 'text-sm'} text-stone-600 dark:text-muted-foreground mt-1`}>
+          <p className={`${fontSizeMap[displaySettings.priceFontSize] || 'text-lg'} text-stone-600 dark:text-muted-foreground mt-2`}>
             {product.formattedPrice}
           </p>
         </div>

@@ -414,8 +414,8 @@ export default function ProductDetail() {
               </div>
             )}
             
-            {/* Book Details - Prominent display for book products */}
-            {productInfo.productType === "book" && (productInfo.author || productInfo.publisher || productInfo.isbn || productInfo.pageCount) && (
+            {/* Book Details - Prominent display for book products or any product with book fields */}
+            {(productInfo.productType === "book" || productInfo.author || productInfo.publisher || productInfo.isbn || productInfo.pageCount) && (productInfo.author || productInfo.publisher || productInfo.isbn || productInfo.pageCount) && (
               <div className="mb-8 p-4 bg-stone-50 dark:bg-muted/30 rounded-lg border border-stone-200 dark:border-border">
                 <p className="text-xs uppercase tracking-wider text-stone-500 dark:text-muted-foreground mb-3 font-medium">
                   📚 Book Details
