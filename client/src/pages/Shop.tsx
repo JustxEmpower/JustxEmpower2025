@@ -266,9 +266,9 @@ function ProductCard({ product }: ProductCardProps) {
         
         {/* Product Info - Clean Apple-style typography */}
         <div className="pt-5 px-1">
-          <h3 className={`${fontSizeMap[displaySettings.nameFontSize] || 'text-lg'} font-medium text-stone-900 dark:text-foreground leading-snug`}>{product.name}</h3>
+          <h3 className="text-xl md:text-2xl font-medium text-stone-900 dark:text-foreground leading-snug">{product.name}</h3>
           {subDescription && (
-            <p className="text-sm text-stone-500 dark:text-muted-foreground/70 mt-2 leading-relaxed line-clamp-3">{subDescription}</p>
+            <p className="text-base md:text-lg text-stone-500 dark:text-muted-foreground/70 mt-2 leading-relaxed line-clamp-3">{subDescription}</p>
           )}
           <p className={`${fontSizeMap[displaySettings.priceFontSize] || 'text-lg'} text-stone-600 dark:text-muted-foreground mt-3 font-medium`}>
             {product.formattedPrice}
