@@ -640,6 +640,7 @@ export const products = mysqlTable("products", {
   metaDescription: text("metaDescription"),
   status: mysqlEnum("status", ["draft", "active", "archived"]).default("draft").notNull(),
   isFeatured: int("isFeatured").default(0).notNull(),
+  sortOrder: int("sortOrder").default(0).notNull(), // For manual product ordering
   deletedAt: timestamp("deletedAt"), // Soft delete timestamp
   archivedReason: varchar("archivedReason", { length: 255 }), // Reason for archiving
   createdAt: timestamp("createdAt").defaultNow().notNull(),

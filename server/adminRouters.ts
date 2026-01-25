@@ -2432,7 +2432,7 @@ export const adminRouter = router({
           .select()
           .from(schema.products)
           .where(conditions.length > 0 ? and(...conditions) : undefined)
-          .orderBy(desc(schema.products.createdAt))
+          .orderBy(asc(schema.products.sortOrder), desc(schema.products.createdAt))
           .limit(input?.limit || 50)
           .offset(input?.offset || 0);
         
@@ -2570,6 +2570,25 @@ export const adminRouter = router({
         await db
           .delete(schema.products)
           .where(eq(schema.products.id, input.id));
+        
+        return { success: true };
+      }),
+
+    reorder: adminProcedure
+      .input(z.array(z.object({
+        id: z.number(),
+        sortOrder: z.number(),
+      })))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        for (const item of input) {
+          await db
+            .update(schema.products)
+            .set({ sortOrder: item.sortOrder })
+            .where(eq(schema.products.id, item.id));
+        }
         
         return { success: true };
       }),

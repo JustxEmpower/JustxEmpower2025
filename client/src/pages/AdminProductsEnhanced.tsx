@@ -84,6 +84,60 @@ function SortableMediaItem({ id, media, index, onRemove }: SortableMediaItemProp
   );
 }
 
+interface SortableProductCardProps {
+  product: any;
+  index: number;
+  onEdit: (product: any) => void;
+  onDelete: (id: number) => void;
+  formatPrice: (cents: number) => string;
+}
+
+function SortableProductCard({ product, index, onEdit, onDelete, formatPrice }: SortableProductCardProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: `product-${product.id}` });
+  
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 10 : 1,
+  };
+
+  return (
+    <motion.div 
+      ref={setNodeRef} 
+      style={style}
+      initial={{ opacity: 0, scale: 0.95 }} 
+      animate={{ opacity: 1, scale: 1 }} 
+      transition={{ delay: index * 0.03 }}
+    >
+      <Card className={`overflow-hidden hover:shadow-lg transition-shadow ${isDragging ? 'ring-2 ring-amber-500' : ''}`}>
+        <div className="aspect-square bg-stone-100 relative">
+          {(product.featuredImage || product.images?.[0]) ? <img src={getMediaUrl(product.featuredImage || product.images[0])} alt={product.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-12 h-12 text-stone-300" /></div>}
+          <Badge className={`absolute top-2 right-2 ${product.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{product.status}</Badge>
+          <div 
+            {...attributes} 
+            {...listeners}
+            className="absolute top-2 left-2 w-8 h-8 bg-white/90 rounded-lg cursor-grab active:cursor-grabbing flex items-center justify-center shadow-md hover:bg-white transition-colors"
+          >
+            <GripVertical className="w-5 h-5 text-stone-600" />
+          </div>
+        </div>
+        <CardContent className="p-4">
+          <h3 className="font-semibold truncate">{product.name}</h3>
+          <p className="text-lg font-bold text-amber-600">{formatPrice(product.price || 0)}</p>
+          <div className="flex items-center justify-between mt-3">
+            <span className="text-sm text-stone-500">{product.stock || 0} in stock</span>
+            <div className="flex gap-1">
+              <Button variant="ghost" size="icon" onClick={() => onEdit(product)}><Edit className="w-4 h-4" /></Button>
+              <Button variant="ghost" size="icon" onClick={() => onDelete(product.id)}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+}
+
 export default function AdminProductsEnhanced() {
   const [location, setLocation] = useLocation();
   const [, params] = useRoute("/admin/products/:id");
@@ -168,6 +222,13 @@ export default function AdminProductsEnhanced() {
       productsQuery.refetch(); 
     }, 
     onError: (e: any) => toast.error(e.message) 
+  });
+  const reorderProducts = trpc.admin.products.reorder.useMutation({
+    onSuccess: () => {
+      toast.success("Products reordered");
+      productsQuery.refetch();
+    },
+    onError: (e: any) => toast.error("Error reordering: " + e.message)
   });
 
   const resetForm = () => {
@@ -472,29 +533,28 @@ export default function AdminProductsEnhanced() {
           {filteredProducts.length === 0 ? (
             <Card><CardContent className="py-12 text-center"><Package className="w-12 h-12 mx-auto text-stone-400 mb-4" /><h3 className="text-lg font-medium mb-2">No Products</h3><p className="text-stone-500">{searchQuery || statusFilter !== "all" ? "Try adjusting filters" : "Add your first product"}</p></CardContent></Card>
           ) : viewMode === "grid" ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {filteredProducts.map((product: any, i: number) => (
-                <motion.div key={product.id} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.03 }}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="aspect-square bg-stone-100 relative">
-                      {(product.featuredImage || product.images?.[0]) ? <img src={getMediaUrl(product.featuredImage || product.images[0])} alt={product.name} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><ShoppingBag className="w-12 h-12 text-stone-300" /></div>}
-                      <Badge className={`absolute top-2 right-2 ${product.status === "active" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>{product.status}</Badge>
-                    </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold truncate">{product.name}</h3>
-                      <p className="text-lg font-bold text-amber-600">{formatPrice(product.price || 0)}</p>
-                      <div className="flex items-center justify-between mt-3">
-                        <span className="text-sm text-stone-500">{product.stockQuantity || 0} in stock</span>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="icon" onClick={() => openEditDialog(product)}><Edit className="w-4 h-4" /></Button>
-                          <Button variant="ghost" size="icon" onClick={() => { if (confirm("Delete?")) deleteProduct.mutate({ id: product.id }); }}><Trash2 className="w-4 h-4 text-red-500" /></Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))}
-            </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={(event: DragEndEvent) => {
+                const { active, over } = event;
+                if (over && active.id !== over.id) {
+                  const oldIndex = filteredProducts.findIndex((p: any) => `product-${p.id}` === active.id);
+                  const newIndex = filteredProducts.findIndex((p: any) => `product-${p.id}` === over.id);
+                  const reordered = arrayMove(filteredProducts, oldIndex, newIndex);
+                  const updates = reordered.map((p: any, idx: number) => ({ id: p.id, sortOrder: idx }));
+                  reorderProducts.mutate(updates);
+                }
+              }}
+            >
+              <SortableContext items={filteredProducts.map((p: any) => `product-${p.id}`)} strategy={rectSortingStrategy}>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {filteredProducts.map((product: any, i: number) => (
+                    <SortableProductCard key={product.id} product={product} index={i} onEdit={openEditDialog} onDelete={(id) => { if (confirm("Delete?")) deleteProduct.mutate({ id }); }} formatPrice={formatPrice} />
+                  ))}
+                </div>
+              </SortableContext>
+            </DndContext>
           ) : (
             <div className="space-y-3">
               {filteredProducts.map((product: any, i: number) => (

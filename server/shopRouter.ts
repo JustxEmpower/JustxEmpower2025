@@ -114,7 +114,7 @@ export const shopRouter = router({
           case "price_asc": orderBy = asc(products.price); break;
           case "price_desc": orderBy = desc(products.price); break;
           case "name": orderBy = asc(products.name); break;
-          default: orderBy = desc(products.createdAt);
+          default: orderBy = asc(products.sortOrder); // Default to manual sort order
         }
         
         const db = await getDb();
