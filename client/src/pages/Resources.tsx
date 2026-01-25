@@ -363,9 +363,9 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background transition-colors duration-300">
-      {/* Hero Section - Now reads from CMS */}
-      <section className="relative overflow-hidden text-white py-20">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a0a] transition-colors duration-300">
+      {/* Hero Section - Apple-inspired minimal design */}
+      <section className="relative overflow-hidden py-32 md:py-40">
         {/* Background Media */}
         <div className="absolute inset-0">
           {heroMediaUrl && isVideo ? (
@@ -379,27 +379,33 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
               style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-stone-900 via-stone-800 to-amber-900" />
+            <div className="w-full h-full bg-gradient-to-b from-stone-100 to-white dark:from-stone-900 dark:to-[#0a0a0a]" />
           )}
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/40" />
+          {/* Subtle overlay */}
+          <div className="absolute inset-0 bg-black/30" />
         </div>
         
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-5xl font-serif mb-6" style={getInlineStyles('hero', 'title')}>{heroTitle}</h1>
-            <p className="text-xl text-white/70 mb-8" style={getInlineStyles('hero', 'subtitle')}>
-              {heroSubtitle}
-            </p>
-            <div className="relative max-w-md mx-auto">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-              <Input
-                placeholder="Search resources..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-12 py-6 bg-white/10 border-white/20 text-white placeholder:text-stone-400 focus:bg-white/20"
-              />
-            </div>
+        <div className="relative z-10 max-w-4xl mx-auto px-8 text-center">
+          <h1 
+            className="text-5xl md:text-6xl lg:text-7xl font-light text-white mb-6 tracking-tight"
+            style={getInlineStyles('hero', 'title')}
+          >
+            {heroTitle || 'Resources'}
+          </h1>
+          <p 
+            className="text-lg md:text-xl text-white/70 mb-12 max-w-2xl mx-auto font-light tracking-wide"
+            style={getInlineStyles('hero', 'subtitle')}
+          >
+            {heroSubtitle}
+          </p>
+          <div className="relative max-w-lg mx-auto">
+            <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-white/40" />
+            <Input
+              placeholder="Search resources..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-14 py-4 h-14 bg-white/10 backdrop-blur-md border-white/20 text-white placeholder:text-white/40 focus:bg-white/20 rounded-full text-base"
+            />
           </div>
         </div>
       </section>
@@ -410,179 +416,164 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
       {/* Page Builder Zone: Mid Page */}
       <EditablePageZone pageSlug="resources" zoneName="mid-page" />
 
-      <div className="container mx-auto px-4 py-12">
-        {/* Featured Resources */}
+      <div className="max-w-6xl mx-auto px-8 py-16 md:py-24">
+        {/* Featured Resources - Apple-style cards */}
         {featuredQuery.data && featuredQuery.data.length > 0 && !searchQuery && !selectedCategory && (
-          <section className="mb-12">
-            <div className="flex items-center gap-2 mb-6">
-              <Star className="w-5 h-5 text-amber-500" />
-              <h2 className="text-2xl font-serif text-foreground">Featured Resources</h2>
+          <section className="mb-20">
+            <div className="text-center mb-12">
+              <p className="text-xs uppercase tracking-[0.3em] text-stone-400 dark:text-stone-500 mb-3">Featured</p>
+              <h2 className="text-3xl md:text-4xl font-light text-stone-900 dark:text-white">Curated Resources</h2>
             </div>
-            <div className="grid md:grid-cols-3 gap-6">
+            <div className="grid md:grid-cols-3 gap-8">
               {featuredQuery.data.map((resource) => (
-                <Card key={resource.id} className={`border-amber-200/50 dark:border-amber-800/50 bg-amber-50/50 dark:bg-amber-950/20 hover:shadow-lg transition-shadow relative ${resource.isPremium ? 'ring-2 ring-amber-400' : ''}`}>
+                <div 
+                  key={resource.id} 
+                  className="group bg-stone-50 dark:bg-stone-900/50 rounded-2xl p-8 hover:shadow-xl transition-all duration-500 hover:-translate-y-1 relative"
+                >
                   {resource.isPremium && (resource.price ?? 0) > 0 && (
-                    <div className="absolute top-3 right-3">
-                      <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-white">
-                        <DollarSign className="w-3 h-3 mr-1" />
-                        Premium
-                      </Badge>
+                    <div className="absolute top-6 right-6">
+                      <span className="text-xs uppercase tracking-wider text-amber-600 dark:text-amber-400 font-medium">Premium</span>
                     </div>
                   )}
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      {getFileIcon(resource.fileType, 'lg')}
-                      {getFileTypeBadge(resource.fileType)}
-                    </div>
-                    <CardTitle className="text-lg mt-4">{resource.title}</CardTitle>
-                    {resource.description && (
-                      <CardDescription className="line-clamp-2">{resource.description}</CardDescription>
-                    )}
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm text-muted-foreground">
-                        <span>{resource.formattedSize}</span>
-                        <span className="mx-2">•</span>
-                        <span>{resource.downloadCount} downloads</span>
-                      </div>
-                    </div>
-                    <div className="mt-4">
-                      {renderResourceActions(resource, 'sm')}
-                    </div>
-                  </CardContent>
-                </Card>
+                  <div className="mb-6">
+                    {getFileIcon(resource.fileType, 'lg')}
+                  </div>
+                  <h3 className="text-xl font-medium text-stone-900 dark:text-white mb-3 leading-snug">{resource.title}</h3>
+                  {resource.description && (
+                    <p className="text-stone-500 dark:text-stone-400 text-sm leading-relaxed line-clamp-2 mb-6">{resource.description}</p>
+                  )}
+                  <div className="flex items-center gap-4 text-xs text-stone-400 dark:text-stone-500 mb-6">
+                    {getFileTypeBadge(resource.fileType)}
+                    <span>{resource.formattedSize}</span>
+                    <span>{resource.downloadCount} downloads</span>
+                  </div>
+                  <div className="flex gap-3">
+                    {renderResourceActions(resource, 'sm')}
+                  </div>
+                </div>
               ))}
             </div>
           </section>
         )}
 
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar - Categories */}
-          <aside className="lg:w-64 flex-shrink-0">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <FolderOpen className="w-5 h-5" />
-                  Categories
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                <nav className="divide-y">
+        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16">
+          {/* Sidebar - Categories - Apple-style minimal */}
+          <aside className="lg:w-56 flex-shrink-0">
+            <div className="lg:sticky lg:top-32">
+              <p className="text-xs uppercase tracking-[0.2em] text-stone-400 dark:text-stone-500 mb-6">Categories</p>
+              <nav className="space-y-1">
+                <button
+                  onClick={() => setSelectedCategory(null)}
+                  className={`w-full px-4 py-3 text-left flex items-center justify-between rounded-xl transition-all duration-300 ${
+                    !selectedCategory 
+                      ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900' 
+                      : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
+                  }`}
+                >
+                  <span className="text-sm">All Resources</span>
+                  <span className={`text-xs ${!selectedCategory ? 'text-white/70 dark:text-stone-900/70' : 'text-stone-400'}`}>
+                    {resourcesQuery.data?.length || 0}
+                  </span>
+                </button>
+                {categoriesQuery.data?.map((category) => (
                   <button
-                    onClick={() => setSelectedCategory(null)}
-                    className={`w-full px-4 py-3 text-left flex items-center justify-between hover:bg-muted transition-colors ${
-                      !selectedCategory ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 font-medium' : 'text-muted-foreground'
+                    key={category.id}
+                    onClick={() => setSelectedCategory(category.slug)}
+                    className={`w-full px-4 py-3 text-left flex items-center justify-between rounded-xl transition-all duration-300 ${
+                      selectedCategory === category.slug 
+                        ? 'bg-stone-900 dark:bg-white text-white dark:text-stone-900' 
+                        : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'
                     }`}
                   >
-                    <span>All Resources</span>
-                    <Badge variant="outline">{resourcesQuery.data?.length || 0}</Badge>
+                    <span className="text-sm">{category.name}</span>
+                    <span className={`text-xs ${selectedCategory === category.slug ? 'text-white/70 dark:text-stone-900/70' : 'text-stone-400'}`}>
+                      {category.resourceCount}
+                    </span>
                   </button>
-                  {categoriesQuery.data?.map((category) => (
-                    <button
-                      key={category.id}
-                      onClick={() => setSelectedCategory(category.slug)}
-                      className={`w-full px-4 py-3 text-left flex items-center justify-between hover:bg-muted transition-colors ${
-                        selectedCategory === category.slug ? 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 font-medium' : 'text-muted-foreground'
-                      }`}
-                    >
-                      <span>{category.name}</span>
-                      <Badge variant="outline">{category.resourceCount}</Badge>
-                    </button>
-                  ))}
-                </nav>
-              </CardContent>
-            </Card>
+                ))}
+              </nav>
+            </div>
           </aside>
 
-          {/* Main Content - Resources List */}
+          {/* Main Content - Resources List - Apple-style */}
           <main className="flex-1">
             {/* Results Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-xl font-semibold text-foreground">
-                  {selectedCategory 
-                    ? categoriesQuery.data?.find(c => c.slug === selectedCategory)?.name || 'Resources'
-                    : 'All Resources'
-                  }
-                </h2>
-                <p className="text-muted-foreground">
-                  {filteredResources.length} {filteredResources.length === 1 ? 'resource' : 'resources'} available
-                </p>
-              </div>
+            <div className="mb-10">
+              <h2 className="text-2xl md:text-3xl font-light text-stone-900 dark:text-white mb-2">
+                {selectedCategory 
+                  ? categoriesQuery.data?.find(c => c.slug === selectedCategory)?.name || 'Resources'
+                  : 'All Resources'
+                }
+              </h2>
+              <p className="text-sm text-stone-400 dark:text-stone-500">
+                {filteredResources.length} {filteredResources.length === 1 ? 'resource' : 'resources'} available
+              </p>
             </div>
 
             {/* Resources Grid */}
             {resourcesQuery.isLoading ? (
-              <div className="text-center py-12">
-                <p className="text-muted-foreground">Loading resources...</p>
+              <div className="text-center py-20">
+                <p className="text-stone-400 dark:text-stone-500">Loading resources...</p>
               </div>
             ) : filteredResources.length === 0 ? (
-              <Card className="text-center py-12">
-                <CardContent>
-                  <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">No resources found</h3>
-                  <p className="text-muted-foreground">
-                    {searchQuery 
-                      ? 'Try adjusting your search terms'
-                      : 'Check back soon for new resources'
-                    }
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="text-center py-20 bg-stone-50 dark:bg-stone-900/30 rounded-2xl">
+                <FileText className="w-12 h-12 mx-auto text-stone-300 dark:text-stone-600 mb-4" />
+                <h3 className="text-lg font-medium text-stone-900 dark:text-white mb-2">No resources found</h3>
+                <p className="text-stone-400 dark:text-stone-500">
+                  {searchQuery 
+                    ? 'Try adjusting your search terms'
+                    : 'Check back soon for new resources'
+                  }
+                </p>
+              </div>
             ) : (
               <div className="space-y-4">
                 {filteredResources.map((resource) => (
-                  <Card key={resource.id} className={`hover:shadow-md transition-shadow ${resource.isPremium && (resource.price ?? 0) > 0 ? 'border-l-4 border-l-amber-500' : ''}`}>
-                    <CardContent className="p-6">
-                      <div className="flex items-start gap-4">
-                        <div className="flex-shrink-0 relative">
-                          {getFileIcon(resource.fileType, 'lg')}
-                          {resource.isPremium && (resource.price ?? 0) > 0 && (
-                            <div className="absolute -top-1 -right-1 bg-amber-500 rounded-full p-1">
-                              <Lock className="w-3 h-3 text-white" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-4">
-                            <div>
-                              <div className="flex items-center gap-2 mb-1">
-                                <h3 className="text-lg font-medium text-foreground">
-                                  {resource.title}
-                                </h3>
-                                {resource.isPremium && (resource.price ?? 0) > 0 && (
-                                  <Badge className="bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs">
-                                    {formatPrice(resource.price ?? 0)}
-                                  </Badge>
-                                )}
-                              </div>
-                              {resource.description && (
-                                <p className="text-muted-foreground mb-3 line-clamp-2">
-                                  {resource.description}
-                                </p>
-                              )}
-                              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                {getFileTypeBadge(resource.fileType)}
-                                <span>{resource.formattedSize}</span>
-                                <span className="flex items-center gap-1">
-                                  <Download className="w-4 h-4" />
-                                  {resource.downloadCount}
+                  <div 
+                    key={resource.id} 
+                    className="group bg-stone-50 dark:bg-stone-900/30 hover:bg-stone-100 dark:hover:bg-stone-900/50 rounded-2xl p-6 transition-all duration-300"
+                  >
+                    <div className="flex items-start gap-5">
+                      <div className="flex-shrink-0 p-3 bg-white dark:bg-stone-800 rounded-xl shadow-sm">
+                        {getFileIcon(resource.fileType, 'lg')}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-6">
+                          <div>
+                            <div className="flex items-center gap-3 mb-2">
+                              <h3 className="text-lg font-medium text-stone-900 dark:text-white">
+                                {resource.title}
+                              </h3>
+                              {resource.isPremium && (resource.price ?? 0) > 0 && (
+                                <span className="text-xs uppercase tracking-wider text-amber-600 dark:text-amber-400 font-medium">
+                                  {formatPrice(resource.price ?? 0)}
                                 </span>
-                                {resource.categoryName && (
-                                  <span className="flex items-center gap-1">
-                                    <FolderOpen className="w-4 h-4" />
-                                    {resource.categoryName}
-                                  </span>
-                                )}
-                              </div>
+                              )}
                             </div>
+                            {resource.description && (
+                              <p className="text-stone-500 dark:text-stone-400 text-sm leading-relaxed mb-4 line-clamp-2">
+                                {resource.description}
+                              </p>
+                            )}
+                            <div className="flex items-center gap-4 text-xs text-stone-400 dark:text-stone-500">
+                              {getFileTypeBadge(resource.fileType)}
+                              <span>{resource.formattedSize}</span>
+                              <span className="flex items-center gap-1">
+                                <Download className="w-3.5 h-3.5" />
+                                {resource.downloadCount}
+                              </span>
+                              {resource.categoryName && (
+                                <span>{resource.categoryName}</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0">
                             {renderResourceActions(resource)}
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
