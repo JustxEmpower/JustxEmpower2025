@@ -1,39 +1,28 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link } from 'wouter';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Button } from '@/components/ui/button';
-import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 import { BookOpen } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Founder() {
-  const { sections, isLoading } = usePageSectionContent('founder');
+  // Use usePageContent to read from siteContent table (same as Content Editor writes to)
+  const { getContent, getSection, isLoading } = usePageContent('founder');
   const heroRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Get sections by their sectionId in content (for content sections with specific IDs)
-  const getSectionBySectionId = (sectionId: string) => {
-    const section = sections.find(s => s.content?.sectionId === sectionId);
-    return section?.content || {};
-  };
-
-  // Get section by sectionType
-  const getSectionByType = (sectionType: string) => {
-    const section = sections.find(s => s.sectionType === sectionType);
-    return section?.content || {};
-  };
-
-  // Get all section content from database - 100% database driven
-  const heroSection = getSectionByType('hero');
-  const openingSection = getSectionBySectionId('opening');
-  const truthSection = getSectionBySectionId('truth');
-  const depthSection = getSectionBySectionId('depth');
-  const remembranceSection = getSectionBySectionId('remembrance') || getSectionByType('quote');
-  const renewalSection = getSectionBySectionId('renewal');
-  const futureSection = getSectionBySectionId('future');
-  const newsletterSection = getSectionByType('newsletter');
+  // Get all section content from siteContent table - 100% database driven
+  const heroSection = getSection('hero');
+  const openingSection = getSection('opening');
+  const truthSection = getSection('truth');
+  const depthSection = getSection('depth');
+  const remembranceSection = getSection('remembrance');
+  const renewalSection = getSection('renewal');
+  const futureSection = getSection('future');
+  const newsletterSection = getSection('newsletter');
 
   // Determine which media to use for hero (video takes priority)
   const heroMediaUrl = heroSection.videoUrl || heroSection.imageUrl || '';
@@ -113,7 +102,7 @@ export default function Founder() {
             <video
               ref={videoRef}
               key={heroMediaUrl}
-              src={getProperMediaUrl(heroMediaUrl)}
+              src={heroMediaUrl}
               autoPlay
               muted
               loop
@@ -128,7 +117,7 @@ export default function Founder() {
           {heroMediaUrl && !isHeroVideo && (
             <div 
               className="absolute inset-0 w-full h-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
+              style={{ backgroundImage: `url(${heroMediaUrl})` }}
             />
           )}
         </div>
