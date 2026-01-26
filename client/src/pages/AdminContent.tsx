@@ -22,7 +22,9 @@ interface ContentItem {
 }
 
 // Pages that use the pageSections system instead of siteContent
-const PAGE_SECTIONS_PAGES = ['founder', 'philosophy', 'vision-ethos', 'offerings', 'workshops-programs', 'community-events', 'resources', 'walk-with-us', 'contact', 'about', 'about-justxempower'];
+// IMPORTANT: Only pages that use usePageSectionContent() hook on the frontend should be listed here
+// Currently only Founder.tsx uses usePageSectionContent - all other pages use usePageContent (siteContent table)
+const PAGE_SECTIONS_PAGES = ['founder'];
 
 interface PageSection {
   id: number;
