@@ -3,25 +3,25 @@ import { Link } from 'wouter';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Button } from '@/components/ui/button';
-import { usePageContent } from '@/hooks/usePageContent';
+import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
 import { BookOpen } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function Founder() {
-  // Use usePageContent to read from siteContent table (same as Content Editor writes to)
-  const { getContent, getSection, isLoading } = usePageContent('founder');
+  // Use usePageSectionContent to read from pageSections table
+  const { sections, isLoading, getSection } = usePageSectionContent('founder');
   const heroRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Get all section content from siteContent table - 100% database driven
+  // Get all section content from pageSections table - 100% database driven
   const heroSection = getSection('hero');
-  const openingSection = getSection('opening');
-  const truthSection = getSection('truth');
-  const depthSection = getSection('depth');
-  const remembranceSection = getSection('remembrance');
-  const renewalSection = getSection('renewal');
-  const futureSection = getSection('future');
+  const openingSection = sections.find(s => s.content?.sectionId === 'opening')?.content || {};
+  const truthSection = sections.find(s => s.content?.sectionId === 'truth')?.content || {};
+  const depthSection = sections.find(s => s.content?.sectionId === 'depth')?.content || {};
+  const remembranceSection = sections.find(s => s.content?.sectionId === 'remembrance')?.content || getSection('quote');
+  const renewalSection = sections.find(s => s.content?.sectionId === 'renewal')?.content || {};
+  const futureSection = sections.find(s => s.content?.sectionId === 'future')?.content || {};
   const newsletterSection = getSection('newsletter');
 
   // Determine which media to use for hero (video takes priority)
@@ -102,7 +102,7 @@ export default function Founder() {
             <video
               ref={videoRef}
               key={heroMediaUrl}
-              src={heroMediaUrl}
+              src={getProperMediaUrl(heroMediaUrl)}
               autoPlay
               muted
               loop
@@ -117,7 +117,7 @@ export default function Founder() {
           {heroMediaUrl && !isHeroVideo && (
             <div 
               className="absolute inset-0 w-full h-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${heroMediaUrl})` }}
+              style={{ backgroundImage: `url(${getProperMediaUrl(heroMediaUrl)})` }}
             />
           )}
         </div>
