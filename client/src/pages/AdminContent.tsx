@@ -21,27 +21,6 @@ interface ContentItem {
   contentValue: string;
 }
 
-interface PageSection {
-  id: number;
-  pageId: number;
-  sectionType: string;
-  sectionOrder: number;
-  title: string | null;
-  content: Record<string, any>;
-  requiredFields: string[];
-  isVisible: number;
-}
-
-// Page ID mapping for pageSections table
-const PAGE_IDS: Record<string, number> = {
-  home: 18, philosophy: 2, founder: 3, 'vision-ethos': 5,
-  offerings: 6, 'workshops-programs': 7, 'vix-journal-trilogy': 8,
-  'vi-x-journal-trilogy': 19, blog: 20, 'blog-she-writes': 9,
-  shop: 10, 'community-events': 1, resources: 12, 'walk-with-us': 13,
-  contact: 14, 'rooted-unity': 15, overview: 16, about: 21,
-  'about-justxempower': 22,
-};
-
 export default function AdminContent() {
   const [location, setLocation] = useLocation();
   const { isAuthenticated, isChecking, username, logout } = useAdminAuth();
@@ -52,13 +31,10 @@ export default function AdminContent() {
   
   const [selectedPage, setSelectedPage] = useState(pageFromUrl || 'home');
   const [content, setContent] = useState<ContentItem[]>([]);
-  const [pageSections, setPageSections] = useState<PageSection[]>([]);
   const [editedContent, setEditedContent] = useState<Record<number, string>>({});
-  const [editedSectionFields, setEditedSectionFields] = useState<Record<string, string>>({});
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [selectedFieldId, setSelectedFieldId] = useState<number | null>(null);
-  const [selectedFieldInfo, setSelectedFieldInfo] = useState<{sectionId: number, fieldKey: string} | null>(null);
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [textStyles, setTextStyles] = useState<Record<number, { isBold: boolean; isItalic: boolean; isUnderline: boolean; fontSize?: string; fontColor?: string }>>({});
   const [legalSections, setLegalSections] = useState<LegalSection[]>([]);
@@ -157,12 +133,6 @@ export default function AdminContent() {
     { enabled: isAuthenticated }
   );
 
-  // Fetch pageSections for current page - this is the PRIMARY data source
-  const { data: pageSectionsData, isLoading: sectionsLoading, refetch: refetchSections } = trpc.admin.pageSections.getByPageSlug.useQuery(
-    { slug: selectedPage },
-    { enabled: isAuthenticated && !!PAGE_IDS[selectedPage] }
-  );
-
   // Fetch text styles for the current page
   const { data: pageTextStyles } = trpc.contentTextStyles.getByPage.useQuery(
     { page: selectedPage },
@@ -172,6 +142,7 @@ export default function AdminContent() {
   const utils = trpc.useUtils();
   const updateMutation = trpc.admin.content.update.useMutation({
     onSuccess: async () => {
+      // Invalidate and refetch both admin and public content queries
       await utils.admin.content.getByPage.invalidate({ page: selectedPage });
       await utils.content.getByPage.invalidate({ page: selectedPage });
       await refetch();
@@ -183,14 +154,6 @@ export default function AdminContent() {
       await utils.admin.content.getByPage.invalidate({ page: selectedPage });
       await utils.content.getByPage.invalidate({ page: selectedPage });
       await refetch();
-    },
-  });
-
-  // Mutation for updating pageSections fields
-  const updateSectionFieldMutation = trpc.admin.pageSections.updateField.useMutation({
-    onSuccess: async () => {
-      await utils.admin.pageSections.getByPageSlug.invalidate({ slug: selectedPage });
-      await refetchSections();
     },
   });
 
@@ -212,20 +175,6 @@ export default function AdminContent() {
       }
     }
   }, [contentData, selectedPage]);
-
-  // Load pageSections data
-  useEffect(() => {
-    if (pageSectionsData) {
-      setPageSections(pageSectionsData);
-      // Auto-expand all sections
-      const expanded: Record<string, boolean> = {};
-      pageSectionsData.forEach(section => {
-        expanded[`section-${section.id}`] = true;
-      });
-      setExpandedSections(prev => ({ ...prev, ...expanded }));
-      setEditedSectionFields({});
-    }
-  }, [pageSectionsData, selectedPage]);
 
   // Load legal sections from database - only on initial page load, not after saves
   // Use a ref to track if we've loaded the initial data for this page
@@ -302,26 +251,13 @@ export default function AdminContent() {
     setContent(prev => prev.map(item => item.id === id ? { ...item, contentValue: value } : item));
   };
 
-  // Handle pageSections field changes
-  const handleSectionFieldChange = (sectionId: number, fieldKey: string, value: string) => {
-    const key = `${sectionId}-${fieldKey}`;
-    setEditedSectionFields(prev => ({ ...prev, [key]: value }));
-    // Update local state for immediate UI feedback
-    setPageSections(prev => prev.map(section => {
-      if (section.id === sectionId) {
-        return { ...section, content: { ...section.content, [fieldKey]: value } };
-      }
-      return section;
-    }));
-  };
-
   const handleSaveAll = async () => {
     const isLegal = ['privacy-policy', 'terms-of-service', 'accessibility', 'cookie-policy'].includes(selectedPage);
     const hasEditedContent = Object.keys(editedContent).length > 0;
-    const hasEditedSectionFields = Object.keys(editedSectionFields).length > 0;
+    // Always save legal sections on legal pages (even if empty array, to clear old content)
     const shouldSaveLegalSections = isLegal;
     
-    if (!hasEditedContent && !hasEditedSectionFields && !shouldSaveLegalSections) {
+    if (!hasEditedContent && !shouldSaveLegalSections) {
       toast.info('No changes to save');
       return;
     }
@@ -362,23 +298,6 @@ export default function AdminContent() {
       }
     }
     
-    // Save pageSections field updates
-    const sectionFieldUpdates = Object.entries(editedSectionFields);
-    for (const [key, value] of sectionFieldUpdates) {
-      const [sectionId, fieldKey] = key.split('-');
-      try {
-        await updateSectionFieldMutation.mutateAsync({
-          sectionId: parseInt(sectionId),
-          fieldKey,
-          fieldValue: value,
-        });
-        successCount++;
-      } catch (error) {
-        console.error(`Failed to update section ${sectionId} field ${fieldKey}:`, error);
-        errorCount++;
-      }
-    }
-
     // Show result toast
     if (errorCount === 0) {
       toast.success(`Successfully saved ${successCount} change${successCount > 1 ? 's' : ''}`);
@@ -390,9 +309,7 @@ export default function AdminContent() {
     
     // Clear edited content and refetch after all saves complete
     setEditedContent({});
-    setEditedSectionFields({});
     await refetch();
-    await refetchSections();
   };
 
   const toggleSection = (section: string) => {
@@ -443,42 +360,24 @@ export default function AdminContent() {
   };
 
   const handleMediaSelect = async (url: string) => {
-    // Handle pageSections field media selection
-    if (selectedFieldInfo !== null) {
-      handleSectionFieldChange(selectedFieldInfo.sectionId, selectedFieldInfo.fieldKey, url);
-      try {
-        await updateSectionFieldMutation.mutateAsync({
-          sectionId: selectedFieldInfo.sectionId,
-          fieldKey: selectedFieldInfo.fieldKey,
-          fieldValue: url,
-        });
-        setEditedSectionFields(prev => {
-          const newState = { ...prev };
-          delete newState[`${selectedFieldInfo.sectionId}-${selectedFieldInfo.fieldKey}`];
-          return newState;
-        });
-        toast.success('Media saved successfully');
-        await refetchSections();
-      } catch (error) {
-        console.error('Failed to save media:', error);
-        toast.error('Failed to save media. Please try again.');
-      }
-      setSelectedFieldInfo(null);
-    }
-    // Handle siteContent field media selection
-    else if (selectedFieldId !== null) {
+    if (selectedFieldId !== null) {
+      // Update local state immediately for UI feedback
       handleContentChange(selectedFieldId, url);
+      
+      // Auto-save to database immediately
       try {
         await updateMutation.mutateAsync({
           id: selectedFieldId,
           contentValue: url,
         });
+        // Remove from editedContent since it's already saved
         setEditedContent(prev => {
           const newState = { ...prev };
           delete newState[selectedFieldId];
           return newState;
         });
         toast.success('Media saved successfully');
+        // Refetch to ensure data is in sync
         await refetch();
       } catch (error) {
         console.error('Failed to save media:', error);
@@ -521,8 +420,7 @@ export default function AdminContent() {
            value.length > 100;
   };
 
-  const hasUnsavedChanges = Object.keys(editedContent).length > 0 || Object.keys(editedSectionFields).length > 0;
-  const totalChanges = Object.keys(editedContent).length + Object.keys(editedSectionFields).length;
+  const hasUnsavedChanges = Object.keys(editedContent).length > 0;
 
   // Check if this is a legal page that should use free-form editor
   const isLegalPage = ['privacy-policy', 'terms-of-service', 'accessibility', 'cookie-policy'].includes(selectedPage);
@@ -568,11 +466,11 @@ export default function AdminContent() {
                 {hasUnsavedChanges && (
                   <Button
                     onClick={handleSaveAll}
-                    disabled={updateMutation.isPending || updateSectionFieldMutation.isPending}
+                    disabled={updateMutation.isPending}
                     className="gap-2"
                   >
                     <Save className="w-4 h-4" />
-                    {(updateMutation.isPending || updateSectionFieldMutation.isPending) ? 'Saving...' : `Save All Changes (${totalChanges})`}
+                    {updateMutation.isPending ? 'Saving...' : `Save All Changes (${Object.keys(editedContent).length})`}
                   </Button>
                 )}
               </div>
@@ -773,99 +671,9 @@ export default function AdminContent() {
                   </div>
                 ))}
 
-                {content.length === 0 && pageSections.length === 0 && (
+                {content.length === 0 && (
                   <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
                     No content sections found for this page.
-                  </div>
-                )}
-
-                {/* Page Sections from pageSections table - PRIMARY DATA SOURCE */}
-                {!isLegalPage && pageSections.length > 0 && (
-                  <div className="mt-8 pt-8 border-t border-neutral-200 dark:border-neutral-800">
-                    <h3 className="text-lg font-medium text-neutral-900 dark:text-neutral-100 mb-4">
-                      Page Sections (Database)
-                    </h3>
-                    <div className="space-y-4">
-                      {pageSections.map((section) => (
-                        <div
-                          key={section.id}
-                          className="bg-white dark:bg-neutral-900 rounded-xl border-2 border-neutral-200 dark:border-neutral-800 overflow-hidden"
-                        >
-                          <button
-                            onClick={() => toggleSection(`section-${section.id}`)}
-                            className="w-full flex items-center justify-between p-6 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100">
-                                {section.sectionType.charAt(0).toUpperCase() + section.sectionType.slice(1)}
-                              </h2>
-                              <span className="px-2 py-0.5 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-xs rounded">
-                                {section.sectionType}
-                              </span>
-                            </div>
-                            {expandedSections[`section-${section.id}`] ? (
-                              <ChevronUp className="w-5 h-5 text-neutral-400" />
-                            ) : (
-                              <ChevronDown className="w-5 h-5 text-neutral-400" />
-                            )}
-                          </button>
-
-                          {expandedSections[`section-${section.id}`] && (
-                            <div className="px-6 pb-6 space-y-4 border-t border-neutral-100 dark:border-neutral-800">
-                              {Object.entries(section.content || {}).map(([fieldKey, fieldValue]) => {
-                                const editKey = `${section.id}-${fieldKey}`;
-                                const currentValue = editedSectionFields[editKey] ?? String(fieldValue || '');
-                                const isModified = editedSectionFields[editKey] !== undefined;
-                                const useTextarea = isLongText(fieldKey, currentValue);
-
-                                return (
-                                  <div key={fieldKey} className="pt-4">
-                                    <label className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
-                                      {formatSectionName(fieldKey)}
-                                      {isModified && (
-                                        <span className="ml-2 text-xs text-amber-600 dark:text-amber-400">(Modified)</span>
-                                      )}
-                                    </label>
-                                    {useTextarea ? (
-                                      <Textarea
-                                        value={currentValue}
-                                        onChange={(e) => handleSectionFieldChange(section.id, fieldKey, e.target.value)}
-                                        className={`min-h-[100px] ${isModified ? 'border-amber-400 dark:border-amber-600' : ''}`}
-                                        placeholder={`Enter ${fieldKey}...`}
-                                      />
-                                    ) : (
-                                      <div className="flex gap-2">
-                                        <Input
-                                          type={getInputType(fieldKey)}
-                                          value={currentValue}
-                                          onChange={(e) => handleSectionFieldChange(section.id, fieldKey, e.target.value)}
-                                          className={`h-11 flex-1 ${isModified ? 'border-amber-400 dark:border-amber-600' : ''}`}
-                                          placeholder={`Enter ${fieldKey}...`}
-                                        />
-                                        {(fieldKey.includes('Url') || fieldKey.includes('Image') || fieldKey.includes('image')) && (
-                                          <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="icon"
-                                            className="h-11 w-11 flex-shrink-0"
-                                            onClick={() => {
-                                              setSelectedFieldInfo({ sectionId: section.id, fieldKey });
-                                              setMediaPickerOpen(true);
-                                            }}
-                                          >
-                                            <Image className="w-4 h-4" />
-                                          </Button>
-                                        )}
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 )}
               </div>
@@ -875,12 +683,12 @@ export default function AdminContent() {
                 <div className="fixed bottom-8 right-8">
                   <Button
                     onClick={handleSaveAll}
-                    disabled={updateMutation.isPending || updateSectionFieldMutation.isPending}
+                    disabled={updateMutation.isPending}
                     size="lg"
                     className="gap-2 shadow-lg"
                   >
                     <Save className="w-5 h-5" />
-                    {(updateMutation.isPending || updateSectionFieldMutation.isPending) ? 'Saving...' : `Save All Changes (${totalChanges})`}
+                    {updateMutation.isPending ? 'Saving...' : `Save All Changes (${Object.keys(editedContent).length})`}
                   </Button>
                 </div>
               )}

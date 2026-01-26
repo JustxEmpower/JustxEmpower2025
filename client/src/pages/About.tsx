@@ -5,7 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Button } from '@/components/ui/button';
 import { getMediaUrl } from '@/lib/media';
 import { BookOpen } from 'lucide-react';
-import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 import { EditablePageZone } from '@/components/PageZone';
 import { cn } from '@/lib/utils';
 
@@ -16,12 +16,15 @@ interface AboutProps {
 }
 
 export default function About({ slug = 'about' }: AboutProps) {
-  const { sections, getSection, getField, isLoading } = usePageSectionContent('about');
-  const getContent = (section: string, field: string) => getField(section, field) || '';
-  const getTextStyle = () => ({});
-  const getInlineStyles = () => ({});
+  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent(slug);
   const heroRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Helper to get proper media URL
+  const getProperMediaUrl = (url: string) => {
+    if (!url) return '';
+    return url.startsWith('http') ? url : getMediaUrl(url);
+  };
 
   // Get hero content from CMS
   const heroTitle = getContent('hero', 'title');

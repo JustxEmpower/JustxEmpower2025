@@ -12,7 +12,7 @@ import { MapView } from '@/components/Map';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
-import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 import { EditablePageZone } from '@/components/PageZone';
 
 const contactSchema = z.object({
@@ -33,10 +33,7 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
   const [location] = useLocation();
   const mapRef = useRef<google.maps.Map | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { sections, getSection, getField, isLoading } = usePageSectionContent('contact');
-  const getContent = (section: string, field: string) => getField(section, field) || '';
-  const getTextStyle = () => ({});
-  const getInlineStyles = () => ({});
+  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent(slug);
 
   const {
     register,

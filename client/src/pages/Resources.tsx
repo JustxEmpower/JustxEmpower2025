@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { trpc } from '@/lib/trpc';
-import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 import { getMediaUrl } from '@/lib/media';
 import AutoplayVideo from '@/components/AutoplayVideo';
 import { EditablePageZone } from '@/components/PageZone';
@@ -123,9 +123,7 @@ export default function Resources({ slug = 'resources' }: ResourcesProps) {
   const [purchaseResource, setPurchaseResource] = useState<any>(null);
 
   // Get hero content from CMS - use dynamic slug
-  const { sections, getSection, getField, isLoading: contentLoading } = usePageSectionContent('resources');
-  const getContent = (section: string, field: string) => getField(section, field) || '';
-  const getInlineStyles = () => ({});
+  const { getContent, getInlineStyles, isLoading: contentLoading } = usePageContent(slug);
   
   const heroTitle = getContent('hero', 'title');
   const heroSubtitle = getContent('hero', 'subtitle');

@@ -3,16 +3,13 @@ import Section from '@/components/Section';
 import { useLocation } from 'wouter';
 import { getMediaUrl } from '@/lib/media';
 import NewsletterSignup from '@/components/NewsletterSignup';
-import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 import { EditablePageZone } from '@/components/PageZone';
 import { cn } from '@/lib/utils';
 
 export default function Philosophy() {
   const [location] = useLocation();
-  const { sections, getSection, getField, isLoading } = usePageSectionContent('philosophy');
-  const getContent = (section: string, field: string) => getField(section, field) || '';
-  const getTextStyle = () => ({});
-  const getInlineStyles = () => ({});
+  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent('philosophy');
 
   useEffect(() => {
     window.scrollTo(0, 0);

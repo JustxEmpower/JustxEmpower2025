@@ -1,12 +1,10 @@
 import { useEffect } from 'react';
 import { useLocation } from 'wouter';
-import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 
 export default function AboutJustEmpower() {
   const [location] = useLocation();
-  const { sections, getSection, getField, isLoading } = usePageSectionContent('about-justxempower');
-  const getContent = (section: string, field: string) => getField(section, field) || '';
-  const getTextStyle = () => ({});
+  const { getContent, getTextStyle, isLoading } = usePageContent('about-just-empower');
 
   useEffect(() => {
     window.scrollTo(0, 0);

@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
 import { Button } from '@/components/ui/button';
-import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 import { EditablePageZone } from '@/components/PageZone';
 
 interface JournalProps {
@@ -18,9 +18,7 @@ export default function Journal({ slug = 'blog' }: JournalProps) {
   const [allArticles, setAllArticles] = useState<any[]>([]);
   
   // Get page content from database - use dynamic slug
-  const { sections, getSection, getField, isLoading: contentLoading } = usePageSectionContent('blog');
-  const getContent = (section: string, field: string) => getField(section, field) || '';
-  const getInlineStyles = () => ({});
+  const { getContent, getInlineStyles, isLoading: contentLoading } = usePageContent(slug);
 
   const { data: articles, isLoading, refetch } = trpc.articles.list.useQuery({
     limit,

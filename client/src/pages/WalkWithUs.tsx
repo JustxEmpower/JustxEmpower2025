@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useLocation, Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { getMediaUrl } from '@/lib/media';
-import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
+import { usePageContent } from '@/hooks/usePageContent';
 import { cn } from '@/lib/utils';
 
 interface WalkWithUsProps {
@@ -11,10 +11,7 @@ interface WalkWithUsProps {
 
 export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
   const [location] = useLocation();
-  const { sections, getSection, getField, isLoading } = usePageSectionContent('walk-with-us');
-  const getContent = (section: string, field: string) => getField(section, field) || '';
-  const getTextStyle = () => ({});
-  const getInlineStyles = () => ({});
+  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent(slug);
 
   useEffect(() => {
     window.scrollTo(0, 0);
