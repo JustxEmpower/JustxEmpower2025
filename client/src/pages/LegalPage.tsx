@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo } from 'react';
 import { useLocation } from 'wouter';
-import { usePageContent } from '@/hooks/usePageContent';
+import { usePageSectionContent } from '@/hooks/usePageSectionContent';
 
 interface ContentBlock {
   type: 'heading' | 'paragraph';
@@ -19,7 +19,8 @@ interface LegalPageProps {
  */
 export default function LegalPage({ pageSlug, defaultTitle }: LegalPageProps) {
   const [location] = useLocation();
-  const { getContent, isLoading } = usePageContent(pageSlug);
+  const { sections, getSection, getField, isLoading } = usePageSectionContent(pageSlug as any);
+  const getContent = (section: string, field: string) => getField(section, field) || '';
 
   useEffect(() => {
     window.scrollTo(0, 0);

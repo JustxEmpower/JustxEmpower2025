@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, MapPin, Users, Clock, DollarSign } from "lucide-react";
-import { usePageContent } from "@/hooks/usePageContent";
+import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
 import { EditablePageZone } from '@/components/PageZone';
 
 interface EventsProps {
@@ -19,7 +19,9 @@ export default function Events({ slug = 'events' }: EventsProps) {
   const [tab, setTab] = useState<"upcoming" | "past">("upcoming");
   
   // Get hero content from CMS - use dynamic slug
-  const { getContent, getInlineStyles, isLoading: contentLoading } = usePageContent(slug);
+  const { sections, getSection, getField, isLoading: contentLoading } = usePageSectionContent('community-events');
+  const getContent = (section: string, field: string) => getField(section, field) || '';
+  const getInlineStyles = () => ({});
   
   const { data: upcomingData, isLoading: loadingUpcoming } = trpc.events.list.useQuery({
     status: "upcoming",

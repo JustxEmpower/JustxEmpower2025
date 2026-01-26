@@ -3,7 +3,7 @@ import Lenis from 'lenis';
 import Hero from '@/components/Hero';
 import Section from '@/components/Section';
 import { ManagedCarousel } from '@/components/ManagedCarousel';
-import { usePageContent } from '@/hooks/usePageContent';
+import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
 import { getMediaUrl } from '@/lib/media';
 import { EditablePageZone } from '@/components/PageZone';
 
@@ -12,13 +12,10 @@ interface HomeProps {
 }
 
 export default function Home({ slug = 'home' }: HomeProps) {
-  const { getContent, getSection, getTextStyle, isLoading } = usePageContent(slug);
+  const { sections, getSection, getField, isLoading } = usePageSectionContent('home');
 
-  // Helper to get proper media URL
-  const getProperMediaUrl = (url: string) => {
-    if (!url) return '';
-    return url.startsWith('http') ? url : getMediaUrl(url);
-  };
+  // Helper for text styles (placeholder since pageSections doesn't have text styles yet)
+  const getTextStyle = (section: string, field: string) => ({ isBold: false, isItalic: false, isUnderline: false });
 
   useEffect(() => {
     // Initialize Lenis smooth scroll with more artistic, fluid settings

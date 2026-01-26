@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import EventCalendar from '@/components/EventCalendar';
 import { Link } from 'wouter';
-import { usePageContent } from '@/hooks/usePageContent';
+import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
 import { getMediaUrl } from '@/lib/media';
 import AutoplayVideo from '@/components/AutoplayVideo';
 import {
@@ -40,7 +40,9 @@ export default function CommunityEvents({ slug = 'community-events' }: Community
   const [statusFilter, setStatusFilter] = useState<'upcoming' | 'past' | 'all'>('upcoming');
   
   // Get hero content from CMS - use dynamic slug
-  const { getContent, getInlineStyles, isLoading: contentLoading } = usePageContent(slug);
+  const { sections, getSection, getField, isLoading: contentLoading } = usePageSectionContent('community-events');
+  const getContent = (section: string, field: string) => getField(section, field) || '';
+  const getInlineStyles = () => ({});
   
   const heroTitle = getContent('hero', 'title');
   const heroSubtitle = getContent('hero', 'subtitle');

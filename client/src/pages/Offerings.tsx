@@ -2,13 +2,16 @@ import { useEffect } from 'react';
 import Section from '@/components/Section';
 import { useLocation } from 'wouter';
 import { getMediaUrl } from '@/lib/media';
-import { usePageContent } from '@/hooks/usePageContent';
+import { usePageSectionContent, getProperMediaUrl } from '@/hooks/usePageSectionContent';
 import { EditablePageZone } from '@/components/PageZone';
 import { cn } from '@/lib/utils';
 
 export default function Offerings() {
   const [location] = useLocation();
-  const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent('offerings');
+  const { sections, getSection, getField, isLoading } = usePageSectionContent('offerings');
+  const getContent = (section: string, field: string) => getField(section, field) || '';
+  const getTextStyle = () => ({});
+  const getInlineStyles = () => ({});
 
   useEffect(() => {
     window.scrollTo(0, 0);
