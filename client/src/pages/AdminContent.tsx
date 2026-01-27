@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { useLocation } from 'wouter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
@@ -129,6 +129,12 @@ export default function AdminContent() {
   }, [pagesData]);
 
   const { data: contentData, isLoading, refetch } = trpc.admin.content.getByPage.useQuery(
+    { page: selectedPage },
+    { enabled: isAuthenticated }
+  );
+
+  // Fetch the page content schema (defines what sections/fields each page should have)
+  const { data: schemaData } = trpc.admin.content.getSchema.useQuery(
     { page: selectedPage },
     { enabled: isAuthenticated }
   );
@@ -396,6 +402,41 @@ export default function AdminContent() {
     acc[item.section].push(item);
     return acc;
   }, {} as Record<string, ContentItem[]>);
+
+  // Build a content lookup map for quick access
+  const contentMap = useMemo(() => {
+    const map: Record<string, ContentItem> = {};
+    content.forEach(item => {
+      map[`${item.section}.${item.contentKey}`] = item;
+    });
+    return map;
+  }, [content]);
+
+  // Get ordered sections from schema or fall back to grouped content
+  const orderedSections = useMemo(() => {
+    if (schemaData?.sections && Object.keys(schemaData.sections).length > 0) {
+      // Use schema-defined sections in order
+      return Object.entries(schemaData.sections)
+        .sort(([, a], [, b]) => (a.order || 0) - (b.order || 0))
+        .map(([key, section]) => ({
+          key,
+          displayName: section.displayName,
+          type: section.type,
+          fields: section.fields.sort((a, b) => (a.order || 0) - (b.order || 0)),
+        }));
+    }
+    // Fall back to existing content-based grouping for pages without schema
+    return Object.keys(groupedContent).map(key => ({
+      key,
+      displayName: formatSectionName(key),
+      type: 'content',
+      fields: groupedContent[key].map(item => ({
+        key: item.contentKey,
+        label: formatSectionName(item.contentKey),
+        type: getInputType(item.contentKey),
+      })),
+    }));
+  }, [schemaData, groupedContent]);
 
   // Helper to format section names
   const formatSectionName = (section: string) => {
