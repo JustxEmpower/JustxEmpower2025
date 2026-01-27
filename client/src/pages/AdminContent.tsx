@@ -568,37 +568,40 @@ export default function AdminContent() {
                 </div>
               )}
 
-              {/* Content Sections - Hide for legal pages since they use LegalPageEditorNew */}
+              {/* Content Sections - Schema-based rendering */}
               <div className="space-y-4">
-                {!isLegalPage && Object.entries(groupedContent)
-                  .filter(([section]) => section !== 'legalSections')
-                  .map(([section, items]) => (
+                {!isLegalPage && orderedSections
+                  .filter((section) => section.key !== 'legalSections')
+                  .map((section) => {
+                    const sectionKey = section.key;
+                    const items = groupedContent[sectionKey] || [];
+                    return (
                   <div
-                    key={section}
-                    ref={(el) => { sectionRefs.current[section] = el; }}
+                    key={sectionKey}
+                    ref={(el) => { sectionRefs.current[sectionKey] = el; }}
                     className={`bg-white dark:bg-neutral-900 rounded-xl border-2 overflow-hidden transition-all ${
-                      activeSection === section 
+                      activeSection === sectionKey 
                         ? 'border-orange-400 ring-2 ring-orange-200' 
                         : 'border-neutral-200 dark:border-neutral-800'
                     }`}
-                    onClick={() => setActiveSection(section)}
+                    onClick={() => setActiveSection(sectionKey)}
                   >
                     {/* Section Header */}
                     <button
-                      onClick={() => toggleSection(section)}
+                      onClick={() => toggleSection(sectionKey)}
                       className="w-full flex items-center justify-between p-6 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100">
-                          {formatSectionName(section)}
+                          {section.displayName}
                         </h2>
-                        {activeSection === section && (
+                        {activeSection === sectionKey && (
                           <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-bold rounded">
                             EDITING
                           </span>
                         )}
                       </div>
-                      {expandedSections[section] ? (
+                      {expandedSections[sectionKey] ? (
                         <ChevronUp className="w-5 h-5 text-neutral-400" />
                       ) : (
                         <ChevronDown className="w-5 h-5 text-neutral-400" />
@@ -606,24 +609,13 @@ export default function AdminContent() {
                     </button>
 
                     {/* Section Content */}
-                    {expandedSections[section] && (
+                    {expandedSections[sectionKey] && (
                       <div className="px-6 pb-6 space-y-4 border-t border-neutral-100 dark:border-neutral-800">
                         {/* Section Type Badge */}
                         <div className="pt-4 flex items-center gap-2">
                           <span className="text-xs text-neutral-500">Section Type:</span>
                           <span className="text-xs px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-600 dark:text-neutral-400">
-                            {section.toLowerCase().includes('hero') ? 'hero' :
-                             section.toLowerCase().includes('newsletter') ? 'newsletter' :
-                             section.toLowerCase().includes('footer') ? 'footer' :
-                             section.toLowerCase().includes('form') ? 'form' :
-                             section.toLowerCase().includes('carousel') ? 'carousel' :
-                             section.toLowerCase().includes('community') || section.toLowerCase().includes('emerge') ? 'community' :
-                             section.toLowerCase().includes('rooted') || section.toLowerCase().includes('unity') ? 'rooted-unity' :
-                             section.toLowerCase().includes('quote') ? 'quote' :
-                             section.toLowerCase().includes('cta') ? 'cta' :
-                             section.toLowerCase().includes('video') ? 'video' :
-                             section.toLowerCase().includes('grid') ? 'grid' :
-                             'content'}
+                            {section.type}
                           </span>
                         </div>
                         
@@ -710,9 +702,10 @@ export default function AdminContent() {
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
 
-                {content.length === 0 && (
+                {orderedSections.length === 0 && (
                   <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
                     No content sections found for this page.
                   </div>
