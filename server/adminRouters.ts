@@ -979,6 +979,52 @@ export const adminRouter = router({
         await upsertSiteContent(input);
         return { success: true };
       }),
+    
+    // Get content schema for a page (defines what sections/fields the page should have)
+    getSchema: adminProcedure
+      .input(z.object({ page: z.string() }))
+      .query(async ({ input }) => {
+        const db = await getDb();
+        if (!db) return [];
+        
+        const schemaRows = await db
+          .select()
+          .from(schema.pageContentSchema)
+          .where(eq(schema.pageContentSchema.pageSlug, input.page))
+          .orderBy(schema.pageContentSchema.sectionOrder, schema.pageContentSchema.fieldOrder);
+        
+        // Group by section
+        const sections: Record<string, {
+          displayName: string;
+          type: string;
+          order: number;
+          fields: Array<{ key: string; label: string; type: string; order: number }>;
+        }> = {};
+        
+        for (const row of schemaRows) {
+          if (!sections[row.sectionKey]) {
+            sections[row.sectionKey] = {
+              displayName: row.sectionDisplayName,
+              type: row.sectionType,
+              order: row.sectionOrder || 0,
+              fields: [],
+            };
+          }
+          sections[row.sectionKey].fields.push({
+            key: row.fieldKey,
+            label: row.fieldLabel,
+            type: row.fieldType,
+            order: row.fieldOrder || 0,
+          });
+        }
+        
+        return {
+          pageSlug: input.page,
+          displayName: schemaRows[0]?.displayName || input.page,
+          template: schemaRows[0]?.template || 'default',
+          sections,
+        };
+      }),
   }),
 
   // Page Sections management (newer system used by Founder, Philosophy, etc.)

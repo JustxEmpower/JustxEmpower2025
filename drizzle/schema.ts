@@ -1268,3 +1268,27 @@ export const blockStore = mysqlTable("blockStore", {
 
 export type BlockStoreItem = typeof blockStore.$inferSelect;
 export type InsertBlockStoreItem = typeof blockStore.$inferInsert;
+
+/**
+ * Page Content Schema table - Defines what sections and fields each page should have
+ * This is the single source of truth for the Content Editor
+ */
+export const pageContentSchema = mysqlTable("pageContentSchema", {
+  id: int("id").autoincrement().primaryKey(),
+  pageSlug: varchar("pageSlug", { length: 100 }).notNull(),
+  displayName: varchar("displayName", { length: 255 }).notNull(),
+  template: varchar("template", { length: 50 }).default("default"),
+  sectionKey: varchar("sectionKey", { length: 100 }).notNull(),
+  sectionDisplayName: varchar("sectionDisplayName", { length: 255 }).notNull(),
+  sectionType: varchar("sectionType", { length: 50 }).notNull(),
+  sectionOrder: int("sectionOrder").default(0),
+  fieldKey: varchar("fieldKey", { length: 100 }).notNull(),
+  fieldLabel: varchar("fieldLabel", { length: 255 }).notNull(),
+  fieldType: varchar("fieldType", { length: 50 }).notNull(), // text, textarea, media, url
+  fieldOrder: int("fieldOrder").default(0),
+  isRequired: int("isRequired").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PageContentSchema = typeof pageContentSchema.$inferSelect;
+export type InsertPageContentSchema = typeof pageContentSchema.$inferInsert;
