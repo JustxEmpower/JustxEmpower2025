@@ -984,14 +984,29 @@ export const adminRouter = router({
     getSchema: adminProcedure
       .input(z.object({ page: z.string() }))
       .query(async ({ input }) => {
+        // Always return consistent object type
+        const emptyResult = {
+          pageSlug: input.page,
+          displayName: input.page,
+          template: 'default' as const,
+          sections: {} as Record<string, {
+            displayName: string;
+            type: string;
+            order: number;
+            fields: Array<{ key: string; label: string; type: string; order: number }>;
+          }>,
+        };
+        
         const db = await getDb();
-        if (!db) return [];
+        if (!db) return emptyResult;
         
         const schemaRows = await db
           .select()
           .from(schema.pageContentSchema)
           .where(eq(schema.pageContentSchema.pageSlug, input.page))
           .orderBy(schema.pageContentSchema.sectionOrder, schema.pageContentSchema.fieldOrder);
+        
+        if (schemaRows.length === 0) return emptyResult;
         
         // Group by section
         const sections: Record<string, {

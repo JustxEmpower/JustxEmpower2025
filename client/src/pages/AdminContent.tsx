@@ -147,6 +147,12 @@ export default function AdminContent() {
     { enabled: isAuthenticated }
   );
 
+  // Fetch the page content schema (defines what sections/fields each page should have)
+  const { data: schemaData } = trpc.admin.content.getSchema.useQuery(
+    { page: selectedPage },
+    { enabled: isAuthenticated }
+  );
+
   // Fetch text styles for the current page
   const { data: pageTextStyles } = trpc.contentTextStyles.getByPage.useQuery(
     { page: selectedPage },
@@ -421,8 +427,27 @@ export default function AdminContent() {
     return map;
   }, [content]);
 
-  // Get ordered sections from grouped content
+  // Get ordered sections from schema or fall back to grouped content
   const orderedSections = useMemo(() => {
+    // Check if schemaData has sections with content
+    const hasSchemaSections = schemaData && 
+      schemaData.sections && 
+      typeof schemaData.sections === 'object' &&
+      Object.keys(schemaData.sections).length > 0;
+    
+    if (hasSchemaSections) {
+      // Use schema-defined sections in order
+      return Object.entries(schemaData.sections)
+        .sort(([, a], [, b]) => (a.order || 0) - (b.order || 0))
+        .map(([key, section]) => ({
+          key,
+          displayName: section.displayName,
+          type: section.type,
+          fields: section.fields.sort((a, b) => (a.order || 0) - (b.order || 0)),
+        }));
+    }
+    
+    // Fall back to existing content-based grouping for pages without schema
     return Object.keys(groupedContent).map(key => ({
       key,
       displayName: formatSectionName(key),
@@ -433,7 +458,7 @@ export default function AdminContent() {
         type: getInputType(item.contentKey),
       })),
     }));
-  }, [groupedContent]);
+  }, [schemaData, groupedContent]);
 
   // Helper to determine if field should be textarea
   const isLongText = (contentKey: string, value: string) => {
