@@ -403,6 +403,21 @@ export default function AdminContent() {
     return acc;
   }, {} as Record<string, ContentItem[]>);
 
+  // Helper to format section names (must be defined before useMemo that uses it)
+  const formatSectionName = useCallback((section: string) => {
+    return section.split(/(?=[A-Z])/).map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  }, []);
+
+  // Helper to determine input type (must be defined before useMemo that uses it)
+  const getInputType = useCallback((contentKey: string) => {
+    if (contentKey.includes('Url') || contentKey.includes('Link')) return 'url';
+    if (contentKey.includes('email')) return 'email';
+    if (contentKey.includes('phone')) return 'tel';
+    return 'text';
+  }, []);
+
   // Build a content lookup map for quick access
   const contentMap = useMemo(() => {
     const map: Record<string, ContentItem> = {};
@@ -436,22 +451,7 @@ export default function AdminContent() {
         type: getInputType(item.contentKey),
       })),
     }));
-  }, [schemaData, groupedContent]);
-
-  // Helper to format section names
-  const formatSectionName = (section: string) => {
-    return section.split(/(?=[A-Z])/).map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
-  };
-
-  // Helper to determine input type
-  const getInputType = (contentKey: string) => {
-    if (contentKey.includes('Url') || contentKey.includes('Link')) return 'url';
-    if (contentKey.includes('email')) return 'email';
-    if (contentKey.includes('phone')) return 'tel';
-    return 'text';
-  };
+  }, [schemaData, groupedContent, formatSectionName, getInputType]);
 
   // Helper to determine if field should be textarea
   const isLongText = (contentKey: string, value: string) => {
