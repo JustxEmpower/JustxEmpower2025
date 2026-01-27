@@ -147,12 +147,6 @@ export default function AdminContent() {
     { enabled: isAuthenticated }
   );
 
-  // Fetch the page content schema (defines what sections/fields each page should have)
-  const { data: schemaData } = trpc.admin.content.getSchema.useQuery(
-    { page: selectedPage },
-    { enabled: isAuthenticated }
-  );
-
   // Fetch text styles for the current page
   const { data: pageTextStyles } = trpc.contentTextStyles.getByPage.useQuery(
     { page: selectedPage },
@@ -408,58 +402,14 @@ export default function AdminContent() {
     setSelectedFieldId(null);
   };
 
-  // Group content by section - memoized to prevent unnecessary re-renders
-  const groupedContent = useMemo(() => {
-    return content.reduce((acc, item) => {
-      if (!acc[item.section]) {
-        acc[item.section] = [];
-      }
-      acc[item.section].push(item);
-      return acc;
-    }, {} as Record<string, ContentItem[]>);
-  }, [content]);
-
-  // Build a content lookup map for quick access
-  const contentMap = useMemo(() => {
-    const map: Record<string, ContentItem> = {};
-    content.forEach(item => {
-      map[`${item.section}.${item.contentKey}`] = item;
-    });
-    return map;
-  }, [content]);
-
-  // Get sections from schema data safely
-  const schemaSections = schemaData?.sections ?? null;
-  const hasSchemaSections = schemaSections !== null && 
-    typeof schemaSections === 'object' && 
-    Object.keys(schemaSections).length > 0;
-
-  // Get ordered sections from schema or fall back to grouped content
-  const orderedSections = useMemo(() => {
-    if (hasSchemaSections && schemaSections) {
-      // Use schema-defined sections in order
-      return Object.entries(schemaSections)
-        .sort(([, a], [, b]) => ((a as any).order || 0) - ((b as any).order || 0))
-        .map(([key, section]) => ({
-          key,
-          displayName: (section as any).displayName || formatSectionName(key),
-          type: (section as any).type || 'content',
-          fields: ((section as any).fields || []).sort((a: any, b: any) => (a.order || 0) - (b.order || 0)),
-        }));
+  // Group content by section
+  const groupedContent = content.reduce((acc, item) => {
+    if (!acc[item.section]) {
+      acc[item.section] = [];
     }
-    
-    // Fall back to existing content-based grouping for pages without schema
-    return Object.keys(groupedContent).map(key => ({
-      key,
-      displayName: formatSectionName(key),
-      type: 'content',
-      fields: groupedContent[key].map(item => ({
-        key: item.contentKey,
-        label: formatSectionName(item.contentKey),
-        type: getInputType(item.contentKey),
-      })),
-    }));
-  }, [hasSchemaSections, schemaSections, groupedContent]);
+    acc[item.section].push(item);
+    return acc;
+  }, {} as Record<string, ContentItem[]>);
 
   // Helper to determine if field should be textarea
   const isLongText = (contentKey: string, value: string) => {
@@ -576,40 +526,37 @@ export default function AdminContent() {
                 </div>
               )}
 
-              {/* Content Sections - Schema-based rendering */}
+              {/* Content Sections */}
               <div className="space-y-4">
-                {!isLegalPage && orderedSections
-                  .filter((section) => section.key !== 'legalSections')
-                  .map((section) => {
-                    const sectionKey = section.key;
-                    const items = groupedContent[sectionKey] || [];
-                    return (
+                {!isLegalPage && Object.entries(groupedContent)
+                  .filter(([section]) => section !== 'legalSections')
+                  .map(([section, items]) => (
                   <div
-                    key={sectionKey}
-                    ref={(el) => { sectionRefs.current[sectionKey] = el; }}
+                    key={section}
+                    ref={(el) => { sectionRefs.current[section] = el; }}
                     className={`bg-white dark:bg-neutral-900 rounded-xl border-2 overflow-hidden transition-all ${
-                      activeSection === sectionKey 
+                      activeSection === section 
                         ? 'border-orange-400 ring-2 ring-orange-200' 
                         : 'border-neutral-200 dark:border-neutral-800'
                     }`}
-                    onClick={() => setActiveSection(sectionKey)}
+                    onClick={() => setActiveSection(section)}
                   >
                     {/* Section Header */}
                     <button
-                      onClick={() => toggleSection(sectionKey)}
+                      onClick={() => toggleSection(section)}
                       className="w-full flex items-center justify-between p-6 hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
                     >
                       <div className="flex items-center gap-3">
                         <h2 className="text-xl font-light text-neutral-900 dark:text-neutral-100">
-                          {section.displayName}
+                          {formatSectionName(section)}
                         </h2>
-                        {activeSection === sectionKey && (
+                        {activeSection === section && (
                           <span className="px-2 py-0.5 bg-orange-500 text-white text-xs font-bold rounded">
                             EDITING
                           </span>
                         )}
                       </div>
-                      {expandedSections[sectionKey] ? (
+                      {expandedSections[section] ? (
                         <ChevronUp className="w-5 h-5 text-neutral-400" />
                       ) : (
                         <ChevronDown className="w-5 h-5 text-neutral-400" />
@@ -617,15 +564,8 @@ export default function AdminContent() {
                     </button>
 
                     {/* Section Content */}
-                    {expandedSections[sectionKey] && (
+                    {expandedSections[section] && (
                       <div className="px-6 pb-6 space-y-4 border-t border-neutral-100 dark:border-neutral-800">
-                        {/* Section Type Badge */}
-                        <div className="pt-4 flex items-center gap-2">
-                          <span className="text-xs text-neutral-500">Section Type:</span>
-                          <span className="text-xs px-2 py-0.5 bg-neutral-100 dark:bg-neutral-800 rounded text-neutral-600 dark:text-neutral-400">
-                            {section.type}
-                          </span>
-                        </div>
                         
                         {items.map((item) => {
                           const currentValue = editedContent[item.id] ?? item.contentValue;
@@ -710,10 +650,9 @@ export default function AdminContent() {
                       </div>
                     )}
                   </div>
-                  );
-                })}
+                ))}
 
-                {orderedSections.length === 0 && (
+                {content.length === 0 && (
                   <div className="text-center py-12 text-neutral-500 dark:text-neutral-400">
                     No content sections found for this page.
                   </div>
