@@ -32,17 +32,14 @@ async function fullAudit() {
   const updates = [];
   
   for (const row of allContent) {
-    // Skip URL fields (imageUrl, videoUrl, etc.)
-    if (row.contentKey.toLowerCase().includes('url') || 
-        row.contentKey.toLowerCase().includes('image') ||
-        row.contentKey.toLowerCase().includes('video') ||
-        row.contentKey.toLowerCase().includes('placeholder') ||
-        row.contentKey.toLowerCase().includes('button')) {
+    // Skip ONLY actual media URL fields (imageUrl, videoUrl)
+    const key = row.contentKey.toLowerCase();
+    if (key.includes('imageurl') || key.includes('videourl') || key === 'image' || key === 'video') {
       skipCount++;
       continue;
     }
     
-    // Update text fields to TEST
+    // Update ALL other fields to TEST (including buttonText, buttonLink, placeholder, ctaText, ctaLink)
     await conn.query('UPDATE siteContent SET contentValue = ? WHERE id = ?', ['TEST', row.id]);
     updates.push({ id: row.id, page: row.page, section: row.section, key: row.contentKey });
     updateCount++;
