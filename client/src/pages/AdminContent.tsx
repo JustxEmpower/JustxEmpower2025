@@ -408,15 +408,16 @@ export default function AdminContent() {
     setSelectedFieldId(null);
   };
 
-  // Group content by section
-  const groupedContent = content.reduce((acc, item) => {
-    if (!acc[item.section]) {
-      acc[item.section] = [];
-    }
-    acc[item.section].push(item);
-    return acc;
-  }, {} as Record<string, ContentItem[]>);
-
+  // Group content by section - memoized to prevent unnecessary re-renders
+  const groupedContent = useMemo(() => {
+    return content.reduce((acc, item) => {
+      if (!acc[item.section]) {
+        acc[item.section] = [];
+      }
+      acc[item.section].push(item);
+      return acc;
+    }, {} as Record<string, ContentItem[]>);
+  }, [content]);
 
   // Build a content lookup map for quick access
   const contentMap = useMemo(() => {
@@ -427,23 +428,23 @@ export default function AdminContent() {
     return map;
   }, [content]);
 
+  // Get sections from schema data safely
+  const schemaSections = schemaData?.sections ?? null;
+  const hasSchemaSections = schemaSections !== null && 
+    typeof schemaSections === 'object' && 
+    Object.keys(schemaSections).length > 0;
+
   // Get ordered sections from schema or fall back to grouped content
   const orderedSections = useMemo(() => {
-    // Check if schemaData has sections with content
-    const hasSchemaSections = schemaData && 
-      schemaData.sections && 
-      typeof schemaData.sections === 'object' &&
-      Object.keys(schemaData.sections).length > 0;
-    
-    if (hasSchemaSections) {
+    if (hasSchemaSections && schemaSections) {
       // Use schema-defined sections in order
-      return Object.entries(schemaData.sections)
-        .sort(([, a], [, b]) => (a.order || 0) - (b.order || 0))
+      return Object.entries(schemaSections)
+        .sort(([, a], [, b]) => ((a as any).order || 0) - ((b as any).order || 0))
         .map(([key, section]) => ({
           key,
-          displayName: section.displayName,
-          type: section.type,
-          fields: section.fields.sort((a, b) => (a.order || 0) - (b.order || 0)),
+          displayName: (section as any).displayName || formatSectionName(key),
+          type: (section as any).type || 'content',
+          fields: ((section as any).fields || []).sort((a: any, b: any) => (a.order || 0) - (b.order || 0)),
         }));
     }
     
@@ -458,7 +459,7 @@ export default function AdminContent() {
         type: getInputType(item.contentKey),
       })),
     }));
-  }, [schemaData, groupedContent]);
+  }, [hasSchemaSections, schemaSections, groupedContent]);
 
   // Helper to determine if field should be textarea
   const isLongText = (contentKey: string, value: string) => {
