@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { useLocation } from 'wouter';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,20 @@ interface ContentItem {
   section: string;
   contentKey: string;
   contentValue: string;
+}
+
+// Helper functions defined OUTSIDE component to avoid hook issues
+function formatSectionName(section: string): string {
+  return section.split(/(?=[A-Z])/).map(word => 
+    word.charAt(0).toUpperCase() + word.slice(1)
+  ).join(' ');
+}
+
+function getInputType(contentKey: string): string {
+  if (contentKey.includes('Url') || contentKey.includes('Link')) return 'url';
+  if (contentKey.includes('email')) return 'email';
+  if (contentKey.includes('phone')) return 'tel';
+  return 'text';
 }
 
 export default function AdminContent() {
@@ -403,20 +417,6 @@ export default function AdminContent() {
     return acc;
   }, {} as Record<string, ContentItem[]>);
 
-  // Helper to format section names (must be defined before useMemo that uses it)
-  const formatSectionName = useCallback((section: string) => {
-    return section.split(/(?=[A-Z])/).map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
-  }, []);
-
-  // Helper to determine input type (must be defined before useMemo that uses it)
-  const getInputType = useCallback((contentKey: string) => {
-    if (contentKey.includes('Url') || contentKey.includes('Link')) return 'url';
-    if (contentKey.includes('email')) return 'email';
-    if (contentKey.includes('phone')) return 'tel';
-    return 'text';
-  }, []);
 
   // Build a content lookup map for quick access
   const contentMap = useMemo(() => {
@@ -451,7 +451,7 @@ export default function AdminContent() {
         type: getInputType(item.contentKey),
       })),
     }));
-  }, [schemaData, groupedContent, formatSectionName, getInputType]);
+  }, [schemaData, groupedContent]);
 
   // Helper to determine if field should be textarea
   const isLongText = (contentKey: string, value: string) => {
