@@ -1,7 +1,10 @@
+require('dotenv').config();
 const mysql = require('mysql2/promise');
 
 async function fullAudit() {
+  console.log('Connecting to database...');
   const conn = await mysql.createConnection(process.env.DATABASE_URL);
+  console.log('Connected!\n');
   
   console.log('=== FULL CONTENT EDITOR AUDIT ===\n');
   
