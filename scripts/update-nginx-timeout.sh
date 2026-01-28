@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Update nginx config with increased timeouts for media conversion
-cat > /etc/nginx/sites-enabled/justxempower << 'NGINX_CONFIG'
+cat > /etc/nginx/conf.d/justxempower.conf << 'NGINX_CONFIG'
 server {
     listen 80;
     server_name justxempower.com www.justxempower.com 3.87.218.112;
