@@ -57,6 +57,7 @@ import Offerings from "./pages/Offerings";
 import Journal from "./pages/Journal";
 import Contact from "./pages/Contact";
 import WalkWithUs from "./pages/WalkWithUs";
+import Founder from "./pages/Founder";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Preloader from "@/components/Preloader";
@@ -138,7 +139,7 @@ function Router() {
       <Route path="/offerings" component={Offerings} />
       <Route path="/journal">{() => <Journal />}</Route>
       <Route path="/contact">{() => <Contact />}</Route>
-      <Route path="/founder">{() => <About />}</Route>
+      <Route path="/founder">{() => <Founder />}</Route>
       <Route path="/vision-ethos" component={Philosophy} />
       <Route path="/workshops-programs" component={Offerings} />
       <Route path="/overview" component={Offerings} />
