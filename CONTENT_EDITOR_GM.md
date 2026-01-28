@@ -295,18 +295,109 @@ WHERE t1.id > t2.id
 
 ---
 
-## Maintenance Scripts
+## Media Library
+
+### File Structure
+```
+client/src/pages/
+├── AdminMedia.tsx              # Basic media library
+└── AdminMediaEnhanced.tsx      # Enhanced media library with conversion
+
+server/
+├── mediaConversionService.ts   # FFmpeg conversion logic
+└── storage.ts                  # S3 upload/download
+```
+
+### Media Conversion
+
+The Media Library supports converting videos and images between formats using FFmpeg.
+
+**Supported Conversions:**
+- **Video:** MOV → MP4, WebM | AVI → MP4, WebM | MP4 ↔ WebM
+- **Image:** JPEG ↔ PNG ↔ WebP ↔ HEIC ↔ TIFF ↔ BMP
+- **Audio:** WAV → MP3, OGG | AIFF → MP3, OGG
+
+**API Endpoints:**
+| Endpoint | Type | Description |
+|----------|------|-------------|
+| `admin.media.getConversionFormats` | Query | Get available output formats |
+| `admin.media.convertMedia` | Mutation | Convert file to new format |
+
+**Server Requirements:**
+- FFmpeg installed at `/usr/local/bin/ffmpeg`
+- Nginx timeout set to 300s for large video conversions
+
+### Nginx Configuration
+
+Location: `/etc/nginx/conf.d/justxempower.conf`
+
+```nginx
+location / {
+    proxy_pass http://127.0.0.1:8083;
+    # ... headers ...
+    
+    # Extended timeouts for media conversion (5 minutes)
+    proxy_connect_timeout 300s;
+    proxy_send_timeout 300s;
+    proxy_read_timeout 300s;
+}
+```
+
+---
+
+## Active Pages (with content)
+
+| Page | Entry Count |
+|------|-------------|
+| `home` | 25 |
+| `offerings` | 25 |
+| `philosophy` | 21 |
+| `walk-with-us` | 16 |
+| `founder` | ~15 |
+| `contact` | 9 |
+| `resources` | 7 |
+| `community-events` | 5 |
+
+### Legal Pages (JSON format)
+- `privacy-policy`
+- `terms-of-service`
+- `accessibility`
+- `cookie-policy`
+
+---
+
+## Database Connection
+
+**Host:** `justxempower-mysql.cg7k02qmmmt6.us-east-1.rds.amazonaws.com`  
+**Database:** `justxempower`  
+**User:** `justxempower`
+
+### Quick Queries
+
+```sql
+-- View all content for a page
+SELECT * FROM siteContent WHERE page = 'home' ORDER BY section, contentKey;
+
+-- Count entries per page
+SELECT page, COUNT(*) as entries FROM siteContent GROUP BY page ORDER BY entries DESC;
+
+-- Find content with specific text
+SELECT page, section, contentKey, LEFT(contentValue, 50) 
+FROM siteContent WHERE contentValue LIKE '%search%';
+
+-- Delete unused content (entries without marker)
+DELETE FROM siteContent WHERE page = 'page-slug' AND contentValue NOT LIKE '%123%';
+```
+
+---
+
+## Additional Scripts
 
 | Script | Purpose |
 |--------|---------|
-| `scripts/insert-legal-content.cjs` | Populate legal page content |
-| `scripts/populate-founder.cjs` | Populate founder page content |
-
-Run on server:
-```bash
-export DATABASE_URL="mysql://..."
-node scripts/script-name.cjs
-```
+| `scripts/cleanup-unused-content.cjs` | Delete entries without "123" marker |
+| `scripts/restore-media-fields.cjs` | Restore imageUrl/videoUrl fields |
+| `scripts/update-nginx-timeout.sh` | Update nginx proxy timeouts |
 
 ---
 
