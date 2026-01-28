@@ -1,12 +1,13 @@
 const mysql = require('mysql2/promise');
 
 async function run() {
-  const conn = await mysql.createConnection({
-    host: process.env.DB_HOST || 'localhost',
-    user: process.env.DB_USER || 'root', 
-    password: process.env.DB_PASSWORD || '',
-    database: process.env.DB_NAME || 'justxempower'
-  });
+  // Use DATABASE_URL from environment (same as the app uses)
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.error('DATABASE_URL environment variable not set');
+    process.exit(1);
+  }
+  const conn = await mysql.createConnection(dbUrl);
 
   const content = [
     ['founder','hero','title','April Gambardella'],
