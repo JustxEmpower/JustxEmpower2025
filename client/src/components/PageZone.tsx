@@ -82,15 +82,18 @@ export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZ
   console.log(`[PageZone] Rendering ${sortedBlocks.length} blocks for ${pageSlug}/${zoneName}`);
 
   return (
-    <div className={`page-zone page-zone-${zoneName} ${className}`} data-zone={zoneName}>
+    <div className={`page-zone page-zone-${zoneName} ${className} border-4 border-blue-500 bg-blue-100 p-4`} data-zone={zoneName}>
+      <p className="text-blue-800 font-bold mb-2">DEBUG PageZone: {pageSlug}/{zoneName} - {sortedBlocks.length} blocks</p>
       {sortedBlocks.map((block) => {
         console.log(`[PageZone] Rendering block:`, block.type, block.id);
         return (
-          <BlockRenderer
-            key={block.id}
-            block={block}
-            isPreviewMode={true}
-          />
+          <div key={block.id} className="border-2 border-green-500 bg-green-100 p-2 my-2">
+            <p className="text-green-800 text-sm">Block: {block.type} ({block.id})</p>
+            <BlockRenderer
+              block={block}
+              isPreviewMode={true}
+            />
+          </div>
         );
       })}
     </div>
