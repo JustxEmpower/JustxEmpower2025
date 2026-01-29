@@ -1,9 +1,7 @@
 // Script to add missing media fields to hero sections
 // Run with: npx tsx scripts/add-missing-media-fields.ts
 
-import { drizzle } from 'drizzle-orm/mysql2';
 import mysql from 'mysql2/promise';
-import * as schema from '../shared/schema';
 
 const missingFields = [
   { page: 'founder', section: 'hero', contentKey: 'videoUrl', contentValue: '' },
@@ -23,8 +21,6 @@ async function main() {
     password: process.env.DATABASE_PASSWORD || 'SynergyEra2024$!',
     database: process.env.DATABASE_NAME || 'justxempower',
   });
-
-  const db = drizzle(connection, { schema, mode: 'default' });
 
   console.log('Adding missing media fields...');
 
