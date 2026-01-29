@@ -42,22 +42,20 @@ export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZ
   console.log(`[PageZone] ${pageSlug}/${zoneName}:`, { zone, isLoading, error });
 
   if (isLoading) {
-    return <div className="border-2 border-orange-500 bg-orange-100 p-2"><p className="text-orange-800">Loading zone: {pageSlug}/{zoneName}...</p></div>;
+    return fallback || null;
   }
 
   if (error) {
     console.error(`[PageZone] Error for ${pageSlug}/${zoneName}:`, error);
-    return <div className="border-2 border-red-500 bg-red-100 p-2"><p className="text-red-800">Error loading zone: {pageSlug}/{zoneName}: {String(error)}</p></div>;
+    return fallback || null;
   }
 
   if (!zone) {
-    console.log(`[PageZone] No zone found for ${pageSlug}/${zoneName}`);
-    return <div className="border-2 border-gray-500 bg-gray-100 p-2"><p className="text-gray-800">No zone data: {pageSlug}/{zoneName}</p></div>;
+    return fallback || null;
   }
 
   if (!zone.isActive) {
-    console.log(`[PageZone] Zone ${pageSlug}/${zoneName} is not active`);
-    return <div className="border-2 border-yellow-500 bg-yellow-100 p-2"><p className="text-yellow-800">Zone inactive: {pageSlug}/{zoneName}</p></div>;
+    return fallback || null;
   }
 
   // Parse blocks from JSON
@@ -82,20 +80,14 @@ export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZ
   console.log(`[PageZone] Rendering ${sortedBlocks.length} blocks for ${pageSlug}/${zoneName}`);
 
   return (
-    <div className={`page-zone page-zone-${zoneName} ${className} border-4 border-blue-500 bg-blue-100 p-4`} data-zone={zoneName}>
-      <p className="text-blue-800 font-bold mb-2">DEBUG PageZone: {pageSlug}/{zoneName} - {sortedBlocks.length} blocks</p>
-      {sortedBlocks.map((block) => {
-        console.log(`[PageZone] Rendering block:`, block.type, block.id);
-        return (
-          <div key={block.id} className="border-2 border-green-500 bg-green-100 p-2 my-2">
-            <p className="text-green-800 text-sm">Block: {block.type} ({block.id})</p>
-            <BlockRenderer
-              block={block}
-              isPreviewMode={true}
-            />
-          </div>
-        );
-      })}
+    <div className={`page-zone page-zone-${zoneName} ${className}`} data-zone={zoneName}>
+      {sortedBlocks.map((block) => (
+        <BlockRenderer
+          key={block.id}
+          block={block}
+          isPreviewMode={true}
+        />
+      ))}
     </div>
   );
 }
@@ -117,12 +109,10 @@ export function EditablePageZone({
     // Check if admin token exists
     const token = localStorage.getItem('adminToken');
     setIsAdmin(!!token);
-    console.log(`[EditablePageZone] Mounted: ${pageSlug}/${zoneName}`);
-  }, [pageSlug, zoneName]);
+  }, []);
 
   return (
-    <div className="relative group border-2 border-purple-500 p-2 my-2">
-      <p className="text-purple-800 text-xs bg-purple-100 px-2 py-1 mb-2">EditablePageZone: {pageSlug}/{zoneName}</p>
+    <div className="relative group">
       <PageZone 
         pageSlug={pageSlug} 
         zoneName={zoneName} 

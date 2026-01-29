@@ -1140,9 +1140,6 @@ export function JEQuoteRenderer({ block, isEditing, onUpdate }: BlockRendererPro
 
 export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
-  
-  // Debug logging
-  console.log('[JEImageRenderer] Rendering with content:', content);
 
   const {
     imageUrl = '',
@@ -1157,8 +1154,6 @@ export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererPro
     link = '',
     lightbox = false,
   } = content;
-  
-  console.log('[JEImageRenderer] imageUrl:', imageUrl);
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -1211,8 +1206,7 @@ export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererPro
   const widthInfo = getWidthStyle();
 
   return (
-    <figure className="py-4 px-6 border-4 border-red-500 bg-yellow-100" data-debug="je-image-renderer">
-      <p className="text-red-600 font-bold text-xl mb-4">DEBUG: JEImageRenderer is rendering! URL: {imageUrl || 'NO URL'}</p>
+    <figure className="py-4 px-6">
       <ImageWrapper
         {...(link ? { href: link, target: '_blank', rel: 'noopener noreferrer' } : {})}
         className={cn(
