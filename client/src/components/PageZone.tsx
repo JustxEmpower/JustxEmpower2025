@@ -42,22 +42,22 @@ export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZ
   console.log(`[PageZone] ${pageSlug}/${zoneName}:`, { zone, isLoading, error });
 
   if (isLoading) {
-    return fallback || null;
+    return <div className="border-2 border-orange-500 bg-orange-100 p-2"><p className="text-orange-800">Loading zone: {pageSlug}/{zoneName}...</p></div>;
   }
 
   if (error) {
     console.error(`[PageZone] Error for ${pageSlug}/${zoneName}:`, error);
-    return fallback || null;
+    return <div className="border-2 border-red-500 bg-red-100 p-2"><p className="text-red-800">Error loading zone: {pageSlug}/{zoneName}: {String(error)}</p></div>;
   }
 
   if (!zone) {
     console.log(`[PageZone] No zone found for ${pageSlug}/${zoneName}`);
-    return fallback || null;
+    return <div className="border-2 border-gray-500 bg-gray-100 p-2"><p className="text-gray-800">No zone data: {pageSlug}/{zoneName}</p></div>;
   }
 
   if (!zone.isActive) {
     console.log(`[PageZone] Zone ${pageSlug}/${zoneName} is not active`);
-    return fallback || null;
+    return <div className="border-2 border-yellow-500 bg-yellow-100 p-2"><p className="text-yellow-800">Zone inactive: {pageSlug}/{zoneName}</p></div>;
   }
 
   // Parse blocks from JSON
