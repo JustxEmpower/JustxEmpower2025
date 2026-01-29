@@ -3777,10 +3777,12 @@ export const publicContentRouter = router({
       console.log(`[getTextStylesByPage] Total styles in DB: ${styles.length}`);
       
       // Map styles with content keys and section for easier lookup on frontend
+      // Use Number() conversion to handle type mismatches between DB drivers
+      const contentIdSet = new Set(contentIds.map(id => Number(id)));
       const stylesWithKeys = styles
-        .filter(s => contentIds.includes(s.contentId))
+        .filter(s => contentIdSet.has(Number(s.contentId)))
         .map(s => {
-          const content = pageContent.find(c => c.id === s.contentId);
+          const content = pageContent.find(c => Number(c.id) === Number(s.contentId));
           return {
             contentId: s.contentId,
             section: content?.section || '',
