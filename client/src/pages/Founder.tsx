@@ -128,21 +128,21 @@ export default function Founder() {
         <div className="relative z-20 h-full flex flex-col items-center justify-center text-center px-4">
           <div className="about-hero-text">
             <h2 
-              className={`text-xs md:text-sm uppercase tracking-[0.3em] mb-8 md:mb-12 opacity-90 ${getTextStyle('hero', 'subtitle')?.fontOverride ? '' : 'font-sans'} ${getTextStyle('hero', 'subtitle')?.fontColor ? '' : 'text-white'}`}
+              className={`${getTextStyle('hero', 'subtitle')?.fontSize ? '' : 'text-xs md:text-sm'} uppercase tracking-[0.3em] mb-8 md:mb-12 opacity-90 ${getTextStyle('hero', 'subtitle')?.fontOverride ? '' : 'font-sans'} ${getTextStyle('hero', 'subtitle')?.fontColor ? '' : 'text-white'}`}
               style={getInlineStyles('hero', 'subtitle')}
             >
               {heroSection.subtitle || ''}
             </h2>
             
             <h1 
-              className={`text-5xl md:text-7xl lg:text-8xl font-light tracking-wide leading-[1.1] mb-8 ${getTextStyle('hero', 'title')?.fontOverride ? '' : 'font-serif'} ${getTextStyle('hero', 'title')?.fontColor ? '' : 'text-white'} ${getTextStyle('hero', 'title')?.isItalic ? 'italic' : ''}`}
+              className={`${getTextStyle('hero', 'title')?.fontSize ? '' : 'text-5xl md:text-7xl lg:text-8xl'} font-light tracking-wide leading-[1.1] mb-8 ${getTextStyle('hero', 'title')?.fontOverride ? '' : 'font-serif'} ${getTextStyle('hero', 'title')?.fontColor ? '' : 'text-white'} ${getTextStyle('hero', 'title')?.isItalic ? 'italic' : ''}`}
               style={getInlineStyles('hero', 'title')}
             >
               {heroSection.title || ''}
             </h1>
             
             <p 
-              className={`text-lg md:text-xl font-light tracking-wide max-w-3xl leading-relaxed ${getTextStyle('hero', 'description')?.fontOverride ? '' : 'font-sans'} ${getTextStyle('hero', 'description')?.fontColor ? '' : 'text-white/90'}`}
+              className={`${getTextStyle('hero', 'description')?.fontSize ? '' : 'text-lg md:text-xl'} font-light tracking-wide max-w-3xl leading-relaxed ${getTextStyle('hero', 'description')?.fontOverride ? '' : 'font-sans'} ${getTextStyle('hero', 'description')?.fontColor ? '' : 'text-white/90'}`}
               style={getInlineStyles('hero', 'description')}
             >
               {heroSection.description || ''}
