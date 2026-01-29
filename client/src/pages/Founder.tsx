@@ -5,6 +5,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Button } from '@/components/ui/button';
 import { usePageContent } from '@/hooks/usePageContent';
 import { BookOpen } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -155,17 +156,17 @@ export default function Founder() {
         {(openingSection.paragraph1 || openingSection.paragraph2) && (
           <section className="content-section max-w-4xl mx-auto mb-24">
             {openingSection.paragraph1 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('opening', 'paragraph1')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('opening', 'paragraph1')}>
                 {openingSection.paragraph1}
               </p>
             )}
             {openingSection.paragraph2 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('opening', 'paragraph2')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('opening', 'paragraph2')}>
                 {openingSection.paragraph2}
               </p>
             )}
             {openingSection.paragraph3 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light", getTextStyle('opening', 'paragraph3')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('opening', 'paragraph3')}>
                 {openingSection.paragraph3}
               </p>
             )}
@@ -175,10 +176,10 @@ export default function Founder() {
         {/* Just Empower Truth Section - 100% database driven */}
         {(truthSection.title || truthSection.description) && (
           <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
-            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center">
+            <h2 className={cn("text-3xl md:text-4xl font-light italic mb-8 text-center", getTextStyle('truth', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('truth', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('truth', 'title')}>
               {truthSection.title || ''}
             </h2>
-            <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center">
+            <p className={cn("text-lg md:text-xl leading-relaxed font-light text-center", getTextStyle('truth', 'description')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('truth', 'description')}>
               {truthSection.description || ''}
             </p>
           </section>
@@ -187,31 +188,31 @@ export default function Founder() {
         {/* Depth Beneath Section - 100% database driven */}
         {(depthSection.title || depthSection.paragraph1) && (
           <section className="content-section max-w-4xl mx-auto mb-24">
-            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+            <h2 className={cn("text-3xl md:text-4xl font-light mb-12", getTextStyle('depth', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('depth', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('depth', 'title')}>
               {depthSection.title || ''}
             </h2>
             {depthSection.paragraph1 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('depth', 'paragraph1')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('depth', 'paragraph1')}>
                 {depthSection.paragraph1}
               </p>
             )}
             {depthSection.paragraph2 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('depth', 'paragraph2')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('depth', 'paragraph2')}>
                 {depthSection.paragraph2}
               </p>
             )}
             {depthSection.paragraph3 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('depth', 'paragraph3')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('depth', 'paragraph3')}>
                 {depthSection.paragraph3}
               </p>
             )}
             {depthSection.paragraph4 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('depth', 'paragraph4')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('depth', 'paragraph4')}>
                 {depthSection.paragraph4}
               </p>
             )}
             {depthSection.paragraph5 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light", getTextStyle('depth', 'paragraph5')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('depth', 'paragraph5')}>
                 {depthSection.paragraph5}
               </p>
             )}
@@ -221,31 +222,31 @@ export default function Founder() {
         {/* Thread of Remembrance Section - 100% database driven */}
         {(remembranceSection.title || remembranceSection.quote) && (
           <section className="content-section max-w-4xl mx-auto mb-24">
-            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+            <h2 className={cn("text-3xl md:text-4xl font-light mb-12", getTextStyle('remembrance', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('remembrance', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('remembrance', 'title')}>
               {remembranceSection.title || ''}
             </h2>
             {remembranceSection.quote && (
-              <blockquote className="text-xl md:text-2xl text-foreground/90 leading-relaxed font-light italic mb-12 pl-8 border-l-2 border-primary">
+              <blockquote className={cn("text-xl md:text-2xl leading-relaxed font-light italic mb-12 pl-8 border-l-2 border-primary", getTextStyle('remembrance', 'quote')?.fontColor ? '' : 'text-foreground/90')} style={getInlineStyles('remembrance', 'quote')}>
                 {remembranceSection.quote}
               </blockquote>
             )}
             {remembranceSection.paragraph1 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('remembrance', 'paragraph1')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('remembrance', 'paragraph1')}>
                 {remembranceSection.paragraph1}
               </p>
             )}
             {remembranceSection.paragraph2 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('remembrance', 'paragraph2')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('remembrance', 'paragraph2')}>
                 {remembranceSection.paragraph2}
               </p>
             )}
             {remembranceSection.paragraph3 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('remembrance', 'paragraph3')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('remembrance', 'paragraph3')}>
                 {remembranceSection.paragraph3}
               </p>
             )}
             {remembranceSection.paragraph4 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light", getTextStyle('remembrance', 'paragraph4')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('remembrance', 'paragraph4')}>
                 {remembranceSection.paragraph4}
               </p>
             )}
@@ -255,16 +256,16 @@ export default function Founder() {
         {/* Renewal Section - 100% database driven */}
         {(renewalSection.title || renewalSection.paragraph1) && (
           <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
-            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light italic mb-8 text-center">
+            <h2 className={cn("text-3xl md:text-4xl font-light italic mb-8 text-center", getTextStyle('renewal', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('renewal', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('renewal', 'title')}>
               {renewalSection.title || ''}
             </h2>
             {renewalSection.paragraph1 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light text-center mb-8", getTextStyle('renewal', 'paragraph1')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('renewal', 'paragraph1')}>
                 {renewalSection.paragraph1}
               </p>
             )}
             {renewalSection.paragraph2 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light text-center">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light text-center", getTextStyle('renewal', 'paragraph2')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('renewal', 'paragraph2')}>
                 {renewalSection.paragraph2}
               </p>
             )}
@@ -274,26 +275,26 @@ export default function Founder() {
         {/* Future Section - 100% database driven */}
         {(futureSection.title || futureSection.paragraph1) && (
           <section className="content-section max-w-4xl mx-auto mb-24">
-            <h2 className="font-serif text-3xl md:text-4xl text-foreground font-light mb-12">
+            <h2 className={cn("text-3xl md:text-4xl font-light mb-12", getTextStyle('future', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('future', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('future', 'title')}>
               {futureSection.title || ''}
             </h2>
             {futureSection.paragraph1 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('future', 'paragraph1')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('future', 'paragraph1')}>
                 {futureSection.paragraph1}
               </p>
             )}
             {futureSection.paragraph2 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('future', 'paragraph2')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('future', 'paragraph2')}>
                 {futureSection.paragraph2}
               </p>
             )}
             {futureSection.paragraph3 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light mb-8">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light mb-8", getTextStyle('future', 'paragraph3')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('future', 'paragraph3')}>
                 {futureSection.paragraph3}
               </p>
             )}
             {futureSection.paragraph4 && (
-              <p className="text-lg md:text-xl text-foreground/80 leading-relaxed font-light">
+              <p className={cn("text-lg md:text-xl leading-relaxed font-light", getTextStyle('future', 'paragraph4')?.fontColor ? '' : 'text-foreground/80')} style={getInlineStyles('future', 'paragraph4')}>
                 {futureSection.paragraph4}
               </p>
             )}

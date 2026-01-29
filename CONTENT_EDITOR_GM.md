@@ -155,6 +155,109 @@ const [legalSections, setLegalSections] = useState<LegalSection[]>([]);
 
 ---
 
+## Text Styling System
+
+### Overview
+
+The Text Styling System allows per-field font customization (font family, size, color, bold, italic, underline) through the Content Editor. Styles are stored in the `contentTextStyles` table and applied on the frontend via `usePageContent` helpers.
+
+### Database Schema: `contentTextStyles`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | int | Primary key |
+| `contentId` | int | Foreign key → `siteContent.id` |
+| `isBold` | int | 1 = bold, 0 = normal |
+| `isItalic` | int | 1 = italic, 0 = normal |
+| `isUnderline` | int | 1 = underline, 0 = normal |
+| `fontOverride` | varchar | Google Font name (e.g., "Crimson Text") |
+| `fontSize` | varchar | CSS size (e.g., "48px", "2rem") |
+| `fontColor` | varchar | Hex color (e.g., "#ffffff") |
+| `updatedAt` | timestamp | Last modification |
+
+### Admin Interface
+
+The `TextFormatToolbar.tsx` component provides controls for each text field:
+- **B** (Bold), **I** (Italic), **U** (Underline) toggle buttons
+- Font size dropdown
+- Color picker
+- Google Font selector
+
+Styles are saved via `trpc.contentTextStyles.save` mutation.
+
+### Frontend Implementation
+
+```typescript
+import { usePageContent } from '@/hooks/usePageContent';
+import { cn } from '@/lib/utils';
+
+export default function MyPage() {
+  const { getContent, getTextStyle, getInlineStyles } = usePageContent('page-slug');
+  
+  return (
+    <h1 
+      className={cn(
+        "text-4xl font-light",
+        getTextStyle('hero', 'title')?.fontOverride ? '' : 'font-serif',
+        getTextStyle('hero', 'title')?.fontColor ? '' : 'text-foreground'
+      )}
+      style={getInlineStyles('hero', 'title')}
+    >
+      {getContent('hero', 'title')}
+    </h1>
+  );
+}
+```
+
+### API Endpoints
+
+| Endpoint | Type | Description |
+|----------|------|-------------|
+| `content.getTextStylesByPage` | Query | Get all styles for a page (uses SQL JOIN) |
+| `contentTextStyles.get` | Query | Get style for single contentId |
+| `contentTextStyles.save` | Mutation | Save/update style for contentId |
+
+### Pages with Full Text Styling Support
+
+| Page | Status |
+|------|--------|
+| `Home.tsx` | ✅ All sections styled via Hero/Section components |
+| `Founder.tsx` | ✅ All sections: hero, opening, truth, depth, remembrance, renewal, future |
+| `Philosophy.tsx` | ✅ hero, principles, pillars, newsletter |
+| `About.tsx` | ✅ All sections styled |
+| `Offerings.tsx` | ✅ hero, seeds, sheWrites, emerge, rootedUnity |
+| `WalkWithUs.tsx` | ✅ hero, main, partners, individuals, quote, options, content, overview |
+| `Contact.tsx` | ✅ hero, info sections |
+| `Events.tsx` | ✅ hero section |
+
+### Styling Pattern
+
+For each text element:
+1. Use `cn()` for conditional class merging
+2. Check if `fontOverride` exists → skip default font class
+3. Check if `fontColor` exists → skip default color class
+4. Apply `getInlineStyles()` for runtime CSS
+
+```typescript
+<p 
+  className={cn(
+    "text-lg leading-relaxed",
+    getTextStyle('section', 'key')?.fontColor ? '' : 'text-muted-foreground'
+  )} 
+  style={getInlineStyles('section', 'key')}
+>
+  {content}
+</p>
+```
+
+### Technical Notes
+
+- **SQL JOIN Query**: `getTextStylesByPage` uses an INNER JOIN between `contentTextStyles` and `siteContent` to avoid JavaScript type mismatch issues
+- **Dynamic Font Loading**: `usePageContent` automatically loads Google Fonts when `fontOverride` values are detected
+- **Fallback Behavior**: Default Tailwind classes apply when no custom style is set
+
+---
+
 ## usePageContent Hook
 
 ### Usage
@@ -401,4 +504,4 @@ DELETE FROM siteContent WHERE page = 'page-slug' AND contentValue NOT LIKE '%123
 
 ---
 
-**Last Updated:** January 27, 2026
+**Last Updated:** January 28, 2026

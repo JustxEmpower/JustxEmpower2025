@@ -175,7 +175,7 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
       {optionsTitle && (
         <div className="py-20 px-6 md:px-12 bg-muted/20">
           <div className="max-w-6xl mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl italic text-center mb-12 text-foreground">
+            <h2 className={cn("text-3xl md:text-4xl italic text-center mb-12", getTextStyle('options', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('options', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('options', 'title')}>
               {optionsTitle}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -230,11 +230,11 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
       {contentHeading && (
         <div className="py-20 px-6 md:px-12">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="font-serif text-3xl md:text-4xl italic mb-6 text-foreground">
+            <h2 className={cn("text-3xl md:text-4xl italic mb-6", getTextStyle('content', 'heading')?.fontOverride ? '' : 'font-serif', getTextStyle('content', 'heading')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('content', 'heading')}>
               {contentHeading}
             </h2>
             {contentDescription && (
-              <p className="text-lg text-muted-foreground leading-relaxed">
+              <p className={cn("text-lg leading-relaxed", getTextStyle('content', 'description')?.fontColor ? '' : 'text-muted-foreground')} style={getInlineStyles('content', 'description')}>
                 {contentDescription}
               </p>
             )}
@@ -246,12 +246,12 @@ export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
       {overviewTitle && (
         <div className="py-20 px-6 md:px-12 bg-muted/10">
           <div className="max-w-4xl mx-auto">
-            <h2 className="font-serif text-3xl md:text-4xl italic text-center mb-8 text-foreground">
+            <h2 className={cn("text-3xl md:text-4xl italic text-center mb-8", getTextStyle('overview', 'title')?.fontOverride ? '' : 'font-serif', getTextStyle('overview', 'title')?.fontColor ? '' : 'text-foreground')} style={getInlineStyles('overview', 'title')}>
               {overviewTitle}
             </h2>
-            <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
-              {overviewParagraph1 && <p>{overviewParagraph1}</p>}
-              {overviewParagraph2 && <p>{overviewParagraph2}</p>}
+            <div className="space-y-6 text-lg leading-relaxed">
+              {overviewParagraph1 && <p className={cn(getTextStyle('overview', 'paragraph1')?.fontColor ? '' : 'text-muted-foreground')} style={getInlineStyles('overview', 'paragraph1')}>{overviewParagraph1}</p>}
+              {overviewParagraph2 && <p className={cn(getTextStyle('overview', 'paragraph2')?.fontColor ? '' : 'text-muted-foreground')} style={getInlineStyles('overview', 'paragraph2')}>{overviewParagraph2}</p>}
             </div>
           </div>
         </div>
