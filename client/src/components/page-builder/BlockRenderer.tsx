@@ -30,11 +30,13 @@ import {
   JEHeadingRenderer,
   JEParagraphRenderer,
   JEQuoteRenderer,
-  JEImageRenderer,
   JEVideoRenderer,
   iconMap,
   getIcon,
 } from './renderers/BlockRenderers-Part1-Core';
+
+// Import JEImageRenderer from JEBlockRenderers which properly handles media URLs
+import { JEImageRenderer } from './renderers/JEBlockRenderers';
 
 // Part 2: JE Special blocks
 import {
