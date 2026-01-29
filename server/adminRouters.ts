@@ -3759,52 +3759,37 @@ export const publicContentRouter = router({
         return [];
       }
       
-      // Get content IDs for this page
-      const pageContent = await db
-        .select({ id: schema.siteContent.id, section: schema.siteContent.section, contentKey: schema.siteContent.contentKey })
-        .from(schema.siteContent)
+      // Use SQL JOIN to get styles directly - avoids JS type mismatch issues
+      const results = await db
+        .select({
+          contentId: schema.contentTextStyles.contentId,
+          section: schema.siteContent.section,
+          contentKey: schema.siteContent.contentKey,
+          isBold: schema.contentTextStyles.isBold,
+          isItalic: schema.contentTextStyles.isItalic,
+          isUnderline: schema.contentTextStyles.isUnderline,
+          fontSize: schema.contentTextStyles.fontSize,
+          fontColor: schema.contentTextStyles.fontColor,
+          fontOverride: schema.contentTextStyles.fontOverride,
+        })
+        .from(schema.contentTextStyles)
+        .innerJoin(schema.siteContent, eq(schema.contentTextStyles.contentId, schema.siteContent.id))
         .where(eq(schema.siteContent.page, input.page));
       
-      const contentIds = pageContent.map(c => c.id);
-      console.log(`[getTextStylesByPage] Page: ${input.page}, Content IDs: ${contentIds.length}`);
-      if (contentIds.length === 0) return [];
+      console.log(`[getTextStylesByPage] Found ${results.length} styles for page ${input.page}`);
       
-      // Get styles for these content items
-      const styles = await db
-        .select()
-        .from(schema.contentTextStyles);
-      
-      console.log(`[getTextStylesByPage] Total styles in DB: ${styles.length}`);
-      console.log(`[getTextStylesByPage] contentIds:`, contentIds.slice(0, 5), `types: ${contentIds.slice(0,3).map(x => typeof x)}`);
-      console.log(`[getTextStylesByPage] style contentIds:`, styles.map(s => s.contentId).slice(0, 5), `types: ${styles.slice(0,3).map(s => typeof s.contentId)}`);
-      
-      // Map styles with content keys and section for easier lookup on frontend
-      // Use Number() conversion to handle type mismatches between DB drivers
-      const contentIdSet = new Set(contentIds.map(id => Number(id)));
-      console.log(`[getTextStylesByPage] contentIdSet:`, Array.from(contentIdSet).slice(0, 5));
-      const stylesWithKeys = styles
-        .filter(s => {
-          const match = contentIdSet.has(Number(s.contentId));
-          if (match) console.log(`[getTextStylesByPage] MATCH: ${s.contentId}`);
-          return match;
-        })
-        .map(s => {
-          const content = pageContent.find(c => Number(c.id) === Number(s.contentId));
-          return {
-            contentId: s.contentId,
-            section: content?.section || '',
-            contentKey: content?.contentKey || '',
-            isBold: s.isBold === 1,
-            isItalic: s.isItalic === 1,
-            isUnderline: s.isUnderline === 1,
-            fontSize: s.fontSize || null,
-            fontColor: s.fontColor || null,
-            fontOverride: s.fontOverride || null,
-          };
-        });
-      
-      console.log(`[getTextStylesByPage] Returning ${stylesWithKeys.length} styles for page ${input.page}:`, JSON.stringify(stylesWithKeys));
-      return stylesWithKeys;
+      // Transform results to frontend format
+      return results.map(r => ({
+        contentId: r.contentId,
+        section: r.section || '',
+        contentKey: r.contentKey || '',
+        isBold: r.isBold === 1,
+        isItalic: r.isItalic === 1,
+        isUnderline: r.isUnderline === 1,
+        fontSize: r.fontSize || null,
+        fontColor: r.fontColor || null,
+        fontOverride: r.fontOverride || null,
+      }));
     }),
 });
 
