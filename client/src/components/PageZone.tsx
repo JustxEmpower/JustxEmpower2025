@@ -27,33 +27,46 @@ interface PageZoneProps {
  * <PageZone pageSlug="about" zoneName="before-footer" />
  */
 export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZoneProps) {
-  const { data: zone, isLoading, error } = trpc.pageZones.getZone.useQuery(
+  const { data: zone, isLoading, error, status } = trpc.pageZones.getZone.useQuery(
     { pageSlug, zoneName },
     { 
-      staleTime: 0, // Disable caching
-      cacheTime: 0, // Don't cache results
+      staleTime: 0,
+      gcTime: 0,
       refetchOnWindowFocus: true,
-      refetchOnMount: 'always', // Always refetch when component mounts
+      refetchOnMount: 'always',
       refetchOnReconnect: true,
     }
   );
 
-  // Debug logging
-  console.log(`[PageZone] ${pageSlug}/${zoneName}:`, { zone, isLoading, error });
+  // Always render a debug container to verify component mounts
+  const debugInfo = `[${pageSlug}/${zoneName}] status=${status} loading=${isLoading} hasZone=${!!zone} hasError=${!!error}`;
+  console.log('[PageZone]', debugInfo, { zone, error });
 
+  // Show loading state
   if (isLoading) {
-    return fallback || null;
+    return (
+      <div className="py-4 text-center text-sm text-muted-foreground">
+        Loading zone {pageSlug}/{zoneName}...
+      </div>
+    );
   }
 
+  // Show error state
   if (error) {
-    console.error(`[PageZone] Error for ${pageSlug}/${zoneName}:`, error);
-    return fallback || null;
+    console.error(`[PageZone] Error:`, error);
+    return (
+      <div className="py-4 px-6 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+        <strong>Zone Error:</strong> {pageSlug}/{zoneName} - {error.message}
+      </div>
+    );
   }
 
+  // No zone data
   if (!zone) {
     return fallback || null;
   }
 
+  // Zone not active
   if (!zone.isActive) {
     return fallback || null;
   }
