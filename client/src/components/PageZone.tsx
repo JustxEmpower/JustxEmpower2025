@@ -27,7 +27,7 @@ interface PageZoneProps {
  * <PageZone pageSlug="about" zoneName="before-footer" />
  */
 export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZoneProps) {
-  const { data: zone, isLoading, error, status } = trpc.pageZones.getZone.useQuery(
+  const { data: zone, isLoading, error } = trpc.pageZones.getZone.useQuery(
     { pageSlug, zoneName },
     { 
       staleTime: 0,
@@ -38,27 +38,15 @@ export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZ
     }
   );
 
-  // Always render a debug container to verify component mounts
-  const debugInfo = `[${pageSlug}/${zoneName}] status=${status} loading=${isLoading} hasZone=${!!zone} hasError=${!!error}`;
-  console.log('[PageZone]', debugInfo, { zone, error });
-
-  // Show loading state
+  // Show nothing while loading
   if (isLoading) {
-    return (
-      <div className="py-4 text-center text-sm text-muted-foreground">
-        Loading zone {pageSlug}/{zoneName}...
-      </div>
-    );
+    return null;
   }
 
-  // Show error state
+  // Log errors but don't show UI
   if (error) {
-    console.error(`[PageZone] Error:`, error);
-    return (
-      <div className="py-4 px-6 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
-        <strong>Zone Error:</strong> {pageSlug}/{zoneName} - {error.message}
-      </div>
-    );
+    console.error(`[PageZone] Error for ${pageSlug}/${zoneName}:`, error);
+    return null;
   }
 
   // No zone data
