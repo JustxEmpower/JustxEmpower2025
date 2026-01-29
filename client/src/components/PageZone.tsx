@@ -117,10 +117,12 @@ export function EditablePageZone({
     // Check if admin token exists
     const token = localStorage.getItem('adminToken');
     setIsAdmin(!!token);
-  }, []);
+    console.log(`[EditablePageZone] Mounted: ${pageSlug}/${zoneName}`);
+  }, [pageSlug, zoneName]);
 
   return (
-    <div className="relative group">
+    <div className="relative group border-2 border-purple-500 p-2 my-2">
+      <p className="text-purple-800 text-xs bg-purple-100 px-2 py-1 mb-2">EditablePageZone: {pageSlug}/{zoneName}</p>
       <PageZone 
         pageSlug={pageSlug} 
         zoneName={zoneName} 
