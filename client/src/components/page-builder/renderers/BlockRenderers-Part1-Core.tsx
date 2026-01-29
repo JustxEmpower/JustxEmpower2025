@@ -1222,7 +1222,7 @@ export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererPro
           <img
             src={imageUrl}
             alt={alt}
-            className="w-full h-full object-cover"
+            className={cn("w-full object-cover", aspectRatio !== 'auto' ? 'h-full' : 'h-auto')}
           />
         ) : (
           <div className="w-full h-48 bg-neutral-200 flex items-center justify-center">
