@@ -295,6 +295,131 @@ export default function MyPage() {
 
 ---
 
+## Page Zones System
+
+### Overview
+
+Page Zones allow Page Builder blocks to be injected into specific locations within existing React pages. This enables hybrid editing where pages maintain their core structure but can have dynamic content blocks added via the admin interface.
+
+### Database Schema: `pageZones`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | int | Primary key |
+| `pageSlug` | varchar(100) | Page identifier (e.g., 'founder', 'home') |
+| `zoneName` | varchar(100) | Zone location (e.g., 'after-hero', 'before-footer') |
+| `blocks` | longtext | JSON array of Page Builder blocks |
+| `isActive` | int | 1 = active, 0 = disabled |
+| `createdAt` | timestamp | Creation time |
+| `updatedAt` | timestamp | Last modification |
+
+### Available Pages and Zones
+
+| Page | Zones |
+|------|-------|
+| `home` | after-hero, mid-page, after-carousel, before-community, after-community, before-newsletter, before-footer |
+| `about` | after-hero, after-opening, after-truth, after-depth, after-remembrance, after-renewal, after-future, before-newsletter, before-footer |
+| `founder` | after-hero, after-opening, after-truth, after-depth, after-remembrance, after-renewal, after-future, before-newsletter, before-footer |
+| `philosophy` | after-hero, after-pillars, before-newsletter, before-footer |
+| `offerings` | after-hero, mid-page, after-content, before-newsletter, before-footer |
+| `walk-with-us` | after-hero, mid-page, before-newsletter, before-footer |
+| `events` | after-hero, mid-page, before-footer |
+| `contact` | after-hero, mid-page, before-footer |
+| `blog` | after-hero, after-articles, sidebar, before-footer |
+| `resources` | after-hero, mid-page, before-footer |
+
+### Frontend Implementation
+
+```typescript
+import { EditablePageZone } from '@/components/PageZone';
+
+export default function MyPage() {
+  return (
+    <div>
+      {/* Hero Section */}
+      <section>...</section>
+      
+      {/* Page Zone: After Hero */}
+      <EditablePageZone pageSlug="my-page" zoneName="after-hero" />
+      
+      {/* More content... */}
+      
+      {/* Page Zone: Before Footer */}
+      <EditablePageZone pageSlug="my-page" zoneName="before-footer" />
+    </div>
+  );
+}
+```
+
+### API Endpoints
+
+| Endpoint | Type | Auth | Description |
+|----------|------|------|-------------|
+| `pageZones.getZone` | Query | Public | Get zone blocks for rendering |
+| `pageZones.getPageZones` | Query | Admin | Get all zones for a page |
+| `pageZones.upsertZone` | Mutation | Admin | Create/update zone |
+| `pageZones.deleteZone` | Mutation | Admin | Delete a zone |
+| `pageZones.getAvailablePages` | Query | Admin | List pages with zone support |
+
+### Admin Interface
+
+Access zone editing at `/admin/zones` or directly via `/admin/zone-editor/{pageSlug}/{zoneName}`.
+
+When logged in as admin, hovering over page zones on the live site shows an "Edit Zone" button.
+
+---
+
+## Media Fields System
+
+### Overview
+
+Media fields (images and videos) are stored in the `siteContent` table with contentKey values containing 'imageUrl', 'videoUrl', 'Image', or 'Video'. The Content Editor automatically shows a MediaPicker button for these fields.
+
+### Media Field Naming Convention
+
+| Field Type | ContentKey Pattern | Example |
+|------------|-------------------|---------|
+| Hero Video | `videoUrl` | `hero.videoUrl` |
+| Hero Image | `imageUrl` | `hero.imageUrl` |
+| Section Image | `imageUrl` | `philosophy.imageUrl` |
+| Option Images | `option{N}_imageUrl` | `options.option1_imageUrl` |
+
+### Pages with Media Fields
+
+| Page | Section | Media Fields |
+|------|---------|--------------|
+| `home` | hero | videoUrl, imageUrl |
+| `home` | philosophy, community, pointsOfAccess | imageUrl |
+| `founder` | hero | videoUrl, imageUrl |
+| `about` | hero | videoUrl, imageUrl |
+| `philosophy` | hero | videoUrl, imageUrl |
+| `philosophy` | principles, pillars | imageUrl |
+| `offerings` | hero | videoUrl, imageUrl |
+| `offerings` | seeds, sheWrites, emerge, rootedUnity | imageUrl |
+| `walk-with-us` | hero | videoUrl, imageUrl |
+| `walk-with-us` | quote, options | imageUrl |
+| `contact` | hero | videoUrl, imageUrl |
+| `events` | hero | videoUrl, imageUrl |
+
+### Adding Media Fields via SQL
+
+```sql
+INSERT IGNORE INTO siteContent (page, section, contentKey, contentValue) VALUES
+('page-slug', 'section-name', 'imageUrl', ''),
+('page-slug', 'section-name', 'videoUrl', '');
+```
+
+### MediaPicker Component
+
+The Content Editor automatically renders a MediaPicker button for any field where `contentKey` includes:
+- `Url`
+- `Image`
+- `Video`
+
+Located at: `client/src/components/MediaPicker.tsx`
+
+---
+
 ## Legal Pages
 
 Legal pages use a special JSON format stored in `legalSections.sections`:

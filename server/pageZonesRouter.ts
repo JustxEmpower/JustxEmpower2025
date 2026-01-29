@@ -220,14 +220,16 @@ export const pageZonesRouter = router({
   getAvailablePages: adminProcedure.query(async () => {
     // These are the existing React pages that can have zones
     return [
-      { slug: 'home', name: 'Home', zones: ['after-hero', 'after-carousel', 'before-community', 'after-community', 'before-footer'] },
-      { slug: 'about', name: 'About', zones: ['after-hero', 'before-content', 'after-content', 'before-footer'] },
-      { slug: 'philosophy', name: 'Philosophy', zones: ['after-hero', 'after-pillars', 'before-footer'] },
-      { slug: 'community', name: 'Community', zones: ['after-hero', 'after-features', 'before-footer'] },
-      { slug: 'offerings', name: 'Offerings', zones: ['after-hero', 'after-grid', 'before-footer'] },
-      { slug: 'events', name: 'Events', zones: ['after-hero', 'after-calendar', 'before-footer'] },
-      { slug: 'contact', name: 'Contact', zones: ['after-hero', 'after-form', 'before-footer'] },
+      { slug: 'home', name: 'Home', zones: ['after-hero', 'mid-page', 'after-carousel', 'before-community', 'after-community', 'before-newsletter', 'before-footer'] },
+      { slug: 'about', name: 'About', zones: ['after-hero', 'after-opening', 'after-truth', 'after-depth', 'after-remembrance', 'after-renewal', 'after-future', 'before-newsletter', 'before-footer'] },
+      { slug: 'founder', name: 'Founder', zones: ['after-hero', 'after-opening', 'after-truth', 'after-depth', 'after-remembrance', 'after-renewal', 'after-future', 'before-newsletter', 'before-footer'] },
+      { slug: 'philosophy', name: 'Philosophy', zones: ['after-hero', 'after-pillars', 'before-newsletter', 'before-footer'] },
+      { slug: 'offerings', name: 'Offerings', zones: ['after-hero', 'mid-page', 'after-content', 'before-newsletter', 'before-footer'] },
+      { slug: 'walk-with-us', name: 'Walk With Us', zones: ['after-hero', 'mid-page', 'before-newsletter', 'before-footer'] },
+      { slug: 'events', name: 'Events', zones: ['after-hero', 'mid-page', 'before-footer'] },
+      { slug: 'contact', name: 'Contact', zones: ['after-hero', 'mid-page', 'before-footer'] },
       { slug: 'blog', name: 'Blog', zones: ['after-hero', 'after-articles', 'sidebar', 'before-footer'] },
+      { slug: 'resources', name: 'Resources', zones: ['after-hero', 'mid-page', 'before-footer'] },
     ];
   }),
 });

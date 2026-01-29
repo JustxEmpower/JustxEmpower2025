@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { usePageContent } from '@/hooks/usePageContent';
 import { BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { EditablePageZone } from '@/components/PageZone';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -150,6 +151,9 @@ export default function Founder() {
         </div>
       </div>
 
+      {/* Page Zone: After Hero */}
+      <EditablePageZone pageSlug="founder" zoneName="after-hero" />
+
       {/* Main Content */}
       <div className="container mx-auto px-4 py-24 md:py-32">
         {/* Opening Section - 100% database driven */}
@@ -173,6 +177,9 @@ export default function Founder() {
           </section>
         )}
 
+        {/* Page Zone: After Opening */}
+        <EditablePageZone pageSlug="founder" zoneName="after-opening" />
+
         {/* Just Empower Truth Section - 100% database driven */}
         {(truthSection.title || truthSection.description) && (
           <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
@@ -184,6 +191,9 @@ export default function Founder() {
             </p>
           </section>
         )}
+
+        {/* Page Zone: After Truth */}
+        <EditablePageZone pageSlug="founder" zoneName="after-truth" />
 
         {/* Depth Beneath Section - 100% database driven */}
         {(depthSection.title || depthSection.paragraph1) && (
@@ -219,6 +229,9 @@ export default function Founder() {
           </section>
         )}
 
+        {/* Page Zone: After Depth */}
+        <EditablePageZone pageSlug="founder" zoneName="after-depth" />
+
         {/* Thread of Remembrance Section - 100% database driven */}
         {(remembranceSection.title || remembranceSection.quote) && (
           <section className="content-section max-w-4xl mx-auto mb-24">
@@ -253,6 +266,9 @@ export default function Founder() {
           </section>
         )}
 
+        {/* Page Zone: After Remembrance */}
+        <EditablePageZone pageSlug="founder" zoneName="after-remembrance" />
+
         {/* Renewal Section - 100% database driven */}
         {(renewalSection.title || renewalSection.paragraph1) && (
           <section className="content-section max-w-4xl mx-auto mb-24 py-16 border-y border-border">
@@ -271,6 +287,9 @@ export default function Founder() {
             )}
           </section>
         )}
+
+        {/* Page Zone: After Renewal */}
+        <EditablePageZone pageSlug="founder" zoneName="after-renewal" />
 
         {/* Future Section - 100% database driven */}
         {(futureSection.title || futureSection.paragraph1) && (
@@ -301,6 +320,12 @@ export default function Founder() {
           </section>
         )}
 
+        {/* Page Zone: After Future */}
+        <EditablePageZone pageSlug="founder" zoneName="after-future" />
+
+        {/* Page Zone: Before Newsletter */}
+        <EditablePageZone pageSlug="founder" zoneName="before-newsletter" />
+
         {/* Blog CTA - Read She Writes */}
         <section className="content-section max-w-2xl mx-auto">
           <div className="bg-card rounded-3xl p-12 md:p-16 text-center border border-border">
@@ -319,6 +344,9 @@ export default function Founder() {
             </Link>
           </div>
         </section>
+
+        {/* Page Zone: Before Footer */}
+        <EditablePageZone pageSlug="founder" zoneName="before-footer" />
       </div>
     </div>
   );
