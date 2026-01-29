@@ -40,8 +40,8 @@ const AVAILABLE_PAGES = [
     description: 'Main landing page'
   },
   { 
-    slug: 'about', 
-    name: 'About', 
+    slug: 'founder', 
+    name: 'About Founder', 
     icon: Info,
     zones: ['after-hero', 'after-opening', 'after-truth', 'after-depth', 'after-remembrance', 'after-renewal', 'after-future', 'before-newsletter', 'before-footer'],
     description: 'About the founder'
@@ -100,7 +100,7 @@ const AVAILABLE_PAGES = [
 // Page color schemes for vibrant cards
 const PAGE_COLORS: Record<string, { bg: string; icon: string; border: string; gradient: string }> = {
   home: { bg: 'bg-blue-50', icon: 'text-blue-600', border: 'border-blue-200', gradient: 'from-blue-500 to-indigo-600' },
-  about: { bg: 'bg-purple-50', icon: 'text-purple-600', border: 'border-purple-200', gradient: 'from-purple-500 to-pink-600' },
+  founder: { bg: 'bg-purple-50', icon: 'text-purple-600', border: 'border-purple-200', gradient: 'from-purple-500 to-pink-600' },
   philosophy: { bg: 'bg-rose-50', icon: 'text-rose-600', border: 'border-rose-200', gradient: 'from-rose-500 to-orange-500' },
   offerings: { bg: 'bg-amber-50', icon: 'text-amber-600', border: 'border-amber-200', gradient: 'from-amber-500 to-yellow-500' },
   blog: { bg: 'bg-emerald-50', icon: 'text-emerald-600', border: 'border-emerald-200', gradient: 'from-emerald-500 to-teal-600' },
