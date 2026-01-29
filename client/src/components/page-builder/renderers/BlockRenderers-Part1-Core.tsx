@@ -1140,6 +1140,9 @@ export function JEQuoteRenderer({ block, isEditing, onUpdate }: BlockRendererPro
 
 export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
+  
+  // Debug logging
+  console.log('[JEImageRenderer] Rendering with content:', content);
 
   const {
     imageUrl = '',
@@ -1154,6 +1157,8 @@ export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererPro
     link = '',
     lightbox = false,
   } = content;
+  
+  console.log('[JEImageRenderer] imageUrl:', imageUrl);
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
