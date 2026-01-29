@@ -1211,7 +1211,8 @@ export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererPro
   const widthInfo = getWidthStyle();
 
   return (
-    <figure className="py-4 px-6 border-4 border-red-500" data-debug="je-image-renderer">
+    <figure className="py-4 px-6 border-4 border-red-500 bg-yellow-100" data-debug="je-image-renderer">
+      <p className="text-red-600 font-bold text-xl mb-4">DEBUG: JEImageRenderer is rendering! URL: {imageUrl || 'NO URL'}</p>
       <ImageWrapper
         {...(link ? { href: link, target: '_blank', rel: 'noopener noreferrer' } : {})}
         className={cn(
