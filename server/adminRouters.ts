@@ -3775,12 +3775,19 @@ export const publicContentRouter = router({
         .from(schema.contentTextStyles);
       
       console.log(`[getTextStylesByPage] Total styles in DB: ${styles.length}`);
+      console.log(`[getTextStylesByPage] contentIds:`, contentIds.slice(0, 5), `types: ${contentIds.slice(0,3).map(x => typeof x)}`);
+      console.log(`[getTextStylesByPage] style contentIds:`, styles.map(s => s.contentId).slice(0, 5), `types: ${styles.slice(0,3).map(s => typeof s.contentId)}`);
       
       // Map styles with content keys and section for easier lookup on frontend
       // Use Number() conversion to handle type mismatches between DB drivers
       const contentIdSet = new Set(contentIds.map(id => Number(id)));
+      console.log(`[getTextStylesByPage] contentIdSet:`, Array.from(contentIdSet).slice(0, 5));
       const stylesWithKeys = styles
-        .filter(s => contentIdSet.has(Number(s.contentId)))
+        .filter(s => {
+          const match = contentIdSet.has(Number(s.contentId));
+          if (match) console.log(`[getTextStylesByPage] MATCH: ${s.contentId}`);
+          return match;
+        })
         .map(s => {
           const content = pageContent.find(c => Number(c.id) === Number(s.contentId));
           return {
