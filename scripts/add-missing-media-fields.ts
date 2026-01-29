@@ -18,7 +18,7 @@ async function main() {
   const connection = await mysql.createConnection({
     host: process.env.DATABASE_HOST || 'justxempower-mysql.cg7k02qmmmt6.us-east-1.rds.amazonaws.com',
     user: process.env.DATABASE_USER || 'justxempower',
-    password: process.env.DATABASE_PASSWORD || 'SynergyEra2024$!',
+    password: process.env.DATABASE_PASSWORD || 'JustEmpower2025Secure',
     database: process.env.DATABASE_NAME || 'justxempower',
   });
 
