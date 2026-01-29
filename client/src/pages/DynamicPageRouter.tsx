@@ -8,7 +8,7 @@ import Philosophy from "./Philosophy";
 import Offerings from "./Offerings";
 import Journal from "./Journal";
 import Contact from "./Contact";
-import WalkWithUs from "./WalkWithUs";
+import EmergeWithUs from "./EmergeWithUs";
 import Shop from "./Shop";
 import Resources from "./Resources";
 import CommunityEvents from "./CommunityEvents";
@@ -24,7 +24,7 @@ const templateComponents: Record<string, React.ComponentType<{ slug?: string }>>
   'journal': Journal,
   'blog': Journal,
   'contact': Contact,
-  'walk-with-us': WalkWithUs,
+  'emerge-with-us': EmergeWithUs,
   'shop': Shop,
   'resources': Resources,
   'community-events': CommunityEvents,
