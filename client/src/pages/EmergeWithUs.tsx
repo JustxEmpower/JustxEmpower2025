@@ -5,11 +5,11 @@ import { getMediaUrl } from '@/lib/media';
 import { usePageContent } from '@/hooks/usePageContent';
 import { cn } from '@/lib/utils';
 
-interface WalkWithUsProps {
+interface EmergeWithUsProps {
   slug?: string;
 }
 
-export default function WalkWithUs({ slug = 'walk-with-us' }: WalkWithUsProps) {
+export default function EmergeWithUs({ slug = 'emerge-with-us' }: EmergeWithUsProps) {
   const [location] = useLocation();
   const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent(slug);
 

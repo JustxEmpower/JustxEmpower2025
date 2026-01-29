@@ -86,7 +86,7 @@ export default function AdminContent() {
       'shop': 12,
       'community-events': 13,
       'resources': 14,
-      'walk-with-us': 15,
+      'emerge-with-us': 15,
       'contact': 16,
       'overview': 17,
       'accessibility': 90,

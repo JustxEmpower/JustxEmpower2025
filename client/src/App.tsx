@@ -56,7 +56,7 @@ import Philosophy from "./pages/Philosophy";
 import Offerings from "./pages/Offerings";
 import Journal from "./pages/Journal";
 import Contact from "./pages/Contact";
-import WalkWithUs from "./pages/WalkWithUs";
+import EmergeWithUs from "./pages/EmergeWithUs";
 import Founder from "./pages/Founder";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -153,7 +153,7 @@ function Router() {
       <Route path="/community-events">{() => <CommunityEvents />}</Route>
       <Route path="/resources">{() => <Resources />}</Route>
       <Route path="/events">{() => <Events />}</Route>
-      <Route path="/walk-with-us">{() => <WalkWithUs />}</Route>
+      <Route path="/emerge-with-us">{() => <EmergeWithUs />}</Route>
       {/* Product and event detail routes must come before dynamic router */}
       <Route path="/shop/:slug" component={ProductDetail} />
       <Route path="/checkout" component={Checkout} />

@@ -34,7 +34,7 @@ export default function Footer() {
   ) || [];
   
   const connectLinks = footerNav?.filter((item: NavItem) => 
-    ['/contact', '/walk-with-us', '/events', '/shop', '/community'].some(path => item.url.includes(path))
+    ['/contact', '/emerge-with-us', '/events', '/shop', '/community'].some(path => item.url.includes(path))
   ) || [];
   
   const legalLinks = footerNav?.filter((item: NavItem) => 
