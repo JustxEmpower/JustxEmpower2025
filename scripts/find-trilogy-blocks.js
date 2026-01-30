@@ -1,7 +1,18 @@
 import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: join(__dirname, '..', '.env') });
 
 async function findBlocks() {
-  const pool = await mysql.createPool(process.env.DATABASE_URL);
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.error('DATABASE_URL not set');
+    process.exit(1);
+  }
+  const pool = await mysql.createPool(dbUrl);
   try {
     const [pages] = await pool.query('SELECT id, slug, title FROM pages WHERE slug LIKE ?', ['%trilogy%']);
     if (pages.length === 0) {
