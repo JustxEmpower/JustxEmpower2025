@@ -18,6 +18,23 @@ import { motion } from "framer-motion";
 import { Images, Plus, Edit, Trash2, Search, RefreshCw, Settings, Layers, LayoutGrid, GripVertical, Eye, EyeOff, Home, ChevronRight, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { getMediaUrl } from "@/lib/media";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 function AnimatedCounter({ value }: { value: number }) {
   const [displayValue, setDisplayValue] = useState(0);
@@ -42,6 +59,71 @@ interface CarouselSlide {
   linkUrl?: string;
   isActive: boolean;
   order: number;
+}
+
+// Sortable slide item component for drag-and-drop
+function SortableSlideItem({ 
+  slide, 
+  onEdit, 
+  onDelete 
+}: { 
+  slide: CarouselSlide; 
+  onEdit: (slide: CarouselSlide) => void; 
+  onDelete: (id: number) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: slide.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <Card ref={setNodeRef} style={style} className="hover:shadow-md transition-shadow">
+      <CardContent className="flex items-center gap-4 p-4">
+        <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 hover:bg-stone-100 rounded">
+          <GripVertical className="w-5 h-5 text-stone-400" />
+        </div>
+        <div className="w-24 h-16 bg-stone-100 rounded-lg overflow-hidden flex-shrink-0">
+          {slide.imageUrl ? (
+            <img src={getMediaUrl(slide.imageUrl)} alt={slide.title} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Images className="w-6 h-6 text-stone-300" />
+            </div>
+          )}
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2">
+            <h4 className="font-semibold truncate">{slide.title || "Untitled"}</h4>
+            <Badge className={slide.isActive ? "bg-emerald-100 text-emerald-700" : "bg-stone-100 text-stone-700"}>
+              {slide.isActive ? "Active" : "Inactive"}
+            </Badge>
+          </div>
+          {slide.subtitle && <p className="text-sm text-stone-500 truncate">{slide.subtitle}</p>}
+          {slide.linkUrl && (
+            <p className="text-xs text-amber-600 truncate flex items-center gap-1">
+              <ExternalLink className="w-3 h-3" />{slide.linkUrl}
+            </p>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={() => onEdit(slide)}>
+            <Edit className="w-4 h-4" />
+          </Button>
+          <Button variant="ghost" size="icon" onClick={() => onDelete(slide.id)}>
+            <Trash2 className="w-4 h-4 text-red-500" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function AdminCarouselManagerEnhanced() {
@@ -105,6 +187,43 @@ export default function AdminCarouselManagerEnhanced() {
     },
     onError: (error) => toast.error(`Failed to delete slide: ${error.message}`),
   });
+
+  const reorderMutation = trpc.carousel.reorderOfferings.useMutation({
+    onSuccess: () => {
+      toast.success("Order updated");
+      homepageCarouselQuery.refetch();
+    },
+    onError: (error) => toast.error(`Failed to reorder: ${error.message}`),
+  });
+
+  // Drag-and-drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id) {
+      return;
+    }
+
+    const oldIndex = homepageSlides.findIndex((item: any) => item.id === active.id);
+    const newIndex = homepageSlides.findIndex((item: any) => item.id === over.id);
+
+    const reorderedItems = arrayMove(homepageSlides, oldIndex, newIndex);
+    
+    // Update order values
+    const updates = reorderedItems.map((item: any, index: number) => ({
+      id: item.id,
+      order: index,
+    }));
+
+    reorderMutation.mutate(updates);
+  };
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) setLocation("/admin/login");
@@ -238,48 +357,27 @@ export default function AdminCarouselManagerEnhanced() {
                       <p>No slides yet. Add your first slide to get started.</p>
                     </div>
                   ) : (
-                    <div className="space-y-3">
-                      {homepageSlides.map((slide: any, i: number) => (
-                        <motion.div key={slide.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}>
-                          <Card className="hover:shadow-md transition-shadow">
-                            <CardContent className="flex items-center gap-4 p-4">
-                              <GripVertical className="w-5 h-5 text-stone-400 cursor-grab" />
-                              <div className="w-24 h-16 bg-stone-100 rounded-lg overflow-hidden flex-shrink-0">
-                                {slide.imageUrl ? (
-                                  <img src={getMediaUrl(slide.imageUrl)} alt={slide.title} className="w-full h-full object-cover" />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center">
-                                    <Images className="w-6 h-6 text-stone-300" />
-                                  </div>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                  <h4 className="font-semibold truncate">{slide.title || "Untitled"}</h4>
-                                  <Badge className={slide.isActive ? "bg-emerald-100 text-emerald-700" : "bg-stone-100 text-stone-700"}>
-                                    {slide.isActive ? "Active" : "Inactive"}
-                                  </Badge>
-                                </div>
-                                {slide.subtitle && <p className="text-sm text-stone-500 truncate">{slide.subtitle}</p>}
-                                {slide.linkUrl && (
-                                  <p className="text-xs text-amber-600 truncate flex items-center gap-1">
-                                    <ExternalLink className="w-3 h-3" />{slide.linkUrl}
-                                  </p>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Button variant="ghost" size="icon" onClick={() => handleEditSlide(slide)}>
-                                  <Edit className="w-4 h-4" />
-                                </Button>
-                                <Button variant="ghost" size="icon" onClick={() => handleDeleteSlide(slide.id)}>
-                                  <Trash2 className="w-4 h-4 text-red-500" />
-                                </Button>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      ))}
-                    </div>
+                    <DndContext
+                      sensors={sensors}
+                      collisionDetection={closestCenter}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <SortableContext
+                        items={homepageSlides.map((s: any) => s.id)}
+                        strategy={verticalListSortingStrategy}
+                      >
+                        <div className="space-y-3">
+                          {homepageSlides.map((slide: any) => (
+                            <SortableSlideItem
+                              key={slide.id}
+                              slide={slide}
+                              onEdit={handleEditSlide}
+                              onDelete={handleDeleteSlide}
+                            />
+                          ))}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
                   )}
                 </div>
               </AccordionContent>
