@@ -76,4 +76,36 @@ async function findBlocks() {
   }
 }
 
-findBlocks();
+// Delete orphaned siteContent entries for mom-vix-journal-trilogy page
+async function deleteOrphanedContent() {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.error('DATABASE_URL not set');
+    process.exit(1);
+  }
+  const pool = await mysql.createPool(dbUrl);
+  try {
+    // Delete the offerings_grid_5 and heading_4 entries that are causing the phantom section
+    const idsToDelete = [1158, 1159, 1160, 1161, 1141, 1162, 1163, 1164];
+    
+    console.log('Deleting orphaned siteContent entries:', idsToDelete);
+    
+    const [result] = await pool.query(
+      'DELETE FROM siteContent WHERE id IN (?) AND page = ?',
+      [idsToDelete, 'mom-vix-journal-trilogy']
+    );
+    
+    console.log('Deleted', result.affectedRows, 'rows');
+  } catch (e) {
+    console.error(e);
+  } finally {
+    await pool.end();
+  }
+}
+
+// Run with --delete flag to delete orphaned content
+if (process.argv.includes('--delete')) {
+  deleteOrphanedContent();
+} else {
+  findBlocks();
+}
