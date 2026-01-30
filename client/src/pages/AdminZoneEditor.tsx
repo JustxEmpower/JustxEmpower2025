@@ -923,18 +923,29 @@ export default function AdminZoneEditor() {
                           );
                         }
 
-                        if (key === 'fontSize') {
+                        if (key === 'fontSize' || key === 'titleFontSize' || key === 'subtitleFontSize' || key === 'descriptionFontSize' || key === 'labelFontSize') {
                           return (
                             <div key={key} className="space-y-2">
-                              <Label className="text-sm font-medium">Font Size</Label>
+                              <Label className="text-sm font-medium">Text Size</Label>
                               <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                  <SelectItem value="14px">14px (Small)</SelectItem>
-                                  <SelectItem value="16px">16px (Normal)</SelectItem>
-                                  <SelectItem value="18px">18px (Medium)</SelectItem>
-                                  <SelectItem value="20px">20px (Large)</SelectItem>
-                                  <SelectItem value="24px">24px (X-Large)</SelectItem>
+                                  <SelectItem value="8px">8</SelectItem>
+                                  <SelectItem value="10px">10</SelectItem>
+                                  <SelectItem value="12px">12</SelectItem>
+                                  <SelectItem value="14px">14</SelectItem>
+                                  <SelectItem value="16px">16</SelectItem>
+                                  <SelectItem value="18px">18</SelectItem>
+                                  <SelectItem value="20px">20</SelectItem>
+                                  <SelectItem value="24px">24</SelectItem>
+                                  <SelectItem value="28px">28</SelectItem>
+                                  <SelectItem value="32px">32</SelectItem>
+                                  <SelectItem value="36px">36</SelectItem>
+                                  <SelectItem value="40px">40</SelectItem>
+                                  <SelectItem value="48px">48</SelectItem>
+                                  <SelectItem value="56px">56</SelectItem>
+                                  <SelectItem value="64px">64</SelectItem>
+                                  <SelectItem value="72px">72</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
