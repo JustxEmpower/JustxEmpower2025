@@ -3489,20 +3489,29 @@ export default function BlockSettings() {
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Text Size</Label>
                       <Select
-                        value={selectedBlock.content.titleFontSize as string || '3rem'}
+                        value={selectedBlock.content.titleFontSize as string || '48px'}
                         onValueChange={(v) => handleContentChange('titleFontSize', v)}
                       >
                         <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="1.5rem">Small</SelectItem>
-                          <SelectItem value="2rem">Medium</SelectItem>
-                          <SelectItem value="2.5rem">Large</SelectItem>
-                          <SelectItem value="3rem">X-Large</SelectItem>
-                          <SelectItem value="3.5rem">2X-Large</SelectItem>
-                          <SelectItem value="4rem">3X-Large</SelectItem>
-                          <SelectItem value="5rem">Huge</SelectItem>
+                          <SelectItem value="8px">8</SelectItem>
+                          <SelectItem value="10px">10</SelectItem>
+                          <SelectItem value="12px">12</SelectItem>
+                          <SelectItem value="14px">14</SelectItem>
+                          <SelectItem value="16px">16</SelectItem>
+                          <SelectItem value="18px">18</SelectItem>
+                          <SelectItem value="20px">20</SelectItem>
+                          <SelectItem value="24px">24</SelectItem>
+                          <SelectItem value="28px">28</SelectItem>
+                          <SelectItem value="32px">32</SelectItem>
+                          <SelectItem value="36px">36</SelectItem>
+                          <SelectItem value="40px">40</SelectItem>
+                          <SelectItem value="48px">48</SelectItem>
+                          <SelectItem value="56px">56</SelectItem>
+                          <SelectItem value="64px">64</SelectItem>
+                          <SelectItem value="72px">72</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -3590,7 +3599,7 @@ export default function BlockSettings() {
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Text Size</Label>
                       <Select
-                        value={selectedBlock.content.subtitleFontSize as string || selectedBlock.content.labelFontSize as string || '0.75rem'}
+                        value={selectedBlock.content.subtitleFontSize as string || selectedBlock.content.labelFontSize as string || '12px'}
                         onValueChange={(v) => {
                           handleContentChange('subtitleFontSize', v);
                           handleContentChange('labelFontSize', v);
@@ -3600,10 +3609,14 @@ export default function BlockSettings() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="0.625rem">Tiny</SelectItem>
-                          <SelectItem value="0.75rem">Small</SelectItem>
-                          <SelectItem value="0.875rem">Medium</SelectItem>
-                          <SelectItem value="1rem">Large</SelectItem>
+                          <SelectItem value="8px">8</SelectItem>
+                          <SelectItem value="10px">10</SelectItem>
+                          <SelectItem value="12px">12</SelectItem>
+                          <SelectItem value="14px">14</SelectItem>
+                          <SelectItem value="16px">16</SelectItem>
+                          <SelectItem value="18px">18</SelectItem>
+                          <SelectItem value="20px">20</SelectItem>
+                          <SelectItem value="24px">24</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -3659,17 +3672,23 @@ export default function BlockSettings() {
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Text Size</Label>
                       <Select
-                        value={selectedBlock.content.descriptionFontSize as string || '1.125rem'}
+                        value={selectedBlock.content.descriptionFontSize as string || '18px'}
                         onValueChange={(v) => handleContentChange('descriptionFontSize', v)}
                       >
                         <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="0.875rem">Small</SelectItem>
-                          <SelectItem value="1rem">Medium</SelectItem>
-                          <SelectItem value="1.125rem">Large</SelectItem>
-                          <SelectItem value="1.25rem">X-Large</SelectItem>
+                          <SelectItem value="8px">8</SelectItem>
+                          <SelectItem value="10px">10</SelectItem>
+                          <SelectItem value="12px">12</SelectItem>
+                          <SelectItem value="14px">14</SelectItem>
+                          <SelectItem value="16px">16</SelectItem>
+                          <SelectItem value="18px">18</SelectItem>
+                          <SelectItem value="20px">20</SelectItem>
+                          <SelectItem value="24px">24</SelectItem>
+                          <SelectItem value="28px">28</SelectItem>
+                          <SelectItem value="32px">32</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
