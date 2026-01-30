@@ -1044,11 +1044,11 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
   );
 }
 
-// JE Carousel Block Renderer
+// JE Carousel Block Renderer - Image Slideshow Carousel
 export function JECarouselRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const trackRef = useRef<HTMLDivElement>(null);
-  const animationInitialized = useRef(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(true);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const content = block.content as {
     title?: string;
@@ -1065,139 +1065,165 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
       imageUrl?: string;
       link?: string;
     }>;
+    // Slideshow options
+    autoplay?: boolean;
+    interval?: number;
+    showDots?: boolean;
+    showArrows?: boolean;
+    transition?: 'fade' | 'slide' | 'zoom';
     // Customization options
     backgroundColor?: string;
     cardBorderRadius?: string;
-    cardHeight?: string;
-    showTitle?: boolean;
-    enableHorizontalScroll?: boolean;
+    minHeight?: string;
   };
 
   // Support both 'items' and 'slides' property names
-  const carouselItems = content.items || content.slides || [];
+  const slides = content.items || content.slides || [];
+  const autoplay = content.autoplay !== false;
+  const interval = content.interval || 5000;
+  const showDots = content.showDots !== false;
+  const showArrows = content.showArrows !== false;
+  const transition = content.transition || 'fade';
+  const bgColor = content.backgroundColor || '#1a1a1a';
+  const borderRadius = content.cardBorderRadius || '0';
+  const minHeight = content.minHeight || '70vh';
 
-  const bgColor = content.backgroundColor || '#f5f5f0';
-  const cardRadius = content.cardBorderRadius || '2rem';
-  const cardHeight = content.cardHeight || '60vh';
-  const showTitle = content.showTitle !== false;
-  const enableHorizontalScroll = content.enableHorizontalScroll !== false; // Default true
-
-  // GSAP horizontal scroll pinning (optimized for smooth performance)
+  // Autoplay functionality
   useEffect(() => {
-    if (!sectionRef.current || !trackRef.current || isEditing || animationInitialized.current) return;
-    if (!enableHorizontalScroll) return;
-    
-    animationInitialized.current = true;
-    
-    const ctx = gsap.context(() => {
-      const section = sectionRef.current;
-      const track = trackRef.current;
+    if (autoplay && isAutoPlaying && slides.length > 1 && !isEditing) {
+      intervalRef.current = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % slides.length);
+      }, interval);
+    }
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, [autoplay, isAutoPlaying, slides.length, interval, isEditing]);
 
-      if (!section || !track) return;
+  const goToSlide = (index: number) => {
+    setCurrentSlide(index);
+    setIsAutoPlaying(false);
+    // Resume autoplay after 10 seconds of inactivity
+    setTimeout(() => setIsAutoPlaying(true), 10000);
+  };
 
-      // Cache scroll amount calculation
-      let cachedScrollAmount: number | null = null;
-      const getScrollAmount = () => {
-        if (cachedScrollAmount === null) {
-          const trackWidth = track.scrollWidth;
-          const viewportWidth = window.innerWidth;
-          cachedScrollAmount = -(trackWidth - viewportWidth + 100);
-        }
-        return cachedScrollAmount;
-      };
+  const nextSlide = () => goToSlide((currentSlide + 1) % slides.length);
+  const prevSlide = () => goToSlide((currentSlide - 1 + slides.length) % slides.length);
 
-      // Set GPU acceleration
-      gsap.set(track, {
-        willChange: 'transform',
-        force3D: true,
-      });
-
-      // Create the scroll tween with GPU acceleration
-      const tween = gsap.to(track, {
-        x: getScrollAmount,
-        ease: 'none',
-        force3D: true,
-      });
-
-      // Create optimized ScrollTrigger
-      ScrollTrigger.create({
-        trigger: section,
-        start: 'top top',
-        end: () => `+=${track.scrollWidth - window.innerWidth}`,
-        pin: true,
-        animation: tween,
-        scrub: 0.5, // Reduced for snappier response
-        invalidateOnRefresh: true,
-        anticipatePin: 1,
-        fastScrollEnd: true,
-        onRefresh: () => {
-          cachedScrollAmount = null;
-        },
-      });
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, [isEditing, enableHorizontalScroll]);
-
-  // If items are provided in the block, render custom carousel with horizontal scroll pinning
-  if (carouselItems.length > 0) {
+  if (slides.length === 0) {
     return (
-      <section 
-        ref={sectionRef}
-        className="relative h-screen overflow-hidden flex flex-col justify-center"
-        style={{ backgroundColor: bgColor }}
-      >
-        {/* Title Section - Fixed Position */}
-        {showTitle && (
-          <div className="absolute top-12 left-6 md:left-12 z-10">
-            {content.subtitle && (
-              <p className="font-sans text-xs uppercase tracking-[0.3em] text-primary/80 mb-4">
-                {content.subtitle}
-              </p>
-            )}
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-foreground font-light italic tracking-tight">
-              {content.title || 'Our Offerings'}
-            </h2>
-          </div>
-        )}
-
-        {/* Carousel Track - Horizontal Scroll */}
-        <div 
-          ref={trackRef}
-          className="flex gap-8 md:gap-12 px-6 md:px-12 w-max items-center h-[60vh] md:h-[70vh] pl-[10vw] md:pl-[20vw] z-20"
-        >
-          {carouselItems.map((item, index) => (
-            <div key={index} className="h-full shrink-0">
-              {item.link ? (
-                <Link href={item.link} className="block h-full">
-                  <CarouselCard 
-                    item={item} 
-                    cardRadius={cardRadius} 
-                    cardHeight={cardHeight} 
-                  />
-                </Link>
-              ) : (
-                <CarouselCard 
-                  item={item} 
-                  cardRadius={cardRadius} 
-                  cardHeight={cardHeight} 
-                />
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Scroll Indicator - Fixed Position */}
-        <div className="absolute bottom-12 left-6 md:left-12 flex items-center gap-4 z-10">
-          <span className="font-sans text-xs uppercase tracking-[0.2em] text-muted-foreground animate-pulse">Scroll to Explore</span>
-          <div className="w-24 h-[1px] bg-muted-foreground/30" />
-        </div>
-      </section>
+      <div className="py-24 px-6 bg-neutral-100 text-center">
+        <p className="text-neutral-500">Add slides to this carousel in the block settings.</p>
+      </div>
     );
   }
 
-  // Default: use the actual Carousel component which fetches from database
-  return <Carousel />;
+  return (
+    <section 
+      className="relative overflow-hidden"
+      style={{ backgroundColor: bgColor, minHeight, borderRadius }}
+    >
+      {/* Slides Container */}
+      <div className="relative w-full h-full" style={{ minHeight }}>
+        {slides.map((slide, index) => {
+          const isActive = index === currentSlide;
+          const imageUrl = slide.imageUrl ? getMediaUrl(slide.imageUrl) : '';
+          
+          return (
+            <div
+              key={index}
+              className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                transition === 'fade' 
+                  ? isActive ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                  : transition === 'zoom'
+                  ? isActive ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-110 z-0'
+                  : isActive ? 'translate-x-0 z-10' : index < currentSlide ? '-translate-x-full z-0' : 'translate-x-full z-0'
+              }`}
+            >
+              {/* Background Image */}
+              {imageUrl && (
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${imageUrl})` }}
+                />
+              )}
+              
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+              
+              {/* Content Overlay */}
+              {(slide.title || slide.description) && (
+                <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 lg:p-16 z-20">
+                  <div className="max-w-4xl">
+                    {slide.title && (
+                      <h3 className="font-serif text-2xl md:text-3xl lg:text-4xl text-white font-light italic mb-3">
+                        {slide.title}
+                      </h3>
+                    )}
+                    {slide.description && (
+                      <p className="text-white/80 text-sm md:text-base max-w-xl">
+                        {slide.description}
+                      </p>
+                    )}
+                    {slide.link && (
+                      <Link 
+                        href={slide.link}
+                        className="inline-block mt-4 px-6 py-2 border border-white/40 text-white text-sm uppercase tracking-wider hover:bg-white hover:text-black transition-all duration-300 rounded-full"
+                      >
+                        Learn More
+                      </Link>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Navigation Arrows */}
+      {showArrows && slides.length > 1 && (
+        <>
+          <button
+            onClick={prevSlide}
+            className="absolute left-4 md:left-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+            aria-label="Previous slide"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-30 w-12 h-12 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+            aria-label="Next slide"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+
+      {/* Dots Navigation */}
+      {showDots && slides.length > 1 && (
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+          {slides.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => goToSlide(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentSlide 
+                  ? 'bg-white w-8' 
+                  : 'bg-white/40 hover:bg-white/60'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      )}
+    </section>
+  );
 }
 
 // Carousel Card Component with GPU-accelerated animations
