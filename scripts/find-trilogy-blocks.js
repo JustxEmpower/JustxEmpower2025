@@ -1,23 +1,24 @@
-import pg from 'pg';
-const { Pool } = pg;
-
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+import { db } from '../server/db/index.js';
+import { pageBlocks, pages } from '../shared/schema.js';
+import { eq, like } from 'drizzle-orm';
 
 async function findBlocks() {
   try {
-    const result = await pool.query(`
-      SELECT pb.id, pb.type, pb.position, pb.content::text as content
-      FROM page_blocks pb
-      JOIN pages p ON pb.page_id = p.id
-      WHERE p.slug LIKE '%trilogy%'
-      ORDER BY pb.position
-    `);
-    console.log(JSON.stringify(result.rows, null, 2));
+    const result = await db.select({
+      id: pageBlocks.id,
+      type: pageBlocks.type,
+      position: pageBlocks.position,
+      content: pageBlocks.content
+    })
+    .from(pageBlocks)
+    .innerJoin(pages, eq(pageBlocks.pageId, pages.id))
+    .where(like(pages.slug, '%trilogy%'));
+    
+    console.log(JSON.stringify(result, null, 2));
   } catch (e) {
     console.error(e);
-  } finally {
-    await pool.end();
   }
+  process.exit(0);
 }
 
 findBlocks();
