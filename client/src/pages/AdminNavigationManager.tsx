@@ -111,6 +111,8 @@ interface SortableNavItemProps {
   onDelete: (page: Page) => void;
   isExpanded?: boolean;
   onToggleExpand?: () => void;
+  onReorderChildren?: (parentId: number, childIds: number[]) => void;
+  sensors?: ReturnType<typeof useSensors>;
 }
 
 function SortableNavItem({ 
@@ -123,6 +125,8 @@ function SortableNavItem({
   onDelete,
   isExpanded,
   onToggleExpand,
+  onReorderChildren,
+  sensors,
 }: SortableNavItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: page.id,
@@ -215,20 +219,43 @@ function SortableNavItem({
       </div>
 
       {/* Render children if expanded */}
-      {hasChildren && isExpanded && !isChild && (
-        <div className="mt-2 space-y-2">
-          {children.map(child => (
-            <SortableNavItem
-              key={child.id}
-              page={child}
-              isChild={true}
-              parentTitle={page.title}
-              onEdit={onEdit}
-              onToggleNav={onToggleNav}
-              onDelete={onDelete}
-            />
-          ))}
-        </div>
+      {hasChildren && isExpanded && !isChild && sensors && (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={(event) => {
+            const { active, over } = event;
+            if (!over || active.id === over.id) return;
+            
+            const oldIndex = children.findIndex(c => c.id === active.id);
+            const newIndex = children.findIndex(c => c.id === over.id);
+            if (oldIndex === -1 || newIndex === -1) return;
+            
+            const reordered = arrayMove(children, oldIndex, newIndex);
+            if (onReorderChildren) {
+              onReorderChildren(page.id, reordered.map(c => c.id));
+            }
+          }}
+        >
+          <SortableContext
+            items={children.map(c => c.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="mt-2 space-y-2">
+              {children.map(child => (
+                <SortableNavItem
+                  key={child.id}
+                  page={child}
+                  isChild={true}
+                  parentTitle={page.title}
+                  onEdit={onEdit}
+                  onToggleNav={onToggleNav}
+                  onDelete={onDelete}
+                />
+              ))}
+            </div>
+          </SortableContext>
+        </DndContext>
       )}
     </div>
   );
@@ -395,6 +422,20 @@ export default function AdminNavigationManager() {
     setExpandedItems(newExpanded);
   };
 
+  const handleReorderChildren = async (parentId: number, childIds: number[]) => {
+    const pageUpdates = childIds.map((id, index) => ({
+      id,
+      navOrder: index,
+      parentId,
+    }));
+
+    try {
+      await reorderMutation.mutateAsync({ pageOrders: pageUpdates });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // Get available parent pages (exclude current page when editing)
   const availableParentPages = topLevelPages.filter(p => 
     !editingPage || p.id !== editingPage.id
@@ -507,6 +548,8 @@ export default function AdminNavigationManager() {
                       onDelete={handleDeletePage}
                       isExpanded={expandedItems.has(page.id)}
                       onToggleExpand={() => toggleExpand(page.id)}
+                      onReorderChildren={handleReorderChildren}
+                      sensors={sensors}
                     />
                   </motion.div>
                 ))}

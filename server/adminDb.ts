@@ -836,17 +836,22 @@ export async function syncPageBlocksToSiteContent(
 
     // Process each block
     for (const block of blocks) {
+      // Get the content and extract original type if available
+      const content = block.content as Record<string, unknown> || {};
+      
+      // Use _originalType from content if available, otherwise use block.type
+      const actualBlockType = (content._originalType as string) || block.type;
+      
       // Create human-readable section name: "hero_video_1", "section_standard_2"
-      const blockTypeName = block.type
+      const blockTypeName = actualBlockType
         .replace('je-', '')
         .replace(/-/g, '_');
       const sectionName = `${blockTypeName}_${block.order + 1}`;
       
       updatedSections.add(sectionName);
 
-      // Get fields to sync - use defined list or all content keys
-      const content = block.content as Record<string, unknown> || {};
-      const fieldsToSync = syncableFields[block.type] || Object.keys(content);
+      // Get fields to sync - use defined list or all content keys (excluding _originalType)
+      const fieldsToSync = syncableFields[actualBlockType] || Object.keys(content).filter(k => k !== '_originalType');
       
       for (const field of fieldsToSync) {
         const value = content[field];
