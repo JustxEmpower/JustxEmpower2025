@@ -286,7 +286,7 @@ export default function Hero(props: HeroProps = {}) {
         {description && (
           <p 
             className={cn(
-              "hero-desc text-lg md:text-xl font-light tracking-wide max-w-2xl mb-12 leading-relaxed drop-shadow-lg",
+              "hero-desc text-lg md:text-xl font-light tracking-wide max-w-2xl mb-12 leading-relaxed drop-shadow-lg whitespace-pre-line",
               textStyles.description?.fontOverride ? '' : 'font-sans',
               textStyles.description?.fontColor ? '' : 'text-white/90',
               getStyleClasses(textStyles.description)

@@ -282,7 +282,7 @@ export default function Section({
             
             <p 
               className={cn(
-                "text-lg md:text-xl leading-relaxed mb-12 max-w-xl font-light",
+                "text-lg md:text-xl leading-relaxed mb-12 max-w-xl font-light whitespace-pre-line",
                 textStyles.description?.fontOverride ? '' : 'font-sans',
                 textStyles.description?.fontColor ? '' : 'text-muted-foreground',
                 getStyleClasses(textStyles.description)
