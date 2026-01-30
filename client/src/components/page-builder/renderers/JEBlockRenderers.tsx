@@ -1336,17 +1336,33 @@ export function JENewsletterRenderer({ block, isEditing = false, isBlockSelected
     buttonText?: string;
     variant?: 'inline' | 'stacked' | 'minimal';
     dark?: boolean;
+    backgroundColor?: string;
+    textColor?: string;
   };
 
-  const bgClass = content.dark !== false ? 'bg-[#1a1a1a] text-white' : 'bg-[#f5f5f0]';
+  // Support custom background color
+  const hasCustomBg = content.backgroundColor && content.backgroundColor !== '';
+  const bgClass = hasCustomBg ? '' : (content.dark !== false ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]');
+  const isDark = content.dark !== false && !hasCustomBg;
+  const textColor = content.textColor || (isDark ? '#ffffff' : '#1a1a1a');
+  const descColor = isDark ? 'rgba(255,255,255,0.7)' : (content.textColor || '#525252');
 
   return (
-    <div className={`py-24 px-6 ${bgClass} rounded-[2.5rem]`}>
+    <div 
+      className={`py-24 px-6 ${bgClass} rounded-[2.5rem]`}
+      style={{ backgroundColor: hasCustomBg ? content.backgroundColor : undefined }}
+    >
       <div className="max-w-2xl mx-auto text-center">
-        <h2 className="font-serif text-4xl italic mb-4">
+        <h2 
+          className="font-serif text-4xl italic mb-4"
+          style={{ color: textColor }}
+        >
           {content.title || 'Stay Connected'}
         </h2>
-        <p className={content.dark !== false ? 'text-white/70 mb-8' : 'text-neutral-600 mb-8'}>
+        <p 
+          className="mb-8"
+          style={{ color: descColor }}
+        >
           {content.description || 'Join our community for updates.'}
         </p>
         <NewsletterSignup variant="inline" />
@@ -2281,8 +2297,10 @@ export function JEContactFormRenderer({ block, isEditing = false, isBlockSelecte
   );
 }
 
-// JE Testimonial Renderer
+// JE Testimonial Renderer - Supports single testimonial or slider with multiple testimonials
 export function JETestimonialRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
   const content = block.content as {
     quote?: string;
     author?: string;
@@ -2296,7 +2314,38 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
     showRating?: boolean;
     backgroundColor?: string;
     textColor?: string;
+    // Multiple testimonials support
+    testimonials?: Array<{
+      quote: string;
+      author: string;
+      role?: string;
+      imageUrl?: string;
+      rating?: number;
+    }>;
+    autoplay?: boolean;
+    interval?: number;
   };
+
+  // Build testimonials array - support both single and multiple
+  const testimonials = content.testimonials && content.testimonials.length > 0 
+    ? content.testimonials 
+    : [{
+        quote: content.quote || 'A powerful testimonial from a satisfied client.',
+        author: content.author || 'Client Name',
+        role: content.role,
+        imageUrl: content.imageUrl || content.avatar,
+        rating: content.rating || 5,
+      }];
+
+  // Autoplay for slider
+  useEffect(() => {
+    if (content.autoplay && testimonials.length > 1) {
+      const timer = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+      }, (content.interval || 5) * 1000);
+      return () => clearInterval(timer);
+    }
+  }, [content.autoplay, content.interval, testimonials.length]);
 
   // Custom colors or dark mode defaults
   const hasCustomBg = content.backgroundColor && content.backgroundColor !== '';
@@ -2304,19 +2353,20 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
   const defaultTextColor = content.dark ? '#ffffff' : '#1a1a1a';
   const textColor = content.textColor || defaultTextColor;
   const roleClass = content.dark ? 'text-white/60' : 'text-neutral-500';
-  // Support both 'imageUrl' and 'avatar' property names
-  const imageUrl = (content.imageUrl || content.avatar) ? getMediaUrl(content.imageUrl || content.avatar || '') : undefined;
   const avatarSize = content.avatarSize || '4rem';
-  const rating = content.rating || 5;
-  const showRating = content.showRating !== false; // Default to true
+  const showRating = content.showRating !== false;
+
+  const currentTestimonial = testimonials[currentIndex];
+  const imageUrl = currentTestimonial.imageUrl ? getMediaUrl(currentTestimonial.imageUrl) : undefined;
+  const rating = currentTestimonial.rating || 5;
 
   // Star rating component
-  const StarRating = () => (
+  const StarRating = ({ stars }: { stars: number }) => (
     <div className="flex gap-1 mb-4">
       {[1, 2, 3, 4, 5].map((star) => (
         <svg
           key={star}
-          className={`w-5 h-5 ${star <= rating ? 'text-amber-400' : 'text-neutral-300'}`}
+          className={`w-5 h-5 ${star <= stars ? 'text-amber-400' : 'text-neutral-300'}`}
           fill="currentColor"
           viewBox="0 0 20 20"
         >
@@ -2333,14 +2383,14 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
     >
       <div className="max-w-3xl mx-auto">
         {/* Stars */}
-        {showRating && <StarRating />}
+        {showRating && <StarRating stars={rating} />}
         
-        {/* Quote */}
+        {/* Quote with fade transition */}
         <blockquote 
-          className="font-serif text-xl md:text-2xl italic leading-relaxed mb-6"
+          className="font-serif text-xl md:text-2xl italic leading-relaxed mb-6 transition-opacity duration-500"
           style={{ color: textColor }}
         >
-          {content.quote || 'A powerful testimonial from a satisfied client.'}
+          {currentTestimonial.quote}
         </blockquote>
         
         {/* Author */}
@@ -2352,20 +2402,38 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
             >
               <img 
                 src={imageUrl} 
-                alt={content.author} 
+                alt={currentTestimonial.author} 
                 className="w-full h-full object-cover" 
               />
             </div>
           )}
           <div className="text-left">
-            <p className="font-sans font-semibold" style={{ color: textColor }}>{content.author || 'Client Name'}</p>
-            {content.role && (
+            <p className="font-sans font-semibold" style={{ color: textColor }}>{currentTestimonial.author}</p>
+            {currentTestimonial.role && (
               <p className={`font-sans text-sm ${roleClass}`}>
-                {content.role}
+                {currentTestimonial.role}
               </p>
             )}
           </div>
         </div>
+
+        {/* Slider dots - glassmorphism style */}
+        {testimonials.length > 1 && (
+          <div className="flex justify-center gap-2 mt-8">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`transition-all duration-300 rounded-full ${
+                  index === currentIndex 
+                    ? 'w-8 h-2 bg-primary' 
+                    : 'w-2 h-2 bg-neutral-300 hover:bg-neutral-400'
+                }`}
+                aria-label={`Go to testimonial ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
