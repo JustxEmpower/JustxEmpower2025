@@ -889,7 +889,7 @@ export default function AdminZoneEditor() {
                           );
                         }
 
-                        if (key === 'itemGap') {
+                        if (key === 'itemGap' || key === 'gap') {
                           return (
                             <div key={key} className="space-y-2">
                               <Label className="text-sm font-medium">Item Spacing</Label>
@@ -917,6 +917,39 @@ export default function AdminZoneEditor() {
                                   <SelectItem value="medium">Medium (896px)</SelectItem>
                                   <SelectItem value="wide">Wide (1152px)</SelectItem>
                                   <SelectItem value="full">Full Width</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
+
+                        if (key === 'imageSize') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium">Image Size</Label>
+                              <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="small">Small</SelectItem>
+                                  <SelectItem value="medium">Medium</SelectItem>
+                                  <SelectItem value="large">Large</SelectItem>
+                                  <SelectItem value="full">Full</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
+
+                        if (key === 'buttonSize') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium">Button Size</Label>
+                              <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="sm">Small</SelectItem>
+                                  <SelectItem value="md">Medium</SelectItem>
+                                  <SelectItem value="lg">Large</SelectItem>
                                 </SelectContent>
                               </Select>
                             </div>
@@ -952,7 +985,7 @@ export default function AdminZoneEditor() {
                           );
                         }
 
-                        if (key === 'alignment') {
+                        if (key === 'alignment' || key === 'textAlignment') {
                           return (
                             <div key={key} className="space-y-2">
                               <Label className="text-sm font-medium">Alignment</Label>
@@ -967,7 +1000,55 @@ export default function AdminZoneEditor() {
                             </div>
                           );
                         }
+
+                        if (key === 'level') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium">Heading Level</Label>
+                              <Select value={value as string} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, v)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="h1">H1</SelectItem>
+                                  <SelectItem value="h2">H2</SelectItem>
+                                  <SelectItem value="h3">H3</SelectItem>
+                                  <SelectItem value="h4">H4</SelectItem>
+                                  <SelectItem value="h5">H5</SelectItem>
+                                  <SelectItem value="h6">H6</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
+
+                        if (key === 'columns' && typeof value === 'number') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium">Columns</Label>
+                              <Select value={String(value)} onValueChange={(v) => updateBlockContent(selectedBlock.id, key, Number(v))}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="2">2</SelectItem>
+                                  <SelectItem value="3">3</SelectItem>
+                                  <SelectItem value="4">4</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          );
+                        }
                         
+                        // Color picker fields
+                        if (key.endsWith('Color') && typeof value === 'string') {
+                          return (
+                            <div key={key} className="space-y-2">
+                              <Label className="text-sm font-medium capitalize">{key.replace(/([A-Z])/g, ' $1')}</Label>
+                              <div className="flex gap-2">
+                                <Input type="color" className="w-12 h-10 p-1 cursor-pointer rounded" value={value || '#ffffff'} onChange={(e) => updateBlockContent(selectedBlock.id, key, e.target.value)} />
+                                <Input value={value} onChange={(e) => updateBlockContent(selectedBlock.id, key, e.target.value)} placeholder="#ffffff" className="flex-1" />
+                              </div>
+                            </div>
+                          );
+                        }
+
                         // Long text fields (description, content, etc.)
                         if (typeof value === 'string' && (key.includes('description') || key.includes('content') || key.includes('text') || key.includes('bio') || key.includes('quote') || (value as string).length > 100)) {
                           return (
