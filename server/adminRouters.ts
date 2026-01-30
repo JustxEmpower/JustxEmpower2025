@@ -1903,6 +1903,57 @@ export const adminRouter = router({
           return { success: true, totalBlocks: allBlocks.length, updated };
         }),
 
+      // Find blocks by page slug - useful for debugging orphaned blocks
+      findByPageSlug: adminProcedure
+        .input(z.object({ slug: z.string() }))
+        .query(async ({ input }) => {
+          const db = await getDb();
+          if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+          
+          // Find the page
+          const [page] = await db
+            .select()
+            .from(schema.pages)
+            .where(eq(schema.pages.slug, input.slug))
+            .limit(1);
+          
+          if (!page) {
+            return { page: null, blocks: [] };
+          }
+          
+          // Get all blocks for this page
+          const blocks = await db
+            .select()
+            .from(schema.pageBlocks)
+            .where(eq(schema.pageBlocks.pageId, page.id))
+            .orderBy(schema.pageBlocks.order);
+          
+          return { 
+            page: { id: page.id, slug: page.slug, title: page.title },
+            blocks: blocks.map(b => ({
+              id: b.id,
+              type: b.type,
+              order: b.order,
+              content: b.content ? (typeof b.content === 'string' ? JSON.parse(b.content) : b.content) : {}
+            }))
+          };
+        }),
+
+      // Delete block by ID - admin tool for removing orphaned blocks
+      forceDelete: adminProcedure
+        .input(z.object({ blockId: z.number() }))
+        .mutation(async ({ input }) => {
+          const db = await getDb();
+          if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+          
+          // Delete the block
+          await db
+            .delete(schema.pageBlocks)
+            .where(eq(schema.pageBlocks.id, input.blockId));
+          
+          return { success: true, deletedId: input.blockId };
+        }),
+
       // Block version history endpoints
       versions: router({
         list: adminProcedure
