@@ -1118,6 +1118,12 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
     );
   }
 
+  // Helper to check if title is a generic placeholder (Item X, Slide X, etc.)
+  const isGenericTitle = (title?: string) => {
+    if (!title) return true;
+    return /^(Item|Slide|Image)\s*\d*$/i.test(title.trim());
+  };
+
   return (
     <section 
       className="relative overflow-hidden"
@@ -1128,6 +1134,9 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
         {slides.map((slide, index) => {
           const isActive = index === currentSlide;
           const imageUrl = slide.imageUrl ? getMediaUrl(slide.imageUrl) : '';
+          const hasRealTitle = !isGenericTitle(slide.title);
+          const hasRealDescription = slide.description && slide.description.trim().length > 0;
+          const hasContent = hasRealTitle || hasRealDescription;
           
           return (
             <div
@@ -1140,27 +1149,32 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
                   : isActive ? 'translate-x-0 z-10' : index < currentSlide ? '-translate-x-full z-0' : 'translate-x-full z-0'
               }`}
             >
-              {/* Background Image */}
+              {/* Image - using object-contain to preserve aspect ratio */}
               {imageUrl && (
-                <div 
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{ backgroundImage: `url(${imageUrl})` }}
-                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black">
+                  <img 
+                    src={imageUrl}
+                    alt={hasRealTitle ? slide.title : `Slide ${index + 1}`}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
               )}
               
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+              {/* Gradient Overlay - only show if there's content */}
+              {hasContent && (
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+              )}
               
-              {/* Content Overlay */}
-              {(slide.title || slide.description) && (
+              {/* Content Overlay - only show if there's real content */}
+              {hasContent && (
                 <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 lg:p-16 z-20">
                   <div className="max-w-4xl">
-                    {slide.title && (
+                    {hasRealTitle && (
                       <h3 className="font-serif text-2xl md:text-3xl lg:text-4xl text-white font-light italic mb-3">
                         {slide.title}
                       </h3>
                     )}
-                    {slide.description && (
+                    {hasRealDescription && (
                       <p className="text-white/80 text-sm md:text-base max-w-xl">
                         {slide.description}
                       </p>
