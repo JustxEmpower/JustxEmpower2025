@@ -262,6 +262,7 @@ export default function PageBuilderPage() {
           title,
           slug,
           showInNav: showInNav ? 1 : 0,
+          published: published ? 1 : 0,
         });
       }
 
