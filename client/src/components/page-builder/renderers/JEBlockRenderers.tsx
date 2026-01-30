@@ -590,44 +590,37 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
       className="relative w-full overflow-hidden bg-black"
       style={sectionStyle}
     >
-      {/* Video Background - uses object-contain to preserve aspect ratio */}
+      {/* Video Background */}
       {videoUrl && !videoError && (
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ zIndex: 1 }}>
-          <video
-            ref={videoRef}
-            src={videoUrl}
-            autoPlay
-            muted
-            loop
-            playsInline
-            crossOrigin="anonymous"
-            poster={posterImageUrl}
-            preload="auto"
-            className={`w-full h-full object-contain transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
-          />
-        </div>
+        <video
+          ref={videoRef}
+          src={videoUrl}
+          autoPlay
+          muted
+          loop
+          playsInline
+          crossOrigin="anonymous"
+          poster={posterImageUrl}
+          preload="auto"
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+          style={{ zIndex: 1 }}
+        />
       )}
       
-      {/* Image Background (fallback or primary) - uses object-contain to preserve aspect ratio */}
+      {/* Image Background (fallback or primary) */}
       {((!videoUrl && imageUrl) || (videoUrl && !videoLoaded && imageUrl) || (videoError && imageUrl)) && (
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ zIndex: 1 }}>
-          <img 
-            src={imageUrl} 
-            alt="" 
-            className="w-full h-full object-contain"
-          />
-        </div>
+        <div 
+          className="absolute inset-0 w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: `url(${imageUrl})`, zIndex: 1 }}
+        />
       )}
 
       {/* Poster Image while video loads */}
       {videoUrl && !videoLoaded && posterImageUrl && !videoError && (
-        <div className="absolute inset-0 w-full h-full flex items-center justify-center" style={{ zIndex: 1 }}>
-          <img 
-            src={posterImageUrl} 
-            alt="" 
-            className="w-full h-full object-contain"
-          />
-        </div>
+        <div 
+          className="absolute inset-0 w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: `url(${posterImageUrl})`, zIndex: 1 }}
+        />
       )}
       
       {/* Placeholder when no media */}
