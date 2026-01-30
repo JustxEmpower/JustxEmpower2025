@@ -3487,31 +3487,60 @@ export default function BlockSettings() {
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Font Size</Label>
-                      <Input
+                      <Label className="text-xs text-muted-foreground">Text Size</Label>
+                      <Select
                         value={selectedBlock.content.titleFontSize as string || '3rem'}
-                        onChange={(e) => handleContentChange('titleFontSize', e.target.value)}
-                        placeholder="3rem"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                        onValueChange={(v) => handleContentChange('titleFontSize', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1.5rem">Small</SelectItem>
+                          <SelectItem value="2rem">Medium</SelectItem>
+                          <SelectItem value="2.5rem">Large</SelectItem>
+                          <SelectItem value="3rem">X-Large</SelectItem>
+                          <SelectItem value="3.5rem">2X-Large</SelectItem>
+                          <SelectItem value="4rem">3X-Large</SelectItem>
+                          <SelectItem value="5rem">Huge</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Line Height</Label>
-                      <Input
+                      <Label className="text-xs text-muted-foreground">Line Spacing</Label>
+                      <Select
                         value={selectedBlock.content.titleLineHeight as string || '1.2'}
-                        onChange={(e) => handleContentChange('titleLineHeight', e.target.value)}
-                        placeholder="1.2"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                        onValueChange={(v) => handleContentChange('titleLineHeight', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1">Tight</SelectItem>
+                          <SelectItem value="1.2">Normal</SelectItem>
+                          <SelectItem value="1.4">Relaxed</SelectItem>
+                          <SelectItem value="1.6">Loose</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Margin Bottom</Label>
-                      <Input
+                      <Label className="text-xs text-muted-foreground">Space Below</Label>
+                      <Select
                         value={selectedBlock.content.titleMarginBottom as string || '1.5rem'}
-                        onChange={(e) => handleContentChange('titleMarginBottom', e.target.value)}
-                        placeholder="1.5rem"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                        onValueChange={(v) => handleContentChange('titleMarginBottom', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">None</SelectItem>
+                          <SelectItem value="0.5rem">Tiny</SelectItem>
+                          <SelectItem value="1rem">Small</SelectItem>
+                          <SelectItem value="1.5rem">Medium</SelectItem>
+                          <SelectItem value="2rem">Large</SelectItem>
+                          <SelectItem value="3rem">X-Large</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Font Weight</Label>
@@ -3559,37 +3588,63 @@ export default function BlockSettings() {
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Font Size</Label>
-                      <Input
+                      <Label className="text-xs text-muted-foreground">Text Size</Label>
+                      <Select
                         value={selectedBlock.content.subtitleFontSize as string || selectedBlock.content.labelFontSize as string || '0.75rem'}
-                        onChange={(e) => {
-                          handleContentChange('subtitleFontSize', e.target.value);
-                          handleContentChange('labelFontSize', e.target.value);
+                        onValueChange={(v) => {
+                          handleContentChange('subtitleFontSize', v);
+                          handleContentChange('labelFontSize', v);
                         }}
-                        placeholder="0.75rem"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0.625rem">Tiny</SelectItem>
+                          <SelectItem value="0.75rem">Small</SelectItem>
+                          <SelectItem value="0.875rem">Medium</SelectItem>
+                          <SelectItem value="1rem">Large</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Letter Spacing</Label>
-                      <Input
+                      <Select
                         value={selectedBlock.content.subtitleLetterSpacing as string || '0.3em'}
-                        onChange={(e) => handleContentChange('subtitleLetterSpacing', e.target.value)}
-                        placeholder="0.3em"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                        onValueChange={(v) => handleContentChange('subtitleLetterSpacing', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">None</SelectItem>
+                          <SelectItem value="0.1em">Slight</SelectItem>
+                          <SelectItem value="0.2em">Normal</SelectItem>
+                          <SelectItem value="0.3em">Wide</SelectItem>
+                          <SelectItem value="0.4em">Extra Wide</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2 col-span-2">
-                      <Label className="text-xs text-muted-foreground">Margin Bottom</Label>
-                      <Input
+                      <Label className="text-xs text-muted-foreground">Space Below</Label>
+                      <Select
                         value={selectedBlock.content.subtitleMarginBottom as string || selectedBlock.content.labelMarginBottom as string || '1rem'}
-                        onChange={(e) => {
-                          handleContentChange('subtitleMarginBottom', e.target.value);
-                          handleContentChange('labelMarginBottom', e.target.value);
+                        onValueChange={(v) => {
+                          handleContentChange('subtitleMarginBottom', v);
+                          handleContentChange('labelMarginBottom', v);
                         }}
-                        placeholder="1rem"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">None</SelectItem>
+                          <SelectItem value="0.5rem">Tiny</SelectItem>
+                          <SelectItem value="1rem">Small</SelectItem>
+                          <SelectItem value="1.5rem">Medium</SelectItem>
+                          <SelectItem value="2rem">Large</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
@@ -3602,31 +3657,55 @@ export default function BlockSettings() {
                   
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Font Size</Label>
-                      <Input
+                      <Label className="text-xs text-muted-foreground">Text Size</Label>
+                      <Select
                         value={selectedBlock.content.descriptionFontSize as string || '1.125rem'}
-                        onChange={(e) => handleContentChange('descriptionFontSize', e.target.value)}
-                        placeholder="1.125rem"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                        onValueChange={(v) => handleContentChange('descriptionFontSize', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0.875rem">Small</SelectItem>
+                          <SelectItem value="1rem">Medium</SelectItem>
+                          <SelectItem value="1.125rem">Large</SelectItem>
+                          <SelectItem value="1.25rem">X-Large</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Line Height</Label>
-                      <Input
+                      <Label className="text-xs text-muted-foreground">Line Spacing</Label>
+                      <Select
                         value={selectedBlock.content.descriptionLineHeight as string || '1.75'}
-                        onChange={(e) => handleContentChange('descriptionLineHeight', e.target.value)}
-                        placeholder="1.75"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                        onValueChange={(v) => handleContentChange('descriptionLineHeight', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="1.4">Tight</SelectItem>
+                          <SelectItem value="1.6">Normal</SelectItem>
+                          <SelectItem value="1.75">Relaxed</SelectItem>
+                          <SelectItem value="2">Loose</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs text-muted-foreground">Margin Bottom</Label>
-                      <Input
+                      <Label className="text-xs text-muted-foreground">Space Below</Label>
+                      <Select
                         value={selectedBlock.content.descriptionMarginBottom as string || '2rem'}
-                        onChange={(e) => handleContentChange('descriptionMarginBottom', e.target.value)}
-                        placeholder="2rem"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                        onValueChange={(v) => handleContentChange('descriptionMarginBottom', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">None</SelectItem>
+                          <SelectItem value="1rem">Small</SelectItem>
+                          <SelectItem value="2rem">Medium</SelectItem>
+                          <SelectItem value="3rem">Large</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Max Width</Label>
