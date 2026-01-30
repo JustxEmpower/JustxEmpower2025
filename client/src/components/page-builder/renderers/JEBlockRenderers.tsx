@@ -2292,22 +2292,59 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
     dark?: boolean;
     avatarSize?: string;
     style?: string;
+    rating?: number;
+    showRating?: boolean;
+    backgroundColor?: string;
+    textColor?: string;
   };
 
-  const bgClass = content.dark ? 'bg-[#1a1a1a] text-white' : 'bg-[#f5f5f0]';
-  const textClass = content.dark ? 'text-white' : 'text-foreground';
+  // Custom colors or dark mode defaults
+  const hasCustomBg = content.backgroundColor && content.backgroundColor !== '';
+  const bgClass = hasCustomBg ? '' : (content.dark ? 'bg-[#1a1a1a]' : 'bg-white');
+  const defaultTextColor = content.dark ? '#ffffff' : '#1a1a1a';
+  const textColor = content.textColor || defaultTextColor;
   const roleClass = content.dark ? 'text-white/60' : 'text-neutral-500';
   // Support both 'imageUrl' and 'avatar' property names
   const imageUrl = (content.imageUrl || content.avatar) ? getMediaUrl(content.imageUrl || content.avatar || '') : undefined;
-  const avatarSize = content.avatarSize || '4rem'; // 64px default
+  const avatarSize = content.avatarSize || '4rem';
+  const rating = content.rating || 5;
+  const showRating = content.showRating !== false; // Default to true
+
+  // Star rating component
+  const StarRating = () => (
+    <div className="flex gap-1 mb-4">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <svg
+          key={star}
+          className={`w-5 h-5 ${star <= rating ? 'text-amber-400' : 'text-neutral-300'}`}
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+    </div>
+  );
 
   return (
-    <section className={`py-24 px-6 ${bgClass}`}>
-      <div className="max-w-4xl mx-auto text-center">
-        <blockquote className={`font-serif text-3xl md:text-4xl italic leading-relaxed mb-8 ${textClass}`}>
-          "{content.quote || 'A powerful testimonial from a satisfied client.'}"
+    <section 
+      className={`py-12 px-6 ${bgClass}`}
+      style={{ backgroundColor: hasCustomBg ? content.backgroundColor : undefined }}
+    >
+      <div className="max-w-3xl mx-auto">
+        {/* Stars */}
+        {showRating && <StarRating />}
+        
+        {/* Quote */}
+        <blockquote 
+          className="font-serif text-xl md:text-2xl italic leading-relaxed mb-6"
+          style={{ color: textColor }}
+        >
+          {content.quote || 'A powerful testimonial from a satisfied client.'}
         </blockquote>
-        <div className="flex items-center justify-center gap-4">
+        
+        {/* Author */}
+        <div className="flex items-center gap-4">
           {imageUrl && (
             <div 
               className="relative overflow-hidden rounded-full shadow-lg shadow-black/10 flex-shrink-0"
@@ -2321,7 +2358,7 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
             </div>
           )}
           <div className="text-left">
-            <p className={`font-sans font-medium ${textClass}`}>{content.author || 'Client Name'}</p>
+            <p className="font-sans font-semibold" style={{ color: textColor }}>{content.author || 'Client Name'}</p>
             {content.role && (
               <p className={`font-sans text-sm ${roleClass}`}>
                 {content.role}
