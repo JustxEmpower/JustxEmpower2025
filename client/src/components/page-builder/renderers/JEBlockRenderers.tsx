@@ -1059,6 +1059,12 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
       imageUrl?: string;
       link?: string;
     }>;
+    slides?: Array<{
+      title: string;
+      description?: string;
+      imageUrl?: string;
+      link?: string;
+    }>;
     // Customization options
     backgroundColor?: string;
     cardBorderRadius?: string;
@@ -1066,6 +1072,9 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
     showTitle?: boolean;
     enableHorizontalScroll?: boolean;
   };
+
+  // Support both 'items' and 'slides' property names
+  const carouselItems = content.items || content.slides || [];
 
   const bgColor = content.backgroundColor || '#f5f5f0';
   const cardRadius = content.cardBorderRadius || '2rem';
@@ -1131,7 +1140,7 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
   }, [isEditing, enableHorizontalScroll]);
 
   // If items are provided in the block, render custom carousel with horizontal scroll pinning
-  if (content.items && content.items.length > 0) {
+  if (carouselItems.length > 0) {
     return (
       <section 
         ref={sectionRef}
@@ -1157,7 +1166,7 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
           ref={trackRef}
           className="flex gap-8 md:gap-12 px-6 md:px-12 w-max items-center h-[60vh] md:h-[70vh] pl-[10vw] md:pl-[20vw] z-20"
         >
-          {content.items.map((item, index) => (
+          {carouselItems.map((item, index) => (
             <div key={index} className="h-full shrink-0">
               {item.link ? (
                 <Link href={item.link} className="block h-full">
@@ -2239,14 +2248,17 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
     author?: string;
     role?: string;
     imageUrl?: string;
+    avatar?: string;
     dark?: boolean;
     avatarSize?: string;
+    style?: string;
   };
 
   const bgClass = content.dark ? 'bg-[#1a1a1a] text-white' : 'bg-[#f5f5f0]';
   const textClass = content.dark ? 'text-white' : 'text-foreground';
   const roleClass = content.dark ? 'text-white/60' : 'text-neutral-500';
-  const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
+  // Support both 'imageUrl' and 'avatar' property names
+  const imageUrl = (content.imageUrl || content.avatar) ? getMediaUrl(content.imageUrl || content.avatar || '') : undefined;
   const avatarSize = content.avatarSize || '4rem'; // 64px default
 
   return (
@@ -2292,11 +2304,20 @@ export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelec
       imageUrl?: string;
       link?: string;
     }>;
+    offerings?: Array<{
+      title: string;
+      description?: string;
+      imageUrl?: string;
+      link?: string;
+    }>;
+    columns?: number;
+    minHeight?: string;
     dark?: boolean;
     cardBorderRadius?: string;
   };
 
-  const items = content.items || [];
+  // Support both 'items' and 'offerings' property names
+  const items = content.items || content.offerings || [];
   const bgClass = content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]';
   const cardBgClass = content.dark ? 'bg-neutral-800' : 'bg-white';
   const textClass = content.dark ? 'text-white' : 'text-foreground';
