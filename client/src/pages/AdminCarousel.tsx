@@ -7,6 +7,23 @@ import { Textarea } from '@/components/ui/textarea';
 import { trpc } from '@/lib/trpc';
 import { toast } from 'sonner';
 import { Plus, Pencil, Trash2, GripVertical, Image, ExternalLink, Eye, EyeOff } from 'lucide-react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 import AdminSidebar from '@/components/AdminSidebar';
 import MediaPicker from '@/components/MediaPicker';
 import {
@@ -38,6 +55,106 @@ interface CarouselOffering {
   isActive: number;
   createdAt: Date;
   updatedAt: Date;
+}
+
+// Sortable offering item component for drag-and-drop
+function SortableOfferingItem({ 
+  offering, 
+  onEdit, 
+  onDelete, 
+  onToggleActive 
+}: { 
+  offering: CarouselOffering; 
+  onEdit: (offering: CarouselOffering) => void; 
+  onDelete: (id: number) => void;
+  onToggleActive: (offering: CarouselOffering) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: offering.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`bg-white rounded-lg shadow-sm border p-4 flex items-center gap-4 ${
+        offering.isActive === 0 ? 'opacity-60' : ''
+      }`}
+    >
+      <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing p-1 hover:bg-neutral-100 rounded">
+        <GripVertical className="h-5 w-5 text-neutral-400" />
+      </div>
+      
+      <div className="w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 relative">
+        {offering.imageUrl ? (
+          <img
+            src={offering.imageUrl}
+            alt={offering.title}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.nextElementSibling?.classList.remove('hidden');
+            }}
+          />
+        ) : null}
+        <div className={`absolute inset-0 bg-gradient-to-br from-amber-100 via-amber-50 to-orange-100 flex items-center justify-center ${offering.imageUrl ? 'hidden' : ''}`}>
+          <span className="text-2xl font-serif text-amber-600/60">{offering.title.charAt(0)}</span>
+        </div>
+      </div>
+      
+      <div className="flex-1 min-w-0">
+        <h3 className="font-medium truncate">{offering.title}</h3>
+        {offering.description && (
+          <p className="text-sm text-neutral-600 truncate">{offering.description}</p>
+        )}
+        {offering.link && (
+          <p className="text-xs text-orange-600 truncate flex items-center gap-1">
+            <ExternalLink className="h-3 w-3" />
+            {offering.link}
+          </p>
+        )}
+      </div>
+      
+      <div className="flex items-center gap-2">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onToggleActive(offering)}
+          title={offering.isActive === 1 ? 'Hide from carousel' : 'Show in carousel'}
+        >
+          {offering.isActive === 1 ? (
+            <Eye className="h-4 w-4 text-green-600" />
+          ) : (
+            <EyeOff className="h-4 w-4 text-neutral-400" />
+          )}
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onEdit(offering)}
+        >
+          <Pencil className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => onDelete(offering.id)}
+          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 export default function AdminCarousel() {
@@ -190,22 +307,33 @@ export default function AdminCarousel() {
     });
   };
 
-  const handleMoveUp = (index: number) => {
-    if (!offerings || index === 0) return;
-    const newOrder = offerings.map((o, i) => ({
-      id: o.id,
-      order: i === index ? index - 1 : i === index - 1 ? index : i,
-    }));
-    reorderMutation.mutate(newOrder);
-  };
+  // Drag-and-drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
-  const handleMoveDown = (index: number) => {
-    if (!offerings || index === offerings.length - 1) return;
-    const newOrder = offerings.map((o, i) => ({
-      id: o.id,
-      order: i === index ? index + 1 : i === index + 1 ? index : i,
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (!over || active.id === over.id || !offerings) {
+      return;
+    }
+
+    const oldIndex = offerings.findIndex((item) => item.id === active.id);
+    const newIndex = offerings.findIndex((item) => item.id === over.id);
+
+    const reorderedItems = arrayMove(offerings, oldIndex, newIndex);
+    
+    // Update order values
+    const updates = reorderedItems.map((item, index) => ({
+      id: item.id,
+      order: index,
     }));
-    reorderMutation.mutate(newOrder);
+
+    reorderMutation.mutate(updates);
   };
 
   const handleMediaSelect = (url: string) => {
@@ -247,93 +375,28 @@ export default function AdminCarousel() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
             </div>
           ) : offerings && offerings.length > 0 ? (
-            <div className="space-y-4">
-              {offerings.map((offering, index) => (
-                <div
-                  key={offering.id}
-                  className={`bg-white rounded-lg shadow-sm border p-4 flex items-center gap-4 ${
-                    offering.isActive === 0 ? 'opacity-60' : ''
-                  }`}
-                >
-                  <div className="flex flex-col gap-1">
-                    <button
-                      onClick={() => handleMoveUp(index)}
-                      disabled={index === 0}
-                      className="p-1 hover:bg-neutral-100 rounded disabled:opacity-30"
-                    >
-                      <GripVertical className="h-4 w-4 rotate-180" />
-                    </button>
-                    <button
-                      onClick={() => handleMoveDown(index)}
-                      disabled={index === offerings.length - 1}
-                      className="p-1 hover:bg-neutral-100 rounded disabled:opacity-30"
-                    >
-                      <GripVertical className="h-4 w-4" />
-                    </button>
-                  </div>
-                  
-                  <div className="w-24 h-16 rounded-lg overflow-hidden flex-shrink-0 relative">
-                    {offering.imageUrl ? (
-                      <img
-                        src={offering.imageUrl}
-                        alt={offering.title}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                        }}
-                      />
-                    ) : null}
-                    <div className={`absolute inset-0 bg-gradient-to-br from-amber-100 via-amber-50 to-orange-100 flex items-center justify-center ${offering.imageUrl ? 'hidden' : ''}`}>
-                      <span className="text-2xl font-serif text-amber-600/60">{offering.title.charAt(0)}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium truncate">{offering.title}</h3>
-                    {offering.description && (
-                      <p className="text-sm text-neutral-600 truncate">{offering.description}</p>
-                    )}
-                    {offering.link && (
-                      <p className="text-xs text-blue-600 truncate flex items-center gap-1">
-                        <ExternalLink className="h-3 w-3" />
-                        {offering.link}
-                      </p>
-                    )}
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleToggleActive(offering)}
-                      title={offering.isActive === 1 ? 'Hide from carousel' : 'Show in carousel'}
-                    >
-                      {offering.isActive === 1 ? (
-                        <Eye className="h-4 w-4 text-green-600" />
-                      ) : (
-                        <EyeOff className="h-4 w-4 text-neutral-400" />
-                      )}
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleOpenEdit(offering)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(offering.id)}
-                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={offerings.map(o => o.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div className="space-y-4">
+                  {offerings.map((offering) => (
+                    <SortableOfferingItem
+                      key={offering.id}
+                      offering={offering}
+                      onEdit={handleOpenEdit}
+                      onDelete={handleDelete}
+                      onToggleActive={handleToggleActive}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           ) : (
             <div className="bg-white rounded-lg shadow-sm border p-12 text-center">
               <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-amber-100 via-amber-50 to-orange-100 flex items-center justify-center">
