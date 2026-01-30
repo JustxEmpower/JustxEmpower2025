@@ -592,35 +592,40 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
     >
       {/* Video Background */}
       {videoUrl && !videoError && (
-        <video
-          ref={videoRef}
-          src={videoUrl}
-          autoPlay
-          muted
-          loop
-          playsInline
-          crossOrigin="anonymous"
-          poster={posterImageUrl}
-          preload="auto"
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
-          style={{ zIndex: 1 }}
-        />
+        <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/90" style={{ zIndex: 1 }}>
+          <video
+            ref={videoRef}
+            src={videoUrl}
+            autoPlay
+            muted
+            loop
+            playsInline
+            crossOrigin="anonymous"
+            poster={posterImageUrl}
+            preload="auto"
+            className={`max-w-full max-h-full object-contain transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+          />
+        </div>
       )}
       
       {/* Image Background (fallback or primary) */}
       {((!videoUrl && imageUrl) || (videoUrl && !videoLoaded && imageUrl) || (videoError && imageUrl)) && (
         <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${imageUrl})`, zIndex: 1 }}
-        />
+          className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/90"
+          style={{ zIndex: 1 }}
+        >
+          <img src={imageUrl} alt="" className="max-w-full max-h-full object-contain" />
+        </div>
       )}
 
       {/* Poster Image while video loads */}
       {videoUrl && !videoLoaded && posterImageUrl && !videoError && (
         <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${posterImageUrl})`, zIndex: 1 }}
-        />
+          className="absolute inset-0 w-full h-full flex items-center justify-center bg-black/90"
+          style={{ zIndex: 1 }}
+        >
+          <img src={posterImageUrl} alt="" className="max-w-full max-h-full object-contain" />
+        </div>
       )}
       
       {/* Placeholder when no media */}
@@ -1149,13 +1154,13 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
                   : isActive ? 'translate-x-0 z-10' : index < currentSlide ? '-translate-x-full z-0' : 'translate-x-full z-0'
               }`}
             >
-              {/* Image - using object-contain to preserve aspect ratio */}
+              {/* Image - using object-contain to preserve aspect ratio with glassmorphism background */}
               {imageUrl && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black">
+                <div className="absolute inset-0 flex items-center justify-center bg-white/10 backdrop-blur-xl">
                   <img 
                     src={imageUrl}
                     alt={hasRealTitle ? slide.title : `Slide ${index + 1}`}
-                    className="w-full h-full object-contain"
+                    className="max-w-full max-h-full object-contain"
                   />
                 </div>
               )}
@@ -2378,11 +2383,14 @@ export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelec
               style={{ borderRadius: cardRadius }}
             >
               {item.imageUrl && (
-                <div className="relative overflow-hidden" style={{ borderTopLeftRadius: cardRadius, borderTopRightRadius: cardRadius }}>
+                <div 
+                  className="relative overflow-hidden bg-neutral-100 flex items-center justify-center" 
+                  style={{ borderTopLeftRadius: cardRadius, borderTopRightRadius: cardRadius, aspectRatio: '4/3' }}
+                >
                   <img
                     src={getMediaUrl(item.imageUrl)}
                     alt={item.title}
-                    className="w-full h-48 object-cover transition-transform duration-500 hover:scale-105"
+                    className="w-full h-full object-contain transition-transform duration-500 hover:scale-105"
                   />
                 </div>
               )}
