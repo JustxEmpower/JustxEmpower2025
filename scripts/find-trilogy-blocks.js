@@ -29,28 +29,44 @@ async function findBlocks() {
     for (const page of pages) {
       console.log(`\n=== Page: ${page.title} (slug: ${page.slug}, id: ${page.id}) ===`);
       
-      // Try different possible table names
-      for (const tableName of ['pageBlocks', 'page_blocks', 'PageBlocks']) {
-        try {
-          const [blocks] = await pool.query(
-            `SELECT id, type, \`order\`, content FROM ${tableName} WHERE pageId = ? ORDER BY \`order\``,
-            [page.id]
-          );
-          
-          for (const block of blocks) {
-            let contentSummary = '';
-            try {
-              const content = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
-              if (content.title) contentSummary = `title: "${content.title}"`;
-              else if (content.sectionTitle) contentSummary = `sectionTitle: "${content.sectionTitle}"`;
-              else if (content.items) contentSummary = `items: ${content.items.length}`;
-            } catch (e) {}
-            console.log(`  [${block.order}] id=${block.id} type=${block.type} ${contentSummary}`);
-          }
-          break; // Found the right table
-        } catch (e) {
-          // Try next table name
+      // Check pageBlocks table
+      try {
+        const [blocks] = await pool.query(
+          `SELECT id, type, \`order\`, content FROM pageBlocks WHERE pageId = ? ORDER BY \`order\``,
+          [page.id]
+        );
+        
+        console.log('  Page Blocks:');
+        for (const block of blocks) {
+          let contentSummary = '';
+          try {
+            const content = typeof block.content === 'string' ? JSON.parse(block.content) : block.content;
+            if (content.title) contentSummary = `title: "${content.title}"`;
+            else if (content.sectionTitle) contentSummary = `sectionTitle: "${content.sectionTitle}"`;
+            else if (content.items) contentSummary = `items: ${content.items.length}`;
+          } catch (e) {}
+          console.log(`    [${block.order}] id=${block.id} type=${block.type} ${contentSummary}`);
         }
+      } catch (e) {
+        console.log('  Error querying pageBlocks:', e.message);
+      }
+      
+      // Check siteContent table for this page
+      try {
+        const [content] = await pool.query(
+          `SELECT id, section, contentKey, contentValue FROM siteContent WHERE page = ? ORDER BY section, contentKey`,
+          [page.slug]
+        );
+        
+        if (content.length > 0) {
+          console.log('\n  Site Content entries:');
+          for (const row of content) {
+            const preview = row.contentValue?.substring(0, 100) || '';
+            console.log(`    id=${row.id} section=${row.section} key=${row.contentKey} value="${preview}..."`);
+          }
+        }
+      } catch (e) {
+        console.log('  Error querying siteContent:', e.message);
       }
     }
   } catch (e) {
