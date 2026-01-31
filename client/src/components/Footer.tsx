@@ -22,6 +22,9 @@ export default function Footer() {
   // Fetch footer navigation from database
   const { data: footerNav } = trpc.navigation.getByLocation.useQuery({ location: 'footer' });
   
+  // Fetch published pages that should show in nav (includes page builder pages)
+  const { data: navPages } = trpc.pages.getNavPages.useQuery();
+  
   // Fetch global content (footer section)
   const { footer, isLoading: contentLoading } = useGlobalContent();
   
@@ -75,7 +78,23 @@ export default function Footer() {
     return item;
   });
 
-  const displayExploreLinks = transformLinks(exploreLinks.length > 0 ? exploreLinks : defaultExploreLinks);
+  // Convert published pages to link format and merge with explore links
+  const pageLinks = (navPages || []).map((page: any) => ({
+    label: page.title,
+    url: `/${page.slug}`,
+  }));
+  
+  // Merge footer nav links with published pages, avoiding duplicates
+  const mergedExploreLinks = [...(exploreLinks.length > 0 ? exploreLinks : defaultExploreLinks)];
+  pageLinks.forEach((pageLink: any) => {
+    // Only add if not already in the list (check by URL)
+    const exists = mergedExploreLinks.some((link: any) => link.url === pageLink.url);
+    if (!exists) {
+      mergedExploreLinks.push(pageLink);
+    }
+  });
+
+  const displayExploreLinks = transformLinks(mergedExploreLinks);
   const displayConnectLinks = transformLinks(connectLinks.length > 0 ? connectLinks : defaultConnectLinks);
   const displayLegalLinks = legalLinks.length > 0 ? legalLinks : defaultLegalLinks;
 
