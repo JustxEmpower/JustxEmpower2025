@@ -699,10 +699,9 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
           )}
           
           {content.ctaText && content.ctaLink && (
-            <Link 
-              href={content.ctaLink}
-              className="je-hero-cta inline-block border font-sans uppercase transition-all duration-500"
-              style={{ 
+            (() => {
+              const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
+              const linkStyle = { 
                 borderColor: ctaTextColor + '4D', 
                 color: ctaTextColor,
                 borderRadius: content.ctaBorderRadius || '9999px',
@@ -713,10 +712,29 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                 fontSize: content.ctaFontSize || '0.875rem',
                 letterSpacing: content.ctaLetterSpacing || '0.2em',
                 borderWidth: content.ctaBorderWidth || '1px',
-              }}
-            >
-              {content.ctaText}
-            </Link>
+              };
+              const linkClass = "je-hero-cta inline-block border font-sans uppercase transition-all duration-500";
+              
+              return isExternal ? (
+                <a 
+                  href={content.ctaLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClass}
+                  style={linkStyle}
+                >
+                  {content.ctaText}
+                </a>
+              ) : (
+                <Link 
+                  href={content.ctaLink}
+                  className={linkClass}
+                  style={linkStyle}
+                >
+                  {content.ctaText}
+                </Link>
+              );
+            })()
           )}
         </div>
       </div>
@@ -958,10 +976,9 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           )}
           
           {content.ctaText && content.ctaLink && (
-            <Link 
-              href={content.ctaLink}
-              className="je-section-cta inline-block border font-sans uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
-              style={{ 
+            (() => {
+              const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
+              const linkStyle = { 
                 color: ctaTextColor, 
                 borderColor: ctaTextColor,
                 borderRadius: content.ctaBorderRadius || '9999px',
@@ -972,10 +989,29 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                 fontSize: content.ctaFontSize || '0.875rem',
                 letterSpacing: content.ctaLetterSpacing || '0.15em',
                 borderWidth: content.ctaBorderWidth || '1px',
-              }}
-            >
-              {content.ctaText}
-            </Link>
+              };
+              const linkClass = "je-section-cta inline-block border font-sans uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300";
+              
+              return isExternal ? (
+                <a 
+                  href={content.ctaLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClass}
+                  style={linkStyle}
+                >
+                  {content.ctaText}
+                </a>
+              ) : (
+                <Link 
+                  href={content.ctaLink}
+                  className={linkClass}
+                  style={linkStyle}
+                >
+                  {content.ctaText}
+                </Link>
+              );
+            })()
           )}
         </div>
         
@@ -1910,8 +1946,8 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   const isRounded = content.rounded !== false;
   const borderRadius = content.borderRadius || '2rem';
   
-  // Support both maxWidth (new) and width (legacy) - map to Tailwind classes
-  const sizeValue = content.maxWidth || content.width || '100%';
+  // Support both maxWidth (new) and width (legacy) - default to 66% for better page aesthetics
+  const sizeValue = content.maxWidth || content.width || '66%';
   
   // Map size values to inline maxWidth styles for precise control
   const getWidthStyle = (size: string): React.CSSProperties => {
@@ -1978,16 +2014,38 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
   const content = block.content as {
     videoUrl?: string;
     posterImage?: string;
+    poster?: string;
     autoplay?: boolean;
     loop?: boolean;
     controls?: boolean;
+    width?: string;
+    alignment?: 'left' | 'center' | 'right';
+    rounded?: string | boolean;
+    aspectRatio?: string;
   };
 
   const videoUrl = content.videoUrl ? getMediaUrl(content.videoUrl) : undefined;
-  const posterUrl = content.posterImage ? getMediaUrl(content.posterImage) : undefined;
+  const posterUrl = (content.posterImage || content.poster) ? getMediaUrl(content.posterImage || content.poster || '') : undefined;
 
-  console.log('[JEVideoRenderer] Video URL input:', content.videoUrl);
-  console.log('[JEVideoRenderer] Video URL resolved:', videoUrl);
+  // Width/size controls - default to 66% for better page aesthetics
+  const sizeValue = content.width || '66%';
+  const getWidthStyle = (size: string): React.CSSProperties => {
+    switch(size) {
+      case '25%': return { maxWidth: '25%', width: '25%' };
+      case '33%': return { maxWidth: '33.333%', width: '33.333%' };
+      case '50%': return { maxWidth: '50%', width: '50%' };
+      case '66%': return { maxWidth: '66.666%', width: '66.666%' };
+      case '75%': return { maxWidth: '75%', width: '75%' };
+      case '100%':
+      default: return { maxWidth: '100%', width: '100%' };
+    }
+  };
+  const widthStyles = getWidthStyle(sizeValue);
+  const alignment = content.alignment || 'center';
+  const alignmentClass = alignment === 'left' ? 'mr-auto' : alignment === 'right' ? 'ml-auto' : 'mx-auto';
+  
+  // Border radius
+  const borderRadius = typeof content.rounded === 'string' ? content.rounded : (content.rounded !== false ? '2rem' : '0');
 
   const togglePlay = () => {
     if (videoRef.current) {
@@ -2010,7 +2068,10 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
   return (
     <div className="py-8">
       {videoUrl ? (
-        <div className="relative rounded-[2rem] overflow-hidden bg-black shadow-2xl shadow-black/20">
+        <div 
+          className={`relative overflow-hidden bg-black shadow-2xl shadow-black/20 ${alignmentClass}`}
+          style={{ borderRadius, ...widthStyles }}
+        >
           <video
             ref={videoRef}
             src={videoUrl}
