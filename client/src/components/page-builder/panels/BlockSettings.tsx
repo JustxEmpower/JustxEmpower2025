@@ -3039,104 +3039,112 @@ export default function BlockSettings() {
         </div>
       </div>
 
-      {/* Settings tabs */}
+      {/* Settings tabs - 4 tabs matching Zone Editor */}
       <Tabs defaultValue="content" className="flex-1 flex flex-col">
-        <TabsList className="mx-4 mt-4">
-          <TabsTrigger value="content" className="flex-1">
-            <Settings className="w-4 h-4 mr-1" />
+        <TabsList className="mx-4 mt-4 grid grid-cols-4">
+          <TabsTrigger value="content" className="text-xs">
             Content
           </TabsTrigger>
-          <TabsTrigger value="style" className="flex-1">
-            <Palette className="w-4 h-4 mr-1" />
+          <TabsTrigger value="style" className="text-xs">
             Style
           </TabsTrigger>
-          <TabsTrigger value="advanced" className="flex-1">
-            <Code className="w-4 h-4 mr-1" />
+          <TabsTrigger value="layout" className="text-xs">
+            Layout
+          </TabsTrigger>
+          <TabsTrigger value="advanced" className="text-xs">
             Advanced
           </TabsTrigger>
         </TabsList>
 
+          {/* Content Tab - includes content and media fields */}
           <TabsContent value="content" className="flex-1 overflow-hidden">
             <ScrollArea className="h-full">
               <div className="p-4 space-y-4">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={selectedBlockId}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-4"
-              >
-                {/* Custom inline settings for je-gallery - avoids Select component issues */}
-                {selectedBlock.type === 'je-gallery' ? (
-                  <JEGallerySettingsPanel content={selectedBlock.content} onChange={handleContentChange} />
-                ) : (
-                  <>
-                    {/* Use definition-based field rendering when available */}
-                    {(() => {
-                      const blockFields = getBlockFields(selectedBlock.type);
-                      if (blockFields.length > 0) {
-                        // Render fields from definitions, grouped by category
-                        return renderFieldsFromDefinitions(selectedBlock.type, selectedBlock.content, handleContentChange);
-                      }
-                      // Fallback to legacy rendering for blocks without definitions
-                      return Object.entries(selectedBlock.content).map(([key, value]) => {
-                        if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-                          return null;
-                        }
-                        return renderField(key, value, handleContentChange, selectedBlock.type);
-                      });
-                    })()}
-                  </>
-                )}
-              </motion.div>
-            </AnimatePresence>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={selectedBlockId}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-4"
+                  >
+                    {/* Custom inline settings for je-gallery */}
+                    {selectedBlock.type === 'je-gallery' ? (
+                      <JEGallerySettingsPanel content={selectedBlock.content} onChange={handleContentChange} />
+                    ) : (
+                      <>
+                        {/* Use definition-based field rendering - Content & Media groups */}
+                        {(() => {
+                          const groupedFields = getGroupedFields(selectedBlock.type);
+                          const contentFields = [...(groupedFields.content || []), ...(groupedFields.media || [])];
+                          
+                          if (contentFields.length > 0) {
+                            return (
+                              <div className="space-y-4">
+                                {contentFields.map((field) => {
+                                  if (field.type === 'array' || field.type === 'stringarray') {
+                                    return renderField(field.key, selectedBlock.content[field.key], handleContentChange, selectedBlock.type);
+                                  }
+                                  return renderDefinedField(field, selectedBlock.content[field.key], handleContentChange, selectedBlock.type);
+                                })}
+                              </div>
+                            );
+                          }
+                          // Fallback to legacy rendering
+                          return Object.entries(selectedBlock.content).map(([key, value]) => {
+                            if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                              return null;
+                            }
+                            return renderField(key, value, handleContentChange, selectedBlock.type);
+                          });
+                        })()}
+                      </>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
               </div>
             </ScrollArea>
           </TabsContent>
 
+          {/* Style Tab - uses field definitions for style group */}
           <TabsContent value="style" className="flex-1 overflow-hidden">
             <ScrollArea className="h-full">
               <div className="p-4 space-y-4">
-              {/* Colors Section */}
-              <div className="space-y-3">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Colors</h4>
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Background Color</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="color"
-                      className="w-12 h-10 p-1 cursor-pointer"
-                      value={selectedBlock.content.backgroundColor as string || '#ffffff'}
-                      onChange={(e) => handleContentChange('backgroundColor', e.target.value)}
-                    />
-                    <Input
-                      value={selectedBlock.content.backgroundColor as string || ''}
-                      onChange={(e) => handleContentChange('backgroundColor', e.target.value)}
-                      placeholder="#ffffff or transparent"
-                      className="flex-1 bg-neutral-50 dark:bg-neutral-800"
-                    />
+                {/* Render style fields from definitions */}
+                {(() => {
+                  const groupedFields = getGroupedFields(selectedBlock.type);
+                  const styleFields = groupedFields.style || [];
+                  
+                  if (styleFields.length > 0) {
+                    return (
+                      <div className="space-y-4">
+                        {styleFields.map((field) => renderDefinedField(field, selectedBlock.content[field.key], handleContentChange, selectedBlock.type))}
+                      </div>
+                    );
+                  }
+                  
+                  // Fallback: Show common style controls
+                  return null;
+                })()}
+                
+                {/* Common style controls always available */}
+                <div className="space-y-3">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Colors</h4>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Background Color</Label>
+                    <div className="flex gap-2">
+                      <Input type="color" className="w-12 h-10 p-1 cursor-pointer" value={selectedBlock.content.backgroundColor as string || '#ffffff'} onChange={(e) => handleContentChange('backgroundColor', e.target.value)} />
+                      <Input value={selectedBlock.content.backgroundColor as string || ''} onChange={(e) => handleContentChange('backgroundColor', e.target.value)} placeholder="#ffffff" className="flex-1 bg-neutral-50 dark:bg-neutral-800" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Text Color</Label>
+                    <div className="flex gap-2">
+                      <Input type="color" className="w-12 h-10 p-1 cursor-pointer" value={selectedBlock.content.textColor as string || '#000000'} onChange={(e) => handleContentChange('textColor', e.target.value)} />
+                      <Input value={selectedBlock.content.textColor as string || ''} onChange={(e) => handleContentChange('textColor', e.target.value)} placeholder="#000000" className="flex-1 bg-neutral-50 dark:bg-neutral-800" />
+                    </div>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-medium">Text Color</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      type="color"
-                      className="w-12 h-10 p-1 cursor-pointer"
-                      value={selectedBlock.content.textColor as string || '#000000'}
-                      onChange={(e) => handleContentChange('textColor', e.target.value)}
-                    />
-                    <Input
-                      value={selectedBlock.content.textColor as string || ''}
-                      onChange={(e) => handleContentChange('textColor', e.target.value)}
-                      placeholder="#000000"
-                      className="flex-1 bg-neutral-50 dark:bg-neutral-800"
-                    />
-                  </div>
-                </div>
-              </div>
 
               {/* Size & Shape Section */}
               <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
@@ -3931,9 +3939,48 @@ export default function BlockSettings() {
             </ScrollArea>
           </TabsContent>
 
+          {/* Layout Tab - uses field definitions for layout group */}
+          <TabsContent value="layout" className="flex-1 overflow-hidden">
+            <ScrollArea className="h-full">
+              <div className="p-4 space-y-4">
+                {/* Render layout fields from definitions */}
+                {(() => {
+                  const groupedFields = getGroupedFields(selectedBlock.type);
+                  const layoutFields = groupedFields.layout || [];
+                  
+                  if (layoutFields.length > 0) {
+                    return (
+                      <div className="space-y-4">
+                        {layoutFields.map((field) => renderDefinedField(field, selectedBlock.content[field.key], handleContentChange, selectedBlock.type))}
+                      </div>
+                    );
+                  }
+                  
+                  return <p className="text-sm text-muted-foreground">No layout settings available for this block type.</p>;
+                })()}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
+          {/* Advanced Tab - uses field definitions for advanced group */}
           <TabsContent value="advanced" className="flex-1 overflow-hidden">
             <ScrollArea className="h-full">
               <div className="p-4 space-y-4">
+                {/* Render advanced fields from definitions */}
+                {(() => {
+                  const groupedFields = getGroupedFields(selectedBlock.type);
+                  const advancedFields = groupedFields.advanced || [];
+                  
+                  if (advancedFields.length > 0) {
+                    return (
+                      <div className="space-y-4 pb-4 border-b">
+                        {advancedFields.map((field) => renderDefinedField(field, selectedBlock.content[field.key], handleContentChange, selectedBlock.type))}
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+                
               <div className="space-y-2">
                 <Label className="text-sm font-medium">CSS Class</Label>
                 <Input
