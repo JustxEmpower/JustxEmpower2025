@@ -78,24 +78,76 @@ export default function Footer() {
     return item;
   });
 
-  // Convert published pages to link format and merge with explore links
+  // URLs that belong in Connect column
+  const connectPatterns = [
+    '/community-events', '/community', '/events',
+    '/1-1', '/guidance', '/coaching',
+    '/resources', '/resource',
+    '/emerge', '/emerge-with-us',
+    '/shop', '/contact'
+  ];
+  
+  // URLs that belong in Explore column  
+  const explorePatterns = [
+    '/about', '/founder', '/philosophy', '/offerings',
+    '/blog', '/journal', '/she-writes',
+    '/rooted-unity', '/vision', '/ethos',
+    '/mom-vix', '/trilogy', '/overview'
+  ];
+  
+  // Convert published pages to link format
   const pageLinks = (navPages || []).map((page: any) => ({
     label: page.title,
     url: `/${page.slug}`,
   }));
   
-  // Merge footer nav links with published pages, avoiding duplicates
+  // Categorize pages into Explore vs Connect
+  const isConnectLink = (url: string) => connectPatterns.some(p => url.toLowerCase().includes(p));
+  const isExploreLink = (url: string) => explorePatterns.some(p => url.toLowerCase().includes(p));
+  
+  // Build Explore links - start with defaults, add matching pages
   const mergedExploreLinks = [...(exploreLinks.length > 0 ? exploreLinks : defaultExploreLinks)];
+  
+  // Build Connect links - start with defaults, add matching pages  
+  const mergedConnectLinks = [...(connectLinks.length > 0 ? connectLinks : defaultConnectLinks)];
+  
+  // Add page links to appropriate column
   pageLinks.forEach((pageLink: any) => {
-    // Only add if not already in the list (check by URL)
-    const exists = mergedExploreLinks.some((link: any) => link.url === pageLink.url);
-    if (!exists) {
+    const urlLower = pageLink.url.toLowerCase();
+    
+    // Skip if already exists in either column
+    const existsInExplore = mergedExploreLinks.some((link: any) => 
+      link.url.toLowerCase() === urlLower || link.label.toLowerCase() === pageLink.label.toLowerCase()
+    );
+    const existsInConnect = mergedConnectLinks.some((link: any) => 
+      link.url.toLowerCase() === urlLower || link.label.toLowerCase() === pageLink.label.toLowerCase()
+    );
+    
+    if (existsInExplore || existsInConnect) return;
+    
+    // Add to Connect if matches connect patterns
+    if (isConnectLink(urlLower)) {
+      mergedConnectLinks.push(pageLink);
+    } 
+    // Add to Explore if matches explore patterns or is unmatched
+    else {
       mergedExploreLinks.push(pageLink);
     }
   });
+  
+  // Remove duplicates by URL (case-insensitive)
+  const dedupeLinks = (links: any[]) => {
+    const seen = new Set<string>();
+    return links.filter((link: any) => {
+      const key = link.url.toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  };
 
-  const displayExploreLinks = transformLinks(mergedExploreLinks);
-  const displayConnectLinks = transformLinks(connectLinks.length > 0 ? connectLinks : defaultConnectLinks);
+  const displayExploreLinks = transformLinks(dedupeLinks(mergedExploreLinks));
+  const displayConnectLinks = transformLinks(dedupeLinks(mergedConnectLinks));
   const displayLegalLinks = legalLinks.length > 0 ? legalLinks : defaultLegalLinks;
 
   // Get content from database with fallbacks
