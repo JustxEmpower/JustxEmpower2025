@@ -374,6 +374,55 @@ export const GAP_PRESETS: Record<string, string> = {
 };
 
 // ============================================================================
+// TEXT STYLE BUILDER - Builds inline styles from content fontSize values
+// ============================================================================
+
+/**
+ * Builds a style object from fontSize and other text styling values.
+ * Used across all block renderers to ensure fontSize from BlockFieldDefinitions is applied.
+ */
+export function buildTextStyle(options: {
+  fontSize?: string;
+  lineHeight?: string;
+  letterSpacing?: string;
+  color?: string;
+  marginBottom?: string;
+  marginTop?: string;
+}): React.CSSProperties {
+  const style: React.CSSProperties = {};
+  
+  // Apply fontSize if it contains a unit (px, rem, em, vh, %)
+  if (options.fontSize && /\d+(px|rem|em|vh|%)/.test(options.fontSize)) {
+    style.fontSize = options.fontSize;
+  }
+  
+  // Apply lineHeight if it's a number or contains a unit
+  if (options.lineHeight && (/^\d+(\.\d+)?$/.test(options.lineHeight) || /\d+(px|rem|em)/.test(options.lineHeight))) {
+    style.lineHeight = options.lineHeight;
+  }
+  
+  // Apply letterSpacing if it contains a unit
+  if (options.letterSpacing && /\d+(px|rem|em)/.test(options.letterSpacing)) {
+    style.letterSpacing = options.letterSpacing;
+  }
+  
+  // Apply color
+  if (options.color) {
+    style.color = options.color;
+  }
+  
+  // Apply margins
+  if (options.marginBottom && /\d+(px|rem|em)/.test(options.marginBottom)) {
+    style.marginBottom = options.marginBottom;
+  }
+  if (options.marginTop && /\d+(px|rem|em)/.test(options.marginTop)) {
+    style.marginTop = options.marginTop;
+  }
+  
+  return style;
+}
+
+// ============================================================================
 // JE HERO RENDERER - All variants (je-hero, je-hero-video, je-hero-image, je-hero-split)
 // ============================================================================
 
@@ -411,16 +460,36 @@ export function JEHeroRenderer({ block, isEditing, onUpdate }: BlockRendererProp
     minHeight = '80vh',
     contentWidth = 'max-w-4xl',
     verticalAlign = 'center',
-    // Sizing controls
+    // Sizing controls (legacy presets)
     titleSize = 'hero',
     subtitleSize = 'medium',
     descriptionSize = 'medium',
     buttonSize = 'lg',
+    // Typography overrides (from BlockFieldDefinitions)
+    titleFontSize = '',
+    titleFontSizeMd = '',
+    titleFontSizeLg = '',
+    titleLineHeight = '',
+    titleMarginBottom = '',
+    subtitleFontSize = '',
+    subtitleLetterSpacing = '',
+    subtitleMarginBottom = '',
+    descriptionFontSize = '',
+    descriptionLineHeight = '',
+    descriptionMarginBottom = '',
+    ctaFontSize = '',
+    ctaLetterSpacing = '',
   } = content;
 
-  // Get sizing classes
-  const getTitleClass = () => TITLE_SIZE_PRESETS[titleSize as keyof typeof TITLE_SIZE_PRESETS] || TITLE_SIZE_PRESETS.hero;
-  const getDescriptionClass = () => BODY_SIZE_PRESETS[descriptionSize as keyof typeof BODY_SIZE_PRESETS] || BODY_SIZE_PRESETS.medium;
+  // Get sizing classes (fallback when no custom fontSize)
+  const getTitleClass = () => titleFontSize ? '' : (TITLE_SIZE_PRESETS[titleSize as keyof typeof TITLE_SIZE_PRESETS] || TITLE_SIZE_PRESETS.hero);
+  const getDescriptionClass = () => descriptionFontSize ? '' : (BODY_SIZE_PRESETS[descriptionSize as keyof typeof BODY_SIZE_PRESETS] || BODY_SIZE_PRESETS.medium);
+
+  // Build inline styles for typography
+  const titleStyle = buildTextStyle({ fontSize: titleFontSize, lineHeight: titleLineHeight, marginBottom: titleMarginBottom, color: titleColor });
+  const subtitleStyle = buildTextStyle({ fontSize: subtitleFontSize, letterSpacing: subtitleLetterSpacing, marginBottom: subtitleMarginBottom, color: subtitleColor });
+  const descriptionStyle = buildTextStyle({ fontSize: descriptionFontSize, lineHeight: descriptionLineHeight, marginBottom: descriptionMarginBottom, color: descriptionColor });
+  const ctaStyle = buildTextStyle({ fontSize: ctaFontSize, letterSpacing: ctaLetterSpacing });
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -494,13 +563,14 @@ export function JEHeroRenderer({ block, isEditing, onUpdate }: BlockRendererProp
             placeholder="SUBTITLE"
             isEditing={isEditing}
             className={cn(
-              'text-sm md:text-base uppercase tracking-[0.3em] mb-4 font-sans',
+              !subtitleFontSize && 'text-sm md:text-base',
+              'uppercase tracking-[0.3em] mb-4 font-sans',
               overlay || dark ? 'text-white/80' : 'text-neutral-600'
             )}
-            style={subtitleColor ? { color: subtitleColor } : undefined}
+            style={subtitleStyle}
           />
 
-          {/* Title - Using sizing presets */}
+          {/* Title - Using sizing presets or custom fontSize */}
           <EditableText
             value={title}
             onChange={(v) => handleChange('title', v)}
@@ -512,10 +582,10 @@ export function JEHeroRenderer({ block, isEditing, onUpdate }: BlockRendererProp
               'font-serif italic mb-6 leading-tight',
               overlay || dark ? 'text-white' : 'text-neutral-900'
             )}
-            style={titleColor ? { color: titleColor } : undefined}
+            style={titleStyle}
           />
 
-          {/* Description - Using sizing presets */}
+          {/* Description - Using sizing presets or custom fontSize */}
           <EditableText
             value={description}
             onChange={(v) => handleChange('description', v)}
@@ -529,7 +599,7 @@ export function JEHeroRenderer({ block, isEditing, onUpdate }: BlockRendererProp
               variant === 'centered' ? 'mx-auto max-w-2xl' : '',
               overlay || dark ? 'text-white/90' : 'text-neutral-700'
             )}
-            style={descriptionColor ? { color: descriptionColor } : undefined}
+            style={descriptionStyle}
           />
 
           {/* CTA Buttons */}
@@ -629,11 +699,28 @@ export function JESectionRenderer({ block, isEditing, onUpdate }: BlockRendererP
     dark = false,
     overlay = false,
     maxWidth = '6xl',
+    // Typography overrides from BlockFieldDefinitions
+    titleFontSize = '',
+    titleLineHeight = '',
+    titleMarginBottom = '',
+    titleColor = '',
+    descriptionFontSize = '',
+    descriptionLineHeight = '',
+    descriptionMarginBottom = '',
+    descriptionColor = '',
+    labelFontSize = '',
+    labelMarginBottom = '',
+    labelColor = '',
   } = content;
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
   };
+
+  // Build typography styles
+  const titleStyle = buildTextStyle({ fontSize: titleFontSize, lineHeight: titleLineHeight, marginBottom: titleMarginBottom, color: titleColor || textColor });
+  const descriptionStyle = buildTextStyle({ fontSize: descriptionFontSize, lineHeight: descriptionLineHeight, marginBottom: descriptionMarginBottom, color: descriptionColor || textColor });
+  const labelStyle = buildTextStyle({ fontSize: labelFontSize, marginBottom: labelMarginBottom, color: labelColor || textColor });
 
   const paddingClasses: Record<string, string> = {
     none: 'py-0',
@@ -703,10 +790,11 @@ export function JESectionRenderer({ block, isEditing, onUpdate }: BlockRendererP
                 placeholder="SECTION LABEL"
                 isEditing={isEditing}
                 className={cn(
-                  'text-xs md:text-sm uppercase tracking-[0.3em] mb-4 font-sans',
+                  !labelFontSize && 'text-xs md:text-sm',
+                  'uppercase tracking-[0.3em] mb-4 font-sans',
                   dark ? 'text-amber-400' : 'text-amber-600'
                 )}
-                style={textColor ? { color: textColor } : undefined}
+                style={labelStyle}
               />
 
               {/* Title */}
@@ -717,10 +805,11 @@ export function JESectionRenderer({ block, isEditing, onUpdate }: BlockRendererP
                 placeholder="Section Title"
                 isEditing={isEditing}
                 className={cn(
-                  'text-3xl md:text-4xl lg:text-5xl font-serif italic mb-6',
+                  !titleFontSize && 'text-3xl md:text-4xl lg:text-5xl',
+                  'font-serif italic mb-6',
                   dark ? 'text-white' : 'text-neutral-900'
                 )}
-                style={textColor ? { color: textColor } : undefined}
+                style={titleStyle}
               />
 
               {/* Subtitle */}
@@ -745,9 +834,11 @@ export function JESectionRenderer({ block, isEditing, onUpdate }: BlockRendererP
                 multiline
                 isEditing={isEditing}
                 className={cn(
-                  'text-base md:text-lg font-sans leading-relaxed whitespace-pre-wrap',
+                  !descriptionFontSize && 'text-base md:text-lg',
+                  'font-sans leading-relaxed whitespace-pre-wrap',
                   dark ? 'text-neutral-400' : 'text-neutral-600'
                 )}
+                style={descriptionStyle}
               />
             </div>
 
@@ -773,9 +864,11 @@ export function JESectionRenderer({ block, isEditing, onUpdate }: BlockRendererP
               placeholder="SECTION LABEL"
               isEditing={isEditing}
               className={cn(
-                'text-xs md:text-sm uppercase tracking-[0.3em] mb-4 font-sans',
+                !labelFontSize && 'text-xs md:text-sm',
+                'uppercase tracking-[0.3em] mb-4 font-sans',
                 dark || overlay ? 'text-amber-400' : 'text-amber-600'
               )}
+              style={labelStyle}
             />
 
             <EditableText
@@ -785,9 +878,11 @@ export function JESectionRenderer({ block, isEditing, onUpdate }: BlockRendererP
               placeholder="Section Title"
               isEditing={isEditing}
               className={cn(
-                'text-3xl md:text-4xl lg:text-5xl font-serif italic mb-6',
+                !titleFontSize && 'text-3xl md:text-4xl lg:text-5xl',
+                'font-serif italic mb-6',
                 dark || overlay ? 'text-white' : 'text-neutral-900'
               )}
+              style={titleStyle}
             />
 
             <EditableText
@@ -810,10 +905,12 @@ export function JESectionRenderer({ block, isEditing, onUpdate }: BlockRendererP
               multiline
               isEditing={isEditing}
               className={cn(
-                'text-base md:text-lg max-w-3xl font-sans leading-relaxed whitespace-pre-wrap',
+                !descriptionFontSize && 'text-base md:text-lg',
+                'max-w-3xl font-sans leading-relaxed whitespace-pre-wrap',
                 alignment === 'center' ? 'mx-auto' : '',
                 dark || overlay ? 'text-neutral-300' : 'text-neutral-600'
               )}
+              style={descriptionStyle}
             />
 
             {/* HTML Content */}

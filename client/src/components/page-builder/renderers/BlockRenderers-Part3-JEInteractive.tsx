@@ -27,7 +27,7 @@ import {
   Check, ChevronLeft, ChevronRight, ExternalLink, Filter,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { EditableText, getIcon, SECTION_PADDING_PRESETS, TITLE_SIZE_PRESETS, BODY_SIZE_PRESETS, GAP_PRESETS } from './BlockRenderers-Part1-Core';
+import { EditableText, getIcon, buildTextStyle, SECTION_PADDING_PRESETS, TITLE_SIZE_PRESETS, BODY_SIZE_PRESETS, GAP_PRESETS } from './BlockRenderers-Part1-Core';
 
 // ============================================================================
 // SHARED INTERFACES

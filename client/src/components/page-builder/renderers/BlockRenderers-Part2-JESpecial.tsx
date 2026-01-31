@@ -27,7 +27,7 @@ import {
   Clock, MapPin, Mail, ExternalLink, Check, X,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { EditableText, iconMap, getIcon } from './BlockRenderers-Part1-Core';
+import { EditableText, iconMap, getIcon, buildTextStyle } from './BlockRenderers-Part1-Core';
 
 // ============================================================================
 // SHARED INTERFACES
