@@ -325,9 +325,11 @@ export default function PageBuilderPage() {
       if (!pageIdFromUrl && savedPageId) {
         setLocation(`/admin/page-builder/${savedPageId}`, { replace: true });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error saving page:', error);
-      toast.error('Failed to save page. Please try again.');
+      // Show specific error message if available
+      const errorMessage = error?.message || error?.data?.message || 'Failed to save page. Please try again.';
+      toast.error(errorMessage);
       throw error;
     }
   };

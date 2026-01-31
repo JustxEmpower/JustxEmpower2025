@@ -1556,6 +1556,15 @@ export const adminRouter = router({
         })
       )
       .mutation(async ({ input }) => {
+        // Check if slug already exists
+        const existingPage = await getPageBySlug(input.slug);
+        if (existingPage) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `A page with the slug "${input.slug}" already exists. Please choose a different URL slug.`,
+          });
+        }
+
         let seoData = {
           metaTitle: input.metaTitle,
           metaDescription: input.metaDescription,
@@ -2759,28 +2768,18 @@ export const adminRouter = router({
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
         
-        // Auto-generate unique slug if duplicate exists
-        let finalSlug = input.slug;
-        let slugSuffix = 0;
-        let slugExists = true;
+        // Check for duplicate slug
+        const [existing] = await db
+          .select()
+          .from(schema.products)
+          .where(eq(schema.products.slug, input.slug));
         
-        while (slugExists) {
-          const checkSlug = slugSuffix === 0 ? finalSlug : `${finalSlug}-${slugSuffix}`;
-          const [existing] = await db
-            .select()
-            .from(schema.products)
-            .where(eq(schema.products.slug, checkSlug));
-          
-          if (!existing) {
-            finalSlug = checkSlug;
-            slugExists = false;
-          } else {
-            slugSuffix++;
-          }
+        if (existing) {
+          throw new TRPCError({ code: "CONFLICT", message: "A product with this slug already exists" });
         }
         
-        const result = await db.insert(schema.products).values({ ...input, slug: finalSlug });
-        return { success: true, id: Number(result[0].insertId), slug: finalSlug };
+        const result = await db.insert(schema.products).values(input);
+        return { success: true, id: Number(result[0].insertId) };
       }),
 
     update: adminProcedure
