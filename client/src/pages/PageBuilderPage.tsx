@@ -239,7 +239,9 @@ export default function PageBuilderPage() {
     published: boolean = true
   ) => {
     try {
-      let savedPageId = currentPageId;
+      // Use pageIdFromUrl directly to avoid state sync issues
+      let savedPageId = pageIdFromUrl || currentPageId;
+      console.log('handleSave - pageIdFromUrl:', pageIdFromUrl, 'currentPageId:', currentPageId, 'savedPageId:', savedPageId);
 
       // Create or update the page
       if (!savedPageId) {
