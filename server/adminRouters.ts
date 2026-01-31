@@ -2759,18 +2759,28 @@ export const adminRouter = router({
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
         
-        // Check for duplicate slug
-        const [existing] = await db
-          .select()
-          .from(schema.products)
-          .where(eq(schema.products.slug, input.slug));
+        // Auto-generate unique slug if duplicate exists
+        let finalSlug = input.slug;
+        let slugSuffix = 0;
+        let slugExists = true;
         
-        if (existing) {
-          throw new TRPCError({ code: "CONFLICT", message: "A product with this slug already exists" });
+        while (slugExists) {
+          const checkSlug = slugSuffix === 0 ? finalSlug : `${finalSlug}-${slugSuffix}`;
+          const [existing] = await db
+            .select()
+            .from(schema.products)
+            .where(eq(schema.products.slug, checkSlug));
+          
+          if (!existing) {
+            finalSlug = checkSlug;
+            slugExists = false;
+          } else {
+            slugSuffix++;
+          }
         }
         
-        const result = await db.insert(schema.products).values(input);
-        return { success: true, id: Number(result[0].insertId) };
+        const result = await db.insert(schema.products).values({ ...input, slug: finalSlug });
+        return { success: true, id: Number(result[0].insertId), slug: finalSlug };
       }),
 
     update: adminProcedure
