@@ -304,9 +304,13 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
 
   const handleRecoverAutoSave = () => {
     if (recoveryData) {
-      setPageTitle(recoveryData.pageTitle);
-      setBlocks(recoveryData.blocks, true);
+      console.log('[Recovery] Recovering', recoveryData.blocks.length, 'blocks');
+      // Set the ref FIRST to prevent initialBlocks effect from overwriting
       blocksInitializedRef.current = true;
+      // Then set the blocks
+      setBlocks(recoveryData.blocks, true);
+      setPageTitle(recoveryData.pageTitle);
+      toast.success(`Recovered ${recoveryData.blocks.length} blocks successfully!`);
     }
     setShowRecoveryDialog(false);
     setRecoveryData(null);
