@@ -14,6 +14,8 @@ import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X, 
 import MediaPicker from '@/components/MediaPicker';
 import { blockTypes } from '@/components/page-builder/blockTypes';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
+import { JE_BLOCK_FIELDS, FieldDefinition } from '@/components/page-builder/panels/BlockFieldDefinitions';
+import { IconPicker } from '@/components/page-builder/IconPicker';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -23,6 +25,232 @@ interface PageBlock {
   type: string;
   content: Record<string, unknown>;
   order: number;
+}
+
+// Comprehensive Field Renderer - matches BlockSettings.tsx capabilities
+function ZoneFieldRenderer({
+  field,
+  value,
+  onChange,
+  blockId,
+}: {
+  field: FieldDefinition;
+  value: unknown;
+  onChange: (blockId: string, key: string, value: unknown) => void;
+  blockId: string;
+}) {
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
+
+  switch (field.type) {
+    case 'text':
+      return (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{field.label}</Label>
+          <Input
+            value={(value as string) || ''}
+            onChange={(e) => onChange(blockId, field.key, e.target.value)}
+            placeholder={field.placeholder}
+          />
+          {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
+        </div>
+      );
+
+    case 'textarea':
+    case 'richtext':
+      return (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{field.label}</Label>
+          <Textarea
+            value={(value as string) || ''}
+            onChange={(e) => onChange(blockId, field.key, e.target.value)}
+            placeholder={field.placeholder}
+            rows={4}
+          />
+          {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
+        </div>
+      );
+
+    case 'number':
+      return (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{field.label}</Label>
+          <Input
+            type="number"
+            value={(value as number) || field.min || 0}
+            onChange={(e) => onChange(blockId, field.key, Number(e.target.value))}
+            min={field.min}
+            max={field.max}
+          />
+        </div>
+      );
+
+    case 'boolean':
+      return (
+        <div className="flex items-center justify-between py-2">
+          <div>
+            <Label className="text-sm font-medium">{field.label}</Label>
+            {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
+          </div>
+          <Switch
+            checked={(value as boolean) || false}
+            onCheckedChange={(checked) => onChange(blockId, field.key, checked)}
+          />
+        </div>
+      );
+
+    case 'select':
+      return (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{field.label}</Label>
+          <Select value={value != null ? String(value) : ''} onValueChange={(v) => onChange(blockId, field.key, v)}>
+            <SelectTrigger><SelectValue placeholder={field.placeholder || `Select ${field.label}`} /></SelectTrigger>
+            <SelectContent>
+              {field.options?.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
+        </div>
+      );
+
+    case 'color':
+      return (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{field.label}</Label>
+          <div className="flex gap-2">
+            <Input
+              type="color"
+              className="w-12 h-10 p-1 cursor-pointer rounded"
+              value={(value as string) || '#ffffff'}
+              onChange={(e) => onChange(blockId, field.key, e.target.value)}
+            />
+            <Input
+              value={(value as string) || ''}
+              onChange={(e) => onChange(blockId, field.key, e.target.value)}
+              placeholder="#ffffff"
+              className="flex-1"
+            />
+            {value && (
+              <Button variant="ghost" size="sm" className="h-10 px-2" onClick={() => onChange(blockId, field.key, '')}>
+                Clear
+              </Button>
+            )}
+          </div>
+        </div>
+      );
+
+    case 'image':
+    case 'video':
+      const isVideo = field.type === 'video' || (value as string)?.match(/\.(mp4|webm|mov)$/i);
+      return (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{field.label}</Label>
+          <div className="flex gap-2">
+            <Input
+              value={(value as string) || ''}
+              onChange={(e) => onChange(blockId, field.key, e.target.value)}
+              placeholder="https://..."
+              className="flex-1"
+            />
+            <Button variant="outline" size="sm" onClick={() => setMediaPickerOpen(true)} className="px-3">
+              <ImageIcon className="w-4 h-4" />
+            </Button>
+          </div>
+          {value && (
+            <div className="relative w-full h-24 rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+              {isVideo ? (
+                <video src={value as string} className="w-full h-full object-cover" muted playsInline />
+              ) : (
+                <img src={value as string} alt="Preview" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+              )}
+            </div>
+          )}
+          <MediaPicker
+            open={mediaPickerOpen}
+            onClose={() => setMediaPickerOpen(false)}
+            onSelect={(url) => { onChange(blockId, field.key, url); setMediaPickerOpen(false); }}
+            mediaType={field.type === 'video' ? 'video' : 'image'}
+          />
+        </div>
+      );
+
+    case 'url':
+      return (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{field.label}</Label>
+          <Input
+            type="url"
+            value={(value as string) || ''}
+            onChange={(e) => onChange(blockId, field.key, e.target.value)}
+            placeholder={field.placeholder || 'https://...'}
+          />
+        </div>
+      );
+
+    case 'alignment':
+      return (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{field.label}</Label>
+          <div className="grid grid-cols-3 gap-1">
+            {['left', 'center', 'right'].map((align) => (
+              <Button
+                key={align}
+                size="sm"
+                variant={value === align ? 'default' : 'outline'}
+                onClick={() => onChange(blockId, field.key, align)}
+                className="capitalize"
+              >
+                {align}
+              </Button>
+            ))}
+          </div>
+        </div>
+      );
+
+    case 'icon':
+      return (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{field.label}</Label>
+          <IconPicker
+            value={(value as string) || ''}
+            onChange={(icon) => onChange(blockId, field.key, icon)}
+          />
+        </div>
+      );
+
+    default:
+      return (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{field.label}</Label>
+          <Input
+            value={(value as string) || ''}
+            onChange={(e) => onChange(blockId, field.key, e.target.value)}
+            placeholder={field.placeholder}
+          />
+        </div>
+      );
+  }
+}
+
+// Group fields by their group property
+function getGroupedFields(blockType: string): Record<string, FieldDefinition[]> {
+  const fields = JE_BLOCK_FIELDS[blockType] || [];
+  const grouped: Record<string, FieldDefinition[]> = {
+    content: [],
+    media: [],
+    style: [],
+    layout: [],
+    advanced: [],
+  };
+  
+  fields.forEach((field) => {
+    const group = field.group || 'content';
+    if (!grouped[group]) grouped[group] = [];
+    grouped[group].push(field);
+  });
+  
+  return grouped;
 }
 
 function SortableBlock({ block, onDelete, isSelected, onSelect }: { 
@@ -591,40 +819,83 @@ export default function AdminZoneEditor() {
                     </Button>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <ScrollArea className="h-[60vh]">
-                    <div className="space-y-4 pr-4">
-                      {/* Special handling for JE Carousel blocks - show image picker for slides */}
-                      {selectedBlock.type === 'je-carousel' && (
-                        <>
-                          <SlideImageEditor
-                            slides={Array.isArray((selectedBlock.content as any).slides) ? (selectedBlock.content as any).slides : []}
-                            onChange={(newSlides) => updateBlockContent(selectedBlock.id, 'slides', newSlides)}
-                          />
-                          
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm">Show Arrows</Label>
-                            <Switch
-                              checked={(selectedBlock.content as any).showArrows !== false}
-                              onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'showArrows', v)}
+                <CardContent className="p-0">
+                  {/* Use field definitions if available for this block type */}
+                  {JE_BLOCK_FIELDS[selectedBlock.type] ? (
+                    <Tabs defaultValue="content" className="w-full">
+                      <TabsList className="w-full grid grid-cols-4 mx-3 mb-2" style={{ width: 'calc(100% - 24px)' }}>
+                        <TabsTrigger value="content" className="text-xs">Content</TabsTrigger>
+                        <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
+                        <TabsTrigger value="layout" className="text-xs">Layout</TabsTrigger>
+                        <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
+                      </TabsList>
+                      
+                      {(['content', 'media', 'style', 'layout', 'advanced'] as const).map((groupName) => {
+                        const groupedFields = getGroupedFields(selectedBlock.type);
+                        const fields = groupName === 'content' 
+                          ? [...(groupedFields.content || []), ...(groupedFields.media || [])]
+                          : groupedFields[groupName] || [];
+                        
+                        if (fields.length === 0 && groupName !== 'content') return null;
+                        
+                        const tabValue = groupName === 'media' ? 'content' : groupName;
+                        
+                        return (
+                          <TabsContent key={groupName} value={tabValue} className="m-0 px-3">
+                            <ScrollArea className="h-[55vh]">
+                              <div className="space-y-4 pr-4 pb-4">
+                                {fields.map((field) => (
+                                  <ZoneFieldRenderer
+                                    key={field.key}
+                                    field={field}
+                                    value={selectedBlock.content[field.key]}
+                                    onChange={updateBlockContent}
+                                    blockId={selectedBlock.id}
+                                  />
+                                ))}
+                                {fields.length === 0 && (
+                                  <p className="text-sm text-muted-foreground py-4">No {groupName} settings available for this block.</p>
+                                )}
+                              </div>
+                            </ScrollArea>
+                          </TabsContent>
+                        );
+                      })}
+                    </Tabs>
+                  ) : (
+                    /* Fallback for blocks without field definitions */
+                    <ScrollArea className="h-[60vh]">
+                      <div className="space-y-4 p-4">
+                        {/* Special handling for JE Carousel blocks */}
+                        {selectedBlock.type === 'je-carousel' && (
+                          <>
+                            <SlideImageEditor
+                              slides={Array.isArray((selectedBlock.content as any).slides) ? (selectedBlock.content as any).slides : []}
+                              onChange={(newSlides) => updateBlockContent(selectedBlock.id, 'slides', newSlides)}
                             />
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm">Show Dots</Label>
-                            <Switch
-                              checked={(selectedBlock.content as any).showDots !== false}
-                              onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'showDots', v)}
-                            />
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <Label className="text-sm">Auto Play</Label>
-                            <Switch
-                              checked={(selectedBlock.content as any).autoplay !== false}
-                              onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'autoplay', v)}
-                            />
-                          </div>
-                        </>
-                      )}
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm">Show Arrows</Label>
+                              <Switch
+                                checked={(selectedBlock.content as any).showArrows !== false}
+                                onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'showArrows', v)}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm">Show Dots</Label>
+                              <Switch
+                                checked={(selectedBlock.content as any).showDots !== false}
+                                onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'showDots', v)}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm">Auto Play</Label>
+                              <Switch
+                                checked={(selectedBlock.content as any).autoplay !== false}
+                                onCheckedChange={(v) => updateBlockContent(selectedBlock.id, 'autoplay', v)}
+                              />
+                            </div>
+                          </>
+                        )}
                       
                       {/* Special handling for JE Image blocks - show size controls */}
                       {selectedBlock.type === 'je-image' && (
@@ -1078,8 +1349,9 @@ export default function AdminZoneEditor() {
                         
                         return null;
                       })}
-                    </div>
-                  </ScrollArea>
+                      </div>
+                    </ScrollArea>
+                  )}
                 </CardContent>
               </Card>
             </div>
