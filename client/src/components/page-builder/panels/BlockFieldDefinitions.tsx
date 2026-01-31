@@ -112,6 +112,162 @@ const COLUMN_OPTIONS: FieldOption[] = [
   { value: '4', label: '4 Columns' },
 ];
 
+// Font Size Options (px)
+const FONT_SIZE_OPTIONS: FieldOption[] = [
+  { value: '10px', label: '10px - Tiny' },
+  { value: '12px', label: '12px - Small' },
+  { value: '14px', label: '14px - Body Small' },
+  { value: '16px', label: '16px - Body' },
+  { value: '18px', label: '18px - Body Large' },
+  { value: '20px', label: '20px - Lead' },
+  { value: '24px', label: '24px - H5' },
+  { value: '28px', label: '28px - H4' },
+  { value: '32px', label: '32px - H3' },
+  { value: '36px', label: '36px - H3 Large' },
+  { value: '40px', label: '40px - H2' },
+  { value: '48px', label: '48px - H2 Large' },
+  { value: '56px', label: '56px - H1' },
+  { value: '64px', label: '64px - H1 Large' },
+  { value: '72px', label: '72px - Display' },
+  { value: '80px', label: '80px - Display Large' },
+  { value: '96px', label: '96px - Hero' },
+];
+
+// Font Size Options (rem)
+const FONT_SIZE_REM_OPTIONS: FieldOption[] = [
+  { value: '0.75rem', label: '0.75rem - Tiny' },
+  { value: '0.875rem', label: '0.875rem - Small' },
+  { value: '1rem', label: '1rem - Base' },
+  { value: '1.125rem', label: '1.125rem - Medium' },
+  { value: '1.25rem', label: '1.25rem - Large' },
+  { value: '1.5rem', label: '1.5rem - XL' },
+  { value: '2rem', label: '2rem - 2XL' },
+  { value: '2.5rem', label: '2.5rem - 3XL' },
+  { value: '3rem', label: '3rem - 4XL' },
+  { value: '3.5rem', label: '3.5rem - 5XL' },
+  { value: '4rem', label: '4rem - 6XL' },
+  { value: '5rem', label: '5rem - 7XL' },
+];
+
+// Spacing/Margin Options (rem)
+const SPACING_OPTIONS: FieldOption[] = [
+  { value: '0', label: '0 - None' },
+  { value: '0.25rem', label: '0.25rem - 2XS' },
+  { value: '0.5rem', label: '0.5rem - XS' },
+  { value: '0.75rem', label: '0.75rem - SM' },
+  { value: '1rem', label: '1rem - MD' },
+  { value: '1.5rem', label: '1.5rem - LG' },
+  { value: '2rem', label: '2rem - XL' },
+  { value: '2.5rem', label: '2.5rem - 2XL' },
+  { value: '3rem', label: '3rem - 3XL' },
+  { value: '4rem', label: '4rem - 4XL' },
+  { value: '5rem', label: '5rem - 5XL' },
+  { value: '6rem', label: '6rem - 6XL' },
+  { value: '8rem', label: '8rem - 7XL' },
+];
+
+// Spacing Options (px)
+const SPACING_PX_OPTIONS: FieldOption[] = [
+  { value: '0', label: '0px - None' },
+  { value: '4px', label: '4px' },
+  { value: '8px', label: '8px' },
+  { value: '12px', label: '12px' },
+  { value: '16px', label: '16px' },
+  { value: '20px', label: '20px' },
+  { value: '24px', label: '24px' },
+  { value: '32px', label: '32px' },
+  { value: '40px', label: '40px' },
+  { value: '48px', label: '48px' },
+  { value: '64px', label: '64px' },
+];
+
+// Border Radius Options
+const BORDER_RADIUS_OPTIONS: FieldOption[] = [
+  { value: '0', label: '0 - None' },
+  { value: '0.25rem', label: '0.25rem - XS' },
+  { value: '0.5rem', label: '0.5rem - SM' },
+  { value: '0.75rem', label: '0.75rem - MD' },
+  { value: '1rem', label: '1rem - LG' },
+  { value: '1.5rem', label: '1.5rem - XL' },
+  { value: '2rem', label: '2rem - 2XL' },
+  { value: '2.5rem', label: '2.5rem - 3XL' },
+  { value: '3rem', label: '3rem - 4XL' },
+  { value: '9999px', label: '9999px - Full/Pill' },
+];
+
+// Letter Spacing Options
+const LETTER_SPACING_OPTIONS: FieldOption[] = [
+  { value: '-0.05em', label: '-0.05em - Tighter' },
+  { value: '-0.025em', label: '-0.025em - Tight' },
+  { value: '0', label: '0 - Normal' },
+  { value: '0.025em', label: '0.025em - Wide' },
+  { value: '0.05em', label: '0.05em - Wider' },
+  { value: '0.1em', label: '0.1em - Widest' },
+  { value: '0.2em', label: '0.2em - Extra Wide' },
+  { value: '0.3em', label: '0.3em - Spaced' },
+];
+
+// Line Height Options
+const LINE_HEIGHT_OPTIONS: FieldOption[] = [
+  { value: '1', label: '1 - None' },
+  { value: '1.1', label: '1.1 - Tight' },
+  { value: '1.2', label: '1.2 - Snug' },
+  { value: '1.25', label: '1.25 - Normal' },
+  { value: '1.4', label: '1.4 - Relaxed' },
+  { value: '1.5', label: '1.5 - Loose' },
+  { value: '1.6', label: '1.6 - Spacious' },
+  { value: '1.75', label: '1.75 - Open' },
+  { value: '2', label: '2 - Double' },
+];
+
+// Max Width Options (rem)
+const MAX_WIDTH_OPTIONS: FieldOption[] = [
+  { value: '20rem', label: '20rem - XS' },
+  { value: '24rem', label: '24rem - SM' },
+  { value: '28rem', label: '28rem - MD' },
+  { value: '32rem', label: '32rem - LG' },
+  { value: '36rem', label: '36rem - XL' },
+  { value: '42rem', label: '42rem - 2XL' },
+  { value: '48rem', label: '48rem - 3XL' },
+  { value: '56rem', label: '56rem - 4XL' },
+  { value: '64rem', label: '64rem - 5XL' },
+  { value: '72rem', label: '72rem - 6XL' },
+  { value: '80rem', label: '80rem - 7XL' },
+  { value: '100%', label: '100% - Full' },
+];
+
+// Min Height Options
+const MIN_HEIGHT_OPTIONS: FieldOption[] = [
+  { value: 'auto', label: 'Auto' },
+  { value: '300px', label: '300px - Small' },
+  { value: '400px', label: '400px - Medium' },
+  { value: '500px', label: '500px - Large' },
+  { value: '50vh', label: '50vh - Half Screen' },
+  { value: '70vh', label: '70vh - Tall' },
+  { value: '80vh', label: '80vh - Very Tall' },
+  { value: '100vh', label: '100vh - Full Screen' },
+];
+
+// Button Padding Options
+const BUTTON_PADDING_OPTIONS: FieldOption[] = [
+  { value: '0.5rem', label: '0.5rem - XS' },
+  { value: '0.75rem', label: '0.75rem - SM' },
+  { value: '1rem', label: '1rem - MD' },
+  { value: '1.25rem', label: '1.25rem - LG' },
+  { value: '1.5rem', label: '1.5rem - XL' },
+  { value: '2rem', label: '2rem - 2XL' },
+  { value: '2.5rem', label: '2.5rem - 3XL' },
+];
+
+// Border Width Options
+const BORDER_WIDTH_OPTIONS: FieldOption[] = [
+  { value: '0', label: '0 - None' },
+  { value: '1px', label: '1px - Thin' },
+  { value: '2px', label: '2px - Normal' },
+  { value: '3px', label: '3px - Medium' },
+  { value: '4px', label: '4px - Thick' },
+];
+
 // ============================================================================
 // JE BLOCK FIELD DEFINITIONS
 // ============================================================================
@@ -174,48 +330,33 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'overlayOpacity', label: 'Overlay Opacity', type: 'number', min: 0, max: 100, group: 'style' },
     
     // === SHAPE & SIZE GROUP ===
-    { key: 'minHeight', label: 'Minimum Height', type: 'text', placeholder: '100vh', group: 'layout' },
-    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '2.5rem', group: 'layout' },
+    { key: 'minHeight', label: 'Minimum Height', type: 'select', options: MIN_HEIGHT_OPTIONS, group: 'layout' },
+    { key: 'borderRadius', label: 'Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS, group: 'layout' },
     { key: 'bottomCurve', label: 'Bottom Curve', type: 'boolean', description: 'Add curved bottom edge', group: 'layout' },
     { key: 'topCurve', label: 'Top Curve', type: 'boolean', description: 'Add curved top edge', group: 'layout' },
     
     // === CONTENT POSITION GROUP ===
-    { key: 'textAlignment', label: 'Text Alignment', type: 'select', options: [
-      { value: 'left', label: 'Left' },
-      { value: 'center', label: 'Center' },
-      { value: 'right', label: 'Right' },
-    ], group: 'layout' },
+    { key: 'textAlignment', label: 'Text Alignment', type: 'select', options: ALIGNMENT_OPTIONS, group: 'layout' },
     { key: 'contentVerticalAlign', label: 'Vertical Align', type: 'select', options: [
       { value: 'top', label: 'Top' },
       { value: 'center', label: 'Center' },
       { value: 'bottom', label: 'Bottom' },
     ], group: 'layout' },
-    { key: 'contentHorizontalAlign', label: 'Horizontal Align', type: 'select', options: [
-      { value: 'left', label: 'Left' },
-      { value: 'center', label: 'Center' },
-      { value: 'right', label: 'Right' },
-    ], group: 'layout' },
-    { key: 'contentMaxWidth', label: 'Content Max Width', type: 'select', options: [
-      { value: '2xl', label: 'Narrow (2xl)' },
-      { value: '3xl', label: 'Small (3xl)' },
-      { value: '4xl', label: 'Medium (4xl)' },
-      { value: '5xl', label: 'Large (5xl)' },
-      { value: '6xl', label: 'Wide (6xl)' },
-      { value: '7xl', label: 'Extra Wide (7xl)' },
-    ], group: 'layout' },
+    { key: 'contentHorizontalAlign', label: 'Horizontal Align', type: 'select', options: ALIGNMENT_OPTIONS, group: 'layout' },
+    { key: 'contentMaxWidth', label: 'Content Max Width', type: 'select', options: MAX_WIDTH_OPTIONS, group: 'layout' },
     
     // === SPACING GROUP ===
-    { key: 'paddingTop', label: 'Padding Top', type: 'text', placeholder: '16', group: 'layout' },
-    { key: 'paddingBottom', label: 'Padding Bottom', type: 'text', placeholder: '16', group: 'layout' },
-    { key: 'paddingLeft', label: 'Padding Left', type: 'text', placeholder: '6', group: 'layout' },
-    { key: 'paddingRight', label: 'Padding Right', type: 'text', placeholder: '6', group: 'layout' },
+    { key: 'paddingTop', label: 'Padding Top', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
+    { key: 'paddingBottom', label: 'Padding Bottom', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
+    { key: 'paddingLeft', label: 'Padding Left', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
+    { key: 'paddingRight', label: 'Padding Right', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
     
     // === TITLE TYPOGRAPHY GROUP ===
-    { key: 'titleFontSize', label: 'Title Font Size (Mobile)', type: 'text', placeholder: '48px', group: 'advanced' },
-    { key: 'titleFontSizeMd', label: 'Title Font Size (Tablet)', type: 'text', placeholder: '64px', group: 'advanced' },
-    { key: 'titleFontSizeLg', label: 'Title Font Size (Desktop)', type: 'text', placeholder: '80px', group: 'advanced' },
-    { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.1', group: 'advanced' },
-    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '24px', group: 'advanced' },
+    { key: 'titleFontSize', label: 'Title Font Size (Mobile)', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'titleFontSizeMd', label: 'Title Font Size (Tablet)', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'titleFontSizeLg', label: 'Title Font Size (Desktop)', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'titleLineHeight', label: 'Title Line Height', type: 'select', options: LINE_HEIGHT_OPTIONS, group: 'advanced' },
+    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'select', options: SPACING_PX_OPTIONS, group: 'advanced' },
     { key: 'titleFontWeight', label: 'Title Font Weight', type: 'select', options: [
       { value: '100', label: 'Thin (100)' },
       { value: '200', label: 'Extra Light (200)' },
@@ -231,24 +372,24 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     ], group: 'advanced' },
     
     // === SUBTITLE TYPOGRAPHY GROUP ===
-    { key: 'subtitleFontSize', label: 'Subtitle Font Size', type: 'text', placeholder: '12px', group: 'advanced' },
-    { key: 'subtitleLetterSpacing', label: 'Subtitle Letter Spacing', type: 'text', placeholder: '0.3em', group: 'advanced' },
-    { key: 'subtitleMarginBottom', label: 'Subtitle Margin Bottom', type: 'text', placeholder: '24px', group: 'advanced' },
+    { key: 'subtitleFontSize', label: 'Subtitle Font Size', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'subtitleLetterSpacing', label: 'Subtitle Letter Spacing', type: 'select', options: LETTER_SPACING_OPTIONS, group: 'advanced' },
+    { key: 'subtitleMarginBottom', label: 'Subtitle Margin Bottom', type: 'select', options: SPACING_PX_OPTIONS, group: 'advanced' },
     
     // === DESCRIPTION TYPOGRAPHY GROUP ===
-    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '18px', group: 'advanced' },
-    { key: 'descriptionFontSizeMd', label: 'Description Size (Tablet)', type: 'text', placeholder: '20px', group: 'advanced' },
-    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.6', group: 'advanced' },
-    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '3rem', group: 'advanced' },
-    { key: 'descriptionMaxWidth', label: 'Description Max Width', type: 'text', placeholder: '32rem', group: 'advanced' },
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'descriptionFontSizeMd', label: 'Description Size (Tablet)', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'select', options: LINE_HEIGHT_OPTIONS, group: 'advanced' },
+    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'select', options: SPACING_OPTIONS, group: 'advanced' },
+    { key: 'descriptionMaxWidth', label: 'Description Max Width', type: 'select', options: MAX_WIDTH_OPTIONS, group: 'advanced' },
     
     // === CTA BUTTON STYLING GROUP ===
-    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'text', placeholder: '9999px', group: 'advanced' },
-    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'text', placeholder: '2rem', group: 'advanced' },
-    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'text', placeholder: '1rem', group: 'advanced' },
-    { key: 'ctaFontSize', label: 'Button Font Size', type: 'text', placeholder: '0.875rem', group: 'advanced' },
-    { key: 'ctaLetterSpacing', label: 'Button Letter Spacing', type: 'text', placeholder: '0.2em', group: 'advanced' },
-    { key: 'ctaBorderWidth', label: 'Button Border Width', type: 'text', placeholder: '1px', group: 'advanced' },
+    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS, group: 'advanced' },
+    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'select', options: BUTTON_PADDING_OPTIONS, group: 'advanced' },
+    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'select', options: BUTTON_PADDING_OPTIONS, group: 'advanced' },
+    { key: 'ctaFontSize', label: 'Button Font Size', type: 'select', options: FONT_SIZE_REM_OPTIONS, group: 'advanced' },
+    { key: 'ctaLetterSpacing', label: 'Button Letter Spacing', type: 'select', options: LETTER_SPACING_OPTIONS, group: 'advanced' },
+    { key: 'ctaBorderWidth', label: 'Button Border Width', type: 'select', options: BORDER_WIDTH_OPTIONS, group: 'advanced' },
   ],
 
   'je-hero-image': [
@@ -270,47 +411,33 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'overlayOpacity', label: 'Overlay Opacity', type: 'number', min: 0, max: 100, group: 'style' },
     
     // === SHAPE & SIZE GROUP ===
-    { key: 'minHeight', label: 'Minimum Height', type: 'text', placeholder: '80vh', group: 'layout' },
-    { key: 'borderRadius', label: 'Border Radius', type: 'text', placeholder: '2.5rem', group: 'layout' },
+    { key: 'minHeight', label: 'Minimum Height', type: 'select', options: MIN_HEIGHT_OPTIONS, group: 'layout' },
+    { key: 'borderRadius', label: 'Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS, group: 'layout' },
     { key: 'bottomCurve', label: 'Bottom Curve', type: 'boolean', description: 'Add curved bottom edge', group: 'layout' },
     { key: 'topCurve', label: 'Top Curve', type: 'boolean', description: 'Add curved top edge', group: 'layout' },
     
     // === CONTENT POSITION GROUP ===
-    { key: 'textAlignment', label: 'Text Alignment', type: 'select', options: [
-      { value: 'left', label: 'Left' },
-      { value: 'center', label: 'Center' },
-      { value: 'right', label: 'Right' },
-    ], group: 'layout' },
+    { key: 'textAlignment', label: 'Text Alignment', type: 'select', options: ALIGNMENT_OPTIONS, group: 'layout' },
     { key: 'contentVerticalAlign', label: 'Vertical Align', type: 'select', options: [
       { value: 'top', label: 'Top' },
       { value: 'center', label: 'Center' },
       { value: 'bottom', label: 'Bottom' },
     ], group: 'layout' },
-    { key: 'contentHorizontalAlign', label: 'Horizontal Align', type: 'select', options: [
-      { value: 'left', label: 'Left' },
-      { value: 'center', label: 'Center' },
-      { value: 'right', label: 'Right' },
-    ], group: 'layout' },
-    { key: 'contentMaxWidth', label: 'Content Max Width', type: 'select', options: [
-      { value: '2xl', label: 'Narrow (2xl)' },
-      { value: '3xl', label: 'Small (3xl)' },
-      { value: '4xl', label: 'Medium (4xl)' },
-      { value: '5xl', label: 'Large (5xl)' },
-      { value: '6xl', label: 'Wide (6xl)' },
-    ], group: 'layout' },
+    { key: 'contentHorizontalAlign', label: 'Horizontal Align', type: 'select', options: ALIGNMENT_OPTIONS, group: 'layout' },
+    { key: 'contentMaxWidth', label: 'Content Max Width', type: 'select', options: MAX_WIDTH_OPTIONS, group: 'layout' },
     
     // === SPACING GROUP ===
-    { key: 'paddingTop', label: 'Padding Top', type: 'text', placeholder: '16', group: 'layout' },
-    { key: 'paddingBottom', label: 'Padding Bottom', type: 'text', placeholder: '16', group: 'layout' },
-    { key: 'paddingLeft', label: 'Padding Left', type: 'text', placeholder: '6', group: 'layout' },
-    { key: 'paddingRight', label: 'Padding Right', type: 'text', placeholder: '6', group: 'layout' },
+    { key: 'paddingTop', label: 'Padding Top', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
+    { key: 'paddingBottom', label: 'Padding Bottom', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
+    { key: 'paddingLeft', label: 'Padding Left', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
+    { key: 'paddingRight', label: 'Padding Right', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
     
     // === TITLE TYPOGRAPHY GROUP ===
-    { key: 'titleFontSize', label: 'Title Font Size (Mobile)', type: 'text', placeholder: '48px', group: 'advanced' },
-    { key: 'titleFontSizeMd', label: 'Title Font Size (Tablet)', type: 'text', placeholder: '64px', group: 'advanced' },
-    { key: 'titleFontSizeLg', label: 'Title Font Size (Desktop)', type: 'text', placeholder: '80px', group: 'advanced' },
-    { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.1', group: 'advanced' },
-    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '24px', group: 'advanced' },
+    { key: 'titleFontSize', label: 'Title Font Size (Mobile)', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'titleFontSizeMd', label: 'Title Font Size (Tablet)', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'titleFontSizeLg', label: 'Title Font Size (Desktop)', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'titleLineHeight', label: 'Title Line Height', type: 'select', options: LINE_HEIGHT_OPTIONS, group: 'advanced' },
+    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'select', options: SPACING_PX_OPTIONS, group: 'advanced' },
     { key: 'titleFontWeight', label: 'Title Font Weight', type: 'select', options: [
       { value: '100', label: 'Thin (100)' },
       { value: '200', label: 'Extra Light (200)' },
@@ -326,24 +453,24 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     ], group: 'advanced' },
     
     // === SUBTITLE TYPOGRAPHY GROUP ===
-    { key: 'subtitleFontSize', label: 'Subtitle Font Size', type: 'text', placeholder: '12px', group: 'advanced' },
-    { key: 'subtitleLetterSpacing', label: 'Subtitle Letter Spacing', type: 'text', placeholder: '0.3em', group: 'advanced' },
-    { key: 'subtitleMarginBottom', label: 'Subtitle Margin Bottom', type: 'text', placeholder: '24px', group: 'advanced' },
+    { key: 'subtitleFontSize', label: 'Subtitle Font Size', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'subtitleLetterSpacing', label: 'Subtitle Letter Spacing', type: 'select', options: LETTER_SPACING_OPTIONS, group: 'advanced' },
+    { key: 'subtitleMarginBottom', label: 'Subtitle Margin Bottom', type: 'select', options: SPACING_PX_OPTIONS, group: 'advanced' },
     
     // === DESCRIPTION TYPOGRAPHY GROUP ===
-    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '18px', group: 'advanced' },
-    { key: 'descriptionFontSizeMd', label: 'Description Size (Tablet)', type: 'text', placeholder: '20px', group: 'advanced' },
-    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.6', group: 'advanced' },
-    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '3rem', group: 'advanced' },
-    { key: 'descriptionMaxWidth', label: 'Description Max Width', type: 'text', placeholder: '32rem', group: 'advanced' },
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'descriptionFontSizeMd', label: 'Description Size (Tablet)', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'select', options: LINE_HEIGHT_OPTIONS, group: 'advanced' },
+    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'select', options: SPACING_OPTIONS, group: 'advanced' },
+    { key: 'descriptionMaxWidth', label: 'Description Max Width', type: 'select', options: MAX_WIDTH_OPTIONS, group: 'advanced' },
     
     // === CTA BUTTON STYLING GROUP ===
-    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'text', placeholder: '9999px', group: 'advanced' },
-    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'text', placeholder: '2rem', group: 'advanced' },
-    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'text', placeholder: '1rem', group: 'advanced' },
-    { key: 'ctaFontSize', label: 'Button Font Size', type: 'text', placeholder: '0.875rem', group: 'advanced' },
-    { key: 'ctaLetterSpacing', label: 'Button Letter Spacing', type: 'text', placeholder: '0.2em', group: 'advanced' },
-    { key: 'ctaBorderWidth', label: 'Button Border Width', type: 'text', placeholder: '1px', group: 'advanced' },
+    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS, group: 'advanced' },
+    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'select', options: BUTTON_PADDING_OPTIONS, group: 'advanced' },
+    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'select', options: BUTTON_PADDING_OPTIONS, group: 'advanced' },
+    { key: 'ctaFontSize', label: 'Button Font Size', type: 'select', options: FONT_SIZE_REM_OPTIONS, group: 'advanced' },
+    { key: 'ctaLetterSpacing', label: 'Button Letter Spacing', type: 'select', options: LETTER_SPACING_OPTIONS, group: 'advanced' },
+    { key: 'ctaBorderWidth', label: 'Button Border Width', type: 'select', options: BORDER_WIDTH_OPTIONS, group: 'advanced' },
   ],
 
   'je-hero-split': [
@@ -405,44 +532,40 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'dark', label: 'Dark Mode', type: 'boolean', group: 'style' },
     
     // === IMAGE ELEMENT CONTROLS ===
-    { key: 'imageWidth', label: 'Image Width', type: 'text', placeholder: '100%', group: 'advanced' },
-    { key: 'imageHeight', label: 'Image Height', type: 'text', placeholder: 'auto', group: 'advanced' },
-    { key: 'imageMaxWidth', label: 'Image Max Width', type: 'text', placeholder: '100%', group: 'advanced' },
-    { key: 'imageBorderRadius', label: 'Image Border Radius', type: 'text', placeholder: '2rem', group: 'advanced' },
+    { key: 'imageWidth', label: 'Image Width', type: 'select', options: MAX_WIDTH_OPTIONS, group: 'advanced' },
+    { key: 'imageHeight', label: 'Image Height', type: 'select', options: MIN_HEIGHT_OPTIONS, group: 'advanced' },
+    { key: 'imageMaxWidth', label: 'Image Max Width', type: 'select', options: MAX_WIDTH_OPTIONS, group: 'advanced' },
+    { key: 'imageBorderRadius', label: 'Image Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS, group: 'advanced' },
     { key: 'imageObjectFit', label: 'Image Object Fit', type: 'select', options: [
       { value: 'cover', label: 'Cover' },
       { value: 'contain', label: 'Contain' },
       { value: 'fill', label: 'Fill' },
       { value: 'none', label: 'None' },
     ], group: 'advanced' },
-    { key: 'imageMarginTop', label: 'Image Margin Top', type: 'text', placeholder: '0', group: 'advanced' },
-    { key: 'imageMarginBottom', label: 'Image Margin Bottom', type: 'text', placeholder: '0', group: 'advanced' },
+    { key: 'imageMarginTop', label: 'Image Margin Top', type: 'select', options: SPACING_OPTIONS, group: 'advanced' },
+    { key: 'imageMarginBottom', label: 'Image Margin Bottom', type: 'select', options: SPACING_OPTIONS, group: 'advanced' },
     
     // === TEXT ELEMENT CONTROLS ===
-    { key: 'titleFontSize', label: 'Title Font Size', type: 'text', placeholder: '3rem', group: 'advanced' },
-    { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.2', group: 'advanced' },
-    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '2rem', group: 'advanced' },
-    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '18px', group: 'advanced' },
-    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.75', group: 'advanced' },
-    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '2rem', group: 'advanced' },
-    { key: 'labelFontSize', label: 'Label Font Size', type: 'text', placeholder: '12px', group: 'advanced' },
-    { key: 'labelMarginBottom', label: 'Label Margin Bottom', type: 'text', placeholder: '1rem', group: 'advanced' },
+    { key: 'titleFontSize', label: 'Title Font Size', type: 'select', options: FONT_SIZE_REM_OPTIONS, group: 'advanced' },
+    { key: 'titleLineHeight', label: 'Title Line Height', type: 'select', options: LINE_HEIGHT_OPTIONS, group: 'advanced' },
+    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'select', options: SPACING_OPTIONS, group: 'advanced' },
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'select', options: LINE_HEIGHT_OPTIONS, group: 'advanced' },
+    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'select', options: SPACING_OPTIONS, group: 'advanced' },
+    { key: 'labelFontSize', label: 'Label Font Size', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'labelMarginBottom', label: 'Label Margin Bottom', type: 'select', options: SPACING_OPTIONS, group: 'advanced' },
     
     // === CTA ELEMENT CONTROLS ===
-    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'text', placeholder: '9999px', group: 'advanced' },
-    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'text', placeholder: '24px', group: 'advanced' },
-    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'text', placeholder: '12px', group: 'advanced' },
-    { key: 'ctaFontSize', label: 'Button Font Size', type: 'text', placeholder: '0.875rem', group: 'advanced' },
+    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS, group: 'advanced' },
+    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'select', options: BUTTON_PADDING_OPTIONS, group: 'advanced' },
+    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'select', options: BUTTON_PADDING_OPTIONS, group: 'advanced' },
+    { key: 'ctaFontSize', label: 'Button Font Size', type: 'select', options: FONT_SIZE_REM_OPTIONS, group: 'advanced' },
     
     // === LAYOUT CONTROLS ===
-    { key: 'contentGap', label: 'Content Gap', type: 'text', placeholder: '4rem', group: 'layout' },
-    { key: 'sectionPaddingY', label: 'Section Padding Y', type: 'text', placeholder: '6rem', group: 'layout' },
-    { key: 'sectionPaddingX', label: 'Section Padding X', type: 'text', placeholder: '24px', group: 'layout' },
-    { key: 'contentTextAlign', label: 'Content Text Align', type: 'select', options: [
-      { value: 'left', label: 'Left' },
-      { value: 'center', label: 'Center' },
-      { value: 'right', label: 'Right' },
-    ], group: 'layout' },
+    { key: 'contentGap', label: 'Content Gap', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
+    { key: 'sectionPaddingY', label: 'Section Padding Y', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
+    { key: 'sectionPaddingX', label: 'Section Padding X', type: 'select', options: SPACING_PX_OPTIONS, group: 'layout' },
+    { key: 'contentTextAlign', label: 'Content Text Align', type: 'select', options: ALIGNMENT_OPTIONS, group: 'layout' },
     { key: 'contentVerticalAlign', label: 'Content Vertical Align', type: 'select', options: [
       { value: 'top', label: 'Top' },
       { value: 'center', label: 'Center' },
@@ -484,31 +607,27 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'dark', label: 'Dark Mode', type: 'boolean', group: 'style' },
     
     // === TEXT ELEMENT CONTROLS ===
-    { key: 'titleFontSize', label: 'Title Font Size', type: 'text', placeholder: '3.5rem', group: 'advanced' },
-    { key: 'titleLineHeight', label: 'Title Line Height', type: 'text', placeholder: '1.2', group: 'advanced' },
-    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'text', placeholder: '24px', group: 'advanced' },
-    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'text', placeholder: '20px', group: 'advanced' },
-    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'text', placeholder: '1.75', group: 'advanced' },
-    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'text', placeholder: '2rem', group: 'advanced' },
-    { key: 'labelFontSize', label: 'Label Font Size', type: 'text', placeholder: '12px', group: 'advanced' },
-    { key: 'labelMarginBottom', label: 'Label Margin Bottom', type: 'text', placeholder: '1rem', group: 'advanced' },
+    { key: 'titleFontSize', label: 'Title Font Size', type: 'select', options: FONT_SIZE_REM_OPTIONS, group: 'advanced' },
+    { key: 'titleLineHeight', label: 'Title Line Height', type: 'select', options: LINE_HEIGHT_OPTIONS, group: 'advanced' },
+    { key: 'titleMarginBottom', label: 'Title Margin Bottom', type: 'select', options: SPACING_PX_OPTIONS, group: 'advanced' },
+    { key: 'descriptionFontSize', label: 'Description Font Size', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'descriptionLineHeight', label: 'Description Line Height', type: 'select', options: LINE_HEIGHT_OPTIONS, group: 'advanced' },
+    { key: 'descriptionMarginBottom', label: 'Description Margin Bottom', type: 'select', options: SPACING_OPTIONS, group: 'advanced' },
+    { key: 'labelFontSize', label: 'Label Font Size', type: 'select', options: FONT_SIZE_OPTIONS, group: 'advanced' },
+    { key: 'labelMarginBottom', label: 'Label Margin Bottom', type: 'select', options: SPACING_OPTIONS, group: 'advanced' },
     
     // === CTA ELEMENT CONTROLS ===
-    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'text', placeholder: '9999px', group: 'advanced' },
-    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'text', placeholder: '2rem', group: 'advanced' },
-    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'text', placeholder: '1rem', group: 'advanced' },
-    { key: 'ctaFontSize', label: 'Button Font Size', type: 'text', placeholder: '0.875rem', group: 'advanced' },
+    { key: 'ctaBorderRadius', label: 'Button Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS, group: 'advanced' },
+    { key: 'ctaPaddingX', label: 'Button Padding X', type: 'select', options: BUTTON_PADDING_OPTIONS, group: 'advanced' },
+    { key: 'ctaPaddingY', label: 'Button Padding Y', type: 'select', options: BUTTON_PADDING_OPTIONS, group: 'advanced' },
+    { key: 'ctaFontSize', label: 'Button Font Size', type: 'select', options: FONT_SIZE_REM_OPTIONS, group: 'advanced' },
     
     // === LAYOUT CONTROLS ===
-    { key: 'minHeight', label: 'Minimum Height', type: 'text', placeholder: '70vh', group: 'layout' },
-    { key: 'sectionPaddingY', label: 'Section Padding Y', type: 'text', placeholder: '6rem', group: 'layout' },
-    { key: 'sectionPaddingX', label: 'Section Padding X', type: 'text', placeholder: '24px', group: 'layout' },
-    { key: 'contentMaxWidth', label: 'Content Max Width', type: 'text', placeholder: '48rem', group: 'layout' },
-    { key: 'contentTextAlign', label: 'Content Text Align', type: 'select', options: [
-      { value: 'left', label: 'Left' },
-      { value: 'center', label: 'Center' },
-      { value: 'right', label: 'Right' },
-    ], group: 'layout' },
+    { key: 'minHeight', label: 'Minimum Height', type: 'select', options: MIN_HEIGHT_OPTIONS, group: 'layout' },
+    { key: 'sectionPaddingY', label: 'Section Padding Y', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
+    { key: 'sectionPaddingX', label: 'Section Padding X', type: 'select', options: SPACING_PX_OPTIONS, group: 'layout' },
+    { key: 'contentMaxWidth', label: 'Content Max Width', type: 'select', options: MAX_WIDTH_OPTIONS, group: 'layout' },
+    { key: 'contentTextAlign', label: 'Content Text Align', type: 'select', options: ALIGNMENT_OPTIONS, group: 'layout' },
     { key: 'contentVerticalAlign', label: 'Content Vertical Align', type: 'select', options: [
       { value: 'top', label: 'Top' },
       { value: 'center', label: 'Center' },
@@ -527,8 +646,8 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'serif', label: 'Serif Font', type: 'boolean' },
     { key: 'uppercase', label: 'Uppercase', type: 'boolean' },
     { key: 'color', label: 'Text Color', type: 'color' },
-    { key: 'marginTop', label: 'Margin Top', type: 'text', placeholder: '0px' },
-    { key: 'marginBottom', label: 'Margin Bottom', type: 'text', placeholder: '0px' },
+    { key: 'marginTop', label: 'Margin Top', type: 'select', options: SPACING_PX_OPTIONS },
+    { key: 'marginBottom', label: 'Margin Bottom', type: 'select', options: SPACING_PX_OPTIONS },
   ],
 
   'je-paragraph': [
@@ -751,13 +870,13 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'showArrows', label: 'Show Arrows', type: 'boolean', group: 'layout' },
     
     // === SHAPE & SIZE ===
-    { key: 'cardBorderRadius', label: 'Card Border Radius', type: 'text', placeholder: '2rem', group: 'style' },
-    { key: 'cardHeight', label: 'Card Height', type: 'text', placeholder: '400px', group: 'style' },
-    { key: 'cardWidth', label: 'Card Width', type: 'text', placeholder: '30vw', group: 'style' },
+    { key: 'cardBorderRadius', label: 'Card Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS, group: 'style' },
+    { key: 'cardHeight', label: 'Card Height', type: 'select', options: MIN_HEIGHT_OPTIONS, group: 'style' },
+    { key: 'cardWidth', label: 'Card Width', type: 'select', options: MAX_WIDTH_OPTIONS, group: 'style' },
     
     // === SPACING ===
-    { key: 'cardGap', label: 'Card Gap', type: 'text', placeholder: '3rem', group: 'layout' },
-    { key: 'sectionPadding', label: 'Section Padding', type: 'text', placeholder: '6rem', group: 'layout' },
+    { key: 'cardGap', label: 'Card Gap', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
+    { key: 'sectionPadding', label: 'Section Padding', type: 'select', options: SPACING_OPTIONS, group: 'layout' },
     
     // === MANUAL ITEMS (when not using admin carousel) ===
     { key: 'items', label: 'Carousel Items', type: 'array', description: 'Manual items (ignored when using Admin Carousel)', itemFields: [
@@ -854,7 +973,7 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'label', label: 'Section Label', type: 'text' },
     { key: 'title', label: 'Section Title', type: 'text' },
     { key: 'description', label: 'Description', type: 'textarea' },
-    { key: 'cardRadius', label: 'Card Border Radius', type: 'text', placeholder: '1rem' },
+    { key: 'cardRadius', label: 'Card Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS },
     { key: 'dark', label: 'Dark Mode', type: 'boolean' },
     { key: 'volumes', label: 'Volumes', type: 'array', itemFields: [
       { key: 'title', label: 'Title', type: 'text' },
