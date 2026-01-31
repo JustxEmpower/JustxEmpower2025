@@ -1946,26 +1946,26 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   const isRounded = content.rounded !== false;
   const borderRadius = content.borderRadius || '2rem';
   
-  // Support both maxWidth (new) and width (legacy) - default to 66% for better page aesthetics
-  const sizeValue = content.maxWidth || content.width || '66%';
+  // Support both maxWidth (new) and width (legacy) - default to 50% for balanced aesthetics
+  const sizeValue = content.maxWidth || content.width || '1/2';
   
-  // Map size values to inline maxWidth styles for precise control
+  // Map size values to inline maxWidth styles - handle both formats (fractions and percentages)
   const getWidthStyle = (size: string): React.CSSProperties => {
     switch(size) {
-      case '10%': return { maxWidth: '10%', width: '10%' };
-      case '15%': return { maxWidth: '15%', width: '15%' };
-      case '20%': return { maxWidth: '20%', width: '20%' };
+      case '1/4':
       case '25%': return { maxWidth: '25%', width: '25%' };
-      case '33%':
-      case 'small': return { maxWidth: '33.333%', width: '33.333%' };
+      case '1/3':
+      case '33%': return { maxWidth: '33.333%', width: '33.333%' };
+      case '1/2':
       case '50%': return { maxWidth: '50%', width: '50%' };
-      case '66%':
-      case 'medium': return { maxWidth: '66.666%', width: '66.666%' };
+      case '2/3':
+      case '66%': return { maxWidth: '66.666%', width: '66.666%' };
+      case '3/4':
       case '75%': return { maxWidth: '75%', width: '75%' };
-      case '100%':
-      case 'large':
       case 'full':
-      default: return { maxWidth: '100%', width: '100%' };
+      case '100%': return { maxWidth: '100%', width: '100%' };
+      case 'auto':
+      default: return { maxWidth: '50%', width: '50%' };
     }
   };
   
@@ -1973,11 +1973,8 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   const alignment = content.alignment || 'center';
   const alignmentClass = alignment === 'left' ? 'mr-auto' : alignment === 'right' ? 'ml-auto' : 'mx-auto';
 
-  // Container max-width to prevent full-bleed images - max 896px (max-w-4xl)
-  const containerMaxWidth = content.maxWidth === '100%' || content.width === '100%' ? '896px' : undefined;
-
   return (
-    <figure className="py-8 px-4" style={{ maxWidth: containerMaxWidth, margin: containerMaxWidth ? '0 auto' : undefined }}>
+    <figure className="py-8 px-4">
       {imageUrl ? (
         <div 
           className={`relative overflow-hidden ${alignmentClass} ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
@@ -2030,17 +2027,24 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
   const videoUrl = content.videoUrl ? getMediaUrl(content.videoUrl) : undefined;
   const posterUrl = (content.posterImage || content.poster) ? getMediaUrl(content.posterImage || content.poster || '') : undefined;
 
-  // Width/size controls - default to 66% for better page aesthetics
-  const sizeValue = content.width || '66%';
+  // Width/size controls - default to 50% for balanced aesthetics
+  const sizeValue = content.width || '1/2';
   const getWidthStyle = (size: string): React.CSSProperties => {
     switch(size) {
+      case '1/4':
       case '25%': return { maxWidth: '25%', width: '25%' };
+      case '1/3':
       case '33%': return { maxWidth: '33.333%', width: '33.333%' };
+      case '1/2':
       case '50%': return { maxWidth: '50%', width: '50%' };
+      case '2/3':
       case '66%': return { maxWidth: '66.666%', width: '66.666%' };
+      case '3/4':
       case '75%': return { maxWidth: '75%', width: '75%' };
-      case '100%':
-      default: return { maxWidth: '100%', width: '100%' };
+      case 'full':
+      case '100%': return { maxWidth: '100%', width: '100%' };
+      case 'auto':
+      default: return { maxWidth: '50%', width: '50%' };
     }
   };
   const widthStyles = getWidthStyle(sizeValue);
@@ -2068,11 +2072,8 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
     }
   };
 
-  // Container max-width to prevent full-bleed videos - max 896px (max-w-4xl)
-  const containerMaxWidth = content.width === '100%' ? '896px' : undefined;
-
   return (
-    <div className="py-8 px-4" style={{ maxWidth: containerMaxWidth, margin: containerMaxWidth ? '0 auto' : undefined }}>
+    <div className="py-8 px-4">
       {videoUrl ? (
         <div 
           className={`relative overflow-hidden bg-black shadow-2xl shadow-black/20 ${alignmentClass}`}
