@@ -991,7 +991,6 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
       <p
         className={cn(
           fontClassName,
-          'text-base md:text-lg',
           lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
           !hasCustomFont && 'font-sans',
           'whitespace-pre-wrap',
@@ -1000,6 +999,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
           indent ? 'indent-8' : ''
         )}
+        style={textStyle}
       >
         <EditableText
           value={text}
@@ -1009,6 +1009,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           multiline
           isEditing={isEditing}
           className=""
+          style={textStyle}
         />
       </p>
     </div>
