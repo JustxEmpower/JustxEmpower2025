@@ -1973,8 +1973,11 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   const alignment = content.alignment || 'center';
   const alignmentClass = alignment === 'left' ? 'mr-auto' : alignment === 'right' ? 'ml-auto' : 'mx-auto';
 
+  // Container max-width to prevent full-bleed images - max 896px (max-w-4xl)
+  const containerMaxWidth = content.maxWidth === '100%' || content.width === '100%' ? '896px' : undefined;
+
   return (
-    <figure className="py-8">
+    <figure className="py-8 px-4" style={{ maxWidth: containerMaxWidth, margin: containerMaxWidth ? '0 auto' : undefined }}>
       {imageUrl ? (
         <div 
           className={`relative overflow-hidden ${alignmentClass} ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
@@ -2065,8 +2068,11 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
     }
   };
 
+  // Container max-width to prevent full-bleed videos - max 896px (max-w-4xl)
+  const containerMaxWidth = content.width === '100%' ? '896px' : undefined;
+
   return (
-    <div className="py-8">
+    <div className="py-8 px-4" style={{ maxWidth: containerMaxWidth, margin: containerMaxWidth ? '0 auto' : undefined }}>
       {videoUrl ? (
         <div 
           className={`relative overflow-hidden bg-black shadow-2xl shadow-black/20 ${alignmentClass}`}
