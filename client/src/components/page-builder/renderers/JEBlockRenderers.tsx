@@ -1637,33 +1637,62 @@ export function JEPillarGridRenderer({ block, isEditing = false, isBlockSelected
             const pillarDescField = `pillar${index + 1}Description`;
             
             return (
-              <div key={index} className="text-center group">
-                {/* Icon Circle */}
-                <div className={`w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${isDark ? 'bg-white/10' : 'bg-primary/10'}`}>
-                  <IconComponent className={`w-10 h-10 ${isDark ? 'text-white' : 'text-primary'}`} />
+              <EditableElement
+                key={index}
+                elementId={`pillar-${index}`}
+                elementType="container"
+                isEditing={isElementEditMode}
+                className="block"
+              >
+                <div className="text-center group">
+                  {/* Icon Circle */}
+                  <EditableElement
+                    elementId={`pillar-icon-${index}`}
+                    elementType="image"
+                    isEditing={isElementEditMode}
+                    className="block"
+                  >
+                    <div className={`w-20 h-20 mx-auto mb-6 rounded-full flex items-center justify-center transition-all duration-300 group-hover:scale-110 ${isDark ? 'bg-white/10' : 'bg-primary/10'}`}>
+                      <IconComponent className={`w-10 h-10 ${isDark ? 'text-white' : 'text-primary'}`} />
+                    </div>
+                  </EditableElement>
+                  
+                  {/* Pillar Title - Editable */}
+                  <EditableElement
+                    elementId={`pillar-title-${index}`}
+                    elementType="text"
+                    isEditing={isElementEditMode}
+                    className="block"
+                  >
+                    <InlineEditableText
+                      blockId={block.id}
+                      fieldName={pillarTitleField}
+                      value={pillar.title}
+                      placeholder="Pillar Title"
+                      className={`font-serif text-2xl md:text-3xl italic mb-4 ${textClass}`}
+                      as="h3"
+                    />
+                  </EditableElement>
+                  
+                  {/* Pillar Description - Editable */}
+                  <EditableElement
+                    elementId={`pillar-desc-${index}`}
+                    elementType="text"
+                    isEditing={isElementEditMode}
+                    className="block"
+                  >
+                    <InlineEditableText
+                      blockId={block.id}
+                      fieldName={pillarDescField}
+                      value={pillar.description}
+                      placeholder="Pillar description..."
+                      className={`text-base md:text-lg leading-relaxed font-sans ${subtextClass}`}
+                      as="p"
+                      multiline
+                    />
+                  </EditableElement>
                 </div>
-                
-                {/* Pillar Title - Editable */}
-                <InlineEditableText
-                  blockId={block.id}
-                  fieldName={pillarTitleField}
-                  value={pillar.title}
-                  placeholder="Pillar Title"
-                  className={`font-serif text-2xl md:text-3xl italic mb-4 ${textClass}`}
-                  as="h3"
-                />
-                
-                {/* Pillar Description - Editable */}
-                <InlineEditableText
-                  blockId={block.id}
-                  fieldName={pillarDescField}
-                  value={pillar.description}
-                  placeholder="Pillar description..."
-                  className={`text-base md:text-lg leading-relaxed font-sans ${subtextClass}`}
-                  as="p"
-                  multiline
-                />
-              </div>
+              </EditableElement>
             );
           })}
         </div>
