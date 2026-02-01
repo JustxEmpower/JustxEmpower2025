@@ -3040,7 +3040,7 @@ export default function BlockSettings() {
       </div>
 
       {/* Settings tabs - 4 tabs matching Zone Editor */}
-      <Tabs defaultValue="content" className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      <Tabs defaultValue="content" className="flex-1 flex flex-col min-h-0">
         <TabsList className="mx-4 mt-4 grid grid-cols-4 flex-shrink-0">
           <TabsTrigger value="content" className="text-xs px-2">
             Content
@@ -3056,9 +3056,9 @@ export default function BlockSettings() {
           </TabsTrigger>
         </TabsList>
 
-          <TabsContent value="content" className="flex-1 overflow-hidden min-h-0 mt-0 data-[state=active]:flex data-[state=active]:flex-col">
-            <ScrollArea className="flex-1">
-              <div className="p-4 space-y-4 pb-8">
+          <TabsContent value="content" className="mt-0 p-0">
+            <ScrollArea style={{ height: 'calc(100vh - 280px)' }}>
+              <div className="p-4 space-y-4 pb-16">
             <AnimatePresence mode="wait">
               <motion.div
                 key={selectedBlockId}
@@ -3095,9 +3095,9 @@ export default function BlockSettings() {
             </ScrollArea>
           </TabsContent>
 
-          <TabsContent value="style" className="flex-1 overflow-hidden min-h-0 mt-0 data-[state=active]:flex data-[state=active]:flex-col">
-            <ScrollArea className="flex-1">
-              <div className="p-4 space-y-4 pb-8">
+          <TabsContent value="style" className="mt-0 p-0">
+            <ScrollArea style={{ height: 'calc(100vh - 280px)' }}>
+              <div className="p-4 space-y-4 pb-16">
               {/* Render style fields from definitions first */}
               {(() => {
                 const groupedFields = getGroupedFields(selectedBlock.type);
@@ -3948,9 +3948,9 @@ export default function BlockSettings() {
           </TabsContent>
 
           {/* Layout Tab - Definition-based layout fields */}
-          <TabsContent value="layout" className="flex-1 overflow-hidden min-h-0 mt-0 data-[state=active]:flex data-[state=active]:flex-col">
-            <ScrollArea className="flex-1">
-              <div className="p-4 space-y-4 pb-8">
+          <TabsContent value="layout" className="mt-0 p-0">
+            <ScrollArea style={{ height: 'calc(100vh - 280px)' }}>
+              <div className="p-4 space-y-4 pb-16">
                 {/* Render layout fields from definitions */}
                 {(() => {
                   const groupedFields = getGroupedFields(selectedBlock.type);
@@ -4087,9 +4087,9 @@ export default function BlockSettings() {
             </ScrollArea>
           </TabsContent>
 
-          <TabsContent value="advanced" className="flex-1 overflow-hidden min-h-0 mt-0 data-[state=active]:flex data-[state=active]:flex-col">
-            <ScrollArea className="flex-1">
-              <div className="p-4 space-y-4 pb-8">
+          <TabsContent value="advanced" className="mt-0 p-0">
+            <ScrollArea style={{ height: 'calc(100vh - 280px)' }}>
+              <div className="p-4 space-y-4 pb-16">
               <div className="space-y-2">
                 <Label className="text-sm font-medium">CSS Class</Label>
                 <Input
