@@ -50,6 +50,10 @@ export default function EditableElement({
     y: initialY,
   });
 
+  // Scale factor for stretching content (like Photoshop)
+  const [scale, setScale] = useState({ x: 1, y: 1 });
+  const initialDimensions = useRef({ width: 0, height: 0 });
+
   const dragStart = useRef({ x: 0, y: 0 });
   const elementStart = useRef({ x: 0, y: 0, width: 0, height: 0 });
 
@@ -102,12 +106,21 @@ export default function EditableElement({
     setIsResizing(true);
     setResizeHandle(handle);
     dragStart.current = { x: e.clientX, y: e.clientY };
+    
+    const currentWidth = containerRef.current?.offsetWidth || 0;
+    const currentHeight = containerRef.current?.offsetHeight || 0;
+    
     elementStart.current = { 
       x: position.x, 
       y: position.y, 
-      width: containerRef.current?.offsetWidth || 0,
-      height: containerRef.current?.offsetHeight || 0,
+      width: currentWidth,
+      height: currentHeight,
     };
+    
+    // Store initial dimensions for scale calculation (only on first resize)
+    if (initialDimensions.current.width === 0) {
+      initialDimensions.current = { width: currentWidth, height: currentHeight };
+    }
   }, [isEditing, isSelected, position]);
 
   // Handle mouse move for drag/resize
@@ -154,6 +167,13 @@ export default function EditableElement({
 
         setDimensions({ width: newWidth, height: newHeight });
         setPosition({ x: newX, y: newY });
+        
+        // Calculate scale factors for content stretching (like Photoshop)
+        if (initialDimensions.current.width > 0 && initialDimensions.current.height > 0) {
+          const scaleX = newWidth / initialDimensions.current.width;
+          const scaleY = newHeight / initialDimensions.current.height;
+          setScale({ x: scaleX, y: scaleY });
+        }
       }
     };
 
@@ -203,8 +223,14 @@ export default function EditableElement({
       }}
       onClick={handleClick}
     >
-      {/* Element content */}
-      <div className="w-full h-full">
+      {/* Element content with scale transform for text stretching */}
+      <div 
+        className="w-full h-full origin-top-left"
+        style={{
+          transform: scale.x !== 1 || scale.y !== 1 ? `scale(${scale.x}, ${scale.y})` : undefined,
+          transformOrigin: 'top left',
+        }}
+      >
         {children}
       </div>
 
