@@ -822,8 +822,8 @@ export default function AdminZoneEditor() {
                 <CardContent className="p-0">
                   {/* Use field definitions if available for this block type */}
                   {JE_BLOCK_FIELDS[selectedBlock.type] ? (
-                    <Tabs defaultValue="content" className="w-full">
-                      <TabsList className="w-full grid grid-cols-4 mx-3 mb-2" style={{ width: 'calc(100% - 24px)' }}>
+                    <Tabs defaultValue="content" className="w-full flex flex-col" style={{ maxHeight: 'calc(100vh - 250px)' }}>
+                      <TabsList className="w-full grid grid-cols-4 mx-3 mb-2 flex-shrink-0" style={{ width: 'calc(100% - 24px)' }}>
                         <TabsTrigger value="content" className="text-xs">Content</TabsTrigger>
                         <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
                         <TabsTrigger value="layout" className="text-xs">Layout</TabsTrigger>
@@ -841,9 +841,9 @@ export default function AdminZoneEditor() {
                         const tabValue = groupName === 'media' ? 'content' : groupName;
                         
                         return (
-                          <TabsContent key={groupName} value={tabValue} className="m-0 px-3">
-                            <ScrollArea className="h-[55vh]">
-                              <div className="space-y-4 pr-4 pb-4">
+                          <TabsContent key={groupName} value={tabValue} className="m-0 px-3 flex-1 overflow-hidden">
+                            <ScrollArea className="h-full" style={{ maxHeight: 'calc(100vh - 320px)' }}>
+                              <div className="space-y-4 pr-4 pb-8">
                                 {fields.map((field) => (
                                   <ZoneFieldRenderer
                                     key={field.key}
@@ -864,8 +864,8 @@ export default function AdminZoneEditor() {
                     </Tabs>
                   ) : (
                     /* Fallback for blocks without field definitions */
-                    <ScrollArea className="h-[60vh]">
-                      <div className="space-y-4 p-4">
+                    <ScrollArea className="h-full" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+                      <div className="space-y-4 p-4 pb-8">
                         {/* Special handling for JE Carousel blocks */}
                         {selectedBlock.type === 'je-carousel' && (
                           <>
