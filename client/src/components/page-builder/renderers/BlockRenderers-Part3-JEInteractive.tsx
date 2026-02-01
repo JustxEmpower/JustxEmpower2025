@@ -95,35 +95,49 @@ export function JENewsletterRenderer({ block, isEditing, isElementEditMode = fal
       style={backgroundColor ? { backgroundColor } : undefined}
     >
       <div className={cn(
-        'mx-auto px-6 md:px-12',
+        'mx-auto px-6 md:px-12 relative',
         maxWidth,
         alignmentClasses[alignment]
       )}>
-        <EditableText
-          value={title}
-          onChange={(v) => handleChange('title', v)}
-          tag="h2"
-          placeholder="Newsletter Title"
-          isEditing={isEditing}
-          className={cn(
-            getTitleClass(),
-            'font-serif italic font-light leading-[1.1] tracking-tight mb-6',
-            dark ? 'text-white' : 'text-foreground'
-          )}
-        />
+        <EditableElement
+          elementId="title"
+          elementType="text"
+          isEditing={isElementEditMode}
+          className="inline-block"
+        >
+          <EditableText
+            value={title}
+            onChange={(v) => handleChange('title', v)}
+            tag="h2"
+            placeholder="Newsletter Title"
+            isEditing={isEditing}
+            className={cn(
+              getTitleClass(),
+              'font-serif italic font-light leading-[1.1] tracking-tight mb-6',
+              dark ? 'text-white' : 'text-foreground'
+            )}
+          />
+        </EditableElement>
 
-        <EditableText
-          value={description}
-          onChange={(v) => handleChange('description', v)}
-          tag="p"
-          placeholder="Description..."
-          multiline
-          isEditing={isEditing}
-          className={cn(
-            'text-lg font-sans mb-8 whitespace-pre-wrap',
-            dark ? 'text-neutral-300' : 'text-neutral-600'
-          )}
-        />
+        <EditableElement
+          elementId="description"
+          elementType="text"
+          isEditing={isElementEditMode}
+          className="block"
+        >
+          <EditableText
+            value={description}
+            onChange={(v) => handleChange('description', v)}
+            tag="p"
+            placeholder="Description..."
+            multiline
+            isEditing={isEditing}
+            className={cn(
+              'text-lg font-sans mb-8 whitespace-pre-wrap',
+              dark ? 'text-neutral-300' : 'text-neutral-600'
+            )}
+          />
+        </EditableElement>
 
         {/* Form */}
         <form className={cn(
@@ -481,41 +495,69 @@ export function JETestimonialRenderer({ block, isEditing, isElementEditMode = fa
       )}
 
       {/* Quote */}
-      <EditableText
-        value={quote}
-        onChange={(v) => handleChange('quote', v)}
-        tag="p"
-        placeholder="Testimonial quote..."
-        multiline
-        isEditing={isEditing}
-        className={cn(
-          'text-lg md:text-xl font-serif italic leading-relaxed mb-6 whitespace-pre-wrap',
-          dark ? 'text-white' : 'text-neutral-800'
-        )}
-      />
+      <EditableElement
+        elementId="quote"
+        elementType="text"
+        isEditing={isElementEditMode}
+        className="block"
+      >
+        <EditableText
+          value={quote}
+          onChange={(v) => handleChange('quote', v)}
+          tag="p"
+          placeholder="Testimonial quote..."
+          multiline
+          isEditing={isEditing}
+          className={cn(
+            'text-lg md:text-xl font-serif italic leading-relaxed mb-6 whitespace-pre-wrap',
+            dark ? 'text-white' : 'text-neutral-800'
+          )}
+        />
+      </EditableElement>
 
       {/* Author */}
       <div className={cn('flex items-center gap-4', variant === 'minimal' && 'justify-center')}>
         {imageUrl && (
-          <img src={imageUrl} alt={author} className="w-12 h-12 rounded-full object-cover" />
+          <EditableElement
+            elementId="author-image"
+            elementType="image"
+            isEditing={isElementEditMode}
+            className="inline-block"
+          >
+            <img src={imageUrl} alt={author} className="w-12 h-12 rounded-full object-cover" />
+          </EditableElement>
         )}
         <div>
-          <EditableText
-            value={author}
-            onChange={(v) => handleChange('author', v)}
-            tag="p"
-            placeholder="Author Name"
-            isEditing={isEditing}
-            className={cn('font-sans font-medium', dark ? 'text-white' : 'text-neutral-900')}
-          />
-          <EditableText
-            value={role}
-            onChange={(v) => handleChange('role', v)}
-            tag="p"
-            placeholder="Role/Title"
-            isEditing={isEditing}
-            className={cn('text-sm font-sans', dark ? 'text-neutral-400' : 'text-neutral-500')}
-          />
+          <EditableElement
+            elementId="author-name"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <EditableText
+              value={author}
+              onChange={(v) => handleChange('author', v)}
+              tag="p"
+              placeholder="Author Name"
+              isEditing={isEditing}
+              className={cn('font-sans font-medium', dark ? 'text-white' : 'text-neutral-900')}
+            />
+          </EditableElement>
+          <EditableElement
+            elementId="author-role"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <EditableText
+              value={role}
+              onChange={(v) => handleChange('role', v)}
+              tag="p"
+              placeholder="Role/Title"
+              isEditing={isEditing}
+              className={cn('text-sm font-sans', dark ? 'text-neutral-400' : 'text-neutral-500')}
+            />
+          </EditableElement>
         </div>
       </div>
     </div>
