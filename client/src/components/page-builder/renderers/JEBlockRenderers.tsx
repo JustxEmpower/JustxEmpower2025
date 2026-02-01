@@ -2188,8 +2188,9 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   // Support both maxWidth (new) and width (legacy) - default to 50% for balanced aesthetics
   const sizeValue = content.maxWidth || content.width || '1/2';
   
-  // Map size values to inline maxWidth styles - handle both formats (fractions and percentages)
+  // Map size values to inline maxWidth styles - handle fractions, percentages, and custom values
   const getWidthStyle = (size: string): React.CSSProperties => {
+    // Handle predefined fraction/percentage values
     switch(size) {
       case '1/4':
       case '25%': return { maxWidth: '25%', width: '25%' };
@@ -2204,8 +2205,14 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
       case 'full':
       case '100%': return { maxWidth: '100%', width: '100%' };
       case 'auto':
-      default: return { maxWidth: '50%', width: '50%' };
+        return { maxWidth: '100%', width: 'auto' };
     }
+    // Handle custom values (px, rem, em, %, vw, etc.)
+    if (size && (size.includes('px') || size.includes('rem') || size.includes('em') || size.includes('%') || size.includes('vw'))) {
+      return { maxWidth: size, width: size };
+    }
+    // Default fallback
+    return { maxWidth: '50%', width: '50%' };
   };
   
   const widthStyles = getWidthStyle(sizeValue);
