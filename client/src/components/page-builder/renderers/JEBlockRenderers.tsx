@@ -1090,42 +1090,51 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           )}
           
           {content.ctaText && content.ctaLink && (
-            (() => {
-              const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
-              const linkStyle = { 
-                color: ctaTextColor, 
-                borderColor: ctaTextColor,
-                borderRadius: content.ctaBorderRadius || '9999px',
-                paddingLeft: content.ctaPaddingX || '1.5rem',
-                paddingRight: content.ctaPaddingX || '1.5rem',
-                paddingTop: content.ctaPaddingY || '0.75rem',
-                paddingBottom: content.ctaPaddingY || '0.75rem',
-                fontSize: content.ctaFontSize || '0.875rem',
-                letterSpacing: content.ctaLetterSpacing || '0.15em',
-                borderWidth: content.ctaBorderWidth || '1px',
-              };
-              const linkClass = "je-section-cta inline-block border font-sans uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300";
-              
-              return isExternal ? (
-                <a 
-                  href={content.ctaLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={linkClass}
-                  style={linkStyle}
-                >
-                  {content.ctaText}
-                </a>
-              ) : (
-                <Link 
-                  href={content.ctaLink}
-                  className={linkClass}
-                  style={linkStyle}
-                >
-                  {content.ctaText}
-                </Link>
-              );
-            })()
+            <EditableElement
+              elementId="cta"
+              elementType="button"
+              isEditing={isElementEditMode}
+              minWidth={100}
+              minHeight={30}
+              className="inline-block"
+            >
+              {(() => {
+                const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
+                const linkStyle = { 
+                  color: ctaTextColor, 
+                  borderColor: ctaTextColor,
+                  borderRadius: content.ctaBorderRadius || '9999px',
+                  paddingLeft: content.ctaPaddingX || '1.5rem',
+                  paddingRight: content.ctaPaddingX || '1.5rem',
+                  paddingTop: content.ctaPaddingY || '0.75rem',
+                  paddingBottom: content.ctaPaddingY || '0.75rem',
+                  fontSize: content.ctaFontSize || '0.875rem',
+                  letterSpacing: content.ctaLetterSpacing || '0.15em',
+                  borderWidth: content.ctaBorderWidth || '1px',
+                };
+                const linkClass = "je-section-cta inline-block border font-sans uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300";
+                
+                return isExternal ? (
+                  <a 
+                    href={content.ctaLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={linkClass}
+                    style={linkStyle}
+                  >
+                    {content.ctaText}
+                  </a>
+                ) : (
+                  <Link 
+                    href={content.ctaLink}
+                    className={linkClass}
+                    style={linkStyle}
+                  >
+                    {content.ctaText}
+                  </Link>
+                );
+              })()}
+            </EditableElement>
           )}
         </div>
         
