@@ -198,6 +198,12 @@ function SortableBlock({
       {/* Block content */}
       <div className="relative">
         <BlockRenderer block={block} isEditing={!isPreviewMode} isBlockSelected={isSelected} isElementEditMode={isElementEditMode} />
+        {/* DEBUG: Show isElementEditMode state */}
+        {isElementEditMode && (
+          <div className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 z-[9999]">
+            ELEMENT EDIT MODE ON
+          </div>
+        )}
         
         {/* Resize handles for selected blocks */}
         <ResizeHandles blockId={block.id} isSelected={isSelected} />

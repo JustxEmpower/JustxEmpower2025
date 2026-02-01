@@ -298,9 +298,9 @@ export const MediaRenderer = memo(function MediaRenderer({
 const iconMap = ICON_REGISTRY;
 
 // JE Hero Block Renderer (handles je-hero-video, je-hero-image, je-hero-split, je-hero)
-export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
-  // Debug logging
-  console.log('[JEHeroRenderer] isElementEditMode:', isElementEditMode, 'isEditing:', isEditing);
+export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false, onUpdate }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean; onUpdate?: (content: Record<string, any>) => void }) {
+  // Debug logging - CRITICAL
+  console.log('[JEHeroRenderer] RECEIVED PROPS - isElementEditMode:', isElementEditMode, 'isEditing:', isEditing, 'block.type:', block.type);
   
   const heroRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
