@@ -1,4 +1,18 @@
-import React, { useRef } from 'react';
+/**
+ * TinyMCE Rich Text Editor Components
+ * 
+ * Provides comprehensive rich text editing for the page builder:
+ * - Full editor with all formatting options
+ * - Inline editor for in-place editing
+ * - Block-level editor for use within EditableElement
+ * 
+ * Based on TinyMCE (https://github.com/tinymce/tinymce)
+ * 
+ * @version 2.0
+ * @date February 2026
+ */
+
+import React, { useRef, useCallback, useState } from 'react';
 import { Editor } from '@tinymce/tinymce-react';
 
 interface TinyMCEEditorProps {
@@ -10,6 +24,11 @@ interface TinyMCEEditorProps {
   inline?: boolean;
   toolbar?: string;
   className?: string;
+  // New props for block integration
+  onFocus?: () => void;
+  onBlur?: () => void;
+  disabled?: boolean;
+  darkMode?: boolean;
 }
 
 export default function TinyMCEEditor({
@@ -94,6 +113,9 @@ export function InlineTinyMCEEditor({
   onChange,
   placeholder = 'Click to edit...',
   className = '',
+  onFocus,
+  onBlur,
+  darkMode = false,
 }: Omit<TinyMCEEditorProps, 'height' | 'menubar' | 'inline'>) {
   const editorRef = useRef<any>(null);
 
@@ -103,6 +125,8 @@ export function InlineTinyMCEEditor({
         onInit={(evt, editor) => (editorRef.current = editor)}
         value={value}
         onEditorChange={(content) => onChange(content)}
+        onFocus={onFocus}
+        onBlur={onBlur}
         inline={true}
         init={{
           menubar: false,
@@ -114,9 +138,111 @@ export function InlineTinyMCEEditor({
               font-family: inherit;
               font-size: inherit;
               line-height: inherit;
-              color: inherit;
+              color: ${darkMode ? '#ffffff' : 'inherit'};
             }
           `,
+          branding: false,
+          promotion: false,
+          statusbar: false,
+        }}
+      />
+    </div>
+  );
+}
+
+/**
+ * Block Text Editor - Rich text component for use within blocks
+ * Combines TinyMCE with styling controls for complete text manipulation
+ */
+interface BlockTextEditorProps {
+  value: string;
+  onChange: (content: string) => void;
+  placeholder?: string;
+  className?: string;
+  textStyle?: {
+    fontSize?: string;
+    fontWeight?: string;
+    fontStyle?: string;
+    lineHeight?: string;
+    letterSpacing?: string;
+    textAlign?: 'left' | 'center' | 'right' | 'justify';
+    color?: string;
+  };
+  as?: 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'span' | 'div';
+  darkMode?: boolean;
+  onFocus?: () => void;
+  onBlur?: () => void;
+}
+
+export function BlockTextEditor({
+  value,
+  onChange,
+  placeholder = 'Click to edit...',
+  className = '',
+  textStyle = {},
+  as: Element = 'div',
+  darkMode = false,
+  onFocus,
+  onBlur,
+}: BlockTextEditorProps) {
+  const editorRef = useRef<any>(null);
+  const [isFocused, setIsFocused] = useState(false);
+
+  const handleFocus = useCallback(() => {
+    setIsFocused(true);
+    onFocus?.();
+  }, [onFocus]);
+
+  const handleBlur = useCallback(() => {
+    setIsFocused(false);
+    onBlur?.();
+  }, [onBlur]);
+
+  const styleString = `
+    body {
+      font-family: inherit;
+      font-size: ${textStyle.fontSize || 'inherit'};
+      font-weight: ${textStyle.fontWeight || 'inherit'};
+      font-style: ${textStyle.fontStyle || 'inherit'};
+      line-height: ${textStyle.lineHeight || 'inherit'};
+      letter-spacing: ${textStyle.letterSpacing || 'inherit'};
+      text-align: ${textStyle.textAlign || 'inherit'};
+      color: ${textStyle.color || (darkMode ? '#ffffff' : 'inherit')};
+      margin: 0;
+      padding: 0;
+    }
+    p { margin: 0; }
+  `;
+
+  return (
+    <div 
+      className={`block-text-editor ${isFocused ? 'is-focused' : ''} ${className}`}
+      style={{
+        fontSize: textStyle.fontSize,
+        fontWeight: textStyle.fontWeight,
+        fontStyle: textStyle.fontStyle,
+        lineHeight: textStyle.lineHeight,
+        letterSpacing: textStyle.letterSpacing,
+        textAlign: textStyle.textAlign,
+        color: textStyle.color,
+      }}
+    >
+      <Editor
+        onInit={(evt, editor) => (editorRef.current = editor)}
+        value={value}
+        onEditorChange={(content) => onChange(content)}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        inline={true}
+        init={{
+          menubar: false,
+          placeholder,
+          plugins: ['autolink', 'lists', 'link', 'charmap'],
+          toolbar: isFocused 
+            ? 'bold italic underline strikethrough | forecolor | link | removeformat'
+            : false,
+          toolbar_mode: 'floating',
+          content_style: styleString,
           branding: false,
           promotion: false,
           statusbar: false,

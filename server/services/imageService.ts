@@ -1,10 +1,16 @@
 /**
  * Image Service - Server-side image processing with Sharp
  * 
- * Provides image optimization, resizing, format conversion, and transformations.
+ * Provides comprehensive image manipulation including:
+ * - Optimization, resizing, format conversion
+ * - Flip (horizontal/vertical), rotate, crop
+ * - Color adjustments, filters, overlays
+ * - Responsive image generation
  * 
- * @version 1.0
- * @date January 2026
+ * Based on Sharp (https://github.com/lovell/sharp) for high-performance image processing
+ * 
+ * @version 2.0
+ * @date February 2026
  */
 
 import sharp from 'sharp';
@@ -19,6 +25,24 @@ interface ProcessOptions {
   fit?: 'cover' | 'contain' | 'fill' | 'inside' | 'outside';
   blur?: number;
   grayscale?: boolean;
+  // Transform options
+  flipHorizontal?: boolean;
+  flipVertical?: boolean;
+  rotate?: number; // degrees (0, 90, 180, 270 or any angle)
+  // Crop options
+  cropX?: number;
+  cropY?: number;
+  cropWidth?: number;
+  cropHeight?: number;
+  // Color adjustments
+  brightness?: number; // 0.5 = 50% darker, 1.5 = 50% brighter
+  saturation?: number; // 0 = grayscale, 1 = normal, 2 = double saturation
+  contrast?: number; // contrast multiplier
+  // Effects
+  sharpen?: boolean;
+  tint?: string; // hex color for tinting
+  negate?: boolean;
+  normalize?: boolean;
 }
 
 interface ProcessResult {
@@ -48,10 +72,34 @@ export class ImageService {
   }
 
   /**
-   * Process an image with the given options
+   * Process an image with the given options - Full Sharp capabilities
    */
   async processImage(inputPath: string, options: ProcessOptions): Promise<ProcessResult> {
     let pipeline = sharp(inputPath);
+
+    // Apply rotation first (before other transforms)
+    if (options.rotate !== undefined && options.rotate !== 0) {
+      pipeline = pipeline.rotate(options.rotate, { background: { r: 0, g: 0, b: 0, alpha: 0 } });
+    }
+
+    // Apply flip transformations
+    if (options.flipHorizontal) {
+      pipeline = pipeline.flop(); // Horizontal flip (mirror)
+    }
+    if (options.flipVertical) {
+      pipeline = pipeline.flip(); // Vertical flip
+    }
+
+    // Apply crop/extract if specified
+    if (options.cropX !== undefined && options.cropY !== undefined && 
+        options.cropWidth !== undefined && options.cropHeight !== undefined) {
+      pipeline = pipeline.extract({
+        left: Math.round(options.cropX),
+        top: Math.round(options.cropY),
+        width: Math.round(options.cropWidth),
+        height: Math.round(options.cropHeight),
+      });
+    }
 
     // Apply resize if dimensions specified
     if (options.width || options.height) {
@@ -63,9 +111,44 @@ export class ImageService {
       });
     }
 
+    // Apply color adjustments using modulate
+    if (options.brightness !== undefined || options.saturation !== undefined) {
+      pipeline = pipeline.modulate({
+        brightness: options.brightness,
+        saturation: options.saturation,
+      });
+    }
+
+    // Apply linear contrast adjustment
+    if (options.contrast !== undefined && options.contrast !== 1) {
+      const a = options.contrast;
+      const b = 128 * (1 - options.contrast);
+      pipeline = pipeline.linear(a, b);
+    }
+
+    // Apply normalize (auto-levels)
+    if (options.normalize) {
+      pipeline = pipeline.normalize();
+    }
+
+    // Apply negate (invert colors)
+    if (options.negate) {
+      pipeline = pipeline.negate();
+    }
+
+    // Apply tint
+    if (options.tint) {
+      pipeline = pipeline.tint(options.tint);
+    }
+
     // Apply blur if specified
     if (options.blur) {
       pipeline = pipeline.blur(options.blur);
+    }
+
+    // Apply sharpen
+    if (options.sharpen) {
+      pipeline = pipeline.sharpen();
     }
 
     // Apply grayscale if specified
@@ -104,6 +187,122 @@ export class ImageService {
         size: info.size,
       },
     };
+  }
+
+  /**
+   * Process image from buffer (for client-side uploads)
+   */
+  async processImageBuffer(inputBuffer: Buffer, options: ProcessOptions): Promise<ProcessResult> {
+    let pipeline = sharp(inputBuffer);
+
+    // Apply rotation first
+    if (options.rotate !== undefined && options.rotate !== 0) {
+      pipeline = pipeline.rotate(options.rotate, { background: { r: 0, g: 0, b: 0, alpha: 0 } });
+    }
+
+    // Apply flip transformations
+    if (options.flipHorizontal) {
+      pipeline = pipeline.flop();
+    }
+    if (options.flipVertical) {
+      pipeline = pipeline.flip();
+    }
+
+    // Apply crop
+    if (options.cropX !== undefined && options.cropY !== undefined && 
+        options.cropWidth !== undefined && options.cropHeight !== undefined) {
+      pipeline = pipeline.extract({
+        left: Math.round(options.cropX),
+        top: Math.round(options.cropY),
+        width: Math.round(options.cropWidth),
+        height: Math.round(options.cropHeight),
+      });
+    }
+
+    // Apply resize
+    if (options.width || options.height) {
+      pipeline = pipeline.resize({
+        width: options.width,
+        height: options.height,
+        fit: options.fit || 'cover',
+        withoutEnlargement: true,
+      });
+    }
+
+    // Color adjustments
+    if (options.brightness !== undefined || options.saturation !== undefined) {
+      pipeline = pipeline.modulate({
+        brightness: options.brightness,
+        saturation: options.saturation,
+      });
+    }
+
+    if (options.contrast !== undefined && options.contrast !== 1) {
+      const a = options.contrast;
+      const b = 128 * (1 - options.contrast);
+      pipeline = pipeline.linear(a, b);
+    }
+
+    if (options.normalize) pipeline = pipeline.normalize();
+    if (options.negate) pipeline = pipeline.negate();
+    if (options.tint) pipeline = pipeline.tint(options.tint);
+    if (options.blur) pipeline = pipeline.blur(options.blur);
+    if (options.sharpen) pipeline = pipeline.sharpen();
+    if (options.grayscale) pipeline = pipeline.grayscale();
+
+    const format = options.format || 'webp';
+    const quality = options.quality || 80;
+
+    switch (format) {
+      case 'jpeg':
+        pipeline = pipeline.jpeg({ quality, mozjpeg: true });
+        break;
+      case 'png':
+        pipeline = pipeline.png({ compressionLevel: 9 });
+        break;
+      case 'avif':
+        pipeline = pipeline.avif({ quality });
+        break;
+      case 'webp':
+      default:
+        pipeline = pipeline.webp({ quality });
+        break;
+    }
+
+    const { data, info } = await pipeline.toBuffer({ resolveWithObject: true });
+
+    return {
+      buffer: data,
+      format,
+      info: {
+        width: info.width,
+        height: info.height,
+        size: info.size,
+      },
+    };
+  }
+
+  /**
+   * Quick transform operations (flip, rotate) - returns base64 for immediate preview
+   */
+  async quickTransform(
+    inputBuffer: Buffer,
+    transform: { flipH?: boolean; flipV?: boolean; rotate?: number }
+  ): Promise<string> {
+    let pipeline = sharp(inputBuffer);
+
+    if (transform.rotate) {
+      pipeline = pipeline.rotate(transform.rotate, { background: { r: 0, g: 0, b: 0, alpha: 0 } });
+    }
+    if (transform.flipH) {
+      pipeline = pipeline.flop();
+    }
+    if (transform.flipV) {
+      pipeline = pipeline.flip();
+    }
+
+    const buffer = await pipeline.webp({ quality: 90 }).toBuffer();
+    return `data:image/webp;base64,${buffer.toString('base64')}`;
   }
 
   /**

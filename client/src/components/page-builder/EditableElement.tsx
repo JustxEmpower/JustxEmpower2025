@@ -1,20 +1,31 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Trash2, Move } from 'lucide-react';
+import { Trash2, Move, FlipHorizontal, FlipVertical, RotateCw, RotateCcw, Lock, Unlock } from 'lucide-react';
+
+interface TransformState {
+  flipH: boolean;
+  flipV: boolean;
+  rotate: number; // degrees
+  scaleX: number;
+  scaleY: number;
+}
 
 interface EditableElementProps {
   children: React.ReactNode;
   elementId: string;
-  elementType: string;
+  elementType: 'image' | 'text' | 'video' | 'carousel' | 'button' | 'container' | string;
   isEditing: boolean;
   onResize?: (width: number, height: number) => void;
   onMove?: (x: number, y: number) => void;
   onDelete?: () => void;
+  onTransform?: (transform: TransformState) => void;
   initialWidth?: number;
   initialHeight?: number;
   initialX?: number;
   initialY?: number;
+  initialTransform?: Partial<TransformState>;
   minWidth?: number;
   minHeight?: number;
+  maintainAspectRatio?: boolean;
   className?: string;
 }
 
@@ -26,12 +37,15 @@ export default function EditableElement({
   onResize,
   onMove,
   onDelete,
+  onTransform,
   initialWidth,
   initialHeight,
   initialX = 0,
   initialY = 0,
+  initialTransform,
   minWidth = 50,
   minHeight = 20,
+  maintainAspectRatio = false,
   className = '',
 }: EditableElementProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -39,6 +53,7 @@ export default function EditableElement({
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [resizeHandle, setResizeHandle] = useState<string | null>(null);
+  const [aspectLocked, setAspectLocked] = useState(maintainAspectRatio);
   
   const [dimensions, setDimensions] = useState({
     width: initialWidth || 'auto',
@@ -50,12 +65,53 @@ export default function EditableElement({
     y: initialY,
   });
 
+  // Transform state for flip, rotate, scale
+  const [transform, setTransform] = useState<TransformState>({
+    flipH: initialTransform?.flipH || false,
+    flipV: initialTransform?.flipV || false,
+    rotate: initialTransform?.rotate || 0,
+    scaleX: initialTransform?.scaleX || 1,
+    scaleY: initialTransform?.scaleY || 1,
+  });
+
   // Scale factor for stretching content (like Photoshop)
   const [scale, setScale] = useState({ x: 1, y: 1 });
   const initialDimensions = useRef({ width: 0, height: 0 });
+  const aspectRatio = useRef<number>(1);
 
   const dragStart = useRef({ x: 0, y: 0 });
   const elementStart = useRef({ x: 0, y: 0, width: 0, height: 0 });
+
+  // Transform handlers
+  const handleFlipH = useCallback(() => {
+    const newTransform = { ...transform, flipH: !transform.flipH };
+    setTransform(newTransform);
+    onTransform?.(newTransform);
+  }, [transform, onTransform]);
+
+  const handleFlipV = useCallback(() => {
+    const newTransform = { ...transform, flipV: !transform.flipV };
+    setTransform(newTransform);
+    onTransform?.(newTransform);
+  }, [transform, onTransform]);
+
+  const handleRotateCW = useCallback(() => {
+    const newRotate = (transform.rotate + 90) % 360;
+    const newTransform = { ...transform, rotate: newRotate };
+    setTransform(newTransform);
+    onTransform?.(newTransform);
+  }, [transform, onTransform]);
+
+  const handleRotateCCW = useCallback(() => {
+    const newRotate = (transform.rotate - 90 + 360) % 360;
+    const newTransform = { ...transform, rotate: newRotate };
+    setTransform(newTransform);
+    onTransform?.(newTransform);
+  }, [transform, onTransform]);
+
+  const toggleAspectLock = useCallback(() => {
+    setAspectLocked(!aspectLocked);
+  }, [aspectLocked]);
 
   // Handle click to select
   const handleClick = useCallback((e: React.MouseEvent) => {
@@ -225,12 +281,17 @@ export default function EditableElement({
       }}
       onClick={handleClick}
     >
-      {/* Element content with scale transform for text stretching */}
+      {/* Element content with full transform support (flip, rotate, scale) */}
       <div 
-        className="w-full h-full origin-top-left"
+        className="w-full h-full origin-center"
         style={{
-          transform: scale.x !== 1 || scale.y !== 1 ? `scale(${scale.x}, ${scale.y})` : undefined,
-          transformOrigin: 'top left',
+          transform: [
+            transform.flipH ? 'scaleX(-1)' : '',
+            transform.flipV ? 'scaleY(-1)' : '',
+            transform.rotate !== 0 ? `rotate(${transform.rotate}deg)` : '',
+            scale.x !== 1 || scale.y !== 1 ? `scale(${scale.x}, ${scale.y})` : '',
+          ].filter(Boolean).join(' ') || undefined,
+          transformOrigin: 'center center',
         }}
       >
         {children}
@@ -245,27 +306,72 @@ export default function EditableElement({
           </div>
 
           {/* Toolbar */}
-          <div className="absolute -top-6 right-0 flex gap-1 z-50">
+          <div className="absolute -top-8 right-0 flex gap-1 z-50 bg-neutral-900/90 rounded-lg p-1 shadow-lg">
             {/* Move handle */}
             <button
-              className="bg-blue-500 text-white p-1 rounded cursor-move hover:bg-blue-600"
+              className="bg-blue-500 text-white p-1.5 rounded cursor-move hover:bg-blue-600 transition-colors"
               onMouseDown={handleDragStart}
               title="Drag to move"
             >
-              <Move className="w-3 h-3" />
+              <Move className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Flip Horizontal */}
+            <button
+              className={`p-1.5 rounded transition-colors ${transform.flipH ? 'bg-blue-500 text-white' : 'bg-neutral-700 text-white hover:bg-neutral-600'}`}
+              onClick={(e) => { e.stopPropagation(); handleFlipH(); }}
+              title="Flip Horizontal"
+            >
+              <FlipHorizontal className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Flip Vertical */}
+            <button
+              className={`p-1.5 rounded transition-colors ${transform.flipV ? 'bg-blue-500 text-white' : 'bg-neutral-700 text-white hover:bg-neutral-600'}`}
+              onClick={(e) => { e.stopPropagation(); handleFlipV(); }}
+              title="Flip Vertical"
+            >
+              <FlipVertical className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Rotate Counter-Clockwise */}
+            <button
+              className="bg-neutral-700 text-white p-1.5 rounded hover:bg-neutral-600 transition-colors"
+              onClick={(e) => { e.stopPropagation(); handleRotateCCW(); }}
+              title="Rotate 90° Left"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Rotate Clockwise */}
+            <button
+              className="bg-neutral-700 text-white p-1.5 rounded hover:bg-neutral-600 transition-colors"
+              onClick={(e) => { e.stopPropagation(); handleRotateCW(); }}
+              title="Rotate 90° Right"
+            >
+              <RotateCw className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Aspect Ratio Lock */}
+            <button
+              className={`p-1.5 rounded transition-colors ${aspectLocked ? 'bg-amber-500 text-white' : 'bg-neutral-700 text-white hover:bg-neutral-600'}`}
+              onClick={(e) => { e.stopPropagation(); toggleAspectLock(); }}
+              title={aspectLocked ? 'Unlock Aspect Ratio' : 'Lock Aspect Ratio'}
+            >
+              {aspectLocked ? <Lock className="w-3.5 h-3.5" /> : <Unlock className="w-3.5 h-3.5" />}
             </button>
             
             {/* Delete button */}
             {onDelete && (
               <button
-                className="bg-red-500 text-white p-1 rounded hover:bg-red-600"
+                className="bg-red-500 text-white p-1.5 rounded hover:bg-red-600 transition-colors"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete();
                 }}
                 title="Delete element"
               >
-                <Trash2 className="w-3 h-3" />
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
