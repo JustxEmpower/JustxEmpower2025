@@ -262,11 +262,14 @@ export default function EditableElement({
   const cornerHandleStyle = `${handleStyle} cursor-nwse-resize`;
   const sideHandleStyle = `${handleStyle}`;
 
+  // Use absolute positioning for true free-form movement within block
+  const hasMoved = position.x !== 0 || position.y !== 0;
+
   return (
     <div
       ref={containerRef}
       className={`
-        relative
+        ${hasMoved ? 'absolute' : 'relative'}
         ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : 'ring-1 ring-dashed ring-blue-300 hover:ring-blue-500 hover:ring-2'}
         ${isDragging || isResizing ? 'cursor-grabbing' : 'cursor-pointer'}
         ${className}
@@ -275,8 +278,9 @@ export default function EditableElement({
       style={{
         width: typeof dimensions.width === 'number' ? `${dimensions.width}px` : dimensions.width,
         height: typeof dimensions.height === 'number' ? `${dimensions.height}px` : dimensions.height,
-        transform: `translate(${position.x}px, ${position.y}px)`,
-        position: position.x !== 0 || position.y !== 0 ? 'relative' : undefined,
+        left: hasMoved ? `${position.x}px` : undefined,
+        top: hasMoved ? `${position.y}px` : undefined,
+        transform: !hasMoved ? undefined : undefined,
         zIndex: isSelected ? 100 : 10,
       }}
       onClick={handleClick}

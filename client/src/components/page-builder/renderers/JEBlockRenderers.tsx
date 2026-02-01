@@ -641,7 +641,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
         style={{ opacity: overlayOpacity / 100, zIndex: 2 }}
       />
       
-      {/* Content */}
+      {/* Content - relative container for free-form element positioning */}
       <div 
         className={`relative h-full min-h-[500px] flex flex-col ${verticalAlignClass} ${horizontalAlignClass}`}
         style={{ 
@@ -652,7 +652,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
           paddingRight: toSpacing(paddingRight) || '1.5rem',
         }}
       >
-        <div className={maxWidthClass}>
+        <div className={`${maxWidthClass} relative`} style={{ position: 'relative' }}>
           {content.subtitle && (
             <EditableElement
               elementId="subtitle"
