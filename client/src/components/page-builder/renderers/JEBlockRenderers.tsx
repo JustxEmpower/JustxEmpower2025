@@ -2986,29 +2986,36 @@ export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = 
         <div className="mx-auto" style={{ maxWidth: carouselMaxWidth }}>
           {/* Main Image */}
           <div className="relative">
-            <figure 
-              className="relative overflow-hidden shadow-2xl"
-              style={{ borderRadius: borderRadius }}
+            <EditableElement
+              elementId={`gallery-image-${currentIndex}`}
+              elementType="image"
+              isEditing={isElementEditMode}
+              className="block"
             >
-              {images.length > 0 ? (
-                <img
-                  src={getMediaUrl(images[currentIndex]?.url || '')}
-                  alt={images[currentIndex]?.alt || `Image ${currentIndex + 1}`}
-                  className="w-full object-cover transition-opacity duration-500"
-                  style={{ 
-                    height: 'auto',
-                    minHeight: '20rem',
-                    maxHeight: '36rem',
-                    borderRadius: borderRadius,
-                    opacity: isTransitioning ? 0.7 : 1,
-                  }}
-                />
-              ) : (
-                <div className="w-full h-64 bg-neutral-300 flex items-center justify-center" style={{ borderRadius }}>
-                  <p className="text-neutral-500">No images</p>
-                </div>
-              )}
-            </figure>
+              <figure 
+                className="relative overflow-hidden shadow-2xl"
+                style={{ borderRadius: borderRadius }}
+              >
+                {images.length > 0 ? (
+                  <img
+                    src={getMediaUrl(images[currentIndex]?.url || '')}
+                    alt={images[currentIndex]?.alt || `Image ${currentIndex + 1}`}
+                    className="w-full object-cover transition-opacity duration-500"
+                    style={{ 
+                      height: 'auto',
+                      minHeight: '20rem',
+                      maxHeight: '36rem',
+                      borderRadius: borderRadius,
+                      opacity: isTransitioning ? 0.7 : 1,
+                    }}
+                  />
+                ) : (
+                  <div className="w-full h-64 bg-neutral-300 flex items-center justify-center" style={{ borderRadius }}>
+                    <p className="text-neutral-500">No images</p>
+                  </div>
+                )}
+              </figure>
+            </EditableElement>
 
             {/* Navigation Arrows */}
             {showArrows && images.length > 1 && (
@@ -3065,26 +3072,33 @@ export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = 
       <div className="max-w-7xl mx-auto">
         <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${columns} gap-6`}>
           {images.map((image, index) => (
-            <figure 
-              key={index} 
-              className="relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
-              style={{ borderRadius: borderRadius }}
+            <EditableElement
+              key={index}
+              elementId={`grid-image-${index}`}
+              elementType="image"
+              isEditing={isElementEditMode}
+              className="block"
             >
-              <img
-                src={getMediaUrl(image.url)}
-                alt={image.alt || `Gallery image ${index + 1}`}
-                className="w-full object-cover hover:scale-105 transition-transform duration-500"
-                style={{ height: imageHeight, borderRadius: borderRadius }}
-              />
-              {image.caption && (
-                <figcaption 
-                  className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white text-sm"
-                  style={{ borderBottomLeftRadius: borderRadius, borderBottomRightRadius: borderRadius }}
-                >
-                  {image.caption}
-                </figcaption>
-              )}
-            </figure>
+              <figure 
+                className="relative overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                style={{ borderRadius: borderRadius }}
+              >
+                <img
+                  src={getMediaUrl(image.url)}
+                  alt={image.alt || `Gallery image ${index + 1}`}
+                  className="w-full object-cover hover:scale-105 transition-transform duration-500"
+                  style={{ height: imageHeight, borderRadius: borderRadius }}
+                />
+                {image.caption && (
+                  <figcaption 
+                    className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent text-white text-sm"
+                    style={{ borderBottomLeftRadius: borderRadius, borderBottomRightRadius: borderRadius }}
+                  >
+                    {image.caption}
+                  </figcaption>
+                )}
+              </figure>
+            </EditableElement>
           ))}
         </div>
       </div>
@@ -3114,7 +3128,12 @@ export function JETeamMemberRenderer({ block, isEditing = false, isBlockSelected
   return (
     <section className={`py-24 px-6 ${bgClass}`}>
       <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-12 items-center">
-        <div className={`relative flex-shrink-0 ${content.reversed ? 'md:order-2' : ''}`}>
+        <EditableElement
+          elementId="team-image"
+          elementType="image"
+          isEditing={isElementEditMode}
+          className={`relative flex-shrink-0 ${content.reversed ? 'md:order-2' : ''}`}
+        >
           {imageUrl ? (
             <div 
               className="relative overflow-hidden rounded-full shadow-2xl shadow-black/10 group"
@@ -3125,7 +3144,6 @@ export function JETeamMemberRenderer({ block, isEditing = false, isBlockSelected
                 alt={content.name}
                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
-              {/* Subtle overlay on hover */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300 rounded-full" />
             </div>
           ) : (
@@ -3136,9 +3154,16 @@ export function JETeamMemberRenderer({ block, isEditing = false, isBlockSelected
               <span className="text-neutral-500">Add photo</span>
             </div>
           )}
-        </div>
+        </EditableElement>
         <div className={content.reversed ? 'md:order-1' : ''}>
-          <h3 className={`font-serif text-3xl italic mb-2 ${textClass}`}>{content.name || 'Team Member'}</h3>
+          <EditableElement
+            elementId="team-name"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <h3 className={`font-serif text-3xl italic mb-2 ${textClass}`}>{content.name || 'Team Member'}</h3>
+          </EditableElement>
           {content.role && (
             <p className="font-sans text-sm uppercase tracking-[0.2em] text-primary mb-6">{content.role}</p>
           )}
