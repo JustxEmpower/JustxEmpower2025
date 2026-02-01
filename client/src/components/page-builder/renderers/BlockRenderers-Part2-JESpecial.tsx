@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EditableText, iconMap, getIcon, buildTextStyle } from './BlockRenderers-Part1-Core';
+import EditableElement from '../EditableElement';
 
 // ============================================================================
 // SHARED INTERFACES
@@ -41,6 +42,7 @@ interface BlockRendererProps {
   };
   isEditing?: boolean;
   isBlockSelected?: boolean;
+  isElementEditMode?: boolean;
   onUpdate?: (content: Record<string, any>) => void;
 }
 
@@ -86,7 +88,7 @@ const GAP_PRESETS: Record<string, string> = {
 // JE THREE PILLARS RENDERER
 // ============================================================================
 
-export function JEThreePillarsRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
@@ -196,7 +198,7 @@ export function JEThreePillarsRenderer({ block, isEditing, onUpdate }: BlockRend
           {pillars.map((pillar: any, index: number) => {
             const IconComponent = getIcon(pillar.icon);
             
-            return (
+            const pillarContent = (
               <div 
                 key={index}
                 className={cn(
@@ -253,6 +255,35 @@ export function JEThreePillarsRenderer({ block, isEditing, onUpdate }: BlockRend
                 />
               </div>
             );
+            
+            // Wrap with EditableElement for free-form editing when isElementEditMode is true
+            if (isElementEditMode) {
+              return (
+                <EditableElement
+                  key={index}
+                  elementId={`pillar-${index}`}
+                  elementType="pillar"
+                  isEditing={true}
+                  onResize={(width, height) => {
+                    handlePillarChange(index, 'width', String(width));
+                    handlePillarChange(index, 'height', String(height));
+                  }}
+                  onMove={(x, y) => {
+                    handlePillarChange(index, 'x', String(x));
+                    handlePillarChange(index, 'y', String(y));
+                  }}
+                  onDelete={() => removePillar(index)}
+                  initialWidth={pillar.width}
+                  initialHeight={pillar.height}
+                  initialX={pillar.x || 0}
+                  initialY={pillar.y || 0}
+                >
+                  {pillarContent}
+                </EditableElement>
+              );
+            }
+            
+            return pillarContent;
           })}
         </div>
 

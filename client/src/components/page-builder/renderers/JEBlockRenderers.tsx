@@ -1928,7 +1928,7 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
 }
 
 // JE Image Renderer
-export function JEImageRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEImageRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     imageUrl?: string;
     alt?: string;
@@ -1939,6 +1939,11 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
     maxWidth?: string;
     width?: string;
     alignment?: 'left' | 'center' | 'right';
+    // Free-form positioning
+    elementWidth?: number;
+    elementHeight?: number;
+    elementX?: number;
+    elementY?: number;
   };
 
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
@@ -1973,8 +1978,8 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
   const alignment = content.alignment || 'center';
   const alignmentClass = alignment === 'left' ? 'mr-auto' : alignment === 'right' ? 'ml-auto' : 'mx-auto';
 
-  return (
-    <figure className="py-8 px-4">
+  const imageContent = (
+    <>
       {imageUrl ? (
         <div 
           className={`relative overflow-hidden ${alignmentClass} ${content.shadow ? 'shadow-2xl shadow-black/10' : ''}`}
@@ -2001,12 +2006,39 @@ export function JEImageRenderer({ block, isEditing = false, isBlockSelected = fa
           {content.caption}
         </figcaption>
       )}
+    </>
+  );
+
+  // When in element edit mode, wrap with EditableElement for free-form drag/resize
+  if (isElementEditMode) {
+    return (
+      <figure className="py-8 px-4">
+        <EditableElement
+          elementId={`image-${block.id}`}
+          elementType="image"
+          isEditing={true}
+          initialWidth={content.elementWidth}
+          initialHeight={content.elementHeight}
+          initialX={content.elementX || 0}
+          initialY={content.elementY || 0}
+          minWidth={100}
+          minHeight={50}
+        >
+          {imageContent}
+        </EditableElement>
+      </figure>
+    );
+  }
+
+  return (
+    <figure className="py-8 px-4">
+      {imageContent}
     </figure>
   );
 }
 
 // JE Video Renderer
-export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const [isPlaying, setIsPlaying] = React.useState(false);
   const [isMuted, setIsMuted] = React.useState(true);
   const videoRef = React.useRef<HTMLVideoElement>(null);
@@ -2022,6 +2054,11 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
     alignment?: 'left' | 'center' | 'right';
     rounded?: string | boolean;
     aspectRatio?: string;
+    // Free-form positioning
+    elementWidth?: number;
+    elementHeight?: number;
+    elementX?: number;
+    elementY?: number;
   };
 
   const videoUrl = content.videoUrl ? getMediaUrl(content.videoUrl) : undefined;
@@ -2072,8 +2109,8 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
     }
   };
 
-  return (
-    <div className="py-8 px-4">
+  const videoContent = (
+    <>
       {videoUrl ? (
         <div 
           className={`relative overflow-hidden bg-black shadow-2xl shadow-black/20 ${alignmentClass}`}
@@ -2120,6 +2157,33 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
           </div>
         </div>
       )}
+    </>
+  );
+
+  // When in element edit mode, wrap with EditableElement for free-form drag/resize
+  if (isElementEditMode) {
+    return (
+      <div className="py-8 px-4">
+        <EditableElement
+          elementId={`video-${block.id}`}
+          elementType="video"
+          isEditing={true}
+          initialWidth={content.elementWidth}
+          initialHeight={content.elementHeight}
+          initialX={content.elementX || 0}
+          initialY={content.elementY || 0}
+          minWidth={200}
+          minHeight={100}
+        >
+          {videoContent}
+        </EditableElement>
+      </div>
+    );
+  }
+
+  return (
+    <div className="py-8 px-4">
+      {videoContent}
     </div>
   );
 }

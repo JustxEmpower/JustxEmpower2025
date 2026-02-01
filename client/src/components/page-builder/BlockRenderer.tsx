@@ -278,6 +278,7 @@ interface BlockRendererProps {
   isEditing?: boolean;
   isBlockSelected?: boolean;
   isPreviewMode?: boolean;
+  isElementEditMode?: boolean;
   onUpdate?: (content: Record<string, any>) => void;
 }
 
@@ -290,6 +291,7 @@ export function BlockRenderer({
   isEditing = false,
   isBlockSelected = false,
   isPreviewMode = false,
+  isElementEditMode = false,
   onUpdate,
 }: BlockRendererProps) {
   console.log(`[BlockRenderer] Rendering block type: "${block.type}"`, block);
@@ -319,6 +321,7 @@ export function BlockRenderer({
       block={block}
       isEditing={effectiveEditing}
       isBlockSelected={isBlockSelected}
+      isElementEditMode={isElementEditMode}
       onUpdate={onUpdate}
     />
   );

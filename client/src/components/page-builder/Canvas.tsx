@@ -55,6 +55,7 @@ interface SortableBlockProps {
   isMultiSelected: boolean;
   isHovered: boolean;
   isPreviewMode: boolean;
+  isElementEditMode: boolean;
   onSelect: (e: React.MouseEvent) => void;
   onHover: () => void;
   onLeave: () => void;
@@ -76,6 +77,7 @@ function SortableBlock({
   isMultiSelected,
   isHovered,
   isPreviewMode,
+  isElementEditMode,
   onSelect,
   onHover,
   onLeave,
@@ -195,7 +197,7 @@ function SortableBlock({
 
       {/* Block content */}
       <div className="relative">
-        <BlockRenderer block={block} isEditing={!isPreviewMode} isBlockSelected={isSelected} />
+        <BlockRenderer block={block} isEditing={!isPreviewMode} isBlockSelected={isSelected} isElementEditMode={isElementEditMode} />
         
         {/* Resize handles for selected blocks */}
         <ResizeHandles blockId={block.id} isSelected={isSelected} />
@@ -552,6 +554,7 @@ export default function Canvas({
                       isMultiSelected={isMultiSelected(block.id)}
                       isHovered={hoveredBlockId === block.id}
                       isPreviewMode={isPreviewMode}
+                      isElementEditMode={isElementEditMode}
                       onSelect={handleSelect}
                       onHover={() => hoverBlock(block.id)}
                       onLeave={() => hoverBlock(null)}
