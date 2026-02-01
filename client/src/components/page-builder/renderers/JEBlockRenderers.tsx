@@ -746,7 +746,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
 }
 
 // JE Section Block Renderer (handles je-section-standard, je-section-fullwidth, je-section-full-width)
-export function JESectionRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JESectionRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const sectionRef = useRef<HTMLElement>(null);
   const imageWrapperRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
@@ -1019,7 +1019,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
         <EditableElement
           elementId="image"
           elementType="image"
-          isEditing={isEditing && isBlockSelected}
+          isEditing={isElementEditMode}
           initialWidth={content.imageWidth ? parseInt(content.imageWidth as string) : undefined}
           initialHeight={content.imageHeight ? parseInt(content.imageHeight as string) : undefined}
           className={`relative ${content.reversed ? 'lg:order-1' : ''}`}
@@ -1081,7 +1081,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
 }
 
 // JE Carousel Block Renderer - Image Slideshow Carousel
-export function JECarouselRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JECarouselRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -2228,7 +2228,7 @@ export function JEButtonRenderer({ block, isEditing = false, isBlockSelected = f
 }
 
 // JE Two Column Renderer
-export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     leftContent?: string;
     rightContent?: string;
@@ -2253,40 +2253,73 @@ export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected 
     color: hasCustomText ? content.textColor : undefined,
   };
 
+  const leftColumn = (
+    <div className={content.imagePosition === 'right' ? 'lg:order-1' : 'lg:order-2'}>
+      {content.leftTitle && (
+        <h3 className="font-serif text-3xl italic mb-6">{content.leftTitle}</h3>
+      )}
+      <p className={`font-sans text-lg leading-relaxed ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}>
+        {content.leftContent || 'Left column content...'}
+      </p>
+    </div>
+  );
+
+  const rightColumn = (
+    <div className={content.imagePosition === 'right' ? 'lg:order-2' : 'lg:order-1'}>
+      {imageUrl ? (
+        <div className="relative overflow-hidden shadow-2xl shadow-black/10" style={{ borderRadius: '2rem' }}>
+          <img src={imageUrl} alt="" className="w-full h-auto" style={{ borderRadius: '2rem' }} />
+        </div>
+      ) : (
+        <>
+          {content.rightTitle && (
+            <h3 className="font-serif text-3xl italic mb-6">{content.rightTitle}</h3>
+          )}
+          <p className={`font-sans text-lg leading-relaxed ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}>
+            {content.rightContent || 'Right column content...'}
+          </p>
+        </>
+      )}
+    </div>
+  );
+
   return (
     <section className={`py-24 px-6 ${bgClass}`} style={sectionStyle}>
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        <div className={content.imagePosition === 'right' ? 'lg:order-1' : 'lg:order-2'}>
-          {content.leftTitle && (
-            <h3 className="font-serif text-3xl italic mb-6">{content.leftTitle}</h3>
-          )}
-          <p className={`font-sans text-lg leading-relaxed ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}>
-            {content.leftContent || 'Left column content...'}
-          </p>
-        </div>
-        <div className={content.imagePosition === 'right' ? 'lg:order-2' : 'lg:order-1'}>
-          {imageUrl ? (
-            <div className="relative overflow-hidden shadow-2xl shadow-black/10" style={{ borderRadius: '2rem' }}>
-              <img src={imageUrl} alt="" className="w-full h-auto" style={{ borderRadius: '2rem' }} />
-            </div>
-          ) : (
-            <>
-              {content.rightTitle && (
-                <h3 className="font-serif text-3xl italic mb-6">{content.rightTitle}</h3>
-              )}
-              <p className={`font-sans text-lg leading-relaxed ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}>
-                {content.rightContent || 'Right column content...'}
-              </p>
-            </>
-          )}
-        </div>
+        {isElementEditMode ? (
+          <>
+            <EditableElement
+              elementId="left-column"
+              elementType="column"
+              isEditing={true}
+              minWidth={200}
+              minHeight={100}
+            >
+              {leftColumn}
+            </EditableElement>
+            <EditableElement
+              elementId="right-column"
+              elementType="column"
+              isEditing={true}
+              minWidth={200}
+              minHeight={100}
+            >
+              {rightColumn}
+            </EditableElement>
+          </>
+        ) : (
+          <>
+            {leftColumn}
+            {rightColumn}
+          </>
+        )}
       </div>
     </section>
   );
 }
 
 // JE Divider Renderer
-export function JEDividerRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEDividerRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     style?: 'line' | 'dots' | 'ornament';
     dark?: boolean;
@@ -2322,7 +2355,7 @@ export function JEDividerRenderer({ block, isEditing = false, isBlockSelected = 
 }
 
 // JE Spacer Renderer
-export function JESpacerRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JESpacerRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     height?: 'small' | 'medium' | 'large' | 'xlarge';
   };
@@ -2333,7 +2366,7 @@ export function JESpacerRenderer({ block, isEditing = false, isBlockSelected = f
 }
 
 // JE FAQ Renderer
-export function JEFAQRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEFAQRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     title?: string;
     items?: Array<{ question: string; answer: string }>;
