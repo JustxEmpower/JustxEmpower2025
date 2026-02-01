@@ -14,6 +14,7 @@ import { aiRouter } from "./aiRouters";
 import { analyticsRouter } from "./analyticsRouters";
 import { pageZonesRouter } from "./pageZonesRouter";
 import { blockStoreRouter } from "./blockStoreRouter";
+import { imageRouter } from "./imageRouter";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -96,6 +97,9 @@ export const appRouter = router({
   
   // Block Store - custom reusable blocks created in Page Builder
   blockStore: blockStoreRouter,
+  
+  // Image processing - Sharp-based image optimization
+  image: imageRouter,
 });
 
 export type AppRouter = typeof appRouter;

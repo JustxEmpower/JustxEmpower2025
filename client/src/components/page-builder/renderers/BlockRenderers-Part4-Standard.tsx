@@ -43,6 +43,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { EditableText, getIcon, SECTION_PADDING_PRESETS, TITLE_SIZE_PRESETS, BODY_SIZE_PRESETS, GAP_PRESETS } from './BlockRenderers-Part1-Core';
+import EditableElement from '../EditableElement';
 
 // ============================================================================
 // SHARED INTERFACES
@@ -56,6 +57,7 @@ interface BlockRendererProps {
   };
   isEditing?: boolean;
   isBlockSelected?: boolean;
+  isElementEditMode?: boolean;
   onUpdate?: (content: Record<string, any>) => void;
 }
 

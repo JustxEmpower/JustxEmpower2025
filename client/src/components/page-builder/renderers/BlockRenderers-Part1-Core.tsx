@@ -16,7 +16,7 @@
  * @date January 2026
  */
 
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
 import {
   Heart, Leaf, Sparkles, Globe, Star, Sun, Moon, Mountain, Shield,
   Target, Award, Users, BookOpen, Zap, Flower2, ArrowRight, Play,
@@ -27,6 +27,9 @@ import {
   Instagram, Facebook, Twitter, Linkedin, Youtube,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+// Lazy load TinyMCE for performance
+const TinyMCEEditor = lazy(() => import('../TinyMCEEditor'));
 
 // ============================================================================
 // EDITABLE TEXT COMPONENT - The core of editability
@@ -42,6 +45,7 @@ interface EditableTextProps {
   isEditing?: boolean;
   style?: React.CSSProperties;
   dangerousHtml?: boolean;
+  richText?: boolean;
 }
 
 export function EditableText({
@@ -54,9 +58,11 @@ export function EditableText({
   isEditing = false,
   style,
   dangerousHtml = false,
+  richText = false,
 }: EditableTextProps) {
   const ref = useRef<HTMLElement>(null);
   const [localValue, setLocalValue] = useState(value);
+  const [showRichEditor, setShowRichEditor] = useState(false);
 
   useEffect(() => {
     setLocalValue(value);
@@ -99,7 +105,7 @@ export function EditableText({
 
   // Non-editing mode
   if (!isEditing) {
-    if (dangerousHtml) {
+    if (dangerousHtml || richText) {
       return (
         <Tag 
           className={className} 
@@ -115,7 +121,49 @@ export function EditableText({
     );
   }
 
-  // Editing mode
+  // Rich text editing mode with TinyMCE
+  if (richText && showRichEditor) {
+    return (
+      <div className="relative group">
+        <Suspense fallback={<div className="animate-pulse bg-neutral-100 rounded h-24" />}>
+          <TinyMCEEditor
+            value={value}
+            onChange={onChange}
+            placeholder={placeholder}
+            height={multiline ? 200 : 100}
+            className={className}
+          />
+        </Suspense>
+        <button
+          onClick={() => setShowRichEditor(false)}
+          className="absolute -top-8 right-0 text-xs bg-amber-600 text-white px-3 py-1 rounded hover:bg-amber-700 transition-colors"
+        >
+          Done Editing
+        </button>
+      </div>
+    );
+  }
+
+  // Rich text click-to-edit mode
+  if (richText) {
+    return (
+      <div
+        onClick={() => setShowRichEditor(true)}
+        className={cn(
+          className,
+          'cursor-pointer border-2 border-dashed border-transparent hover:border-amber-400 rounded p-1 transition-colors relative group'
+        )}
+        style={style}
+      >
+        <Tag dangerouslySetInnerHTML={{ __html: value || `<span class="opacity-50">${placeholder}</span>` }} />
+        <span className="absolute -top-6 left-0 text-xs bg-amber-500 text-white px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          Click to edit
+        </span>
+      </div>
+    );
+  }
+
+  // Simple contentEditable editing mode
   return (
     <Tag
       ref={ref as any}
@@ -129,7 +177,7 @@ export function EditableText({
         'outline-none cursor-text transition-all',
         'focus:ring-2 focus:ring-amber-500/50 focus:bg-amber-50/50 rounded-sm',
         'hover:bg-amber-50/30',
-        'min-w-[50px]' // Minimum width for empty fields
+        'min-w-[50px]'
       )}
       style={style}
       data-placeholder={placeholder}
