@@ -258,7 +258,7 @@ export default function EditableElement({
   console.log(`[EditableElement] ${elementId} isEditing:`, isEditing);
 
   if (!isEditing) {
-    return <div className={className}>{children}</div>;
+    return <>{children}</>;
   }
 
   const handleStyle = 'w-3 h-3 bg-blue-500 border-2 border-white rounded-sm absolute z-50 shadow-md';
@@ -276,16 +276,20 @@ export default function EditableElement({
         ${isDragging || isResizing ? 'cursor-grabbing' : 'cursor-pointer'}
         ${className}
         transition-all duration-150
+        editable-element-active
       `}
       style={{
         width: typeof dimensions.width === 'number' ? `${dimensions.width}px` : dimensions.width,
         height: typeof dimensions.height === 'number' ? `${dimensions.height}px` : dimensions.height,
         left: hasMoved ? `${position.x}px` : undefined,
         top: hasMoved ? `${position.y}px` : undefined,
-        zIndex: isSelected ? 100 : 10,
-        outline: isSelected ? '3px solid #3b82f6' : '2px dashed #60a5fa',
-        outlineOffset: '2px',
-        backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
+        zIndex: isSelected ? 100 : 20,
+        border: isSelected ? '3px solid #3b82f6' : '2px dashed #22d3ee',
+        boxShadow: isSelected ? '0 0 0 4px rgba(59, 130, 246, 0.3)' : '0 0 0 2px rgba(34, 211, 238, 0.3)',
+        backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.15)' : 'rgba(34, 211, 238, 0.1)',
+        borderRadius: '4px',
+        padding: '2px',
+        boxSizing: 'border-box',
       }}
       onClick={handleClick}
     >
