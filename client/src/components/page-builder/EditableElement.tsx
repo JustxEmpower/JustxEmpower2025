@@ -254,12 +254,16 @@ export default function EditableElement({
     };
   }, [isDragging, isResizing, resizeHandle, position, dimensions, onMove, onResize, minWidth, minHeight]);
 
-  // Debug logging
-  console.log(`[EditableElement] ${elementId} isEditing:`, isEditing);
+  // Debug logging - ALWAYS log to help diagnose
+  console.log(`[EditableElement] ${elementId} isEditing:`, isEditing, 'elementType:', elementType);
 
   if (!isEditing) {
+    // When not in edit mode, render children without wrapper
     return <>{children}</>;
   }
+
+  // FORCE VISIBILITY: When isEditing is true, we MUST show the editable wrapper
+  console.log(`[EditableElement] RENDERING EDITABLE WRAPPER for ${elementId}`);
 
   const handleStyle = 'w-3 h-3 bg-blue-500 border-2 border-white rounded-sm absolute z-50 shadow-md';
   const cornerHandleStyle = `${handleStyle} cursor-nwse-resize`;
@@ -283,12 +287,17 @@ export default function EditableElement({
         height: typeof dimensions.height === 'number' ? `${dimensions.height}px` : dimensions.height,
         left: hasMoved ? `${position.x}px` : undefined,
         top: hasMoved ? `${position.y}px` : undefined,
-        zIndex: isSelected ? 100 : 20,
-        border: isSelected ? '3px solid #3b82f6' : '2px dashed #22d3ee',
-        boxShadow: isSelected ? '0 0 0 4px rgba(59, 130, 246, 0.3)' : '0 0 0 2px rgba(34, 211, 238, 0.3)',
-        backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.15)' : 'rgba(34, 211, 238, 0.1)',
+        zIndex: isSelected ? 100 : 50,
+        // SUPER VISIBLE borders - cannot be missed
+        outline: isSelected ? '4px solid #3b82f6' : '3px dashed #ff00ff',
+        outlineOffset: '2px',
+        border: isSelected ? '2px solid #3b82f6' : '2px dashed #00ffff',
+        boxShadow: isSelected 
+          ? '0 0 0 6px rgba(59, 130, 246, 0.4), 0 0 20px rgba(59, 130, 246, 0.3)' 
+          : '0 0 0 4px rgba(255, 0, 255, 0.3), 0 0 15px rgba(0, 255, 255, 0.3)',
+        backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 0, 255, 0.15)',
         borderRadius: '4px',
-        padding: '2px',
+        padding: '4px',
         boxSizing: 'border-box',
       }}
       onClick={handleClick}
