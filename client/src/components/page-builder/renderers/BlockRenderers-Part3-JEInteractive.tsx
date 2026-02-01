@@ -945,9 +945,16 @@ export function JEGalleryRenderer({ block, isEditing, isElementEditMode = false,
   const gapValue = typeof gap === 'number' ? gap : parseInt(gap) || 4;
 
   return (
-    <section className="py-8 px-6">
+    <section className="py-8 px-6 relative">
       {title && (
-        <EditableText value={title} onChange={(v) => handleChange('title', v)} tag="h2" placeholder="Gallery Title" isEditing={isEditing} className="text-2xl font-serif italic mb-6 text-center text-neutral-900" />
+        <EditableElement
+          elementId="title"
+          elementType="text"
+          isEditing={isElementEditMode}
+          className="block"
+        >
+          <EditableText value={title} onChange={(v) => handleChange('title', v)} tag="h2" placeholder="Gallery Title" isEditing={isEditing} className="text-2xl font-serif italic mb-6 text-center text-neutral-900" />
+        </EditableElement>
       )}
 
       <div 

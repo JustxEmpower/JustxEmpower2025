@@ -600,51 +600,79 @@ export function JERootedUnityRenderer({ block, isEditing, isElementEditMode = fa
 
       {/* Content - Using sizing presets */}
       <div className={cn('relative z-10 mx-auto px-6 md:px-12', getPaddingClass(), maxWidth)}>
-        <div className="max-w-4xl mx-auto text-center">
-          <EditableText
-            value={label}
-            onChange={(v) => handleChange('label', v)}
-            tag="p"
-            placeholder="LABEL"
-            isEditing={isEditing}
-            className="text-xs uppercase tracking-[0.3em] mb-6 font-sans text-white/70"
-          />
-
-          <EditableText
-            value={title}
-            onChange={(v) => handleChange('title', v)}
-            tag="h2"
-            placeholder="Title"
-            isEditing={isEditing}
-            className={cn(getTitleClass(), 'font-serif italic font-light mb-8 text-white leading-tight')}
-          />
-
-          <div className="w-full flex justify-center">
+        <div className="max-w-4xl mx-auto text-center relative">
+          <EditableElement
+            elementId="label"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="inline-block"
+          >
             <EditableText
-              value={description}
-              onChange={(v) => handleChange('description', v)}
+              value={label}
+              onChange={(v) => handleChange('label', v)}
               tag="p"
-              placeholder="Short description..."
-              multiline
+              placeholder="LABEL"
               isEditing={isEditing}
-              className={cn(getDescriptionClass(), 'font-sans mb-8 text-white/90 leading-relaxed max-w-2xl text-center whitespace-pre-wrap')}
+              className="text-xs uppercase tracking-[0.3em] mb-6 font-sans text-white/70"
             />
-          </div>
+          </EditableElement>
+
+          <EditableElement
+            elementId="title"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <EditableText
+              value={title}
+              onChange={(v) => handleChange('title', v)}
+              tag="h2"
+              placeholder="Title"
+              isEditing={isEditing}
+              className={cn(getTitleClass(), 'font-serif italic font-light mb-8 text-white leading-tight')}
+            />
+          </EditableElement>
+
+          <EditableElement
+            elementId="description"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <div className="w-full flex justify-center">
+              <EditableText
+                value={description}
+                onChange={(v) => handleChange('description', v)}
+                tag="p"
+                placeholder="Short description..."
+                multiline
+                isEditing={isEditing}
+                className={cn(getDescriptionClass(), 'font-sans mb-8 text-white/90 leading-relaxed max-w-2xl text-center whitespace-pre-wrap')}
+              />
+            </div>
+          </EditableElement>
 
           {/* Long Description - CRITICAL: whitespace-pre-wrap for spacing */}
           {(longDescription || isEditing) && (
-            <EditableText
-              value={longDescription}
-              onChange={(v) => handleChange('longDescription', v)}
-              tag="div"
-              placeholder="Add detailed description here. Press Enter for new paragraphs..."
-              multiline
-              isEditing={isEditing}
-              className={cn(
-                'text-base md:text-lg font-sans leading-loose text-white/80 mb-8',
-                'whitespace-pre-wrap' // CRITICAL: Preserves line breaks
-              )}
-            />
+            <EditableElement
+              elementId="long-description"
+              elementType="text"
+              isEditing={isElementEditMode}
+              className="block"
+            >
+              <EditableText
+                value={longDescription}
+                onChange={(v) => handleChange('longDescription', v)}
+                tag="div"
+                placeholder="Add detailed description here. Press Enter for new paragraphs..."
+                multiline
+                isEditing={isEditing}
+                className={cn(
+                  'text-base md:text-lg font-sans leading-loose text-white/80 mb-8',
+                  'whitespace-pre-wrap' // CRITICAL: Preserves line breaks
+                )}
+              />
+            </EditableElement>
           )}
 
           {/* Features List */}
@@ -953,34 +981,55 @@ export function JEOfferingsGridRenderer({ block, isEditing, isElementEditMode = 
       'overflow-hidden',
       dark ? 'bg-[#1a1a1a]' : 'bg-[#faf9f7]'
     )}>
-      <div className={cn('mx-auto px-6 md:px-12', maxWidth)}>
+      <div className={cn('mx-auto px-6 md:px-12 relative', maxWidth)}>
         {/* Header - Proper proportions */}
         <div className="text-center mb-16 md:mb-24 max-w-4xl mx-auto">
-          <EditableText
-            value={label}
-            onChange={(v) => handleChange('label', v)}
-            tag="p"
-            placeholder="LABEL"
-            isEditing={isEditing}
-            className={cn('text-xs uppercase tracking-[0.3em] mb-6 font-sans', dark ? 'text-primary/80' : 'text-primary/80')}
-          />
-          <EditableText
-            value={title}
-            onChange={(v) => handleChange('title', v)}
-            tag="h2"
-            placeholder="Section Title"
-            isEditing={isEditing}
-            className={cn(getTitleClass(), 'font-serif italic font-light leading-[1.1] tracking-tight mb-6', dark ? 'text-white' : 'text-foreground')}
-          />
-          <EditableText
-            value={description}
-            onChange={(v) => handleChange('description', v)}
-            tag="p"
-            placeholder="Description..."
-            multiline
-            isEditing={isEditing}
-            className={cn(getDescriptionClass(), 'font-sans font-light leading-relaxed whitespace-pre-wrap', dark ? 'text-neutral-400' : 'text-muted-foreground')}
-          />
+          <EditableElement
+            elementId="label"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="inline-block"
+          >
+            <EditableText
+              value={label}
+              onChange={(v) => handleChange('label', v)}
+              tag="p"
+              placeholder="LABEL"
+              isEditing={isEditing}
+              className={cn('text-xs uppercase tracking-[0.3em] mb-6 font-sans', dark ? 'text-primary/80' : 'text-primary/80')}
+            />
+          </EditableElement>
+          <EditableElement
+            elementId="title"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <EditableText
+              value={title}
+              onChange={(v) => handleChange('title', v)}
+              tag="h2"
+              placeholder="Section Title"
+              isEditing={isEditing}
+              className={cn(getTitleClass(), 'font-serif italic font-light leading-[1.1] tracking-tight mb-6', dark ? 'text-white' : 'text-foreground')}
+            />
+          </EditableElement>
+          <EditableElement
+            elementId="description"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <EditableText
+              value={description}
+              onChange={(v) => handleChange('description', v)}
+              tag="p"
+              placeholder="Description..."
+              multiline
+              isEditing={isEditing}
+              className={cn(getDescriptionClass(), 'font-sans font-light leading-relaxed whitespace-pre-wrap', dark ? 'text-neutral-400' : 'text-muted-foreground')}
+            />
+          </EditableElement>
         </div>
 
         {/* Grid - Using gap presets */}
