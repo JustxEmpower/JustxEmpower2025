@@ -298,7 +298,7 @@ export const MediaRenderer = memo(function MediaRenderer({
 const iconMap = ICON_REGISTRY;
 
 // JE Hero Block Renderer (handles je-hero-video, je-hero-image, je-hero-split, je-hero)
-export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const heroRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -1435,7 +1435,7 @@ function CarouselCard({
 }
 
 // JE Newsletter Block Renderer
-export function JENewsletterRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JENewsletterRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     title?: string;
     description?: string;
@@ -1478,7 +1478,7 @@ export function JENewsletterRenderer({ block, isEditing = false, isBlockSelected
 }
 
 // JE Quote Block Renderer (handles je-quote, je-blockquote)
-export function JEQuoteRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEQuoteRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     quote?: string;
     author?: string;
@@ -1504,7 +1504,7 @@ export function JEQuoteRenderer({ block, isEditing = false, isBlockSelected = fa
 }
 
 // JE Pillar Grid Renderer (handles je-pillar-grid, je-three-pillars, je-pillars)
-export function JEPillarGridRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEPillarGridRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     label?: string;
     title?: string;
@@ -1617,7 +1617,7 @@ export function JEPillarGridRenderer({ block, isEditing = false, isBlockSelected
 }
 
 // JE Community Section Renderer (handles je-community, je-community-section)
-export function JECommunityRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JECommunityRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     title?: string;
     subtitle?: string;
@@ -1642,7 +1642,12 @@ export function JECommunityRenderer({ block, isEditing = false, isBlockSelected 
     <section className={`py-24 px-6 ${bgClass}`}>
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         {/* Image */}
-        <div className={`relative ${content.reversed ? 'lg:order-2' : ''}`}>
+        <EditableElement
+          elementId="image"
+          elementType="image"
+          isEditing={isElementEditMode}
+          className={`relative ${content.reversed ? 'lg:order-2' : ''}`}
+        >
           {imageUrl ? (
             <div 
               className="relative overflow-hidden shadow-2xl shadow-black/10"
@@ -1668,7 +1673,7 @@ export function JECommunityRenderer({ block, isEditing = false, isBlockSelected 
               <span className="text-neutral-400">Add an image</span>
             </div>
           )}
-        </div>
+        </EditableElement>
         
         {/* Text Content */}
         <div className={content.reversed ? 'lg:order-1' : ''}>
@@ -1703,7 +1708,7 @@ export function JECommunityRenderer({ block, isEditing = false, isBlockSelected 
 }
 
 // JE Rooted Unity Section Renderer
-export function JERootedUnityRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JERootedUnityRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     label?: string;
     title?: string;
@@ -1819,7 +1824,12 @@ export function JERootedUnityRenderer({ block, isEditing = false, isBlockSelecte
         </div>
         
         {/* Media (Image or Video) */}
-        <div className={`relative ${content.reversed ? 'lg:order-1' : ''}`}>
+        <EditableElement
+          elementId="media"
+          elementType="image"
+          isEditing={isElementEditMode}
+          className={`relative ${content.reversed ? 'lg:order-1' : ''}`}
+        >
           {resolvedMediaUrl ? (
             <div 
               className="relative overflow-hidden shadow-2xl shadow-black/10"
@@ -1857,7 +1867,7 @@ export function JERootedUnityRenderer({ block, isEditing = false, isBlockSelecte
               <span className="text-neutral-400">Add an image or video</span>
             </div>
           )}
-        </div>
+        </EditableElement>
       </div>
     </section>
   );
@@ -2303,7 +2313,7 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
 }
 
 // JE Button Renderer
-export function JEButtonRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEButtonRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     text?: string;
     link?: string;
@@ -2516,7 +2526,7 @@ export function JEFAQRenderer({ block, isEditing = false, isBlockSelected = fals
 }
 
 // JE Contact Form Renderer
-export function JEContactFormRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEContactFormRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     title?: string;
     description?: string;
@@ -2577,7 +2587,7 @@ export function JEContactFormRenderer({ block, isEditing = false, isBlockSelecte
 }
 
 // JE Testimonial Renderer - Supports single testimonial or slider with multiple testimonials
-export function JETestimonialRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JETestimonialRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   
   const content = block.content as {
@@ -2719,7 +2729,7 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
 }
 
 // JE Offerings Grid Renderer
-export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     title?: string;
     items?: Array<{
@@ -2796,7 +2806,7 @@ export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelec
 }
 
 // JE Coming Soon Renderer
-export function JEComingSoonRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEComingSoonRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     title?: string;
     subtitle?: string;
@@ -2834,7 +2844,7 @@ export function JEComingSoonRenderer({ block, isEditing = false, isBlockSelected
 }
 
 // JE Gallery Renderer with Carousel Mode
-export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   
@@ -3006,7 +3016,7 @@ export function JEGalleryRenderer({ block, isEditing = false, isBlockSelected = 
 }
 
 // JE Team Member Renderer
-export function JETeamMemberRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JETeamMemberRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     name?: string;
     role?: string;
@@ -3067,7 +3077,7 @@ export function JETeamMemberRenderer({ block, isEditing = false, isBlockSelected
 }
 
 // JE Principles Renderer
-export function JEPrinciplesRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEPrinciplesRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     title?: string;
     principles?: Array<{ number: string; title: string; description: string }>;
@@ -3105,7 +3115,7 @@ export function JEPrinciplesRenderer({ block, isEditing = false, isBlockSelected
 }
 
 // JE Footer Renderer
-export function JEFooterRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEFooterRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     tagline?: string;
     copyright?: string;
@@ -3140,7 +3150,7 @@ export function JEFooterRenderer({ block, isEditing = false, isBlockSelected = f
 }
 
 // JE Volumes Renderer
-export function JEVolumesRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEVolumesRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     title?: string;
     volumes?: Array<{
@@ -3205,7 +3215,7 @@ export function JEVolumesRenderer({ block, isEditing = false, isBlockSelected = 
 }
 
 // JE Feature Card Renderer
-export function JEFeatureCardRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEFeatureCardRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     title?: string;
     description?: string;
@@ -3258,7 +3268,7 @@ interface EventType {
   color: string;
 }
 
-export function JECalendarRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JECalendarRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as {
     title?: string;
     subtitle?: string;
