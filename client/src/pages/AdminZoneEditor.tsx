@@ -10,7 +10,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X, Box, Sparkles, Star, Image as ImageIcon } from 'lucide-react';
+import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X, Box, Sparkles, Star, Image as ImageIcon, MousePointer, Edit3 } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
 import { blockTypes } from '@/components/page-builder/blockTypes';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
@@ -253,11 +253,12 @@ function getGroupedFields(blockType: string): Record<string, FieldDefinition[]> 
   return grouped;
 }
 
-function SortableBlock({ block, onDelete, isSelected, onSelect }: { 
+function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMode }: { 
   block: PageBlock; 
   onDelete: () => void;
   isSelected: boolean;
   onSelect: () => void;
+  isElementEditMode: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id });
 
@@ -289,8 +290,8 @@ function SortableBlock({ block, onDelete, isSelected, onSelect }: {
           <Trash2 className="w-4 h-4" />
         </Button>
       </div>
-      <div className="pointer-events-none">
-        <BlockRenderer block={block} isPreviewMode={true} />
+      <div className={isElementEditMode ? '' : 'pointer-events-none'}>
+        <BlockRenderer block={block} isPreviewMode={false} isEditing={true} isElementEditMode={isElementEditMode} />
       </div>
     </div>
   );
@@ -501,6 +502,7 @@ export default function AdminZoneEditor() {
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [showBlockLibrary, setShowBlockLibrary] = useState(false);
+  const [isElementEditMode, setIsElementEditMode] = useState(false);
 
   const { data: zone, isLoading } = trpc.pageZones.getZone.useQuery(
     { pageSlug: pageSlug!, zoneName: zoneName! },
@@ -772,9 +774,23 @@ export default function AdminZoneEditor() {
           {/* Canvas */}
           <div className={selectedBlock ? "lg:col-span-6" : "lg:col-span-10"}>
             <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Zone Content ({blocks.length} blocks)</CardTitle>
-                <CardDescription>Click a block to edit its content</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                  <CardTitle className="text-base">Zone Content ({blocks.length} blocks)</CardTitle>
+                  <CardDescription>Click a block to edit its content</CardDescription>
+                </div>
+                <Button
+                  variant={isElementEditMode ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setIsElementEditMode(!isElementEditMode)}
+                  className={isElementEditMode ? "bg-amber-500 hover:bg-amber-600" : ""}
+                >
+                  {isElementEditMode ? (
+                    <><MousePointer className="w-4 h-4 mr-2" /> Block Mode</>
+                  ) : (
+                    <><Edit3 className="w-4 h-4 mr-2" /> Edit Elements</>
+                  )}
+                </Button>
               </CardHeader>
               <CardContent>
                 {blocks.length === 0 ? (
@@ -794,6 +810,7 @@ export default function AdminZoneEditor() {
                             onDelete={() => deleteBlock(block.id)}
                             isSelected={selectedBlockId === block.id}
                             onSelect={() => setSelectedBlockId(block.id)}
+                            isElementEditMode={isElementEditMode}
                           />
                         ))}
                       </div>
