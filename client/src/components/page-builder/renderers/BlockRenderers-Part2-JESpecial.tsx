@@ -143,47 +143,68 @@ export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode = f
       'overflow-hidden',
       dark ? 'bg-[#1a1a1a]' : 'bg-[#faf9f7]'
     )}>
-      <div className={cn('mx-auto px-6 md:px-12', maxWidth)}>
+      <div className={cn('mx-auto px-6 md:px-12 relative', maxWidth)}>
         {/* Section Header - Proper proportions */}
         <div className="text-center mb-16 md:mb-24 max-w-4xl mx-auto">
-          <EditableText
-            value={label}
-            onChange={(v) => handleChange('label', v)}
-            tag="p"
-            placeholder="SECTION LABEL"
-            isEditing={isEditing}
-            className={cn(
-              'text-xs uppercase tracking-[0.3em] mb-6 font-sans',
-              dark ? 'text-primary/80' : 'text-primary/80'
-            )}
-          />
+          <EditableElement
+            elementId="label"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="inline-block"
+          >
+            <EditableText
+              value={label}
+              onChange={(v) => handleChange('label', v)}
+              tag="p"
+              placeholder="SECTION LABEL"
+              isEditing={isEditing}
+              className={cn(
+                'text-xs uppercase tracking-[0.3em] mb-6 font-sans',
+                dark ? 'text-primary/80' : 'text-primary/80'
+              )}
+            />
+          </EditableElement>
 
-          <EditableText
-            value={title}
-            onChange={(v) => handleChange('title', v)}
-            tag="h2"
-            placeholder="Section Title"
-            isEditing={isEditing}
-            className={cn(
-              getTitleClass(),
-              'font-serif italic font-light leading-[1.1] tracking-tight mb-6',
-              dark ? 'text-white' : 'text-foreground'
-            )}
-          />
+          <EditableElement
+            elementId="title"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <EditableText
+              value={title}
+              onChange={(v) => handleChange('title', v)}
+              tag="h2"
+              placeholder="Section Title"
+              isEditing={isEditing}
+              className={cn(
+                getTitleClass(),
+                'font-serif italic font-light leading-[1.1] tracking-tight mb-6',
+                dark ? 'text-white' : 'text-foreground'
+              )}
+            />
+          </EditableElement>
 
-          <EditableText
-            value={description}
-            onChange={(v) => handleChange('description', v)}
-            tag="p"
-            placeholder="Section description..."
-            multiline
-            isEditing={isEditing}
-            className={cn(
-              getDescriptionClass(),
-              'font-sans font-light leading-relaxed whitespace-pre-wrap',
-              dark ? 'text-neutral-400' : 'text-muted-foreground'
-            )}
-          />
+          <EditableElement
+            elementId="description"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <EditableText
+              value={description}
+              onChange={(v) => handleChange('description', v)}
+              tag="p"
+              placeholder="Section description..."
+              multiline
+              isEditing={isEditing}
+              className={cn(
+                getDescriptionClass(),
+                'font-sans font-light leading-relaxed whitespace-pre-wrap',
+                dark ? 'text-neutral-400' : 'text-muted-foreground'
+              )}
+            />
+          </EditableElement>
         </div>
 
         {/* Pillars Grid - Using gap presets */}
