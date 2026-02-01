@@ -932,47 +932,117 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
         {/* Text Content */}
         <div ref={contentRef} className={content.reversed ? 'lg:order-2' : ''} style={{ textAlign: textAlign as any }}>
           {(content.subtitle || content.label) && (
-            <p 
-              className="je-section-subtitle font-sans uppercase"
-              style={{ 
-                color: subtitleColor || undefined,
-                fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
-                letterSpacing: content.subtitleLetterSpacing || '0.2em',
-                marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
-              }}
-            >
-              {content.label || content.subtitle}
-            </p>
+            isElementEditMode ? (
+              <EditableElement
+                elementId="subtitle"
+                elementType="subtitle"
+                isEditing={true}
+                minWidth={100}
+                minHeight={20}
+              >
+                <p 
+                  className="je-section-subtitle font-sans uppercase"
+                  style={{ 
+                    color: subtitleColor || undefined,
+                    fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
+                    letterSpacing: content.subtitleLetterSpacing || '0.2em',
+                    marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
+                  }}
+                >
+                  {content.label || content.subtitle}
+                </p>
+              </EditableElement>
+            ) : (
+              <p 
+                className="je-section-subtitle font-sans uppercase"
+                style={{ 
+                  color: subtitleColor || undefined,
+                  fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
+                  letterSpacing: content.subtitleLetterSpacing || '0.2em',
+                  marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
+                }}
+              >
+                {content.label || content.subtitle}
+              </p>
+            )
           )}
           
-          <h2 
-            className="je-section-title font-serif"
-            style={{ 
-              color: titleColor,
-              fontSize: content.titleFontSize || '3rem',
-              lineHeight: content.titleLineHeight || '1.2',
-              marginBottom: content.titleMarginBottom || '2rem',
-              fontWeight: content.titleFontWeight || '300',
-              fontStyle: content.titleFontStyle || 'italic',
-            }}
-          >
-            {content.title || 'Section Title'}
-          </h2>
-          
-          {content.description && (
-            <p 
-              className="je-section-desc font-sans whitespace-pre-wrap" 
+          {isElementEditMode ? (
+            <EditableElement
+              elementId="title"
+              elementType="title"
+              isEditing={true}
+              minWidth={150}
+              minHeight={30}
+            >
+              <h2 
+                className="je-section-title font-serif"
+                style={{ 
+                  color: titleColor,
+                  fontSize: content.titleFontSize || '3rem',
+                  lineHeight: content.titleLineHeight || '1.2',
+                  marginBottom: content.titleMarginBottom || '2rem',
+                  fontWeight: content.titleFontWeight || '300',
+                  fontStyle: content.titleFontStyle || 'italic',
+                }}
+              >
+                {content.title || 'Section Title'}
+              </h2>
+            </EditableElement>
+          ) : (
+            <h2 
+              className="je-section-title font-serif"
               style={{ 
-                color: descriptionColor, 
-                opacity: isEditing ? 1 : 0.8,
-                fontSize: content.descriptionFontSize || '1.125rem',
-                lineHeight: content.descriptionLineHeight || '1.75',
-                marginBottom: content.descriptionMarginBottom || '2rem',
-                maxWidth: content.descriptionMaxWidth || '100%',
+                color: titleColor,
+                fontSize: content.titleFontSize || '3rem',
+                lineHeight: content.titleLineHeight || '1.2',
+                marginBottom: content.titleMarginBottom || '2rem',
+                fontWeight: content.titleFontWeight || '300',
+                fontStyle: content.titleFontStyle || 'italic',
               }}
             >
-              {content.description}
-            </p>
+              {content.title || 'Section Title'}
+            </h2>
+          )}
+          
+          {content.description && (
+            isElementEditMode ? (
+              <EditableElement
+                elementId="description"
+                elementType="text"
+                isEditing={true}
+                minWidth={150}
+                minHeight={40}
+              >
+                <p 
+                  className="je-section-desc font-sans whitespace-pre-wrap" 
+                  style={{ 
+                    color: descriptionColor, 
+                    opacity: isEditing ? 1 : 0.8,
+                    fontSize: content.descriptionFontSize || '1.125rem',
+                    lineHeight: content.descriptionLineHeight || '1.75',
+                    marginBottom: content.descriptionMarginBottom || '2rem',
+                    maxWidth: content.descriptionMaxWidth || '100%',
+                  }}
+                >
+                  {content.description}
+                </p>
+              </EditableElement>
+            ) : (
+              <p 
+                className="je-section-desc font-sans whitespace-pre-wrap" 
+                style={{ 
+                  color: descriptionColor, 
+                  opacity: isEditing ? 1 : 0.8,
+                  fontSize: content.descriptionFontSize || '1.125rem',
+                  lineHeight: content.descriptionLineHeight || '1.75',
+                  marginBottom: content.descriptionMarginBottom || '2rem',
+                  maxWidth: content.descriptionMaxWidth || '100%',
+                }}
+              >
+                {content.description}
+              </p>
+            )
           )}
           
           {content.ctaText && content.ctaLink && (
@@ -1794,7 +1864,7 @@ export function JERootedUnityRenderer({ block, isEditing = false, isBlockSelecte
 }
 
 // JE Heading Renderer
-export function JEHeadingRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEHeadingRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as Record<string, unknown> & {
     title?: string;
     text?: string; // Legacy support
@@ -1815,8 +1885,8 @@ export function JEHeadingRenderer({ block, isEditing = false, isBlockSelected = 
   const containerStyle = buildContainerStyles(content);
   const textStyle = buildTextStyles(content);
 
-  return (
-    <div className={`py-8 ${alignClass}`} style={containerStyle}>
+  const headingContent = (
+    <>
       {content.label && (
         <InlineEditableText
           blockId={block.id}
@@ -1836,12 +1906,34 @@ export function JEHeadingRenderer({ block, isEditing = false, isBlockSelected = 
         style={textStyle}
         as={HeadingTag as 'h1' | 'h2' | 'h3' | 'h4'}
       />
+    </>
+  );
+
+  if (isElementEditMode) {
+    return (
+      <div className={`py-8 ${alignClass}`} style={containerStyle}>
+        <EditableElement
+          elementId="heading"
+          elementType="heading"
+          isEditing={true}
+          minWidth={100}
+          minHeight={30}
+        >
+          {headingContent}
+        </EditableElement>
+      </div>
+    );
+  }
+
+  return (
+    <div className={`py-8 ${alignClass}`} style={containerStyle}>
+      {headingContent}
     </div>
   );
 }
 
 // JE Paragraph Renderer
-export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean }) {
+export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
   const content = block.content as Record<string, unknown> & {
     text?: string;
     alignment?: 'left' | 'center' | 'right';
@@ -1906,23 +1998,45 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
   // Generate unique class for this block's font
   const fontClass = hasCustomFont ? `font-block-${block.id.replace(/[^a-z0-9]/gi, '')}` : '';
 
+  const paragraphContent = (
+    <p className={`${fontClass} ${hasCustomFont ? '' : 'font-sans '}text-base md:text-lg leading-relaxed whitespace-pre-wrap ${textClass}`}>
+      <InlineEditableText
+        blockId={block.id}
+        fieldName="text"
+        value={content.text || ''}
+        placeholder="Add your paragraph text here..."
+        className=""
+        as="span"
+        multiline={true}
+      />
+    </p>
+  );
+
+  if (isElementEditMode) {
+    return (
+      <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`}>
+        {hasCustomFont && (
+          <style>{`.${fontClass}, .${fontClass} * { font-family: '${fontFamilyValue}', cursive, sans-serif !important; }`}</style>
+        )}
+        <EditableElement
+          elementId="paragraph"
+          elementType="text"
+          isEditing={true}
+          minWidth={100}
+          minHeight={30}
+        >
+          {paragraphContent}
+        </EditableElement>
+      </div>
+    );
+  }
+
   return (
     <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`}>
-      {/* Inject scoped CSS for custom font with !important */}
       {hasCustomFont && (
         <style>{`.${fontClass}, .${fontClass} * { font-family: '${fontFamilyValue}', cursive, sans-serif !important; }`}</style>
       )}
-      <p className={`${fontClass} ${hasCustomFont ? '' : 'font-sans '}text-base md:text-lg leading-relaxed whitespace-pre-wrap ${textClass}`}>
-        <InlineEditableText
-          blockId={block.id}
-          fieldName="text"
-          value={content.text || ''}
-          placeholder="Add your paragraph text here..."
-          className=""
-          as="span"
-          multiline={true}
-        />
-      </p>
+      {paragraphContent}
     </div>
   );
 }
