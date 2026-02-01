@@ -654,87 +654,115 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
       >
         <div className={maxWidthClass}>
           {content.subtitle && (
-            <p 
-              className="je-hero-subtitle font-sans uppercase drop-shadow-lg" 
-              style={{ 
-                color: subtitleColor, 
-                opacity: isEditing ? 1 : 0.9,
-                fontSize: content.subtitleFontSize || '0.75rem',
-                letterSpacing: content.subtitleLetterSpacing || '0.3em',
-                marginBottom: content.subtitleMarginBottom || '1.5rem',
-              }}
+            <EditableElement
+              elementId="subtitle"
+              elementType="text"
+              isEditing={isElementEditMode}
+              className="inline-block"
             >
-              {content.subtitle}
-            </p>
+              <p 
+                className="je-hero-subtitle font-sans uppercase drop-shadow-lg" 
+                style={{ 
+                  color: subtitleColor, 
+                  opacity: isEditing ? 1 : 0.9,
+                  fontSize: content.subtitleFontSize || '0.75rem',
+                  letterSpacing: content.subtitleLetterSpacing || '0.3em',
+                  marginBottom: content.subtitleMarginBottom || '1.5rem',
+                }}
+              >
+                {content.subtitle}
+              </p>
+            </EditableElement>
           )}
           
-          <h1 
-            className="je-hero-title font-serif drop-shadow-lg"
-            style={{ 
-              color: titleColor,
-              fontSize: content.titleFontSize || '5rem',
-              lineHeight: content.titleLineHeight || '1.1',
-              marginBottom: content.titleMarginBottom || '1.5rem',
-              fontWeight: content.titleFontWeight || '300',
-              fontStyle: content.titleFontStyle || 'italic',
-            }}
+          <EditableElement
+            elementId="title"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
           >
-            {content.title || 'Welcome to Just Empower'}
-          </h1>
-          
-          {content.description && (
-            <p 
-              className="je-hero-desc font-sans drop-shadow-lg whitespace-pre-wrap text-center mx-auto" 
+            <h1 
+              className="je-hero-title font-serif drop-shadow-lg"
               style={{ 
-                color: descriptionColor, 
-                opacity: isEditing ? 1 : 0.9,
-                fontSize: content.descriptionFontSize || '1.125rem',
-                lineHeight: content.descriptionLineHeight || '1.6',
-                marginBottom: content.descriptionMarginBottom || '3rem',
-                maxWidth: content.descriptionMaxWidth || '32rem',
+                color: titleColor,
+                fontSize: content.titleFontSize || '5rem',
+                lineHeight: content.titleLineHeight || '1.1',
+                marginBottom: content.titleMarginBottom || '1.5rem',
+                fontWeight: content.titleFontWeight || '300',
+                fontStyle: content.titleFontStyle || 'italic',
               }}
             >
-              {content.description}
-            </p>
+              {content.title || 'Welcome to Just Empower'}
+            </h1>
+          </EditableElement>
+          
+          {content.description && (
+            <EditableElement
+              elementId="description"
+              elementType="text"
+              isEditing={isElementEditMode}
+              className="block"
+            >
+              <p 
+                className="je-hero-desc font-sans drop-shadow-lg whitespace-pre-wrap text-center mx-auto" 
+                style={{ 
+                  color: descriptionColor, 
+                  opacity: isEditing ? 1 : 0.9,
+                  fontSize: content.descriptionFontSize || '1.125rem',
+                  lineHeight: content.descriptionLineHeight || '1.6',
+                  marginBottom: content.descriptionMarginBottom || '3rem',
+                  maxWidth: content.descriptionMaxWidth || '32rem',
+                }}
+              >
+                {content.description}
+              </p>
+            </EditableElement>
           )}
           
           {content.ctaText && content.ctaLink && (
-            (() => {
-              const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
-              const linkStyle = { 
-                borderColor: ctaTextColor + '4D', 
-                color: ctaTextColor,
-                borderRadius: content.ctaBorderRadius || '9999px',
-                paddingLeft: content.ctaPaddingX || '2rem',
-                paddingRight: content.ctaPaddingX || '2rem',
-                paddingTop: content.ctaPaddingY || '1rem',
-                paddingBottom: content.ctaPaddingY || '1rem',
-                fontSize: content.ctaFontSize || '0.875rem',
-                letterSpacing: content.ctaLetterSpacing || '0.2em',
-                borderWidth: content.ctaBorderWidth || '1px',
-              };
-              const linkClass = "je-hero-cta inline-block border font-sans uppercase transition-all duration-500";
-              
-              return isExternal ? (
-                <a 
-                  href={content.ctaLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={linkClass}
-                  style={linkStyle}
-                >
-                  {content.ctaText}
-                </a>
-              ) : (
-                <Link 
-                  href={content.ctaLink}
-                  className={linkClass}
-                  style={linkStyle}
-                >
-                  {content.ctaText}
-                </Link>
-              );
-            })()
+            <EditableElement
+              elementId="cta"
+              elementType="button"
+              isEditing={isElementEditMode}
+              className="inline-block"
+            >
+              {(() => {
+                const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
+                const linkStyle = { 
+                  borderColor: ctaTextColor + '4D', 
+                  color: ctaTextColor,
+                  borderRadius: content.ctaBorderRadius || '9999px',
+                  paddingLeft: content.ctaPaddingX || '2rem',
+                  paddingRight: content.ctaPaddingX || '2rem',
+                  paddingTop: content.ctaPaddingY || '1rem',
+                  paddingBottom: content.ctaPaddingY || '1rem',
+                  fontSize: content.ctaFontSize || '0.875rem',
+                  letterSpacing: content.ctaLetterSpacing || '0.2em',
+                  borderWidth: content.ctaBorderWidth || '1px',
+                };
+                const linkClass = "je-hero-cta inline-block border font-sans uppercase transition-all duration-500";
+                
+                return isExternal ? (
+                  <a 
+                    href={content.ctaLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={linkClass}
+                    style={linkStyle}
+                  >
+                    {content.ctaText}
+                  </a>
+                ) : (
+                  <Link 
+                    href={content.ctaLink}
+                    className={linkClass}
+                    style={linkStyle}
+                  >
+                    {content.ctaText}
+                  </Link>
+                );
+              })()}
+            </EditableElement>
           )}
         </div>
       </div>
