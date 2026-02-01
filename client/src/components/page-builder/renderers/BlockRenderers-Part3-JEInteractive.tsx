@@ -50,7 +50,7 @@ interface BlockRendererProps {
 // JE NEWSLETTER RENDERER
 // ============================================================================
 
-export function JENewsletterRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function JENewsletterRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
@@ -442,7 +442,7 @@ export function JEFAQRenderer({ block, isEditing, onUpdate }: BlockRendererProps
 // JE TESTIMONIAL RENDERER (Single)
 // ============================================================================
 
-export function JETestimonialRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function JETestimonialRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
@@ -855,7 +855,7 @@ export function JETwoColumnRenderer({ block, isEditing, onUpdate }: BlockRendere
 // JE GALLERY RENDERER
 // ============================================================================
 
-export function JEGalleryRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function JEGalleryRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 

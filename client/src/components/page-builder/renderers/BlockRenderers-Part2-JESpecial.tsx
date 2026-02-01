@@ -88,7 +88,7 @@ const GAP_PRESETS: Record<string, string> = {
 // JE THREE PILLARS RENDERER
 // ============================================================================
 
-export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode, onUpdate }: BlockRendererProps) {
+export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
@@ -501,7 +501,7 @@ export function JEPillarGridRenderer({ block, isEditing, onUpdate }: BlockRender
 // JE ROOTED UNITY RENDERER
 // ============================================================================
 
-export function JERootedUnityRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function JERootedUnityRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
@@ -879,7 +879,7 @@ export function JEPrinciplesRenderer({ block, isEditing, onUpdate }: BlockRender
 // JE OFFERINGS GRID RENDERER
 // ============================================================================
 
-export function JEOfferingsGridRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function JEOfferingsGridRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
@@ -1057,7 +1057,7 @@ export function JEOfferingsGridRenderer({ block, isEditing, onUpdate }: BlockRen
 // JE CAROUSEL RENDERER - Premium Apple/Jony Ive Inspired Design
 // ============================================================================
 
-export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function JECarouselRenderer({ block, isEditing, isElementEditMode, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
@@ -1134,17 +1134,24 @@ export function JECarouselRenderer({ block, isEditing, onUpdate }: BlockRenderer
           {/* Image Display - No container background, image fills naturally */}
           <div className="relative flex items-center justify-center min-h-[300px] md:min-h-[500px]">
             {slides.length > 0 && slides[currentIndex]?.imageUrl ? (
-              <img
-                key={currentIndex}
-                src={slides[currentIndex].imageUrl}
-                alt=""
-                className="max-w-full max-h-[70vh] w-auto h-auto object-contain"
-                style={{ 
-                  opacity: isTransitioning ? 0 : 1,
-                  transform: isTransitioning ? 'scale(0.98)' : 'scale(1)',
-                  transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
-                }}
-              />
+              <EditableElement
+                elementId={`carousel-image-${currentIndex}`}
+                elementType="image"
+                isEditing={isElementEditMode || false}
+                className="relative"
+              >
+                <img
+                  key={currentIndex}
+                  src={slides[currentIndex].imageUrl}
+                  alt=""
+                  className="max-w-full max-h-[70vh] w-auto h-auto object-contain"
+                  style={{ 
+                    opacity: isTransitioning ? 0 : 1,
+                    transform: isTransitioning ? 'scale(0.98)' : 'scale(1)',
+                    transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                  }}
+                />
+              </EditableElement>
             ) : (
               <div className="flex items-center justify-center w-full h-[400px]">
                 <div 

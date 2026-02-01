@@ -765,6 +765,19 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
             </EditableElement>
           )}
         </div>
+        
+        {/* Scroll Indicator */}
+        <EditableElement
+          elementId="scroll-indicator"
+          elementType="text"
+          isEditing={isElementEditMode}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        >
+          <div className="flex flex-col items-center gap-2 text-white/70 animate-bounce">
+            <span className="text-xs uppercase tracking-[0.3em] font-sans">Scroll</span>
+            <ChevronDown className="w-5 h-5" />
+          </div>
+        </EditableElement>
       </div>
       
       {/* SVG Curve Divider */}
