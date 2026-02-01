@@ -27,6 +27,7 @@ import {
   Instagram, Facebook, Twitter, Linkedin, Youtube,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import EditableElement from '../EditableElement';
 
 // Lazy load TinyMCE for performance
 const TinyMCEEditor = lazy(() => import('../TinyMCEEditor'));
@@ -482,10 +483,11 @@ interface BlockRendererProps {
   };
   isEditing?: boolean;
   isBlockSelected?: boolean;
+  isElementEditMode?: boolean;
   onUpdate?: (content: Record<string, any>) => void;
 }
 
-export function JEHeroRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function JEHeroRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
   
   const {
@@ -602,53 +604,74 @@ export function JEHeroRenderer({ block, isEditing, onUpdate }: BlockRendererProp
         variant === 'centered' ? 'text-center' : 'text-left',
         variant === 'split' ? 'grid md:grid-cols-2 gap-12 items-center' : ''
       )}>
-        <div className={cn(variant === 'split' ? '' : `${contentWidth} mx-auto`)}>
+        <div className={cn(variant === 'split' ? '' : `${contentWidth} mx-auto`, 'relative')}>
           {/* Subtitle */}
-          <EditableText
-            value={subtitle}
-            onChange={(v) => handleChange('subtitle', v)}
-            tag="p"
-            placeholder="SUBTITLE"
-            isEditing={isEditing}
-            className={cn(
-              !subtitleFontSize && 'text-sm md:text-base',
-              'uppercase tracking-[0.3em] mb-4 font-sans',
-              overlay || dark ? 'text-white/80' : 'text-neutral-600'
-            )}
-            style={subtitleStyle}
-          />
+          <EditableElement
+            elementId="subtitle"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="inline-block"
+          >
+            <EditableText
+              value={subtitle}
+              onChange={(v) => handleChange('subtitle', v)}
+              tag="p"
+              placeholder="SUBTITLE"
+              isEditing={isEditing}
+              className={cn(
+                !subtitleFontSize && 'text-sm md:text-base',
+                'uppercase tracking-[0.3em] mb-4 font-sans',
+                overlay || dark ? 'text-white/80' : 'text-neutral-600'
+              )}
+              style={subtitleStyle}
+            />
+          </EditableElement>
 
           {/* Title - Using sizing presets or custom fontSize */}
-          <EditableText
-            value={title}
-            onChange={(v) => handleChange('title', v)}
-            tag="h1"
-            placeholder="Your Headline Here"
-            isEditing={isEditing}
-            className={cn(
-              getTitleClass(),
-              'font-serif italic mb-6 leading-tight',
-              overlay || dark ? 'text-white' : 'text-neutral-900'
-            )}
-            style={titleStyle}
-          />
+          <EditableElement
+            elementId="title"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <EditableText
+              value={title}
+              onChange={(v) => handleChange('title', v)}
+              tag="h1"
+              placeholder="Your Headline Here"
+              isEditing={isEditing}
+              className={cn(
+                getTitleClass(),
+                'font-serif italic mb-6 leading-tight',
+                overlay || dark ? 'text-white' : 'text-neutral-900'
+              )}
+              style={titleStyle}
+            />
+          </EditableElement>
 
           {/* Description - Using sizing presets or custom fontSize */}
-          <EditableText
-            value={description}
-            onChange={(v) => handleChange('description', v)}
-            tag="p"
-            placeholder="Add a description..."
-            multiline
-            isEditing={isEditing}
-            className={cn(
-              getDescriptionClass(),
-              'mb-8 font-sans leading-relaxed whitespace-pre-wrap',
-              variant === 'centered' ? 'mx-auto max-w-2xl' : '',
-              overlay || dark ? 'text-white/90' : 'text-neutral-700'
-            )}
-            style={descriptionStyle}
-          />
+          <EditableElement
+            elementId="description"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <EditableText
+              value={description}
+              onChange={(v) => handleChange('description', v)}
+              tag="p"
+              placeholder="Add a description..."
+              multiline
+              isEditing={isEditing}
+              className={cn(
+                getDescriptionClass(),
+                'mb-8 font-sans leading-relaxed whitespace-pre-wrap',
+                variant === 'centered' ? 'mx-auto max-w-2xl' : '',
+                overlay || dark ? 'text-white/90' : 'text-neutral-700'
+              )}
+              style={descriptionStyle}
+            />
+          </EditableElement>
 
           {/* CTA Buttons */}
           <div className={cn(
@@ -656,44 +679,58 @@ export function JEHeroRenderer({ block, isEditing, onUpdate }: BlockRendererProp
             variant === 'centered' ? 'justify-center' : 'justify-start'
           )}>
             {(ctaText || isEditing) && (
-              <a
-                href={ctaLink}
-                className={cn(
-                  'inline-flex items-center gap-2 px-8 py-3 border-2 transition-all duration-300',
-                  'uppercase tracking-wider text-sm font-sans',
-                  overlay || dark
-                    ? 'border-white text-white hover:bg-white hover:text-neutral-900'
-                    : 'border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white'
-                )}
+              <EditableElement
+                elementId="cta-button"
+                elementType="button"
+                isEditing={isElementEditMode}
+                className="inline-block"
               >
-                <EditableText
-                  value={ctaText}
-                  onChange={(v) => handleChange('ctaText', v)}
-                  placeholder="Button Text"
-                  isEditing={isEditing}
-                />
-                <ArrowRight className="w-4 h-4" />
-              </a>
+                <a
+                  href={ctaLink}
+                  className={cn(
+                    'inline-flex items-center gap-2 px-8 py-3 border-2 transition-all duration-300',
+                    'uppercase tracking-wider text-sm font-sans',
+                    overlay || dark
+                      ? 'border-white text-white hover:bg-white hover:text-neutral-900'
+                      : 'border-neutral-900 text-neutral-900 hover:bg-neutral-900 hover:text-white'
+                  )}
+                >
+                  <EditableText
+                    value={ctaText}
+                    onChange={(v) => handleChange('ctaText', v)}
+                    placeholder="Button Text"
+                    isEditing={isEditing}
+                  />
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+              </EditableElement>
             )}
 
             {(secondaryCtaText || isEditing) && (
-              <a
-                href={secondaryCtaLink}
-                className={cn(
-                  'inline-flex items-center gap-2 px-8 py-3 transition-all duration-300',
-                  'uppercase tracking-wider text-sm font-sans',
-                  overlay || dark
-                    ? 'text-white/80 hover:text-white'
-                    : 'text-neutral-600 hover:text-neutral-900'
-                )}
+              <EditableElement
+                elementId="secondary-cta"
+                elementType="button"
+                isEditing={isElementEditMode}
+                className="inline-block"
               >
-                <EditableText
-                  value={secondaryCtaText}
-                  onChange={(v) => handleChange('secondaryCtaText', v)}
-                  placeholder="Secondary Button"
-                  isEditing={isEditing}
-                />
-              </a>
+                <a
+                  href={secondaryCtaLink}
+                  className={cn(
+                    'inline-flex items-center gap-2 px-8 py-3 transition-all duration-300',
+                    'uppercase tracking-wider text-sm font-sans',
+                    overlay || dark
+                      ? 'text-white/80 hover:text-white'
+                      : 'text-neutral-600 hover:text-neutral-900'
+                  )}
+                >
+                  <EditableText
+                    value={secondaryCtaText}
+                    onChange={(v) => handleChange('secondaryCtaText', v)}
+                    placeholder="Secondary Button"
+                    isEditing={isEditing}
+                  />
+                </a>
+              </EditableElement>
             )}
           </div>
         </div>
