@@ -273,7 +273,6 @@ export default function EditableElement({
       ref={containerRef}
       className={`
         ${hasMoved ? 'absolute' : 'relative'}
-        ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : 'ring-1 ring-dashed ring-blue-300 hover:ring-blue-500 hover:ring-2'}
         ${isDragging || isResizing ? 'cursor-grabbing' : 'cursor-pointer'}
         ${className}
         transition-all duration-150
@@ -283,8 +282,10 @@ export default function EditableElement({
         height: typeof dimensions.height === 'number' ? `${dimensions.height}px` : dimensions.height,
         left: hasMoved ? `${position.x}px` : undefined,
         top: hasMoved ? `${position.y}px` : undefined,
-        transform: !hasMoved ? undefined : undefined,
         zIndex: isSelected ? 100 : 10,
+        outline: isSelected ? '3px solid #3b82f6' : '2px dashed #60a5fa',
+        outlineOffset: '2px',
+        backgroundColor: isSelected ? 'rgba(59, 130, 246, 0.1)' : 'rgba(59, 130, 246, 0.05)',
       }}
       onClick={handleClick}
     >
