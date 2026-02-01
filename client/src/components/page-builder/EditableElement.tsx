@@ -211,15 +211,17 @@ export default function EditableElement({
       ref={containerRef}
       className={`
         relative
-        ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : ''}
-        ${isDragging || isResizing ? 'cursor-grabbing' : ''}
+        ${isSelected ? 'ring-2 ring-blue-500 ring-offset-1' : 'ring-1 ring-dashed ring-blue-300 hover:ring-blue-500 hover:ring-2'}
+        ${isDragging || isResizing ? 'cursor-grabbing' : 'cursor-pointer'}
         ${className}
+        transition-all duration-150
       `}
       style={{
         width: typeof dimensions.width === 'number' ? `${dimensions.width}px` : dimensions.width,
         height: typeof dimensions.height === 'number' ? `${dimensions.height}px` : dimensions.height,
         transform: `translate(${position.x}px, ${position.y}px)`,
         position: position.x !== 0 || position.y !== 0 ? 'relative' : undefined,
+        zIndex: isSelected ? 100 : 10,
       }}
       onClick={handleClick}
     >
