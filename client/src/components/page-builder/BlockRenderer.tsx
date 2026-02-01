@@ -25,8 +25,6 @@ import {
   EditableText,
   EditableImage,
   EditableVideo,
-  JEHeroRenderer,
-  JESectionRenderer,
   JEHeadingRenderer,
   JEParagraphRenderer,
   JEQuoteRenderer,
@@ -35,8 +33,8 @@ import {
   getIcon,
 } from './renderers/BlockRenderers-Part1-Core';
 
-// Import JEImageRenderer from JEBlockRenderers which properly handles media URLs
-import { JEImageRenderer } from './renderers/JEBlockRenderers';
+// Import JEHeroRenderer, JESectionRenderer, JEImageRenderer from JEBlockRenderers which has EditableElement wrappers
+import { JEImageRenderer, JEHeroRenderer, JESectionRenderer } from './renderers/JEBlockRenderers';
 
 // Part 2: JE Special blocks
 import {
