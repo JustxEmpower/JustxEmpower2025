@@ -2843,38 +2843,66 @@ export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelec
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {items.map((item, index) => (
-            <div 
-              key={index} 
-              className={`${cardBgClass} overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2`}
-              style={{ borderRadius: cardRadius }}
+            <EditableElement
+              key={index}
+              elementId={`offering-${index}`}
+              elementType="container"
+              isEditing={isElementEditMode}
+              className="block"
             >
-              {item.imageUrl && (
-                <div 
-                  className="relative overflow-hidden bg-neutral-100 flex items-center justify-center" 
-                  style={{ borderTopLeftRadius: cardRadius, borderTopRightRadius: cardRadius, aspectRatio: '4/3' }}
-                >
-                  <img
-                    src={getMediaUrl(item.imageUrl)}
-                    alt={item.title}
-                    className="w-full h-full object-contain transition-transform duration-500 hover:scale-105"
-                  />
-                </div>
-              )}
-              <div className="p-6">
-                <h3 className={`font-serif text-xl italic mb-2 ${textClass}`}>{item.title}</h3>
-                {item.description && (
-                  <p className={`${descClass} text-sm mb-4`}>{item.description}</p>
-                )}
-                {item.link && (
-                  <Link 
-                    href={item.link}
-                    className="inline-flex items-center text-primary text-sm font-medium"
+              <div 
+                className={`${cardBgClass} overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2`}
+                style={{ borderRadius: cardRadius }}
+              >
+                {item.imageUrl && (
+                  <EditableElement
+                    elementId={`offering-image-${index}`}
+                    elementType="image"
+                    isEditing={isElementEditMode}
+                    className="block"
                   >
-                    Learn More <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
+                    <div 
+                      className="relative overflow-hidden bg-neutral-100 flex items-center justify-center" 
+                      style={{ borderTopLeftRadius: cardRadius, borderTopRightRadius: cardRadius, aspectRatio: '4/3' }}
+                    >
+                      <img
+                        src={getMediaUrl(item.imageUrl)}
+                        alt={item.title}
+                        className="w-full h-full object-contain transition-transform duration-500 hover:scale-105"
+                      />
+                    </div>
+                  </EditableElement>
                 )}
+                <div className="p-6">
+                  <EditableElement
+                    elementId={`offering-title-${index}`}
+                    elementType="text"
+                    isEditing={isElementEditMode}
+                    className="block"
+                  >
+                    <h3 className={`font-serif text-xl italic mb-2 ${textClass}`}>{item.title}</h3>
+                  </EditableElement>
+                  {item.description && (
+                    <EditableElement
+                      elementId={`offering-desc-${index}`}
+                      elementType="text"
+                      isEditing={isElementEditMode}
+                      className="block"
+                    >
+                      <p className={`${descClass} text-sm mb-4`}>{item.description}</p>
+                    </EditableElement>
+                  )}
+                  {item.link && (
+                    <Link 
+                      href={item.link}
+                      className="inline-flex items-center text-primary text-sm font-medium"
+                    >
+                      Learn More <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  )}
+                </div>
               </div>
-            </div>
+            </EditableElement>
           ))}
         </div>
       </div>
@@ -3280,35 +3308,63 @@ export function JEVolumesRenderer({ block, isEditing = false, isBlockSelected = 
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {volumes.map((volume, index) => (
-            <div 
-              key={index} 
-              className={`${cardBgClass} overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2`}
-              style={{ borderRadius: cardRadius }}
+            <EditableElement
+              key={index}
+              elementId={`volume-${index}`}
+              elementType="container"
+              isEditing={isElementEditMode}
+              className="block"
             >
-              {volume.imageUrl && (
-                <div className="relative overflow-hidden" style={{ borderTopLeftRadius: cardRadius, borderTopRightRadius: cardRadius }}>
-                  <img
-                    src={getMediaUrl(volume.imageUrl)}
-                    alt={volume.title}
-                    className="w-full h-64 object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                </div>
-              )}
-              <div className="p-6">
-                <h3 className={`font-serif text-xl italic mb-2 ${textClass}`}>{volume.title}</h3>
-                {volume.description && (
-                  <p className={`${descClass} text-sm mb-4`}>{volume.description}</p>
-                )}
-                {volume.link && (
-                  <Link 
-                    href={volume.link}
-                    className="inline-flex items-center text-primary text-sm font-medium"
+              <div 
+                className={`${cardBgClass} overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-2`}
+                style={{ borderRadius: cardRadius }}
+              >
+                {volume.imageUrl && (
+                  <EditableElement
+                    elementId={`volume-image-${index}`}
+                    elementType="image"
+                    isEditing={isElementEditMode}
+                    className="block"
                   >
-                    Read More <ArrowRight className="w-4 h-4 ml-2" />
-                  </Link>
+                    <div className="relative overflow-hidden" style={{ borderTopLeftRadius: cardRadius, borderTopRightRadius: cardRadius }}>
+                      <img
+                        src={getMediaUrl(volume.imageUrl)}
+                        alt={volume.title}
+                        className="w-full h-64 object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                    </div>
+                  </EditableElement>
                 )}
+                <div className="p-6">
+                  <EditableElement
+                    elementId={`volume-title-${index}`}
+                    elementType="text"
+                    isEditing={isElementEditMode}
+                    className="block"
+                  >
+                    <h3 className={`font-serif text-xl italic mb-2 ${textClass}`}>{volume.title}</h3>
+                  </EditableElement>
+                  {volume.description && (
+                    <EditableElement
+                      elementId={`volume-desc-${index}`}
+                      elementType="text"
+                      isEditing={isElementEditMode}
+                      className="block"
+                    >
+                      <p className={`${descClass} text-sm mb-4`}>{volume.description}</p>
+                    </EditableElement>
+                  )}
+                  {volume.link && (
+                    <Link 
+                      href={volume.link}
+                      className="inline-flex items-center text-primary text-sm font-medium"
+                    >
+                      Read More <ArrowRight className="w-4 h-4 ml-2" />
+                    </Link>
+                  )}
+                </div>
               </div>
-            </div>
+            </EditableElement>
           ))}
         </div>
       </div>
