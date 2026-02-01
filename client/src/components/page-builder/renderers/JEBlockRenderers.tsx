@@ -1285,13 +1285,20 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
             >
               {/* Image - using object-contain to preserve aspect ratio with glassmorphism background */}
               {imageUrl && (
-                <div className="absolute inset-0 flex items-center justify-center bg-neutral-100/80 dark:bg-neutral-900/80 backdrop-blur-2xl backdrop-saturate-150">
-                  <img 
-                    src={imageUrl}
-                    alt={hasRealTitle ? slide.title : `Slide ${index + 1}`}
-                    className="max-w-full max-h-full object-contain drop-shadow-2xl"
-                  />
-                </div>
+                <EditableElement
+                  elementId={`slide-image-${index}`}
+                  elementType="image"
+                  isEditing={isElementEditMode}
+                  className="absolute inset-0"
+                >
+                  <div className="absolute inset-0 flex items-center justify-center bg-neutral-100/80 dark:bg-neutral-900/80 backdrop-blur-2xl backdrop-saturate-150">
+                    <img 
+                      src={imageUrl}
+                      alt={hasRealTitle ? slide.title : `Slide ${index + 1}`}
+                      className="max-w-full max-h-full object-contain drop-shadow-2xl"
+                    />
+                  </div>
+                </EditableElement>
               )}
               
               {/* Gradient Overlay - only show if there's content */}
@@ -1304,22 +1311,43 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
                 <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 lg:p-16 z-20">
                   <div className="max-w-4xl">
                     {hasRealTitle && (
-                      <h3 className="font-serif text-2xl md:text-3xl lg:text-4xl text-white font-light italic mb-3">
-                        {slide.title}
-                      </h3>
+                      <EditableElement
+                        elementId={`slide-title-${index}`}
+                        elementType="text"
+                        isEditing={isElementEditMode}
+                        className="block"
+                      >
+                        <h3 className="font-serif text-2xl md:text-3xl lg:text-4xl text-white font-light italic mb-3">
+                          {slide.title}
+                        </h3>
+                      </EditableElement>
                     )}
                     {hasRealDescription && (
-                      <p className="text-white/80 text-sm md:text-base max-w-xl">
-                        {slide.description}
-                      </p>
+                      <EditableElement
+                        elementId={`slide-desc-${index}`}
+                        elementType="text"
+                        isEditing={isElementEditMode}
+                        className="block"
+                      >
+                        <p className="text-white/80 text-sm md:text-base max-w-xl">
+                          {slide.description}
+                        </p>
+                      </EditableElement>
                     )}
                     {slide.link && (
-                      <Link 
-                        href={slide.link}
-                        className="inline-block mt-4 px-6 py-2 border border-white/40 text-white text-sm uppercase tracking-wider hover:bg-white hover:text-black transition-all duration-300 rounded-full"
+                      <EditableElement
+                        elementId={`slide-cta-${index}`}
+                        elementType="button"
+                        isEditing={isElementEditMode}
+                        className="inline-block"
                       >
-                        Learn More
-                      </Link>
+                        <Link 
+                          href={slide.link}
+                          className="inline-block mt-4 px-6 py-2 border border-white/40 text-white text-sm uppercase tracking-wider hover:bg-white hover:text-black transition-all duration-300 rounded-full"
+                        >
+                          Learn More
+                        </Link>
+                      </EditableElement>
                     )}
                   </div>
                 </div>
@@ -2703,35 +2731,56 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
         {showRating && <StarRating stars={rating} />}
         
         {/* Quote with fade transition */}
-        <blockquote 
-          className="font-serif text-xl md:text-2xl italic leading-relaxed mb-6 transition-opacity duration-500"
-          style={{ color: textColor }}
+        <EditableElement
+          elementId="quote"
+          elementType="text"
+          isEditing={isElementEditMode}
+          className="block"
         >
-          {currentTestimonial.quote}
-        </blockquote>
+          <blockquote 
+            className="font-serif text-xl md:text-2xl italic leading-relaxed mb-6 transition-opacity duration-500"
+            style={{ color: textColor }}
+          >
+            {currentTestimonial.quote}
+          </blockquote>
+        </EditableElement>
         
         {/* Author */}
         <div className="flex items-center gap-4">
           {imageUrl && (
-            <div 
-              className="relative overflow-hidden rounded-full shadow-lg shadow-black/10 flex-shrink-0"
-              style={{ width: avatarSize, height: avatarSize }}
+            <EditableElement
+              elementId="avatar"
+              elementType="image"
+              isEditing={isElementEditMode}
+              className="flex-shrink-0"
             >
-              <img 
-                src={imageUrl} 
-                alt={currentTestimonial.author} 
-                className="w-full h-full object-cover" 
-              />
-            </div>
+              <div 
+                className="relative overflow-hidden rounded-full shadow-lg shadow-black/10"
+                style={{ width: avatarSize, height: avatarSize }}
+              >
+                <img 
+                  src={imageUrl} 
+                  alt={currentTestimonial.author} 
+                  className="w-full h-full object-cover" 
+                />
+              </div>
+            </EditableElement>
           )}
-          <div className="text-left">
-            <p className="font-sans font-semibold" style={{ color: textColor }}>{currentTestimonial.author}</p>
-            {currentTestimonial.role && (
-              <p className={`font-sans text-sm ${roleClass}`}>
-                {currentTestimonial.role}
-              </p>
-            )}
-          </div>
+          <EditableElement
+            elementId="author-info"
+            elementType="text"
+            isEditing={isElementEditMode}
+            className="block"
+          >
+            <div className="text-left">
+              <p className="font-sans font-semibold" style={{ color: textColor }}>{currentTestimonial.author}</p>
+              {currentTestimonial.role && (
+                <p className={`font-sans text-sm ${roleClass}`}>
+                  {currentTestimonial.role}
+                </p>
+              )}
+            </div>
+          </EditableElement>
         </div>
 
         {/* Slider dots - glassmorphism style */}
