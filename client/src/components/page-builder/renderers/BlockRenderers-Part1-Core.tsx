@@ -764,7 +764,7 @@ export function JEHeroRenderer({ block, isEditing, isElementEditMode = false, on
 // JE SECTION RENDERER (je-section-standard, je-section-fullwidth)
 // ============================================================================
 
-export function JESectionRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function JESectionRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
   const isFullWidth = block.type === 'je-section-fullwidth';
 
@@ -866,65 +866,93 @@ export function JESectionRenderer({ block, isEditing, onUpdate }: BlockRendererP
             isImageLeft && 'md:grid-flow-dense'
           )}>
             {/* Content */}
-            <div className={isImageLeft ? 'md:col-start-2' : ''}>
+            <div className={cn(isImageLeft ? 'md:col-start-2' : '', 'relative')}>
               {/* Label */}
-              <EditableText
-                value={label}
-                onChange={(v) => handleChange('label', v)}
-                tag="p"
-                placeholder="SECTION LABEL"
-                isEditing={isEditing}
-                className={cn(
-                  !labelFontSize && 'text-xs md:text-sm',
-                  'uppercase tracking-[0.3em] mb-4 font-sans',
-                  dark ? 'text-amber-400' : 'text-amber-600'
-                )}
-                style={labelStyle}
-              />
+              <EditableElement
+                elementId="label"
+                elementType="text"
+                isEditing={isElementEditMode}
+                className="inline-block"
+              >
+                <EditableText
+                  value={label}
+                  onChange={(v) => handleChange('label', v)}
+                  tag="p"
+                  placeholder="SECTION LABEL"
+                  isEditing={isEditing}
+                  className={cn(
+                    !labelFontSize && 'text-xs md:text-sm',
+                    'uppercase tracking-[0.3em] mb-4 font-sans',
+                    dark ? 'text-amber-400' : 'text-amber-600'
+                  )}
+                  style={labelStyle}
+                />
+              </EditableElement>
 
               {/* Title */}
-              <EditableText
-                value={title}
-                onChange={(v) => handleChange('title', v)}
-                tag="h2"
-                placeholder="Section Title"
-                isEditing={isEditing}
-                className={cn(
-                  !titleFontSize && 'text-3xl md:text-4xl lg:text-5xl',
-                  'font-serif italic mb-6',
-                  dark ? 'text-white' : 'text-neutral-900'
-                )}
-                style={titleStyle}
-              />
+              <EditableElement
+                elementId="title"
+                elementType="text"
+                isEditing={isElementEditMode}
+                className="block"
+              >
+                <EditableText
+                  value={title}
+                  onChange={(v) => handleChange('title', v)}
+                  tag="h2"
+                  placeholder="Section Title"
+                  isEditing={isEditing}
+                  className={cn(
+                    !titleFontSize && 'text-3xl md:text-4xl lg:text-5xl',
+                    'font-serif italic mb-6',
+                    dark ? 'text-white' : 'text-neutral-900'
+                  )}
+                  style={titleStyle}
+                />
+              </EditableElement>
 
               {/* Subtitle */}
-              <EditableText
-                value={subtitle}
-                onChange={(v) => handleChange('subtitle', v)}
-                tag="p"
-                placeholder="Subtitle..."
-                isEditing={isEditing}
-                className={cn(
-                  'text-lg md:text-xl mb-6 font-sans',
-                  dark ? 'text-neutral-300' : 'text-neutral-600'
-                )}
-              />
+              <EditableElement
+                elementId="subtitle"
+                elementType="text"
+                isEditing={isElementEditMode}
+                className="block"
+              >
+                <EditableText
+                  value={subtitle}
+                  onChange={(v) => handleChange('subtitle', v)}
+                  tag="p"
+                  placeholder="Subtitle..."
+                  isEditing={isEditing}
+                  className={cn(
+                    'text-lg md:text-xl mb-6 font-sans',
+                    dark ? 'text-neutral-300' : 'text-neutral-600'
+                  )}
+                />
+              </EditableElement>
 
               {/* Description */}
-              <EditableText
-                value={description}
-                onChange={(v) => handleChange('description', v)}
-                tag="div"
-                placeholder="Add description..."
-                multiline
-                isEditing={isEditing}
-                className={cn(
-                  !descriptionFontSize && 'text-base md:text-lg',
-                  'font-sans leading-relaxed whitespace-pre-wrap',
-                  dark ? 'text-neutral-400' : 'text-neutral-600'
-                )}
-                style={descriptionStyle}
-              />
+              <EditableElement
+                elementId="description"
+                elementType="text"
+                isEditing={isElementEditMode}
+                className="block"
+              >
+                <EditableText
+                  value={description}
+                  onChange={(v) => handleChange('description', v)}
+                  tag="div"
+                  placeholder="Add description..."
+                  multiline
+                  isEditing={isEditing}
+                  className={cn(
+                    !descriptionFontSize && 'text-base md:text-lg',
+                    'font-sans leading-relaxed whitespace-pre-wrap',
+                    dark ? 'text-neutral-400' : 'text-neutral-600'
+                  )}
+                  style={descriptionStyle}
+                />
+              </EditableElement>
             </div>
 
             {/* Image */}
@@ -941,62 +969,90 @@ export function JESectionRenderer({ block, isEditing, onUpdate }: BlockRendererP
           </div>
         ) : (
           /* No image layout */
-          <>
-            <EditableText
-              value={label}
-              onChange={(v) => handleChange('label', v)}
-              tag="p"
-              placeholder="SECTION LABEL"
-              isEditing={isEditing}
-              className={cn(
-                !labelFontSize && 'text-xs md:text-sm',
-                'uppercase tracking-[0.3em] mb-4 font-sans',
-                dark || overlay ? 'text-amber-400' : 'text-amber-600'
-              )}
-              style={labelStyle}
-            />
+          <div className="relative">
+            <EditableElement
+              elementId="label"
+              elementType="text"
+              isEditing={isElementEditMode}
+              className="inline-block"
+            >
+              <EditableText
+                value={label}
+                onChange={(v) => handleChange('label', v)}
+                tag="p"
+                placeholder="SECTION LABEL"
+                isEditing={isEditing}
+                className={cn(
+                  !labelFontSize && 'text-xs md:text-sm',
+                  'uppercase tracking-[0.3em] mb-4 font-sans',
+                  dark || overlay ? 'text-amber-400' : 'text-amber-600'
+                )}
+                style={labelStyle}
+              />
+            </EditableElement>
 
-            <EditableText
-              value={title}
-              onChange={(v) => handleChange('title', v)}
-              tag="h2"
-              placeholder="Section Title"
-              isEditing={isEditing}
-              className={cn(
-                !titleFontSize && 'text-3xl md:text-4xl lg:text-5xl',
-                'font-serif italic mb-6',
-                dark || overlay ? 'text-white' : 'text-neutral-900'
-              )}
-              style={titleStyle}
-            />
+            <EditableElement
+              elementId="title"
+              elementType="text"
+              isEditing={isElementEditMode}
+              className="block"
+            >
+              <EditableText
+                value={title}
+                onChange={(v) => handleChange('title', v)}
+                tag="h2"
+                placeholder="Section Title"
+                isEditing={isEditing}
+                className={cn(
+                  !titleFontSize && 'text-3xl md:text-4xl lg:text-5xl',
+                  'font-serif italic mb-6',
+                  dark || overlay ? 'text-white' : 'text-neutral-900'
+                )}
+                style={titleStyle}
+              />
+            </EditableElement>
 
-            <EditableText
-              value={subtitle}
-              onChange={(v) => handleChange('subtitle', v)}
-              tag="p"
-              placeholder="Subtitle..."
-              isEditing={isEditing}
-              className={cn(
-                'text-lg md:text-xl mb-6 font-sans',
-                dark || overlay ? 'text-neutral-300' : 'text-neutral-600'
-              )}
-            />
+            <EditableElement
+              elementId="subtitle"
+              elementType="text"
+              isEditing={isElementEditMode}
+              className="block"
+            >
+              <EditableText
+                value={subtitle}
+                onChange={(v) => handleChange('subtitle', v)}
+                tag="p"
+                placeholder="Subtitle..."
+                isEditing={isEditing}
+                className={cn(
+                  'text-lg md:text-xl mb-6 font-sans',
+                  dark || overlay ? 'text-neutral-300' : 'text-neutral-600'
+                )}
+              />
+            </EditableElement>
 
-            <EditableText
-              value={description}
-              onChange={(v) => handleChange('description', v)}
-              tag="div"
-              placeholder="Add description..."
-              multiline
-              isEditing={isEditing}
-              className={cn(
-                !descriptionFontSize && 'text-base md:text-lg',
-                'max-w-3xl font-sans leading-relaxed whitespace-pre-wrap',
-                alignment === 'center' ? 'mx-auto' : '',
-                dark || overlay ? 'text-neutral-300' : 'text-neutral-600'
-              )}
-              style={descriptionStyle}
-            />
+            <EditableElement
+              elementId="description"
+              elementType="text"
+              isEditing={isElementEditMode}
+              className="block"
+            >
+              <EditableText
+                value={description}
+                onChange={(v) => handleChange('description', v)}
+                tag="div"
+                placeholder="Add description..."
+                multiline
+                isEditing={isEditing}
+                className={cn(
+                  !descriptionFontSize && 'text-base md:text-lg',
+                  'max-w-3xl font-sans leading-relaxed whitespace-pre-wrap',
+                  alignment === 'center' ? 'mx-auto' : '',
+                  dark || overlay ? 'text-neutral-300' : 'text-neutral-600'
+                )}
+                style={descriptionStyle}
+              />
+            </EditableElement>
 
             {/* HTML Content */}
             {htmlContent && (
@@ -1005,7 +1061,7 @@ export function JESectionRenderer({ block, isEditing, onUpdate }: BlockRendererP
                 dangerouslySetInnerHTML={{ __html: htmlContent }}
               />
             )}
-          </>
+          </div>
         )}
       </div>
     </section>
