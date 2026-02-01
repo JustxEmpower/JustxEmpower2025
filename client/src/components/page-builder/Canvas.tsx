@@ -471,18 +471,19 @@ export default function Canvas({
           </div>
         )}
 
-        {/* Canvas Content */}
-        <div className="flex-1 p-8 overflow-auto">
+        {/* Canvas Content - Mirror of Preview/Live Site */}
+        <div className="flex-1 overflow-auto" style={{ padding: isPreviewMode ? 0 : '1rem' }}>
           <div 
             className={cn(
               'mx-auto transition-all duration-300',
-              isPreviewMode ? '' : 'bg-white dark:bg-neutral-900 rounded-2xl shadow-xl min-h-[600px] p-6'
+              isPreviewMode ? '' : 'bg-white dark:bg-neutral-900 shadow-lg min-h-[600px] overflow-hidden'
             )}
             style={{
               width: isPreviewMode ? '100%' : `${viewport.width}px`,
               maxWidth: '100%',
               transform: canvasScale < 1 ? `scale(${canvasScale})` : undefined,
               transformOrigin: 'top center',
+              borderRadius: isPreviewMode ? 0 : '0.5rem',
             }}
           >
           {blocks.length > 0 ? (
@@ -490,7 +491,7 @@ export default function Canvas({
               items={blocks.map((b) => b.id)}
               strategy={verticalListSortingStrategy}
             >
-              <div className="space-y-4">
+              <div>
                 {blocks.map((block, index) => {
                   const handleSelect = (e: React.MouseEvent) => {
                     if (e.shiftKey && lastSelectedId) {
