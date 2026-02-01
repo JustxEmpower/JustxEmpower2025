@@ -254,6 +254,9 @@ export default function EditableElement({
     };
   }, [isDragging, isResizing, resizeHandle, position, dimensions, onMove, onResize, minWidth, minHeight]);
 
+  // Debug logging
+  console.log(`[EditableElement] ${elementId} isEditing:`, isEditing);
+
   if (!isEditing) {
     return <div className={className}>{children}</div>;
   }

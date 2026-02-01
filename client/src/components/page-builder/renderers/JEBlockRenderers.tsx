@@ -299,6 +299,9 @@ const iconMap = ICON_REGISTRY;
 
 // JE Hero Block Renderer (handles je-hero-video, je-hero-image, je-hero-split, je-hero)
 export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
+  // Debug logging
+  console.log('[JEHeroRenderer] isElementEditMode:', isElementEditMode, 'isEditing:', isEditing);
+  
   const heroRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
