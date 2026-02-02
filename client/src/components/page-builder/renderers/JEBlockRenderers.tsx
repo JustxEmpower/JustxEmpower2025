@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { InlineEditableText } from '../InlineEditableText';
 import { ICON_REGISTRY } from '../IconPicker';
 import EditableElement from '../EditableElement';
+import EditableWrapper from '../EditableWrapper';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
@@ -680,12 +681,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
             </div>
           )}
           {content.subtitle && (
-            <EditableElement
-              elementId="subtitle"
-              elementType="text"
-              isEditing={isElementEditMode}
-              className="inline-block"
-            >
+            <EditableWrapper elementId="subtitle" elementType="subtitle">
               <p 
                 className="je-hero-subtitle font-sans uppercase drop-shadow-lg" 
                 style={{ 
@@ -698,15 +694,10 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
               >
                 {content.subtitle}
               </p>
-            </EditableElement>
+            </EditableWrapper>
           )}
           
-          <EditableElement
-            elementId="title"
-            elementType="text"
-            isEditing={isElementEditMode}
-            className="block"
-          >
+          <EditableWrapper elementId="title" elementType="title">
             <h1 
               className="je-hero-title font-serif drop-shadow-lg"
               style={{ 
@@ -720,15 +711,10 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
             >
               {content.title || 'Welcome to Just Empower'}
             </h1>
-          </EditableElement>
+          </EditableWrapper>
           
           {content.description && (
-            <EditableElement
-              elementId="description"
-              elementType="text"
-              isEditing={isElementEditMode}
-              className="block"
-            >
+            <EditableWrapper elementId="description" elementType="description">
               <p 
                 className="je-hero-desc font-sans drop-shadow-lg whitespace-pre-wrap text-center mx-auto" 
                 style={{ 
@@ -742,16 +728,11 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
               >
                 {content.description}
               </p>
-            </EditableElement>
+            </EditableWrapper>
           )}
           
           {content.ctaText && content.ctaLink && (
-            <EditableElement
-              elementId="cta"
-              elementType="button"
-              isEditing={isElementEditMode}
-              className="inline-block"
-            >
+            <EditableWrapper elementId="cta" elementType="button">
               {(() => {
                 const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
                 const linkStyle = { 
@@ -788,22 +769,17 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                   </Link>
                 );
               })()}
-            </EditableElement>
+            </EditableWrapper>
           )}
         </div>
         
         {/* Scroll Indicator */}
-        <EditableElement
-          elementId="scroll-indicator"
-          elementType="text"
-          isEditing={isElementEditMode}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        >
+        <EditableWrapper elementId="scroll-indicator" elementType="scroll" className="absolute bottom-8 left-1/2 -translate-x-1/2">
           <div className="flex flex-col items-center gap-2 text-white/70 animate-bounce">
             <span className="text-xs uppercase tracking-[0.3em] font-sans">Scroll</span>
             <ChevronDown className="w-5 h-5" />
           </div>
-        </EditableElement>
+        </EditableWrapper>
       </div>
       
       {/* SVG Curve Divider */}
