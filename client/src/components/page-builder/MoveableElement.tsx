@@ -65,21 +65,21 @@ export default function MoveableElement({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isSelected]);
 
-  // Build inline style from transform
+  // Build inline style from transform - use margin offsets to avoid conflicting with CSS transforms
   const transformStyle: React.CSSProperties = {
     cursor: 'pointer',
   };
   
-  // Apply stored transforms
-  if (transform.x || transform.y || transform.rotate) {
-    const parts: string[] = [];
-    if (transform.x || transform.y) {
-      parts.push(`translate(${transform.x || 0}px, ${transform.y || 0}px)`);
-    }
-    if (transform.rotate) {
-      parts.push(`rotate(${transform.rotate}deg)`);
-    }
-    transformStyle.transform = parts.join(' ');
+  // Apply stored position offsets using margin (doesn't conflict with CSS transforms like -translate-x-1/2)
+  if (transform.x) {
+    transformStyle.marginLeft = `${transform.x}px`;
+  }
+  if (transform.y) {
+    transformStyle.marginTop = `${transform.y}px`;
+  }
+  if (transform.rotate) {
+    // Rotation still needs transform, but we append to existing
+    transformStyle.transform = `rotate(${transform.rotate}deg)`;
   }
   if (transform.width) {
     transformStyle.width = `${transform.width}px`;
@@ -133,7 +133,9 @@ export default function MoveableElement({
           origin={false}
           
           onDrag={({ target, beforeTranslate }) => {
-            target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)${transform.rotate ? ` rotate(${transform.rotate}deg)` : ''}`;
+            // Use margin for positioning to avoid conflicting with CSS transforms
+            target.style.marginLeft = `${beforeTranslate[0]}px`;
+            target.style.marginTop = `${beforeTranslate[1]}px`;
           }}
           onDragEnd={({ target, lastEvent }) => {
             if (lastEvent) {
@@ -149,7 +151,8 @@ export default function MoveableElement({
           onResize={({ target, width, height, drag }) => {
             target.style.width = `${width}px`;
             target.style.height = `${height}px`;
-            target.style.transform = `translate(${drag.beforeTranslate[0]}px, ${drag.beforeTranslate[1]}px)${transform.rotate ? ` rotate(${transform.rotate}deg)` : ''}`;
+            target.style.marginLeft = `${drag.beforeTranslate[0]}px`;
+            target.style.marginTop = `${drag.beforeTranslate[1]}px`;
           }}
           onResizeEnd={({ target, lastEvent }) => {
             if (lastEvent) {
@@ -164,8 +167,8 @@ export default function MoveableElement({
             }
           }}
 
-          onRotate={({ target, beforeRotate, drag }) => {
-            target.style.transform = `translate(${transform.x || 0}px, ${transform.y || 0}px) rotate(${beforeRotate}deg)`;
+          onRotate={({ target, beforeRotate }) => {
+            target.style.transform = `rotate(${beforeRotate}deg)`;
           }}
           onRotateEnd={({ target, lastEvent }) => {
             if (lastEvent) {
