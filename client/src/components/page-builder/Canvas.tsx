@@ -68,6 +68,7 @@ interface SortableBlockProps {
   onMoveDown: () => void;
   onMoveToTop: () => void;
   onMoveToBottom: () => void;
+  onUpdate: (content: Record<string, any>) => void;
 }
 
 function SortableBlock({
@@ -90,6 +91,7 @@ function SortableBlock({
   onMoveDown,
   onMoveToTop,
   onMoveToBottom,
+  onUpdate,
 }: SortableBlockProps) {
   // DEBUG: Log what SortableBlock receives
   console.log('[SortableBlock] block.type:', block.type, 'isElementEditMode:', isElementEditMode);
@@ -200,7 +202,7 @@ function SortableBlock({
 
       {/* Block content */}
       <div className="relative">
-        <BlockRenderer block={block} isEditing={!isPreviewMode} isBlockSelected={isSelected} isElementEditMode={isElementEditMode} />
+        <BlockRenderer block={block} isEditing={!isPreviewMode} isBlockSelected={isSelected} isElementEditMode={isElementEditMode} onUpdate={onUpdate} />
         {/* DEBUG: Show isElementEditMode state */}
         {isElementEditMode && (
           <div className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 z-[9999]">
@@ -302,6 +304,7 @@ export default function Canvas({
     selectElement,
     updateElementStyle,
     toggleElementEditMode,
+    updateBlock,
   } = usePageBuilderStore();
 
   // DEBUG: Log isElementEditMode value
@@ -590,6 +593,7 @@ export default function Canvas({
                       onMoveDown={handleMoveDown}
                       onMoveToTop={handleMoveToTop}
                       onMoveToBottom={handleMoveToBottom}
+                      onUpdate={(content) => updateBlock(block.id, content)}
                     />
                   );
                 })}
