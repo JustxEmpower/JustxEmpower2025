@@ -54,7 +54,6 @@ export default function MoveableElement({
         data-element-type={elementType}
         onClick={handleClick}
         style={{
-          display: 'inline-block',
           transform: transformStyle,
           borderRadius: '4px',
         }}
