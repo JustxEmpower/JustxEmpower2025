@@ -562,7 +562,7 @@ export default function Canvas({
 
                   return (
                     <SortableBlock
-                      key={block.id}
+                      key={`${block.id}-${isElementEditMode}`}
                       block={block}
                       blocks={blocks}
                       isSelected={selectedBlockId === block.id}
