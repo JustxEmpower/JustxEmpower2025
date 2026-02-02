@@ -42,6 +42,19 @@ export default function MoveableElement({
     rotate: initialTransform?.rotate || 0,
   });
 
+  // Sync transform state when initialTransform prop changes (e.g., when block content updates)
+  useEffect(() => {
+    if (initialTransform) {
+      setTransform({
+        x: initialTransform.x || 0,
+        y: initialTransform.y || 0,
+        width: initialTransform.width,
+        height: initialTransform.height,
+        rotate: initialTransform.rotate || 0,
+      });
+    }
+  }, [initialTransform?.x, initialTransform?.y, initialTransform?.width, initialTransform?.height, initialTransform?.rotate]);
+
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     setIsSelected(true);
