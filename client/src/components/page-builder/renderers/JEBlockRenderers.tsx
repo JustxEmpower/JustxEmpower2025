@@ -773,8 +773,8 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
           )}
         </div>
         
-        {/* Scroll Indicator */}
-        <MoveableElement elementId="scroll-indicator" elementType="scroll" className="absolute bottom-8 left-1/2 -translate-x-1/2" initialTransform={getElementTransform('scroll-indicator')} onTransformChange={handleTransformChange}>
+        {/* Scroll Indicator - use left:0 right:0 mx-auto for centering instead of transform */}
+        <MoveableElement elementId="scroll-indicator" elementType="scroll" className="absolute bottom-8 left-0 right-0 mx-auto w-fit" initialTransform={getElementTransform('scroll-indicator')} onTransformChange={handleTransformChange}>
           <div className="flex flex-col items-center gap-2 text-white/70 animate-bounce">
             <span className="text-xs uppercase tracking-[0.3em] font-sans">Scroll</span>
             <ChevronDown className="w-5 h-5" />
