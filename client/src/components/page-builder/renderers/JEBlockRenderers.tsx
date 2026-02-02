@@ -370,15 +370,20 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
 
   // Handler for saving element transforms
   const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    console.log('[JEHeroRenderer] handleTransformChange called:', elementId, transform, 'onUpdate exists:', !!onUpdate);
     if (onUpdate) {
       const currentTransforms = content.elementTransforms || {};
-      onUpdate({
+      const newContent = {
         ...content,
         elementTransforms: {
           ...currentTransforms,
           [elementId]: transform,
         },
-      });
+      };
+      console.log('[JEHeroRenderer] Calling onUpdate with:', newContent.elementTransforms);
+      onUpdate(newContent);
+    } else {
+      console.warn('[JEHeroRenderer] onUpdate is not defined - transforms will not persist!');
     }
   };
 
