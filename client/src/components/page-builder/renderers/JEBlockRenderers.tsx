@@ -1,6 +1,6 @@
 import React, { memo, useState, useRef, useEffect } from 'react';
 import { Link } from 'wouter';
-import { PageBlock } from '../usePageBuilderStore';
+import { PageBlock, usePageBuilderStore } from '../usePageBuilderStore';
 import { JERendererProps, normalizeJERendererProps } from './jeRendererTypes';
 import Carousel from '@/components/Carousel';
 import NewsletterSignup from '@/components/NewsletterSignup';
@@ -298,9 +298,13 @@ export const MediaRenderer = memo(function MediaRenderer({
 const iconMap = ICON_REGISTRY;
 
 // JE Hero Block Renderer (handles je-hero-video, je-hero-image, je-hero-split, je-hero)
-export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false, onUpdate }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean; onUpdate?: (content: Record<string, any>) => void }) {
+export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode: propIsElementEditMode = false, onUpdate }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean; onUpdate?: (content: Record<string, any>) => void }) {
+  // Read isElementEditMode directly from store to ensure we get the latest value
+  const storeIsElementEditMode = usePageBuilderStore((state) => state.isElementEditMode);
+  const isElementEditMode = storeIsElementEditMode || propIsElementEditMode;
+  
   // Debug logging - CRITICAL
-  console.log('[JEHeroRenderer] RECEIVED PROPS - isElementEditMode:', isElementEditMode, 'isEditing:', isEditing, 'block.type:', block.type);
+  console.log('[JEHeroRenderer] storeIsElementEditMode:', storeIsElementEditMode, 'propIsElementEditMode:', propIsElementEditMode, 'final isElementEditMode:', isElementEditMode);
   
   const heroRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
