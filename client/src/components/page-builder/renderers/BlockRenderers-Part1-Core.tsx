@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import EditableElement from '../EditableElement';
+import MoveableElement from '../MoveableElement';
 
 // Lazy load TinyMCE for performance
 const TinyMCEEditor = lazy(() => import('../TinyMCEEditor'));
@@ -47,6 +48,9 @@ interface EditableTextProps {
   style?: React.CSSProperties;
   dangerousHtml?: boolean;
   richText?: boolean;
+  elementId?: string;
+  elementType?: string;
+  isElementEditMode?: boolean;
 }
 
 export function EditableText({
@@ -60,6 +64,9 @@ export function EditableText({
   style,
   dangerousHtml = false,
   richText = false,
+  elementId,
+  elementType = 'text',
+  isElementEditMode = false,
 }: EditableTextProps) {
   const ref = useRef<HTMLElement>(null);
   const [localValue, setLocalValue] = useState(value);
@@ -104,22 +111,30 @@ export function EditableText({
     }
   };
 
-  // Non-editing mode
+  // Non-editing mode - wrap in MoveableElement if element edit mode is active
   if (!isEditing) {
-    if (dangerousHtml || richText) {
-      return (
-        <Tag 
-          className={className} 
-          style={style}
-          dangerouslySetInnerHTML={{ __html: value || placeholder }}
-        />
-      );
-    }
-    return (
+    const content = dangerousHtml || richText ? (
+      <Tag 
+        className={className} 
+        style={style}
+        dangerouslySetInnerHTML={{ __html: value || placeholder }}
+      />
+    ) : (
       <Tag className={className} style={style}>
         {value || <span className="opacity-50">{placeholder}</span>}
       </Tag>
     );
+    
+    // Wrap in MoveableElement when element edit mode is active
+    if (isElementEditMode && elementId) {
+      return (
+        <MoveableElement elementId={elementId} elementType={elementType}>
+          {content}
+        </MoveableElement>
+      );
+    }
+    
+    return content;
   }
 
   // Rich text editing mode with TinyMCE
@@ -201,6 +216,8 @@ interface EditableImageProps {
   isEditing?: boolean;
   aspectRatio?: string;
   fallback?: React.ReactNode;
+  elementId?: string;
+  isElementEditMode?: boolean;
 }
 
 export function EditableImage({
@@ -211,6 +228,8 @@ export function EditableImage({
   isEditing = false,
   aspectRatio,
   fallback,
+  elementId,
+  isElementEditMode = false,
 }: EditableImageProps) {
   const [isHovering, setIsHovering] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -225,7 +244,7 @@ export function EditableImage({
     return fallback ? <>{fallback}</> : null;
   }
 
-  return (
+  const imageContent = (
     <div
       className={cn('relative', className)}
       onMouseEnter={() => setIsHovering(true)}
@@ -261,6 +280,17 @@ export function EditableImage({
       />
     </div>
   );
+
+  // Wrap in MoveableElement when element edit mode is active
+  if (isElementEditMode && elementId) {
+    return (
+      <MoveableElement elementId={elementId} elementType="image">
+        {imageContent}
+      </MoveableElement>
+    );
+  }
+
+  return imageContent;
 }
 
 // ============================================================================
@@ -277,6 +307,8 @@ interface EditableVideoProps {
   controls?: boolean;
   className?: string;
   isEditing?: boolean;
+  elementId?: string;
+  isElementEditMode?: boolean;
 }
 
 export function EditableVideo({
@@ -289,6 +321,8 @@ export function EditableVideo({
   controls = false,
   className = '',
   isEditing = false,
+  elementId,
+  isElementEditMode = false,
 }: EditableVideoProps) {
   const [isHovering, setIsHovering] = useState(false);
 
@@ -313,7 +347,7 @@ export function EditableVideo({
     return null;
   }
 
-  return (
+  const videoContent = (
     <div
       className={cn('relative', className)}
       onMouseEnter={() => setIsHovering(true)}
@@ -344,6 +378,17 @@ export function EditableVideo({
       )}
     </div>
   );
+
+  // Wrap in MoveableElement when element edit mode is active
+  if (isElementEditMode && elementId) {
+    return (
+      <MoveableElement elementId={elementId} elementType="video">
+        {videoContent}
+      </MoveableElement>
+    );
+  }
+
+  return videoContent;
 }
 
 // ============================================================================

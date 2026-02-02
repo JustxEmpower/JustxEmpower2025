@@ -29,6 +29,7 @@ import {
 import { cn } from '@/lib/utils';
 import { EditableText, iconMap, getIcon, buildTextStyle } from './BlockRenderers-Part1-Core';
 import EditableElement from '../EditableElement';
+import MoveableElement from '../MoveableElement';
 
 // ============================================================================
 // SHARED INTERFACES
