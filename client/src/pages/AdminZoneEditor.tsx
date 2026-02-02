@@ -253,12 +253,13 @@ function getGroupedFields(blockType: string): Record<string, FieldDefinition[]> 
   return grouped;
 }
 
-function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMode }: { 
+function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMode, onUpdate }: { 
   block: PageBlock; 
   onDelete: () => void;
   isSelected: boolean;
   onSelect: () => void;
   isElementEditMode: boolean;
+  onUpdate: (content: Record<string, unknown>) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: block.id });
 
@@ -291,7 +292,7 @@ function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMod
         </Button>
       </div>
       <div className={isElementEditMode ? '' : 'pointer-events-none'}>
-        <BlockRenderer block={block} isPreviewMode={false} isEditing={true} isElementEditMode={isElementEditMode} />
+        <BlockRenderer block={block} isPreviewMode={false} isEditing={true} isElementEditMode={isElementEditMode} onUpdate={onUpdate} />
       </div>
     </div>
   );
@@ -811,6 +812,7 @@ export default function AdminZoneEditor() {
                             isSelected={selectedBlockId === block.id}
                             onSelect={() => setSelectedBlockId(block.id)}
                             isElementEditMode={isElementEditMode}
+                            onUpdate={(content) => setBlocks(blocks.map(b => b.id === block.id ? { ...b, content } : b))}
                           />
                         ))}
                       </div>
