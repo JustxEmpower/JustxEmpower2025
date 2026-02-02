@@ -91,6 +91,9 @@ function SortableBlock({
   onMoveToTop,
   onMoveToBottom,
 }: SortableBlockProps) {
+  // DEBUG: Log what SortableBlock receives
+  console.log('[SortableBlock] block.type:', block.type, 'isElementEditMode:', isElementEditMode);
+  
   const {
     attributes,
     listeners,
