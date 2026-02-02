@@ -457,6 +457,8 @@ export default function Canvas({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    console.log('🔴 EDIT ELEMENTS BUTTON CLICKED! Current isElementEditMode:', isElementEditMode);
+                    alert('Edit Elements clicked! isElementEditMode was: ' + isElementEditMode);
                     // Toggle body class for CSS-based element highlighting
                     if (!isElementEditMode) {
                       document.body.classList.add('element-edit-mode-active');
