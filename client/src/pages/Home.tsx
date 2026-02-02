@@ -50,6 +50,11 @@ export default function Home({ slug = 'home' }: HomeProps) {
   
   // Get hero section data
   const heroSection = getSection('hero');
+  
+  // DEBUG: Log hero section data to trace video URL issue
+  console.log('[Home] heroSection:', heroSection);
+  console.log('[Home] heroSection.videoUrl:', heroSection.videoUrl);
+  console.log('[Home] heroSection.imageUrl:', heroSection.imageUrl);
 
   // Check if sections have actual content (not just empty objects)
   const hasHeroContent = heroSection.title || heroSection.videoUrl || heroSection.imageUrl;
