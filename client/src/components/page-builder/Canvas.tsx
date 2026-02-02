@@ -457,9 +457,13 @@ export default function Canvas({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log('[Canvas] BEFORE toggle, isElementEditMode:', isElementEditMode);
+                    // Toggle body class for CSS-based element highlighting
+                    if (!isElementEditMode) {
+                      document.body.classList.add('element-edit-mode-active');
+                    } else {
+                      document.body.classList.remove('element-edit-mode-active');
+                    }
                     toggleElementEditMode();
-                    console.log('[Canvas] AFTER toggle called');
                   }}
                   className={cn(
                     'flex items-center gap-2 px-3 py-2 rounded-md transition-all duration-200 text-sm font-medium',

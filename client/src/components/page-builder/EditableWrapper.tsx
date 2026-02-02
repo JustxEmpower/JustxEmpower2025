@@ -1,6 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Move, Trash2 } from 'lucide-react';
-import { usePageBuilderStore } from './usePageBuilderStore';
+import React, { useState, useRef, useEffect } from 'react';
+import { Move } from 'lucide-react';
 
 interface EditableWrapperProps {
   children: React.ReactNode;
@@ -10,8 +9,8 @@ interface EditableWrapperProps {
 }
 
 /**
- * Simple wrapper that shows editing borders when isElementEditMode is true.
- * Reads directly from the Zustand store to avoid prop drilling issues.
+ * Simple wrapper that shows editing borders when element-edit-mode-active class is on body.
+ * Uses CSS class on body element to avoid Zustand store issues.
  */
 export default function EditableWrapper({
   children,
@@ -19,16 +18,40 @@ export default function EditableWrapper({
   elementType = 'element',
   className = '',
 }: EditableWrapperProps) {
-  // Read isElementEditMode directly from store
-  const isElementEditMode = usePageBuilderStore((state) => state.isElementEditMode);
+  // Check if body has the element-edit-mode-active class
+  const [isEditMode, setIsEditMode] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef({ x: 0, y: 0 });
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
+  // Listen for class changes on body
+  useEffect(() => {
+    const checkEditMode = () => {
+      const hasClass = document.body.classList.contains('element-edit-mode-active');
+      setIsEditMode(hasClass);
+    };
+    
+    // Check immediately
+    checkEditMode();
+    
+    // Use MutationObserver to watch for class changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName === 'class') {
+          checkEditMode();
+        }
+      });
+    });
+    
+    observer.observe(document.body, { attributes: true });
+    
+    return () => observer.disconnect();
+  }, []);
+
   // If not in element edit mode, just render children
-  if (!isElementEditMode) {
+  if (!isEditMode) {
     return <>{children}</>;
   }
 
