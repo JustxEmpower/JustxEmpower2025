@@ -292,9 +292,9 @@ export function BlockRenderer({
   isElementEditMode = false,
   onUpdate,
 }: BlockRendererProps) {
-  console.log(`[BlockRenderer] Rendering block type: "${block.type}"`, block);
+  console.log(`[BlockRenderer] Rendering block type: "${block.type}" isElementEditMode:`, isElementEditMode);
   const Renderer = BLOCK_RENDERER_MAP[block.type];
-  console.log(`[BlockRenderer] Found renderer for "${block.type}":`, !!Renderer);
+  console.log(`[BlockRenderer] Found renderer for "${block.type}":`, !!Renderer, 'isElementEditMode:', isElementEditMode);
 
   // Handle unknown block types
   if (!Renderer) {
