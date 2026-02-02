@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Trash2, Move, FlipHorizontal, FlipVertical, RotateCw, RotateCcw, Lock, Unlock } from 'lucide-react';
+import { usePageBuilderStore } from './usePageBuilderStore';
 
 interface TransformState {
   flipH: boolean;
@@ -33,7 +34,7 @@ export default function EditableElement({
   children,
   elementId,
   elementType,
-  isEditing,
+  isEditing: propIsEditing,
   onResize,
   onMove,
   onDelete,
@@ -48,6 +49,9 @@ export default function EditableElement({
   maintainAspectRatio = false,
   className = '',
 }: EditableElementProps) {
+  // Read isElementEditMode directly from store to ensure we always get the latest value
+  const storeIsElementEditMode = usePageBuilderStore((state) => state.isElementEditMode);
+  const isEditing = storeIsElementEditMode || propIsEditing;
   const containerRef = useRef<HTMLDivElement>(null);
   const [isSelected, setIsSelected] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
