@@ -612,7 +612,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
 
   // Build section style
   const sectionStyle: React.CSSProperties = {
-    minHeight: minHeight === '100vh' ? '500px' : minHeight,
+    minHeight: minHeight,
     // Note: Using SVG curve divider instead of border-radius for bottom curve
   };
 
@@ -685,8 +685,23 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
         }}
       >
         <div className={`${maxWidthClass} relative`} style={{ position: 'relative' }}>
-                    {content.subtitle && (
-            <MoveableElement elementId="subtitle" elementType="subtitle" initialTransform={getElementTransform('subtitle')} onTransformChange={handleTransformChange}>
+          {content.subtitle && (
+            isElementEditMode ? (
+              <MoveableElement elementId="subtitle" elementType="subtitle" initialTransform={getElementTransform('subtitle')} onTransformChange={handleTransformChange}>
+                <p 
+                  className="je-hero-subtitle font-sans uppercase drop-shadow-lg" 
+                  style={{ 
+                    color: subtitleColor, 
+                    opacity: isEditing ? 1 : 0.9,
+                    fontSize: content.subtitleFontSize || '0.75rem',
+                    letterSpacing: content.subtitleLetterSpacing || '0.3em',
+                    marginBottom: content.subtitleMarginBottom || '1.5rem',
+                  }}
+                >
+                  {content.subtitle}
+                </p>
+              </MoveableElement>
+            ) : (
               <p 
                 className="je-hero-subtitle font-sans uppercase drop-shadow-lg" 
                 style={{ 
@@ -699,10 +714,26 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
               >
                 {content.subtitle}
               </p>
-            </MoveableElement>
+            )
           )}
           
-          <MoveableElement elementId="title" elementType="title" initialTransform={getElementTransform('title')} onTransformChange={handleTransformChange}>
+          {isElementEditMode ? (
+            <MoveableElement elementId="title" elementType="title" initialTransform={getElementTransform('title')} onTransformChange={handleTransformChange}>
+              <h1 
+                className="je-hero-title font-serif drop-shadow-lg"
+                style={{ 
+                  color: titleColor,
+                  fontSize: content.titleFontSize || '5rem',
+                  lineHeight: content.titleLineHeight || '1.1',
+                  marginBottom: content.titleMarginBottom || '1.5rem',
+                  fontWeight: content.titleFontWeight || '300',
+                  fontStyle: content.titleFontStyle || 'italic',
+                }}
+              >
+                {content.title || 'Welcome to Just Empower'}
+              </h1>
+            </MoveableElement>
+          ) : (
             <h1 
               className="je-hero-title font-serif drop-shadow-lg"
               style={{ 
@@ -716,10 +747,26 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
             >
               {content.title || 'Welcome to Just Empower'}
             </h1>
-          </MoveableElement>
+          )}
           
           {content.description && (
-            <MoveableElement elementId="description" elementType="description" initialTransform={getElementTransform('description')} onTransformChange={handleTransformChange}>
+            isElementEditMode ? (
+              <MoveableElement elementId="description" elementType="description" initialTransform={getElementTransform('description')} onTransformChange={handleTransformChange}>
+                <p 
+                  className="je-hero-desc font-sans drop-shadow-lg whitespace-pre-wrap text-center mx-auto" 
+                  style={{ 
+                    color: descriptionColor, 
+                    opacity: isEditing ? 1 : 0.9,
+                    fontSize: content.descriptionFontSize || '1.125rem',
+                    lineHeight: content.descriptionLineHeight || '1.6',
+                    marginBottom: content.descriptionMarginBottom || '3rem',
+                    maxWidth: content.descriptionMaxWidth || '32rem',
+                  }}
+                >
+                  {content.description}
+                </p>
+              </MoveableElement>
+            ) : (
               <p 
                 className="je-hero-desc font-sans drop-shadow-lg whitespace-pre-wrap text-center mx-auto" 
                 style={{ 
@@ -733,58 +780,69 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
               >
                 {content.description}
               </p>
-            </MoveableElement>
+            )
           )}
           
           {content.ctaText && content.ctaLink && (
-            <MoveableElement elementId="cta" elementType="button" initialTransform={getElementTransform('cta')} onTransformChange={handleTransformChange}>
-              {(() => {
-                const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
-                const linkStyle = { 
-                  borderColor: ctaTextColor + '4D', 
-                  color: ctaTextColor,
-                  borderRadius: content.ctaBorderRadius || '9999px',
-                  paddingLeft: content.ctaPaddingX || '2rem',
-                  paddingRight: content.ctaPaddingX || '2rem',
-                  paddingTop: content.ctaPaddingY || '1rem',
-                  paddingBottom: content.ctaPaddingY || '1rem',
-                  fontSize: content.ctaFontSize || '0.875rem',
-                  letterSpacing: content.ctaLetterSpacing || '0.2em',
-                  borderWidth: content.ctaBorderWidth || '1px',
-                };
-                const linkClass = "je-hero-cta inline-block border font-sans uppercase transition-all duration-500";
-                
-                return isExternal ? (
-                  <a 
-                    href={content.ctaLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={linkClass}
-                    style={linkStyle}
-                  >
-                    {content.ctaText}
-                  </a>
-                ) : (
-                  <Link 
-                    href={content.ctaLink}
-                    className={linkClass}
-                    style={linkStyle}
-                  >
-                    {content.ctaText}
-                  </Link>
-                );
-              })()}
-            </MoveableElement>
+            (() => {
+              const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
+              const linkStyle = { 
+                borderColor: ctaTextColor + '4D', 
+                color: ctaTextColor,
+                borderRadius: content.ctaBorderRadius || '9999px',
+                paddingLeft: content.ctaPaddingX || '2rem',
+                paddingRight: content.ctaPaddingX || '2rem',
+                paddingTop: content.ctaPaddingY || '1rem',
+                paddingBottom: content.ctaPaddingY || '1rem',
+                fontSize: content.ctaFontSize || '0.875rem',
+                letterSpacing: content.ctaLetterSpacing || '0.2em',
+                borderWidth: content.ctaBorderWidth || '1px',
+              };
+              const linkClass = "je-hero-cta inline-block border font-sans uppercase transition-all duration-500";
+              
+              const ctaElement = isExternal ? (
+                <a 
+                  href={content.ctaLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClass}
+                  style={linkStyle}
+                >
+                  {content.ctaText}
+                </a>
+              ) : (
+                <Link 
+                  href={content.ctaLink}
+                  className={linkClass}
+                  style={linkStyle}
+                >
+                  {content.ctaText}
+                </Link>
+              );
+              
+              return isElementEditMode ? (
+                <MoveableElement elementId="cta" elementType="button" initialTransform={getElementTransform('cta')} onTransformChange={handleTransformChange}>
+                  {ctaElement}
+                </MoveableElement>
+              ) : ctaElement;
+            })()
           )}
         </div>
         
         {/* Scroll Indicator - use left:0 right:0 mx-auto for centering instead of transform */}
-        <MoveableElement elementId="scroll-indicator" elementType="scroll" className="absolute bottom-8 left-0 right-0 mx-auto w-fit" initialTransform={getElementTransform('scroll-indicator')} onTransformChange={handleTransformChange}>
-          <div className="flex flex-col items-center gap-2 text-white/70 animate-bounce">
+        {isElementEditMode ? (
+          <MoveableElement elementId="scroll-indicator" elementType="scroll" className="absolute bottom-8 left-0 right-0 mx-auto w-fit" initialTransform={getElementTransform('scroll-indicator')} onTransformChange={handleTransformChange}>
+            <div className="flex flex-col items-center gap-2 text-white/70 animate-bounce">
+              <span className="text-xs uppercase tracking-[0.3em] font-sans">Scroll</span>
+              <ChevronDown className="w-5 h-5" />
+            </div>
+          </MoveableElement>
+        ) : (
+          <div className="absolute bottom-8 left-0 right-0 mx-auto w-fit flex flex-col items-center gap-2 text-white/70 animate-bounce">
             <span className="text-xs uppercase tracking-[0.3em] font-sans">Scroll</span>
             <ChevronDown className="w-5 h-5" />
           </div>
-        </MoveableElement>
+        )}
       </div>
       
       {/* SVG Curve Divider */}
