@@ -364,6 +364,27 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
     ctaFontSize?: string;
     ctaLetterSpacing?: string;
     ctaBorderWidth?: string;
+    // Element transforms for drag/resize/rotate persistence
+    elementTransforms?: Record<string, { x?: number; y?: number; width?: number; height?: number; rotate?: number }>;
+  };
+
+  // Handler for saving element transforms
+  const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    if (onUpdate) {
+      const currentTransforms = content.elementTransforms || {};
+      onUpdate({
+        ...content,
+        elementTransforms: {
+          ...currentTransforms,
+          [elementId]: transform,
+        },
+      });
+    }
+  };
+
+  // Get transform for a specific element
+  const getElementTransform = (elementId: string) => {
+    return content.elementTransforms?.[elementId];
   };
 
   // Get custom colors or use defaults
@@ -660,7 +681,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
       >
         <div className={`${maxWidthClass} relative`} style={{ position: 'relative' }}>
                     {content.subtitle && (
-            <MoveableElement elementId="subtitle" elementType="subtitle">
+            <MoveableElement elementId="subtitle" elementType="subtitle" initialTransform={getElementTransform('subtitle')} onTransformChange={handleTransformChange}>
               <p 
                 className="je-hero-subtitle font-sans uppercase drop-shadow-lg" 
                 style={{ 
@@ -676,7 +697,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
             </MoveableElement>
           )}
           
-          <MoveableElement elementId="title" elementType="title">
+          <MoveableElement elementId="title" elementType="title" initialTransform={getElementTransform('title')} onTransformChange={handleTransformChange}>
             <h1 
               className="je-hero-title font-serif drop-shadow-lg"
               style={{ 
@@ -693,7 +714,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
           </MoveableElement>
           
           {content.description && (
-            <MoveableElement elementId="description" elementType="description">
+            <MoveableElement elementId="description" elementType="description" initialTransform={getElementTransform('description')} onTransformChange={handleTransformChange}>
               <p 
                 className="je-hero-desc font-sans drop-shadow-lg whitespace-pre-wrap text-center mx-auto" 
                 style={{ 
@@ -711,7 +732,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
           )}
           
           {content.ctaText && content.ctaLink && (
-            <MoveableElement elementId="cta" elementType="button">
+            <MoveableElement elementId="cta" elementType="button" initialTransform={getElementTransform('cta')} onTransformChange={handleTransformChange}>
               {(() => {
                 const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
                 const linkStyle = { 
@@ -753,7 +774,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
         </div>
         
         {/* Scroll Indicator */}
-        <MoveableElement elementId="scroll-indicator" elementType="scroll" className="absolute bottom-8 left-1/2 -translate-x-1/2">
+        <MoveableElement elementId="scroll-indicator" elementType="scroll" className="absolute bottom-8 left-1/2 -translate-x-1/2" initialTransform={getElementTransform('scroll-indicator')} onTransformChange={handleTransformChange}>
           <div className="flex flex-col items-center gap-2 text-white/70 animate-bounce">
             <span className="text-xs uppercase tracking-[0.3em] font-sans">Scroll</span>
             <ChevronDown className="w-5 h-5" />

@@ -1,34 +1,46 @@
 import React, { useRef, useState, useEffect } from 'react';
 import Moveable from 'react-moveable';
 
+interface ElementTransform {
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  rotate?: number;
+}
+
 interface MoveableElementProps {
   children: React.ReactNode;
   elementId: string;
   elementType?: string;
   className?: string;
-  onTransform?: (transform: {
-    translate: [number, number];
-    rotate: number;
-    scale: [number, number];
-    width: number;
-    height: number;
-  }) => void;
+  initialTransform?: ElementTransform;
+  onTransformChange?: (elementId: string, transform: ElementTransform) => void;
 }
 
 /**
- * MoveableElement - Wraps elements with moveable-target class for CSS-based borders.
- * CSS in index.css handles the visual borders via [data-element-edit-mode="true"] .moveable-target selector.
- * When selected, Moveable library provides drag/resize/rotate controls.
+ * MoveableElement - Wraps elements for drag/resize/rotate in element edit mode.
+ * Transforms are stored as offsets from the original CSS position.
  */
 export default function MoveableElement({
   children,
   elementId,
   elementType = 'element',
   className = '',
-  onTransform,
+  initialTransform,
+  onTransformChange,
 }: MoveableElementProps) {
   const targetRef = useRef<HTMLDivElement>(null);
   const [isSelected, setIsSelected] = useState(false);
+  
+  // Track transform state
+  const [transform, setTransform] = useState<ElementTransform>({
+    x: initialTransform?.x || 0,
+    y: initialTransform?.y || 0,
+    width: initialTransform?.width,
+    height: initialTransform?.height,
+    rotate: initialTransform?.rotate || 0,
+  });
 
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -41,9 +53,8 @@ export default function MoveableElement({
     
     const handleClickOutside = (e: MouseEvent) => {
       if (targetRef.current && !targetRef.current.contains(e.target as Node)) {
-        // Check if clicking on moveable controls
         const target = e.target as HTMLElement;
-        if (target.closest('.moveable-control') || target.closest('.moveable-line')) {
+        if (target.closest('.moveable-control') || target.closest('.moveable-line') || target.closest('.moveable-rotation')) {
           return;
         }
         setIsSelected(false);
@@ -54,6 +65,37 @@ export default function MoveableElement({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isSelected]);
 
+  // Build inline style from transform
+  const transformStyle: React.CSSProperties = {
+    cursor: 'pointer',
+  };
+  
+  // Apply stored transforms
+  if (transform.x || transform.y || transform.rotate) {
+    const parts: string[] = [];
+    if (transform.x || transform.y) {
+      parts.push(`translate(${transform.x || 0}px, ${transform.y || 0}px)`);
+    }
+    if (transform.rotate) {
+      parts.push(`rotate(${transform.rotate}deg)`);
+    }
+    transformStyle.transform = parts.join(' ');
+  }
+  if (transform.width) {
+    transformStyle.width = `${transform.width}px`;
+  }
+  if (transform.height) {
+    transformStyle.height = `${transform.height}px`;
+  }
+
+  // Save transform and notify parent
+  const saveTransform = (newTransform: ElementTransform) => {
+    setTransform(newTransform);
+    if (onTransformChange) {
+      onTransformChange(elementId, newTransform);
+    }
+  };
+
   return (
     <>
       <div
@@ -62,9 +104,7 @@ export default function MoveableElement({
         data-element-id={elementId}
         data-element-type={elementType}
         onClick={handleClick}
-        style={{
-          cursor: 'pointer',
-        }}
+        style={transformStyle}
       >
         {/* Element type label when selected */}
         {isSelected && (
@@ -85,61 +125,55 @@ export default function MoveableElement({
           draggable={true}
           resizable={true}
           rotatable={true}
-          scalable={false}
-          keepRatio={false}
-          throttleDrag={1}
-          throttleResize={1}
-          throttleRotate={1}
+          throttleDrag={0}
+          throttleResize={0}
+          throttleRotate={0}
           renderDirections={['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se']}
           rotationPosition="top"
           origin={false}
-          padding={{ left: 0, top: 0, right: 0, bottom: 0 }}
-          edge={false}
           
-          onDrag={({ target, left, top }) => {
-            target.style.left = `${left}px`;
-            target.style.top = `${top}px`;
+          onDrag={({ target, beforeTranslate }) => {
+            target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px)${transform.rotate ? ` rotate(${transform.rotate}deg)` : ''}`;
           }}
-          onDragEnd={({ target }) => {
-            if (onTransform && targetRef.current) {
-              onTransform({
-                translate: [parseFloat(target.style.left) || 0, parseFloat(target.style.top) || 0],
-                rotate: 0,
-                scale: [1, 1],
-                width: targetRef.current.offsetWidth,
-                height: targetRef.current.offsetHeight,
-              });
+          onDragEnd={({ target, lastEvent }) => {
+            if (lastEvent) {
+              const newTransform = {
+                ...transform,
+                x: lastEvent.beforeTranslate[0],
+                y: lastEvent.beforeTranslate[1],
+              };
+              saveTransform(newTransform);
             }
           }}
 
-          onResize={({ target, width, height, delta }) => {
+          onResize={({ target, width, height, drag }) => {
             target.style.width = `${width}px`;
             target.style.height = `${height}px`;
+            target.style.transform = `translate(${drag.beforeTranslate[0]}px, ${drag.beforeTranslate[1]}px)${transform.rotate ? ` rotate(${transform.rotate}deg)` : ''}`;
           }}
-          onResizeEnd={() => {
-            if (onTransform && targetRef.current) {
-              onTransform({
-                translate: [0, 0],
-                rotate: 0,
-                scale: [1, 1],
-                width: targetRef.current.offsetWidth,
-                height: targetRef.current.offsetHeight,
-              });
+          onResizeEnd={({ target, lastEvent }) => {
+            if (lastEvent) {
+              const newTransform = {
+                ...transform,
+                x: lastEvent.drag.beforeTranslate[0],
+                y: lastEvent.drag.beforeTranslate[1],
+                width: lastEvent.width,
+                height: lastEvent.height,
+              };
+              saveTransform(newTransform);
             }
           }}
 
-          onRotate={({ target, transform }) => {
-            target.style.transform = transform;
+          onRotate={({ target, beforeRotate, drag }) => {
+            target.style.transform = `translate(${transform.x || 0}px, ${transform.y || 0}px) rotate(${beforeRotate}deg)`;
           }}
-          onRotateEnd={() => {
-            if (onTransform && targetRef.current) {
-              onTransform({
-                translate: [0, 0],
-                rotate: 0,
-                scale: [1, 1],
-                width: targetRef.current.offsetWidth,
-                height: targetRef.current.offsetHeight,
-              });
+          onRotateEnd={({ target, lastEvent }) => {
+            if (lastEvent) {
+              const newTransform = {
+                ...transform,
+                rotate: lastEvent.beforeRotate,
+              };
+              saveTransform(newTransform);
             }
           }}
         />
