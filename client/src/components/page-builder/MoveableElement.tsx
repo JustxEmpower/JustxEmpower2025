@@ -63,7 +63,6 @@ export default function MoveableElement({
         data-element-type={elementType}
         onClick={handleClick}
         style={{
-          position: 'relative',
           cursor: 'pointer',
         }}
       >
