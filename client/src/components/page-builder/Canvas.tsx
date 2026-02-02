@@ -301,6 +301,9 @@ export default function Canvas({
     toggleElementEditMode,
   } = usePageBuilderStore();
 
+  // DEBUG: Log isElementEditMode value
+  console.log('[Canvas] isElementEditMode from store:', isElementEditMode);
+
   // Multi-select state
   const {
     selectedBlockIds,
@@ -451,7 +454,9 @@ export default function Canvas({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    console.log('[Canvas] BEFORE toggle, isElementEditMode:', isElementEditMode);
                     toggleElementEditMode();
+                    console.log('[Canvas] AFTER toggle called');
                   }}
                   className={cn(
                     'flex items-center gap-2 px-3 py-2 rounded-md transition-all duration-200 text-sm font-medium',
