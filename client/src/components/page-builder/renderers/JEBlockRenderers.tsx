@@ -305,9 +305,6 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
   const storeIsElementEditMode = usePageBuilderStore((state) => state.isElementEditMode);
   const isElementEditMode = storeIsElementEditMode || propIsElementEditMode;
   
-  // Debug logging - CRITICAL
-  console.log('[JEHeroRenderer] storeIsElementEditMode:', storeIsElementEditMode, 'propIsElementEditMode:', propIsElementEditMode, 'final isElementEditMode:', isElementEditMode);
-  
   const heroRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [videoLoaded, setVideoLoaded] = useState(false);
@@ -662,26 +659,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
         }}
       >
         <div className={`${maxWidthClass} relative`} style={{ position: 'relative' }}>
-          {/* DEBUG: Visual indicator that isElementEditMode is true */}
-          {isElementEditMode && (
-            <div style={{ 
-              position: 'fixed', 
-              top: '100px', 
-              left: '50%', 
-              transform: 'translateX(-50%)',
-              background: 'red', 
-              color: 'white', 
-              padding: '20px 40px', 
-              fontSize: '24px', 
-              fontWeight: 'bold',
-              zIndex: 99999,
-              borderRadius: '10px',
-              boxShadow: '0 0 30px red'
-            }}>
-              🔴 ELEMENT EDIT MODE IS ON 🔴
-            </div>
-          )}
-          {content.subtitle && (
+                    {content.subtitle && (
             <MoveableElement elementId="subtitle" elementType="subtitle">
               <p 
                 className="je-hero-subtitle font-sans uppercase drop-shadow-lg" 

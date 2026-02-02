@@ -457,8 +457,6 @@ export default function Canvas({
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log('🔴 EDIT ELEMENTS BUTTON CLICKED! Current isElementEditMode:', isElementEditMode);
-                    alert('Edit Elements clicked! isElementEditMode was: ' + isElementEditMode);
                     // Toggle body class for CSS-based element highlighting
                     if (!isElementEditMode) {
                       document.body.classList.add('element-edit-mode-active');
@@ -492,25 +490,7 @@ export default function Canvas({
         )}
 
         {/* Canvas Content - Mirror of Preview/Live Site */}
-        {/* GIANT DEBUG BANNER */}
-        {isElementEditMode && (
-          <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            background: 'red',
-            color: 'white',
-            padding: '20px',
-            fontSize: '24px',
-            fontWeight: 'bold',
-            textAlign: 'center',
-            zIndex: 999999,
-          }}>
-            🔴 ELEMENT EDIT MODE IS ON - isElementEditMode = {String(isElementEditMode)} 🔴
-          </div>
-        )}
-        <div 
+                <div 
           className="flex-1 overflow-auto" 
           style={{ padding: isPreviewMode ? 0 : '1rem' }}
           data-element-edit-mode={isElementEditMode ? "true" : "false"}
