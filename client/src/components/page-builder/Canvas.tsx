@@ -508,7 +508,11 @@ export default function Canvas({
             🔴 ELEMENT EDIT MODE IS ON - isElementEditMode = {String(isElementEditMode)} 🔴
           </div>
         )}
-        <div className="flex-1 overflow-auto" style={{ padding: isPreviewMode ? 0 : '1rem' }}>
+        <div 
+          className="flex-1 overflow-auto" 
+          style={{ padding: isPreviewMode ? 0 : '1rem' }}
+          data-element-edit-mode={isElementEditMode ? "true" : "false"}
+        >
           <div 
             className={cn(
               'mx-auto transition-all duration-300',

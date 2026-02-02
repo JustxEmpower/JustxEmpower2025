@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import Moveable from 'react-moveable';
 
 interface MoveableElementProps {
@@ -16,10 +16,9 @@ interface MoveableElementProps {
 }
 
 /**
- * MoveableElement - Uses react-moveable library for drag, resize, rotate functionality.
- * This component wraps any element and provides MS Word/Photoshop-like manipulation.
- * 
- * The element is only editable when the body has 'element-edit-mode-active' class.
+ * MoveableElement - Wraps elements with moveable-target class for CSS-based borders.
+ * CSS in index.css handles the visual borders via [data-element-edit-mode="true"] .moveable-target selector.
+ * When selected, Moveable library provides drag/resize/rotate controls.
  */
 export default function MoveableElement({
   children,
@@ -29,7 +28,6 @@ export default function MoveableElement({
   onTransform,
 }: MoveableElementProps) {
   const targetRef = useRef<HTMLDivElement>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
   const [frame, setFrame] = useState({
     translate: [0, 0] as [number, number],
@@ -37,58 +35,21 @@ export default function MoveableElement({
     scale: [1, 1] as [number, number],
   });
 
-  // Watch for body class changes to enable/disable edit mode
-  useEffect(() => {
-    const checkEditMode = () => {
-      const hasClass = document.body.classList.contains('element-edit-mode-active');
-      setIsEditMode(hasClass);
-      if (!hasClass) {
-        setIsSelected(false);
-      }
-    };
-    
-    checkEditMode();
-    
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        if (mutation.attributeName === 'class') {
-          checkEditMode();
-        }
-      });
-    });
-    
-    observer.observe(document.body, { attributes: true });
-    return () => observer.disconnect();
-  }, []);
-
-  // Click outside to deselect
-  useEffect(() => {
-    if (!isEditMode) return;
-    
-    const handleClickOutside = (e: MouseEvent) => {
-      if (targetRef.current && !targetRef.current.contains(e.target as Node)) {
-        setIsSelected(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isEditMode]);
-
   const handleClick = (e: React.MouseEvent) => {
-    if (!isEditMode) return;
     e.stopPropagation();
     setIsSelected(true);
   };
 
-  // Build transform string
-  const transformStyle = `translate(${frame.translate[0]}px, ${frame.translate[1]}px) rotate(${frame.rotate}deg) scale(${frame.scale[0]}, ${frame.scale[1]})`;
+  // Build transform string only if there are actual transforms
+  const transformStyle = frame.translate[0] !== 0 || frame.translate[1] !== 0 || frame.rotate !== 0 
+    ? `translate(${frame.translate[0]}px, ${frame.translate[1]}px) rotate(${frame.rotate}deg)` 
+    : undefined;
 
   return (
     <>
       <div
         ref={targetRef}
-        className={`moveable-target ${className} ${isEditMode ? 'cursor-pointer' : ''}`}
+        className={`moveable-target ${className} ${isSelected ? 'selected' : ''}`}
         data-element-id={elementId}
         data-element-type={elementType}
         onClick={handleClick}
@@ -96,21 +57,11 @@ export default function MoveableElement({
           display: 'inline-block',
           position: 'relative',
           transform: transformStyle,
-          // Show border when in edit mode
-          outline: isEditMode 
-            ? (isSelected ? '3px solid #3b82f6' : '2px dashed #ff00ff') 
-            : 'none',
-          outlineOffset: '2px',
-          boxShadow: isEditMode && isSelected 
-            ? '0 0 0 4px rgba(59, 130, 246, 0.3)' 
-            : (isEditMode ? '0 0 0 2px rgba(255, 0, 255, 0.2)' : 'none'),
-          backgroundColor: isEditMode && isSelected ? 'rgba(59, 130, 246, 0.1)' : 'transparent',
           borderRadius: '4px',
-          transition: isSelected ? 'none' : 'outline 0.2s, box-shadow 0.2s',
         }}
       >
         {/* Element type label when selected */}
-        {isEditMode && isSelected && (
+        {isSelected && (
           <div 
             className="absolute -top-6 left-0 bg-blue-500 text-white text-xs px-2 py-0.5 rounded font-medium capitalize z-[1000]"
             style={{ pointerEvents: 'none' }}
@@ -122,7 +73,7 @@ export default function MoveableElement({
       </div>
 
       {/* Moveable controls - only render when selected */}
-      {isEditMode && isSelected && targetRef.current && (
+      {isSelected && targetRef.current && (
         <Moveable
           target={targetRef.current}
           draggable={true}
@@ -144,7 +95,7 @@ export default function MoveableElement({
           onDrag={({ target, beforeTranslate }) => {
             const newFrame = { ...frame, translate: beforeTranslate as [number, number] };
             setFrame(newFrame);
-            target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px) rotate(${frame.rotate}deg) scale(${frame.scale[0]}, ${frame.scale[1]})`;
+            target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px) rotate(${frame.rotate}deg)`;
           }}
           onDragEnd={() => {
             if (onTransform && targetRef.current) {
@@ -170,7 +121,7 @@ export default function MoveableElement({
             setFrame(newFrame);
             target.style.width = `${width}px`;
             target.style.height = `${height}px`;
-            target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px) rotate(${frame.rotate}deg) scale(${frame.scale[0]}, ${frame.scale[1]})`;
+            target.style.transform = `translate(${beforeTranslate[0]}px, ${beforeTranslate[1]}px) rotate(${frame.rotate}deg)`;
           }}
           onResizeEnd={() => {
             if (onTransform && targetRef.current) {
@@ -190,7 +141,7 @@ export default function MoveableElement({
           onRotate={({ target, beforeRotate }) => {
             const newFrame = { ...frame, rotate: beforeRotate };
             setFrame(newFrame);
-            target.style.transform = `translate(${frame.translate[0]}px, ${frame.translate[1]}px) rotate(${beforeRotate}deg) scale(${frame.scale[0]}, ${frame.scale[1]})`;
+            target.style.transform = `translate(${frame.translate[0]}px, ${frame.translate[1]}px) rotate(${beforeRotate}deg)`;
           }}
           onRotateEnd={() => {
             if (onTransform && targetRef.current) {
