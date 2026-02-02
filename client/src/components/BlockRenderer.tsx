@@ -640,7 +640,7 @@ export default function BlockRenderer({ blocks }: BlockRendererProps) {
   const sortedBlocks = [...visibleBlocks].sort((a, b) => a.order - b.order);
 
   return (
-    <div className="space-y-8" data-page-builder="true">
+    <div className="block-renderer" data-page-builder="true">
       {sortedBlocks.map((block) => (
         <RenderBlock key={block.id} block={block} />
       ))}

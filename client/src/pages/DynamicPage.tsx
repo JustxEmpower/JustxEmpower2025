@@ -32,6 +32,14 @@ export default function DynamicPage() {
     );
   }
 
+  // Check if the first block is a hero block - if so, render without container wrapper
+  const firstBlock = blocks[0];
+  const hasHeroBlock = firstBlock && (
+    firstBlock.type?.startsWith('je-hero') || 
+    firstBlock.type === 'hero' ||
+    (firstBlock.content as any)?._originalType?.startsWith('je-hero')
+  );
+
   return (
     <>
       <Helmet>
@@ -40,20 +48,21 @@ export default function DynamicPage() {
         {page.ogImage && <meta property="og:image" content={page.ogImage} />}
       </Helmet>
 
-      <div className="min-h-screen py-20" data-dynamic-page="true" data-page-builder="true">
-        <div className="container max-w-4xl mx-auto px-4">
-          <h1 className="text-5xl font-light mb-8 text-center">{page.title}</h1>
-          
-          {blocks.length > 0 ? (
-            <BlockRenderer blocks={blocks} />
-          ) : (
-            <div className="prose prose-lg dark:prose-invert mx-auto">
-              <p className="text-neutral-600 dark:text-neutral-400 text-center">
-                This page has no content yet. Add blocks in the admin panel.
-              </p>
+      <div className="min-h-screen" data-dynamic-page="true" data-page-builder="true">
+        {blocks.length > 0 ? (
+          <BlockRenderer blocks={blocks} />
+        ) : (
+          <div className="py-20">
+            <div className="container max-w-4xl mx-auto px-4">
+              <h1 className="text-5xl font-light mb-8 text-center">{page.title}</h1>
+              <div className="prose prose-lg dark:prose-invert mx-auto">
+                <p className="text-neutral-600 dark:text-neutral-400 text-center">
+                  This page has no content yet. Add blocks in the admin panel.
+                </p>
+              </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </>
   );
