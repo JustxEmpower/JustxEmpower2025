@@ -51,6 +51,8 @@ interface EditableTextProps {
   elementId?: string;
   elementType?: string;
   isElementEditMode?: boolean;
+  initialTransform?: { x?: number; y?: number; width?: number; height?: number; rotate?: number };
+  onTransformChange?: (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => void;
 }
 
 export function EditableText({
@@ -67,6 +69,8 @@ export function EditableText({
   elementId,
   elementType = 'text',
   isElementEditMode = false,
+  initialTransform,
+  onTransformChange,
 }: EditableTextProps) {
   const ref = useRef<HTMLElement>(null);
   const [localValue, setLocalValue] = useState(value);
@@ -128,7 +132,12 @@ export function EditableText({
     // Wrap in MoveableElement when element edit mode is active
     if (isElementEditMode && elementId) {
       return (
-        <MoveableElement elementId={elementId} elementType={elementType}>
+        <MoveableElement 
+          elementId={elementId} 
+          elementType={elementType}
+          initialTransform={initialTransform}
+          onTransformChange={onTransformChange}
+        >
           {content}
         </MoveableElement>
       );
@@ -218,6 +227,8 @@ interface EditableImageProps {
   fallback?: React.ReactNode;
   elementId?: string;
   isElementEditMode?: boolean;
+  initialTransform?: { x?: number; y?: number; width?: number; height?: number; rotate?: number };
+  onTransformChange?: (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => void;
 }
 
 export function EditableImage({
@@ -230,6 +241,8 @@ export function EditableImage({
   fallback,
   elementId,
   isElementEditMode = false,
+  initialTransform,
+  onTransformChange,
 }: EditableImageProps) {
   const [isHovering, setIsHovering] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -284,7 +297,12 @@ export function EditableImage({
   // Wrap in MoveableElement when element edit mode is active
   if (isElementEditMode && elementId) {
     return (
-      <MoveableElement elementId={elementId} elementType="image">
+      <MoveableElement 
+        elementId={elementId} 
+        elementType="image"
+        initialTransform={initialTransform}
+        onTransformChange={onTransformChange}
+      >
         {imageContent}
       </MoveableElement>
     );
@@ -309,6 +327,8 @@ interface EditableVideoProps {
   isEditing?: boolean;
   elementId?: string;
   isElementEditMode?: boolean;
+  initialTransform?: { x?: number; y?: number; width?: number; height?: number; rotate?: number };
+  onTransformChange?: (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => void;
 }
 
 export function EditableVideo({
@@ -323,6 +343,8 @@ export function EditableVideo({
   isEditing = false,
   elementId,
   isElementEditMode = false,
+  initialTransform,
+  onTransformChange,
 }: EditableVideoProps) {
   const [isHovering, setIsHovering] = useState(false);
 
@@ -382,7 +404,12 @@ export function EditableVideo({
   // Wrap in MoveableElement when element edit mode is active
   if (isElementEditMode && elementId) {
     return (
-      <MoveableElement elementId={elementId} elementType="video">
+      <MoveableElement 
+        elementId={elementId} 
+        elementType="video"
+        initialTransform={initialTransform}
+        onTransformChange={onTransformChange}
+      >
         {videoContent}
       </MoveableElement>
     );

@@ -794,7 +794,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
 }
 
 // JE Section Block Renderer (handles je-section-standard, je-section-fullwidth, je-section-full-width)
-export function JESectionRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
+export function JESectionRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false, onUpdate }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean; onUpdate?: (content: Record<string, any>) => void }) {
   const sectionRef = useRef<HTMLElement>(null);
   const imageWrapperRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLDivElement>(null);
@@ -858,6 +858,13 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
     contentTextAlign?: string;
     contentVerticalAlign?: string;
   };
+
+  // Transform persistence handlers
+  const elementTransforms = (content as any).elementTransforms || {};
+  const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
+  };
+  const getElementTransform = (elementId: string) => elementTransforms[elementId];
 
   // Custom colors override dark mode defaults
   const hasCustomBg = content.backgroundColor && content.backgroundColor !== '';
@@ -981,12 +988,11 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
         <div ref={contentRef} className={content.reversed ? 'lg:order-2' : ''} style={{ textAlign: textAlign as any }}>
           {(content.subtitle || content.label) && (
             isElementEditMode ? (
-              <EditableElement
+              <MoveableElement
                 elementId="subtitle"
                 elementType="subtitle"
-                isEditing={true}
-                minWidth={100}
-                minHeight={20}
+                initialTransform={getElementTransform('subtitle')}
+                onTransformChange={handleTransformChange}
               >
                 <p 
                   className="je-section-subtitle font-sans uppercase"
@@ -999,7 +1005,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                 >
                   {content.label || content.subtitle}
                 </p>
-              </EditableElement>
+              </MoveableElement>
             ) : (
               <p 
                 className="je-section-subtitle font-sans uppercase"
@@ -1016,12 +1022,11 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           )}
           
           {isElementEditMode ? (
-            <EditableElement
+            <MoveableElement
               elementId="title"
               elementType="title"
-              isEditing={true}
-              minWidth={150}
-              minHeight={30}
+              initialTransform={getElementTransform('title')}
+              onTransformChange={handleTransformChange}
             >
               <h2 
                 className="je-section-title font-serif"
@@ -1036,7 +1041,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
               >
                 {content.title || 'Section Title'}
               </h2>
-            </EditableElement>
+            </MoveableElement>
           ) : (
             <h2 
               className="je-section-title font-serif"
@@ -1055,12 +1060,11 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           
           {content.description && (
             isElementEditMode ? (
-              <EditableElement
+              <MoveableElement
                 elementId="description"
                 elementType="text"
-                isEditing={true}
-                minWidth={150}
-                minHeight={40}
+                initialTransform={getElementTransform('description')}
+                onTransformChange={handleTransformChange}
               >
                 <p 
                   className="je-section-desc font-sans whitespace-pre-wrap" 
@@ -1075,7 +1079,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                 >
                   {content.description}
                 </p>
-              </EditableElement>
+              </MoveableElement>
             ) : (
               <p 
                 className="je-section-desc font-sans whitespace-pre-wrap" 
@@ -1094,12 +1098,11 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           )}
           
           {content.ctaText && content.ctaLink && (
-            <EditableElement
+            <MoveableElement
               elementId="cta"
               elementType="button"
-              isEditing={isElementEditMode}
-              minWidth={100}
-              minHeight={30}
+              initialTransform={getElementTransform('cta')}
+              onTransformChange={handleTransformChange}
               className="inline-block"
             >
               {(() => {
@@ -1138,17 +1141,16 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                   </Link>
                 );
               })()}
-            </EditableElement>
+            </MoveableElement>
           )}
         </div>
         
         {/* Image */}
-        <EditableElement
+        <MoveableElement
           elementId="image"
           elementType="image"
-          isEditing={isElementEditMode}
-          initialWidth={content.imageWidth ? parseInt(content.imageWidth as string) : undefined}
-          initialHeight={content.imageHeight ? parseInt(content.imageHeight as string) : undefined}
+          initialTransform={getElementTransform('image')}
+          onTransformChange={handleTransformChange}
           className={`relative ${content.reversed ? 'lg:order-1' : ''}`}
         >
           <div 
@@ -1201,14 +1203,14 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
               </div>
             )}
           </div>
-        </EditableElement>
+        </MoveableElement>
       </div>
     </section>
   );
 }
 
 // JE Carousel Block Renderer - Image Slideshow Carousel
-export function JECarouselRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
+export function JECarouselRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false, onUpdate }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean; onUpdate?: (content: Record<string, any>) => void }) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isAutoPlaying, setIsAutoPlaying] = useState(true);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -1239,6 +1241,13 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
     cardBorderRadius?: string;
     minHeight?: string;
   };
+
+  // Transform persistence handlers
+  const elementTransforms = (content as any).elementTransforms || {};
+  const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
+  };
+  const getElementTransform = (elementId: string) => elementTransforms[elementId];
 
   // Support both 'items' and 'slides' property names
   const slides = content.items || content.slides || [];

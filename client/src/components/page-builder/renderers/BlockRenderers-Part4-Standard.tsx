@@ -66,7 +66,7 @@ interface BlockRendererProps {
 // STANDARD HERO RENDERER
 // ============================================================================
 
-export function HeroBlockRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function HeroBlockRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
@@ -78,6 +78,7 @@ export function HeroBlockRenderer({ block, isEditing, onUpdate }: BlockRendererP
     secondaryCtaLink = '',
     backgroundImage = '',
     backgroundColor = '',
+    elementTransforms = {},
     overlay = true,
     overlayOpacity = 50,
     variant = 'centered',
@@ -89,6 +90,12 @@ export function HeroBlockRenderer({ block, isEditing, onUpdate }: BlockRendererP
     minHeight = '500px',
     textColor = 'white',
   } = content;
+
+  // Transform persistence handlers
+  const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
+  };
+  const getElementTransform = (elementId: string) => elementTransforms[elementId];
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -180,14 +187,21 @@ export function HeroBlockRenderer({ block, isEditing, onUpdate }: BlockRendererP
 // STANDARD TEXT BLOCK RENDERER
 // ============================================================================
 
-export function TextBlockRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function TextBlockRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
     content: textContent = '',
     alignment = 'left',
     maxWidth = 'narrow',
+    elementTransforms = {},
   } = content;
+
+  // Transform persistence handlers
+  const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
+  };
+  const getElementTransform = (elementId: string) => elementTransforms[elementId];
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -242,7 +256,7 @@ export function TextBlockRenderer({ block, isEditing, onUpdate }: BlockRendererP
 // STANDARD HEADING BLOCK RENDERER
 // ============================================================================
 
-export function HeadingBlockRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function HeadingBlockRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
@@ -250,7 +264,14 @@ export function HeadingBlockRenderer({ block, isEditing, onUpdate }: BlockRender
     level = 'h2',
     alignment = 'left',
     color = '',
+    elementTransforms = {},
   } = content;
+
+  // Transform persistence handlers
+  const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
+  };
+  const getElementTransform = (elementId: string) => elementTransforms[elementId];
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -279,6 +300,10 @@ export function HeadingBlockRenderer({ block, isEditing, onUpdate }: BlockRender
         tag={level as any}
         placeholder="Heading..."
         isEditing={isEditing}
+        isElementEditMode={isElementEditMode}
+        elementId="heading"
+        initialTransform={getElementTransform('heading')}
+        onTransformChange={handleTransformChange}
         className={cn(sizeClasses[level], 'text-neutral-900')}
         style={color ? { color } : undefined}
       />
@@ -290,7 +315,7 @@ export function HeadingBlockRenderer({ block, isEditing, onUpdate }: BlockRender
 // STANDARD QUOTE BLOCK RENDERER
 // ============================================================================
 
-export function QuoteBlockRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function QuoteBlockRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
@@ -338,7 +363,7 @@ export function QuoteBlockRenderer({ block, isEditing, onUpdate }: BlockRenderer
 // STANDARD FEATURE GRID RENDERER
 // ============================================================================
 
-export function FeatureGridRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function FeatureGridRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
@@ -350,7 +375,14 @@ export function FeatureGridRenderer({ block, isEditing, onUpdate }: BlockRendere
       { icon: 'zap', title: 'Feature Two', description: 'Description of feature two' },
       { icon: 'shield', title: 'Feature Three', description: 'Description of feature three' },
     ],
+    elementTransforms = {},
   } = content;
+
+  // Transform persistence handlers
+  const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
+  };
+  const getElementTransform = (elementId: string) => elementTransforms[elementId];
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });

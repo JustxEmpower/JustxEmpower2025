@@ -110,6 +110,7 @@ export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode = f
       { icon: 'sparkles', title: 'Sacred Reciprocity', description: 'Honoring the give and take of life' },
       { icon: 'heart', title: 'Feminine Wisdom', description: 'Reclaiming ancient knowing' },
     ],
+    elementTransforms = {},
   } = content;
 
   // Get classes from presets
@@ -121,6 +122,12 @@ export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode = f
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
   };
+
+  // Transform persistence handlers
+  const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
+  };
+  const getElementTransform = (elementId: string) => elementTransforms[elementId];
 
   const handlePillarChange = (index: number, key: string, value: string) => {
     const newPillars = [...pillars];
@@ -147,12 +154,21 @@ export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode = f
       <div className={cn('mx-auto px-6 md:px-12 relative', maxWidth)}>
         {/* Section Header - Proper proportions */}
         <div className="text-center mb-16 md:mb-24 max-w-4xl mx-auto">
-          <EditableElement
-            elementId="label"
-            elementType="text"
-            isEditing={isElementEditMode}
-            className="inline-block"
-          >
+          {isElementEditMode ? (
+            <MoveableElement elementId="label" elementType="text" initialTransform={getElementTransform('label')} onTransformChange={handleTransformChange}>
+              <EditableText
+                value={label}
+                onChange={(v) => handleChange('label', v)}
+                tag="p"
+                placeholder="SECTION LABEL"
+                isEditing={isEditing}
+                className={cn(
+                  'text-xs uppercase tracking-[0.3em] mb-6 font-sans',
+                  dark ? 'text-primary/80' : 'text-primary/80'
+                )}
+              />
+            </MoveableElement>
+          ) : (
             <EditableText
               value={label}
               onChange={(v) => handleChange('label', v)}
@@ -164,14 +180,24 @@ export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode = f
                 dark ? 'text-primary/80' : 'text-primary/80'
               )}
             />
-          </EditableElement>
+          )}
 
-          <EditableElement
-            elementId="title"
-            elementType="text"
-            isEditing={isElementEditMode}
-            className="block"
-          >
+          {isElementEditMode ? (
+            <MoveableElement elementId="title" elementType="text" initialTransform={getElementTransform('title')} onTransformChange={handleTransformChange}>
+              <EditableText
+                value={title}
+                onChange={(v) => handleChange('title', v)}
+                tag="h2"
+                placeholder="Section Title"
+                isEditing={isEditing}
+                className={cn(
+                  getTitleClass(),
+                  'font-serif italic font-light leading-[1.1] tracking-tight mb-6',
+                  dark ? 'text-white' : 'text-foreground'
+                )}
+              />
+            </MoveableElement>
+          ) : (
             <EditableText
               value={title}
               onChange={(v) => handleChange('title', v)}
@@ -184,14 +210,25 @@ export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode = f
                 dark ? 'text-white' : 'text-foreground'
               )}
             />
-          </EditableElement>
+          )}
 
-          <EditableElement
-            elementId="description"
-            elementType="text"
-            isEditing={isElementEditMode}
-            className="block"
-          >
+          {isElementEditMode ? (
+            <MoveableElement elementId="description" elementType="text" initialTransform={getElementTransform('description')} onTransformChange={handleTransformChange}>
+              <EditableText
+                value={description}
+                onChange={(v) => handleChange('description', v)}
+                tag="p"
+                placeholder="Section description..."
+                multiline
+                isEditing={isEditing}
+                className={cn(
+                  getDescriptionClass(),
+                  'font-sans font-light leading-relaxed whitespace-pre-wrap',
+                  dark ? 'text-neutral-400' : 'text-muted-foreground'
+                )}
+              />
+            </MoveableElement>
+          ) : (
             <EditableText
               value={description}
               onChange={(v) => handleChange('description', v)}
@@ -205,7 +242,7 @@ export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode = f
                 dark ? 'text-neutral-400' : 'text-muted-foreground'
               )}
             />
-          </EditableElement>
+          )}
         </div>
 
         {/* Pillars Grid - Using gap presets */}
@@ -278,30 +315,18 @@ export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode = f
               </div>
             );
             
-            // Wrap with EditableElement for free-form editing when isElementEditMode is true
+            // Wrap with MoveableElement for free-form editing when isElementEditMode is true
             if (isElementEditMode) {
               return (
-                <EditableElement
+                <MoveableElement
                   key={index}
                   elementId={`pillar-${index}`}
                   elementType="pillar"
-                  isEditing={true}
-                  onResize={(width, height) => {
-                    handlePillarChange(index, 'width', String(width));
-                    handlePillarChange(index, 'height', String(height));
-                  }}
-                  onMove={(x, y) => {
-                    handlePillarChange(index, 'x', String(x));
-                    handlePillarChange(index, 'y', String(y));
-                  }}
-                  onDelete={() => removePillar(index)}
-                  initialWidth={pillar.width}
-                  initialHeight={pillar.height}
-                  initialX={pillar.x || 0}
-                  initialY={pillar.y || 0}
+                  initialTransform={getElementTransform(`pillar-${index}`)}
+                  onTransformChange={handleTransformChange}
                 >
                   {pillarContent}
-                </EditableElement>
+                </MoveableElement>
               );
             }
             
@@ -330,7 +355,7 @@ export function JEThreePillarsRenderer({ block, isEditing, isElementEditMode = f
 // JE PILLAR GRID RENDERER (je-pillars, je-pillar-grid)
 // ============================================================================
 
-export function JEPillarGridRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
+export function JEPillarGridRenderer({ block, isEditing, isElementEditMode = false, onUpdate }: BlockRendererProps) {
   const content = block.content || {};
 
   const {
@@ -351,7 +376,14 @@ export function JEPillarGridRenderer({ block, isEditing, onUpdate }: BlockRender
       { icon: 'leaf', title: 'Value Two', description: 'Description of this value', link: '' },
       { icon: 'star', title: 'Value Three', description: 'Description of this value', link: '' },
     ],
+    elementTransforms = {},
   } = content;
+
+  // Transform persistence handlers
+  const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
+  };
+  const getElementTransform = (elementId: string) => elementTransforms[elementId];
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -546,7 +578,14 @@ export function JERootedUnityRenderer({ block, isEditing, isElementEditMode = fa
       'Community building initiatives', 
       'Educational workshops and retreats',
     ],
+    elementTransforms = {},
   } = content;
+
+  // Transform persistence handlers
+  const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
+  };
+  const getElementTransform = (elementId: string) => elementTransforms[elementId];
 
   // Get sizing classes
   const getPaddingClass = () => SECTION_PADDING_PRESETS[sectionPadding as keyof typeof SECTION_PADDING_PRESETS] || SECTION_PADDING_PRESETS.hero;

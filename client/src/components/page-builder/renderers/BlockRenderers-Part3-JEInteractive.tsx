@@ -69,7 +69,14 @@ export function JENewsletterRenderer({ block, isEditing, isElementEditMode = fal
     titleSize = 'large',
     descriptionSize = 'medium',
     maxWidth = 'max-w-3xl',
+    elementTransforms = {},
   } = content;
+
+  // Transform persistence handlers
+  const handleTransformChange = (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => {
+    onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
+  };
+  const getElementTransform = (elementId: string) => elementTransforms[elementId];
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -100,12 +107,27 @@ export function JENewsletterRenderer({ block, isEditing, isElementEditMode = fal
         maxWidth,
         alignmentClasses[alignment]
       )}>
-        <EditableElement
-          elementId="title"
-          elementType="text"
-          isEditing={isElementEditMode}
-          className="inline-block"
-        >
+        {isElementEditMode ? (
+          <MoveableElement
+            elementId="title"
+            elementType="text"
+            initialTransform={getElementTransform('title')}
+            onTransformChange={handleTransformChange}
+          >
+            <EditableText
+              value={title}
+              onChange={(v) => handleChange('title', v)}
+              tag="h2"
+              placeholder="Newsletter Title"
+              isEditing={isEditing}
+              className={cn(
+                getTitleClass(),
+                'font-serif italic font-light leading-[1.1] tracking-tight mb-6',
+                dark ? 'text-white' : 'text-foreground'
+              )}
+            />
+          </MoveableElement>
+        ) : (
           <EditableText
             value={title}
             onChange={(v) => handleChange('title', v)}
@@ -118,14 +140,15 @@ export function JENewsletterRenderer({ block, isEditing, isElementEditMode = fal
               dark ? 'text-white' : 'text-foreground'
             )}
           />
-        </EditableElement>
+        )}
 
-        <EditableElement
-          elementId="description"
-          elementType="text"
-          isEditing={isElementEditMode}
-          className="block"
-        >
+        {isElementEditMode ? (
+          <MoveableElement
+            elementId="description"
+            elementType="text"
+            initialTransform={getElementTransform('description')}
+            onTransformChange={handleTransformChange}
+          >
           <EditableText
             value={description}
             onChange={(v) => handleChange('description', v)}
@@ -138,7 +161,21 @@ export function JENewsletterRenderer({ block, isEditing, isElementEditMode = fal
               dark ? 'text-neutral-300' : 'text-neutral-600'
             )}
           />
-        </EditableElement>
+        </MoveableElement>
+        ) : (
+          <EditableText
+            value={description}
+            onChange={(v) => handleChange('description', v)}
+            tag="p"
+            placeholder="Description..."
+            multiline
+            isEditing={isEditing}
+            className={cn(
+              'text-lg font-sans mb-8 whitespace-pre-wrap',
+              dark ? 'text-neutral-300' : 'text-neutral-600'
+            )}
+          />
+        )}
 
         {/* Form */}
         <form className={cn(
