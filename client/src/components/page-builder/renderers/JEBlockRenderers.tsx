@@ -722,9 +722,8 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                     letterSpacing: content.subtitleLetterSpacing || '0.3em',
                     marginBottom: content.subtitleMarginBottom || '1.5rem',
                   }}
-                >
-                  {content.subtitle}
-                </p>
+                  dangerouslySetInnerHTML={{ __html: content.subtitle }}
+                />
               </MoveableElement>
             ) : (
               <p 
@@ -737,9 +736,8 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                   marginBottom: content.subtitleMarginBottom || '1.5rem',
                   ...getTransformStyle('subtitle'),
                 }}
-              >
-                {content.subtitle}
-              </p>
+                dangerouslySetInnerHTML={{ __html: content.subtitle }}
+              />
             )
           )}
           
@@ -755,9 +753,8 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                   fontWeight: content.titleFontWeight || '300',
                   fontStyle: content.titleFontStyle || 'italic',
                 }}
-              >
-                {content.title || 'Welcome to Just Empower'}
-              </h1>
+                dangerouslySetInnerHTML={{ __html: content.title || 'Welcome to Just Empower' }}
+              />
             </MoveableElement>
           ) : (
             <h1 
@@ -771,16 +768,15 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                 fontStyle: content.titleFontStyle || 'italic',
                 ...getTransformStyle('title'),
               }}
-            >
-              {content.title || 'Welcome to Just Empower'}
-            </h1>
+              dangerouslySetInnerHTML={{ __html: content.title || 'Welcome to Just Empower' }}
+            />
           )}
           
           {content.description && (
             isElementEditMode ? (
               <MoveableElement elementId="description" elementType="description" initialTransform={getElementTransform('description')} onTransformChange={handleTransformChange}>
-                <p 
-                  className="je-hero-desc font-sans drop-shadow-lg whitespace-pre-wrap text-center mx-auto" 
+                <div 
+                  className="je-hero-desc font-sans drop-shadow-lg text-center mx-auto" 
                   style={{ 
                     color: descriptionColor, 
                     opacity: isEditing ? 1 : 0.9,
@@ -789,13 +785,12 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                     marginBottom: content.descriptionMarginBottom || '3rem',
                     maxWidth: content.descriptionMaxWidth || '32rem',
                   }}
-                >
-                  {content.description}
-                </p>
+                  dangerouslySetInnerHTML={{ __html: content.description }}
+                />
               </MoveableElement>
             ) : (
-              <p 
-                className="je-hero-desc font-sans drop-shadow-lg whitespace-pre-wrap text-center mx-auto" 
+              <div 
+                className="je-hero-desc font-sans drop-shadow-lg text-center mx-auto" 
                 style={{ 
                   color: descriptionColor, 
                   opacity: isEditing ? 1 : 0.9,
@@ -805,9 +800,8 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                   maxWidth: content.descriptionMaxWidth || '32rem',
                   ...getTransformStyle('description'),
                 }}
-              >
-                {content.description}
-              </p>
+                dangerouslySetInnerHTML={{ __html: content.description }}
+              />
             )
           )}
           
