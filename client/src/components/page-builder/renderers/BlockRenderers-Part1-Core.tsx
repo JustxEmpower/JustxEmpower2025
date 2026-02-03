@@ -1233,6 +1233,9 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
   const marginLeft = contentAny.marginLeft || '0%';
   const marginRight = contentAny.marginRight || '0%';
 
+  // Debug logging for margin values
+  console.log('[JEParagraph] Block ID:', block.id, 'textWidthPreset:', textWidthPreset, 'marginLeft:', marginLeft, 'marginRight:', marginRight);
+
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
   };
