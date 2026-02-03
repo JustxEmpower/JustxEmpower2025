@@ -2144,6 +2144,9 @@ export function JEHeadingRenderer({ block, isEditing = false, isBlockSelected = 
   const containerStyle = buildContainerStyles(content);
   const textStyle = buildTextStyles(content);
 
+  // Check if content contains HTML tags (from rich text editor)
+  const hasHtmlContent = /<[^>]+>/.test(headingText);
+
   const headingContent = (
     <>
       {content.label && (
@@ -2156,15 +2159,23 @@ export function JEHeadingRenderer({ block, isEditing = false, isBlockSelected = 
           as="p"
         />
       )}
-      <InlineEditableText
-        blockId={block.id}
-        fieldName="title"
-        value={headingText}
-        placeholder="Heading Text"
-        className={`font-serif ${sizeClass} font-light italic`}
-        style={textStyle}
-        as={HeadingTag as 'h1' | 'h2' | 'h3' | 'h4'}
-      />
+      {hasHtmlContent ? (
+        <HeadingTag 
+          className={`font-serif ${sizeClass} font-light italic`}
+          style={textStyle}
+          dangerouslySetInnerHTML={{ __html: headingText }}
+        />
+      ) : (
+        <InlineEditableText
+          blockId={block.id}
+          fieldName="title"
+          value={headingText}
+          placeholder="Heading Text"
+          className={`font-serif ${sizeClass} font-light italic`}
+          style={textStyle}
+          as={HeadingTag as 'h1' | 'h2' | 'h3' | 'h4'}
+        />
+      )}
     </>
   );
 
@@ -2257,12 +2268,23 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
   // Generate unique class for this block's font
   const fontClass = hasCustomFont ? `font-block-${block.id.replace(/[^a-z0-9]/gi, '')}` : '';
 
-  const paragraphContent = (
+  // Check if content contains HTML tags (from rich text editor)
+  const textContent = content.text || '';
+  const hasHtmlContent = /<[^>]+>/.test(textContent);
+
+  // For HTML content (from TinyMCE), render with dangerouslySetInnerHTML
+  // For plain text, use InlineEditableText for backward compatibility
+  const paragraphContent = hasHtmlContent ? (
+    <div 
+      className={`${fontClass} ${hasCustomFont ? '' : 'font-sans '}text-base md:text-lg leading-relaxed ${textClass} prose prose-neutral dark:prose-invert max-w-none`}
+      dangerouslySetInnerHTML={{ __html: textContent }}
+    />
+  ) : (
     <p className={`${fontClass} ${hasCustomFont ? '' : 'font-sans '}text-base md:text-lg leading-relaxed whitespace-pre-wrap ${textClass}`}>
       <InlineEditableText
         blockId={block.id}
         fieldName="text"
-        value={content.text || ''}
+        value={textContent}
         placeholder="Add your paragraph text here..."
         className=""
         as="span"
@@ -2273,7 +2295,7 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
 
   if (isElementEditMode) {
     return (
-      <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`}>
+      <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`} style={finalContainerStyle}>
         {hasCustomFont && (
           <style>{`.${fontClass}, .${fontClass} * { font-family: '${fontFamilyValue}', cursive, sans-serif !important; }`}</style>
         )}
@@ -2291,7 +2313,7 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
   }
 
   return (
-    <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`}>
+    <div className={`py-8 px-6 mx-auto ${maxWidthClass} ${alignClass}`} style={finalContainerStyle}>
       {hasCustomFont && (
         <style>{`.${fontClass}, .${fontClass} * { font-family: '${fontFamilyValue}', cursive, sans-serif !important; }`}</style>
       )}

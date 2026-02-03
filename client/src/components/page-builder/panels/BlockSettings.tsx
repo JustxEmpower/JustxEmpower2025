@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play, Plus, ChevronDown, ChevronUp, Calendar, Heart, Leaf, Moon, Star, Sun, Sparkles, Flower2, Mountain, Globe, Shield, Zap, Target, Award, Users, BookOpen, Link } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
@@ -18,6 +18,9 @@ import BlockAnimationSettings, { BlockAnimationConfig, DEFAULT_ANIMATION_CONFIG 
 import CustomCSSEditor from '../CustomCSSEditor';
 import { getBlockFields, getGroupedFields, FieldDefinition } from './BlockFieldDefinitions';
 import { JEGallerySettingsPanel } from './JEGallerySettingsPanel';
+
+// Lazy load TinyMCE for performance
+const TinyMCEEditor = lazy(() => import('../TinyMCEEditor'));
 
 // Generic field renderer based on content type
 function renderField(
@@ -783,7 +786,6 @@ function renderDefinedField(
       );
     
     case 'textarea':
-    case 'richtext':
       return (
         <div key={key} className="space-y-2">
           <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
@@ -795,6 +797,25 @@ function renderDefinedField(
             rows={4}
             className="bg-neutral-50 dark:bg-neutral-800"
           />
+          {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        </div>
+      );
+    
+    case 'richtext':
+      return (
+        <div key={key} className="space-y-2">
+          <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
+          <div className="border rounded-md overflow-hidden bg-white dark:bg-neutral-900">
+            <Suspense fallback={<div className="p-4 text-sm text-muted-foreground">Loading editor...</div>}>
+              <TinyMCEEditor
+                value={(value as string) || ''}
+                onChange={(content) => onChange(key, content)}
+                placeholder={placeholder}
+                height={200}
+                toolbar="undo redo | fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright | bullist numlist | link | removeformat"
+              />
+            </Suspense>
+          </div>
           {description && <p className="text-xs text-muted-foreground">{description}</p>}
         </div>
       );

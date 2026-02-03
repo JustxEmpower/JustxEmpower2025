@@ -74,7 +74,12 @@ export default function TinyMCEEditor({
             'wordcount',
           ],
           toolbar,
+          // Custom font families including brand fonts
+          font_family_formats: 'Inter=Inter, sans-serif; Playfair Display=Playfair Display, serif; Lora=Lora, serif; Merriweather=Merriweather, serif; Georgia=Georgia, serif; Retro Signature=Retro Signature, cursive; Aphrodite=Aphrodite, cursive; Cherolina=Cherolina, cursive; Faithfull Signature=Faithfull Signature, cursive; Rise of Beauty Script=Rise of Beauty Script, cursive; Arial=arial, helvetica, sans-serif; Times New Roman=times new roman, times, serif',
+          // Font size options
+          font_size_formats: '8px 10px 12px 14px 16px 18px 20px 24px 28px 32px 36px 42px 48px 56px 64px 72px',
           content_style: `
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap');
             body {
               font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
               font-size: 16px;
