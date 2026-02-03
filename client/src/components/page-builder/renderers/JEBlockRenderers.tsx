@@ -958,6 +958,21 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
     onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
   };
   const getElementTransform = (elementId: string) => elementTransforms[elementId];
+  
+  // Get transform styles for rendering when not in edit mode
+  const getTransformStyle = (elementId: string): React.CSSProperties => {
+    const transform = elementTransforms[elementId];
+    if (!transform) return {};
+    const { x = 0, y = 0, rotate = 0, width, height } = transform;
+    const transformParts: string[] = [];
+    if (x !== 0 || y !== 0) transformParts.push(`translate(${x}px, ${y}px)`);
+    if (rotate !== 0) transformParts.push(`rotate(${rotate}deg)`);
+    const style: React.CSSProperties = {};
+    if (transformParts.length > 0) style.transform = transformParts.join(' ');
+    if (width) style.width = `${width}px`;
+    if (height) style.height = `${height}px`;
+    return style;
+  };
 
   // Custom colors override dark mode defaults
   const hasCustomBg = content.backgroundColor && content.backgroundColor !== '';
@@ -1107,6 +1122,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                   fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
                   letterSpacing: content.subtitleLetterSpacing || '0.2em',
                   marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
+                  ...getTransformStyle('subtitle'),
                 }}
               >
                 {content.label || content.subtitle}
@@ -1145,6 +1161,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                 marginBottom: content.titleMarginBottom || '2rem',
                 fontWeight: content.titleFontWeight || '300',
                 fontStyle: content.titleFontStyle || 'italic',
+                ...getTransformStyle('title'),
               }}
             >
               {content.title || 'Section Title'}
@@ -1182,6 +1199,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                   fontSize: content.descriptionFontSize || '1.125rem',
                   lineHeight: content.descriptionLineHeight || '1.75',
                   marginBottom: content.descriptionMarginBottom || '2rem',
+                  ...getTransformStyle('description'),
                   maxWidth: content.descriptionMaxWidth || '100%',
                 }}
               >
@@ -1341,6 +1359,21 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
     onUpdate?.({ ...content, elementTransforms: { ...elementTransforms, [elementId]: transform } });
   };
   const getElementTransform = (elementId: string) => elementTransforms[elementId];
+  
+  // Get transform styles for rendering when not in edit mode
+  const getTransformStyle = (elementId: string): React.CSSProperties => {
+    const transform = elementTransforms[elementId];
+    if (!transform) return {};
+    const { x = 0, y = 0, rotate = 0, width, height } = transform;
+    const transformParts: string[] = [];
+    if (x !== 0 || y !== 0) transformParts.push(`translate(${x}px, ${y}px)`);
+    if (rotate !== 0) transformParts.push(`rotate(${rotate}deg)`);
+    const style: React.CSSProperties = {};
+    if (transformParts.length > 0) style.transform = transformParts.join(' ');
+    if (width) style.width = `${width}px`;
+    if (height) style.height = `${height}px`;
+    return style;
+  };
 
   // Support both 'items' and 'slides' property names
   const slides = content.items || content.slides || [];
