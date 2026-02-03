@@ -3,14 +3,16 @@
  * 
  * A simple, API-key-free rich text editor for the page builder.
  * Uses native browser contentEditable with custom toolbar.
+ * Fetches full 134 font library from backend API.
  */
 
-import React, { useRef, useState, useEffect, useCallback } from 'react';
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Link, Type, Palette } from 'lucide-react';
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Link, Type, Palette, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { trpc } from '@/lib/trpc';
 
 interface RichTextEditorProps {
   value: string;
@@ -20,18 +22,21 @@ interface RichTextEditorProps {
   className?: string;
 }
 
-const FONT_FAMILIES = [
-  { value: 'Inter, sans-serif', label: 'Inter' },
-  { value: 'Playfair Display, serif', label: 'Playfair Display' },
-  { value: 'Lora, serif', label: 'Lora' },
-  { value: 'Merriweather, serif', label: 'Merriweather' },
-  { value: 'Georgia, serif', label: 'Georgia' },
-  { value: 'Arial, sans-serif', label: 'Arial' },
-  { value: 'Times New Roman, serif', label: 'Times New Roman' },
-  { value: 'Retro Signature, cursive', label: 'Retro Signature' },
-  { value: 'Aphrodite, cursive', label: 'Aphrodite' },
-  { value: 'Cherolina, cursive', label: 'Cherolina' },
-];
+interface Font {
+  name: string;
+  category: string;
+  googleFont: boolean;
+  style: string;
+}
+
+// Category fallbacks for font-family CSS
+const CATEGORY_FALLBACKS: Record<string, string> = {
+  'serif': 'serif',
+  'sans-serif': 'sans-serif',
+  'display': 'sans-serif',
+  'script': 'cursive',
+  'monospace': 'monospace',
+};
 
 const FONT_SIZES = [
   { value: '12px', label: '12' },
@@ -65,6 +70,58 @@ export default function RichTextEditor({
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [fontSearch, setFontSearch] = useState('');
+  const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
+  const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
+  const [selectedFont, setSelectedFont] = useState('');
+  const [selectedSize, setSelectedSize] = useState('');
+
+  // Fetch fonts from backend API
+  const { data: availableFonts } = trpc.fontSettings.availableFonts.useQuery();
+
+  // Filter fonts based on search
+  const filteredFonts = useMemo(() => {
+    if (!availableFonts) return [];
+    if (!fontSearch) return availableFonts;
+    return availableFonts.filter((font: Font) =>
+      font.name.toLowerCase().includes(fontSearch.toLowerCase()) ||
+      font.category.toLowerCase().includes(fontSearch.toLowerCase())
+    );
+  }, [availableFonts, fontSearch]);
+
+  // Group fonts by category
+  const fontsByCategory = useMemo(() => {
+    const grouped: Record<string, Font[]> = {};
+    filteredFonts.forEach((font: Font) => {
+      if (!grouped[font.category]) {
+        grouped[font.category] = [];
+      }
+      grouped[font.category].push(font);
+    });
+    return grouped;
+  }, [filteredFonts]);
+
+  // Load Google Fonts dynamically
+  useEffect(() => {
+    if (availableFonts && availableFonts.length > 0) {
+      const googleFonts = availableFonts.filter((f: Font) => f.googleFont);
+      const fontNames = googleFonts
+        .map((f: Font) => f.name.replace(/ /g, '+') + ':wght@300;400;500;600;700')
+        .join('&family=');
+      
+      const linkId = 'rich-text-editor-fonts';
+      let link = document.getElementById(linkId) as HTMLLinkElement;
+      
+      if (!link) {
+        link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+      }
+      
+      link.href = `https://fonts.googleapis.com/css2?family=${fontNames}&display=swap`;
+    }
+  }, [availableFonts]);
 
   // Initialize content
   useEffect(() => {
@@ -91,8 +148,13 @@ export default function RichTextEditor({
     handleInput();
   };
 
-  const handleFontFamily = (fontFamily: string) => {
-    execCommand('fontName', fontFamily);
+  const handleFontFamily = (font: Font) => {
+    const fallback = CATEGORY_FALLBACKS[font.category] || 'sans-serif';
+    const fontFamily = `"${font.name}", ${fallback}`;
+    execCommand('fontName', font.name);
+    setSelectedFont(font.name);
+    setFontPopoverOpen(false);
+    setFontSearch('');
   };
 
   const handleFontSize = (size: string) => {
@@ -107,6 +169,8 @@ export default function RichTextEditor({
         handleInput();
       }
     }
+    setSelectedSize(size);
+    setSizePopoverOpen(false);
   };
 
   const handleColor = (color: string) => {
@@ -124,33 +188,79 @@ export default function RichTextEditor({
     <div className={`rich-text-editor border rounded-md overflow-hidden bg-white dark:bg-neutral-900 ${className}`}>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-neutral-50 dark:bg-neutral-800">
-        {/* Font Family */}
-        <Select onValueChange={handleFontFamily}>
-          <SelectTrigger className="w-[130px] h-8 text-xs">
-            <SelectValue placeholder="Font" />
-          </SelectTrigger>
-          <SelectContent>
-            {FONT_FAMILIES.map((font) => (
-              <SelectItem key={font.value} value={font.value} style={{ fontFamily: font.value }}>
-                {font.label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Font Family - Searchable Popover */}
+        <Popover open={fontPopoverOpen} onOpenChange={setFontPopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="w-[140px] h-8 text-xs justify-between font-normal">
+              <span className="truncate" style={{ fontFamily: selectedFont || 'inherit' }}>
+                {selectedFont || 'Font'}
+              </span>
+              <Type className="h-3 w-3 ml-1 opacity-50" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[280px] p-0" align="start">
+            <div className="p-2 border-b">
+              <div className="relative">
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search fonts..."
+                  value={fontSearch}
+                  onChange={(e) => setFontSearch(e.target.value)}
+                  className="pl-8 h-8 text-sm"
+                />
+              </div>
+            </div>
+            <ScrollArea className="h-[300px]">
+              <div className="p-2">
+                {Object.entries(fontsByCategory).map(([category, fonts]) => (
+                  <div key={category} className="mb-3">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1 px-2">
+                      {category} ({fonts.length})
+                    </div>
+                    {fonts.map((font: Font) => (
+                      <button
+                        key={font.name}
+                        onClick={() => handleFontFamily(font)}
+                        className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-accent transition-colors"
+                        style={{ fontFamily: `"${font.name}", ${CATEGORY_FALLBACKS[font.category] || 'sans-serif'}` }}
+                      >
+                        {font.name}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+                {filteredFonts.length === 0 && (
+                  <p className="text-sm text-muted-foreground text-center py-4">No fonts found</p>
+                )}
+              </div>
+            </ScrollArea>
+            <div className="p-2 border-t text-xs text-muted-foreground text-center">
+              {availableFonts?.length || 0} fonts available
+            </div>
+          </PopoverContent>
+        </Popover>
 
-        {/* Font Size */}
-        <Select onValueChange={handleFontSize}>
-          <SelectTrigger className="w-[70px] h-8 text-xs">
-            <SelectValue placeholder="Size" />
-          </SelectTrigger>
-          <SelectContent>
-            {FONT_SIZES.map((size) => (
-              <SelectItem key={size.value} value={size.value}>
-                {size.label}px
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {/* Font Size - Popover */}
+        <Popover open={sizePopoverOpen} onOpenChange={setSizePopoverOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" size="sm" className="w-[70px] h-8 text-xs justify-between font-normal">
+              {selectedSize ? selectedSize.replace('px', '') : 'Size'}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[100px] p-1" align="start">
+            <ScrollArea className="h-[200px]">
+              {FONT_SIZES.map((size) => (
+                <button
+                  key={size.value}
+                  onClick={() => handleFontSize(size.value)}
+                  className="w-full text-left px-2 py-1.5 text-sm rounded hover:bg-accent transition-colors"
+                >
+                  {size.label}px
+                </button>
+              ))}
+            </ScrollArea>
+          </PopoverContent>
+        </Popover>
 
         <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-600 mx-1" />
 
