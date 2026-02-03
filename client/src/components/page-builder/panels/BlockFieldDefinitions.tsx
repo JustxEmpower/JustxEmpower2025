@@ -236,6 +236,30 @@ const MAX_WIDTH_OPTIONS: FieldOption[] = [
   { value: '100%', label: '100% - Full' },
 ];
 
+// Text Width Presets (Microsoft Word-style margins)
+const TEXT_WIDTH_PRESET_OPTIONS: FieldOption[] = [
+  { value: 'narrow', label: 'Narrow (60%)' },
+  { value: 'medium', label: 'Medium (75%)' },
+  { value: 'wide', label: 'Wide (90%)' },
+  { value: 'full', label: 'Full Width (100%)' },
+  { value: 'custom', label: 'Custom Margins' },
+];
+
+// Margin Percentage Options (for left/right margins like Word)
+const MARGIN_PERCENT_OPTIONS: FieldOption[] = [
+  { value: '0%', label: '0%' },
+  { value: '2.5%', label: '2.5%' },
+  { value: '5%', label: '5%' },
+  { value: '7.5%', label: '7.5%' },
+  { value: '10%', label: '10%' },
+  { value: '12.5%', label: '12.5%' },
+  { value: '15%', label: '15%' },
+  { value: '17.5%', label: '17.5%' },
+  { value: '20%', label: '20%' },
+  { value: '25%', label: '25%' },
+  { value: '30%', label: '30%' },
+];
+
 // Min Height Options
 const MIN_HEIGHT_OPTIONS: FieldOption[] = [
   { value: 'auto', label: 'Auto' },
@@ -653,9 +677,11 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
   'je-paragraph': [
     { key: 'text', label: 'Paragraph Text', type: 'richtext', placeholder: 'Enter your text here...' },
     { key: 'alignment', label: 'Alignment', type: 'alignment' },
+    { key: 'textWidthPreset', label: 'Text Width', type: 'select', options: TEXT_WIDTH_PRESET_OPTIONS, description: 'Control how wide the text spans (like Word margins)' },
+    { key: 'marginLeft', label: 'Left Margin', type: 'select', options: MARGIN_PERCENT_OPTIONS, description: 'Left margin (shows when Text Width is Custom)' },
+    { key: 'marginRight', label: 'Right Margin', type: 'select', options: MARGIN_PERCENT_OPTIONS, description: 'Right margin (shows when Text Width is Custom)' },
     { key: 'dropCap', label: 'Drop Cap', type: 'boolean' },
     { key: 'columns', label: 'Columns', type: 'number', min: 1, max: 3 },
-    { key: 'maxWidth', label: 'Container Width', type: 'select', options: MAX_WIDTH_OPTIONS },
     { key: 'indent', label: 'First Line Indent', type: 'boolean' },
   ],
 

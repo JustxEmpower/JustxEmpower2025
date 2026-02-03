@@ -1225,9 +1225,13 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
   const fontSize = contentAny.fontSize || '16px';
   const fontFamily = contentAny.fontFamily || '';
   const lineHeight = contentAny.lineHeight || 'relaxed';
-  const maxWidth = contentAny.maxWidth || 'narrow';
   const color = contentAny.color || '';
   const indent = contentAny.indent || false;
+  
+  // Microsoft Word-style margin controls
+  const textWidthPreset = contentAny.textWidthPreset || 'wide';
+  const marginLeft = contentAny.marginLeft || '0%';
+  const marginRight = contentAny.marginRight || '0%';
 
   const handleChange = (key: string, value: any) => {
     onUpdate?.({ ...content, [key]: value });
@@ -1242,22 +1246,40 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
 
   const alignmentClasses: Record<string, string> = {
     left: 'text-left',
-    center: 'text-center mx-auto',
+    center: 'text-center',
     right: 'text-right',
     justify: 'text-justify',
   };
 
-  // Static maxWidth classes - case insensitive support
-  const maxWidthClasses: Record<string, string> = {
-    'narrow': 'max-w-2xl',      // 672px
-    'Narrow': 'max-w-2xl',
-    'medium': 'max-w-4xl',      // 896px
-    'Medium': 'max-w-4xl',
-    'wide': 'max-w-6xl',        // 1152px
-    'Wide': 'max-w-6xl',
-    'full': 'max-w-full',       // 100%
-    'Full': 'max-w-full',
+  // Text width preset to actual width percentage (Microsoft Word-style)
+  const getTextWidth = (): string => {
+    switch (textWidthPreset) {
+      case 'narrow': return '60%';
+      case 'medium': return '75%';
+      case 'wide': return '90%';
+      case 'full': return '100%';
+      case 'custom': {
+        // Calculate width from left and right margins
+        const left = parseFloat(marginLeft) || 0;
+        const right = parseFloat(marginRight) || 0;
+        return `${100 - left - right}%`;
+      }
+      default: return '90%';
+    }
   };
+
+  // Get margin values for custom preset
+  const getMargins = (): { left: string; right: string } => {
+    if (textWidthPreset === 'custom') {
+      return { left: marginLeft, right: marginRight };
+    }
+    // Calculate equal margins for presets
+    const width = parseFloat(getTextWidth());
+    const margin = (100 - width) / 2;
+    return { left: `${margin}%`, right: `${margin}%` };
+  };
+
+  const margins = getMargins();
 
   // Static column classes
   const columnClasses: Record<number, string> = {
@@ -1274,10 +1296,15 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     ...(hasCustomFont ? { fontFamily: `"${fontFamily}", sans-serif` } : {}),
   };
 
-  // Container style - apply font family here too so it cascades
-  const containerStyle: React.CSSProperties = hasCustomFont 
-    ? { fontFamily: `"${fontFamily}", sans-serif` } 
-    : {};
+  // Container style with Word-style margins
+  const containerStyle: React.CSSProperties = {
+    width: getTextWidth(),
+    marginLeft: alignment === 'left' ? margins.left : alignment === 'right' ? 'auto' : 'auto',
+    marginRight: alignment === 'right' ? margins.right : alignment === 'left' ? 'auto' : 'auto',
+    paddingLeft: alignment === 'center' ? '0' : margins.left,
+    paddingRight: alignment === 'center' ? '0' : margins.right,
+    ...(hasCustomFont ? { fontFamily: `"${fontFamily}", sans-serif` } : {}),
+  };
 
   // Apply font using CSS class with !important
   const fontClassName = hasCustomFont ? `je-font-${block.id.replace(/[^a-z0-9]/gi, '')}` : '';
@@ -1287,8 +1314,9 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
       className={cn(
         'py-8 px-6',
         alignmentClasses[alignment] || alignmentClasses.center,
-        maxWidthClasses[maxWidth] || 'max-w-2xl'
+        alignment === 'center' && 'mx-auto'
       )}
+      style={containerStyle}
     >
       {/* Inject CSS to force font family with !important */}
       {hasCustomFont && (
