@@ -30,8 +30,8 @@ import { cn } from '@/lib/utils';
 import EditableElement from '../EditableElement';
 import MoveableElement from '../MoveableElement';
 
-// Lazy load TinyMCE for performance
-const TinyMCEEditor = lazy(() => import('../TinyMCEEditor'));
+// Lazy load custom RichTextEditor (no API key required)
+const RichTextEditor = lazy(() => import('../RichTextEditor'));
 
 // ============================================================================
 // EDITABLE TEXT COMPONENT - The core of editability
@@ -146,12 +146,12 @@ export function EditableText({
     return content;
   }
 
-  // Rich text editing mode with TinyMCE
+  // Rich text editing mode with custom RichTextEditor (no API key required)
   if (richText && showRichEditor) {
     return (
       <div className="relative group">
         <Suspense fallback={<div className="animate-pulse bg-neutral-100 rounded h-24" />}>
-          <TinyMCEEditor
+          <RichTextEditor
             value={value}
             onChange={onChange}
             placeholder={placeholder}
