@@ -612,9 +612,18 @@ export default function AdminZoneEditor() {
   };
 
   const updateBlockContent = (id: string, key: string, value: unknown) => {
-    setBlocks(blocks.map(block => 
+    setBlocks(prev => prev.map(block => 
       block.id === id 
         ? { ...block, content: { ...block.content, [key]: value } }
+        : block
+    ));
+  };
+
+  // Update multiple content fields at once (for margin ruler)
+  const updateBlockContentMultiple = (id: string, updates: Record<string, unknown>) => {
+    setBlocks(prev => prev.map(block => 
+      block.id === id 
+        ? { ...block, content: { ...block.content, ...updates } }
         : block
     ));
   };
@@ -904,12 +913,16 @@ export default function AdminZoneEditor() {
                                       leftMargin={parseFloat(selectedBlock.content.marginLeft as string || '5') || 5}
                                       rightMargin={parseFloat(selectedBlock.content.marginRight as string || '5') || 5}
                                       onLeftMarginChange={(percent) => {
-                                        updateBlockContent(selectedBlock.id, 'marginLeft', `${percent}%`);
-                                        updateBlockContent(selectedBlock.id, 'textWidthPreset', 'custom');
+                                        updateBlockContentMultiple(selectedBlock.id, {
+                                          marginLeft: `${percent}%`,
+                                          textWidthPreset: 'custom'
+                                        });
                                       }}
                                       onRightMarginChange={(percent) => {
-                                        updateBlockContent(selectedBlock.id, 'marginRight', `${percent}%`);
-                                        updateBlockContent(selectedBlock.id, 'textWidthPreset', 'custom');
+                                        updateBlockContentMultiple(selectedBlock.id, {
+                                          marginRight: `${percent}%`,
+                                          textWidthPreset: 'custom'
+                                        });
                                       }}
                                     />
                                   </div>

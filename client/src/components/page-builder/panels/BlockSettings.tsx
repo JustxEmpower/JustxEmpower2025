@@ -2973,6 +2973,13 @@ export default function BlockSettings() {
     }
   };
 
+  // Update multiple content fields at once (for margin ruler)
+  const handleContentChangeMultiple = (updates: Record<string, unknown>) => {
+    if (selectedBlockId) {
+      updateBlock(selectedBlockId, updates);
+    }
+  };
+
   if (!selectedBlock || !blockType) {
     return (
       <div className="h-full flex flex-col items-center justify-center p-8 text-center">
@@ -3982,12 +3989,16 @@ export default function BlockSettings() {
                       leftMargin={parseFloat(selectedBlock.content.marginLeft as string || '5') || 5}
                       rightMargin={parseFloat(selectedBlock.content.marginRight as string || '5') || 5}
                       onLeftMarginChange={(percent) => {
-                        handleContentChange('marginLeft', `${percent}%`);
-                        handleContentChange('textWidthPreset', 'custom');
+                        handleContentChangeMultiple({
+                          marginLeft: `${percent}%`,
+                          textWidthPreset: 'custom'
+                        });
                       }}
                       onRightMarginChange={(percent) => {
-                        handleContentChange('marginRight', `${percent}%`);
-                        handleContentChange('textWidthPreset', 'custom');
+                        handleContentChangeMultiple({
+                          marginRight: `${percent}%`,
+                          textWidthPreset: 'custom'
+                        });
                       }}
                     />
                   </div>
