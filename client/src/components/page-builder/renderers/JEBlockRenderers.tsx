@@ -2201,18 +2201,44 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
     dark?: boolean;
     maxWidth?: string;
     maxWidthContent?: string; // Legacy support
+    textWidthPreset?: string; // Microsoft Word-style preset
+    marginLeft?: string;      // Custom left margin (percentage)
+    marginRight?: string;     // Custom right margin (percentage)
   };
 
-  // Static maxWidth classes - Tailwind cannot use dynamic class names
-  // Support both lowercase and capitalized values
+  // Microsoft Word-style margin controls
+  const textWidthPreset = content.textWidthPreset || 'wide';
+  const marginLeft = content.marginLeft || '0%';
+  const marginRight = content.marginRight || '0%';
+
+  // Debug logging
+  console.log('[JEParagraph-Live] Block ID:', block.id, 'textWidthPreset:', textWidthPreset, 'marginLeft:', marginLeft, 'marginRight:', marginRight);
+
+  // Calculate text width based on preset or custom margins
+  const getTextWidth = (): string => {
+    switch (textWidthPreset) {
+      case 'narrow': return '60%';
+      case 'medium': return '75%';
+      case 'wide': return '90%';
+      case 'full': return '100%';
+      case 'custom': {
+        const left = parseFloat(marginLeft) || 0;
+        const right = parseFloat(marginRight) || 0;
+        return `${100 - left - right}%`;
+      }
+      default: return '90%';
+    }
+  };
+
+  // Static maxWidth classes - Tailwind cannot use dynamic class names (legacy fallback)
   const maxWidthClasses: Record<string, string> = {
-    'narrow': 'max-w-2xl',      // 672px
+    'narrow': 'max-w-2xl',
     'Narrow': 'max-w-2xl',
-    'medium': 'max-w-4xl',      // 896px  
+    'medium': 'max-w-4xl',
     'Medium': 'max-w-4xl',
-    'wide': 'max-w-6xl',        // 1152px
+    'wide': 'max-w-6xl',
     'Wide': 'max-w-6xl',
-    'full': 'max-w-full',       // 100%
+    'full': 'max-w-full',
     'Full': 'max-w-full',
   };
 
@@ -2222,9 +2248,10 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
     right: 'text-right',
   };
 
-  // Support both maxWidth (new) and maxWidthContent (legacy)
+  // Use new textWidthPreset system if set to 'custom', otherwise fall back to legacy maxWidth
+  const useNewMarginSystem = textWidthPreset === 'custom' || (marginLeft !== '0%' && marginLeft !== '0') || (marginRight !== '0%' && marginRight !== '0');
   const maxWidthValue = content.maxWidth || content.maxWidthContent || 'narrow';
-  const maxWidthClass = maxWidthClasses[maxWidthValue] || 'max-w-2xl';
+  const maxWidthClass = useNewMarginSystem ? '' : (maxWidthClasses[maxWidthValue] || 'max-w-2xl');
   const alignClass = alignmentClasses[content.alignment || 'center'] || 'text-center';
   
   const textClass = content.dark ? 'text-white/70' : 'text-neutral-600';
@@ -2233,6 +2260,8 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
   const containerStyle: React.CSSProperties = {
     ...buildContainerStyles(content),
     backgroundColor: content.backgroundColor ? content.backgroundColor as string : undefined,
+    // Apply new margin system width
+    ...(useNewMarginSystem ? { width: getTextWidth(), marginLeft: 'auto', marginRight: 'auto' } : {}),
   };
   
   // Font size and font family - support actual pixel values and legacy Tailwind values
