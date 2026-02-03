@@ -37,6 +37,7 @@ interface PageBuilderState {
   isDragging: boolean;
   isPreviewMode: boolean;
   isSaving: boolean;
+  isInPageBuilder: boolean; // True when inside Page Builder context
   
   // Element editing state
   isElementEditMode: boolean;
@@ -72,6 +73,7 @@ interface PageBuilderState {
   togglePreviewMode: () => void;
   setPreviewMode: (isPreview: boolean) => void;
   setSaving: (isSaving: boolean) => void;
+  setInPageBuilder: (isInPageBuilder: boolean) => void;
   
   // Element editing actions
   toggleElementEditMode: () => void;
@@ -160,6 +162,7 @@ export const usePageBuilderStore = create<PageBuilderState>((set, get) => ({
   isDragging: false,
   isPreviewMode: false,
   isSaving: false,
+  isInPageBuilder: false, // Will be set to true when Page Builder mounts
   isElementEditMode: false,
   selectedElementId: null,
   leftPanelOpen: true,
@@ -319,6 +322,8 @@ export const usePageBuilderStore = create<PageBuilderState>((set, get) => ({
   setPreviewMode: (isPreview) => set({ isPreviewMode: isPreview }),
   
   setSaving: (isSaving) => set({ isSaving }),
+  
+  setInPageBuilder: (isInPageBuilder) => set({ isInPageBuilder }),
   
   // Element editing actions
   toggleElementEditMode: () => set((state) => ({ 

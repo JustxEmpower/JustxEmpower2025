@@ -10,6 +10,7 @@ interface InlineEditableTextProps {
   style?: React.CSSProperties;
   as?: 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'span' | 'div';
   multiline?: boolean;
+  isEditable?: boolean; // Explicit control over editability
 }
 
 export function InlineEditableText({
@@ -21,11 +22,15 @@ export function InlineEditableText({
   style,
   as: Component = 'p',
   multiline = false,
+  isEditable: propIsEditable,
 }: InlineEditableTextProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value);
   const inputRef = useRef<HTMLTextAreaElement | HTMLInputElement>(null);
-  const { updateBlock, isPreviewMode } = usePageBuilderStore();
+  const { updateBlock, isPreviewMode, isInPageBuilder } = usePageBuilderStore();
+  
+  // Only allow editing if explicitly enabled OR if we're in Page Builder and not in preview mode
+  const canEdit = propIsEditable !== undefined ? propIsEditable : (isInPageBuilder && !isPreviewMode);
 
   // Update local state when prop changes
   useEffect(() => {
@@ -41,7 +46,7 @@ export function InlineEditableText({
   }, [isEditing]);
 
   const handleDoubleClick = (e: React.MouseEvent) => {
-    if (isPreviewMode) return;
+    if (!canEdit) return;
     e.stopPropagation();
     setIsEditing(true);
   };
@@ -64,7 +69,8 @@ export function InlineEditableText({
     }
   };
 
-  if (isPreviewMode) {
+  // If not editable (live site or preview mode), render plain text without edit UI
+  if (!canEdit) {
     return (
       <Component className={className} style={style}>
         {value || placeholder}

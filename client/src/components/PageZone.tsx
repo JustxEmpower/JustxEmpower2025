@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
 import { trpc } from '@/lib/trpc';
 import { BlockRenderer } from './page-builder/BlockRenderer';
+import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 interface PageBlock {
   id: string;
@@ -95,7 +95,7 @@ export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZ
 
 /**
  * EditablePageZone shows an edit button for admins to open Page Builder
- * for the specific zone
+ * for the specific zone. Uses proper server-side session verification.
  */
 export function EditablePageZone({ 
   pageSlug, 
@@ -104,13 +104,8 @@ export function EditablePageZone({
   fallback,
   showEditButton = true 
 }: PageZoneProps & { showEditButton?: boolean }) {
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    // Check if admin token exists
-    const token = localStorage.getItem('adminToken');
-    setIsAdmin(!!token);
-  }, []);
+  // Use proper admin auth verification (server-side session check)
+  const { isAuthenticated, isChecking } = useAdminAuth();
 
   return (
     <div className="relative group">
@@ -121,7 +116,8 @@ export function EditablePageZone({
         fallback={fallback}
       />
       
-      {isAdmin && showEditButton && (
+      {/* Only show edit button if properly authenticated (verified by server) */}
+      {!isChecking && isAuthenticated && showEditButton && (
         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-50">
           <a
             href={`/admin/zone-editor/${pageSlug}/${zoneName}`}

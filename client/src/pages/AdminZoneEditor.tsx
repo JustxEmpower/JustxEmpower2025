@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { trpc } from '@/lib/trpc';
+import { usePageBuilderStore } from '@/components/page-builder/usePageBuilderStore';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -504,6 +505,15 @@ export default function AdminZoneEditor() {
   const [isSaving, setIsSaving] = useState(false);
   const [showBlockLibrary, setShowBlockLibrary] = useState(false);
   const [isElementEditMode, setIsElementEditMode] = useState(false);
+  
+  // Get setInPageBuilder from store to mark we're in editor context
+  const setInPageBuilder = usePageBuilderStore((state) => state.setInPageBuilder);
+  
+  // Mark that we're in Page Builder/Zone Editor context on mount
+  useEffect(() => {
+    setInPageBuilder(true);
+    return () => setInPageBuilder(false);
+  }, [setInPageBuilder]);
 
   const { data: zone, isLoading } = trpc.pageZones.getZone.useQuery(
     { pageSlug: pageSlug!, zoneName: zoneName! },

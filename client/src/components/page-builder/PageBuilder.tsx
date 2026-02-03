@@ -276,12 +276,22 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
     };
   }, [isResizingLeft, isResizingRight, handleMouseMove, handleMouseUp]);
 
-  // Initialize page ID
+  // Get setInPageBuilder from store
+  const setInPageBuilder = usePageBuilderStore((state) => state.setInPageBuilder);
+
+  // Initialize page ID and mark that we're in Page Builder
   useEffect(() => {
     if (pageId) {
       setPageId(pageId);
     }
-  }, [pageId, setPageId]);
+    // Mark that we're in Page Builder context
+    setInPageBuilder(true);
+    
+    // Cleanup: mark that we're leaving Page Builder
+    return () => {
+      setInPageBuilder(false);
+    };
+  }, [pageId, setPageId, setInPageBuilder]);
 
   // Check for auto-saved data on mount
   useEffect(() => {
