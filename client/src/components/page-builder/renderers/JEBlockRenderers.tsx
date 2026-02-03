@@ -1104,9 +1104,8 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                     letterSpacing: content.subtitleLetterSpacing || '0.2em',
                     marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
                   }}
-                >
-                  {content.label || content.subtitle}
-                </p>
+                  dangerouslySetInnerHTML={{ __html: content.label || content.subtitle || '' }}
+                />
               </MoveableElement>
             ) : (
               <p 
@@ -1118,9 +1117,8 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                   marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
                   ...getTransformStyle('subtitle'),
                 }}
-              >
-                {content.label || content.subtitle}
-              </p>
+                dangerouslySetInnerHTML={{ __html: content.label || content.subtitle || '' }}
+              />
             )
           )}
           
@@ -1141,9 +1139,8 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                   fontWeight: content.titleFontWeight || '300',
                   fontStyle: content.titleFontStyle || 'italic',
                 }}
-              >
-                {content.title || 'Section Title'}
-              </h2>
+                dangerouslySetInnerHTML={{ __html: content.title || 'Section Title' }}
+              />
             </MoveableElement>
           ) : (
             <h2 
@@ -1157,9 +1154,8 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                 fontStyle: content.titleFontStyle || 'italic',
                 ...getTransformStyle('title'),
               }}
-            >
-              {content.title || 'Section Title'}
-            </h2>
+              dangerouslySetInnerHTML={{ __html: content.title || 'Section Title' }}
+            />
           )}
           
           {content.description && (
@@ -1170,8 +1166,8 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                 initialTransform={getElementTransform('description')}
                 onTransformChange={handleTransformChange}
               >
-                <p 
-                  className="je-section-desc font-sans whitespace-pre-wrap" 
+                <div 
+                  className="je-section-desc font-sans" 
                   style={{ 
                     color: descriptionColor, 
                     opacity: isEditing ? 1 : 0.8,
@@ -1180,13 +1176,12 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                     marginBottom: content.descriptionMarginBottom || '2rem',
                     maxWidth: content.descriptionMaxWidth || '100%',
                   }}
-                >
-                  {content.description}
-                </p>
+                  dangerouslySetInnerHTML={{ __html: content.description }}
+                />
               </MoveableElement>
             ) : (
-              <p 
-                className="je-section-desc font-sans whitespace-pre-wrap" 
+              <div 
+                className="je-section-desc font-sans" 
                 style={{ 
                   color: descriptionColor, 
                   opacity: isEditing ? 1 : 0.8,
@@ -1196,9 +1191,8 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                   ...getTransformStyle('description'),
                   maxWidth: content.descriptionMaxWidth || '100%',
                 }}
-              >
-                {content.description}
-              </p>
+                dangerouslySetInnerHTML={{ __html: content.description }}
+              />
             )
           )}
           
