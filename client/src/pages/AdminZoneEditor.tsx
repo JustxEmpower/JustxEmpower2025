@@ -11,7 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X, Box, Sparkles, Star, Image as ImageIcon, MousePointer, Edit3 } from 'lucide-react';
+import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X, Box, Sparkles, Star, Image as ImageIcon, MousePointer, Edit3, Ruler } from 'lucide-react';
+import { CompactMarginRuler } from '@/components/page-builder/MarginRuler';
 import MediaPicker from '@/components/MediaPicker';
 import { blockTypes } from '@/components/page-builder/blockTypes';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
@@ -883,7 +884,7 @@ export default function AdminZoneEditor() {
                           ? [...(groupedFields.content || []), ...(groupedFields.media || [])]
                           : groupedFields[groupName] || [];
                         
-                        if (fields.length === 0 && groupName !== 'content') return null;
+                        if (fields.length === 0 && groupName !== 'content' && groupName !== 'layout') return null;
                         
                         const tabValue = groupName === 'media' ? 'content' : groupName;
                         
@@ -891,6 +892,28 @@ export default function AdminZoneEditor() {
                           <TabsContent key={groupName} value={tabValue} className="m-0 px-3 flex-1 overflow-hidden">
                             <ScrollArea className="h-full" style={{ maxHeight: 'calc(100vh - 320px)' }}>
                               <div className="space-y-4 pr-4 pb-8">
+                                {/* Microsoft Word-style Margin Ruler for je-paragraph in Layout tab */}
+                                {groupName === 'layout' && selectedBlock.type === 'je-paragraph' && (
+                                  <div className="space-y-3 pb-4 border-b border-neutral-200 dark:border-neutral-700">
+                                    <div className="flex items-center gap-2">
+                                      <Ruler className="w-4 h-4 text-blue-500" />
+                                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Text Width Ruler</h4>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">Drag the handles to adjust text margins like Microsoft Word</p>
+                                    <CompactMarginRuler
+                                      leftMargin={parseFloat(selectedBlock.content.marginLeft as string || '5') || 5}
+                                      rightMargin={parseFloat(selectedBlock.content.marginRight as string || '5') || 5}
+                                      onLeftMarginChange={(percent) => {
+                                        updateBlockContent(selectedBlock.id, 'marginLeft', `${percent}%`);
+                                        updateBlockContent(selectedBlock.id, 'textWidthPreset', 'custom');
+                                      }}
+                                      onRightMarginChange={(percent) => {
+                                        updateBlockContent(selectedBlock.id, 'marginRight', `${percent}%`);
+                                        updateBlockContent(selectedBlock.id, 'textWidthPreset', 'custom');
+                                      }}
+                                    />
+                                  </div>
+                                )}
                                 {fields.map((field) => (
                                   <ZoneFieldRenderer
                                     key={field.key}
@@ -900,7 +923,7 @@ export default function AdminZoneEditor() {
                                     blockId={selectedBlock.id}
                                   />
                                 ))}
-                                {fields.length === 0 && (
+                                {fields.length === 0 && groupName !== 'layout' && (
                                   <p className="text-sm text-muted-foreground py-4">No {groupName} settings available for this block.</p>
                                 )}
                               </div>
