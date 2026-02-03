@@ -2289,6 +2289,42 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
   const textContent = content.text || '';
   const hasHtmlContent = /<[^>]+>/.test(textContent);
 
+  // Extract and load Google Fonts from inline styles in HTML content
+  useEffect(() => {
+    if (hasHtmlContent && textContent) {
+      // Extract font-family values from inline styles
+      const fontFamilyRegex = /font-family:\s*['"]?([^'";\)]+)['"]?/gi;
+      const matches = textContent.matchAll(fontFamilyRegex);
+      const fontNames = new Set<string>();
+      
+      for (const match of matches) {
+        const fontName = match[1].split(',')[0].trim().replace(/['"]/g, '');
+        if (fontName && !fontName.includes('sans-serif') && !fontName.includes('serif') && !fontName.includes('monospace') && !fontName.includes('cursive')) {
+          fontNames.add(fontName);
+        }
+      }
+      
+      if (fontNames.size > 0) {
+        const fontNamesStr = Array.from(fontNames)
+          .map(name => name.replace(/ /g, '+') + ':wght@300;400;500;600;700')
+          .join('&family=');
+        
+        const linkId = `google-fonts-${block.id.replace(/[^a-z0-9]/gi, '')}`;
+        let link = document.getElementById(linkId) as HTMLLinkElement;
+        
+        if (!link) {
+          link = document.createElement('link');
+          link.id = linkId;
+          link.rel = 'stylesheet';
+          document.head.appendChild(link);
+        }
+        
+        link.href = `https://fonts.googleapis.com/css2?family=${fontNamesStr}&display=swap`;
+        console.log('[JEParagraph] Loading Google Fonts:', Array.from(fontNames));
+      }
+    }
+  }, [textContent, hasHtmlContent, block.id]);
+
   // For HTML content (from TinyMCE), render with dangerouslySetInnerHTML
   // For plain text, use InlineEditableText for backward compatibility
   const paragraphContent = hasHtmlContent ? (
