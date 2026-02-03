@@ -174,7 +174,7 @@ export default function RichTextEditor({
               <Palette className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-2">
+          <PopoverContent className="w-auto p-2" side="bottom" align="start" sideOffset={5}>
             <div className="grid grid-cols-6 gap-1">
               {COLORS.map((color) => (
                 <button
