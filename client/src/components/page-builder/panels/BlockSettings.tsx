@@ -3989,12 +3989,14 @@ export default function BlockSettings() {
                       leftMargin={parseFloat(selectedBlock.content.marginLeft as string || '5') || 5}
                       rightMargin={parseFloat(selectedBlock.content.marginRight as string || '5') || 5}
                       onLeftMarginChange={(percent) => {
+                        console.log('[MarginRuler] Left margin changed:', percent, '-> marginLeft:', `${percent}%`, 'textWidthPreset: custom');
                         handleContentChangeMultiple({
                           marginLeft: `${percent}%`,
                           textWidthPreset: 'custom'
                         });
                       }}
                       onRightMarginChange={(percent) => {
+                        console.log('[MarginRuler] Right margin changed:', percent, '-> marginRight:', `${percent}%`, 'textWidthPreset: custom');
                         handleContentChangeMultiple({
                           marginRight: `${percent}%`,
                           textWidthPreset: 'custom'
