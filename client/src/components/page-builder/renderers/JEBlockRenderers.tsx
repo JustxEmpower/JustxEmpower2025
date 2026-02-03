@@ -392,6 +392,31 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
     return content.elementTransforms?.[elementId];
   };
 
+  // Get transform styles for rendering on live site (when not in edit mode)
+  const getTransformStyle = (elementId: string): React.CSSProperties => {
+    const transform = content.elementTransforms?.[elementId];
+    if (!transform) return {};
+    
+    const { x = 0, y = 0, rotate = 0, width, height } = transform;
+    const transformParts: string[] = [];
+    
+    if (x !== 0 || y !== 0) {
+      transformParts.push(`translate(${x}px, ${y}px)`);
+    }
+    if (rotate !== 0) {
+      transformParts.push(`rotate(${rotate}deg)`);
+    }
+    
+    const style: React.CSSProperties = {};
+    if (transformParts.length > 0) {
+      style.transform = transformParts.join(' ');
+    }
+    if (width) style.width = `${width}px`;
+    if (height) style.height = `${height}px`;
+    
+    return style;
+  };
+
   // Get custom colors or use defaults
   const textColor = content.textColor || '#ffffff';
   const bgColor = content.backgroundColor;
@@ -710,6 +735,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                   fontSize: content.subtitleFontSize || '0.75rem',
                   letterSpacing: content.subtitleLetterSpacing || '0.3em',
                   marginBottom: content.subtitleMarginBottom || '1.5rem',
+                  ...getTransformStyle('subtitle'),
                 }}
               >
                 {content.subtitle}
@@ -743,6 +769,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                 marginBottom: content.titleMarginBottom || '1.5rem',
                 fontWeight: content.titleFontWeight || '300',
                 fontStyle: content.titleFontStyle || 'italic',
+                ...getTransformStyle('title'),
               }}
             >
               {content.title || 'Welcome to Just Empower'}
@@ -776,6 +803,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                   lineHeight: content.descriptionLineHeight || '1.6',
                   marginBottom: content.descriptionMarginBottom || '3rem',
                   maxWidth: content.descriptionMaxWidth || '32rem',
+                  ...getTransformStyle('description'),
                 }}
               >
                 {content.description}
@@ -824,7 +852,11 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
                 <MoveableElement elementId="cta" elementType="button" initialTransform={getElementTransform('cta')} onTransformChange={handleTransformChange}>
                   {ctaElement}
                 </MoveableElement>
-              ) : ctaElement;
+              ) : (
+                <div style={getTransformStyle('cta')}>
+                  {ctaElement}
+                </div>
+              );
             })()
           )}
         </div>
@@ -838,7 +870,10 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
             </div>
           </MoveableElement>
         ) : (
-          <div className="absolute bottom-8 left-0 right-0 mx-auto w-fit flex flex-col items-center gap-2 text-white/70 animate-bounce">
+          <div 
+            className="absolute bottom-8 left-0 right-0 mx-auto w-fit flex flex-col items-center gap-2 text-white/70 animate-bounce"
+            style={getTransformStyle('scroll-indicator')}
+          >
             <span className="text-xs uppercase tracking-[0.3em] font-sans">Scroll</span>
             <ChevronDown className="w-5 h-5" />
           </div>
