@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams, useLocation } from 'wouter';
 import { trpc } from '@/lib/trpc';
 import { usePageBuilderStore } from '@/components/page-builder/usePageBuilderStore';
@@ -20,6 +20,9 @@ import { IconPicker } from '@/components/page-builder/IconPicker';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+// Lazy load Rich Text Editor for performance
+const RichTextEditor = lazy(() => import('@/components/page-builder/RichTextEditor'));
 
 interface PageBlock {
   id: string;
@@ -57,7 +60,6 @@ function ZoneFieldRenderer({
       );
 
     case 'textarea':
-    case 'richtext':
       return (
         <div className="space-y-2">
           <Label className="text-sm font-medium">{field.label}</Label>
@@ -67,6 +69,22 @@ function ZoneFieldRenderer({
             placeholder={field.placeholder}
             rows={4}
           />
+          {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
+        </div>
+      );
+
+    case 'richtext':
+      return (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{field.label}</Label>
+          <Suspense fallback={<div className="p-4 text-sm text-muted-foreground border rounded-md">Loading editor...</div>}>
+            <RichTextEditor
+              value={(value as string) || ''}
+              onChange={(content) => onChange(blockId, field.key, content)}
+              placeholder={field.placeholder}
+              height={150}
+            />
+          </Suspense>
           {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
         </div>
       );
