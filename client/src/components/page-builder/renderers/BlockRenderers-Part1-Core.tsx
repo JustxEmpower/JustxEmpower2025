@@ -1299,15 +1299,16 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     ...(hasCustomFont ? { fontFamily: `"${fontFamily}", sans-serif` } : {}),
   };
 
-  // Container style with Word-style margins
+  // Container style with Word-style margins - simplified for proper rendering
   const containerStyle: React.CSSProperties = {
     width: getTextWidth(),
-    marginLeft: alignment === 'left' ? margins.left : alignment === 'right' ? 'auto' : 'auto',
-    marginRight: alignment === 'right' ? margins.right : alignment === 'left' ? 'auto' : 'auto',
-    paddingLeft: alignment === 'center' ? '0' : margins.left,
-    paddingRight: alignment === 'center' ? '0' : margins.right,
+    marginLeft: 'auto',
+    marginRight: 'auto',
     ...(hasCustomFont ? { fontFamily: `"${fontFamily}", sans-serif` } : {}),
   };
+
+  // Debug: log the computed styles
+  console.log('[JEParagraph] containerStyle:', containerStyle, 'margins:', margins);
 
   // Apply font using CSS class with !important
   const fontClassName = hasCustomFont ? `je-font-${block.id.replace(/[^a-z0-9]/gi, '')}` : '';
