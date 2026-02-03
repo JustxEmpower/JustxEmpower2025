@@ -1,6 +1,6 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play, Plus, ChevronDown, ChevronUp, Calendar, Heart, Leaf, Moon, Star, Sun, Sparkles, Flower2, Mountain, Globe, Shield, Zap, Target, Award, Users, BookOpen, Link } from 'lucide-react';
+import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play, Plus, ChevronDown, ChevronUp, Calendar, Heart, Leaf, Moon, Star, Sun, Sparkles, Flower2, Mountain, Globe, Shield, Zap, Target, Award, Users, BookOpen, Link, Ruler } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
 import VideoThumbnail from '@/components/VideoThumbnail';
 import { Input } from '@/components/ui/input';
@@ -18,6 +18,7 @@ import BlockAnimationSettings, { BlockAnimationConfig, DEFAULT_ANIMATION_CONFIG 
 import CustomCSSEditor from '../CustomCSSEditor';
 import { getBlockFields, getGroupedFields, FieldDefinition } from './BlockFieldDefinitions';
 import { JEGallerySettingsPanel } from './JEGallerySettingsPanel';
+import { CompactMarginRuler } from '../MarginRuler';
 
 // Lazy load Rich Text Editor for performance
 const RichTextEditor = lazy(() => import('../RichTextEditor'));
@@ -3969,6 +3970,29 @@ export default function BlockSettings() {
           <TabsContent value="layout" className="mt-0 p-0">
             <ScrollArea style={{ height: 'calc(100vh - 280px)' }}>
               <div className="p-4 space-y-4 pb-16">
+                {/* Microsoft Word-style Margin Ruler for je-paragraph */}
+                {selectedBlock.type === 'je-paragraph' && (
+                  <div className="space-y-3 pb-4 border-b border-neutral-200 dark:border-neutral-700">
+                    <div className="flex items-center gap-2">
+                      <Ruler className="w-4 h-4 text-blue-500" />
+                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Text Width Ruler</h4>
+                    </div>
+                    <p className="text-xs text-muted-foreground">Drag the handles to adjust text margins like Microsoft Word</p>
+                    <CompactMarginRuler
+                      leftMargin={parseFloat(selectedBlock.content.marginLeft as string || '5') || 5}
+                      rightMargin={parseFloat(selectedBlock.content.marginRight as string || '5') || 5}
+                      onLeftMarginChange={(percent) => {
+                        handleContentChange('marginLeft', `${percent}%`);
+                        handleContentChange('textWidthPreset', 'custom');
+                      }}
+                      onRightMarginChange={(percent) => {
+                        handleContentChange('marginRight', `${percent}%`);
+                        handleContentChange('textWidthPreset', 'custom');
+                      }}
+                    />
+                  </div>
+                )}
+
                 {/* Render layout fields from definitions */}
                 {(() => {
                   const groupedFields = getGroupedFields(selectedBlock.type);

@@ -1326,30 +1326,49 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           }
         `}} />
       )}
-      <p
-        className={cn(
-          fontClassName,
-          lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
-          !hasCustomFont && 'font-sans',
-          'whitespace-pre-wrap',
-          'text-neutral-700 dark:text-neutral-300',
-          columnClasses[columns] || '',
-          dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
-          indent ? 'indent-8' : ''
-        )}
-        style={textStyle}
-      >
-        <EditableText
-          value={text}
-          onChange={(v) => handleChange('text', v)}
-          tag="span"
-          placeholder="Enter paragraph text here..."
-          multiline
-          isEditing={isEditing}
-          className=""
+      {/* Render HTML content properly - use dangerouslySetInnerHTML for rich text */}
+      {isEditing ? (
+        <p
+          className={cn(
+            fontClassName,
+            lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
+            !hasCustomFont && 'font-sans',
+            'whitespace-pre-wrap',
+            'text-neutral-700 dark:text-neutral-300',
+            columnClasses[columns] || '',
+            dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
+            indent ? 'indent-8' : ''
+          )}
           style={textStyle}
+        >
+          <EditableText
+            value={text}
+            onChange={(v) => handleChange('text', v)}
+            tag="span"
+            placeholder="Enter paragraph text here..."
+            multiline
+            isEditing={isEditing}
+            dangerousHtml={true}
+            richText={true}
+            className=""
+            style={textStyle}
+          />
+        </p>
+      ) : (
+        <div
+          className={cn(
+            fontClassName,
+            lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
+            !hasCustomFont && 'font-sans',
+            'text-neutral-700 dark:text-neutral-300',
+            columnClasses[columns] || '',
+            dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
+            indent ? 'indent-8' : ''
+          )}
+          style={textStyle}
+          dangerouslySetInnerHTML={{ __html: text || '' }}
         />
-      </p>
+      )}
     </div>
   );
 }
