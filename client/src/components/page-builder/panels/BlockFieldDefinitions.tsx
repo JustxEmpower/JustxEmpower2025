@@ -277,9 +277,9 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
   // JE HERO BLOCKS
   // ========================================
   'je-hero': [
-    { key: 'title', label: 'Title', type: 'text', placeholder: 'Main headline', group: 'content' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text', placeholder: 'Subtitle text', group: 'content' },
-    { key: 'description', label: 'Description', type: 'textarea', placeholder: 'Description text...', group: 'content' },
+    { key: 'title', label: 'Title', type: 'richtext', placeholder: 'Main headline', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'richtext', placeholder: 'Subtitle text', group: 'content' },
+    { key: 'description', label: 'Description', type: 'richtext', placeholder: 'Description text...', group: 'content' },
     { key: 'ctaText', label: 'Button Text', type: 'text', placeholder: 'Call to action', group: 'content' },
     { key: 'ctaLink', label: 'Button Link', type: 'url', placeholder: '/path-or-url', group: 'content' },
     { key: 'secondaryCtaText', label: 'Secondary Button', type: 'text', group: 'content' },
@@ -312,9 +312,9 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
 
   'je-hero-video': [
     // === CONTENT GROUP ===
-    { key: 'title', label: 'Title', type: 'text', group: 'content' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
-    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'title', label: 'Title', type: 'richtext', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'richtext', group: 'content' },
+    { key: 'description', label: 'Description', type: 'richtext', group: 'content' },
     { key: 'ctaText', label: 'Button Text', type: 'text', group: 'content' },
     { key: 'ctaLink', label: 'Button Link', type: 'url', group: 'content' },
     
@@ -394,9 +394,9 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
 
   'je-hero-image': [
     // === CONTENT GROUP ===
-    { key: 'title', label: 'Title', type: 'text', group: 'content' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
-    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'title', label: 'Title', type: 'richtext', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'richtext', group: 'content' },
+    { key: 'description', label: 'Description', type: 'richtext', group: 'content' },
     { key: 'ctaText', label: 'Button Text', type: 'text', group: 'content' },
     { key: 'ctaLink', label: 'Button Link', type: 'url', group: 'content' },
     
@@ -475,9 +475,9 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
 
   'je-hero-split': [
     // === CONTENT GROUP ===
-    { key: 'title', label: 'Title', type: 'text', group: 'content' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
-    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'title', label: 'Title', type: 'richtext', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'richtext', group: 'content' },
+    { key: 'description', label: 'Description', type: 'richtext', group: 'content' },
     { key: 'ctaText', label: 'Button Text', type: 'text', group: 'content' },
     { key: 'ctaLink', label: 'Button Link', type: 'url', group: 'content' },
     
@@ -501,10 +501,10 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
   // ========================================
   'je-section-standard': [
     // === CONTENT GROUP ===
-    { key: 'label', label: 'Section Label', type: 'text', placeholder: 'SECTION LABEL', group: 'content' },
-    { key: 'title', label: 'Title', type: 'text', group: 'content' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text', group: 'content' },
-    { key: 'description', label: 'Description', type: 'textarea', group: 'content' },
+    { key: 'label', label: 'Section Label', type: 'richtext', placeholder: 'SECTION LABEL', group: 'content' },
+    { key: 'title', label: 'Title', type: 'richtext', group: 'content' },
+    { key: 'subtitle', label: 'Subtitle', type: 'richtext', group: 'content' },
+    { key: 'description', label: 'Description', type: 'richtext', group: 'content' },
     { key: 'htmlContent', label: 'HTML Content', type: 'richtext', group: 'content' },
     { key: 'ctaText', label: 'Button Text', type: 'text', group: 'content' },
     { key: 'ctaLink', label: 'Button Link', type: 'url', group: 'content' },
@@ -639,7 +639,7 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
   // JE TEXT BLOCKS
   // ========================================
   'je-heading': [
-    { key: 'text', label: 'Heading Text', type: 'text', placeholder: 'Section Heading' },
+    { key: 'text', label: 'Heading Text', type: 'richtext', placeholder: 'Section Heading' },
     { key: 'level', label: 'Heading Level', type: 'select', options: HEADING_LEVEL_OPTIONS },
     { key: 'alignment', label: 'Alignment', type: 'alignment' },
     { key: 'italic', label: 'Italic', type: 'boolean' },
@@ -676,7 +676,7 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
   ],
 
   'je-quote': [
-    { key: 'quote', label: 'Quote Text', type: 'textarea', placeholder: 'Enter quote...' },
+    { key: 'quote', label: 'Quote Text', type: 'richtext', placeholder: 'Enter quote...' },
     { key: 'author', label: 'Author Name', type: 'text' },
     { key: 'role', label: 'Author Role/Title', type: 'text' },
     { key: 'imageUrl', label: 'Author Image', type: 'image' },
