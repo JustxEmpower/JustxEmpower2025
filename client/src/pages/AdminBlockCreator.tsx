@@ -21,8 +21,10 @@ import {
   Box, Sparkles, Type, Image, Layout, List, Grid, 
   Heart, Star, Zap, FileText, MessageSquare, Users, Wand2, Palette,
   Link, AlignLeft, AlignCenter, AlignRight, ImageIcon, Video,
-  ChevronDown, ChevronUp, Copy, RotateCcw, Paintbrush, Settings2
+  ChevronDown, ChevronUp, Copy, RotateCcw, Paintbrush, Settings2,
+  MousePointer, Edit3
 } from 'lucide-react';
+import { usePageBuilderStore } from '@/components/page-builder/usePageBuilderStore';
 import { Slider } from '@/components/ui/slider';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
@@ -79,6 +81,16 @@ export default function AdminBlockCreator() {
   const [, navigate] = useLocation();
   const [isSaving, setIsSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('design');
+  const [isElementEditMode, setIsElementEditMode] = useState(false);
+  
+  // Get setInPageBuilder from store to mark we're in editor context
+  const setInPageBuilder = usePageBuilderStore((state) => state.setInPageBuilder);
+  
+  // Mark that we're in Page Builder/Block Creator context on mount
+  useEffect(() => {
+    setInPageBuilder(true);
+    return () => setInPageBuilder(false);
+  }, [setInPageBuilder]);
   
   // Block metadata
   const [blockName, setBlockName] = useState('');
@@ -328,14 +340,30 @@ export default function AdminBlockCreator() {
 
               <TabsContent value="design">
                 <Card className="border-2 border-fuchsia-100 shadow-lg overflow-hidden">
-                  <CardHeader className="bg-gradient-to-r from-fuchsia-50 to-pink-50">
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <div className="p-1.5 bg-gradient-to-br from-fuchsia-500 to-pink-500 rounded-lg text-white">
-                        <Eye className="w-4 h-4" />
-                      </div>
-                      Live Preview
-                    </CardTitle>
-                    <CardDescription>See your block as it will appear</CardDescription>
+                  <CardHeader className="bg-gradient-to-r from-fuchsia-50 to-pink-50 flex flex-row items-center justify-between">
+                    <div>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <div className="p-1.5 bg-gradient-to-br from-fuchsia-500 to-pink-500 rounded-lg text-white">
+                          <Eye className="w-4 h-4" />
+                        </div>
+                        Live Preview
+                      </CardTitle>
+                      <CardDescription>See your block as it will appear</CardDescription>
+                    </div>
+                    {selectedBlockType && (
+                      <Button
+                        variant={isElementEditMode ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => setIsElementEditMode(!isElementEditMode)}
+                        className={isElementEditMode ? "bg-amber-500 hover:bg-amber-600" : ""}
+                      >
+                        {isElementEditMode ? (
+                          <><MousePointer className="w-4 h-4 mr-2" /> Block Mode</>
+                        ) : (
+                          <><Edit3 className="w-4 h-4 mr-2" /> Edit Elements</>
+                        )}
+                      </Button>
+                    )}
                   </CardHeader>
                   <CardContent className="p-4">
                     {selectedBlockType ? (
@@ -344,7 +372,13 @@ export default function AdminBlockCreator() {
                         animate={{ opacity: 1 }}
                         className="border-2 border-purple-100 rounded-xl overflow-hidden bg-white shadow-inner"
                       >
-                        <BlockRenderer block={previewBlock} isPreviewMode={true} />
+                        <BlockRenderer 
+                          block={previewBlock} 
+                          isPreviewMode={false} 
+                          isEditing={true}
+                          isElementEditMode={isElementEditMode}
+                          onUpdate={(content) => setBlockContent(content)}
+                        />
                       </motion.div>
                     ) : (
                       <div className="border-2 border-dashed border-purple-200 rounded-xl p-12 text-center bg-gradient-to-br from-purple-50/50 to-fuchsia-50/50">
