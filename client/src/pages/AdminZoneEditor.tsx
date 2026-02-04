@@ -273,37 +273,6 @@ function getGroupedFields(blockType: string): Record<string, FieldDefinition[]> 
   return grouped;
 }
 
-// Memoized block content renderer to ensure re-renders on content change
-const BlockContentRenderer = React.memo(function BlockContentRenderer({ 
-  block, 
-  isSelected, 
-  isElementEditMode, 
-  onUpdate 
-}: { 
-  block: PageBlock; 
-  isSelected: boolean; 
-  isElementEditMode: boolean; 
-  onUpdate: (content: Record<string, unknown>) => void;
-}) {
-  // Force re-render by using content in the component
-  const textContent = (block.content as any)?.text || '';
-  
-  return (
-    <BlockRenderer 
-      block={block} 
-      isPreviewMode={false}
-      isEditing={true} 
-      isElementEditMode={isElementEditMode && !isSelected} 
-      onUpdate={onUpdate} 
-    />
-  );
-}, (prevProps, nextProps) => {
-  // Custom comparison - re-render if content changes
-  return JSON.stringify(prevProps.block.content) === JSON.stringify(nextProps.block.content) &&
-         prevProps.isSelected === nextProps.isSelected &&
-         prevProps.isElementEditMode === nextProps.isElementEditMode;
-});
-
 function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMode, onUpdate }: { 
   block: PageBlock; 
   onDelete: () => void;
@@ -343,9 +312,11 @@ function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMod
         </Button>
       </div>
       <div className={isElementEditMode ? '' : 'pointer-events-none'}>
-        <BlockContentRenderer 
+        <BlockRenderer 
+          key={`${block.id}-${JSON.stringify(block.content).length}`}
           block={block} 
-          isSelected={isSelected}
+          isPreviewMode={false} 
+          isEditing={isElementEditMode && !isSelected} 
           isElementEditMode={isElementEditMode} 
           onUpdate={onUpdate} 
         />
@@ -648,16 +619,11 @@ export default function AdminZoneEditor() {
   };
 
   const updateBlockContent = (id: string, key: string, value: unknown) => {
-    console.log('[ZoneEditor] updateBlockContent called:', { id, key, valueLength: typeof value === 'string' ? value.length : 'N/A' });
-    setBlocks(prev => {
-      const newBlocks = prev.map(block => 
-        block.id === id 
-          ? { ...block, content: { ...block.content, [key]: value } }
-          : block
-      );
-      console.log('[ZoneEditor] New blocks state:', newBlocks.find(b => b.id === id)?.content[key]?.toString().slice(0, 100));
-      return newBlocks;
-    });
+    setBlocks(prev => prev.map(block => 
+      block.id === id 
+        ? { ...block, content: { ...block.content, [key]: value } }
+        : block
+    ));
   };
 
   // Update multiple content fields at once (for margin ruler)
