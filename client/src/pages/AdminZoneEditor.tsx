@@ -293,6 +293,9 @@ function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMod
   
   // Create a stable content hash for the key to force re-render when content changes
   const contentHash = JSON.stringify(block.content);
+  
+  // Debug: Log what content the canvas block is receiving
+  console.log('[SortableBlock] Block:', block.id, 'text length:', (block.content as any)?.text?.length, 'hash length:', contentHash.length);
 
   return (
     <div
@@ -624,11 +627,16 @@ export default function AdminZoneEditor() {
   };
 
   const updateBlockContent = (id: string, key: string, value: unknown) => {
-    setBlocks(prev => prev.map(block => 
-      block.id === id 
-        ? { ...block, content: { ...block.content, [key]: value } }
-        : block
-    ));
+    console.log('[ZoneEditor] updateBlockContent called:', { id, key, valueLength: typeof value === 'string' ? value.length : 'N/A' });
+    setBlocks(prev => {
+      const newBlocks = prev.map(block => 
+        block.id === id 
+          ? { ...block, content: { ...block.content, [key]: value } }
+          : block
+      );
+      console.log('[ZoneEditor] New blocks state:', newBlocks.find(b => b.id === id)?.content[key]?.toString().slice(0, 100));
+      return newBlocks;
+    });
   };
 
   // Update multiple content fields at once (for margin ruler)
