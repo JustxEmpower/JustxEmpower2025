@@ -313,10 +313,10 @@ function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMod
       </div>
       <div className={isElementEditMode ? '' : 'pointer-events-none'}>
         <BlockRenderer 
-          key={`${block.id}-${JSON.stringify(block.content).length}`}
+          key={`${block.id}-${Date.now()}`}
           block={block} 
           isPreviewMode={false} 
-          isEditing={isElementEditMode && !isSelected} 
+          isEditing={true} 
           isElementEditMode={isElementEditMode} 
           onUpdate={onUpdate} 
         />
