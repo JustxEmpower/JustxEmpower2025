@@ -290,6 +290,9 @@ function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMod
   };
 
   const blockDef = blockTypes.find(b => b.id === block.type);
+  
+  // Create a stable content hash for the key to force re-render when content changes
+  const contentHash = JSON.stringify(block.content);
 
   return (
     <div
@@ -312,12 +315,14 @@ function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMod
         </Button>
       </div>
       <div className={isElementEditMode ? '' : 'pointer-events-none'}>
+        {/* Always render as preview (isEditing=false) when block is selected - right panel handles editing */}
+        {/* Use contentHash in key to force complete re-render when content changes */}
         <BlockRenderer 
-          key={`${block.id}-${JSON.stringify(block.content).length}`}
+          key={`${block.id}-${contentHash.length}-${contentHash.slice(-20)}`}
           block={block} 
-          isPreviewMode={false} 
-          isEditing={isElementEditMode && !isSelected} 
-          isElementEditMode={isElementEditMode} 
+          isPreviewMode={isSelected}
+          isEditing={!isSelected && isElementEditMode} 
+          isElementEditMode={isElementEditMode && !isSelected} 
           onUpdate={onUpdate} 
         />
       </div>
