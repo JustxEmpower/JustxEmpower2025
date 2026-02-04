@@ -151,7 +151,29 @@ export default function RichTextEditor({
   const handleFontFamily = (font: Font) => {
     const fallback = CATEGORY_FALLBACKS[font.category] || 'sans-serif';
     const fontFamily = `"${font.name}", ${fallback}`;
-    execCommand('fontName', font.name);
+    
+    // Use CSS styling instead of deprecated fontName command
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      if (!range.collapsed) {
+        // Extract the selected content
+        const fragment = range.extractContents();
+        const span = document.createElement('span');
+        span.style.fontFamily = fontFamily;
+        span.appendChild(fragment);
+        range.insertNode(span);
+        
+        // Re-select the content
+        selection.removeAllRanges();
+        const newRange = document.createRange();
+        newRange.selectNodeContents(span);
+        selection.addRange(newRange);
+        
+        handleInput();
+      }
+    }
+    
     setSelectedFont(font.name);
     setFontPopoverOpen(false);
     setFontSearch('');
