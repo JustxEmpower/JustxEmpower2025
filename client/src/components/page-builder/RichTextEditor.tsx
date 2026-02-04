@@ -161,6 +161,7 @@ export default function RichTextEditor({
   const handleInput = useCallback(() => {
     if (editorRef.current) {
       const html = editorRef.current.innerHTML;
+      console.log('[RichTextEditor] handleInput called, HTML:', html.substring(0, 200));
       // Don't update if it's just the placeholder
       if (html !== '<br>' && html !== '') {
         onChange(html);
