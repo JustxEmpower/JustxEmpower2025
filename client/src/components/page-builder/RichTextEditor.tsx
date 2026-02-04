@@ -266,22 +266,86 @@ export default function RichTextEditor({
   };
 
   const handleFontSize = (size: string) => {
-    // Restore the saved selection first
-    restoreSelection();
+    // Focus the editor first to ensure selection can be restored
+    editorRef.current?.focus();
     
-    // Use CSS styling instead of deprecated fontSize command
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      if (!range.collapsed) {
-        const fragment = range.extractContents();
-        const span = document.createElement('span');
-        span.style.fontSize = size;
-        span.appendChild(fragment);
-        range.insertNode(span);
-        handleInput();
+    // Restore the saved selection
+    if (savedSelectionRef.current && editorRef.current) {
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        try {
+          selection.addRange(savedSelectionRef.current);
+        } catch (e) {
+          console.log('[RichTextEditor] Could not restore selection for size:', e);
+        }
       }
     }
+    
+    // Small delay to ensure selection is restored
+    setTimeout(() => {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        
+        if (!range.collapsed) {
+          // Get existing styles from the selection
+          const fragment = range.extractContents();
+          
+          // Check if the fragment has existing font styles we need to preserve
+          const existingSpan = fragment.querySelector('span[style*="font-family"]');
+          const existingFontFamily = existingSpan?.style?.fontFamily || '';
+          
+          const span = document.createElement('span');
+          span.style.fontSize = size;
+          // Preserve existing font-family if present
+          if (existingFontFamily) {
+            span.style.fontFamily = existingFontFamily;
+          }
+          span.appendChild(fragment);
+          range.insertNode(span);
+          
+          console.log('[RichTextEditor] Font size applied:', size, 'preserved font:', existingFontFamily);
+          handleInput();
+        } else {
+          // If no selection, apply to entire content
+          console.log('[RichTextEditor] No selection for size, applying to all content');
+          if (editorRef.current) {
+            // Get existing font-family from content
+            const existingSpan = editorRef.current.querySelector('span[style*="font-family"]');
+            const existingFontFamily = existingSpan?.style?.fontFamily || '';
+            
+            const wrapper = document.createElement('span');
+            wrapper.style.fontSize = size;
+            if (existingFontFamily) {
+              wrapper.style.fontFamily = existingFontFamily;
+            }
+            wrapper.innerHTML = editorRef.current.innerHTML;
+            editorRef.current.innerHTML = '';
+            editorRef.current.appendChild(wrapper);
+            handleInput();
+          }
+        }
+      } else {
+        // Fallback: apply to entire content
+        console.log('[RichTextEditor] No selection available for size, applying to all');
+        if (editorRef.current) {
+          const existingSpan = editorRef.current.querySelector('span[style*="font-family"]');
+          const existingFontFamily = existingSpan?.style?.fontFamily || '';
+          
+          const wrapper = document.createElement('span');
+          wrapper.style.fontSize = size;
+          if (existingFontFamily) {
+            wrapper.style.fontFamily = existingFontFamily;
+          }
+          wrapper.innerHTML = editorRef.current.innerHTML;
+          editorRef.current.innerHTML = '';
+          editorRef.current.appendChild(wrapper);
+          handleInput();
+        }
+      }
+    }, 10);
+    
     setSelectedSize(size);
     setSizePopoverOpen(false);
   };
