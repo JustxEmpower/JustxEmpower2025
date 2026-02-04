@@ -69,12 +69,32 @@ export default function RichTextEditor({
   className = '',
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
+  const savedSelectionRef = useRef<Range | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const [fontSearch, setFontSearch] = useState('');
   const [fontPopoverOpen, setFontPopoverOpen] = useState(false);
   const [sizePopoverOpen, setSizePopoverOpen] = useState(false);
   const [selectedFont, setSelectedFont] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
+
+  // Save selection before opening popover (selection is lost when clicking outside editor)
+  const saveSelection = useCallback(() => {
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      savedSelectionRef.current = selection.getRangeAt(0).cloneRange();
+    }
+  }, []);
+
+  // Restore saved selection
+  const restoreSelection = useCallback(() => {
+    if (savedSelectionRef.current) {
+      const selection = window.getSelection();
+      if (selection) {
+        selection.removeAllRanges();
+        selection.addRange(savedSelectionRef.current);
+      }
+    }
+  }, []);
 
   // Fetch fonts from backend API
   const { data: availableFonts } = trpc.fontSettings.availableFonts.useQuery();
@@ -167,10 +187,15 @@ export default function RichTextEditor({
       }
     }
     
+    // Restore the saved selection first (it was lost when clicking the popover)
+    restoreSelection();
+    
     // Use CSS styling instead of deprecated fontName command
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
+      console.log('[RichTextEditor] Applying font:', font.name, 'to selection collapsed:', range.collapsed);
+      
       if (!range.collapsed) {
         // Extract the selected content
         const fragment = range.extractContents();
@@ -185,8 +210,13 @@ export default function RichTextEditor({
         newRange.selectNodeContents(span);
         selection.addRange(newRange);
         
+        console.log('[RichTextEditor] Font applied, HTML:', editorRef.current?.innerHTML);
         handleInput();
+      } else {
+        console.log('[RichTextEditor] Selection is collapsed, cannot apply font');
       }
+    } else {
+      console.log('[RichTextEditor] No selection found');
     }
     
     setSelectedFont(font.name);
@@ -195,14 +225,19 @@ export default function RichTextEditor({
   };
 
   const handleFontSize = (size: string) => {
+    // Restore the saved selection first
+    restoreSelection();
+    
     // Use CSS styling instead of deprecated fontSize command
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       if (!range.collapsed) {
+        const fragment = range.extractContents();
         const span = document.createElement('span');
         span.style.fontSize = size;
-        range.surroundContents(span);
+        span.appendChild(fragment);
+        range.insertNode(span);
         handleInput();
       }
     }
@@ -230,7 +265,10 @@ export default function RichTextEditor({
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-neutral-50 dark:bg-neutral-800">
         {/* Font Family - Searchable Popover */}
-        <Popover open={fontPopoverOpen} onOpenChange={setFontPopoverOpen}>
+        <Popover open={fontPopoverOpen} onOpenChange={(open) => {
+          if (open) saveSelection(); // Save selection when opening popover
+          setFontPopoverOpen(open);
+        }}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="w-[140px] h-8 text-xs justify-between font-normal">
               <span className="truncate" style={{ fontFamily: selectedFont || 'inherit' }}>
@@ -282,7 +320,10 @@ export default function RichTextEditor({
         </Popover>
 
         {/* Font Size - Popover */}
-        <Popover open={sizePopoverOpen} onOpenChange={setSizePopoverOpen}>
+        <Popover open={sizePopoverOpen} onOpenChange={(open) => {
+          if (open) saveSelection();
+          setSizePopoverOpen(open);
+        }}>
           <PopoverTrigger asChild>
             <Button variant="outline" size="sm" className="w-[70px] h-8 text-xs justify-between font-normal">
               {selectedSize ? selectedSize.replace('px', '') : 'Size'}
