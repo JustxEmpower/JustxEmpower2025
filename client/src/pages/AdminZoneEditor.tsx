@@ -312,12 +312,13 @@ function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMod
         </Button>
       </div>
       <div className={isElementEditMode ? '' : 'pointer-events-none'}>
+        {/* When block is selected, show preview mode so only right panel editor is active */}
+        {/* This prevents two separate RichTextEditor instances from conflicting */}
         <BlockRenderer 
-          key={`${block.id}-${Date.now()}`}
           block={block} 
-          isPreviewMode={false} 
-          isEditing={true} 
-          isElementEditMode={isElementEditMode} 
+          isPreviewMode={isSelected}
+          isEditing={!isSelected} 
+          isElementEditMode={isElementEditMode && !isSelected} 
           onUpdate={onUpdate} 
         />
       </div>
