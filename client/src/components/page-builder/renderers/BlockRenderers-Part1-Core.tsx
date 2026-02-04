@@ -1276,28 +1276,21 @@ export function JEHeadingRenderer({ block, isEditing, onUpdate }: BlockRendererP
 // ============================================================================
 
 export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendererProps) {
-  // Read content directly without destructuring to avoid stale closure issues
   const content = block.content || {};
   const contentAny = content as Record<string, any>;
   
-  // Read values directly from content object
+  // Get text content - this contains HTML with inline font styles from RichTextEditor
   const text = contentAny.text || '';
   const alignment = contentAny.alignment || 'center';
   const dropCap = contentAny.dropCap || false;
   const columns = contentAny.columns || 1;
-  const fontSize = contentAny.fontSize || '16px';
-  const fontFamily = contentAny.fontFamily || '';
   const lineHeight = contentAny.lineHeight || 'relaxed';
-  const color = contentAny.color || '';
   const indent = contentAny.indent || false;
   
   // Microsoft Word-style margin controls
   const textWidthPreset = contentAny.textWidthPreset || 'wide';
   const marginLeft = contentAny.marginLeft || '0%';
   const marginRight = contentAny.marginRight || '0%';
-
-  // Debug logging for margin values
-  console.log('[JEParagraph] Block ID:', block.id, 'textWidthPreset:', textWidthPreset, 'marginLeft:', marginLeft, 'marginRight:', marginRight);
 
   // Load Google Fonts from inline styles in HTML content
   useGoogleFonts(text, block.id);
@@ -1320,7 +1313,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     justify: 'text-justify',
   };
 
-  // Text width preset to actual width percentage (Microsoft Word-style)
+  // Text width preset to actual width percentage
   const getTextWidth = (): string => {
     switch (textWidthPreset) {
       case 'narrow': return '60%';
@@ -1328,7 +1321,6 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
       case 'wide': return '90%';
       case 'full': return '100%';
       case 'custom': {
-        // Calculate width from left and right margins
         const left = parseFloat(marginLeft) || 0;
         const right = parseFloat(marginRight) || 0;
         return `${100 - left - right}%`;
@@ -1337,49 +1329,19 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
     }
   };
 
-  // Get margin values for custom preset
-  const getMargins = (): { left: string; right: string } => {
-    if (textWidthPreset === 'custom') {
-      return { left: marginLeft, right: marginRight };
-    }
-    // Calculate equal margins for presets
-    const width = parseFloat(getTextWidth());
-    const margin = (100 - width) / 2;
-    return { left: `${margin}%`, right: `${margin}%` };
-  };
-
-  const margins = getMargins();
-
-  // Static column classes
   const columnClasses: Record<number, string> = {
     1: '',
     2: 'columns-2 gap-8',
     3: 'columns-3 gap-8',
   };
 
-  // Build text style with actual font size and font family
-  const hasCustomFont = fontFamily && fontFamily !== 'default';
-  const textStyle: React.CSSProperties = {
-    ...(color ? { color } : {}),
-    ...(fontSize && fontSize.includes('px') ? { fontSize } : {}),
-    ...(hasCustomFont ? { fontFamily: `"${fontFamily}", sans-serif` } : {}),
-  };
-
-  // Container style with Word-style margins - simplified for proper rendering
   const calculatedWidth = getTextWidth();
   const containerStyle: React.CSSProperties = {
     width: calculatedWidth,
-    maxWidth: calculatedWidth, // Ensure max-width also respects the setting
+    maxWidth: calculatedWidth,
     marginLeft: 'auto',
     marginRight: 'auto',
-    ...(hasCustomFont ? { fontFamily: `"${fontFamily}", sans-serif` } : {}),
   };
-
-  // Debug: log the computed styles
-  console.log('[JEParagraph] Block ID:', block.id, 'textWidthPreset:', textWidthPreset, 'calculatedWidth:', calculatedWidth, 'marginLeft:', marginLeft, 'marginRight:', marginRight);
-
-  // Apply font using CSS class with !important
-  const fontClassName = hasCustomFont ? `je-font-${block.id.replace(/[^a-z0-9]/gi, '')}` : '';
   
   return (
     <div 
@@ -1390,56 +1352,17 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
       )}
       style={containerStyle}
     >
-      {/* Inject CSS to force font family with !important */}
-      {hasCustomFont && (
-        <style dangerouslySetInnerHTML={{ __html: `
-          .${fontClassName}, .${fontClassName} * { 
-            font-family: '${fontFamily}', cursive, sans-serif !important; 
-          }
-        `}} />
-      )}
-      {/* Render HTML content properly - use dangerouslySetInnerHTML for rich text */}
-      {/* NOTE: Do NOT add font-sans class here - it overrides inline font styles from RichTextEditor */}
-      {isEditing ? (
-        <p
-          className={cn(
-            fontClassName,
-            lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
-            'whitespace-pre-wrap',
-            'text-neutral-700 dark:text-neutral-300',
-            columnClasses[columns] || '',
-            dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
-            indent ? 'indent-8' : ''
-          )}
-          style={textStyle}
-        >
-          <EditableText
-            value={text}
-            onChange={(v) => handleChange('text', v)}
-            tag="span"
-            placeholder="Enter paragraph text here..."
-            multiline
-            isEditing={isEditing}
-            dangerousHtml={true}
-            richText={true}
-            className=""
-            style={textStyle}
-          />
-        </p>
-      ) : (
-        <div
-          className={cn(
-            fontClassName,
-            lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
-            'text-neutral-700 dark:text-neutral-300',
-            columnClasses[columns] || '',
-            dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
-            indent ? 'indent-8' : ''
-          )}
-          style={textStyle}
-          dangerouslySetInnerHTML={{ __html: text || '' }}
-        />
-      )}
+      {/* SIMPLE: Just render the HTML content directly - fonts are inline styles */}
+      <div
+        className={cn(
+          lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
+          'text-neutral-700 dark:text-neutral-300',
+          columnClasses[columns] || '',
+          dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
+          indent ? 'indent-8' : ''
+        )}
+        dangerouslySetInnerHTML={{ __html: text || '<span class="opacity-50">Enter paragraph text here...</span>' }}
+      />
     </div>
   );
 }
