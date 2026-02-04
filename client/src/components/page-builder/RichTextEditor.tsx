@@ -143,10 +143,18 @@ export default function RichTextEditor({
     }
   }, [availableFonts]);
 
-  // Initialize content
+  // Track if we're currently editing to avoid overwriting user input
+  const isUserEditing = useRef(false);
+  
+  // Initialize and sync content from prop
   useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== value) {
-      editorRef.current.innerHTML = value || '';
+    if (editorRef.current && !isUserEditing.current) {
+      // Only update if the value actually changed (normalize both for comparison)
+      const currentHtml = editorRef.current.innerHTML;
+      const newValue = value || '';
+      if (currentHtml !== newValue) {
+        editorRef.current.innerHTML = newValue;
+      }
     }
   }, [value]);
 
@@ -479,8 +487,8 @@ export default function RichTextEditor({
         className="p-3 outline-none prose prose-sm max-w-none dark:prose-invert"
         style={{ minHeight: height, maxHeight: height * 2, overflowY: 'auto' }}
         onInput={handleInput}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        onFocus={() => { setIsFocused(true); isUserEditing.current = true; }}
+        onBlur={() => { setIsFocused(false); isUserEditing.current = false; }}
         data-placeholder={placeholder}
         suppressContentEditableWarning
       />
