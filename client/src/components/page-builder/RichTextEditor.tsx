@@ -145,10 +145,12 @@ export default function RichTextEditor({
 
   // Track if we're currently editing to avoid overwriting user input
   const isUserEditing = useRef(false);
+  // Track if we're applying styles (font, size, etc.) to prevent sync from overwriting
+  const isApplyingStyles = useRef(false);
   
   // Initialize and sync content from prop
   useEffect(() => {
-    if (editorRef.current && !isUserEditing.current) {
+    if (editorRef.current && !isUserEditing.current && !isApplyingStyles.current) {
       // Only update if the value actually changed (normalize both for comparison)
       const currentHtml = editorRef.current.innerHTML;
       const newValue = value || '';
@@ -180,6 +182,9 @@ export default function RichTextEditor({
   const handleFontFamily = (font: Font) => {
     const fallback = CATEGORY_FALLBACKS[font.category] || 'sans-serif';
     const fontFamily = `"${font.name}", ${fallback}`;
+    
+    // Mark that we're applying styles to prevent sync from overwriting
+    isApplyingStyles.current = true;
     
     // Load the Google Font immediately so it displays in the editor
     if (font.googleFont) {
@@ -259,6 +264,8 @@ export default function RichTextEditor({
           handleInput();
         }
       }
+      // Reset the flag after applying styles
+      isApplyingStyles.current = false;
     }, 10);
     
     setSelectedFont(font.name);
@@ -267,6 +274,9 @@ export default function RichTextEditor({
   };
 
   const handleFontSize = (size: string) => {
+    // Mark that we're applying styles to prevent sync from overwriting
+    isApplyingStyles.current = true;
+    
     // Focus the editor first to ensure selection can be restored
     editorRef.current?.focus();
     
@@ -345,6 +355,8 @@ export default function RichTextEditor({
           handleInput();
         }
       }
+      // Reset the flag after applying styles
+      isApplyingStyles.current = false;
     }, 10);
     
     setSelectedSize(size);
