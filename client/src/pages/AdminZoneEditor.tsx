@@ -273,6 +273,37 @@ function getGroupedFields(blockType: string): Record<string, FieldDefinition[]> 
   return grouped;
 }
 
+// Memoized block content renderer to ensure re-renders on content change
+const BlockContentRenderer = React.memo(function BlockContentRenderer({ 
+  block, 
+  isSelected, 
+  isElementEditMode, 
+  onUpdate 
+}: { 
+  block: PageBlock; 
+  isSelected: boolean; 
+  isElementEditMode: boolean; 
+  onUpdate: (content: Record<string, unknown>) => void;
+}) {
+  // Force re-render by using content in the component
+  const textContent = (block.content as any)?.text || '';
+  
+  return (
+    <BlockRenderer 
+      block={block} 
+      isPreviewMode={false}
+      isEditing={true} 
+      isElementEditMode={isElementEditMode && !isSelected} 
+      onUpdate={onUpdate} 
+    />
+  );
+}, (prevProps, nextProps) => {
+  // Custom comparison - re-render if content changes
+  return JSON.stringify(prevProps.block.content) === JSON.stringify(nextProps.block.content) &&
+         prevProps.isSelected === nextProps.isSelected &&
+         prevProps.isElementEditMode === nextProps.isElementEditMode;
+});
+
 function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMode, onUpdate }: { 
   block: PageBlock; 
   onDelete: () => void;
@@ -290,12 +321,6 @@ function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMod
   };
 
   const blockDef = blockTypes.find(b => b.id === block.type);
-  
-  // Create a stable content hash for the key to force re-render when content changes
-  const contentHash = JSON.stringify(block.content);
-  
-  // Debug: Log what content the canvas block is receiving
-  console.log('[SortableBlock] Block:', block.id, 'text length:', (block.content as any)?.text?.length, 'hash length:', contentHash.length);
 
   return (
     <div
@@ -318,14 +343,10 @@ function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMod
         </Button>
       </div>
       <div className={isElementEditMode ? '' : 'pointer-events-none'}>
-        {/* Always render as preview (isEditing=false) when block is selected - right panel handles editing */}
-        {/* Use contentHash in key to force complete re-render when content changes */}
-        <BlockRenderer 
-          key={`${block.id}-${contentHash.length}-${contentHash.slice(-20)}`}
+        <BlockContentRenderer 
           block={block} 
-          isPreviewMode={isSelected}
-          isEditing={!isSelected && isElementEditMode} 
-          isElementEditMode={isElementEditMode && !isSelected} 
+          isSelected={isSelected}
+          isElementEditMode={isElementEditMode} 
           onUpdate={onUpdate} 
         />
       </div>
