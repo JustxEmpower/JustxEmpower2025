@@ -19,6 +19,83 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger';
 gsap.registerPlugin(ScrollTrigger);
 
 // ==========================================
+// GOOGLE FONT LOADING UTILITY
+// ==========================================
+
+/**
+ * Extract font names from HTML content with inline styles
+ * Handles various font-family formats in inline styles
+ */
+function extractFontsFromHtml(html: string): string[] {
+  if (!html) return [];
+  
+  const fontNames = new Set<string>();
+  
+  // Match font-family in inline styles - handles various formats
+  // e.g., font-family: "Playfair Display", font-family: 'Roboto', font-family: Arial
+  const fontFamilyRegex = /font-family:\s*["']?([^"';,\)]+)/gi;
+  let match;
+  
+  while ((match = fontFamilyRegex.exec(html)) !== null) {
+    const fontName = match[1].trim().replace(/["']/g, '');
+    // Skip generic font families
+    if (fontName && 
+        !fontName.toLowerCase().includes('sans-serif') && 
+        !fontName.toLowerCase().includes('serif') && 
+        !fontName.toLowerCase().includes('monospace') && 
+        !fontName.toLowerCase().includes('cursive') &&
+        !fontName.toLowerCase().includes('fantasy') &&
+        !fontName.toLowerCase().includes('system-ui') &&
+        !fontName.toLowerCase().includes('inherit')) {
+      fontNames.add(fontName);
+    }
+  }
+  
+  return Array.from(fontNames);
+}
+
+/**
+ * Load Google Fonts dynamically by injecting link tags
+ * @param fonts Array of font names to load
+ * @param blockId Unique identifier for the block (used for link tag ID)
+ */
+function loadGoogleFonts(fonts: string[], blockId: string): void {
+  if (fonts.length === 0) return;
+  
+  const fontNamesStr = fonts
+    .map(name => name.replace(/ /g, '+') + ':ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700')
+    .join('&family=');
+  
+  const linkId = `google-fonts-${blockId.replace(/[^a-z0-9]/gi, '')}`;
+  let link = document.getElementById(linkId) as HTMLLinkElement;
+  
+  if (!link) {
+    link = document.createElement('link');
+    link.id = linkId;
+    link.rel = 'stylesheet';
+    document.head.appendChild(link);
+  }
+  
+  const newHref = `https://fonts.googleapis.com/css2?family=${fontNamesStr}&display=swap`;
+  if (link.href !== newHref) {
+    link.href = newHref;
+    console.log('[GoogleFonts] Loading fonts for block', blockId, ':', fonts);
+  }
+}
+
+/**
+ * React hook to load Google Fonts from HTML content
+ */
+function useGoogleFonts(htmlContent: string | undefined, blockId: string): void {
+  useEffect(() => {
+    if (htmlContent && /<[^>]+>/.test(htmlContent)) {
+      const fonts = extractFontsFromHtml(htmlContent);
+      loadGoogleFonts(fonts, blockId);
+    }
+  }, [htmlContent, blockId]);
+}
+
+// ==========================================
 // STYLE HELPER FUNCTIONS
 // ==========================================
 
@@ -416,6 +493,11 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
     
     return style;
   };
+
+  // Load Google Fonts from inline styles in title, subtitle, and description
+  useGoogleFonts(content.title, `${block.id}-title`);
+  useGoogleFonts(content.subtitle, `${block.id}-subtitle`);
+  useGoogleFonts(content.description, `${block.id}-description`);
 
   // Get custom colors or use defaults
   const textColor = content.textColor || '#ffffff';
@@ -995,6 +1077,12 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
     if (height) style.height = `${height}px`;
     return style;
   };
+
+  // Load Google Fonts from inline styles in title, subtitle, label, and description
+  useGoogleFonts(content.title, `${block.id}-section-title`);
+  useGoogleFonts(content.subtitle, `${block.id}-section-subtitle`);
+  useGoogleFonts(content.label, `${block.id}-section-label`);
+  useGoogleFonts(content.description, `${block.id}-section-description`);
 
   // Custom colors override dark mode defaults
   const hasCustomBg = content.backgroundColor && content.backgroundColor !== '';
@@ -2321,41 +2409,8 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
   const textContent = content.text || '';
   const hasHtmlContent = /<[^>]+>/.test(textContent);
 
-  // Extract and load Google Fonts from inline styles in HTML content
-  useEffect(() => {
-    if (hasHtmlContent && textContent) {
-      // Extract font-family values from inline styles
-      const fontFamilyRegex = /font-family:\s*['"]?([^'";\)]+)['"]?/gi;
-      const matches = textContent.matchAll(fontFamilyRegex);
-      const fontNames = new Set<string>();
-      
-      for (const match of matches) {
-        const fontName = match[1].split(',')[0].trim().replace(/['"]/g, '');
-        if (fontName && !fontName.includes('sans-serif') && !fontName.includes('serif') && !fontName.includes('monospace') && !fontName.includes('cursive')) {
-          fontNames.add(fontName);
-        }
-      }
-      
-      if (fontNames.size > 0) {
-        const fontNamesStr = Array.from(fontNames)
-          .map(name => name.replace(/ /g, '+') + ':wght@300;400;500;600;700')
-          .join('&family=');
-        
-        const linkId = `google-fonts-${block.id.replace(/[^a-z0-9]/gi, '')}`;
-        let link = document.getElementById(linkId) as HTMLLinkElement;
-        
-        if (!link) {
-          link = document.createElement('link');
-          link.id = linkId;
-          link.rel = 'stylesheet';
-          document.head.appendChild(link);
-        }
-        
-        link.href = `https://fonts.googleapis.com/css2?family=${fontNamesStr}&display=swap`;
-        console.log('[JEParagraph] Loading Google Fonts:', Array.from(fontNames));
-      }
-    }
-  }, [textContent, hasHtmlContent, block.id]);
+  // Load Google Fonts from inline styles in HTML content
+  useGoogleFonts(textContent, block.id);
 
   // For HTML content (from TinyMCE), render with dangerouslySetInnerHTML
   // For plain text, use InlineEditableText for backward compatibility
