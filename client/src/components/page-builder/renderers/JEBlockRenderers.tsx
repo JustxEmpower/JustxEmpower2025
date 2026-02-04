@@ -857,14 +857,21 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
       </div>
         
       {/* Scroll Indicator - positioned relative to section, outside content div */}
-        {isElementEditMode ? (
-          <MoveableElement elementId="scroll-indicator" elementType="scroll" className="absolute bottom-8 left-0 right-0 mx-auto w-fit" initialTransform={getElementTransform('scroll-indicator')} onTransformChange={handleTransformChange}>
-            <div className="flex flex-col items-center gap-2 text-white/70 animate-bounce">
-              <span className="text-xs uppercase tracking-[0.3em] font-sans">Scroll</span>
-              <ChevronDown className="w-5 h-5" />
-            </div>
-          </MoveableElement>
-        ) : (
+      {isElementEditMode ? (
+        <MoveableElement 
+          elementId="scroll-indicator" 
+          elementType="scroll" 
+          className="absolute bottom-8 left-0 right-0 mx-auto w-fit" 
+          style={{ zIndex: 50 }}
+          initialTransform={getElementTransform('scroll-indicator')} 
+          onTransformChange={handleTransformChange}
+        >
+          <div className="flex flex-col items-center gap-2 text-white/70 animate-bounce">
+            <span className="text-xs uppercase tracking-[0.3em] font-sans">Scroll</span>
+            <ChevronDown className="w-5 h-5" />
+          </div>
+        </MoveableElement>
+      ) : (
           (() => {
             const scrollTransform = content.elementTransforms?.['scroll-indicator'];
             const hasCustomPosition = scrollTransform && (scrollTransform.x !== 0 || scrollTransform.y !== 0);

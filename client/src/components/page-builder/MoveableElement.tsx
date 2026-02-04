@@ -14,6 +14,7 @@ interface MoveableElementProps {
   elementId: string;
   elementType?: string;
   className?: string;
+  style?: React.CSSProperties;
   initialTransform?: ElementTransform;
   onTransformChange?: (elementId: string, transform: ElementTransform) => void;
 }
@@ -27,6 +28,7 @@ export default function MoveableElement({
   elementId,
   elementType = 'element',
   className = '',
+  style: propStyle,
   initialTransform,
   onTransformChange,
 }: MoveableElementProps) {
@@ -117,7 +119,7 @@ export default function MoveableElement({
         data-element-id={elementId}
         data-element-type={elementType}
         onClick={handleClick}
-        style={transformStyle}
+        style={{ ...propStyle, ...transformStyle }}
       >
         {/* Element type label when selected */}
         {isSelected && (
