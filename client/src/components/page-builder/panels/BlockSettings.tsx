@@ -3977,34 +3977,32 @@ export default function BlockSettings() {
           <TabsContent value="layout" className="mt-0 p-0">
             <ScrollArea style={{ height: 'calc(100vh - 280px)' }}>
               <div className="p-4 space-y-4 pb-16">
-                {/* Microsoft Word-style Margin Ruler for je-paragraph */}
-                {selectedBlock.type === 'je-paragraph' && (
-                  <div className="space-y-3 pb-4 border-b border-neutral-200 dark:border-neutral-700">
-                    <div className="flex items-center gap-2">
-                      <Ruler className="w-4 h-4 text-blue-500" />
-                      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Text Width Ruler</h4>
-                    </div>
-                    <p className="text-xs text-muted-foreground">Drag the handles to adjust text margins like Microsoft Word</p>
-                    <CompactMarginRuler
-                      leftMargin={parseFloat(selectedBlock.content.marginLeft as string || '5') || 5}
-                      rightMargin={parseFloat(selectedBlock.content.marginRight as string || '5') || 5}
-                      onLeftMarginChange={(percent) => {
-                        console.log('[MarginRuler] Left margin changed:', percent, '-> marginLeft:', `${percent}%`, 'textWidthPreset: custom');
-                        handleContentChangeMultiple({
-                          marginLeft: `${percent}%`,
-                          textWidthPreset: 'custom'
-                        });
-                      }}
-                      onRightMarginChange={(percent) => {
-                        console.log('[MarginRuler] Right margin changed:', percent, '-> marginRight:', `${percent}%`, 'textWidthPreset: custom');
-                        handleContentChangeMultiple({
-                          marginRight: `${percent}%`,
-                          textWidthPreset: 'custom'
-                        });
-                      }}
-                    />
+                {/* Microsoft Word-style Margin Ruler for ALL block types */}
+                <div className="space-y-3 pb-4 border-b border-neutral-200 dark:border-neutral-700">
+                  <div className="flex items-center gap-2">
+                    <Ruler className="w-4 h-4 text-blue-500" />
+                    <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Content Width Ruler</h4>
                   </div>
-                )}
+                  <p className="text-xs text-muted-foreground">Drag the handles to adjust content margins like Microsoft Word</p>
+                  <CompactMarginRuler
+                    leftMargin={parseFloat(selectedBlock.content.marginLeft as string || '5') || 5}
+                    rightMargin={parseFloat(selectedBlock.content.marginRight as string || '5') || 5}
+                    onLeftMarginChange={(percent) => {
+                      console.log('[MarginRuler] Left margin changed:', percent, '-> marginLeft:', `${percent}%`, 'textWidthPreset: custom');
+                      handleContentChangeMultiple({
+                        marginLeft: `${percent}%`,
+                        textWidthPreset: 'custom'
+                      });
+                    }}
+                    onRightMarginChange={(percent) => {
+                      console.log('[MarginRuler] Right margin changed:', percent, '-> marginRight:', `${percent}%`, 'textWidthPreset: custom');
+                      handleContentChangeMultiple({
+                        marginRight: `${percent}%`,
+                        textWidthPreset: 'custom'
+                      });
+                    }}
+                  />
+                </div>
 
                 {/* Render layout fields from definitions */}
                 {(() => {

@@ -32,6 +32,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { blockTypes } from '@/components/page-builder/blockTypes';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
 import AdminSidebar from '@/components/AdminSidebar';
+import { CompactMarginRuler } from '@/components/page-builder/MarginRuler';
+import { Ruler } from 'lucide-react';
 
 // Category color schemes for vibrant styling
 const categoryColors: Record<string, { bg: string; border: string; text: string; icon: string; gradient: string }> = {
@@ -611,6 +613,26 @@ export default function AdminBlockCreator() {
                                   <ChevronDown className="w-4 h-4 text-blue-600" />
                                 </CollapsibleTrigger>
                                 <CollapsibleContent className="p-3 space-y-3 bg-white">
+                                  {/* Microsoft Word-style Margin Ruler */}
+                                  <div className="space-y-2 pb-3 border-b border-blue-100">
+                                    <div className="flex items-center gap-2">
+                                      <Ruler className="w-4 h-4 text-blue-500" />
+                                      <Label className="text-sm font-medium text-blue-800">Content Width Ruler</Label>
+                                    </div>
+                                    <p className="text-xs text-blue-600/70">Drag handles to adjust content margins</p>
+                                    <CompactMarginRuler
+                                      leftMargin={parseFloat(blockContent.marginLeft as string || '5') || 5}
+                                      rightMargin={parseFloat(blockContent.marginRight as string || '5') || 5}
+                                      onLeftMarginChange={(percent) => {
+                                        updateContent('marginLeft', `${percent}%`);
+                                        updateContent('textWidthPreset', 'custom');
+                                      }}
+                                      onRightMarginChange={(percent) => {
+                                        updateContent('marginRight', `${percent}%`);
+                                        updateContent('textWidthPreset', 'custom');
+                                      }}
+                                    />
+                                  </div>
                                   {layoutFields.map(([key, value]) => {
                                     const isAlignment = key.toLowerCase().includes('align');
                                     const isMaxWidth = key.toLowerCase().includes('maxwidth') || key.toLowerCase().includes('contentmaxwidth');

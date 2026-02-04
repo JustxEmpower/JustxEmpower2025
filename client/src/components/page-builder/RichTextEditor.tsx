@@ -7,7 +7,7 @@
  */
 
 import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
-import { Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, List, ListOrdered, Link, Type, Palette, Search } from 'lucide-react';
+import { Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, AlignJustify, List, ListOrdered, Link, Type, Palette, Search, Subscript, Superscript, Highlighter, Quote, Minus, Undo, Redo, RemoveFormatting } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Input } from '@/components/ui/input';
@@ -177,6 +177,10 @@ export default function RichTextEditor({
     execCommand('foreColor', color);
   };
 
+  const handleHighlight = (color: string) => {
+    execCommand('hiliteColor', color);
+  };
+
   const handleLink = () => {
     const url = prompt('Enter URL:');
     if (url) {
@@ -265,14 +269,23 @@ export default function RichTextEditor({
         <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-600 mx-1" />
 
         {/* Text Formatting */}
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('bold')} title="Bold">
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('bold')} title="Bold (Ctrl+B)">
           <Bold className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('italic')} title="Italic">
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('italic')} title="Italic (Ctrl+I)">
           <Italic className="h-4 w-4" />
         </Button>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('underline')} title="Underline">
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('underline')} title="Underline (Ctrl+U)">
           <Underline className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('strikeThrough')} title="Strikethrough">
+          <Strikethrough className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('subscript')} title="Subscript">
+          <Subscript className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('superscript')} title="Superscript">
+          <Superscript className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-600 mx-1" />
@@ -298,6 +311,28 @@ export default function RichTextEditor({
           </PopoverContent>
         </Popover>
 
+        {/* Highlight/Background Color */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Highlight Color">
+              <Highlighter className="h-4 w-4" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-2" side="bottom" align="start" sideOffset={5}>
+            <div className="grid grid-cols-6 gap-1">
+              {['#ffff00', '#00ff00', '#00ffff', '#ff00ff', '#ff6600', '#ff0066', '#ffffff', '#f0f0f0', '#e0e0e0', '#d0d0d0', '#c0c0c0', 'transparent'].map((color) => (
+                <button
+                  key={color}
+                  className="w-6 h-6 rounded border border-neutral-300 hover:scale-110 transition-transform"
+                  style={{ backgroundColor: color === 'transparent' ? 'white' : color, backgroundImage: color === 'transparent' ? 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)' : 'none', backgroundSize: '8px 8px', backgroundPosition: '0 0, 0 4px, 4px -4px, -4px 0px' }}
+                  onClick={() => handleHighlight(color)}
+                  title={color === 'transparent' ? 'Remove Highlight' : color}
+                />
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
+
         <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-600 mx-1" />
 
         {/* Alignment */}
@@ -309,6 +344,9 @@ export default function RichTextEditor({
         </Button>
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('justifyRight')} title="Align Right">
           <AlignRight className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('justifyFull')} title="Justify">
+          <AlignJustify className="h-4 w-4" />
         </Button>
 
         <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-600 mx-1" />
@@ -326,6 +364,29 @@ export default function RichTextEditor({
         {/* Link */}
         <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={handleLink} title="Insert Link">
           <Link className="h-4 w-4" />
+        </Button>
+
+        <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-600 mx-1" />
+
+        {/* Block Quote & Horizontal Rule */}
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('formatBlock', 'blockquote')} title="Block Quote">
+          <Quote className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('insertHorizontalRule')} title="Horizontal Line">
+          <Minus className="h-4 w-4" />
+        </Button>
+
+        <div className="w-px h-6 bg-neutral-300 dark:bg-neutral-600 mx-1" />
+
+        {/* Undo/Redo & Clear Formatting */}
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('undo')} title="Undo (Ctrl+Z)">
+          <Undo className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('redo')} title="Redo (Ctrl+Y)">
+          <Redo className="h-4 w-4" />
+        </Button>
+        <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => execCommand('removeFormat')} title="Clear Formatting">
+          <RemoveFormatting className="h-4 w-4" />
         </Button>
       </div>
 
