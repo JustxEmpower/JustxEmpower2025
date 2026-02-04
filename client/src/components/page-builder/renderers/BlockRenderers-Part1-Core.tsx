@@ -1399,12 +1399,12 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
         `}} />
       )}
       {/* Render HTML content properly - use dangerouslySetInnerHTML for rich text */}
+      {/* NOTE: Do NOT add font-sans class here - it overrides inline font styles from RichTextEditor */}
       {isEditing ? (
         <p
           className={cn(
             fontClassName,
             lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
-            !hasCustomFont && 'font-sans',
             'whitespace-pre-wrap',
             'text-neutral-700 dark:text-neutral-300',
             columnClasses[columns] || '',
@@ -1431,7 +1431,6 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           className={cn(
             fontClassName,
             lineHeightClasses[lineHeight] || lineHeightClasses.relaxed,
-            !hasCustomFont && 'font-sans',
             'text-neutral-700 dark:text-neutral-300',
             columnClasses[columns] || '',
             dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
