@@ -195,37 +195,70 @@ export default function RichTextEditor({
       }
     }
     
-    // Restore the saved selection first (it was lost when clicking the popover)
-    restoreSelection();
+    // Focus the editor first to ensure selection can be restored
+    editorRef.current?.focus();
     
-    // Use CSS styling instead of deprecated fontName command
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      console.log('[RichTextEditor] Applying font:', font.name, 'to selection collapsed:', range.collapsed);
-      
-      if (!range.collapsed) {
-        // Extract the selected content
-        const fragment = range.extractContents();
-        const span = document.createElement('span');
-        span.style.fontFamily = fontFamily;
-        span.appendChild(fragment);
-        range.insertNode(span);
-        
-        // Re-select the content
+    // Restore the saved selection
+    if (savedSelectionRef.current && editorRef.current) {
+      const selection = window.getSelection();
+      if (selection) {
         selection.removeAllRanges();
-        const newRange = document.createRange();
-        newRange.selectNodeContents(span);
-        selection.addRange(newRange);
-        
-        console.log('[RichTextEditor] Font applied, HTML:', editorRef.current?.innerHTML);
-        handleInput();
-      } else {
-        console.log('[RichTextEditor] Selection is collapsed, cannot apply font');
+        try {
+          selection.addRange(savedSelectionRef.current);
+        } catch (e) {
+          console.log('[RichTextEditor] Could not restore selection:', e);
+        }
       }
-    } else {
-      console.log('[RichTextEditor] No selection found');
     }
+    
+    // Small delay to ensure selection is restored
+    setTimeout(() => {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        console.log('[RichTextEditor] Applying font:', font.name, 'collapsed:', range.collapsed);
+        
+        if (!range.collapsed) {
+          // Extract and wrap selected content
+          const fragment = range.extractContents();
+          const span = document.createElement('span');
+          span.style.fontFamily = fontFamily;
+          span.appendChild(fragment);
+          range.insertNode(span);
+          
+          // Re-select the content
+          selection.removeAllRanges();
+          const newRange = document.createRange();
+          newRange.selectNodeContents(span);
+          selection.addRange(newRange);
+          
+          console.log('[RichTextEditor] Font applied, calling onChange');
+          handleInput();
+        } else {
+          // If no selection, apply to entire content
+          console.log('[RichTextEditor] No selection, applying to all content');
+          if (editorRef.current) {
+            const wrapper = document.createElement('span');
+            wrapper.style.fontFamily = fontFamily;
+            wrapper.innerHTML = editorRef.current.innerHTML;
+            editorRef.current.innerHTML = '';
+            editorRef.current.appendChild(wrapper);
+            handleInput();
+          }
+        }
+      } else {
+        // Fallback: apply to entire content
+        console.log('[RichTextEditor] No selection available, applying to all');
+        if (editorRef.current) {
+          const wrapper = document.createElement('span');
+          wrapper.style.fontFamily = fontFamily;
+          wrapper.innerHTML = editorRef.current.innerHTML;
+          editorRef.current.innerHTML = '';
+          editorRef.current.appendChild(wrapper);
+          handleInput();
+        }
+      }
+    }, 10);
     
     setSelectedFont(font.name);
     setFontPopoverOpen(false);
