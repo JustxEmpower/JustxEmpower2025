@@ -1336,15 +1336,17 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
   };
 
   // Container style with Word-style margins - simplified for proper rendering
+  const calculatedWidth = getTextWidth();
   const containerStyle: React.CSSProperties = {
-    width: getTextWidth(),
+    width: calculatedWidth,
+    maxWidth: calculatedWidth, // Ensure max-width also respects the setting
     marginLeft: 'auto',
     marginRight: 'auto',
     ...(hasCustomFont ? { fontFamily: `"${fontFamily}", sans-serif` } : {}),
   };
 
   // Debug: log the computed styles
-  console.log('[JEParagraph] containerStyle:', containerStyle, 'margins:', margins);
+  console.log('[JEParagraph] Block ID:', block.id, 'textWidthPreset:', textWidthPreset, 'calculatedWidth:', calculatedWidth, 'marginLeft:', marginLeft, 'marginRight:', marginRight);
 
   // Apply font using CSS class with !important
   const fontClassName = hasCustomFont ? `je-font-${block.id.replace(/[^a-z0-9]/gi, '')}` : '';

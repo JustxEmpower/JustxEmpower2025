@@ -2257,11 +2257,15 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
   const textClass = content.dark ? 'text-white/70' : 'text-neutral-600';
 
   // Build inline styles from Style tab using helper functions
+  const calculatedWidth = getTextWidth();
   const containerStyle: React.CSSProperties = {
     ...buildContainerStyles(content),
     backgroundColor: content.backgroundColor ? content.backgroundColor as string : undefined,
-    // Apply new margin system width
-    ...(useNewMarginSystem ? { width: getTextWidth(), marginLeft: 'auto', marginRight: 'auto' } : {}),
+    // Apply new margin system width - always apply width for consistency
+    width: calculatedWidth,
+    maxWidth: calculatedWidth,
+    marginLeft: 'auto',
+    marginRight: 'auto',
   };
   
   // Font size and font family - support actual pixel values and legacy Tailwind values
