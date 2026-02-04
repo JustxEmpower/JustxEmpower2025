@@ -265,12 +265,14 @@ export default function RichTextEditor({
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-1 p-2 border-b bg-neutral-50 dark:bg-neutral-800">
         {/* Font Family - Searchable Popover */}
-        <Popover open={fontPopoverOpen} onOpenChange={(open) => {
-          if (open) saveSelection(); // Save selection when opening popover
-          setFontPopoverOpen(open);
-        }}>
+        <Popover open={fontPopoverOpen} onOpenChange={setFontPopoverOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="w-[140px] h-8 text-xs justify-between font-normal">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-[140px] h-8 text-xs justify-between font-normal"
+              onMouseDown={saveSelection}
+            >
               <span className="truncate" style={{ fontFamily: selectedFont || 'inherit' }}>
                 {selectedFont || 'Font'}
               </span>
@@ -320,12 +322,14 @@ export default function RichTextEditor({
         </Popover>
 
         {/* Font Size - Popover */}
-        <Popover open={sizePopoverOpen} onOpenChange={(open) => {
-          if (open) saveSelection();
-          setSizePopoverOpen(open);
-        }}>
+        <Popover open={sizePopoverOpen} onOpenChange={setSizePopoverOpen}>
           <PopoverTrigger asChild>
-            <Button variant="outline" size="sm" className="w-[70px] h-8 text-xs justify-between font-normal">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="w-[70px] h-8 text-xs justify-between font-normal"
+              onMouseDown={saveSelection}
+            >
               {selectedSize ? selectedSize.replace('px', '') : 'Size'}
             </Button>
           </PopoverTrigger>
