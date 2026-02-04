@@ -152,6 +152,21 @@ export default function RichTextEditor({
     const fallback = CATEGORY_FALLBACKS[font.category] || 'sans-serif';
     const fontFamily = `"${font.name}", ${fallback}`;
     
+    // Load the Google Font immediately so it displays in the editor
+    if (font.googleFont) {
+      const fontNameEncoded = font.name.replace(/ /g, '+');
+      const linkId = `google-font-${font.name.replace(/[^a-z0-9]/gi, '')}`;
+      let link = document.getElementById(linkId) as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        link.href = `https://fonts.googleapis.com/css2?family=${fontNameEncoded}:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap`;
+        document.head.appendChild(link);
+        console.log('[RichTextEditor] Loading Google Font:', font.name);
+      }
+    }
+    
     // Use CSS styling instead of deprecated fontName command
     const selection = window.getSelection();
     if (selection && selection.rangeCount > 0) {
