@@ -312,7 +312,13 @@ function SortableBlock({ block, onDelete, isSelected, onSelect, isElementEditMod
         </Button>
       </div>
       <div className={isElementEditMode ? '' : 'pointer-events-none'}>
-        <BlockRenderer block={block} isPreviewMode={false} isEditing={true} isElementEditMode={isElementEditMode} onUpdate={onUpdate} />
+        <BlockRenderer 
+          block={block} 
+          isPreviewMode={false} 
+          isEditing={isElementEditMode && !isSelected} 
+          isElementEditMode={isElementEditMode} 
+          onUpdate={onUpdate} 
+        />
       </div>
     </div>
   );
