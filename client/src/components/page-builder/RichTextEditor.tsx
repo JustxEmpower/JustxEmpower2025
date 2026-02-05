@@ -219,51 +219,53 @@ export default function RichTextEditor({
     
     // Small delay to ensure selection is restored
     setTimeout(() => {
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        console.log('[RichTextEditor] Applying font:', font.name, 'collapsed:', range.collapsed);
-        
-        if (!range.collapsed) {
-          // Extract and wrap selected content
-          const fragment = range.extractContents();
-          const span = document.createElement('span');
-          span.style.fontFamily = fontFamily;
-          span.appendChild(fragment);
-          range.insertNode(span);
-          
-          // Re-select the content
-          selection.removeAllRanges();
-          const newRange = document.createRange();
-          newRange.selectNodeContents(span);
-          selection.addRange(newRange);
-          
-          console.log('[RichTextEditor] Font applied, calling onChange');
-          handleInput();
-        } else {
-          // If no selection, apply to entire content
-          console.log('[RichTextEditor] No selection, applying to all content');
-          if (editorRef.current) {
-            const wrapper = document.createElement('span');
-            wrapper.style.fontFamily = fontFamily;
-            wrapper.innerHTML = editorRef.current.innerHTML;
-            editorRef.current.innerHTML = '';
-            editorRef.current.appendChild(wrapper);
-            handleInput();
-          }
-        }
-      } else {
-        // Fallback: apply to entire content
-        console.log('[RichTextEditor] No selection available, applying to all');
-        if (editorRef.current) {
-          const wrapper = document.createElement('span');
-          wrapper.style.fontFamily = fontFamily;
-          wrapper.innerHTML = editorRef.current.innerHTML;
-          editorRef.current.innerHTML = '';
-          editorRef.current.appendChild(wrapper);
-          handleInput();
-        }
+      if (!editorRef.current) {
+        isApplyingStyles.current = false;
+        return;
       }
+      
+      // Helper function to apply font-family to ALL elements in the content
+      const applyFontToAllElements = (html: string, fontFam: string): string => {
+        // Create a temporary container to parse the HTML
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        
+        // Function to recursively process all elements
+        const processNode = (node: Node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const el = node as HTMLElement;
+            // Apply font-family to this element
+            el.style.fontFamily = fontFam;
+            // Process children
+            Array.from(el.childNodes).forEach(processNode);
+          }
+        };
+        
+        // Process all child nodes
+        Array.from(temp.childNodes).forEach(child => {
+          if (child.nodeType === Node.ELEMENT_NODE) {
+            processNode(child);
+          } else if (child.nodeType === Node.TEXT_NODE && child.textContent?.trim()) {
+            // Wrap text nodes in a span with the font
+            const span = document.createElement('span');
+            span.style.fontFamily = fontFam;
+            span.textContent = child.textContent;
+            temp.replaceChild(span, child);
+          }
+        });
+        
+        return temp.innerHTML;
+      };
+      
+      // Always apply font to ALL content to ensure consistency
+      console.log('[RichTextEditor] Applying font to ALL content:', font.name);
+      const currentHtml = editorRef.current.innerHTML;
+      const newHtml = applyFontToAllElements(currentHtml, fontFamily);
+      editorRef.current.innerHTML = newHtml;
+      
+      console.log('[RichTextEditor] Font applied to all, calling onChange');
+      handleInput();
+      
       // Reset the flag after applying styles
       isApplyingStyles.current = false;
     }, 10);
@@ -277,84 +279,50 @@ export default function RichTextEditor({
     // Mark that we're applying styles to prevent sync from overwriting
     isApplyingStyles.current = true;
     
-    // Focus the editor first to ensure selection can be restored
-    editorRef.current?.focus();
-    
-    // Restore the saved selection
-    if (savedSelectionRef.current && editorRef.current) {
-      const selection = window.getSelection();
-      if (selection) {
-        selection.removeAllRanges();
-        try {
-          selection.addRange(savedSelectionRef.current);
-        } catch (e) {
-          console.log('[RichTextEditor] Could not restore selection for size:', e);
-        }
-      }
-    }
-    
-    // Small delay to ensure selection is restored
+    // Small delay to ensure any pending operations complete
     setTimeout(() => {
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
-        
-        if (!range.collapsed) {
-          // Get existing styles from the selection
-          const fragment = range.extractContents();
-          
-          // Check if the fragment has existing font styles we need to preserve
-          const existingSpan = fragment.querySelector('span[style*="font-family"]');
-          const existingFontFamily = existingSpan?.style?.fontFamily || '';
-          
-          const span = document.createElement('span');
-          span.style.fontSize = size;
-          // Preserve existing font-family if present
-          if (existingFontFamily) {
-            span.style.fontFamily = existingFontFamily;
-          }
-          span.appendChild(fragment);
-          range.insertNode(span);
-          
-          console.log('[RichTextEditor] Font size applied:', size, 'preserved font:', existingFontFamily);
-          handleInput();
-        } else {
-          // If no selection, apply to entire content
-          console.log('[RichTextEditor] No selection for size, applying to all content');
-          if (editorRef.current) {
-            // Get existing font-family from content
-            const existingSpan = editorRef.current.querySelector('span[style*="font-family"]');
-            const existingFontFamily = existingSpan?.style?.fontFamily || '';
-            
-            const wrapper = document.createElement('span');
-            wrapper.style.fontSize = size;
-            if (existingFontFamily) {
-              wrapper.style.fontFamily = existingFontFamily;
-            }
-            wrapper.innerHTML = editorRef.current.innerHTML;
-            editorRef.current.innerHTML = '';
-            editorRef.current.appendChild(wrapper);
-            handleInput();
-          }
-        }
-      } else {
-        // Fallback: apply to entire content
-        console.log('[RichTextEditor] No selection available for size, applying to all');
-        if (editorRef.current) {
-          const existingSpan = editorRef.current.querySelector('span[style*="font-family"]');
-          const existingFontFamily = existingSpan?.style?.fontFamily || '';
-          
-          const wrapper = document.createElement('span');
-          wrapper.style.fontSize = size;
-          if (existingFontFamily) {
-            wrapper.style.fontFamily = existingFontFamily;
-          }
-          wrapper.innerHTML = editorRef.current.innerHTML;
-          editorRef.current.innerHTML = '';
-          editorRef.current.appendChild(wrapper);
-          handleInput();
-        }
+      if (!editorRef.current) {
+        isApplyingStyles.current = false;
+        return;
       }
+      
+      // Helper function to apply font-size to ALL elements while preserving font-family
+      const applySizeToAllElements = (html: string, fontSize: string): string => {
+        const temp = document.createElement('div');
+        temp.innerHTML = html;
+        
+        const processNode = (node: Node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const el = node as HTMLElement;
+            // Apply font-size while preserving existing font-family
+            el.style.fontSize = fontSize;
+            Array.from(el.childNodes).forEach(processNode);
+          }
+        };
+        
+        Array.from(temp.childNodes).forEach(child => {
+          if (child.nodeType === Node.ELEMENT_NODE) {
+            processNode(child);
+          } else if (child.nodeType === Node.TEXT_NODE && child.textContent?.trim()) {
+            const span = document.createElement('span');
+            span.style.fontSize = fontSize;
+            span.textContent = child.textContent;
+            temp.replaceChild(span, child);
+          }
+        });
+        
+        return temp.innerHTML;
+      };
+      
+      // Apply size to ALL content
+      console.log('[RichTextEditor] Applying font size to ALL content:', size);
+      const currentHtml = editorRef.current.innerHTML;
+      const newHtml = applySizeToAllElements(currentHtml, size);
+      editorRef.current.innerHTML = newHtml;
+      
+      console.log('[RichTextEditor] Font size applied to all, calling onChange');
+      handleInput();
+      
       // Reset the flag after applying styles
       isApplyingStyles.current = false;
     }, 10);
