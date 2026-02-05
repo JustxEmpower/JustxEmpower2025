@@ -3,7 +3,7 @@
  * Full editing capabilities with live preview
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import { useLocation } from 'wouter';
 import { trpc } from '@/lib/trpc';
 import { motion } from 'framer-motion';
@@ -12,6 +12,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+
+// Lazy load RichTextEditor for text content fields
+const RichTextEditor = lazy(() => import('@/components/page-builder/RichTextEditor'));
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -449,22 +452,15 @@ export default function AdminBlockCreator() {
                                           {key.replace(/([A-Z])/g, ' $1')}
                                           {key.includes('title') && !key.includes('Size') && <Badge variant="outline" className="text-xs">Primary</Badge>}
                                         </Label>
-                                        {isLongText ? (
-                                          <Textarea
+                                        {/* Use RichTextEditor for all text fields to enable font/size styling */}
+                                        <Suspense fallback={<div className="p-2 text-sm text-muted-foreground border rounded-md">Loading editor...</div>}>
+                                          <RichTextEditor
                                             value={value as string}
-                                            onChange={(e) => updateContent(key, e.target.value)}
-                                            rows={3}
-                                            className="border-purple-200 focus:border-purple-400 focus:ring-purple-400"
+                                            onChange={(content) => updateContent(key, content)}
                                             placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}...`}
+                                            height={isLongText ? 120 : 80}
                                           />
-                                        ) : (
-                                          <Input
-                                            value={value as string}
-                                            onChange={(e) => updateContent(key, e.target.value)}
-                                            className="border-purple-200 focus:border-purple-400 focus:ring-purple-400"
-                                            placeholder={`Enter ${key.replace(/([A-Z])/g, ' $1').toLowerCase()}...`}
-                                          />
-                                        )}
+                                        </Suspense>
                                       </div>
                                     );
                                   })}
