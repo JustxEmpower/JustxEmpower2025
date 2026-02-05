@@ -1146,6 +1146,42 @@ export function JEOfferingsGridRenderer({ block, isEditing, isElementEditMode = 
                     className={cn('text-lg font-semibold', dark ? 'text-amber-400' : 'text-amber-600')}
                   />
                 )}
+                
+                {/* Learn More Button - Always show in editing mode, or when link exists */}
+                {(isEditing || offering.link) && (
+                  <div className="mt-4">
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        {/* Editable button text */}
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={offering.buttonText || 'Learn More'}
+                            onChange={(e) => handleOfferingChange(index, 'buttonText', e.target.value)}
+                            className="flex-1 px-2 py-1 text-sm border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="Button text..."
+                          />
+                          <ArrowRight className="w-4 h-4 text-primary" />
+                        </div>
+                        {/* Editable link URL */}
+                        <input
+                          type="text"
+                          value={offering.link || ''}
+                          onChange={(e) => handleOfferingChange(index, 'link', e.target.value)}
+                          className="w-full px-2 py-1 text-xs border border-neutral-200 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                          placeholder="Link URL (e.g., /page-name or https://...)"
+                        />
+                      </div>
+                    ) : (
+                      <a 
+                        href={offering.link || '#'}
+                        className="inline-flex items-center text-primary text-sm font-medium hover:underline"
+                      >
+                        {offering.buttonText || 'Learn More'} <ArrowRight className="w-4 h-4 ml-2" />
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ))}
