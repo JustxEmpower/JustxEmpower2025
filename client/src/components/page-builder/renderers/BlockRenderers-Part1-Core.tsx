@@ -277,7 +277,7 @@ export function EditableText({
 }
 
 // ============================================================================
-// EDITABLE IMAGE COMPONENT
+// EDITABLE IMAGE COMPONENT WITH TRUE RESIZE (like Word)
 // ============================================================================
 
 interface EditableImageProps {
@@ -292,6 +292,10 @@ interface EditableImageProps {
   isElementEditMode?: boolean;
   initialTransform?: { x?: number; y?: number; width?: number; height?: number; rotate?: number };
   onTransformChange?: (elementId: string, transform: { x?: number; y?: number; width?: number; height?: number; rotate?: number }) => void;
+  // New props for true resize
+  initialWidth?: number;
+  initialHeight?: number;
+  onSizeChange?: (width: number, height: number) => void;
 }
 
 export function EditableImage({
@@ -306,44 +310,200 @@ export function EditableImage({
   isElementEditMode = false,
   initialTransform,
   onTransformChange,
+  initialWidth,
+  initialHeight,
+  onSizeChange,
 }: EditableImageProps) {
   const [isHovering, setIsHovering] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeHandle, setResizeHandle] = useState<string | null>(null);
+  const [dimensions, setDimensions] = useState({
+    width: initialWidth || initialTransform?.width || 0,
+    height: initialHeight || initialTransform?.height || 0,
+  });
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const dragStart = useRef({ x: 0, y: 0, width: 0, height: 0 });
+
+  // Sync dimensions from props
+  useEffect(() => {
+    if (initialTransform?.width || initialTransform?.height) {
+      setDimensions({
+        width: initialTransform.width || dimensions.width,
+        height: initialTransform.height || dimensions.height,
+      });
+    }
+  }, [initialTransform?.width, initialTransform?.height]);
 
   const handleClick = () => {
-    if (isEditing && inputRef.current) {
+    if (isEditing && !isResizing && inputRef.current) {
       inputRef.current.click();
     }
   };
+
+  // Handle resize start
+  const handleResizeStart = (e: React.MouseEvent, handle: string) => {
+    if (!isEditing) return;
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsResizing(true);
+    setResizeHandle(handle);
+    
+    const rect = containerRef.current?.getBoundingClientRect();
+    dragStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      width: rect?.width || dimensions.width || 200,
+      height: rect?.height || dimensions.height || 200,
+    };
+  };
+
+  // Handle mouse move for resize
+  useEffect(() => {
+    if (!isResizing || !resizeHandle) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - dragStart.current.x;
+      const deltaY = e.clientY - dragStart.current.y;
+      
+      let newWidth = dragStart.current.width;
+      let newHeight = dragStart.current.height;
+      
+      // Calculate new dimensions based on handle
+      if (resizeHandle.includes('e')) newWidth = Math.max(50, dragStart.current.width + deltaX);
+      if (resizeHandle.includes('w')) newWidth = Math.max(50, dragStart.current.width - deltaX);
+      if (resizeHandle.includes('s')) newHeight = Math.max(50, dragStart.current.height + deltaY);
+      if (resizeHandle.includes('n')) newHeight = Math.max(50, dragStart.current.height - deltaY);
+      
+      // For corner handles, maintain aspect ratio if shift is held
+      if (resizeHandle.length === 2 && e.shiftKey) {
+        const aspectRatio = dragStart.current.width / dragStart.current.height;
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          newHeight = newWidth / aspectRatio;
+        } else {
+          newWidth = newHeight * aspectRatio;
+        }
+      }
+      
+      setDimensions({ width: newWidth, height: newHeight });
+    };
+
+    const handleMouseUp = () => {
+      setIsResizing(false);
+      setResizeHandle(null);
+      
+      // Save the new size
+      if (onSizeChange && dimensions.width && dimensions.height) {
+        onSizeChange(dimensions.width, dimensions.height);
+      }
+      if (onTransformChange && elementId) {
+        onTransformChange(elementId, {
+          ...initialTransform,
+          width: dimensions.width,
+          height: dimensions.height,
+        });
+      }
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizing, resizeHandle, dimensions, onSizeChange, onTransformChange, elementId, initialTransform]);
 
   if (!src && !isEditing) {
     return fallback ? <>{fallback}</> : null;
   }
 
+  // Resize handle styles
+  const handleStyle = 'absolute w-3 h-3 bg-blue-500 border-2 border-white rounded-sm z-50 shadow-md';
+  
+  // Calculate style with dimensions
+  const containerStyle: React.CSSProperties = {
+    ...(aspectRatio && !dimensions.width ? { aspectRatio } : {}),
+    ...(dimensions.width ? { width: `${dimensions.width}px` } : {}),
+    ...(dimensions.height ? { height: `${dimensions.height}px` } : {}),
+  };
+
   const imageContent = (
     <div
-      className={cn('relative', className)}
+      ref={containerRef}
+      className={cn('relative', className, isEditing && 'cursor-pointer')}
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
       onClick={handleClick}
-      style={aspectRatio ? { aspectRatio } : undefined}
+      style={containerStyle}
     >
       {src ? (
         <img src={src} alt={alt} className="w-full h-full object-cover" />
       ) : (
-        <div className="w-full h-full bg-neutral-200 flex items-center justify-center">
+        <div className="w-full h-full bg-neutral-200 flex items-center justify-center min-h-[100px]">
           <ImageIcon className="w-8 h-8 text-neutral-400" />
         </div>
       )}
 
       {/* Edit overlay */}
-      {isEditing && isHovering && (
+      {isEditing && isHovering && !isResizing && (
         <div className="absolute inset-0 bg-black/50 flex items-center justify-center cursor-pointer">
           <div className="text-white text-center">
             <ImageIcon className="w-8 h-8 mx-auto mb-2" />
             <span className="text-sm">Click to change</span>
           </div>
         </div>
+      )}
+
+      {/* TRUE RESIZE HANDLES - Corner drag like Word */}
+      {isEditing && (isHovering || isResizing) && (
+        <>
+          {/* Corner handles */}
+          <div
+            className={`${handleStyle} -top-1.5 -left-1.5 cursor-nw-resize`}
+            onMouseDown={(e) => handleResizeStart(e, 'nw')}
+          />
+          <div
+            className={`${handleStyle} -top-1.5 -right-1.5 cursor-ne-resize`}
+            onMouseDown={(e) => handleResizeStart(e, 'ne')}
+          />
+          <div
+            className={`${handleStyle} -bottom-1.5 -left-1.5 cursor-sw-resize`}
+            onMouseDown={(e) => handleResizeStart(e, 'sw')}
+          />
+          <div
+            className={`${handleStyle} -bottom-1.5 -right-1.5 cursor-se-resize`}
+            onMouseDown={(e) => handleResizeStart(e, 'se')}
+          />
+          
+          {/* Edge handles */}
+          <div
+            className={`${handleStyle} -top-1.5 left-1/2 -translate-x-1/2 cursor-n-resize`}
+            onMouseDown={(e) => handleResizeStart(e, 'n')}
+          />
+          <div
+            className={`${handleStyle} -bottom-1.5 left-1/2 -translate-x-1/2 cursor-s-resize`}
+            onMouseDown={(e) => handleResizeStart(e, 's')}
+          />
+          <div
+            className={`${handleStyle} top-1/2 -left-1.5 -translate-y-1/2 cursor-w-resize`}
+            onMouseDown={(e) => handleResizeStart(e, 'w')}
+          />
+          <div
+            className={`${handleStyle} top-1/2 -right-1.5 -translate-y-1/2 cursor-e-resize`}
+            onMouseDown={(e) => handleResizeStart(e, 'e')}
+          />
+          
+          {/* Dimension tooltip while resizing */}
+          {isResizing && (
+            <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded whitespace-nowrap z-50">
+              {Math.round(dimensions.width)} × {Math.round(dimensions.height)}
+            </div>
+          )}
+          
+          {/* Selection border */}
+          <div className="absolute inset-0 border-2 border-blue-500 pointer-events-none" />
+        </>
       )}
 
       {/* Hidden input for URL */}
