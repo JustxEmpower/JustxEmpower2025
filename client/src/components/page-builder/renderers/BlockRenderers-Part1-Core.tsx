@@ -878,19 +878,47 @@ export function JEHeroRenderer({ block, isEditing, isElementEditMode = false, on
         )}
       </div>
 
-      {/* Scroll Indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2">
-        <span className={cn(
-          'text-xs uppercase tracking-widest',
-          overlay || dark ? 'text-white/60' : 'text-neutral-500'
-        )}>
-          Scroll
-        </span>
-        <div className={cn(
-          'w-px h-8',
-          overlay || dark ? 'bg-white/40' : 'bg-neutral-400'
-        )} />
-      </div>
+      {/* Scroll Indicator - Wrapped in EditableElement for position editing */}
+      <EditableElement
+        elementId="scroll-indicator"
+        elementType="button"
+        isEditing={isElementEditMode}
+        initialX={content.elementTransforms?.['scroll-indicator']?.x || 0}
+        initialY={content.elementTransforms?.['scroll-indicator']?.y || 0}
+        initialTransform={content.elementTransforms?.['scroll-indicator']}
+        onMove={(x, y) => {
+          if (onUpdate) {
+            onUpdate({
+              ...block,
+              content: {
+                ...block.content,
+                elementTransforms: {
+                  ...(block.content.elementTransforms || {}),
+                  'scroll-indicator': {
+                    ...(block.content.elementTransforms?.['scroll-indicator'] || {}),
+                    x,
+                    y
+                  }
+                }
+              }
+            });
+          }
+        }}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+      >
+        <div className="flex flex-col items-center gap-2">
+          <span className={cn(
+            'text-xs uppercase tracking-widest',
+            overlay || dark ? 'text-white/60' : 'text-neutral-500'
+          )}>
+            Scroll
+          </span>
+          <div className={cn(
+            'w-px h-8',
+            overlay || dark ? 'bg-white/40' : 'bg-neutral-400'
+          )} />
+        </div>
+      </EditableElement>
     </section>
   );
 }

@@ -262,7 +262,42 @@ export default function EditableElement({
   console.log(`[EditableElement] ${elementId} isEditing:`, isEditing, 'elementType:', elementType);
 
   if (!isEditing) {
-    // When not in edit mode, render children without wrapper
+    // When not in edit mode, apply saved transforms if any exist
+    const hasTransform = initialX !== 0 || initialY !== 0 || 
+                         initialTransform?.flipH || initialTransform?.flipV || 
+                         (initialTransform?.rotate && initialTransform.rotate !== 0);
+    
+    if (hasTransform) {
+      // Build transform string from saved values
+      const transformParts: string[] = [];
+      if (initialX !== 0 || initialY !== 0) {
+        transformParts.push(`translate(${initialX}px, ${initialY}px)`);
+      }
+      if (initialTransform?.flipH) {
+        transformParts.push('scaleX(-1)');
+      }
+      if (initialTransform?.flipV) {
+        transformParts.push('scaleY(-1)');
+      }
+      if (initialTransform?.rotate && initialTransform.rotate !== 0) {
+        transformParts.push(`rotate(${initialTransform.rotate}deg)`);
+      }
+      
+      return (
+        <div 
+          className={className}
+          style={{
+            transform: transformParts.join(' ') || undefined,
+            width: initialWidth ? `${initialWidth}px` : undefined,
+            height: initialHeight ? `${initialHeight}px` : undefined,
+          }}
+        >
+          {children}
+        </div>
+      );
+    }
+    
+    // No transforms, render children directly
     return <>{children}</>;
   }
 
