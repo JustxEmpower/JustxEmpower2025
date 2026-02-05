@@ -286,41 +286,34 @@ export default function RichTextEditor({
         return;
       }
       
-      // Helper function to apply font-size to ALL elements while preserving font-family
-      const applySizeToAllElements = (html: string, fontSize: string): string => {
+      // Helper function to strip all font-size styles and apply new size
+      const applySizeClean = (html: string, fontSize: string): string => {
         const temp = document.createElement('div');
         temp.innerHTML = html;
         
-        const processNode = (node: Node) => {
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            const el = node as HTMLElement;
-            // Apply font-size while preserving existing font-family
-            el.style.fontSize = fontSize;
-            Array.from(el.childNodes).forEach(processNode);
-          }
-        };
-        
-        Array.from(temp.childNodes).forEach(child => {
-          if (child.nodeType === Node.ELEMENT_NODE) {
-            processNode(child);
-          } else if (child.nodeType === Node.TEXT_NODE && child.textContent?.trim()) {
-            const span = document.createElement('span');
-            span.style.fontSize = fontSize;
-            span.textContent = child.textContent;
-            temp.replaceChild(span, child);
+        // Remove all existing font-size styles from all elements
+        const allElements = temp.querySelectorAll('*');
+        allElements.forEach(el => {
+          if (el instanceof HTMLElement && el.style.fontSize) {
+            el.style.fontSize = '';
           }
         });
         
-        return temp.innerHTML;
+        // Wrap the cleaned content in a single span with the new size
+        const wrapper = document.createElement('span');
+        wrapper.style.fontSize = fontSize;
+        wrapper.innerHTML = temp.innerHTML;
+        
+        return wrapper.outerHTML;
       };
       
-      // Apply size to ALL content
-      console.log('[RichTextEditor] Applying font size to ALL content:', size);
+      // Apply size cleanly
+      console.log('[RichTextEditor] Applying font size cleanly:', size);
       const currentHtml = editorRef.current.innerHTML;
-      const newHtml = applySizeToAllElements(currentHtml, size);
+      const newHtml = applySizeClean(currentHtml, size);
       editorRef.current.innerHTML = newHtml;
       
-      console.log('[RichTextEditor] Font size applied to all, calling onChange');
+      console.log('[RichTextEditor] Font size applied, calling onChange');
       handleInput();
       
       // Reset the flag after applying styles
