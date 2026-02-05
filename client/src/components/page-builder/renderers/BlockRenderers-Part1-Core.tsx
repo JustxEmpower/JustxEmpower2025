@@ -753,6 +753,7 @@ export function JEHeroRenderer({ block, isEditing, isElementEditMode = false, on
               tag="p"
               placeholder="SUBTITLE"
               isEditing={isEditing}
+              dangerousHtml={true}
               className={cn(
                 !subtitleFontSize && 'text-sm md:text-base',
                 'uppercase tracking-[0.3em] mb-4 font-sans',
@@ -775,6 +776,7 @@ export function JEHeroRenderer({ block, isEditing, isElementEditMode = false, on
               tag="h1"
               placeholder="Your Headline Here"
               isEditing={isEditing}
+              dangerousHtml={true}
               className={cn(
                 getTitleClass(),
                 'font-serif italic mb-6 leading-tight',
@@ -798,6 +800,7 @@ export function JEHeroRenderer({ block, isEditing, isElementEditMode = false, on
               placeholder="Add a description..."
               multiline
               isEditing={isEditing}
+              dangerousHtml={true}
               className={cn(
                 getDescriptionClass(),
                 'mb-8 font-sans leading-relaxed whitespace-pre-wrap',
@@ -1043,6 +1046,7 @@ export function JESectionRenderer({ block, isEditing, isElementEditMode = false,
                   tag="p"
                   placeholder="SECTION LABEL"
                   isEditing={isEditing}
+                  dangerousHtml={true}
                   className={cn(
                     !labelFontSize && 'text-xs md:text-sm',
                     'uppercase tracking-[0.3em] mb-4 font-sans',
@@ -1065,6 +1069,7 @@ export function JESectionRenderer({ block, isEditing, isElementEditMode = false,
                   tag="h2"
                   placeholder="Section Title"
                   isEditing={isEditing}
+                  dangerousHtml={true}
                   className={cn(
                     !titleFontSize && 'text-3xl md:text-4xl lg:text-5xl',
                     'font-serif italic mb-6',
@@ -1087,6 +1092,7 @@ export function JESectionRenderer({ block, isEditing, isElementEditMode = false,
                   tag="p"
                   placeholder="Subtitle..."
                   isEditing={isEditing}
+                  dangerousHtml={true}
                   className={cn(
                     'text-lg md:text-xl mb-6 font-sans',
                     dark ? 'text-neutral-300' : 'text-neutral-600'
@@ -1108,6 +1114,7 @@ export function JESectionRenderer({ block, isEditing, isElementEditMode = false,
                   placeholder="Add description..."
                   multiline
                   isEditing={isEditing}
+                  dangerousHtml={true}
                   className={cn(
                     !descriptionFontSize && 'text-base md:text-lg',
                     'font-sans leading-relaxed whitespace-pre-wrap',
@@ -1145,6 +1152,7 @@ export function JESectionRenderer({ block, isEditing, isElementEditMode = false,
                 tag="p"
                 placeholder="SECTION LABEL"
                 isEditing={isEditing}
+                dangerousHtml={true}
                 className={cn(
                   !labelFontSize && 'text-xs md:text-sm',
                   'uppercase tracking-[0.3em] mb-4 font-sans',
@@ -1166,6 +1174,7 @@ export function JESectionRenderer({ block, isEditing, isElementEditMode = false,
                 tag="h2"
                 placeholder="Section Title"
                 isEditing={isEditing}
+                dangerousHtml={true}
                 className={cn(
                   !titleFontSize && 'text-3xl md:text-4xl lg:text-5xl',
                   'font-serif italic mb-6',
@@ -1187,6 +1196,7 @@ export function JESectionRenderer({ block, isEditing, isElementEditMode = false,
                 tag="p"
                 placeholder="Subtitle..."
                 isEditing={isEditing}
+                dangerousHtml={true}
                 className={cn(
                   'text-lg md:text-xl mb-6 font-sans',
                   dark || overlay ? 'text-neutral-300' : 'text-neutral-600'
@@ -1207,6 +1217,7 @@ export function JESectionRenderer({ block, isEditing, isElementEditMode = false,
                 placeholder="Add description..."
                 multiline
                 isEditing={isEditing}
+                dangerousHtml={true}
                 className={cn(
                   !descriptionFontSize && 'text-base md:text-lg',
                   'max-w-3xl font-sans leading-relaxed whitespace-pre-wrap',
@@ -1286,6 +1297,7 @@ export function JEHeadingRenderer({ block, isEditing, onUpdate }: BlockRendererP
         tag={level as any}
         placeholder="Heading text..."
         isEditing={isEditing}
+        dangerousHtml={true}
         className={cn(
           sizeClasses[level] || sizeClasses.h2,
           serif ? 'font-serif' : 'font-sans',
@@ -1450,6 +1462,7 @@ export function JEQuoteRenderer({ block, isEditing, onUpdate }: BlockRendererPro
               placeholder="Enter quote text..."
               multiline
               isEditing={isEditing}
+              dangerousHtml={true}
               className={cn(
                 'text-xl md:text-2xl font-sans leading-relaxed',
                 dark ? 'text-neutral-300' : 'text-neutral-700'
@@ -1467,6 +1480,7 @@ export function JEQuoteRenderer({ block, isEditing, onUpdate }: BlockRendererPro
             placeholder="Enter quote text..."
             multiline
             isEditing={isEditing}
+            dangerousHtml={true}
             className={cn(
               'text-2xl md:text-3xl font-serif italic leading-relaxed mb-6',
               dark ? 'text-white' : 'text-neutral-800'
@@ -1489,6 +1503,7 @@ export function JEQuoteRenderer({ block, isEditing, onUpdate }: BlockRendererPro
             tag="cite"
             placeholder="Author name"
             isEditing={isEditing}
+            dangerousHtml={true}
             className={cn(
               'text-lg font-sans not-italic block',
               dark ? 'text-white' : 'text-neutral-900'
@@ -1502,6 +1517,7 @@ export function JEQuoteRenderer({ block, isEditing, onUpdate }: BlockRendererPro
               tag="span"
               placeholder="Author role"
               isEditing={isEditing}
+              dangerousHtml={true}
               className={cn(
                 'text-sm font-sans block mt-1',
                 dark ? 'text-neutral-400' : 'text-neutral-500'
@@ -1618,6 +1634,7 @@ export function JEImageRenderer({ block, isEditing, onUpdate }: BlockRendererPro
           tag="p"
           placeholder="Add caption..."
           isEditing={isEditing}
+          dangerousHtml={true}
           className={cn(
             'mt-4 text-sm text-neutral-500 font-sans',
             alignmentClasses[alignment] || 'text-center'
@@ -1705,6 +1722,7 @@ export function JEVideoRenderer({ block, isEditing, onUpdate }: BlockRendererPro
           tag="h3"
           placeholder="Video title..."
           isEditing={isEditing}
+          dangerousHtml={true}
           className="text-2xl font-serif italic mb-4 text-neutral-900"
         />
       )}
@@ -1768,6 +1786,7 @@ export function JEVideoRenderer({ block, isEditing, onUpdate }: BlockRendererPro
           placeholder="Video description..."
           multiline
           isEditing={isEditing}
+          dangerousHtml={true}
           className="mt-4 text-sm text-neutral-600 font-sans"
         />
       )}
