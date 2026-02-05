@@ -767,6 +767,135 @@ export function buildTextStyle(options: {
 }
 
 // ============================================================================
+// SCROLL INDICATOR COMPONENT - Draggable scroll button with position persistence
+// ============================================================================
+
+interface ScrollIndicatorProps {
+  isEditing?: boolean;
+  isElementEditMode?: boolean;
+  dark?: boolean;
+  positionX?: number;
+  positionY?: number;
+  onPositionChange?: (x: number, y: number) => void;
+}
+
+function ScrollIndicator({
+  isEditing = false,
+  isElementEditMode = false,
+  dark = false,
+  positionX = 0,
+  positionY = 0,
+  onPositionChange,
+}: ScrollIndicatorProps) {
+  const [isDragging, setIsDragging] = useState(false);
+  const [localPosition, setLocalPosition] = useState({ x: positionX, y: positionY });
+  const dragStart = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
+  const indicatorRef = useRef<HTMLDivElement>(null);
+
+  // Sync local position with props
+  useEffect(() => {
+    setLocalPosition({ x: positionX, y: positionY });
+  }, [positionX, positionY]);
+
+  // Handle drag start
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!isElementEditMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    
+    setIsDragging(true);
+    dragStart.current = {
+      x: e.clientX,
+      y: e.clientY,
+      posX: localPosition.x,
+      posY: localPosition.y,
+    };
+  };
+
+  // Handle drag
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const deltaX = e.clientX - dragStart.current.x;
+      const deltaY = e.clientY - dragStart.current.y;
+      
+      setLocalPosition({
+        x: dragStart.current.posX + deltaX,
+        y: dragStart.current.posY + deltaY,
+      });
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      // Save the position
+      if (onPositionChange) {
+        onPositionChange(localPosition.x, localPosition.y);
+      }
+    };
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, localPosition, onPositionChange]);
+
+  // Calculate transform style - apply position offset
+  const transformStyle: React.CSSProperties = {
+    transform: `translate(calc(-50% + ${localPosition.x}px), ${localPosition.y}px)`,
+  };
+
+  return (
+    <div
+      ref={indicatorRef}
+      className={cn(
+        'absolute bottom-8 left-1/2',
+        isElementEditMode && 'cursor-move',
+        isDragging && 'z-50'
+      )}
+      style={transformStyle}
+      onMouseDown={handleMouseDown}
+    >
+      {/* Edit mode indicator */}
+      {isElementEditMode && (
+        <div className={cn(
+          'absolute -inset-2 border-2 rounded',
+          isDragging ? 'border-blue-500 bg-blue-500/10' : 'border-dashed border-blue-400/50'
+        )} />
+      )}
+      
+      {/* Scroll indicator content */}
+      <div className="flex flex-col items-center gap-2">
+        <span className={cn(
+          'text-xs uppercase tracking-widest',
+          dark ? 'text-white/60' : 'text-neutral-500'
+        )}>
+          Scroll
+        </span>
+        <div className={cn(
+          'w-px h-8',
+          dark ? 'bg-white/40' : 'bg-neutral-400'
+        )} />
+        <ChevronDown className={cn(
+          'w-4 h-4 animate-bounce',
+          dark ? 'text-white/40' : 'text-neutral-400'
+        )} />
+      </div>
+      
+      {/* Position indicator while dragging */}
+      {isDragging && (
+        <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 bg-black text-white text-xs px-2 py-0.5 rounded whitespace-nowrap">
+          {Math.round(localPosition.x)}, {Math.round(localPosition.y)}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
 // JE HERO RENDERER - All variants (je-hero, je-hero-video, je-hero-image, je-hero-split)
 // ============================================================================
 
@@ -1041,48 +1170,23 @@ export function JEHeroRenderer({ block, isEditing, isElementEditMode = false, on
         )}
       </div>
 
-      {/* Scroll Indicator - Wrapped in EditableElement for position editing */}
-      <EditableElement
-        elementId="scroll-indicator"
-        elementType="button"
-        isEditing={isElementEditMode}
-        initialX={content.elementTransforms?.['scroll-indicator']?.x || 0}
-        initialY={content.elementTransforms?.['scroll-indicator']?.y || 0}
-        initialTransform={content.elementTransforms?.['scroll-indicator']}
-        onMove={(x, y) => {
-          console.log('[JEHeroRenderer] scroll-indicator onMove called with:', x, y);
+      {/* Scroll Indicator - Rebuilt with direct position control */}
+      <ScrollIndicator
+        isEditing={isEditing}
+        isElementEditMode={isElementEditMode}
+        dark={overlay || dark}
+        positionX={content.scrollIndicatorX}
+        positionY={content.scrollIndicatorY}
+        onPositionChange={(x, y) => {
           if (onUpdate) {
-            // onUpdate expects just the content, not the entire block
-            const newContent = {
+            onUpdate({
               ...content,
-              elementTransforms: {
-                ...(content.elementTransforms || {}),
-                'scroll-indicator': {
-                  ...(content.elementTransforms?.['scroll-indicator'] || {}),
-                  x,
-                  y
-                }
-              }
-            };
-            console.log('[JEHeroRenderer] Calling onUpdate with:', newContent.elementTransforms);
-            onUpdate(newContent);
+              scrollIndicatorX: x,
+              scrollIndicatorY: y,
+            });
           }
         }}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-      >
-        <div className="flex flex-col items-center gap-2">
-          <span className={cn(
-            'text-xs uppercase tracking-widest',
-            overlay || dark ? 'text-white/60' : 'text-neutral-500'
-          )}>
-            Scroll
-          </span>
-          <div className={cn(
-            'w-px h-8',
-            overlay || dark ? 'bg-white/40' : 'bg-neutral-400'
-          )} />
-        </div>
-      </EditableElement>
+      />
     </section>
   );
 }
