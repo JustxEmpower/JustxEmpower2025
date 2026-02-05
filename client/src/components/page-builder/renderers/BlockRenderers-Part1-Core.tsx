@@ -1183,15 +1183,22 @@ export function JEHeroRenderer({ block, isEditing, isElementEditMode = false, on
         isEditing={isEditing}
         isElementEditMode={isElementEditMode}
         dark={overlay || dark}
-        positionX={content.scrollIndicatorX}
-        positionY={content.scrollIndicatorY}
+        positionX={content.scrollIndicatorX || 0}
+        positionY={content.scrollIndicatorY || 0}
         onPositionChange={(x, y) => {
+          console.log('[JEHeroRenderer] ScrollIndicator onPositionChange:', x, y);
+          console.log('[JEHeroRenderer] Current content.scrollIndicatorX:', content.scrollIndicatorX);
+          console.log('[JEHeroRenderer] Current content.scrollIndicatorY:', content.scrollIndicatorY);
           if (onUpdate) {
-            onUpdate({
+            const newContent = {
               ...content,
               scrollIndicatorX: x,
               scrollIndicatorY: y,
-            });
+            };
+            console.log('[JEHeroRenderer] Calling onUpdate with newContent:', newContent);
+            onUpdate(newContent);
+          } else {
+            console.log('[JEHeroRenderer] ERROR: onUpdate is undefined!');
           }
         }}
       />
