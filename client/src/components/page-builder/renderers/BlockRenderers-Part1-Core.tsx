@@ -791,10 +791,13 @@ function ScrollIndicator({
   const [localPosition, setLocalPosition] = useState({ x: positionX, y: positionY });
   const dragStart = useRef({ x: 0, y: 0, posX: 0, posY: 0 });
   const indicatorRef = useRef<HTMLDivElement>(null);
+  // Use ref to track latest position for mouseup handler (avoids stale closure)
+  const latestPosition = useRef({ x: positionX, y: positionY });
 
   // Sync local position with props
   useEffect(() => {
     setLocalPosition({ x: positionX, y: positionY });
+    latestPosition.current = { x: positionX, y: positionY };
   }, [positionX, positionY]);
 
   // Handle drag start
@@ -820,17 +823,22 @@ function ScrollIndicator({
       const deltaX = e.clientX - dragStart.current.x;
       const deltaY = e.clientY - dragStart.current.y;
       
-      setLocalPosition({
-        x: dragStart.current.posX + deltaX,
-        y: dragStart.current.posY + deltaY,
-      });
+      const newX = dragStart.current.posX + deltaX;
+      const newY = dragStart.current.posY + deltaY;
+      
+      setLocalPosition({ x: newX, y: newY });
+      // Update ref with latest position
+      latestPosition.current = { x: newX, y: newY };
     };
 
     const handleMouseUp = () => {
       setIsDragging(false);
-      // Save the position
+      // Use ref to get latest position (not stale closure value)
+      const finalX = latestPosition.current.x;
+      const finalY = latestPosition.current.y;
+      console.log('[ScrollIndicator] Saving position:', finalX, finalY);
       if (onPositionChange) {
-        onPositionChange(localPosition.x, localPosition.y);
+        onPositionChange(finalX, finalY);
       }
     };
 
@@ -841,7 +849,7 @@ function ScrollIndicator({
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, localPosition, onPositionChange]);
+  }, [isDragging, onPositionChange]);
 
   // Calculate transform style - apply position offset
   const transformStyle: React.CSSProperties = {
