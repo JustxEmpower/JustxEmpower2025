@@ -3168,7 +3168,7 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
 }
 
 // JE Offerings Grid Renderer
-export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean }) {
+export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelected = false, isElementEditMode = false, onUpdate }: { block: PageBlock; isEditing?: boolean; isBlockSelected?: boolean; isElementEditMode?: boolean; onUpdate?: (content: Record<string, any>) => void }) {
   const content = block.content as {
     title?: string;
     items?: Array<{
@@ -3176,17 +3176,32 @@ export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelec
       description?: string;
       imageUrl?: string;
       link?: string;
+      buttonText?: string;
     }>;
     offerings?: Array<{
       title: string;
       description?: string;
       imageUrl?: string;
       link?: string;
+      buttonText?: string;
     }>;
     columns?: number;
     minHeight?: string;
     dark?: boolean;
     cardBorderRadius?: string;
+  };
+  
+  // Helper to update a specific item in the array
+  const updateItem = (index: number, field: string, value: string) => {
+    if (!onUpdate) return;
+    const currentItems = content.items || content.offerings || [];
+    const updatedItems = [...currentItems];
+    updatedItems[index] = { ...updatedItems[index], [field]: value };
+    onUpdate({
+      ...content,
+      items: updatedItems,
+      offerings: updatedItems,
+    });
   };
 
   // Support both 'items' and 'offerings' property names
@@ -3254,13 +3269,40 @@ export function JEOfferingsGridRenderer({ block, isEditing = false, isBlockSelec
                       <p className={`${descClass} text-sm mb-4`}>{item.description}</p>
                     </EditableElement>
                   )}
-                  {item.link && (
-                    <Link 
-                      href={item.link}
-                      className="inline-flex items-center text-primary text-sm font-medium"
-                    >
-                      Learn More <ArrowRight className="w-4 h-4 ml-2" />
-                    </Link>
+                  {/* Button - Always show in editing mode, or when link exists */}
+                  {(isEditing || item.link) && (
+                    <div className="mt-4">
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          {/* Editable button text */}
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="text"
+                              value={item.buttonText || 'Learn More'}
+                              onChange={(e) => updateItem(index, 'buttonText', e.target.value)}
+                              className="flex-1 px-2 py-1 text-sm border border-neutral-300 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                              placeholder="Button text..."
+                            />
+                            <ArrowRight className="w-4 h-4 text-primary" />
+                          </div>
+                          {/* Editable link URL */}
+                          <input
+                            type="text"
+                            value={item.link || ''}
+                            onChange={(e) => updateItem(index, 'link', e.target.value)}
+                            className="w-full px-2 py-1 text-xs border border-neutral-200 rounded focus:outline-none focus:ring-2 focus:ring-primary"
+                            placeholder="Link URL (e.g., /page-name or https://...)"
+                          />
+                        </div>
+                      ) : (
+                        <Link 
+                          href={item.link || '#'}
+                          className="inline-flex items-center text-primary text-sm font-medium hover:underline"
+                        >
+                          {item.buttonText || 'Learn More'} <ArrowRight className="w-4 h-4 ml-2" />
+                        </Link>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
