@@ -1050,21 +1050,22 @@ export function JEHeroRenderer({ block, isEditing, isElementEditMode = false, on
         initialY={content.elementTransforms?.['scroll-indicator']?.y || 0}
         initialTransform={content.elementTransforms?.['scroll-indicator']}
         onMove={(x, y) => {
+          console.log('[JEHeroRenderer] scroll-indicator onMove called with:', x, y);
           if (onUpdate) {
-            onUpdate({
-              ...block,
-              content: {
-                ...block.content,
-                elementTransforms: {
-                  ...(block.content.elementTransforms || {}),
-                  'scroll-indicator': {
-                    ...(block.content.elementTransforms?.['scroll-indicator'] || {}),
-                    x,
-                    y
-                  }
+            // onUpdate expects just the content, not the entire block
+            const newContent = {
+              ...content,
+              elementTransforms: {
+                ...(content.elementTransforms || {}),
+                'scroll-indicator': {
+                  ...(content.elementTransforms?.['scroll-indicator'] || {}),
+                  x,
+                  y
                 }
               }
-            });
+            };
+            console.log('[JEHeroRenderer] Calling onUpdate with:', newContent.elementTransforms);
+            onUpdate(newContent);
           }
         }}
         className="absolute bottom-8 left-1/2 -translate-x-1/2"

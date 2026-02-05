@@ -238,8 +238,13 @@ export default function EditableElement({
     };
 
     const handleMouseUp = () => {
+      // Use refs to get the latest position values to avoid stale closure
+      const currentX = position.x;
+      const currentY = position.y;
+      
       if (isDragging && onMove) {
-        onMove(position.x, position.y);
+        console.log(`[EditableElement] ${elementId} SAVING position:`, currentX, currentY);
+        onMove(currentX, currentY);
       }
       if (isResizing && onResize && typeof dimensions.width === 'number' && typeof dimensions.height === 'number') {
         onResize(dimensions.width, dimensions.height);
@@ -259,13 +264,15 @@ export default function EditableElement({
   }, [isDragging, isResizing, resizeHandle, position, dimensions, onMove, onResize, minWidth, minHeight]);
 
   // Debug logging - ALWAYS log to help diagnose
-  console.log(`[EditableElement] ${elementId} isEditing:`, isEditing, 'elementType:', elementType);
+  console.log(`[EditableElement] ${elementId} isEditing:`, isEditing, 'initialX:', initialX, 'initialY:', initialY);
 
   if (!isEditing) {
     // When not in edit mode, apply saved transforms if any exist
     const hasTransform = initialX !== 0 || initialY !== 0 || 
                          initialTransform?.flipH || initialTransform?.flipV || 
                          (initialTransform?.rotate && initialTransform.rotate !== 0);
+    
+    console.log(`[EditableElement] ${elementId} NOT EDITING - hasTransform:`, hasTransform, 'initialX:', initialX, 'initialY:', initialY);
     
     if (hasTransform) {
       // Build transform string from saved values
