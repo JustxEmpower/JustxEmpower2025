@@ -287,6 +287,11 @@ export default function PageBuilderPage() {
           _originalType: block.type,
         };
         
+        // Debug: log animation data being saved
+        if (contentWithType.animation) {
+          console.log(`[Save] Block ${block.id} (${block.type}) has animation:`, JSON.stringify(contentWithType.animation));
+        }
+        
         const blockData = {
           pageId: savedPageId,
           type: mapBlockType(block.type),
