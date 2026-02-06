@@ -280,7 +280,6 @@ export default function PageBuilderPage() {
       }
 
       // Create or update blocks
-      console.log(`[handleSave] Saving ${blocks.length} blocks for page ${savedPageId}`);
       for (const block of blocks) {
         // Store the original block type in the content for later retrieval
         const contentWithType = {
@@ -291,10 +290,6 @@ export default function PageBuilderPage() {
         // Extract animation config for dual-write (content + animation column)
         const animConfig = block.content.animation as any;
         const hasAnimation = animConfig && typeof animConfig === 'object' && animConfig.enabled;
-        
-        if (hasAnimation) {
-          console.log(`[handleSave] Block ${block.id} (${block.type}) has animation: category=${animConfig.category}, type=${animConfig.type}`);
-        }
         
         const blockData = {
           pageId: savedPageId,
