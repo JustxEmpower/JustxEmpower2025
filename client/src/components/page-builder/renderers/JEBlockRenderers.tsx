@@ -2800,9 +2800,9 @@ export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected 
       {content.leftTitle && (
         <h3 className="font-serif text-3xl italic mb-6">{content.leftTitle}</h3>
       )}
-      <p className={`font-sans text-lg leading-relaxed ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}>
-        {content.leftContent || 'Left column content...'}
-      </p>
+      <div className={`font-sans text-lg leading-relaxed ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}
+        dangerouslySetInnerHTML={{ __html: content.leftContent || 'Left column content...' }}
+      />
     </div>
   );
 
@@ -2817,9 +2817,9 @@ export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected 
           {content.rightTitle && (
             <h3 className="font-serif text-3xl italic mb-6">{content.rightTitle}</h3>
           )}
-          <p className={`font-sans text-lg leading-relaxed ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}>
-            {content.rightContent || 'Right column content...'}
-          </p>
+          <div className={`font-sans text-lg leading-relaxed ${textClass}`} style={hasCustomText ? { opacity: 0.7 } : undefined}
+            dangerouslySetInnerHTML={{ __html: content.rightContent || 'Right column content...' }}
+          />
         </>
       )}
     </div>
