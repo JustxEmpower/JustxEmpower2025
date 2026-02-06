@@ -287,14 +287,6 @@ export default function PageBuilderPage() {
           _originalType: block.type,
         };
         
-        // Debug: log all content keys and animation data being saved
-        const contentKeys = Object.keys(contentWithType);
-        const hasAnim = 'animation' in contentWithType;
-        console.log(`[Save] Block ${block.id} (${block.type}) contentKeys:`, contentKeys, 'hasAnimation:', hasAnim);
-        if (hasAnim) {
-          console.log(`[Save] Animation data:`, JSON.stringify(contentWithType.animation));
-        }
-        
         const blockData = {
           pageId: savedPageId,
           type: mapBlockType(block.type),

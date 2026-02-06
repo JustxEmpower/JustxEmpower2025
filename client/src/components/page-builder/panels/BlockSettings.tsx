@@ -2969,9 +2969,6 @@ export default function BlockSettings() {
 
   const handleContentChange = (key: string, value: unknown) => {
     if (selectedBlockId) {
-      if (key === 'animation') {
-        console.log('[BlockSettings] handleContentChange animation for block:', selectedBlockId, 'enabled:', (value as any)?.enabled);
-      }
       updateBlock(selectedBlockId, { [key]: value });
     }
   };
