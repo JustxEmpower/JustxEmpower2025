@@ -645,31 +645,38 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
   console.log('[JEHeroRenderer] Has media:', hasMedia);
 
   // GSAP entrance animations (matching original Hero component)
+  // Must account for saved element transforms so animations end at saved positions
   useEffect(() => {
     if (!heroRef.current || isEditing || animationInitialized.current) return;
     
     animationInitialized.current = true;
     
+    // Get saved positions for each element so GSAP ends at the right place
+    const subtitleT = content.elementTransforms?.['subtitle'];
+    const titleT = content.elementTransforms?.['title'];
+    const descT = content.elementTransforms?.['description'];
+    const ctaT = content.elementTransforms?.['cta'];
+    
     const ctx = gsap.context(() => {
-      // Initial entrance animations - fade in and slide up
+      // Initial entrance animations - fade in and slide up to saved positions
       gsap.fromTo('.je-hero-subtitle', 
-        { opacity: 0, y: 20 }, 
-        { opacity: 1, y: 0, duration: 0.8, delay: 0.2 }
+        { opacity: 0, x: subtitleT?.x || 0, y: (subtitleT?.y || 0) + 20 }, 
+        { opacity: 1, x: subtitleT?.x || 0, y: subtitleT?.y || 0, duration: 0.8, delay: 0.2 }
       );
       
       gsap.fromTo('.je-hero-title', 
-        { opacity: 0, y: 30 }, 
-        { opacity: 1, y: 0, duration: 0.8, delay: 0.4 }
+        { opacity: 0, x: titleT?.x || 0, y: (titleT?.y || 0) + 30 }, 
+        { opacity: 1, x: titleT?.x || 0, y: titleT?.y || 0, duration: 0.8, delay: 0.4 }
       );
       
       gsap.fromTo('.je-hero-desc', 
-        { opacity: 0, y: 20 }, 
-        { opacity: 1, y: 0, duration: 0.8, delay: 0.6 }
+        { opacity: 0, x: descT?.x || 0, y: (descT?.y || 0) + 20 }, 
+        { opacity: 1, x: descT?.x || 0, y: descT?.y || 0, duration: 0.8, delay: 0.6 }
       );
       
       gsap.fromTo('.je-hero-cta', 
-        { opacity: 0, scale: 0.9 }, 
-        { opacity: 1, scale: 1, duration: 0.8, delay: 0.8 }
+        { opacity: 0, scale: 0.9, x: ctaT?.x || 0, y: ctaT?.y || 0 }, 
+        { opacity: 1, scale: 1, x: ctaT?.x || 0, y: ctaT?.y || 0, duration: 0.8, delay: 0.8 }
       );
     }, heroRef);
 
