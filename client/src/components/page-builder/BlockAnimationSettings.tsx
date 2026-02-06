@@ -286,7 +286,9 @@ export function BlockAnimationSettings({ config, onChange }: BlockAnimationSetti
   const category = config.category || 'entrance';
 
   const updateConfig = (updates: Partial<BlockAnimationConfig>) => {
-    onChange({ ...config, ...updates });
+    const newConfig = { ...config, ...updates };
+    console.log('[AnimSettings] updateConfig:', JSON.stringify(updates), '-> enabled:', newConfig.enabled, 'category:', newConfig.category);
+    onChange(newConfig);
   };
 
   const updateParallax = (u: Partial<NonNullable<BlockAnimationConfig['parallax']>>) => {

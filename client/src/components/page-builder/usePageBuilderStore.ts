@@ -220,9 +220,16 @@ export const usePageBuilderStore = create<PageBuilderState>((set, get) => ({
   
   updateBlock: (id, content) => {
     const { blocks, saveToHistory, autoSave } = get();
-    const newBlocks = blocks.map((block) =>
-      block.id === id ? { ...block, content: { ...block.content, ...content } } : block
-    );
+    const newBlocks = blocks.map((block) => {
+      if (block.id === id) {
+        const merged = { ...block.content, ...content };
+        if ('animation' in content) {
+          console.log('[Store] updateBlock animation for', id, '-> keys in merged content:', Object.keys(merged).filter(k => k === 'animation'), 'enabled:', (merged.animation as any)?.enabled);
+        }
+        return { ...block, content: merged };
+      }
+      return block;
+    });
     set({ blocks: newBlocks, hasUnsavedChanges: true });
     saveToHistory();
     autoSave();

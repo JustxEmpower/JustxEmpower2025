@@ -287,9 +287,12 @@ export default function PageBuilderPage() {
           _originalType: block.type,
         };
         
-        // Debug: log animation data being saved
-        if (contentWithType.animation) {
-          console.log(`[Save] Block ${block.id} (${block.type}) has animation:`, JSON.stringify(contentWithType.animation));
+        // Debug: log all content keys and animation data being saved
+        const contentKeys = Object.keys(contentWithType);
+        const hasAnim = 'animation' in contentWithType;
+        console.log(`[Save] Block ${block.id} (${block.type}) contentKeys:`, contentKeys, 'hasAnimation:', hasAnim);
+        if (hasAnim) {
+          console.log(`[Save] Animation data:`, JSON.stringify(contentWithType.animation));
         }
         
         const blockData = {
