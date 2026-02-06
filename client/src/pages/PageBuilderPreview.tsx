@@ -14,6 +14,8 @@ import Lenis from 'lenis';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { trpc } from '@/lib/trpc';
+import { AnimatedBlockWrapper, AnimationStyles } from '@/components/page-builder/AnimatedBlockWrapper';
+import type { BlockAnimationConfig } from '@/components/page-builder/BlockAnimationSettings';
 import {
   JEHeroRenderer,
   JESectionRenderer,
@@ -242,6 +244,7 @@ export default function PageBuilderPreview({ slug }: PageBuilderPreviewProps) {
         data-page-builder-preview="true"
       >
         <main>
+          <AnimationStyles />
           {blocks.length > 0 ? (
             blocks
               .sort((a, b) => a.order - b.order)
@@ -275,6 +278,23 @@ export default function PageBuilderPreview({ slug }: PageBuilderPreviewProps) {
                   content: cleanContent,
                   order: block.order,
                 };
+
+                // Check for animation config in content
+                const animConfig = cleanContent.animation as BlockAnimationConfig | undefined;
+
+                if (animConfig?.enabled) {
+                  return (
+                    <div key={block.id} data-block-id={block.id} data-block-type={originalType || block.type}>
+                      <AnimatedBlockWrapper
+                        animation={animConfig}
+                        id={`block-${block.id}`}
+                        className="block-wrapper"
+                      >
+                        <Renderer block={blockData} isEditing={false} isBlockSelected={false} />
+                      </AnimatedBlockWrapper>
+                    </div>
+                  );
+                }
 
                 return (
                   <div key={block.id} data-block-id={block.id} data-block-type={originalType || block.type}>
