@@ -19,6 +19,8 @@
  */
 
 import React from 'react';
+import { AnimatedBlockWrapper, AnimationStyles } from './AnimatedBlockWrapper';
+import { BlockAnimationConfig } from './BlockAnimationSettings';
 
 // Part 1: Core components and JE Hero/Section/Text/Media
 import {
@@ -313,6 +315,24 @@ export function BlockRenderer({
 
   // Don't pass editing state in preview mode
   const effectiveEditing = isPreviewMode ? false : isEditing;
+
+  // Get animation config from block content
+  const animationConfig = block.content?.animation as BlockAnimationConfig | undefined;
+
+  // In preview mode, wrap with animation wrapper
+  if (isPreviewMode && animationConfig?.enabled) {
+    return (
+      <AnimatedBlockWrapper animation={animationConfig}>
+        <Renderer
+          block={block}
+          isEditing={false}
+          isBlockSelected={isBlockSelected}
+          isElementEditMode={isElementEditMode}
+          onUpdate={onUpdate}
+        />
+      </AnimatedBlockWrapper>
+    );
+  }
 
   return (
     <Renderer

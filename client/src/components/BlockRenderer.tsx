@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Zap, Shield, Sparkles, Star, Heart, Award, Target, Users, Clock, CheckCircle } from "lucide-react";
+import { AnimatedBlockWrapper, AnimationStyles } from './page-builder/AnimatedBlockWrapper';
+import type { BlockAnimationConfig } from './page-builder/BlockAnimationSettings';
 import {
   JEHeroRenderer,
   JESectionRenderer,
@@ -621,6 +623,22 @@ function RenderBlock({ block }: { block: BlockData }) {
     }
   };
 
+  // Check for Page Builder's expanded animation config in content.animation
+  const pbAnimation = cleanContent.animation as BlockAnimationConfig | undefined;
+
+  if (pbAnimation?.enabled) {
+    return (
+      <AnimatedBlockWrapper
+        animation={pbAnimation}
+        id={`block-${block.id}`}
+        style={blockStyle as any}
+        className="block-wrapper"
+      >
+        {renderContent()}
+      </AnimatedBlockWrapper>
+    );
+  }
+
   return (
     <MotionDiv
       id={`block-${block.id}`}
@@ -641,6 +659,7 @@ export default function BlockRenderer({ blocks }: BlockRendererProps) {
 
   return (
     <div className="space-y-8" data-page-builder="true">
+      <AnimationStyles />
       {sortedBlocks.map((block) => (
         <RenderBlock key={block.id} block={block} />
       ))}
