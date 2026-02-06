@@ -1792,6 +1792,16 @@ export const adminRouter = router({
         )
         .mutation(async ({ input }) => {
           const { id, ...data } = input;
+          // Debug: log what content arrives at the server
+          if (data.content) {
+            try {
+              const parsed = JSON.parse(data.content);
+              const hasAnim = 'animation' in parsed;
+              console.log(`[BlockUpdate] id=${id} hasAnimation=${hasAnim} animEnabled=${parsed.animation?.enabled} contentKeys=${Object.keys(parsed).join(',')}`);
+            } catch(e) {
+              console.log(`[BlockUpdate] id=${id} content parse error`);
+            }
+          }
           const result = await updatePageBlock(id, data);
           
           // Sync to siteContent for Content Editor access
