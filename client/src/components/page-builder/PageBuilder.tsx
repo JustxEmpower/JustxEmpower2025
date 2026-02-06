@@ -391,10 +391,13 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
 
   const handleSaveConfirm = async (publishStatus?: boolean) => {
     const shouldPublish = publishStatus !== undefined ? publishStatus : isPublished;
+    // Read fresh blocks directly from store to avoid stale closures
+    const freshBlocks = usePageBuilderStore.getState().blocks;
+    const freshTitle = usePageBuilderStore.getState().pageTitle || pageTitle;
     console.log('handleSaveConfirm called');
     console.log('onSave exists:', !!onSave);
-    console.log('blocks:', blocks);
-    console.log('pageTitle:', pageTitle);
+    console.log('freshBlocks count:', freshBlocks.length, 'animation keys:', freshBlocks.map(b => ({ id: b.id, hasAnim: 'animation' in b.content })));
+    console.log('pageTitle:', freshTitle);
     console.log('pageSlug:', pageSlug);
     console.log('showInNav:', showInNav);
     console.log('shouldPublish:', shouldPublish);
@@ -404,7 +407,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
       setIsPublished(shouldPublish);
       try {
         console.log('Calling onSave...');
-        await onSave(blocks, pageTitle, pageSlug, showInNav, shouldPublish);
+        await onSave(freshBlocks, freshTitle, pageSlug, showInNav, shouldPublish);
         console.log('onSave completed successfully');
         markAsSaved(); // Clear auto-save and mark as saved
         setShowSaveDialog(false);
