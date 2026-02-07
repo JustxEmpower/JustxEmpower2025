@@ -403,6 +403,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
     ctaLink?: string;
     overlayOpacity?: number;
     minHeight?: string;
+    maxHeight?: string;
     textAlignment?: string;
     textColor?: string;
     backgroundColor?: string;
@@ -410,6 +411,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
     borderRadius?: string;
     bottomCurve?: boolean;
     curveType?: 'wave' | 'arc' | 'diagonal' | 'tilt' | 'none';
+    curveColor?: string;
     // Content Position
     contentVerticalAlign?: string;
     contentHorizontalAlign?: string;
@@ -511,6 +513,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
 
   const overlayOpacity = content.overlayOpacity ?? 40;
   const minHeight = content.minHeight || '100vh';
+  const maxHeight = content.maxHeight || '';
   
   // Shape & Size options
   const borderRadius = content.borderRadius || '2.5rem';
@@ -727,6 +730,7 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
   // Build section style
   const sectionStyle: React.CSSProperties = {
     minHeight: minHeight,
+    ...(maxHeight ? { maxHeight } : {}),
     // Note: Using SVG curve divider instead of border-radius for bottom curve
   };
 
@@ -2247,8 +2251,8 @@ export function JEHeadingRenderer({ block, isEditing = false, isBlockSelected = 
     dark?: boolean;
   };
   
-  // Support both 'title' (from blockTypes) and 'text' (legacy) field names
-  const headingText = content.title || content.text || '';
+  // Support both 'text' (from BlockFieldDefinitions) and 'title' (legacy) field names
+  const headingText = content.text || content.title || '';
 
   const HeadingTag = content.level || 'h2';
   const alignClass = content.alignment === 'center' ? 'text-center' : content.alignment === 'right' ? 'text-right' : 'text-left';
@@ -2273,16 +2277,16 @@ export function JEHeadingRenderer({ block, isEditing = false, isBlockSelected = 
           as="p"
         />
       )}
-      {hasHtmlContent ? (
+      {hasHtmlContent || !isEditing ? (
         <HeadingTag 
           className={`font-serif ${sizeClass} font-light italic`}
           style={textStyle}
-          dangerouslySetInnerHTML={{ __html: headingText }}
+          dangerouslySetInnerHTML={{ __html: headingText || 'Heading Text' }}
         />
       ) : (
         <InlineEditableText
           blockId={block.id}
-          fieldName="title"
+          fieldName="text"
           value={headingText}
           placeholder="Heading Text"
           className={`font-serif ${sizeClass} font-light italic`}

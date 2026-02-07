@@ -316,6 +316,7 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
       { value: 'split', label: 'Split' },
     ], group: 'layout' },
     { key: 'minHeight', label: 'Minimum Height', type: 'text', placeholder: '80vh', group: 'layout' },
+    { key: 'maxHeight', label: 'Maximum Height', type: 'select', options: MIN_HEIGHT_OPTIONS, group: 'layout' },
     { key: 'contentWidth', label: 'Content Width', type: 'select', options: [
       { value: 'max-w-2xl', label: 'Narrow' },
       { value: 'max-w-4xl', label: 'Medium' },
@@ -355,6 +356,7 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     
     // === SHAPE & SIZE GROUP ===
     { key: 'minHeight', label: 'Minimum Height', type: 'select', options: MIN_HEIGHT_OPTIONS, group: 'layout' },
+    { key: 'maxHeight', label: 'Maximum Height', type: 'select', options: MIN_HEIGHT_OPTIONS, group: 'layout' },
     { key: 'borderRadius', label: 'Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS, group: 'layout' },
     { key: 'bottomCurve', label: 'Bottom Curve', type: 'boolean', description: 'Add curved bottom edge', group: 'layout' },
     { key: 'topCurve', label: 'Top Curve', type: 'boolean', description: 'Add curved top edge', group: 'layout' },
@@ -436,6 +438,7 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     
     // === SHAPE & SIZE GROUP ===
     { key: 'minHeight', label: 'Minimum Height', type: 'select', options: MIN_HEIGHT_OPTIONS, group: 'layout' },
+    { key: 'maxHeight', label: 'Maximum Height', type: 'select', options: MIN_HEIGHT_OPTIONS, group: 'layout' },
     { key: 'borderRadius', label: 'Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS, group: 'layout' },
     { key: 'bottomCurve', label: 'Bottom Curve', type: 'boolean', description: 'Add curved bottom edge', group: 'layout' },
     { key: 'topCurve', label: 'Top Curve', type: 'boolean', description: 'Add curved top edge', group: 'layout' },
@@ -1131,6 +1134,15 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
       { value: 'minimal', label: 'Minimal' },
     ]},
     { key: 'dark', label: 'Dark Mode', type: 'boolean' },
+    { key: 'autoplay', label: 'Auto-scroll Testimonials', type: 'boolean' },
+    { key: 'interval', label: 'Scroll Interval (seconds)', type: 'number', min: 2, max: 15 },
+    { key: 'testimonials', label: 'Additional Testimonials', type: 'array', itemFields: [
+      { key: 'quote', label: 'Quote', type: 'textarea' },
+      { key: 'author', label: 'Author', type: 'text' },
+      { key: 'role', label: 'Role', type: 'text' },
+      { key: 'imageUrl', label: 'Image', type: 'image' },
+      { key: 'rating', label: 'Rating', type: 'number', min: 0, max: 5 },
+    ]},
   ],
 
   'je-testimonials-grid': [
