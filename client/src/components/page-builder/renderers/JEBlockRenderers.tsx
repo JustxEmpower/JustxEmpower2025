@@ -512,8 +512,8 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
   const ctaTextColor = content.ctaTextColor || textColor;
 
   const overlayOpacity = content.overlayOpacity ?? 40;
-  const minHeight = content.minHeight || '100vh';
-  const maxHeight = content.maxHeight || '';
+  const minHeight = content.minHeight || '70vh';
+  const maxHeight = content.maxHeight || '80vh';
   
   // Shape & Size options
   const borderRadius = content.borderRadius || '2.5rem';
@@ -2267,16 +2267,6 @@ export function JEHeadingRenderer({ block, isEditing = false, isBlockSelected = 
 
   const headingContent = (
     <>
-      {content.label && (
-        <InlineEditableText
-          blockId={block.id}
-          fieldName="label"
-          value={content.label || ''}
-          placeholder="Add label..."
-          className="font-sans text-xs uppercase tracking-[0.2em] text-primary mb-4"
-          as="p"
-        />
-      )}
       {hasHtmlContent || !isEditing ? (
         <HeadingTag 
           className={`font-serif ${sizeClass} font-light italic`}

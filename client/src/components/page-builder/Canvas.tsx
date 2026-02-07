@@ -497,6 +497,7 @@ export default function Canvas({
           className="flex-1 overflow-auto" 
           style={{ padding: isPreviewMode ? 0 : '1rem' }}
           data-element-edit-mode={isElementEditMode ? "true" : "false"}
+          data-page-builder-canvas="true"
         >
           <div 
             className={cn(
