@@ -2669,9 +2669,9 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
             ref={videoRef}
             src={videoUrl}
             poster={posterUrl}
-            autoPlay={content.autoplay}
-            loop={content.loop !== false}
-            muted={isMuted}
+            autoPlay
+            loop
+            muted
             playsInline
             crossOrigin="anonymous"
             preload="auto"

@@ -2028,10 +2028,9 @@ export function JEVideoRenderer({ block, isEditing, onUpdate }: BlockRendererPro
               ref={videoRef}
               src={videoUrl}
               poster={poster}
-              autoPlay={autoplay}
-              muted={muted}
-              loop={loop}
-              controls={controls}
+              autoPlay
+              muted
+              loop
               playsInline
               className="w-full h-full object-cover"
               onPlay={() => setIsPlaying(true)}
