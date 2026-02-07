@@ -11,13 +11,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X, Box, Sparkles, Star, Image as ImageIcon, MousePointer, Edit3, Ruler } from 'lucide-react';
+import { ArrowLeft, Save, Eye, Plus, Trash2, GripVertical, Layers, Settings, X, Box, Sparkles, Star, Image as ImageIcon, MousePointer, Edit3, Ruler, Wand2 } from 'lucide-react';
 import { CompactMarginRuler } from '@/components/page-builder/MarginRuler';
 import MediaPicker from '@/components/MediaPicker';
 import { blockTypes } from '@/components/page-builder/blockTypes';
 import { BlockRenderer } from '@/components/page-builder/BlockRenderer';
 import { JE_BLOCK_FIELDS, FieldDefinition } from '@/components/page-builder/panels/BlockFieldDefinitions';
 import { IconPicker } from '@/components/page-builder/IconPicker';
+import BlockAnimationSettings, { BlockAnimationConfig, DEFAULT_ANIMATION_CONFIG } from '@/components/page-builder/BlockAnimationSettings';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -888,11 +889,12 @@ export default function AdminZoneEditor() {
                   {/* Use field definitions if available for this block type */}
                   {JE_BLOCK_FIELDS[selectedBlock.type] ? (
                     <Tabs defaultValue="content" className="w-full flex flex-col" style={{ maxHeight: 'calc(100vh - 250px)' }}>
-                      <TabsList className="w-full grid grid-cols-4 mx-3 mb-2 flex-shrink-0" style={{ width: 'calc(100% - 24px)' }}>
+                      <TabsList className="w-full grid grid-cols-5 mx-3 mb-2 flex-shrink-0" style={{ width: 'calc(100% - 24px)' }}>
                         <TabsTrigger value="content" className="text-xs">Content</TabsTrigger>
                         <TabsTrigger value="style" className="text-xs">Style</TabsTrigger>
                         <TabsTrigger value="layout" className="text-xs">Layout</TabsTrigger>
                         <TabsTrigger value="advanced" className="text-xs">Advanced</TabsTrigger>
+                        <TabsTrigger value="animation" className="text-xs flex items-center gap-1"><Wand2 className="w-3 h-3" />Anim</TabsTrigger>
                       </TabsList>
                       
                       {(['content', 'media', 'style', 'layout', 'advanced'] as const).map((groupName) => {
@@ -952,6 +954,18 @@ export default function AdminZoneEditor() {
                           </TabsContent>
                         );
                       })}
+                      
+                      {/* Animation Tab */}
+                      <TabsContent value="animation" className="m-0 px-3 flex-1 overflow-hidden">
+                        <ScrollArea className="h-full" style={{ maxHeight: 'calc(100vh - 320px)' }}>
+                          <div className="space-y-4 pr-4 pb-8">
+                            <BlockAnimationSettings
+                              config={(selectedBlock.content.animation as BlockAnimationConfig) || DEFAULT_ANIMATION_CONFIG}
+                              onChange={(config) => updateBlockContent(selectedBlock.id, 'animation', config)}
+                            />
+                          </div>
+                        </ScrollArea>
+                      </TabsContent>
                     </Tabs>
                   ) : (
                     /* Fallback for blocks without field definitions */
@@ -1440,6 +1454,18 @@ export default function AdminZoneEditor() {
                         
                         return null;
                       })}
+                      
+                      {/* Animation Settings for fallback blocks */}
+                      <div className="border-t pt-4 mt-4">
+                        <h4 className="text-sm font-semibold mb-4 flex items-center gap-2">
+                          <Wand2 className="w-4 h-4" />
+                          Animation Settings
+                        </h4>
+                        <BlockAnimationSettings
+                          config={(selectedBlock.content.animation as BlockAnimationConfig) || DEFAULT_ANIMATION_CONFIG}
+                          onChange={(config) => updateBlockContent(selectedBlock.id, 'animation', config)}
+                        />
+                      </div>
                       </div>
                     </ScrollArea>
                   )}

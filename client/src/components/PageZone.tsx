@@ -1,5 +1,6 @@
 import { trpc } from '@/lib/trpc';
 import { BlockRenderer } from './page-builder/BlockRenderer';
+import { AnimationStyles } from './page-builder/AnimatedBlockWrapper';
 import { useAdminAuth } from '@/hooks/useAdminAuth';
 
 interface PageBlock {
@@ -82,6 +83,7 @@ export function PageZone({ pageSlug, zoneName, className = '', fallback }: PageZ
 
   return (
     <div className={`page-zone page-zone-${zoneName} ${className}`} data-zone={zoneName}>
+      <AnimationStyles />
       {sortedBlocks.map((block) => (
         <BlockRenderer
           key={block.id}
