@@ -310,6 +310,33 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'secondaryCtaLink', label: 'Secondary Link', type: 'url', group: 'content' },
     { key: 'imageUrl', label: 'Background Image', type: 'image', group: 'media' },
     { key: 'videoUrl', label: 'Background Video', type: 'video', group: 'media' },
+    { key: 'videoFit', label: 'Video/Image Fit', type: 'select', options: [
+      { value: 'cover', label: 'Cover (fill & crop)' },
+      { value: 'contain', label: 'Contain (show all)' },
+      { value: 'fill', label: 'Stretch to fill' },
+    ], group: 'media' },
+    { key: 'videoZoom', label: 'Video/Image Zoom %', type: 'select', options: [
+      { value: '50', label: '50% - Far' },
+      { value: '60', label: '60%' },
+      { value: '70', label: '70%' },
+      { value: '80', label: '80%' },
+      { value: '90', label: '90%' },
+      { value: '100', label: '100% - Default' },
+      { value: '110', label: '110%' },
+      { value: '120', label: '120%' },
+      { value: '150', label: '150% - Close' },
+    ], group: 'media' },
+    { key: 'videoPosition', label: 'Video/Image Focus', type: 'select', options: [
+      { value: 'center center', label: 'Center' },
+      { value: 'top center', label: 'Top' },
+      { value: 'bottom center', label: 'Bottom' },
+      { value: 'left center', label: 'Left' },
+      { value: 'right center', label: 'Right' },
+      { value: 'top left', label: 'Top Left' },
+      { value: 'top right', label: 'Top Right' },
+      { value: 'bottom left', label: 'Bottom Left' },
+      { value: 'bottom right', label: 'Bottom Right' },
+    ], group: 'media' },
     { key: 'variant', label: 'Layout Variant', type: 'select', options: [
       { value: 'centered', label: 'Centered' },
       { value: 'left-aligned', label: 'Left Aligned' },
@@ -428,6 +455,29 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     
     // === MEDIA GROUP ===
     { key: 'imageUrl', label: 'Background Image', type: 'image', required: true, group: 'media' },
+    { key: 'videoFit', label: 'Image Fit', type: 'select', options: [
+      { value: 'cover', label: 'Cover (fill & crop)' },
+      { value: 'contain', label: 'Contain (show all)' },
+      { value: 'fill', label: 'Stretch to fill' },
+    ], group: 'media' },
+    { key: 'videoZoom', label: 'Image Zoom %', type: 'select', options: [
+      { value: '50', label: '50% - Far' },
+      { value: '60', label: '60%' },
+      { value: '70', label: '70%' },
+      { value: '80', label: '80%' },
+      { value: '90', label: '90%' },
+      { value: '100', label: '100% - Default' },
+      { value: '110', label: '110%' },
+      { value: '120', label: '120%' },
+      { value: '150', label: '150% - Close' },
+    ], group: 'media' },
+    { key: 'videoPosition', label: 'Image Focus', type: 'select', options: [
+      { value: 'center center', label: 'Center' },
+      { value: 'top center', label: 'Top' },
+      { value: 'bottom center', label: 'Bottom' },
+      { value: 'left center', label: 'Left' },
+      { value: 'right center', label: 'Right' },
+    ], group: 'media' },
     
     // === COLORS GROUP ===
     { key: 'titleColor', label: 'Title Color', type: 'color', group: 'style' },

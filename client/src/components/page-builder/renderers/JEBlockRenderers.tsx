@@ -404,6 +404,9 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
     overlayOpacity?: number;
     minHeight?: string;
     maxHeight?: string;
+    videoFit?: 'cover' | 'contain' | 'fill';
+    videoZoom?: string;
+    videoPosition?: string;
     textAlignment?: string;
     textColor?: string;
     backgroundColor?: string;
@@ -514,6 +517,10 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
   const overlayOpacity = content.overlayOpacity ?? 40;
   const minHeight = content.minHeight || '70vh';
   const maxHeight = content.maxHeight || '80vh';
+  const videoFit = content.videoFit || 'cover';
+  const videoZoom = content.videoZoom || '100';
+  const videoPosition = content.videoPosition || 'center center';
+  const videoScale = parseInt(videoZoom) / 100;
   
   // Shape & Size options
   const borderRadius = content.borderRadius || '2.5rem';
@@ -752,16 +759,16 @@ export function JEHeroRenderer({ block, isEditing = false, isBlockSelected = fal
           crossOrigin="anonymous"
           poster={posterImageUrl}
           preload="auto"
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
-          style={{ zIndex: 1 }}
+          className={`absolute inset-0 w-full h-full transition-opacity duration-500 ${videoLoaded ? 'opacity-100' : 'opacity-0'}`}
+          style={{ zIndex: 1, objectFit: videoFit, objectPosition: videoPosition, transform: videoScale !== 1 ? `scale(${videoScale})` : undefined }}
         />
       )}
       
       {/* Image Background (fallback or primary) */}
       {((!videoUrl && imageUrl) || (videoUrl && !videoLoaded && imageUrl) || (videoError && imageUrl)) && (
         <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${imageUrl})`, zIndex: 1 }}
+          className="absolute inset-0 w-full h-full"
+          style={{ backgroundImage: `url(${imageUrl})`, backgroundSize: videoFit === 'contain' ? 'contain' : 'cover', backgroundPosition: videoPosition, backgroundRepeat: 'no-repeat', zIndex: 1, transform: videoScale !== 1 ? `scale(${videoScale})` : undefined }}
         />
       )}
 
