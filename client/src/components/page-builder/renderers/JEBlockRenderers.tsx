@@ -1386,7 +1386,6 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
               /* Outer wrapper with overflow:hidden and border-radius - NOT animated */
               /* This ensures the border-radius clipping works even when inner content is transformed by GSAP */
               <div 
-                className="shadow-2xl shadow-black/10"
                 style={{
                   borderRadius: content.imageBorderRadius || '2rem',
                   overflow: 'hidden',
@@ -1412,13 +1411,11 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                     }}
                     onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
                   />
-                  {/* Artistic Overlay like original Section */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/20 opacity-60 pointer-events-none" />
                 </div>
               </div>
             ) : (
               <div 
-                className="aspect-[3/4] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center shadow-2xl shadow-black/10"
+                className="aspect-[3/4] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
                 style={{ borderRadius: content.imageBorderRadius || '2rem', overflow: 'hidden' }}
               >
                 <span className="text-neutral-400">Add an image</span>
@@ -1527,10 +1524,16 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
     );
   }
 
-  // Helper to check if title is a generic placeholder (Item X, Slide X, etc.)
-  const isGenericTitle = (title?: string) => {
-    if (!title) return true;
-    return /^(Item|Slide|Image)\s*\d*$/i.test(title.trim());
+  // Helper to check if text is a generic placeholder
+  const isGenericText = (text?: string) => {
+    if (!text) return true;
+    const t = text.trim();
+    if (t.length === 0) return true;
+    // Match: Item 1, Slide 2, Image 3, etc.
+    if (/^(Item|Slide|Image)\s*\d*$/i.test(t)) return true;
+    // Match: Your first/second/third/etc slide content, Your first slide description, etc.
+    if (/^your\s+(first|second|third|fourth|fifth|\d+\w*)\s+slide\s+(content|description|text)/i.test(t)) return true;
+    return false;
   };
 
   return (
@@ -1543,8 +1546,8 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
         {slides.map((slide, index) => {
           const isActive = index === currentSlide;
           const imageUrl = slide.imageUrl ? getMediaUrl(slide.imageUrl) : '';
-          const hasRealTitle = !isGenericTitle(slide.title);
-          const hasRealDescription = slide.description && slide.description.trim().length > 0;
+          const hasRealTitle = !isGenericText(slide.title);
+          const hasRealDescription = !isGenericText(slide.description);
           const hasContent = hasRealTitle || hasRealDescription;
           
           return (
@@ -3136,21 +3139,41 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
           </EditableElement>
         </div>
 
-        {/* Slider dots - glassmorphism style */}
+        {/* Slider navigation - arrows + dots */}
         {testimonials.length > 1 && (
-          <div className="flex justify-center gap-2 mt-8">
-            {testimonials.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentIndex(index)}
-                className={`transition-all duration-300 rounded-full ${
-                  index === currentIndex 
-                    ? 'w-8 h-2 bg-primary' 
-                    : 'w-2 h-2 bg-neutral-300 hover:bg-neutral-400'
-                }`}
-                aria-label={`Go to testimonial ${index + 1}`}
-              />
-            ))}
+          <div className="flex items-center justify-center gap-4 mt-8">
+            <button
+              onClick={() => setCurrentIndex((currentIndex - 1 + testimonials.length) % testimonials.length)}
+              className="w-10 h-10 rounded-full border border-neutral-300 flex items-center justify-center hover:bg-neutral-100 transition-colors"
+              aria-label="Previous testimonial"
+            >
+              <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <div className="flex gap-2">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentIndex(index)}
+                  className={`transition-all duration-300 rounded-full ${
+                    index === currentIndex 
+                      ? 'w-8 h-2 bg-primary' 
+                      : 'w-2 h-2 bg-neutral-300 hover:bg-neutral-400'
+                  }`}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                />
+              ))}
+            </div>
+            <button
+              onClick={() => setCurrentIndex((currentIndex + 1) % testimonials.length)}
+              className="w-10 h-10 rounded-full border border-neutral-300 flex items-center justify-center hover:bg-neutral-100 transition-colors"
+              aria-label="Next testimonial"
+            >
+              <svg className="w-4 h-4 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
           </div>
         )}
       </div>
