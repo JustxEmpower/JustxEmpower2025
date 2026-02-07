@@ -2024,8 +2024,7 @@ export function JEVideoRenderer({ block, isEditing, onUpdate }: BlockRendererPro
             allowFullScreen
           />
         ) : videoUrl ? (
-          <>
-            <video
+          <video
               ref={videoRef}
               src={videoUrl}
               poster={poster}
@@ -2038,19 +2037,6 @@ export function JEVideoRenderer({ block, isEditing, onUpdate }: BlockRendererPro
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
             />
-            {!controls && (
-              <button
-                onClick={togglePlay}
-                className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/40 transition-colors"
-              >
-                {isPlaying ? (
-                  <Pause className="w-16 h-16 text-white" />
-                ) : (
-                  <Play className="w-16 h-16 text-white" />
-                )}
-              </button>
-            )}
-          </>
         ) : (
           <div className="w-full h-full bg-neutral-200 flex items-center justify-center">
             <Video className="w-12 h-12 text-neutral-400" />

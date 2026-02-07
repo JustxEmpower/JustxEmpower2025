@@ -2681,22 +2681,6 @@ export function JEVideoRenderer({ block, isEditing = false, isBlockSelected = fa
             onError={(e) => console.error('[JEVideoRenderer] Video error:', e)}
             onLoadedData={() => console.log('[JEVideoRenderer] Video loaded successfully')}
           />
-          {content.controls !== false && (
-            <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-              <button
-                onClick={togglePlay}
-                className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
-              >
-                {isPlaying ? <Pause className="w-5 h-5 text-white" /> : <Play className="w-5 h-5 text-white" />}
-              </button>
-              <button
-                onClick={toggleMute}
-                className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center hover:bg-white/30 transition-colors"
-              >
-                {isMuted ? <VolumeX className="w-5 h-5 text-white" /> : <Volume2 className="w-5 h-5 text-white" />}
-              </button>
-            </div>
-          )}
         </div>
       ) : (
         <div className="aspect-video bg-neutral-800 rounded-[2rem] flex items-center justify-center">
