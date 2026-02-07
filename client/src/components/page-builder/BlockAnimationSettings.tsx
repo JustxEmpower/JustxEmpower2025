@@ -462,7 +462,18 @@ export function BlockAnimationSettings({ config, onChange }: BlockAnimationSetti
                     <div className="space-y-3 pt-2">
                       <div className="space-y-2">
                         <Label className="text-sm">Property</Label>
-                        <Select value={scrollProg.property} onValueChange={(v: ScrollProgressProperty) => updateScrollProgress({ property: v })}>
+                        <Select value={scrollProg.property} onValueChange={(v: ScrollProgressProperty) => {
+                          // Reset from/to to sensible defaults when property changes
+                          const defaults: Record<ScrollProgressProperty, { from: number; to: number }> = {
+                            opacity: { from: 0, to: 1 },
+                            scale: { from: 0.85, to: 1 },
+                            rotate: { from: 0, to: 15 },
+                            translateX: { from: -50, to: 0 },
+                            translateY: { from: -50, to: 0 },
+                            blur: { from: 5, to: 0 },
+                          };
+                          updateScrollProgress({ property: v, ...defaults[v] });
+                        }}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
                             <SelectItem value="opacity">Opacity</SelectItem>
@@ -475,14 +486,30 @@ export function BlockAnimationSettings({ config, onChange }: BlockAnimationSetti
                         </Select>
                       </div>
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="space-y-1">
-                          <Label className="text-xs">From: {scrollProg.from}</Label>
-                          <Slider value={[scrollProg.from]} onValueChange={([v]) => updateScrollProgress({ from: v })} min={-100} max={100} step={1} />
-                        </div>
-                        <div className="space-y-1">
-                          <Label className="text-xs">To: {scrollProg.to}</Label>
-                          <Slider value={[scrollProg.to]} onValueChange={([v]) => updateScrollProgress({ to: v })} min={-100} max={100} step={1} />
-                        </div>
+                        {(() => {
+                          // Property-specific slider ranges for practical values
+                          const propRanges: Record<ScrollProgressProperty, { min: number; max: number; step: number; format: (v: number) => string }> = {
+                            opacity: { min: 0, max: 1, step: 0.05, format: (v) => `${Math.round(v * 100)}%` },
+                            scale: { min: 0.5, max: 1.5, step: 0.05, format: (v) => `${Math.round(v * 100)}%` },
+                            rotate: { min: -180, max: 180, step: 5, format: (v) => `${v}°` },
+                            translateX: { min: -200, max: 200, step: 5, format: (v) => `${v}px` },
+                            translateY: { min: -200, max: 200, step: 5, format: (v) => `${v}px` },
+                            blur: { min: 0, max: 20, step: 0.5, format: (v) => `${v}px` },
+                          };
+                          const range = propRanges[scrollProg.property] || propRanges.opacity;
+                          return (
+                            <>
+                              <div className="space-y-1">
+                                <Label className="text-xs">From: {range.format(scrollProg.from)}</Label>
+                                <Slider value={[scrollProg.from]} onValueChange={([v]) => updateScrollProgress({ from: v })} min={range.min} max={range.max} step={range.step} />
+                              </div>
+                              <div className="space-y-1">
+                                <Label className="text-xs">To: {range.format(scrollProg.to)}</Label>
+                                <Slider value={[scrollProg.to]} onValueChange={([v]) => updateScrollProgress({ to: v })} min={range.min} max={range.max} step={range.step} />
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   )}

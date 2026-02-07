@@ -101,7 +101,7 @@ function AnimatedContent({
   const parallaxSpeed = config.parallax?.speed || 0.5;
   const parallaxDir = config.parallax?.direction || 'up';
 
-  const parallaxRange = parallaxSpeed * 100;
+  const parallaxRange = parallaxSpeed * 50;
   const parallaxY = useTransform(
     scrollYProgress,
     [0, 1],
@@ -236,6 +236,11 @@ function AnimatedContent({
   const wrapperStyle: React.CSSProperties = {};
   if (config.hover?.type === 'tilt-3d') {
     wrapperStyle.perspective = '800px';
+  }
+
+  // Add overflow hidden for parallax to prevent content from extending beyond site boundaries
+  if (parallaxEnabled) {
+    wrapperStyle.overflow = 'hidden';
   }
 
   return (
