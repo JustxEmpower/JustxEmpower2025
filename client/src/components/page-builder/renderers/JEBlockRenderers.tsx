@@ -1380,61 +1380,110 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
         </div>
         
         {/* Image */}
-        <MoveableElement
-          elementId="image"
-          elementType="image"
-          initialTransform={getElementTransform('image')}
-          onTransformChange={handleTransformChange}
-          className={`relative ${(content.imagePosition === 'left' || content.reversed) ? 'lg:order-1' : ''}`}
-        >
-          <div 
-            ref={imageWrapperRef}
-            style={{
-              marginTop: content.imageMarginTop || '0',
-              marginBottom: content.imageMarginBottom || '0',
-            }}
+        {isElementEditMode ? (
+          <MoveableElement
+            elementId="image"
+            elementType="image"
+            initialTransform={getElementTransform('image')}
+            onTransformChange={handleTransformChange}
+            className={`relative ${(content.imagePosition === 'left' || content.reversed) ? 'lg:order-1' : ''}`}
           >
-            {imageUrl ? (
-              /* Outer wrapper with overflow:hidden and border-radius - NOT animated */
-              /* This ensures the border-radius clipping works even when inner content is transformed by GSAP */
-              <div 
-                style={{
-                  borderRadius: content.imageBorderRadius || '2rem',
-                  overflow: 'hidden',
-                  width: '100%',
-                  maxWidth: content.imageMaxWidth || '100%',
-                }}
-              >
-                {/* Inner wrapper that gets GSAP transform - overflow:hidden here won't clip due to transform */}
+            <div 
+              ref={imageWrapperRef}
+              style={{
+                marginTop: content.imageMarginTop || '0',
+                marginBottom: content.imageMarginBottom || '0',
+              }}
+            >
+              {imageUrl ? (
                 <div 
-                  ref={imageRef}
-                  className="relative"
                   style={{
+                    borderRadius: content.imageBorderRadius || '2rem',
+                    overflow: 'hidden',
                     width: '100%',
-                    aspectRatio: '3/4',
+                    maxWidth: content.imageMaxWidth || '100%',
                   }}
                 >
-                  <img
-                    src={imageUrl}
-                    alt={content.imageAlt || 'Section image'}
-                    className="will-change-transform w-full h-full"
+                  <div 
+                    ref={imageRef}
+                    className="relative"
                     style={{
-                      objectFit: (content.imageObjectFit as any) || 'cover',
+                      width: '100%',
+                      aspectRatio: '3/4',
                     }}
-                    onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
-                  />
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={content.imageAlt || 'Section image'}
+                      className="will-change-transform w-full h-full"
+                      style={{
+                        objectFit: (content.imageObjectFit as any) || 'cover',
+                      }}
+                      onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
+                    />
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div 
-                className="aspect-[3/4] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
-                style={{ borderRadius: content.imageBorderRadius || '2rem', overflow: 'hidden' }}
-              >
-                <span className="text-neutral-400">Add an image</span>
-              </div>
-            )}
+              ) : (
+                <div 
+                  className="aspect-[3/4] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+                  style={{ borderRadius: content.imageBorderRadius || '2rem', overflow: 'hidden' }}
+                >
+                  <span className="text-neutral-400">Add an image</span>
+                </div>
+              )}
+            </div>
+          </MoveableElement>
+        ) : (
+          <div 
+            className={`relative ${(content.imagePosition === 'left' || content.reversed) ? 'lg:order-1' : ''}`}
+            style={getTransformStyle('image')}
+          >
+            <div 
+              ref={imageWrapperRef}
+              style={{
+                marginTop: content.imageMarginTop || '0',
+                marginBottom: content.imageMarginBottom || '0',
+              }}
+            >
+              {imageUrl ? (
+                <div 
+                  style={{
+                    borderRadius: content.imageBorderRadius || '2rem',
+                    overflow: 'hidden',
+                    width: '100%',
+                    maxWidth: content.imageMaxWidth || '100%',
+                  }}
+                >
+                  <div 
+                    ref={imageRef}
+                    className="relative"
+                    style={{
+                      width: '100%',
+                      aspectRatio: '3/4',
+                    }}
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={content.imageAlt || 'Section image'}
+                      className="will-change-transform w-full h-full"
+                      style={{
+                        objectFit: (content.imageObjectFit as any) || 'cover',
+                      }}
+                      onError={(e) => console.error('[JESectionRenderer] Image error:', e)}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div 
+                  className="aspect-[3/4] bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center"
+                  style={{ borderRadius: content.imageBorderRadius || '2rem', overflow: 'hidden' }}
+                >
+                  <span className="text-neutral-400">Add an image</span>
+                </div>
+              )}
+            </div>
           </div>
-        </MoveableElement>
+        )}
       </div>
     </section>
   );
