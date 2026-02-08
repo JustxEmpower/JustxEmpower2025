@@ -3036,7 +3036,7 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
         author: content.author || 'Client Name',
         role: content.role,
         imageUrl: content.imageUrl || content.avatar,
-        rating: content.rating || 5,
+        rating: content.rating ?? 0,
       }];
 
   // Autoplay for slider
@@ -3060,7 +3060,7 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
 
   const currentTestimonial = testimonials[currentIndex];
   const imageUrl = currentTestimonial.imageUrl ? getMediaUrl(currentTestimonial.imageUrl) : undefined;
-  const rating = currentTestimonial.rating || 5;
+  const rating = currentTestimonial.rating ?? 0;
 
   // Star rating component
   const StarRating = ({ stars }: { stars: number }) => (
@@ -3085,7 +3085,7 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
     >
       <div className="max-w-3xl mx-auto">
         {/* Stars */}
-        {showRating && <StarRating stars={rating} />}
+        {showRating && rating > 0 && <StarRating stars={rating} />}
         
         {/* Quote with fade transition */}
         <EditableElement

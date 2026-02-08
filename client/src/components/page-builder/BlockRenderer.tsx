@@ -36,7 +36,7 @@ import {
 } from './renderers/BlockRenderers-Part1-Core';
 
 // Import JEHeroRenderer, JESectionRenderer, JEImageRenderer from JEBlockRenderers which has EditableElement wrappers
-import { JEImageRenderer, JEHeroRenderer, JESectionRenderer } from './renderers/JEBlockRenderers';
+import { JEImageRenderer, JEHeroRenderer, JESectionRenderer, JETestimonialRenderer as JETestimonialSliderRenderer } from './renderers/JEBlockRenderers';
 
 // Part 2: JE Special blocks
 import {
@@ -58,7 +58,6 @@ import {
   JENewsletterRenderer,
   JEContactFormRenderer,
   JEFAQRenderer,
-  JETestimonialRenderer,
   JETestimonialsGridRenderer,
   JEButtonRenderer,
   JEDividerRenderer,
@@ -166,7 +165,7 @@ export const BLOCK_RENDERER_MAP: Record<string, React.ComponentType<any>> = {
   'je-contact': JEContactFormRenderer,
   'je-faq': JEFAQRenderer,
   'je-accordion': JEFAQRenderer,
-  'je-testimonial': JETestimonialRenderer,
+  'je-testimonial': JETestimonialSliderRenderer,
   'je-testimonials': JETestimonialsGridRenderer,
   'je-testimonials-grid': JETestimonialsGridRenderer,
   'je-button': JEButtonRenderer,
@@ -482,7 +481,7 @@ export {
   JENewsletterRenderer,
   JEContactFormRenderer,
   JEFAQRenderer,
-  JETestimonialRenderer,
+  JETestimonialSliderRenderer,
   JETestimonialsGridRenderer,
   JEButtonRenderer,
   JEDividerRenderer,
