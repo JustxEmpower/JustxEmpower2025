@@ -1220,7 +1220,18 @@ export function JECarouselRenderer({ block, isEditing, isElementEditMode, onUpda
     showArrows = true,
     dark = false,
     maxWidth = '900px',
+    backgroundColor = '',
+    backgroundOpacity = 100,
   } = content;
+
+  // Background opacity support
+  const bgOpacity = (backgroundOpacity ?? 100) / 100;
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
 
   // Gold accent color
   const goldColor = '#C9A962';
@@ -1269,11 +1280,19 @@ export function JECarouselRenderer({ block, isEditing, isElementEditMode, onUpda
     };
   }, [autoplay, interval, slides.length, isEditing]);
 
-  const bgClass = dark ? 'bg-[#0a0a0a]' : 'bg-white';
+  // Resolve background: custom color with opacity, or default dark/light
+  const resolvedBgStyle: React.CSSProperties = {};
+  if (backgroundColor) {
+    resolvedBgStyle.backgroundColor = bgOpacity < 1 ? hexToRgba(backgroundColor, bgOpacity) : backgroundColor;
+  } else if (bgOpacity < 1) {
+    const defaultHex = dark ? '#0a0a0a' : '#ffffff';
+    resolvedBgStyle.backgroundColor = hexToRgba(defaultHex, bgOpacity);
+  }
+  const bgClass = (!backgroundColor && bgOpacity >= 1) ? (dark ? 'bg-[#0a0a0a]' : 'bg-white') : '';
 
   // Premium carousel - clean, minimal, elegant
   return (
-    <section className={cn('py-12 md:py-20 px-4 md:px-8', bgClass)}>
+    <section className={cn('py-12 md:py-20 px-4 md:px-8', bgClass)} style={resolvedBgStyle}>
       <div className="mx-auto" style={{ maxWidth }}>
         {/* Main Image Container - Clean, no background */}
         <div className="relative group">

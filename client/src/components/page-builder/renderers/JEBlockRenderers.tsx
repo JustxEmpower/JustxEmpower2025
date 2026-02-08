@@ -1468,6 +1468,7 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
     transition?: 'fade' | 'slide' | 'zoom';
     // Customization options
     backgroundColor?: string;
+    backgroundOpacity?: number;
     cardBorderRadius?: string;
     minHeight?: string;
   };
@@ -1502,8 +1503,18 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
   const showArrows = content.showArrows !== false;
   const transition = content.transition || 'fade';
   const bgColor = content.backgroundColor || '#1a1a1a';
+  const bgOpacity = (content.backgroundOpacity ?? 100) / 100;
   const borderRadius = content.cardBorderRadius || '0';
   const minHeight = content.minHeight || '70vh';
+
+  // Convert hex to rgba with opacity
+  const hexToRgba = (hex: string, alpha: number) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
+  const resolvedBg = bgOpacity < 1 ? hexToRgba(bgColor, bgOpacity) : bgColor;
 
   // Autoplay functionality
   useEffect(() => {
@@ -1550,7 +1561,7 @@ export function JECarouselRenderer({ block, isEditing = false, isBlockSelected =
   return (
     <section 
       className="relative overflow-hidden"
-      style={{ backgroundColor: bgColor, minHeight, borderRadius }}
+      style={{ backgroundColor: resolvedBg, minHeight, borderRadius }}
     >
       {/* Slides Container */}
       <div className="relative w-full h-full" style={{ minHeight }}>

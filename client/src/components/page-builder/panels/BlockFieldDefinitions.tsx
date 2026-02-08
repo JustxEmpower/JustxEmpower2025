@@ -943,6 +943,10 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     { key: 'showDots', label: 'Show Dots', type: 'boolean', group: 'layout' },
     { key: 'showArrows', label: 'Show Arrows', type: 'boolean', group: 'layout' },
     
+    // === BACKGROUND ===
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'backgroundOpacity', label: 'Background Opacity (%)', type: 'number', min: 0, max: 100, group: 'style' },
+    
     // === SHAPE & SIZE ===
     { key: 'cardBorderRadius', label: 'Card Border Radius', type: 'select', options: BORDER_RADIUS_OPTIONS, group: 'style' },
     { key: 'cardHeight', label: 'Card Height', type: 'select', options: MIN_HEIGHT_OPTIONS, group: 'style' },
@@ -976,6 +980,10 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
       { value: 'slide', label: 'Slide' },
       { value: 'zoom', label: 'Zoom' },
     ], group: 'style' },
+    
+    // === BACKGROUND ===
+    { key: 'backgroundColor', label: 'Background Color', type: 'color', group: 'style' },
+    { key: 'backgroundOpacity', label: 'Background Opacity (%)', type: 'number', min: 0, max: 100, group: 'style' },
     
     // === MANUAL SLIDES (when not using admin carousel) ===
     { key: 'slides', label: 'Slides', type: 'array', description: 'Manual slides (ignored when using Admin Carousel)', itemFields: [
