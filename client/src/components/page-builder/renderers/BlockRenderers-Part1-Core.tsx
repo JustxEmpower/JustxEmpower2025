@@ -1659,8 +1659,13 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
   const containerStyle: React.CSSProperties = {
     width: calculatedWidth,
     maxWidth: calculatedWidth,
-    marginLeft: 'auto',
-    marginRight: 'auto',
+    marginLeft: alignment === 'right' ? 'auto' : (alignment === 'left' ? '0' : 'auto'),
+    marginRight: alignment === 'left' ? 'auto' : (alignment === 'right' ? '0' : 'auto'),
+  };
+  
+  // Inline textAlign to override any alignment baked into the RichTextEditor HTML
+  const contentStyle: React.CSSProperties = {
+    textAlign: (alignment as React.CSSProperties['textAlign']) || 'center',
   };
   
   return (
@@ -1668,7 +1673,6 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
       className={cn(
         'py-8 px-6',
         alignmentClasses[alignment] || alignmentClasses.center,
-        alignment === 'center' && 'mx-auto'
       )}
       style={containerStyle}
     >
@@ -1681,6 +1685,7 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
           dropCap ? 'first-letter:float-left first-letter:text-6xl first-letter:font-serif first-letter:mr-2 first-letter:mt-1 first-letter:text-amber-600' : '',
           indent ? 'indent-8' : ''
         )}
+        style={contentStyle}
         dangerouslySetInnerHTML={{ __html: text || '<span class="opacity-50">Enter paragraph text here...</span>' }}
       />
     </div>
