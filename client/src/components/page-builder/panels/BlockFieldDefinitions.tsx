@@ -373,6 +373,33 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
     // === MEDIA GROUP ===
     { key: 'videoUrl', label: 'Video URL', type: 'video', required: true, group: 'media' },
     { key: 'posterImage', label: 'Poster Image', type: 'image', group: 'media' },
+    { key: 'videoFit', label: 'Video Fit', type: 'select', options: [
+      { value: 'cover', label: 'Cover (fill & crop)' },
+      { value: 'contain', label: 'Contain (show all)' },
+      { value: 'fill', label: 'Stretch to fill' },
+    ], group: 'media' },
+    { key: 'videoZoom', label: 'Video Zoom %', type: 'select', options: [
+      { value: '50', label: '50% - Far' },
+      { value: '60', label: '60%' },
+      { value: '70', label: '70%' },
+      { value: '80', label: '80%' },
+      { value: '90', label: '90%' },
+      { value: '100', label: '100% - Default' },
+      { value: '110', label: '110%' },
+      { value: '120', label: '120%' },
+      { value: '150', label: '150% - Close' },
+    ], group: 'media' },
+    { key: 'videoPosition', label: 'Video Focus Point', type: 'select', options: [
+      { value: 'center center', label: 'Center' },
+      { value: 'top center', label: 'Top' },
+      { value: 'bottom center', label: 'Bottom' },
+      { value: 'left center', label: 'Left' },
+      { value: 'right center', label: 'Right' },
+      { value: 'top left', label: 'Top Left' },
+      { value: 'top right', label: 'Top Right' },
+      { value: 'bottom left', label: 'Bottom Left' },
+      { value: 'bottom right', label: 'Bottom Right' },
+    ], group: 'media' },
     
     // === COLORS GROUP ===
     { key: 'titleColor', label: 'Title Color', type: 'color', group: 'style' },
