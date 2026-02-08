@@ -230,7 +230,7 @@ export default function ProductDetail() {
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Minimal Top Bar */}
-      <div className="fixed top-20 left-0 right-0 z-[60] bg-white dark:bg-background border-b border-stone-200 dark:border-border">
+      <div className="fixed top-20 left-0 right-0 z-40 bg-white dark:bg-background border-b border-stone-200 dark:border-border">
         <div className="flex items-center justify-between px-6 py-3">
           <button
             type="button"

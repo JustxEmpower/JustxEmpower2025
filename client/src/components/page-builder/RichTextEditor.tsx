@@ -299,20 +299,12 @@ export default function RichTextEditor({
           }
         });
         
-        // Apply font-size to each top-level node directly (not a span wrapper,
-        // which creates invalid HTML when wrapping block-level elements)
-        Array.from(temp.childNodes).forEach(child => {
-          if (child.nodeType === Node.ELEMENT_NODE) {
-            (child as HTMLElement).style.fontSize = fontSize;
-          } else if (child.nodeType === Node.TEXT_NODE && child.textContent?.trim()) {
-            const span = document.createElement('span');
-            span.style.fontSize = fontSize;
-            span.textContent = child.textContent;
-            temp.replaceChild(span, child);
-          }
-        });
+        // Wrap the cleaned content in a single span with the new size
+        const wrapper = document.createElement('span');
+        wrapper.style.fontSize = fontSize;
+        wrapper.innerHTML = temp.innerHTML;
         
-        return temp.innerHTML;
+        return wrapper.outerHTML;
       };
       
       // Apply size cleanly

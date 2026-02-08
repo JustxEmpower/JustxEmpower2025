@@ -100,8 +100,6 @@ export default function Header() {
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
-      // Close any open dropdown on scroll to prevent overlapping page content
-      setOpenDropdown(null);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -155,11 +153,7 @@ export default function Header() {
     setOpenMobileDropdown(null);
   }, [location]);
 
-  // Don't show hover dropdowns on shop pages — they overlap product content
-  const isShopPage = typeof location === 'string' && location.startsWith('/shop');
-
   const handleDropdownEnter = (label: string) => {
-    if (isShopPage) return;
     if (dropdownTimeoutRef.current) {
       clearTimeout(dropdownTimeoutRef.current);
     }
@@ -244,7 +238,7 @@ export default function Header() {
           {regularNavItems.map((link) => (
             <div 
               key={link.href + link.label}
-              className="relative"
+              className={cn("relative", link.children && "z-[60]")}
               onMouseEnter={() => link.children && handleDropdownEnter(link.label)}
               onMouseLeave={handleDropdownLeave}
             >

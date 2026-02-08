@@ -2396,15 +2396,14 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
 
   // Build inline styles from Style tab using helper functions
   const calculatedWidth = getTextWidth();
-  const alignmentValue = content.alignment || 'center';
   const containerStyle: React.CSSProperties = {
     ...buildContainerStyles(content),
     backgroundColor: content.backgroundColor ? content.backgroundColor as string : undefined,
     // Apply new margin system width - always apply width for consistency
     width: calculatedWidth,
     maxWidth: calculatedWidth,
-    marginLeft: alignmentValue === 'right' ? 'auto' : (alignmentValue === 'left' ? '0' : 'auto'),
-    marginRight: alignmentValue === 'left' ? 'auto' : (alignmentValue === 'right' ? '0' : 'auto'),
+    marginLeft: 'auto',
+    marginRight: 'auto',
   };
   
   // Font size and font family - support actual pixel values and legacy Tailwind values
@@ -2435,17 +2434,11 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
   // Load Google Fonts from inline styles in HTML content
   useGoogleFonts(textContent, block.id);
 
-  // Inline textAlign to override any alignment baked into the RichTextEditor HTML
-  const contentAlignStyle: React.CSSProperties = {
-    textAlign: (alignmentValue as React.CSSProperties['textAlign']) || 'center',
-  };
-
   // For HTML content (from TinyMCE), render with dangerouslySetInnerHTML
   // For plain text, use InlineEditableText for backward compatibility
   const paragraphContent = hasHtmlContent ? (
     <div 
       className={`${fontClass} ${hasCustomFont ? '' : 'font-sans '}text-base md:text-lg leading-relaxed ${textClass} prose prose-neutral dark:prose-invert max-w-none`}
-      style={contentAlignStyle}
       dangerouslySetInnerHTML={{ __html: textContent }}
     />
   ) : (
