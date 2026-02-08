@@ -1031,6 +1031,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
     ctaTextColor?: string;
     ctaLink?: string;
     reversed?: boolean;
+    imagePosition?: 'left' | 'right' | 'top' | 'bottom';
     dark?: boolean;
     textColor?: string;
     backgroundColor?: string;
@@ -1217,11 +1218,11 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
   return (
     <section ref={sectionRef} className={`${bgClass} overflow-hidden`} style={sectionStyle}>
       <div 
-        className={`max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 items-center ${content.reversed ? 'lg:flex-row-reverse' : ''}`}
+        className={`max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 items-center`}
         style={{ gap: contentGap }}
       >
-        {/* Text Content */}
-        <div ref={contentRef} className={content.reversed ? 'lg:order-2' : ''} style={{ textAlign: textAlign as any }}>
+        {/* Text Content - order-2 when image is on left */}
+        <div ref={contentRef} className={(content.imagePosition === 'left' || content.reversed) ? 'lg:order-2' : ''} style={{ textAlign: textAlign as any }}>
           {(content.subtitle || content.label) && (
             isElementEditMode ? (
               <MoveableElement
@@ -1384,7 +1385,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           elementType="image"
           initialTransform={getElementTransform('image')}
           onTransformChange={handleTransformChange}
-          className={`relative ${content.reversed ? 'lg:order-1' : ''}`}
+          className={`relative ${(content.imagePosition === 'left' || content.reversed) ? 'lg:order-1' : ''}`}
         >
           <div 
             ref={imageWrapperRef}
@@ -2402,8 +2403,9 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
     // Apply new margin system width - always apply width for consistency
     width: calculatedWidth,
     maxWidth: calculatedWidth,
-    marginLeft: 'auto',
-    marginRight: 'auto',
+    // When custom margins are set, use actual percentages instead of auto-centering
+    marginLeft: useNewMarginSystem ? marginLeft : 'auto',
+    marginRight: useNewMarginSystem ? marginRight : 'auto',
   };
   
   // Font size and font family - support actual pixel values and legacy Tailwind values
@@ -2784,6 +2786,10 @@ export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected 
     rightTitle?: string;
     imageUrl?: string;
     imagePosition?: 'left' | 'right';
+    ratio?: string;
+    gap?: number;
+    reverseOnMobile?: boolean;
+    verticalAlign?: 'top' | 'center' | 'bottom';
     dark?: boolean;
     textColor?: string;
     backgroundColor?: string;
@@ -2796,13 +2802,28 @@ export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected 
   const textClass = hasCustomText ? '' : (content.dark ? 'text-white/70' : 'text-neutral-600');
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
 
+  // Column ratio support
+  const ratioMap: Record<string, string> = {
+    '50-50': '1fr 1fr',
+    '33-67': '1fr 2fr',
+    '67-33': '2fr 1fr',
+    '25-75': '1fr 3fr',
+    '75-25': '3fr 1fr',
+  };
+  const gridTemplate = ratioMap[content.ratio || '50-50'] || '1fr 1fr';
+  const gapValue = content.gap != null ? `${content.gap * 0.25}rem` : '4rem';
+  const verticalAlign = content.verticalAlign === 'top' ? 'start' : content.verticalAlign === 'bottom' ? 'end' : 'center';
+
   const sectionStyle: React.CSSProperties = {
     backgroundColor: hasCustomBg ? content.backgroundColor : undefined,
     color: hasCustomText ? content.textColor : undefined,
   };
 
+  // Only apply ordering when there's an image with explicit imagePosition
+  const isImageOnLeft = imageUrl && content.imagePosition === 'left';
+
   const leftColumn = (
-    <div className={content.imagePosition === 'right' ? 'lg:order-1' : 'lg:order-2'}>
+    <div className={isImageOnLeft ? 'lg:order-2' : ''}>
       {content.leftTitle && (
         <h3 className="font-serif text-3xl italic mb-6">{content.leftTitle}</h3>
       )}
@@ -2813,7 +2834,7 @@ export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected 
   );
 
   const rightColumn = (
-    <div className={content.imagePosition === 'right' ? 'lg:order-2' : 'lg:order-1'}>
+    <div className={isImageOnLeft ? 'lg:order-1' : ''}>
       {imageUrl ? (
         <div className="relative overflow-hidden shadow-2xl shadow-black/10" style={{ borderRadius: '2rem' }}>
           <img src={imageUrl} alt="" className="w-full h-auto" style={{ borderRadius: '2rem' }} />
@@ -2833,7 +2854,10 @@ export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected 
 
   return (
     <section className={`py-24 px-6 ${bgClass}`} style={sectionStyle}>
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div 
+        className={`max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 ${content.reverseOnMobile ? 'flex-col-reverse' : ''}`}
+        style={{ gap: gapValue, gridTemplateColumns: `${gridTemplate}`.replace('1fr 1fr', '').length > 0 ? gridTemplate : undefined, alignItems: verticalAlign }}
+      >
         {isElementEditMode ? (
           <>
             <EditableElement

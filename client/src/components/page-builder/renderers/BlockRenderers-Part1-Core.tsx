@@ -1656,11 +1656,12 @@ export function JEParagraphRenderer({ block, isEditing, onUpdate }: BlockRendere
   };
 
   const calculatedWidth = getTextWidth();
+  const useCustomMargins = textWidthPreset === 'custom' || (marginLeft !== '0%' && marginLeft !== '0') || (marginRight !== '0%' && marginRight !== '0');
   const containerStyle: React.CSSProperties = {
     width: calculatedWidth,
     maxWidth: calculatedWidth,
-    marginLeft: 'auto',
-    marginRight: 'auto',
+    marginLeft: useCustomMargins ? marginLeft : 'auto',
+    marginRight: useCustomMargins ? marginRight : 'auto',
   };
   
   return (
