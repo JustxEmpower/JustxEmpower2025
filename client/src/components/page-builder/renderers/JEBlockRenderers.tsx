@@ -1131,9 +1131,15 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
     paddingRight: sectionPaddingX,
   };
 
+  // Check if user has positioned elements via Edit Elements mode
+  const hasElementTransforms = Object.keys(elementTransforms).length > 0;
+
   // GSAP scroll-triggered animations (matching original Section component)
+  // Skip animations when elementTransforms exist - the page builder never runs
+  // GSAP animations (isEditing=true), so to match the page builder layout on the
+  // live site we must also skip them when elements have been positioned.
   useEffect(() => {
-    if (!sectionRef.current || isEditing || animationInitialized.current) return;
+    if (!sectionRef.current || isEditing || animationInitialized.current || hasElementTransforms) return;
     
     animationInitialized.current = true;
     
@@ -1213,7 +1219,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
     }, sectionRef);
 
     return () => ctx.revert();
-  }, [isEditing]);
+  }, [isEditing, hasElementTransforms]);
 
   return (
     <section ref={sectionRef} className={`${bgClass} overflow-hidden`} style={sectionStyle}>
