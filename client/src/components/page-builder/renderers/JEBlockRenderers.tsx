@@ -1250,6 +1250,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                   fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
                   letterSpacing: content.subtitleLetterSpacing || '0.2em',
                   marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
+                  ...getTransformStyle('subtitle'),
                 }}
                 dangerouslySetInnerHTML={{ __html: content.label || content.subtitle || '' }}
               />
@@ -1286,6 +1287,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                 marginBottom: content.titleMarginBottom || '2rem',
                 fontWeight: content.titleFontWeight || '300',
                 fontStyle: content.titleFontStyle || 'italic',
+                ...getTransformStyle('title'),
               }}
               dangerouslySetInnerHTML={{ __html: content.title || 'Section Title' }}
             />
@@ -1321,6 +1323,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                   fontSize: content.descriptionFontSize || '1.125rem',
                   lineHeight: content.descriptionLineHeight || '1.75',
                   marginBottom: content.descriptionMarginBottom || '2rem',
+                  ...getTransformStyle('description'),
                   maxWidth: content.descriptionMaxWidth || '100%',
                 }}
                 dangerouslySetInnerHTML={{ __html: content.description }}
@@ -1376,7 +1379,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                   {ctaElement}
                 </MoveableElement>
               ) : (
-                <div className="inline-block">
+                <div className="inline-block" style={getTransformStyle('cta')}>
                   {ctaElement}
                 </div>
               );
@@ -1441,7 +1444,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
         ) : (
           <div 
             className={`relative ${(content.imagePosition === 'left' || content.reversed) ? 'lg:order-1' : ''}`}
-            style={{}}
+            style={getTransformStyle('image')}
           >
             <div 
               ref={imageWrapperRef}
