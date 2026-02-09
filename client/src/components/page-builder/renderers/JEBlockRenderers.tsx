@@ -1222,7 +1222,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
   }, [isEditing, hasElementTransforms]);
 
   return (
-    <section ref={sectionRef} className={`${bgClass} overflow-hidden`} style={sectionStyle}>
+    <section ref={sectionRef} className={`${bgClass} ${hasElementTransforms ? '' : 'overflow-hidden'}`} style={sectionStyle}>
       <div 
         className={`max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 items-center`}
         style={{ gap: contentGap }}
