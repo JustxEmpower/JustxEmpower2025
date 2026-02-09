@@ -1250,7 +1250,6 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                   fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
                   letterSpacing: content.subtitleLetterSpacing || '0.2em',
                   marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
-                  ...getTransformStyle('subtitle'),
                 }}
                 dangerouslySetInnerHTML={{ __html: content.label || content.subtitle || '' }}
               />
@@ -1287,7 +1286,6 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                 marginBottom: content.titleMarginBottom || '2rem',
                 fontWeight: content.titleFontWeight || '300',
                 fontStyle: content.titleFontStyle || 'italic',
-                ...getTransformStyle('title'),
               }}
               dangerouslySetInnerHTML={{ __html: content.title || 'Section Title' }}
             />
@@ -1323,7 +1321,6 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                   fontSize: content.descriptionFontSize || '1.125rem',
                   lineHeight: content.descriptionLineHeight || '1.75',
                   marginBottom: content.descriptionMarginBottom || '2rem',
-                  ...getTransformStyle('description'),
                   maxWidth: content.descriptionMaxWidth || '100%',
                 }}
                 dangerouslySetInnerHTML={{ __html: content.description }}
@@ -1332,50 +1329,58 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
           )}
           
           {content.ctaText && content.ctaLink && (
-            <MoveableElement
-              elementId="cta"
-              elementType="button"
-              initialTransform={getElementTransform('cta')}
-              onTransformChange={handleTransformChange}
-              className="inline-block"
-            >
-              {(() => {
-                const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
-                const linkStyle = { 
-                  color: ctaTextColor, 
-                  borderColor: ctaTextColor,
-                  borderRadius: content.ctaBorderRadius || '9999px',
-                  paddingLeft: content.ctaPaddingX || '1.5rem',
-                  paddingRight: content.ctaPaddingX || '1.5rem',
-                  paddingTop: content.ctaPaddingY || '0.75rem',
-                  paddingBottom: content.ctaPaddingY || '0.75rem',
-                  fontSize: content.ctaFontSize || '0.875rem',
-                  letterSpacing: content.ctaLetterSpacing || '0.15em',
-                  borderWidth: content.ctaBorderWidth || '1px',
-                };
-                const linkClass = "je-section-cta inline-block border font-sans uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300";
-                
-                return isExternal ? (
-                  <a 
-                    href={content.ctaLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={linkClass}
-                    style={linkStyle}
-                  >
-                    {content.ctaText}
-                  </a>
-                ) : (
-                  <Link 
-                    href={content.ctaLink}
-                    className={linkClass}
-                    style={linkStyle}
-                  >
-                    {content.ctaText}
-                  </Link>
-                );
-              })()}
-            </MoveableElement>
+            (() => {
+              const isExternal = content.ctaLink.startsWith('http://') || content.ctaLink.startsWith('https://');
+              const linkStyle = { 
+                color: ctaTextColor, 
+                borderColor: ctaTextColor,
+                borderRadius: content.ctaBorderRadius || '9999px',
+                paddingLeft: content.ctaPaddingX || '1.5rem',
+                paddingRight: content.ctaPaddingX || '1.5rem',
+                paddingTop: content.ctaPaddingY || '0.75rem',
+                paddingBottom: content.ctaPaddingY || '0.75rem',
+                fontSize: content.ctaFontSize || '0.875rem',
+                letterSpacing: content.ctaLetterSpacing || '0.15em',
+                borderWidth: content.ctaBorderWidth || '1px',
+              };
+              const linkClass = "je-section-cta inline-block border font-sans uppercase hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300";
+              
+              const ctaElement = isExternal ? (
+                <a 
+                  href={content.ctaLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={linkClass}
+                  style={linkStyle}
+                >
+                  {content.ctaText}
+                </a>
+              ) : (
+                <Link 
+                  href={content.ctaLink}
+                  className={linkClass}
+                  style={linkStyle}
+                >
+                  {content.ctaText}
+                </Link>
+              );
+
+              return isElementEditMode ? (
+                <MoveableElement
+                  elementId="cta"
+                  elementType="button"
+                  initialTransform={getElementTransform('cta')}
+                  onTransformChange={handleTransformChange}
+                  className="inline-block"
+                >
+                  {ctaElement}
+                </MoveableElement>
+              ) : (
+                <div className="inline-block">
+                  {ctaElement}
+                </div>
+              );
+            })()
           )}
         </div>
         
@@ -1436,7 +1441,7 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
         ) : (
           <div 
             className={`relative ${(content.imagePosition === 'left' || content.reversed) ? 'lg:order-1' : ''}`}
-            style={getTransformStyle('image')}
+            style={{}}
           >
             <div 
               ref={imageWrapperRef}
