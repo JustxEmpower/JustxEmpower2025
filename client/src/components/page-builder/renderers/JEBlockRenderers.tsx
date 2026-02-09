@@ -1243,17 +1243,18 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                 />
               </MoveableElement>
             ) : (
-              <p 
-                className="je-section-subtitle font-sans uppercase"
-                style={{ 
-                  color: subtitleColor || undefined,
-                  fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
-                  letterSpacing: content.subtitleLetterSpacing || '0.2em',
-                  marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
-                  ...getTransformStyle('subtitle'),
-                }}
-                dangerouslySetInnerHTML={{ __html: content.label || content.subtitle || '' }}
-              />
+              <div style={getTransformStyle('subtitle')}>
+                <p 
+                  className="je-section-subtitle font-sans uppercase"
+                  style={{ 
+                    color: subtitleColor || undefined,
+                    fontSize: content.labelFontSize || content.subtitleFontSize || '0.75rem',
+                    letterSpacing: content.subtitleLetterSpacing || '0.2em',
+                    marginBottom: content.labelMarginBottom || content.subtitleMarginBottom || '1rem',
+                  }}
+                  dangerouslySetInnerHTML={{ __html: content.label || content.subtitle || '' }}
+                />
+              </div>
             )
           )}
           
@@ -1278,19 +1279,20 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
               />
             </MoveableElement>
           ) : (
-            <h2 
-              className="je-section-title font-serif"
-              style={{ 
-                color: titleColor,
-                fontSize: content.titleFontSize || '3rem',
-                lineHeight: content.titleLineHeight || '1.2',
-                marginBottom: content.titleMarginBottom || '2rem',
-                fontWeight: content.titleFontWeight || '300',
-                fontStyle: content.titleFontStyle || 'italic',
-                ...getTransformStyle('title'),
-              }}
-              dangerouslySetInnerHTML={{ __html: content.title || 'Section Title' }}
-            />
+            <div style={getTransformStyle('title')}>
+              <h2 
+                className="je-section-title font-serif"
+                style={{ 
+                  color: titleColor,
+                  fontSize: content.titleFontSize || '3rem',
+                  lineHeight: content.titleLineHeight || '1.2',
+                  marginBottom: content.titleMarginBottom || '2rem',
+                  fontWeight: content.titleFontWeight || '300',
+                  fontStyle: content.titleFontStyle || 'italic',
+                }}
+                dangerouslySetInnerHTML={{ __html: content.title || 'Section Title' }}
+              />
+            </div>
           )}
           
           {content.description && (
@@ -1315,19 +1317,20 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
                 />
               </MoveableElement>
             ) : (
-              <div 
-                className="je-section-desc font-sans" 
-                style={{ 
-                  color: descriptionColor, 
-                  opacity: isEditing ? 1 : 0.8,
-                  fontSize: content.descriptionFontSize || '1.125rem',
-                  lineHeight: content.descriptionLineHeight || '1.75',
-                  marginBottom: content.descriptionMarginBottom || '2rem',
-                  ...getTransformStyle('description'),
-                  maxWidth: content.descriptionMaxWidth || '100%',
-                }}
-                dangerouslySetInnerHTML={{ __html: content.description }}
-              />
+              <div style={getTransformStyle('description')}>
+                <div 
+                  className="je-section-desc font-sans" 
+                  style={{ 
+                    color: descriptionColor, 
+                    opacity: isEditing ? 1 : 0.8,
+                    fontSize: content.descriptionFontSize || '1.125rem',
+                    lineHeight: content.descriptionLineHeight || '1.75',
+                    marginBottom: content.descriptionMarginBottom || '2rem',
+                    maxWidth: content.descriptionMaxWidth || '100%',
+                  }}
+                  dangerouslySetInnerHTML={{ __html: content.description }}
+                />
+              </div>
             )
           )}
           
