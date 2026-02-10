@@ -1630,6 +1630,82 @@ export const adminRouter = router({
         return await softDeletePage(input.id);
       }),
 
+    duplicate: adminProcedure
+      .input(
+        z.object({
+          sourcePageId: z.number(),
+          title: z.string(),
+          slug: z.string(),
+          parentId: z.number().nullable().optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+        // Check slug uniqueness
+        const existingPage = await getPageBySlug(input.slug);
+        if (existingPage) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: `A page with the slug "${input.slug}" already exists. Please choose a different URL slug.`,
+          });
+        }
+
+        // Get source page
+        const [sourcePage] = await db
+          .select()
+          .from(schema.pages)
+          .where(eq(schema.pages.id, input.sourcePageId));
+
+        if (!sourcePage) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Source page not found" });
+        }
+
+        // Create the new page with source page properties
+        const newPage = await createPage({
+          title: input.title,
+          slug: input.slug,
+          template: sourcePage.template || 'default',
+          metaTitle: input.title,
+          metaDescription: sourcePage.metaDescription || '',
+          ogImage: sourcePage.ogImage || '',
+          published: 0, // Start as draft
+          showInNav: 0,
+          parentId: input.parentId ?? null,
+        });
+
+        // Copy all blocks from source page to new page
+        const sourceBlocks = await db
+          .select()
+          .from(schema.pageBlocks)
+          .where(eq(schema.pageBlocks.pageId, input.sourcePageId))
+          .orderBy(schema.pageBlocks.order);
+
+        for (const block of sourceBlocks) {
+          await db.insert(schema.pageBlocks).values({
+            pageId: newPage.id,
+            type: block.type,
+            content: block.content,
+            order: block.order,
+            settings: block.settings || '{}',
+            visibility: block.visibility || '{}',
+            animation: block.animation || '{}',
+          });
+        }
+
+        console.log(`[pages.duplicate] Duplicated page ${input.sourcePageId} -> ${newPage.id} (${input.slug}) with ${sourceBlocks.length} blocks`);
+
+        // Sync blocks to siteContent
+        try {
+          await syncPageBlocksToSiteContent(newPage.id, input.slug);
+        } catch (error) {
+          console.error('[pages.duplicate] Failed to sync to siteContent:', error);
+        }
+
+        return { success: true, newPageId: newPage.id, blocksCount: sourceBlocks.length };
+      }),
+
     // Trash Bin Management
     trash: router({
       // List all trashed pages

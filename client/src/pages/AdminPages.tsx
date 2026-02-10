@@ -52,6 +52,7 @@ import {
   Clock,
   AlertTriangle,
   Settings,
+  Copy,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -96,11 +97,12 @@ interface SortablePageProps {
   onEdit: (page: Page) => void;
   onEditBlocks: (page: Page) => void;
   onDelete: (id: number) => void;
+  onDuplicate: (page: Page) => void;
   isChild?: boolean;
   parentTitle?: string;
 }
 
-function SortablePage({ page, onEdit, onEditBlocks, onDelete, isChild, parentTitle }: SortablePageProps) {
+function SortablePage({ page, onEdit, onEditBlocks, onDelete, onDuplicate, isChild, parentTitle }: SortablePageProps) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: page.id,
   });
@@ -165,8 +167,12 @@ function SortablePage({ page, onEdit, onEditBlocks, onDelete, isChild, parentTit
           <Layout className="w-4 h-4" />
         </Button>
 
-        <Button onClick={() => onEdit(page)} variant="outline" size="sm">
+        <Button onClick={() => onEdit(page)} variant="outline" size="sm" title="Edit settings">
           <Edit className="w-4 h-4" />
+        </Button>
+
+        <Button onClick={() => onDuplicate(page)} variant="outline" size="sm" title="Duplicate page">
+          <Copy className="w-4 h-4" />
         </Button>
 
         <Button
@@ -252,6 +258,13 @@ export default function AdminPages() {
   const { isAuthenticated, isChecking } = useAdminAuth();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDuplicateDialogOpen, setIsDuplicateDialogOpen] = useState(false);
+  const [duplicatingPage, setDuplicatingPage] = useState<Page | null>(null);
+  const [duplicateFormData, setDuplicateFormData] = useState({
+    title: "",
+    slug: "",
+    parentId: null as number | null,
+  });
   const [isSettingsDialogOpen, setIsSettingsDialogOpen] = useState(false);
   const [isEmptyTrashDialogOpen, setIsEmptyTrashDialogOpen] = useState(false);
   const [isPermanentDeleteDialogOpen, setIsPermanentDeleteDialogOpen] = useState(false);
@@ -282,6 +295,7 @@ export default function AdminPages() {
   const updateMutation = trpc.admin.pages.update.useMutation();
   const deleteMutation = trpc.admin.pages.delete.useMutation();
   const reorderMutation = trpc.admin.pages.reorder.useMutation();
+  const duplicateMutation = trpc.admin.pages.duplicate.useMutation();
   const restoreMutation = trpc.admin.pages.trash.restore.useMutation();
   const permanentDeleteMutation = trpc.admin.pages.trash.permanentDelete.useMutation();
   const emptyTrashMutation = trpc.admin.pages.trash.emptyAll.useMutation();
@@ -452,6 +466,35 @@ export default function AdminPages() {
       setIsSettingsDialogOpen(false);
     } catch (error) {
       toast.error("Failed to update settings");
+      console.error(error);
+    }
+  };
+
+  const handleDuplicatePage = (page: Page) => {
+    setDuplicatingPage(page);
+    setDuplicateFormData({
+      title: `${page.title} (Copy)`,
+      slug: `${page.slug}-copy`,
+      parentId: page.parentId,
+    });
+    setIsDuplicateDialogOpen(true);
+  };
+
+  const confirmDuplicate = async () => {
+    if (!duplicatingPage) return;
+    try {
+      const result = await duplicateMutation.mutateAsync({
+        sourcePageId: duplicatingPage.id,
+        title: duplicateFormData.title,
+        slug: duplicateFormData.slug,
+        parentId: duplicateFormData.parentId,
+      });
+      toast.success(`Page duplicated with ${result.blocksCount} blocks. Created as draft.`);
+      setIsDuplicateDialogOpen(false);
+      setDuplicatingPage(null);
+      pagesQuery.refetch();
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to duplicate page");
       console.error(error);
     }
   };
@@ -781,6 +824,7 @@ export default function AdminPages() {
                           onEdit={handleEditPage}
                           onEditBlocks={handleEditBlocks}
                           onDelete={handleDeletePage}
+                          onDuplicate={handleDuplicatePage}
                           isChild={isChild}
                           parentTitle={parentTitle}
                         />
@@ -926,6 +970,82 @@ export default function AdminPages() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Duplicate Page Dialog */}
+      <Dialog open={isDuplicateDialogOpen} onOpenChange={setIsDuplicateDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Duplicate Page</DialogTitle>
+            <DialogDescription>
+              Create a copy of "{duplicatingPage?.title}" with all its blocks. The new page will start as a draft.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="dup-title">New Page Title</Label>
+              <Input
+                id="dup-title"
+                value={duplicateFormData.title}
+                onChange={(e) =>
+                  setDuplicateFormData({ ...duplicateFormData, title: e.target.value })
+                }
+                placeholder="Page title"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="dup-slug">URL Slug</Label>
+              <Input
+                id="dup-slug"
+                value={duplicateFormData.slug}
+                onChange={(e) =>
+                  setDuplicateFormData({ ...duplicateFormData, slug: e.target.value })
+                }
+                placeholder="page-slug"
+              />
+              <p className="text-xs text-neutral-500 mt-1">
+                URL: /{duplicateFormData.slug}
+              </p>
+            </div>
+
+            <div>
+              <Label htmlFor="dup-parent">Parent Page (connection)</Label>
+              <Select
+                value={duplicateFormData.parentId?.toString() || "none"}
+                onValueChange={(value) =>
+                  setDuplicateFormData({ ...duplicateFormData, parentId: value === "none" ? null : parseInt(value) })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select parent page (optional)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No parent (top-level page)</SelectItem>
+                  {topLevelPages.map((page) => (
+                    <SelectItem key={page.id} value={page.id.toString()}>
+                      {page.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-neutral-500 mt-1">
+                Sub-pages appear as dropdown items under their parent in navigation
+              </p>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2 pt-4">
+            <Button variant="outline" onClick={() => setIsDuplicateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={confirmDuplicate} disabled={!duplicateFormData.title || !duplicateFormData.slug}>
+              <Copy className="w-4 h-4 mr-2" />
+              Duplicate Page
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Permanent Delete Confirmation Dialog */}
       <AlertDialog open={isPermanentDeleteDialogOpen} onOpenChange={setIsPermanentDeleteDialogOpen}>
