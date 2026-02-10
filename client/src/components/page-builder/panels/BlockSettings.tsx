@@ -3953,30 +3953,61 @@ export default function BlockSettings() {
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Content Gap</Label>
-                      <Input
+                      <Select
                         value={selectedBlock.content.contentGap as string || '4rem'}
-                        onChange={(e) => handleContentChange('contentGap', e.target.value)}
-                        placeholder="4rem"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                        onValueChange={(v) => handleContentChange('contentGap', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">None</SelectItem>
+                          <SelectItem value="1rem">Small</SelectItem>
+                          <SelectItem value="2rem">Medium</SelectItem>
+                          <SelectItem value="3rem">Large</SelectItem>
+                          <SelectItem value="4rem">X-Large</SelectItem>
+                          <SelectItem value="6rem">XX-Large</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Section Padding Y</Label>
-                      <Input
+                      <Select
                         value={selectedBlock.content.sectionPaddingY as string || '6rem'}
-                        onChange={(e) => handleContentChange('sectionPaddingY', e.target.value)}
-                        placeholder="6rem"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                        onValueChange={(v) => handleContentChange('sectionPaddingY', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">None</SelectItem>
+                          <SelectItem value="1rem">Compact</SelectItem>
+                          <SelectItem value="2rem">Small</SelectItem>
+                          <SelectItem value="3rem">Medium</SelectItem>
+                          <SelectItem value="4rem">Large</SelectItem>
+                          <SelectItem value="6rem">X-Large</SelectItem>
+                          <SelectItem value="8rem">XX-Large</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Section Padding X</Label>
-                      <Input
+                      <Select
                         value={selectedBlock.content.sectionPaddingX as string || '1.5rem'}
-                        onChange={(e) => handleContentChange('sectionPaddingX', e.target.value)}
-                        placeholder="1.5rem"
-                        className="bg-neutral-50 dark:bg-neutral-800 h-9 text-sm"
-                      />
+                        onValueChange={(v) => handleContentChange('sectionPaddingX', v)}
+                      >
+                        <SelectTrigger className="bg-neutral-50 dark:bg-neutral-800 h-9">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="0">None</SelectItem>
+                          <SelectItem value="0.5rem">Tiny</SelectItem>
+                          <SelectItem value="1rem">Small</SelectItem>
+                          <SelectItem value="1.5rem">Medium</SelectItem>
+                          <SelectItem value="2rem">Large</SelectItem>
+                          <SelectItem value="3rem">X-Large</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Text Align</Label>
