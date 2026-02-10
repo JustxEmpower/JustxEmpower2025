@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AdminSidebar from '@/components/AdminSidebar';
 import { motion } from "framer-motion";
-import { Files, Plus, Edit, Trash2, Eye, Search, RefreshCw, Filter, Globe, FileText, ExternalLink } from "lucide-react";
+import { Files, Plus, Edit, Trash2, Eye, Search, RefreshCw, Filter, Globe, FileText, ExternalLink, Copy } from "lucide-react";
 import { toast } from "sonner";
 
 function AnimatedCounter({ value }: { value: number }) {
@@ -37,6 +37,9 @@ export default function AdminPagesEnhanced() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingPage, setEditingPage] = useState<any>(null);
   const [formData, setFormData] = useState({ title: "", slug: "", template: "default", status: "published" });
+  const [isDuplicateOpen, setIsDuplicateOpen] = useState(false);
+  const [duplicatingPage, setDuplicatingPage] = useState<any>(null);
+  const [dupFormData, setDupFormData] = useState({ title: "", slug: "", parentId: null as number | null });
 
   const pagesQuery = trpc.admin.pages.list.useQuery();
   const createMutation = trpc.admin.pages.create.useMutation({
@@ -52,6 +55,15 @@ export default function AdminPagesEnhanced() {
   });
   const updateMutation = trpc.admin.pages.update?.useMutation?.({ onSuccess: () => { toast.success("Page updated"); pagesQuery.refetch(); setEditingPage(null); resetForm(); }, onError: (e: any) => toast.error(e.message) }) || { mutate: () => {}, isPending: false };
   const deleteMutation = trpc.admin.pages.delete?.useMutation?.({ onSuccess: () => { toast.success("Page deleted"); pagesQuery.refetch(); }, onError: (e: any) => toast.error(e.message) }) || { mutate: () => {}, isPending: false };
+  const duplicateMutation = trpc.admin.pages.duplicate.useMutation({
+    onSuccess: (result: any) => {
+      toast.success(`Page duplicated with ${result.blocksCount} blocks. Created as draft.`);
+      pagesQuery.refetch();
+      setIsDuplicateOpen(false);
+      setDuplicatingPage(null);
+    },
+    onError: (e: any) => toast.error(e.message || "Failed to duplicate page")
+  });
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) setLocation("/admin/login");
@@ -92,6 +104,20 @@ export default function AdminPagesEnhanced() {
   };
   const handleDelete = (id: number) => {
     if (confirm('Delete this page?')) deleteMutation.mutate?.({ id });
+  };
+  const handleDuplicate = (page: any) => {
+    setDuplicatingPage(page);
+    setDupFormData({ title: `${page.title} (Copy)`, slug: `${page.slug}-copy`, parentId: page.parentId || null });
+    setIsDuplicateOpen(true);
+  };
+  const confirmDuplicate = () => {
+    if (!duplicatingPage) return;
+    duplicateMutation.mutate({
+      sourcePageId: duplicatingPage.id,
+      title: dupFormData.title,
+      slug: dupFormData.slug,
+      parentId: dupFormData.parentId,
+    });
   };
 
   if (isChecking) {
@@ -145,9 +171,10 @@ export default function AdminPagesEnhanced() {
                         <p className="text-sm text-stone-500">/{page.slug}</p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Button variant="ghost" size="icon" onClick={() => window.open(`/${page.slug}`, "_blank")}><ExternalLink className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleEdit(page)}><Edit className="w-4 h-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => { if (confirm("Delete?")) deleteMutation.mutate?.({ id: page.id }); }}><Trash2 className="w-4 h-4 text-red-500" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => window.open(`/${page.slug}`, "_blank")} title="View page"><ExternalLink className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(page)} title="Edit in Page Builder"><Edit className="w-4 h-4" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDuplicate(page)} title="Duplicate page"><Copy className="w-4 h-4 text-blue-500" /></Button>
+                        <Button variant="ghost" size="icon" onClick={() => { if (confirm("Delete?")) deleteMutation.mutate?.({ id: page.id }); }} title="Delete page"><Trash2 className="w-4 h-4 text-red-500" /></Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -166,6 +193,39 @@ export default function AdminPagesEnhanced() {
               <div className="space-y-2"><Label>Status</Label><Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="published">Published (visible on site)</SelectItem><SelectItem value="draft">Draft (edit before publishing)</SelectItem></SelectContent></Select></div>
             </div>
             <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending} className="bg-amber-600 hover:bg-amber-700">Create & Edit in Page Builder</Button></DialogFooter>
+          </DialogContent>
+        </Dialog>
+        <Dialog open={isDuplicateOpen} onOpenChange={(open) => { if (!open) { setIsDuplicateOpen(false); setDuplicatingPage(null); } }}>
+          <DialogContent>
+            <DialogHeader><DialogTitle>Duplicate Page</DialogTitle></DialogHeader>
+            <p className="text-sm text-stone-500">Create a copy of "{duplicatingPage?.title}" with all its blocks. The new page will start as a draft.</p>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2"><Label>New Page Title</Label><Input value={dupFormData.title} onChange={(e) => setDupFormData({ ...dupFormData, title: e.target.value })} placeholder="Page title" /></div>
+              <div className="space-y-2">
+                <Label>URL Slug</Label>
+                <Input value={dupFormData.slug} onChange={(e) => setDupFormData({ ...dupFormData, slug: e.target.value })} placeholder="page-slug" />
+                <p className="text-xs text-stone-500">URL: /{dupFormData.slug}</p>
+              </div>
+              <div className="space-y-2">
+                <Label>Parent Page (connection)</Label>
+                <Select value={dupFormData.parentId?.toString() || "none"} onValueChange={(v) => setDupFormData({ ...dupFormData, parentId: v === "none" ? null : parseInt(v) })}>
+                  <SelectTrigger><SelectValue placeholder="Select parent page" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No parent (top-level page)</SelectItem>
+                    {pages.filter((p: any) => !p.parentId).map((p: any) => (
+                      <SelectItem key={p.id} value={p.id.toString()}>{p.title}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-stone-500">Sub-pages appear as dropdown items under their parent in navigation</p>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => { setIsDuplicateOpen(false); setDuplicatingPage(null); }}>Cancel</Button>
+              <Button onClick={confirmDuplicate} disabled={duplicateMutation.isPending || !dupFormData.title || !dupFormData.slug} className="bg-amber-600 hover:bg-amber-700">
+                <Copy className="w-4 h-4 mr-2" />Duplicate Page
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </main>
