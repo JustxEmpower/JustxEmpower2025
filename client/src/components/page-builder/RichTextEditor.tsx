@@ -77,6 +77,32 @@ export default function RichTextEditor({
   const [selectedFont, setSelectedFont] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
 
+  // Parse font-family and font-size from existing HTML content on mount/value change
+  // This ensures the toolbar shows the correct font/size when re-selecting a block
+  useEffect(() => {
+    if (!value) return;
+    try {
+      const temp = document.createElement('div');
+      temp.innerHTML = value;
+      // Find the first element with a font-family or font-size style
+      const styledEl = temp.querySelector('[style]') as HTMLElement | null;
+      if (styledEl) {
+        const ff = styledEl.style.fontFamily;
+        if (ff && !selectedFont) {
+          // Extract the primary font name (strip quotes and fallbacks)
+          const primary = ff.split(',')[0].trim().replace(/^["']|["']$/g, '');
+          if (primary) setSelectedFont(primary);
+        }
+        const fs = styledEl.style.fontSize;
+        if (fs && !selectedSize) {
+          setSelectedSize(fs);
+        }
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Save selection before opening popover (selection is lost when clicking outside editor)
   const saveSelection = useCallback(() => {
     const selection = window.getSelection();

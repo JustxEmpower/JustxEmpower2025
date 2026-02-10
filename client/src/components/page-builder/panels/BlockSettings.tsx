@@ -1,6 +1,6 @@
 import React, { useState, lazy, Suspense } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play, Plus, ChevronDown, ChevronUp, Calendar, Heart, Leaf, Moon, Star, Sun, Sparkles, Flower2, Mountain, Globe, Shield, Zap, Target, Award, Users, BookOpen, Link, Ruler } from 'lucide-react';
+import { Settings, Palette, Code, X, Trash2, Copy, ArrowUp, ArrowDown, Image, Video, Play, Plus, ChevronDown, ChevronUp, Calendar, Heart, Leaf, Moon, Star, Sun, Sparkles, Flower2, Mountain, Globe, Shield, Zap, Target, Award, Users, BookOpen, Link, Ruler, ArrowLeftRight, RotateCcw } from 'lucide-react';
 import MediaPicker from '@/components/MediaPicker';
 import VideoThumbnail from '@/components/VideoThumbnail';
 import { Input } from '@/components/ui/input';
@@ -3922,6 +3922,34 @@ export default function BlockSettings() {
                 <div className="space-y-3 pt-4 border-t border-neutral-200 dark:border-neutral-700">
                   <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Section Layout</h4>
                   
+                  {/* Swap Columns Toggle */}
+                  <div className="flex items-center justify-between py-2 px-3 rounded-lg bg-neutral-50 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
+                    <div className="flex items-center gap-2">
+                      <ArrowLeftRight className="w-4 h-4 text-primary" />
+                      <div>
+                        <Label className="text-sm font-medium">Swap Columns</Label>
+                        <p className="text-xs text-muted-foreground">Flip text & image sides</p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={selectedBlock.content.reversed as boolean || false}
+                      onCheckedChange={(checked) => handleContentChange('reversed', checked)}
+                    />
+                  </div>
+
+                  {/* Reset Element Positions */}
+                  {selectedBlock.content.elementTransforms && Object.keys(selectedBlock.content.elementTransforms as Record<string, any>).length > 0 && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full flex items-center gap-2 text-amber-600 hover:text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950 border-amber-200 dark:border-amber-800"
+                      onClick={() => handleContentChange('elementTransforms', {})}
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      Reset Element Positions
+                    </Button>
+                  )}
+
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-2">
                       <Label className="text-xs text-muted-foreground">Content Gap</Label>
