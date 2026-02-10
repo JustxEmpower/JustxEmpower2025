@@ -747,6 +747,17 @@ function renderField(
     );
   }
 
+  // Handle testimonials array (JE Testimonial Slider)
+  if (key === 'testimonials' && Array.isArray(value)) {
+    return (
+      <TestimonialsEditor
+        key={key}
+        testimonials={value as Array<{ quote: string; author: string; role?: string; imageUrl?: string; rating?: number }>}
+        onChange={(newTestimonials) => onChange(key, newTestimonials)}
+      />
+    );
+  }
+
   // Skip other complex objects/arrays for now (would need custom editors)
   return null;
 }
@@ -1935,6 +1946,121 @@ function VolumesEditor({
         onSelect={(url) => { if (selectedIndex !== null) updateVolume(selectedIndex, 'imageUrl', url); setMediaPickerOpen(false); setSelectedIndex(null); }}
         mediaType="image"
       />
+    </div>
+  );
+}
+
+// ==========================================
+// TESTIMONIALS EDITOR (JE Testimonial Slider)
+// ==========================================
+interface TestimonialItem {
+  quote: string;
+  author: string;
+  role?: string;
+  imageUrl?: string;
+  rating?: number;
+}
+
+function TestimonialsEditor({
+  testimonials,
+  onChange,
+}: {
+  testimonials: TestimonialItem[];
+  onChange: (testimonials: TestimonialItem[]) => void;
+}) {
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
+
+  const updateTestimonial = (index: number, field: keyof TestimonialItem, value: string | number) => {
+    const updated = [...testimonials];
+    updated[index] = { ...updated[index], [field]: value };
+    onChange(updated);
+  };
+
+  const addTestimonial = () => {
+    const updated = [...testimonials, { quote: 'New testimonial...', author: 'Author Name', role: '', imageUrl: '', rating: 5 }];
+    onChange(updated);
+    setExpandedIndex(updated.length - 1);
+  };
+
+  const removeTestimonial = (index: number) => {
+    if (testimonials.length <= 1) return;
+    onChange(testimonials.filter((_, i) => i !== index));
+    if (expandedIndex === index) setExpandedIndex(null);
+  };
+
+  const moveTestimonial = (fromIndex: number, toIndex: number) => {
+    if (toIndex < 0 || toIndex >= testimonials.length) return;
+    const updated = [...testimonials];
+    const [removed] = updated.splice(fromIndex, 1);
+    updated.splice(toIndex, 0, removed);
+    onChange(updated);
+    setExpandedIndex(toIndex);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <Label className="text-sm font-medium">Testimonials ({testimonials.length})</Label>
+        <Button type="button" variant="outline" size="sm" onClick={addTestimonial} className="h-7 px-2 text-xs">
+          <Plus className="w-3 h-3 mr-1" /> Add
+        </Button>
+      </div>
+      <div className="space-y-2">
+        {testimonials.map((item, index) => (
+          <div key={index} className="border border-neutral-200 dark:border-neutral-700 rounded-lg overflow-hidden">
+            <div
+              className="flex items-center gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 cursor-pointer"
+              onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
+            >
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
+                {index + 1}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{item.author || `Testimonial ${index + 1}`}</p>
+                <p className="text-xs text-muted-foreground truncate">{item.quote?.substring(0, 40)}...</p>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveTestimonial(index, index - 1); }} disabled={index === 0}>
+                  <ChevronUp className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={(e) => { e.stopPropagation(); moveTestimonial(index, index + 1); }} disabled={index === testimonials.length - 1}>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+                <Button type="button" variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" onClick={(e) => { e.stopPropagation(); removeTestimonial(index); }} disabled={testimonials.length <= 1}>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
+                {expandedIndex === index ? <ChevronUp className="w-4 h-4 text-neutral-400" /> : <ChevronDown className="w-4 h-4 text-neutral-400" />}
+              </div>
+            </div>
+            {expandedIndex === index && (
+              <div className="p-3 space-y-3 border-t border-neutral-200 dark:border-neutral-700">
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Quote</Label>
+                  <Textarea value={item.quote} onChange={(e) => updateTestimonial(index, 'quote', e.target.value)} placeholder="Testimonial quote..." rows={3} className="text-sm bg-white dark:bg-neutral-900" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Author</Label>
+                    <Input value={item.author} onChange={(e) => updateTestimonial(index, 'author', e.target.value)} placeholder="Author name" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-xs text-muted-foreground">Role</Label>
+                    <Input value={item.role || ''} onChange={(e) => updateTestimonial(index, 'role', e.target.value)} placeholder="Role/Title" className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Rating (0-5)</Label>
+                  <Input type="number" min={0} max={5} value={item.rating ?? 5} onChange={(e) => updateTestimonial(index, 'rating', Number(e.target.value))} className="h-8 text-sm bg-white dark:bg-neutral-900 w-20" />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs text-muted-foreground">Author Image URL</Label>
+                  <Input value={item.imageUrl || ''} onChange={(e) => updateTestimonial(index, 'imageUrl', e.target.value)} placeholder="https://..." className="h-8 text-sm bg-white dark:bg-neutral-900" />
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

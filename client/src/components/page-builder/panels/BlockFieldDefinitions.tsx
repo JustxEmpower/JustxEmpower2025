@@ -1219,9 +1219,16 @@ export const JE_BLOCK_FIELDS: Record<string, FieldDefinition[]> = {
       { value: 'minimal', label: 'Minimal' },
     ]},
     { key: 'dark', label: 'Dark Mode', type: 'boolean' },
-    { key: 'autoplay', label: 'Auto-scroll Testimonials', type: 'boolean' },
-    { key: 'interval', label: 'Scroll Interval (seconds)', type: 'number', min: 2, max: 15 },
-    { key: 'testimonials', label: 'Additional Testimonials', type: 'array', itemFields: [
+    { key: 'autoplay', label: 'Auto-slide Testimonials', type: 'boolean' },
+    { key: 'interval', label: 'Slide Interval', type: 'select', options: [
+      { value: '3', label: '3 seconds' },
+      { value: '5', label: '5 seconds' },
+      { value: '8', label: '8 seconds' },
+      { value: '10', label: '10 seconds' },
+      { value: '12', label: '12 seconds' },
+      { value: '15', label: '15 seconds' },
+    ]},
+    { key: 'testimonials', label: 'Testimonials', type: 'array', itemFields: [
       { key: 'quote', label: 'Quote', type: 'textarea' },
       { key: 'author', label: 'Author', type: 'text' },
       { key: 'role', label: 'Role', type: 'text' },

@@ -3145,7 +3145,7 @@ export function JETestimonialRenderer({ block, isEditing = false, isBlockSelecte
     if (content.autoplay && testimonials.length > 1) {
       const timer = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % testimonials.length);
-      }, (content.interval || 5) * 1000);
+      }, (Number(content.interval) || 8) * 1000);
       return () => clearInterval(timer);
     }
   }, [content.autoplay, content.interval, testimonials.length]);

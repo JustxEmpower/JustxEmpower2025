@@ -576,6 +576,9 @@ export const blockTypes: BlockType[] = [
       role: 'Workshop Participant',
       imageUrl: '',
       style: 'elegant',
+      autoplay: true,
+      interval: 8,
+      testimonials: [],
     },
   },
   {
