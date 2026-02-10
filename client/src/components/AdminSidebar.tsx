@@ -53,6 +53,7 @@ const navItems = [
   { icon: FileText, label: 'Articles', path: '/admin/articles' },
   { icon: FolderOpen, label: 'Media', path: '/admin/media' },
   { icon: Blocks, label: 'Page Builder', path: '/admin/page-builder' },
+  { icon: Files, label: 'Pages', path: '/admin/pages' },
   { icon: Layers, label: 'Page Zones', path: '/admin/zones' },
   { icon: Box, label: 'Block Store', path: '/admin/block-store' },
   // E-commerce / Shop section
