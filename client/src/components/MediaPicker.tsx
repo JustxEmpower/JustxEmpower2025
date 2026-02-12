@@ -229,9 +229,9 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl w-full p-0 gap-0 overflow-hidden" style={{ maxHeight: '85vh', height: '85vh' }}>
+      <DialogContent className="max-w-4xl w-full p-0 gap-0 overflow-hidden flex flex-col" style={{ maxHeight: '85vh', height: '85vh' }}>
         {/* Fixed Header */}
-        <div className="p-6 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+        <div className="shrink-0 p-6 border-b border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
           <h2 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
             Select {mediaType === 'all' ? 'Media' : mediaType === 'image' ? 'Image' : 'Video'}
           </h2>
@@ -262,7 +262,7 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
         </div>
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto p-6" style={{ maxHeight: 'calc(85vh - 200px)' }}>
+        <div className="flex-1 min-h-0 overflow-y-auto p-6">
           {activeTab === 'library' ? (
             <>
               {/* Search Bar */}
@@ -410,7 +410,7 @@ export default function MediaPicker({ open, onClose, onSelect, mediaType = 'all'
         </div>
 
         {/* Fixed Footer with Action Buttons - ALWAYS VISIBLE */}
-        <div className="p-6 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+        <div className="shrink-0 p-4 border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
           {/* Selected Media Preview */}
           {selectedMedia && (
             <div className="flex items-center gap-3 mb-4 p-3 bg-blue-50 dark:bg-blue-950 rounded-lg border border-blue-200 dark:border-blue-800">
