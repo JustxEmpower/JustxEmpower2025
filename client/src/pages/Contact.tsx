@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { trpc } from '@/lib/trpc';
 import { usePageContent } from '@/hooks/usePageContent';
+import { useGlobalContent } from '@/hooks/useGlobalContent';
 import { EditablePageZone } from '@/components/PageZone';
 
 const contactSchema = z.object({
@@ -33,6 +34,7 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
   const [location] = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent(slug);
+  const { footer } = useGlobalContent();
 
   const {
     register,
@@ -77,8 +79,9 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
   const contactDescription = getContent('info', 'description');
   const contactLocation = getContent('info', 'location');
   const contactEmail = getContent('info', 'email');
-  const contactInstagram = getContent('info', 'instagramUrl');
-  const contactLinkedin = getContent('info', 'linkedinUrl');
+  const contactInstagram = getContent('info', 'instagramUrl') || footer.instagramUrl || 'https://www.instagram.com/justxempower/';
+  const contactLinkedin = getContent('info', 'linkedinUrl') || footer.linkedinUrl || 'https://www.linkedin.com/company/justxempower/';
+  const contactFacebook = footer.facebookUrl || 'https://www.facebook.com/justxempower';
   
   // Determine which media to use (video takes priority)
   const heroMediaUrl = heroVideoUrl || heroImageUrl;
@@ -168,6 +171,9 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
                   )}
                   {contactLinkedin && contactLinkedin !== '#' && (
                     <a href={contactLinkedin} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">LinkedIn</a>
+                  )}
+                  {contactFacebook && contactFacebook !== '#' && (
+                    <a href={contactFacebook} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">Facebook</a>
                   )}
                 </div>
               </div>

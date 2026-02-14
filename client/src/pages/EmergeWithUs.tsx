@@ -3,6 +3,7 @@ import { useLocation, Link } from 'wouter';
 import { Button } from '@/components/ui/button';
 import { getMediaUrl } from '@/lib/media';
 import { usePageContent } from '@/hooks/usePageContent';
+import { useGlobalContent } from '@/hooks/useGlobalContent';
 import { cn } from '@/lib/utils';
 
 interface EmergeWithUsProps {
@@ -12,6 +13,12 @@ interface EmergeWithUsProps {
 export default function EmergeWithUs({ slug = 'emerge-with-us' }: EmergeWithUsProps) {
   const [location] = useLocation();
   const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent(slug);
+  const { footer } = useGlobalContent();
+
+  // Social media URLs (same as footer)
+  const instagramUrl = footer.instagramUrl || 'https://www.instagram.com/justxempower/';
+  const linkedinUrl = footer.linkedinUrl || 'https://www.linkedin.com/company/justxempower/';
+  const facebookUrl = footer.facebookUrl || 'https://www.facebook.com/justxempower';
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -225,6 +232,45 @@ export default function EmergeWithUs({ slug = 'emerge-with-us' }: EmergeWithUsPr
           </div>
         </div>
       )}
+
+      {/* Social Links Section */}
+      <div className="py-16 px-6 md:px-12">
+        <div className="max-w-4xl mx-auto text-center">
+          <h3 className="font-sans text-xs uppercase tracking-[0.2em] text-muted-foreground mb-8">Connect With Us</h3>
+          <div className="flex justify-center gap-4">
+            {instagramUrl && instagramUrl !== '#' && (
+              <a
+                href={instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 border border-foreground/20 rounded-full flex items-center justify-center text-foreground/70 hover:bg-foreground hover:text-background transition-colors duration-300 text-sm"
+              >
+                IG
+              </a>
+            )}
+            {linkedinUrl && linkedinUrl !== '#' && (
+              <a
+                href={linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 border border-foreground/20 rounded-full flex items-center justify-center text-foreground/70 hover:bg-foreground hover:text-background transition-colors duration-300 text-sm"
+              >
+                LI
+              </a>
+            )}
+            {facebookUrl && facebookUrl !== '#' && (
+              <a
+                href={facebookUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-12 h-12 border border-foreground/20 rounded-full flex items-center justify-center text-foreground/70 hover:bg-foreground hover:text-background transition-colors duration-300 text-sm"
+              >
+                FB
+              </a>
+            )}
+          </div>
+        </div>
+      </div>
 
       {/* Content Section */}
       {contentHeading && (
