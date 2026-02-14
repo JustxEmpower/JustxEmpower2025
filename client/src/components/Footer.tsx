@@ -33,7 +33,7 @@ export default function Footer() {
   
   // Split footer navigation into columns
   const exploreLinks = footerNav?.filter((item: NavItem) => 
-    ['/about', '/founder', '/philosophy', '/offerings', '/journal', '/blog'].some(path => item.url.includes(path))
+    ['/founder', '/philosophy', '/offerings', '/journal', '/blog', '/she-writes'].some(path => item.url.includes(path))
   ) || [];
   
   const connectLinks = footerNav?.filter((item: NavItem) => 
@@ -46,10 +46,9 @@ export default function Footer() {
 
   // Fallback links if database is empty
   const defaultExploreLinks = [
-    { label: 'About', url: '/founder' },
     { label: 'Philosophy', url: '/philosophy' },
     { label: 'Offerings', url: '/offerings' },
-    { label: 'Blog', url: '/blog' }
+    { label: 'She Writes', url: '/blog' }
   ];
   
   const defaultConnectLinks = [
@@ -65,18 +64,23 @@ export default function Footer() {
     { label: 'Cookie Policy', url: '/cookie-policy' }
   ];
 
+  // Labels to exclude from footer columns
+  const excludedLabels = ['about', 'blog'];
+
   // Transform links to fix labels and URLs
-  const transformLinks = (links: any[]) => links.map(item => {
-    // Journal -> Blog with /blog URL
-    if (item.label === 'Journal' || item.url?.includes('/journal')) {
-      return { ...item, label: 'Blog', url: '/blog' };
-    }
-    // Events -> /community-events
-    if (item.label === 'Events' && !item.url?.includes('/community-events')) {
-      return { ...item, url: '/community-events' };
-    }
-    return item;
-  });
+  const transformLinks = (links: any[]) => links
+    .filter(item => !excludedLabels.includes(item.label?.toLowerCase()))
+    .map(item => {
+      // Journal / Blog (She Writes) -> She Writes with /blog URL
+      if (item.label === 'Journal' || item.label === 'Blog (She Writes)' || item.url?.includes('/journal')) {
+        return { ...item, label: 'She Writes', url: '/blog' };
+      }
+      // Events -> /community-events
+      if (item.label === 'Events' && !item.url?.includes('/community-events')) {
+        return { ...item, url: '/community-events' };
+      }
+      return item;
+    });
 
   // URLs that belong in Connect column
   const connectPatterns = [
@@ -89,7 +93,7 @@ export default function Footer() {
   
   // URLs that belong in Explore column  
   const explorePatterns = [
-    '/about', '/founder', '/philosophy', '/offerings',
+    '/founder', '/philosophy', '/offerings',
     '/blog', '/journal', '/she-writes',
     '/rooted-unity', '/vision', '/ethos',
     '/mom-vix', '/trilogy', '/overview'
@@ -153,7 +157,7 @@ export default function Footer() {
   // Get content from database with fallbacks
   const tagline = footer.tagline || 'Catalyzing the rise of her through embodied transformation and conscious leadership.';
   const copyright = footer.copyright || `© ${currentYear} Just Empower™. All Rights Reserved.`;
-  const instagramUrl = footer.instagramUrl || '#';
+  const instagramUrl = footer.instagramUrl || 'https://www.instagram.com/justxempower/';
   const linkedinUrl = footer.linkedinUrl || '#';
   const facebookUrl = footer.facebookUrl || 'https://www.facebook.com/justxempower';
   const youtubeUrl = footer.youtubeUrl || '#';
