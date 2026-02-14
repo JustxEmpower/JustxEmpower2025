@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'wouter';
 import { getMediaUrl } from '@/lib/media';
 import { cn } from '@/lib/utils';
@@ -31,7 +31,6 @@ interface ContactProps {
 
 export default function Contact({ slug = 'contact' }: ContactProps) {
   const [location] = useLocation();
-  const mapRef = useRef<google.maps.Map | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { getContent, getTextStyle, getInlineStyles, isLoading } = usePageContent(slug);
 
@@ -177,18 +176,10 @@ export default function Contact({ slug = 'contact' }: ContactProps) {
             {/* Map Integration */}
             <div className="w-full h-[300px] rounded-[1.5rem] overflow-hidden shadow-lg mt-8">
               <MapView 
-                initialCenter={{ lat: 30.2672, lng: -97.7431 }} // Austin, TX coordinates
+                initialCenter={{ lat: 30.2672, lng: -97.7431 }}
                 initialZoom={12}
                 className="w-full h-full"
-                onMapReady={(map) => {
-                  mapRef.current = map;
-                  // Add a marker for Austin
-                  new google.maps.marker.AdvancedMarkerElement({
-                    map,
-                    position: { lat: 30.2672, lng: -97.7431 },
-                    title: "Just Empower HQ",
-                  });
-                }}
+                query="Austin, Texas"
               />
             </div>
           </div>
