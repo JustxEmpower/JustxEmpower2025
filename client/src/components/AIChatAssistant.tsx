@@ -189,7 +189,7 @@ export function AIChatAssistant() {
             style={{ backgroundColor: bubbleColor }}
           >
             <div>
-              <h3 className="font-semibold text-lg">Just Empower™ AI</h3>
+              <h3 className="font-semibold text-lg">Just Empower® AI</h3>
               <p className="text-xs opacity-90">Sovereign guidance & support</p>
             </div>
             <button
@@ -299,7 +299,7 @@ export function AIChatAssistant() {
               </Button>
             </div>
             <p className="text-xs text-gray-400 mt-2 text-center">
-              Powered by Just Empower™ AI
+              Powered by Just Empower® AI
             </p>
           </div>
         </div>

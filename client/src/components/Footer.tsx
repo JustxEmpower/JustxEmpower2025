@@ -154,7 +154,7 @@ export default function Footer() {
 
   // Get content from database with fallbacks
   const tagline = footer.tagline || 'Catalyzing the rise of her through embodied transformation and conscious leadership.';
-  const copyright = footer.copyright || `© ${currentYear} Just Empower™. All Rights Reserved.`;
+  const copyright = footer.copyright || `© ${currentYear} Just Empower®. All Rights Reserved.`;
   const instagramUrl = footer.instagramUrl || 'https://www.instagram.com/justxempower/';
   const linkedinUrl = footer.linkedinUrl || 'https://www.linkedin.com/company/justxempower/';
   const facebookUrl = footer.facebookUrl || 'https://www.facebook.com/justxempower';

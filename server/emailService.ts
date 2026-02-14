@@ -224,7 +224,7 @@ export function generateWeeklyReportEmail(analytics: WeeklyAnalytics): string {
 <body>
   <div class="container">
     <h1>Weekly Analytics Report</h1>
-    <p class="subtitle">Your Just Empower™ website performance summary for the past 7 days</p>
+    <p class="subtitle">Your Just Empower® website performance summary for the past 7 days</p>
     
     <div class="metric-card">
       <div class="metric-title">Total Page Views</div>
@@ -265,7 +265,7 @@ export function generateWeeklyReportEmail(analytics: WeeklyAnalytics): string {
     </div>
     
     <div class="footer">
-      <p>© ${new Date().getFullYear()} Just Empower™. All Rights Reserved.</p>
+      <p>© ${new Date().getFullYear()} Just Empower®. All Rights Reserved.</p>
       <p>This is an automated weekly report from your website analytics dashboard.</p>
     </div>
   </div>

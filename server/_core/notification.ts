@@ -272,7 +272,7 @@ export async function notifyOwner(
             <p style="white-space: pre-wrap; line-height: 1.6;">${content}</p>
           </div>
           <div style="padding: 15px; background: #1a1a19; color: #858481; font-size: 12px; text-align: center;">
-            Just Empower™ Notification System
+            Just Empower® Notification System
           </div>
         </div>
       `,

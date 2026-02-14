@@ -123,7 +123,7 @@ export default function AdminLogin() {
 
         {/* Footer */}
         <p className="text-center text-xs text-neutral-400 dark:text-neutral-600 mt-8 font-light">
-          © 2025 Just Empower™. All Rights Reserved.
+          © 2025 Just Empower®. All Rights Reserved.
         </p>
       </div>
     </div>
