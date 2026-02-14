@@ -47,13 +47,11 @@ export default function Footer() {
   // Fallback links if database is empty
   const defaultExploreLinks = [
     { label: 'Philosophy', url: '/philosophy' },
-    { label: 'Offerings', url: '/offerings' },
-    { label: 'She Writes', url: '/blog' }
+    { label: 'Offerings', url: '/offerings' }
   ];
   
   const defaultConnectLinks = [
     { label: 'Shop', url: '/shop' },
-    { label: 'Events', url: '/community-events' },
     { label: 'Contact', url: '/contact' }
   ];
   
@@ -65,15 +63,15 @@ export default function Footer() {
   ];
 
   // Labels to exclude from footer columns
-  const excludedLabels = ['about', 'blog'];
+  const excludedLabels = ['about', 'blog', 'overview', 'events', 'she writes'];
 
   // Transform links to fix labels and URLs
   const transformLinks = (links: any[]) => links
     .filter(item => !excludedLabels.includes(item.label?.toLowerCase()))
     .map(item => {
-      // Journal / Blog (She Writes) -> She Writes with /blog URL
-      if (item.label === 'Journal' || item.label === 'Blog (She Writes)' || item.url?.includes('/journal')) {
-        return { ...item, label: 'She Writes', url: '/blog' };
+      // Journal / Blog (She Writes) -> Blog: "She Writes" with /blog URL
+      if (item.label === 'Journal' || item.label === 'Blog (She Writes)' || item.url?.includes('/journal') || item.url?.includes('/blog-she-writes')) {
+        return { ...item, label: 'Blog: "She Writes"', url: '/blog' };
       }
       // Events -> /community-events
       if (item.label === 'Events' && !item.url?.includes('/community-events')) {
@@ -96,7 +94,7 @@ export default function Footer() {
     '/founder', '/philosophy', '/offerings',
     '/blog', '/journal', '/she-writes',
     '/rooted-unity', '/vision', '/ethos',
-    '/mom-vix', '/trilogy', '/overview'
+    '/mom-vix', '/trilogy'
   ];
   
   // Convert published pages to link format
@@ -150,15 +148,15 @@ export default function Footer() {
     });
   };
 
-  const displayExploreLinks = transformLinks(dedupeLinks(mergedExploreLinks));
-  const displayConnectLinks = transformLinks(dedupeLinks(mergedConnectLinks));
+  const displayExploreLinks = dedupeLinks(transformLinks(dedupeLinks(mergedExploreLinks)));
+  const displayConnectLinks = dedupeLinks(transformLinks(dedupeLinks(mergedConnectLinks)));
   const displayLegalLinks = legalLinks.length > 0 ? legalLinks : defaultLegalLinks;
 
   // Get content from database with fallbacks
   const tagline = footer.tagline || 'Catalyzing the rise of her through embodied transformation and conscious leadership.';
   const copyright = footer.copyright || `© ${currentYear} Just Empower™. All Rights Reserved.`;
   const instagramUrl = footer.instagramUrl || 'https://www.instagram.com/justxempower/';
-  const linkedinUrl = footer.linkedinUrl || '#';
+  const linkedinUrl = footer.linkedinUrl || 'https://www.linkedin.com/company/justxempower/';
   const facebookUrl = footer.facebookUrl || 'https://www.facebook.com/justxempower';
   const youtubeUrl = footer.youtubeUrl || '#';
   const newsletterTitle = footer.newsletterTitle || 'Stay Connected';
@@ -242,7 +240,7 @@ export default function Footer() {
                 <li key={item.url}>
                   <Link 
                     href={item.url}
-                    className="font-serif text-lg text-background/80 hover:text-background hover:italic transition-all duration-300"
+                    className="font-serif text-lg text-background/80 hover:text-background transition-colors duration-300"
                   >
                     {item.label}
                   </Link>
@@ -259,7 +257,7 @@ export default function Footer() {
                 <li key={item.url}>
                   <Link 
                     href={item.url}
-                    className="font-serif text-lg text-background/80 hover:text-background hover:italic transition-all duration-300"
+                    className="font-serif text-lg text-background/80 hover:text-background transition-colors duration-300"
                   >
                     {item.label}
                   </Link>
