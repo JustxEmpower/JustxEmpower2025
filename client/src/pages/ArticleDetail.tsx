@@ -96,6 +96,29 @@ export default function ArticleDetail() {
     window.scrollTo(0, 0);
   }, [slug]);
 
+  // Load any custom Google Fonts used in article content
+  useEffect(() => {
+    if (!article?.content) return;
+    const fontRegex = /font-family:\s*'([^']+)'/g;
+    const fonts = new Set<string>();
+    let match;
+    while ((match = fontRegex.exec(article.content)) !== null) {
+      fonts.add(match[1]);
+    }
+    if (fonts.size > 0) {
+      const fontNames = Array.from(fonts).map(f => f.replace(/ /g, '+') + ':wght@300;400;500;600;700').join('&family=');
+      const linkId = 'article-custom-fonts';
+      let link = document.getElementById(linkId) as HTMLLinkElement;
+      if (!link) {
+        link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+      }
+      link.href = `https://fonts.googleapis.com/css2?family=${fontNames}&display=swap`;
+    }
+  }, [article?.content]);
+
   // Helper to get proper media URL
   const getProperMediaUrl = (url: string) => {
     if (!url) return '';

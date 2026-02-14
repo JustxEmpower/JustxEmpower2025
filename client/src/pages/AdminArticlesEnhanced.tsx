@@ -57,10 +57,10 @@ export default function AdminArticlesEnhanced() {
   const [aiTone, setAiTone] = useState('professional');
   
   // Block-based content editor
-  type ContentBlock = { id: string; type: 'heading' | 'text'; content: string };
+  type ContentBlock = { id: string; type: 'heading' | 'text'; content: string; fontSize?: string; fontFamily?: string };
   const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([
-    { id: '1', type: 'heading', content: 'Section Heading' },
-    { id: '2', type: 'text', content: 'Enter your text here...' }
+    { id: '1', type: 'heading', content: 'Section Heading', fontSize: '28px', fontFamily: '' },
+    { id: '2', type: 'text', content: 'Enter your text here...', fontSize: '16px', fontFamily: '' }
   ]);
   const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
 
@@ -77,13 +77,19 @@ export default function AdminArticlesEnhanced() {
     const newBlock: ContentBlock = {
       id: Date.now().toString(),
       type,
-      content: type === 'heading' ? 'New Heading' : 'Enter your text here...'
+      content: type === 'heading' ? 'New Heading' : 'Enter your text here...',
+      fontSize: type === 'heading' ? '28px' : '16px',
+      fontFamily: ''
     };
     setContentBlocks([...contentBlocks, newBlock]);
   };
 
   const updateBlock = (id: string, content: string) => {
     setContentBlocks(contentBlocks.map(b => b.id === id ? { ...b, content } : b));
+  };
+
+  const updateBlockStyle = (id: string, updates: Partial<ContentBlock>) => {
+    setContentBlocks(contentBlocks.map(b => b.id === id ? { ...b, ...updates } : b));
   };
 
   const deleteBlock = (id: string) => {
@@ -106,40 +112,53 @@ export default function AdminArticlesEnhanced() {
   // Convert blocks to HTML for storage
   const blocksToHtml = () => {
     return contentBlocks.map(block => {
+      const styles: string[] = [];
+      if (block.fontSize) styles.push(`font-size: ${block.fontSize}`);
+      if (block.fontFamily) styles.push(`font-family: '${block.fontFamily}', serif`);
+      styles.push('margin-bottom: 1.5em');
+      const styleAttr = styles.length > 0 ? ` style="${styles.join('; ')}"` : '';
       if (block.type === 'heading') {
-        return `<h2>${block.content}</h2>`;
+        return `<h2${styleAttr}>${block.content}</h2>`;
       }
-      return `<p>${block.content}</p>`;
+      // Preserve paragraph line breaks
+      const htmlContent = block.content.replace(/\n/g, '<br>');
+      return `<p${styleAttr}>${htmlContent}</p>`;
     }).join('\n\n');
   };
 
   // Parse HTML back to blocks when editing
   const htmlToBlocks = (html: string): ContentBlock[] => {
     if (!html || html.trim() === '') {
-      return [{ id: '1', type: 'text', content: 'Enter your text here...' }];
+      return [{ id: '1', type: 'text', content: 'Enter your text here...', fontSize: '16px', fontFamily: '' }];
     }
     const blocks: ContentBlock[] = [];
-    const headingRegex = /<h[1-3][^>]*>(.*?)<\/h[1-3]>/gi;
-    const paragraphRegex = /<p[^>]*>(.*?)<\/p>/gi;
-    let match;
-    let lastIndex = 0;
-    
-    // Simple parsing - extract headings and paragraphs
-    const tempDiv = html.replace(/<h[1-3][^>]*>(.*?)<\/h[1-3]>/gi, '|||HEADING:$1|||')
-                        .replace(/<p[^>]*>(.*?)<\/p>/gi, '|||TEXT:$1|||');
-    const parts = tempDiv.split('|||').filter(p => p.trim());
-    
-    parts.forEach((part, i) => {
-      if (part.startsWith('HEADING:')) {
-        blocks.push({ id: `${Date.now()}-${i}`, type: 'heading', content: part.replace('HEADING:', '').trim() });
-      } else if (part.startsWith('TEXT:')) {
-        blocks.push({ id: `${Date.now()}-${i}`, type: 'text', content: part.replace('TEXT:', '').trim() });
-      } else if (part.trim()) {
-        blocks.push({ id: `${Date.now()}-${i}`, type: 'text', content: part.trim() });
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(`<div>${html}</div>`, 'text/html');
+    const container = doc.body.firstElementChild;
+    if (!container) return [{ id: '1', type: 'text', content: 'Enter your text here...', fontSize: '16px', fontFamily: '' }];
+
+    Array.from(container.children).forEach((el, i) => {
+      const tag = el.tagName.toLowerCase();
+      const style = (el as HTMLElement).style;
+      const fontSize = style?.fontSize || (tag.match(/^h[1-3]$/) ? '28px' : '16px');
+      let fontFamily = style?.fontFamily || '';
+      // Clean up font-family value (remove quotes and fallbacks)
+      if (fontFamily) {
+        fontFamily = fontFamily.split(',')[0].trim().replace(/^["']|["']$/g, '');
       }
+      const isHeading = /^h[1-6]$/.test(tag);
+      // Convert <br> back to newlines for text blocks
+      let content = isHeading ? el.textContent?.trim() || '' : el.innerHTML.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '').trim();
+      blocks.push({
+        id: `${Date.now()}-${i}`,
+        type: isHeading ? 'heading' : 'text',
+        content,
+        fontSize,
+        fontFamily
+      });
     });
-    
-    return blocks.length > 0 ? blocks : [{ id: '1', type: 'text', content: 'Enter your text here...' }];
+
+    return blocks.length > 0 ? blocks : [{ id: '1', type: 'text', content: 'Enter your text here...', fontSize: '16px', fontFamily: '' }];
   };
 
   const { data: articles, isLoading, refetch } = trpc.admin.articles.list.useQuery(undefined, { enabled: isAuthenticated });
@@ -192,8 +211,8 @@ export default function AdminArticlesEnhanced() {
     setIsEditing(false); setEditingId(null); setTitle(''); setSubtitle('');
     setContent(''); setCategory(''); setStatus('published'); setPublishDate(''); setImageUrl('');
     setContentBlocks([
-      { id: '1', type: 'heading', content: 'Section Heading' },
-      { id: '2', type: 'text', content: 'Enter your text here...' }
+      { id: '1', type: 'heading', content: 'Section Heading', fontSize: '28px', fontFamily: '' },
+      { id: '2', type: 'text', content: 'Enter your text here...', fontSize: '16px', fontFamily: '' }
     ]);
   };
 
@@ -443,15 +462,64 @@ export default function AdminArticlesEnhanced() {
                   </div>
                   
                   {/* Visual Block Editor */}
-                  <div className="space-y-3 bg-stone-50 dark:bg-stone-900 rounded-xl p-4 border border-stone-200 dark:border-stone-700">
+                  <div className="space-y-4 bg-stone-50 dark:bg-stone-900 rounded-xl p-4 border border-stone-200 dark:border-stone-700">
                     {contentBlocks.map((block, index) => (
                       <div key={block.id} className="group relative">
-                        {/* Block Label */}
-                        <div className="flex items-center gap-2 mb-2">
+                        {/* Block Header: Label + Font/Size Controls + Actions */}
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-stone-800 dark:bg-stone-700 text-white text-xs font-medium rounded-md">
                             <Type className="w-3 h-3" />
                             {block.type === 'heading' ? 'Heading' : 'Text Block'}
                           </span>
+
+                          {/* Font Family Selector */}
+                          <select
+                            value={block.fontFamily || ''}
+                            onChange={(e) => updateBlockStyle(block.id, { fontFamily: e.target.value })}
+                            className="h-7 px-2 text-xs bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-600 rounded-md focus:outline-none focus:border-amber-400 max-w-[130px]"
+                            style={{ fontFamily: block.fontFamily || 'inherit' }}
+                          >
+                            <option value="">Font</option>
+                            <option value="Georgia">Georgia</option>
+                            <option value="Times New Roman">Times New Roman</option>
+                            <option value="Garamond">Garamond</option>
+                            <option value="Playfair Display">Playfair Display</option>
+                            <option value="Cormorant Garamond">Cormorant Garamond</option>
+                            <option value="Lora">Lora</option>
+                            <option value="Merriweather">Merriweather</option>
+                            <option value="Inter">Inter</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Poppins">Poppins</option>
+                            <option value="Raleway">Raleway</option>
+                            <option value="Open Sans">Open Sans</option>
+                            <option value="Lato">Lato</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="DM Sans">DM Sans</option>
+                            <option value="Source Serif Pro">Source Serif Pro</option>
+                          </select>
+
+                          {/* Font Size Selector */}
+                          <select
+                            value={block.fontSize || (block.type === 'heading' ? '28px' : '16px')}
+                            onChange={(e) => updateBlockStyle(block.id, { fontSize: e.target.value })}
+                            className="h-7 px-2 text-xs bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-600 rounded-md focus:outline-none focus:border-amber-400 w-[72px]"
+                          >
+                            <option value="12px">12px</option>
+                            <option value="14px">14px</option>
+                            <option value="16px">16px</option>
+                            <option value="18px">18px</option>
+                            <option value="20px">20px</option>
+                            <option value="24px">24px</option>
+                            <option value="28px">28px</option>
+                            <option value="32px">32px</option>
+                            <option value="36px">36px</option>
+                            <option value="42px">42px</option>
+                            <option value="48px">48px</option>
+                            <option value="56px">56px</option>
+                            <option value="64px">64px</option>
+                            <option value="72px">72px</option>
+                          </select>
+
                           <div className="flex-1" />
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
                             {block.type === 'text' && (
@@ -468,29 +536,38 @@ export default function AdminArticlesEnhanced() {
                           </div>
                         </div>
                         
-                        {/* Block Content */}
+                        {/* Block Content — styled with chosen font/size */}
                         {block.type === 'heading' ? (
                           <input
                             type="text"
                             value={block.content}
                             onChange={(e) => updateBlock(block.id, e.target.value)}
-                            className="w-full px-4 py-3 text-2xl font-serif bg-white dark:bg-stone-800 border-2 border-amber-200 dark:border-amber-800 rounded-lg focus:border-amber-400 dark:focus:border-amber-600 focus:outline-none transition-colors"
+                            className="w-full px-4 py-3 font-serif bg-white dark:bg-stone-800 border-2 border-amber-200 dark:border-amber-800 rounded-lg focus:border-amber-400 dark:focus:border-amber-600 focus:outline-none transition-colors"
                             placeholder="Section Heading"
+                            style={{
+                              fontSize: block.fontSize || '28px',
+                              fontFamily: block.fontFamily ? `'${block.fontFamily}', serif` : undefined,
+                            }}
                           />
                         ) : (
                           <textarea
                             value={block.content}
                             onChange={(e) => updateBlock(block.id, e.target.value)}
                             rows={expandedBlocks.has(block.id) ? 16 : 4}
-                            className={`w-full px-4 py-3 text-base bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg focus:border-amber-400 dark:focus:border-amber-600 focus:outline-none transition-all duration-200 resize-y cursor-ns-resize ${expandedBlocks.has(block.id) ? 'min-h-[400px]' : 'min-h-[100px]'}`}
+                            className={`w-full px-4 py-3 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 rounded-lg focus:border-amber-400 dark:focus:border-amber-600 focus:outline-none transition-all duration-200 resize-y cursor-ns-resize ${expandedBlocks.has(block.id) ? 'min-h-[400px]' : 'min-h-[100px]'}`}
                             placeholder="Enter your text here..."
-                            style={{ resize: 'vertical' }}
+                            style={{
+                              resize: 'vertical',
+                              fontSize: block.fontSize || '16px',
+                              fontFamily: block.fontFamily ? `'${block.fontFamily}', serif` : undefined,
+                              lineHeight: '1.7',
+                            }}
                           />
                         )}
                       </div>
                     ))}
                     
-                    {/* Add Block Button */}
+                    {/* Add Block Buttons */}
                     <div className="flex items-center justify-center pt-2">
                       <div className="flex items-center gap-2">
                         <button
