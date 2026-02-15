@@ -174,9 +174,10 @@ export default function Header() {
   const logoUrl = brandAssets?.logo_header || siteSettings?.logoUrl || getMediaUrl('/media/logo-white.png');
   const siteName = siteSettings?.siteName || 'Site Logo';
 
-  // Pages without dark hero backgrounds - need dark text from the start
-  const pagesWithLightBackground = ['/shop', '/admin', '/cart', '/checkout', '/privacy-policy', '/terms-of-service', '/terms', '/cookie-policy', '/accessibility-statement', '/accessibility'];
-  const hasLightBackground = typeof location === 'string' && pagesWithLightBackground.some(path => location.startsWith(path));
+  // Only the homepage has a guaranteed dark hero — all other pages default to light background
+  // so logo/text inverts properly in light mode
+  const pagesWithDarkHero = ['/'];
+  const hasLightBackground = typeof location === 'string' && !pagesWithDarkHero.includes(location);
   
   // Navigation text color classes - when scrolled OR on light background pages, use dark text
   const getNavTextClass = () => {
