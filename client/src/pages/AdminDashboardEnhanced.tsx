@@ -383,6 +383,20 @@ export default function AdminDashboardEnhanced() {
     refetchInterval: 30000,
   });
 
+  // Analytics queries
+  const analyticsQuery = trpc.analytics.getDashboardStats.useQuery(undefined, {
+    enabled: isAuthenticated,
+    refetchInterval: 120000,
+  });
+
+  const popularPagesQuery = trpc.analytics.getPopularPages.useQuery({ limit: 8 }, {
+    enabled: isAuthenticated,
+  });
+
+  const aiInsightsQuery = trpc.analytics.getAIChatInsights.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+
   useEffect(() => {
     if (!isChecking && !isAuthenticated) {
       setLocation("/admin/login");
@@ -395,6 +409,9 @@ export default function AdminDashboardEnhanced() {
       statsQuery.refetch(),
       activityQuery.refetch(),
       healthQuery.refetch(),
+      analyticsQuery.refetch(),
+      popularPagesQuery.refetch(),
+      aiInsightsQuery.refetch(),
     ]);
     setTimeout(() => setRefreshing(false), 500);
   };
@@ -653,6 +670,202 @@ export default function AdminDashboardEnhanced() {
                 </div>
               </CardContent>
             </Card>
+          </div>
+
+          {/* Traffic & Analytics Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            {/* Site Traffic */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Globe className="w-5 h-5 text-blue-500" />
+                      Site Traffic
+                    </CardTitle>
+                    <CardDescription>Page views and visitor analytics</CardDescription>
+                  </div>
+                  <Link href="/admin/analytics">
+                    <Button variant="outline" size="sm">Full Analytics</Button>
+                  </Link>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {analyticsQuery.data ? (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100 text-center">
+                        <Eye className="w-5 h-5 text-blue-500 mx-auto mb-1" />
+                        <p className="text-2xl font-bold text-blue-900">
+                          <AnimatedCounter value={Number(analyticsQuery.data.todayPageViews)} />
+                        </p>
+                        <p className="text-xs text-blue-600 font-medium">Views Today</p>
+                      </div>
+                      <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-100 text-center">
+                        <BarChart3 className="w-5 h-5 text-purple-500 mx-auto mb-1" />
+                        <p className="text-2xl font-bold text-purple-900">
+                          <AnimatedCounter value={Number(analyticsQuery.data.totalPageViews)} />
+                        </p>
+                        <p className="text-xs text-purple-600 font-medium">Total Views</p>
+                      </div>
+                      <div className="p-4 rounded-xl bg-gradient-to-br from-cyan-50 to-sky-50 border border-cyan-100 text-center">
+                        <Users className="w-5 h-5 text-cyan-500 mx-auto mb-1" />
+                        <p className="text-2xl font-bold text-cyan-900">
+                          <AnimatedCounter value={Number(analyticsQuery.data.uniqueVisitors)} />
+                        </p>
+                        <p className="text-xs text-cyan-600 font-medium">Unique Visitors (30d)</p>
+                      </div>
+                      <div className="p-4 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 text-center">
+                        <MousePointer className="w-5 h-5 text-green-500 mx-auto mb-1" />
+                        <p className="text-2xl font-bold text-green-900">
+                          <AnimatedCounter value={Number(analyticsQuery.data.totalSessions)} />
+                        </p>
+                        <p className="text-xs text-green-600 font-medium">Total Sessions</p>
+                      </div>
+                    </div>
+                    {/* Visual bar chart of page views */}
+                    {popularPagesQuery.data && popularPagesQuery.data.length > 0 && (
+                      <div>
+                        <p className="text-sm font-semibold text-stone-700 mb-3">Top Pages</p>
+                        <div className="space-y-2">
+                          {popularPagesQuery.data.slice(0, 6).map((page: any, i: number) => {
+                            const maxViews = Number(popularPagesQuery.data[0]?.views || 1);
+                            const pct = Math.max(5, (Number(page.views) / maxViews) * 100);
+                            const colors = ['bg-blue-500', 'bg-purple-500', 'bg-cyan-500', 'bg-green-500', 'bg-amber-500', 'bg-rose-500'];
+                            return (
+                              <div key={page.page} className="flex items-center gap-3">
+                                <span className="text-xs text-stone-500 w-32 truncate text-right font-mono">{page.page || '/'}</span>
+                                <div className="flex-1 h-6 bg-stone-100 rounded-full overflow-hidden">
+                                  <motion.div
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${pct}%` }}
+                                    transition={{ delay: i * 0.1, duration: 0.6 }}
+                                    className={`h-full ${colors[i % colors.length]} rounded-full flex items-center justify-end pr-2`}
+                                  >
+                                    <span className="text-[10px] font-bold text-white">{Number(page.views).toLocaleString()}</span>
+                                  </motion.div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="w-8 h-8 border-3 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* AI Insights + Quick Links */}
+            <div className="space-y-6">
+              {/* AI Assistant Insights */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Sparkles className="w-5 h-5 text-amber-500" />
+                    AI Assistant
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {aiInsightsQuery.data ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-amber-50 border border-amber-100">
+                        <div>
+                          <p className="text-xs text-amber-600 font-medium">Conversations</p>
+                          <p className="text-xl font-bold text-amber-900">{Number(analyticsQuery.data?.totalConversations || 0).toLocaleString()}</p>
+                        </div>
+                        <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
+                          <Sparkles className="w-5 h-5 text-amber-600" />
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 border border-green-100">
+                        <div>
+                          <p className="text-xs text-green-600 font-medium">Satisfaction</p>
+                          <p className="text-xl font-bold text-green-900">{analyticsQuery.data?.aiSatisfactionRate || 0}%</p>
+                        </div>
+                        <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                          <Target className="w-5 h-5 text-green-600" />
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="p-2 rounded-lg bg-stone-50 text-center">
+                          <p className="text-lg font-bold text-stone-900">{Number(aiInsightsQuery.data.totalMessages).toLocaleString()}</p>
+                          <p className="text-[10px] text-stone-500 uppercase tracking-wider">Messages</p>
+                        </div>
+                        <div className="p-2 rounded-lg bg-stone-50 text-center">
+                          <p className="text-lg font-bold text-stone-900">{aiInsightsQuery.data.avgConversationLength}</p>
+                          <p className="text-[10px] text-stone-500 uppercase tracking-wider">Avg Length</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="py-6 text-center text-stone-400 text-sm">Loading...</div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Quick Site Links */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Zap className="w-5 h-5 text-yellow-500" />
+                    Quick Links
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <a href="/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg hover:bg-blue-50 transition-colors group border border-transparent hover:border-blue-200">
+                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                      <Globe className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-stone-900">View Live Site</p>
+                      <p className="text-xs text-stone-500">Open in new tab</p>
+                    </div>
+                    <ExternalLink className="w-4 h-4 text-stone-400 group-hover:text-blue-500" />
+                  </a>
+                  <Link href="/admin/content">
+                    <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-purple-50 transition-colors group cursor-pointer border border-transparent hover:border-purple-200">
+                      <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <Layers className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-stone-900">Content Editor</p>
+                        <p className="text-xs text-stone-500">Edit page content</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-stone-400 group-hover:text-purple-500" />
+                    </div>
+                  </Link>
+                  <Link href="/admin/media">
+                    <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-green-50 transition-colors group cursor-pointer border border-transparent hover:border-green-200">
+                      <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                        <Image className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-stone-900">Media Library</p>
+                        <p className="text-xs text-stone-500">{stats.totalMedia} files</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-stone-400 group-hover:text-green-500" />
+                    </div>
+                  </Link>
+                  <Link href="/admin/newsletter">
+                    <div className="flex items-center gap-3 p-3 rounded-lg hover:bg-rose-50 transition-colors group cursor-pointer border border-transparent hover:border-rose-200">
+                      <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+                        <Mail className="w-4 h-4 text-rose-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-stone-900">Newsletter</p>
+                        <p className="text-xs text-stone-500">{stats.totalSubscribers} subscribers</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-stone-400 group-hover:text-rose-500" />
+                    </div>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
           </div>
 
           {/* Recent Activity */}
