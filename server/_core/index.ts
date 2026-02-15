@@ -92,10 +92,12 @@ async function startServer() {
       let urls = [
         { loc: baseUrl, priority: "1.0" },
         { loc: `${baseUrl}/about`, priority: "0.8" },
+        { loc: `${baseUrl}/emerge-with-us`, priority: "0.8" },
+        { loc: `${baseUrl}/rooted-unity`, priority: "0.8" },
+        { loc: `${baseUrl}/blog`, priority: "0.8" },
         { loc: `${baseUrl}/events`, priority: "0.8" },
         { loc: `${baseUrl}/shop`, priority: "0.8" },
-        { loc: `${baseUrl}/journal`, priority: "0.7" },
-        { loc: `${baseUrl}/contact`, priority: "0.6" },
+        { loc: `${baseUrl}/contact`, priority: "0.7" },
       ];
       
       if (db) {
