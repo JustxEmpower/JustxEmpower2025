@@ -676,7 +676,7 @@ export function JETestimonialsGridRenderer({ block, isEditing, onUpdate }: Block
                 <EditableText value={t.quote} onChange={(v) => handleTestimonialChange(index, 'quote', v)} tag="p" placeholder="Quote..." multiline isEditing={isEditing} className={cn('text-base font-sans mb-4 whitespace-pre-wrap', dark ? 'text-neutral-300' : 'text-neutral-600')} />
 
                 <div className="flex items-center gap-3">
-                  {t.imageUrl && <img src={t.imageUrl} alt="" className="w-10 h-10 rounded-full object-cover" />}
+                  {t.imageUrl && <img src={t.imageUrl} alt="Avatar" loading="lazy" className="w-10 h-10 rounded-full object-cover" />}
                   <div>
                     <EditableText value={t.author} onChange={(v) => handleTestimonialChange(index, 'author', v)} tag="p" placeholder="Name" isEditing={isEditing} className={cn('text-sm font-medium', dark ? 'text-white' : 'text-neutral-900')} />
                     <EditableText value={t.role} onChange={(v) => handleTestimonialChange(index, 'role', v)} tag="p" placeholder="Role" isEditing={isEditing} className={cn('text-xs', dark ? 'text-neutral-400' : 'text-neutral-500')} />

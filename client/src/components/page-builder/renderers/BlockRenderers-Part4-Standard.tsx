@@ -116,7 +116,7 @@ export function HeroBlockRenderer({ block, isEditing, isElementEditMode = false,
       {/* Background Image */}
       {backgroundImage && (
         <div className="absolute inset-0">
-          <img src={backgroundImage} alt="" className="w-full h-full object-cover" />
+          <img src={backgroundImage} alt="Background image" loading="lazy" className="w-full h-full object-cover" />
         </div>
       )}
 

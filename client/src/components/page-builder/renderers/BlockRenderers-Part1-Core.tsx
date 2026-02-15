@@ -438,7 +438,7 @@ export function EditableImage({
       style={containerStyle}
     >
       {src ? (
-        <img src={src} alt={alt} className="w-full h-full object-cover" />
+        <img src={src} alt={alt || 'Image'} loading="lazy" className="w-full h-full object-cover" />
       ) : (
         <div className="w-full h-full bg-neutral-200 flex items-center justify-center min-h-[100px]">
           <ImageIcon className="w-8 h-8 text-neutral-400" />
@@ -610,7 +610,7 @@ export function EditableVideo({
           className="w-full h-full object-cover"
         />
       ) : (
-        <img src={src} alt="" className="w-full h-full object-cover" />
+        <img src={src} alt="Decorative image" loading="lazy" className="w-full h-full object-cover" />
       )}
 
       {isEditing && isHovering && (
@@ -1173,7 +1173,7 @@ export function JEHeroRenderer({ block, isEditing, isElementEditMode = false, on
         {/* Split variant - Right side image */}
         {variant === 'split' && imageUrl && (
           <div className="relative aspect-[4/3] rounded-lg overflow-hidden">
-            <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+            <img src={imageUrl} alt="Section image" loading="lazy" className="w-full h-full object-cover" />
           </div>
         )}
       </div>
@@ -1293,7 +1293,7 @@ export function JESectionRenderer({ block, isEditing, isElementEditMode = false,
                 className="w-full h-full object-cover"
               />
             ) : (
-              <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+              <img src={imageUrl} alt="Section image" loading="lazy" className="w-full h-full object-cover" />
             )}
           </div>
           {overlay && <div className="absolute inset-0 bg-black/50" />}

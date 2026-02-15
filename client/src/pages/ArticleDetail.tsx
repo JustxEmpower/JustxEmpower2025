@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useRoute, Link } from 'wouter';
+import { Helmet } from 'react-helmet';
 import { trpc } from '@/lib/trpc';
 import { getMediaUrl } from '@/lib/media';
 import { Button } from '@/components/ui/button';
@@ -187,8 +188,61 @@ export default function ArticleDetail() {
     ? Math.ceil(article.content.split(/\s+/).length / 200) 
     : 5;
 
+  const articleUrl = `https://justxempower.com/blog/${slug}`;
+  const articleImage = article.imageUrl ? getProperMediaUrl(article.imageUrl) : '';
+  const metaDescription = article.excerpt || (article.content ? article.content.replace(/<[^>]*>/g, '').slice(0, 155) + '...' : '');
+  const metaTitle = `${article.title} | Just Empower® Blog`;
+
+  const articleJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": article.title,
+    "description": metaDescription,
+    "image": articleImage || undefined,
+    "datePublished": article.publishDate || article.date || undefined,
+    "dateModified": article.publishDate || article.date || undefined,
+    "author": { "@type": "Organization", "name": "Just Empower®" },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Just Empower®",
+      "url": "https://justxempower.com"
+    },
+    "mainEntityOfPage": { "@type": "WebPage", "@id": articleUrl },
+    "wordCount": article.content ? article.content.split(/\s+/).length : undefined,
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://justxempower.com" },
+      { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://justxempower.com/blog" },
+      { "@type": "ListItem", "position": 3, "name": article.title, "item": articleUrl },
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{metaTitle}</title>
+        <meta name="description" content={metaDescription} />
+        <link rel="canonical" href={articleUrl} />
+        <meta property="og:type" content="article" />
+        <meta property="og:url" content={articleUrl} />
+        <meta property="og:title" content={metaTitle} />
+        <meta property="og:description" content={metaDescription} />
+        <meta property="og:site_name" content="Just Empower®" />
+        {articleImage && <meta property="og:image" content={articleImage} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={metaTitle} />
+        <meta name="twitter:description" content={metaDescription} />
+        {articleImage && <meta name="twitter:image" content={articleImage} />}
+        {article.category && <meta name="article:section" content={article.category} />}
+        {(article.publishDate || article.date) && <meta property="article:published_time" content={String(article.publishDate || article.date)} />}
+        <script type="application/ld+json">{JSON.stringify(articleJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbJsonLd)}</script>
+      </Helmet>
+
       {/* Hero Section */}
       <div className="relative h-[60vh] w-full overflow-hidden">
         <div className="absolute inset-0 bg-black/40 z-10" />

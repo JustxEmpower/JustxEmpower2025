@@ -2903,7 +2903,7 @@ export function JETwoColumnRenderer({ block, isEditing = false, isBlockSelected 
     <div className={isImageOnLeft ? 'lg:order-1' : ''}>
       {imageUrl ? (
         <div className="relative overflow-hidden shadow-2xl shadow-black/10" style={{ borderRadius: '2rem' }}>
-          <img src={imageUrl} alt="" className="w-full h-auto" style={{ borderRadius: '2rem' }} />
+          <img src={imageUrl} alt="Featured image" loading="lazy" className="w-full h-auto" style={{ borderRadius: '2rem' }} />
         </div>
       ) : (
         <>

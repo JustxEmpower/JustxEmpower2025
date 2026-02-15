@@ -58,9 +58,27 @@ export default function DynamicPage() {
   return (
     <>
       <Helmet>
-        <title>{page.metaTitle || page.title}</title>
-        {page.metaDescription && <meta name="description" content={page.metaDescription} />}
+        <title>{page.metaTitle || `${page.title} | Just Empower®`}</title>
+        <meta name="description" content={page.metaDescription || `${page.title} — Just Empower®`} />
+        <link rel="canonical" href={`https://justxempower.com/${slug}`} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://justxempower.com/${slug}`} />
+        <meta property="og:title" content={page.metaTitle || `${page.title} | Just Empower®`} />
+        <meta property="og:description" content={page.metaDescription || `${page.title} — Just Empower®`} />
+        <meta property="og:site_name" content="Just Empower®" />
         {page.ogImage && <meta property="og:image" content={page.ogImage} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={page.metaTitle || `${page.title} | Just Empower®`} />
+        <meta name="twitter:description" content={page.metaDescription || `${page.title} — Just Empower®`} />
+        {page.ogImage && <meta name="twitter:image" content={page.ogImage} />}
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://justxempower.com" },
+            { "@type": "ListItem", "position": 2, "name": page.title, "item": `https://justxempower.com/${slug}` },
+          ]
+        })}</script>
       </Helmet>
 
       <div className="min-h-screen" data-dynamic-page="true" data-page-builder="true">

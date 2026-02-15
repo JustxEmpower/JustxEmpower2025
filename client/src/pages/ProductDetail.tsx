@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useLocation } from "wouter";
+import { Helmet } from "react-helmet";
 import { trpc } from "@/lib/trpc";
 import { ChevronLeft, ChevronRight, Minus, Plus, ShoppingBag, Play } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
@@ -227,8 +228,63 @@ export default function ProductDetail() {
     }
   };
 
+  const productUrl = `https://justxempower.com/shop/${slug}`;
+  const productImage = product.featuredImage ? (product.featuredImage.startsWith('http') ? product.featuredImage : getMediaUrl(product.featuredImage)) : (allMedia[0]?.url || '');
+  const productMetaDesc = product.description ? product.description.replace(/<[^>]*>/g, '').slice(0, 155) + (product.description.length > 155 ? '...' : '') : `Shop ${product.name} at Just Empower®.`;
+  const productMetaTitle = `${product.name} | Just Empower® Shop`;
+
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "description": productMetaDesc,
+    "image": productImage || undefined,
+    "url": productUrl,
+    "brand": { "@type": "Brand", "name": "Just Empower®" },
+    "offers": {
+      "@type": "Offer",
+      "url": productUrl,
+      "priceCurrency": "USD",
+      "price": (product.price / 100).toFixed(2),
+      "availability": isOutOfStock ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      "seller": { "@type": "Organization", "name": "Just Empower®" },
+    },
+    ...(productInfo.isbn ? { "isbn": productInfo.isbn } : {}),
+    ...(productInfo.author ? { "author": { "@type": "Person", "name": productInfo.author } } : {}),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://justxempower.com" },
+      { "@type": "ListItem", "position": 2, "name": "Shop", "item": "https://justxempower.com/shop" },
+      { "@type": "ListItem", "position": 3, "name": product.name, "item": productUrl },
+    ]
+  };
+
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
+      <Helmet>
+        <title>{productMetaTitle}</title>
+        <meta name="description" content={productMetaDesc} />
+        <link rel="canonical" href={productUrl} />
+        <meta property="og:type" content="product" />
+        <meta property="og:url" content={productUrl} />
+        <meta property="og:title" content={productMetaTitle} />
+        <meta property="og:description" content={productMetaDesc} />
+        <meta property="og:site_name" content="Just Empower®" />
+        {productImage && <meta property="og:image" content={productImage} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={productMetaTitle} />
+        <meta name="twitter:description" content={productMetaDesc} />
+        {productImage && <meta name="twitter:image" content={productImage} />}
+        <meta property="product:price:amount" content={(product.price / 100).toFixed(2)} />
+        <meta property="product:price:currency" content="USD" />
+        <script type="application/ld+json">{JSON.stringify(productJsonLd)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbJsonLd)}</script>
+      </Helmet>
+
       {/* Minimal Top Bar */}
       <div className="fixed top-20 left-0 right-0 z-40 bg-white dark:bg-background border-b border-stone-200 dark:border-border">
         <div className="flex items-center justify-between px-6 py-3">

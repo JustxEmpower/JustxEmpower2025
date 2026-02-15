@@ -1462,7 +1462,7 @@ export function JECommunityRenderer({ block, isEditing, onUpdate }: BlockRendere
       {imageUrl && (
         <>
           <div className="absolute inset-0">
-            <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+            <img src={imageUrl} alt="Section image" loading="lazy" className="w-full h-full object-cover" />
           </div>
           <div className="absolute inset-0 bg-black/60" />
         </>
@@ -1533,7 +1533,7 @@ export function JEComingSoonRenderer({ block, isEditing, onUpdate }: BlockRender
       {imageUrl && (
         <>
           <div className="absolute inset-0">
-            <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+            <img src={imageUrl} alt="Section image" loading="lazy" className="w-full h-full object-cover" />
           </div>
           <div className="absolute inset-0 bg-black/70" />
         </>
@@ -1655,7 +1655,7 @@ export function JEFeatureCardRenderer({ block, isEditing, onUpdate }: BlockRende
     >
       {imageUrl ? (
         <div className="aspect-video rounded-lg overflow-hidden mb-4">
-          <img src={imageUrl} alt="" className="w-full h-full object-cover" />
+          <img src={imageUrl} alt="Section image" loading="lazy" className="w-full h-full object-cover" />
         </div>
       ) : (
         <div className={cn(
