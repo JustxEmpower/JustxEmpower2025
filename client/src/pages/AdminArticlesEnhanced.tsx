@@ -63,6 +63,8 @@ export default function AdminArticlesEnhanced() {
     { id: '2', type: 'text', content: 'Enter your text here...', fontSize: '16px', fontFamily: '' }
   ]);
   const [expandedBlocks, setExpandedBlocks] = useState<Set<string>>(new Set());
+  const [defaultHeadingFont, setDefaultHeadingFont] = useState('');
+  const [defaultBodyFont, setDefaultBodyFont] = useState('');
 
   const toggleExpand = (id: string) => {
     setExpandedBlocks(prev => {
@@ -79,9 +81,16 @@ export default function AdminArticlesEnhanced() {
       type,
       content: type === 'heading' ? 'New Heading' : 'Enter your text here...',
       fontSize: type === 'heading' ? '28px' : '16px',
-      fontFamily: ''
+      fontFamily: type === 'heading' ? defaultHeadingFont : defaultBodyFont
     };
     setContentBlocks([...contentBlocks, newBlock]);
+  };
+
+  const applyDefaultFonts = (headingFont: string, bodyFont: string) => {
+    setContentBlocks(prev => prev.map(b => ({
+      ...b,
+      fontFamily: b.type === 'heading' ? (headingFont || b.fontFamily) : (bodyFont || b.fontFamily)
+    })));
   };
 
   const updateBlock = (id: string, content: string) => {
@@ -210,6 +219,7 @@ export default function AdminArticlesEnhanced() {
   const resetForm = () => {
     setIsEditing(false); setEditingId(null); setTitle(''); setSubtitle('');
     setContent(''); setCategory(''); setStatus('published'); setPublishDate(''); setImageUrl('');
+    setDefaultHeadingFont(''); setDefaultBodyFont('');
     setContentBlocks([
       { id: '1', type: 'heading', content: 'Section Heading', fontSize: '28px', fontFamily: '' },
       { id: '2', type: 'text', content: 'Enter your text here...', fontSize: '16px', fontFamily: '' }
@@ -461,6 +471,59 @@ export default function AdminArticlesEnhanced() {
                     </Dialog>
                   </div>
                   
+                  {/* Default Font Controls */}
+                  <div className="flex flex-wrap items-center gap-3 p-3 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-200 dark:border-amber-800">
+                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">Defaults:</span>
+                    <div className="flex items-center gap-1.5">
+                      <label className="text-xs text-stone-600 dark:text-stone-400">Headings</label>
+                      <select
+                        value={defaultHeadingFont}
+                        onChange={(e) => {
+                          setDefaultHeadingFont(e.target.value);
+                          applyDefaultFonts(e.target.value, defaultBodyFont);
+                        }}
+                        className="h-7 px-2 text-xs bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-600 rounded-md focus:outline-none focus:border-amber-400 max-w-[150px]"
+                        style={{ fontFamily: defaultHeadingFont || 'inherit' }}
+                      >
+                        <option value="">Default</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Garamond">Garamond</option>
+                        <option value="Playfair Display">Playfair Display</option>
+                        <option value="Cormorant Garamond">Cormorant Garamond</option>
+                        <option value="Lora">Lora</option>
+                        <option value="Merriweather">Merriweather</option>
+                        <option value="Source Serif Pro">Source Serif Pro</option>
+                      </select>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <label className="text-xs text-stone-600 dark:text-stone-400">Body</label>
+                      <select
+                        value={defaultBodyFont}
+                        onChange={(e) => {
+                          setDefaultBodyFont(e.target.value);
+                          applyDefaultFonts(defaultHeadingFont, e.target.value);
+                        }}
+                        className="h-7 px-2 text-xs bg-white dark:bg-stone-800 border border-stone-300 dark:border-stone-600 rounded-md focus:outline-none focus:border-amber-400 max-w-[150px]"
+                        style={{ fontFamily: defaultBodyFont || 'inherit' }}
+                      >
+                        <option value="">Default</option>
+                        <option value="Inter">Inter</option>
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Poppins">Poppins</option>
+                        <option value="Raleway">Raleway</option>
+                        <option value="Open Sans">Open Sans</option>
+                        <option value="Lato">Lato</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="DM Sans">DM Sans</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Lora">Lora</option>
+                        <option value="Merriweather">Merriweather</option>
+                        <option value="Source Serif Pro">Source Serif Pro</option>
+                      </select>
+                    </div>
+                  </div>
+
                   {/* Visual Block Editor */}
                   <div className="space-y-4 bg-stone-50 dark:bg-stone-900 rounded-xl p-4 border border-stone-200 dark:border-stone-700">
                     {contentBlocks.map((block, index) => (

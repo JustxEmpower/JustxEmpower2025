@@ -883,12 +883,13 @@ export const adminRouter = router({
           slug: input.slug,
           content: input.content,
           category: input.category || null,
-          date: input.date || null,
+          date: input.date || new Date().toISOString().split('T')[0],
           excerpt: input.excerpt || null,
           imageUrl: input.imageUrl || null,
-          published: input.status === 'published' ? 1 : (input.published ?? 1),
+          published: input.status === 'published' ? 1 : (input.published ?? 0),
           status: input.status || 'published',
-          publishDate: input.publishDate ? new Date(input.publishDate) : null,
+          publishDate: input.publishDate ? new Date(input.publishDate) : (input.status === 'published' ? new Date() : null),
+          displayOrder: 0,
         };
         await createArticle(articleData);
         return { success: true };
