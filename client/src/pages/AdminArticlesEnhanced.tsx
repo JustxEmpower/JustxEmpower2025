@@ -173,8 +173,8 @@ export default function AdminArticlesEnhanced() {
   const { data: articles, isLoading, refetch } = trpc.admin.articles.list.useQuery(undefined, { enabled: isAuthenticated });
 
   const createMutation = trpc.admin.articles.create.useMutation({
-    onSuccess: () => { toast.success('Article created'); resetForm(); refetch(); },
-    onError: (error) => toast.error(error.message || 'Failed to create'),
+    onSuccess: (data: any) => { toast.success(`Article created${data?.slug ? ` (${data.slug})` : ''}`); resetForm(); refetch(); },
+    onError: (error) => toast.error(error.message || 'Failed to create article'),
   });
 
   const updateMutation = trpc.admin.articles.update.useMutation({

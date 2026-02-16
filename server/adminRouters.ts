@@ -878,9 +878,20 @@ export const adminRouter = router({
         publishDate: z.string().nullable().optional(),
       }))
       .mutation(async ({ input }) => {
+        // Check for duplicate slug and auto-suffix if needed
+        let slug = input.slug;
+        const existing = await getArticleBySlug(slug);
+        if (existing) {
+          let suffix = 2;
+          while (await getArticleBySlug(`${input.slug}-${suffix}`)) {
+            suffix++;
+          }
+          slug = `${input.slug}-${suffix}`;
+        }
+
         const articleData: any = {
           title: input.title,
-          slug: input.slug,
+          slug,
           content: input.content,
           category: input.category || null,
           date: input.date || new Date().toISOString().split('T')[0],
@@ -891,8 +902,16 @@ export const adminRouter = router({
           publishDate: input.publishDate ? new Date(input.publishDate) : (input.status === 'published' ? new Date() : null),
           displayOrder: 0,
         };
-        await createArticle(articleData);
-        return { success: true };
+        try {
+          await createArticle(articleData);
+          return { success: true, slug };
+        } catch (error: any) {
+          const msg = error?.message || String(error);
+          if (msg.includes('Duplicate')) {
+            throw new TRPCError({ code: "CONFLICT", message: `An article with slug "${slug}" already exists. Please change the title.` });
+          }
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: `Failed to create article: ${msg.slice(0, 200)}` });
+        }
       }),
     
     update: adminProcedure
