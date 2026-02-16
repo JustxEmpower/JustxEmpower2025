@@ -157,9 +157,9 @@ export default function Journal({ slug = 'blog' }: JournalProps) {
                 <h3 className="font-serif text-4xl md:text-5xl font-light italic mb-4">
                   {featuredPost.title}
                 </h3>
-                {featuredPost.date && (
+                {(featuredPost.publishDate || featuredPost.date) && (
                   <p className="font-sans text-sm text-muted-foreground mb-6">
-                    {new Date(featuredPost.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                    {new Date(featuredPost.publishDate || featuredPost.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                   </p>
                 )}
                 <p className="font-sans text-base leading-relaxed text-foreground/80 mb-8">
@@ -214,9 +214,9 @@ export default function Journal({ slug = 'blog' }: JournalProps) {
                   <h3 className="font-serif text-2xl font-light italic mb-3 group-hover:opacity-70 transition-opacity">
                     {post.title}
                   </h3>
-                  {post.date && (
+                  {(post.publishDate || post.date) && (
                     <p className="font-sans text-sm text-muted-foreground mb-4">
-                      {new Date(post.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                      {new Date(post.publishDate || post.date).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                     </p>
                   )}
                   <p className="font-sans text-sm leading-relaxed text-foreground/70">

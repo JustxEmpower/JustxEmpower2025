@@ -106,8 +106,8 @@ export async function getAllArticles(limit?: number, offset?: number) {
   const db = await getDb();
   if (!db) return [];
   
-  // Sort by displayOrder first (ascending), then by createdAt (descending) for articles with same order
-  let query = db.select().from(articles).orderBy(articles.displayOrder, desc(articles.createdAt));
+  // Sort by displayOrder first (ascending), then by publishDate (descending) for chronological order
+  let query = db.select().from(articles).orderBy(articles.displayOrder, desc(articles.publishDate));
   
   if (limit) {
     query = query.limit(limit) as any;
@@ -125,7 +125,7 @@ export async function getPublishedArticles(limit?: number, offset?: number) {
   
   let query = db.select().from(articles)
     .where(eq(articles.published, 1))
-    .orderBy(desc(articles.createdAt));
+    .orderBy(desc(articles.publishDate));
   
   if (limit) {
     query = query.limit(limit) as any;
