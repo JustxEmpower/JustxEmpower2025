@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, Edit, Trash2, Save, X, Sparkles, Loader2, 
   Search, RefreshCw, FileText, Eye, Calendar, Filter, LayoutGrid, List,
-  Type, GripVertical, Copy, Maximize2, Minimize2
+  Type, GripVertical, Copy, Maximize2, Minimize2, Italic, Bold
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
@@ -57,7 +57,7 @@ export default function AdminArticlesEnhanced() {
   const [aiTone, setAiTone] = useState('professional');
   
   // Block-based content editor
-  type ContentBlock = { id: string; type: 'heading' | 'text'; content: string; fontSize?: string; fontFamily?: string };
+  type ContentBlock = { id: string; type: 'heading' | 'text'; content: string; fontSize?: string; fontFamily?: string; fontStyle?: string; fontWeight?: string };
   const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([
     { id: '1', type: 'heading', content: 'Section Heading', fontSize: '28px', fontFamily: '' },
     { id: '2', type: 'text', content: 'Enter your text here...', fontSize: '16px', fontFamily: '' }
@@ -124,6 +124,8 @@ export default function AdminArticlesEnhanced() {
       const styles: string[] = [];
       if (block.fontSize) styles.push(`font-size: ${block.fontSize}`);
       if (block.fontFamily) styles.push(`font-family: '${block.fontFamily}', serif`);
+      if (block.fontStyle === 'italic') styles.push('font-style: italic');
+      if (block.fontWeight === 'bold') styles.push('font-weight: bold');
       styles.push('margin-bottom: 1.5em');
       const styleAttr = styles.length > 0 ? ` style="${styles.join('; ')}"` : '';
       if (block.type === 'heading') {
@@ -155,6 +157,8 @@ export default function AdminArticlesEnhanced() {
       if (fontFamily) {
         fontFamily = fontFamily.split(',')[0].trim().replace(/^["']|["']$/g, '');
       }
+      const fontStyle = style?.fontStyle || '';
+      const fontWeight = style?.fontWeight || '';
       const isHeading = /^h[1-6]$/.test(tag);
       // Convert <br> back to newlines for text blocks
       let content = isHeading ? el.textContent?.trim() || '' : el.innerHTML.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '').trim();
@@ -163,7 +167,9 @@ export default function AdminArticlesEnhanced() {
         type: isHeading ? 'heading' : 'text',
         content,
         fontSize,
-        fontFamily
+        fontFamily,
+        fontStyle,
+        fontWeight
       });
     });
 
@@ -561,6 +567,34 @@ export default function AdminArticlesEnhanced() {
                             <option value="Source Serif Pro">Source Serif Pro</option>
                           </select>
 
+                          {/* Italic Toggle */}
+                          <button
+                            type="button"
+                            onClick={() => updateBlockStyle(block.id, { fontStyle: block.fontStyle === 'italic' ? '' : 'italic' })}
+                            className={`h-7 w-7 flex items-center justify-center rounded-md border transition-colors ${
+                              block.fontStyle === 'italic'
+                                ? 'bg-amber-500 border-amber-600 text-white'
+                                : 'bg-white dark:bg-stone-800 border-stone-300 dark:border-stone-600 hover:bg-amber-50 dark:hover:bg-amber-900/30'
+                            }`}
+                            title="Italic"
+                          >
+                            <Italic className="w-3.5 h-3.5" />
+                          </button>
+
+                          {/* Bold Toggle */}
+                          <button
+                            type="button"
+                            onClick={() => updateBlockStyle(block.id, { fontWeight: block.fontWeight === 'bold' ? '' : 'bold' })}
+                            className={`h-7 w-7 flex items-center justify-center rounded-md border transition-colors ${
+                              block.fontWeight === 'bold'
+                                ? 'bg-amber-500 border-amber-600 text-white'
+                                : 'bg-white dark:bg-stone-800 border-stone-300 dark:border-stone-600 hover:bg-amber-50 dark:hover:bg-amber-900/30'
+                            }`}
+                            title="Bold"
+                          >
+                            <Bold className="w-3.5 h-3.5" />
+                          </button>
+
                           {/* Font Size Selector */}
                           <select
                             value={block.fontSize || (block.type === 'heading' ? '28px' : '16px')}
@@ -610,6 +644,8 @@ export default function AdminArticlesEnhanced() {
                             style={{
                               fontSize: block.fontSize || '28px',
                               fontFamily: block.fontFamily ? `'${block.fontFamily}', serif` : undefined,
+                              fontStyle: block.fontStyle || undefined,
+                              fontWeight: block.fontWeight || undefined,
                             }}
                           />
                         ) : (
@@ -623,6 +659,8 @@ export default function AdminArticlesEnhanced() {
                               resize: 'vertical',
                               fontSize: block.fontSize || '16px',
                               fontFamily: block.fontFamily ? `'${block.fontFamily}', serif` : undefined,
+                              fontStyle: block.fontStyle || undefined,
+                              fontWeight: block.fontWeight || undefined,
                               lineHeight: '1.7',
                             }}
                           />
