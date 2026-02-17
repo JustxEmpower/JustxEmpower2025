@@ -11,32 +11,27 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import AdminSidebar from '@/components/AdminSidebar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  LogOut,
-  FileText,
-  Settings,
-  Layout,
-  FolderOpen,
-  Palette,
-  BarChart3,
-  Files,
   ShoppingBag,
-  Calendar,
-  ClipboardList,
   Package,
   Eye,
   Search,
   Filter,
   RefreshCw,
   DollarSign,
-  TrendingUp,
   Clock,
   CheckCircle,
-  XCircle,
   Truck,
   CreditCard,
   ArrowUpRight,
-  MoreHorizontal,
+  Mail,
+  Download,
+  Send,
+  MapPin,
+  User,
+  FileText,
+  ChevronRight,
 } from "lucide-react";
 
 export default function AdminOrders() {
@@ -47,6 +42,8 @@ export default function AdminOrders() {
   const [searchQuery, setSearchQuery] = useState("");
   const [trackingNumber, setTrackingNumber] = useState("");
   const [trackingUrl, setTrackingUrl] = useState("");
+  const [carrier, setCarrier] = useState("");
+  const [sendingEmail, setSendingEmail] = useState<string | null>(null);
 
   const ordersQuery = trpc.admin.orders.list.useQuery(
     statusFilter !== "all" ? { status: statusFilter as any } : {}
@@ -64,16 +61,56 @@ export default function AdminOrders() {
 
   const updateShipment = trpc.admin.orders.updateShipment.useMutation({
     onSuccess: () => {
-      toast.success("Shipment info updated & order marked as shipped");
+      toast.success("Shipment info updated & shipping email sent to customer");
       ordersQuery.refetch();
+      orderDetailQuery.refetch();
       setTrackingNumber("");
       setTrackingUrl("");
-      setSelectedOrder(null);
+      setCarrier("");
     },
     onError: (error) => {
       toast.error("Error updating shipment: " + error.message);
     },
   });
+
+  // Fetch full order detail with line items when an order is selected
+  const orderDetailQuery = trpc.admin.orders.getById.useQuery(
+    { id: selectedOrder?.id },
+    { enabled: !!selectedOrder?.id }
+  );
+  const orderDetail = orderDetailQuery.data;
+
+  // Email sending mutations
+  const sendConfirmationEmail = trpc.automation.sendOrderConfirmation.useMutation({
+    onSuccess: () => { toast.success("Order confirmation email sent"); setSendingEmail(null); },
+    onError: (e) => { toast.error("Failed to send email: " + e.message); setSendingEmail(null); },
+  });
+  const sendShippingEmail = trpc.automation.sendShippingNotification.useMutation({
+    onSuccess: () => { toast.success("Shipping notification email sent"); setSendingEmail(null); },
+    onError: (e) => { toast.error("Failed to send email: " + e.message); setSendingEmail(null); },
+  });
+
+  // CSV Export
+  const exportToCSV = () => {
+    const rows = allOrders.map((o: any) => ({
+      OrderNumber: o.orderNumber,
+      Date: new Date(o.createdAt).toLocaleDateString(),
+      Customer: `${o.shippingFirstName || ''} ${o.shippingLastName || ''}`,
+      Email: o.email,
+      Status: o.status,
+      PaymentStatus: o.paymentStatus,
+      Total: `$${(o.total / 100).toFixed(2)}`,
+      TrackingNumber: o.trackingNumber || '',
+    }));
+    const headers = Object.keys(rows[0] || {}).join(',');
+    const csv = [headers, ...rows.map(r => Object.values(r).map(v => `"${v}"`).join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `orders-${new Date().toISOString().split('T')[0]}.csv`;
+    a.click(); URL.revokeObjectURL(url);
+    toast.success('Orders exported to CSV');
+  };
 
   useEffect(() => {
     if (!isChecking && !isAuthenticated) {
@@ -100,7 +137,7 @@ export default function AdminOrders() {
     if (searchQuery === "") return true;
     return order.orderNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
            order.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-           `${order.firstName} ${order.lastName}`.toLowerCase().includes(searchQuery.toLowerCase());
+           `${order.shippingFirstName} ${order.shippingLastName}`.toLowerCase().includes(searchQuery.toLowerCase());
   });
   
   // Calculate stats
@@ -122,6 +159,7 @@ export default function AdminOrders() {
       case "delivered": return "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400";
       case "cancelled": return "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400";
       case "refunded": return "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-400";
+      case "on_hold": return "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400";
       default: return "bg-neutral-100 text-neutral-700 dark:bg-neutral-800 dark:text-neutral-400";
     }
   };
@@ -144,6 +182,10 @@ export default function AdminOrders() {
                 <p className="text-stone-500 text-sm">Manage shop orders and fulfillment</p>
               </div>
               <div className="flex items-center gap-3">
+                <Button variant="outline" size="sm" onClick={exportToCSV} disabled={allOrders.length === 0}>
+                  <Download className="w-4 h-4 mr-2" />
+                  Export CSV
+                </Button>
                 <Button variant="outline" size="sm" onClick={() => ordersQuery.refetch()}>
                   <RefreshCw className="w-4 h-4 mr-2" />
                   Refresh
@@ -237,6 +279,7 @@ export default function AdminOrders() {
                 <SelectItem value="delivered">Delivered</SelectItem>
                 <SelectItem value="cancelled">Cancelled</SelectItem>
                 <SelectItem value="refunded">Refunded</SelectItem>
+                <SelectItem value="on_hold">On Hold</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -287,7 +330,7 @@ export default function AdminOrders() {
                             )}
                           </div>
                           <p className="text-sm text-stone-600 mt-1">
-                            {order.firstName} {order.lastName} • {order.email}
+                            {order.shippingFirstName} {order.shippingLastName} • {order.email}
                           </p>
                           <p className="text-xs text-stone-400 mt-1">
                             {formatDate(order.createdAt)}
@@ -314,6 +357,7 @@ export default function AdminOrders() {
                               <SelectItem value="delivered">Delivered</SelectItem>
                               <SelectItem value="cancelled">Cancelled</SelectItem>
                               <SelectItem value="refunded">Refunded</SelectItem>
+                              <SelectItem value="on_hold">On Hold</SelectItem>
                             </SelectContent>
                           </Select>
                           <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
@@ -331,28 +375,53 @@ export default function AdminOrders() {
 
           {/* Order Details Dialog */}
           <Dialog open={!!selectedOrder} onOpenChange={(open) => !open && setSelectedOrder(null)}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Order {selectedOrder?.orderNumber}</DialogTitle>
-                <DialogDescription>
-                  Placed on {selectedOrder && formatDate(selectedOrder.createdAt)}
-                </DialogDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <DialogTitle className="text-xl">Order {selectedOrder?.orderNumber}</DialogTitle>
+                    <DialogDescription>
+                      Placed on {selectedOrder && formatDate(selectedOrder.createdAt)}
+                    </DialogDescription>
+                  </div>
+                  {selectedOrder && (
+                    <div className="flex items-center gap-2">
+                      <Badge className={getStatusColor(selectedOrder.status)}>{selectedOrder.status}</Badge>
+                      <Badge className={selectedOrder.paymentStatus === "paid" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}>
+                        {selectedOrder.paymentStatus}
+                      </Badge>
+                    </div>
+                  )}
+                </div>
               </DialogHeader>
               {selectedOrder && (
-                <div className="space-y-6">
+                <Tabs defaultValue="details" className="mt-2">
+                  <TabsList className="grid w-full grid-cols-4">
+                    <TabsTrigger value="details">Details</TabsTrigger>
+                    <TabsTrigger value="items">Items</TabsTrigger>
+                    <TabsTrigger value="shipping">Shipping</TabsTrigger>
+                    <TabsTrigger value="actions">Actions</TabsTrigger>
+                  </TabsList>
+
+                  {/* DETAILS TAB */}
+                  <TabsContent value="details" className="space-y-4 mt-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <h4 className="font-medium mb-2">Customer</h4>
-                      <p className="text-sm">{selectedOrder.firstName} {selectedOrder.lastName}</p>
-                      <p className="text-sm text-neutral-500">{selectedOrder.email}</p>
-                      {selectedOrder.phone && <p className="text-sm text-neutral-500">{selectedOrder.phone}</p>}
-                    </div>
-                    <div>
-                      <h4 className="font-medium mb-2">Shipping Address</h4>
-                      <p className="text-sm">{selectedOrder.shippingAddress}</p>
-                      <p className="text-sm">{selectedOrder.shippingCity}, {selectedOrder.shippingState} {selectedOrder.shippingZip}</p>
-                      <p className="text-sm">{selectedOrder.shippingCountry}</p>
-                    </div>
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-medium mb-2 flex items-center gap-2"><User className="w-4 h-4" /> Customer</h4>
+                        <p className="text-sm">{selectedOrder.shippingFirstName} {selectedOrder.shippingLastName}</p>
+                        <p className="text-sm text-neutral-500">{selectedOrder.email}</p>
+                        {selectedOrder.phone && <p className="text-sm text-neutral-500">{selectedOrder.phone}</p>}
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4">
+                        <h4 className="font-medium mb-2 flex items-center gap-2"><MapPin className="w-4 h-4" /> Shipping Address</h4>
+                        <p className="text-sm">{selectedOrder.shippingAddress1}{selectedOrder.shippingAddress2 ? `, ${selectedOrder.shippingAddress2}` : ''}</p>
+                        <p className="text-sm">{selectedOrder.shippingCity}, {selectedOrder.shippingState} {selectedOrder.shippingPostalCode}</p>
+                        <p className="text-sm">{selectedOrder.shippingCountry}</p>
+                      </CardContent>
+                    </Card>
                   </div>
                   <div>
                     <h4 className="font-medium mb-2">Order Summary</h4>
@@ -392,49 +461,122 @@ export default function AdminOrders() {
                     </div>
                   </div>
 
-                  {/* Shipment Tracking */}
-                  <div className="border rounded-lg p-4 bg-stone-50">
-                    <h4 className="font-medium mb-3 flex items-center gap-2">
-                      <Truck className="w-4 h-4" /> Shipment Tracking
-                    </h4>
-                    {selectedOrder.trackingNumber ? (
-                      <div className="space-y-2">
-                        <p className="text-sm"><span className="text-neutral-500">Tracking #:</span> <span className="font-mono">{selectedOrder.trackingNumber}</span></p>
-                        {selectedOrder.trackingUrl && (
-                          <a href={selectedOrder.trackingUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
-                            <ArrowUpRight className="w-3 h-3" /> Track Package
-                          </a>
-                        )}
-                        {selectedOrder.shippedAt && <p className="text-xs text-neutral-500">Shipped: {formatDate(selectedOrder.shippedAt)}</p>}
-                        {selectedOrder.deliveredAt && <p className="text-xs text-neutral-500">Delivered: {formatDate(selectedOrder.deliveredAt)}</p>}
+                  </TabsContent>
+
+                  {/* ITEMS TAB */}
+                  <TabsContent value="items" className="mt-4">
+                    {orderDetail?.items?.length ? (
+                      <div className="border rounded-lg divide-y">
+                        {orderDetail.items.map((item: any) => (
+                          <div key={item.id} className="p-3 flex items-center gap-3">
+                            {item.imageUrl && <img src={item.imageUrl} alt={item.name} className="w-12 h-12 rounded-lg object-cover" />}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{item.name}</p>
+                              <p className="text-xs text-neutral-500">SKU: {item.sku || 'N/A'} · Qty: {item.quantity} × ${(item.price / 100).toFixed(2)}</p>
+                            </div>
+                            <p className="text-sm font-medium">${(item.total / 100).toFixed(2)}</p>
+                          </div>
+                        ))}
                       </div>
-                    ) : selectedOrder.paymentStatus === "paid" && selectedOrder.status !== "cancelled" && selectedOrder.status !== "refunded" ? (
-                      <div className="space-y-3">
-                        <p className="text-sm text-amber-600 mb-2">This order needs shipment processing.</p>
-                        <Input placeholder="Tracking number" value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} />
-                        <Input placeholder="Tracking URL (optional)" value={trackingUrl} onChange={(e) => setTrackingUrl(e.target.value)} />
-                        <Button
-                          size="sm"
-                          disabled={!trackingNumber || updateShipment.isPending}
-                          onClick={() => updateShipment.mutate({ id: selectedOrder.id, trackingNumber, trackingUrl: trackingUrl || undefined })}
-                        >
-                          <Truck className="w-4 h-4 mr-2" />
-                          {updateShipment.isPending ? "Updating..." : "Mark as Shipped"}
-                        </Button>
-                      </div>
+                    ) : orderDetailQuery.isLoading ? (
+                      <p className="text-sm text-neutral-400 py-4 text-center">Loading items...</p>
                     ) : (
-                      <p className="text-sm text-neutral-400">No tracking information available.</p>
+                      <p className="text-sm text-neutral-400 py-4 text-center">No line items found.</p>
                     )}
-                  </div>
-                </div>
+                  </TabsContent>
+
+                  {/* SHIPPING TAB */}
+                  <TabsContent value="shipping" className="space-y-4 mt-4">
+                    {selectedOrder.trackingNumber ? (
+                      <Card>
+                        <CardContent className="p-4 space-y-2">
+                          <h4 className="font-medium flex items-center gap-2"><Truck className="w-4 h-4 text-green-600" /> Shipped</h4>
+                          <p className="text-sm"><span className="text-neutral-500">Tracking #:</span> <span className="font-mono font-medium">{selectedOrder.trackingNumber}</span></p>
+                          {selectedOrder.trackingUrl && (
+                            <a href={selectedOrder.trackingUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                              <ArrowUpRight className="w-3 h-3" /> Track Package
+                            </a>
+                          )}
+                          {selectedOrder.shippedAt && <p className="text-xs text-neutral-500">Shipped: {formatDate(selectedOrder.shippedAt)}</p>}
+                          {selectedOrder.deliveredAt && <p className="text-xs text-green-600 font-medium">Delivered: {formatDate(selectedOrder.deliveredAt)}</p>}
+                        </CardContent>
+                      </Card>
+                    ) : selectedOrder.paymentStatus === "paid" && !["cancelled","refunded"].includes(selectedOrder.status) ? (
+                      <Card>
+                        <CardContent className="p-4 space-y-3">
+                          <h4 className="font-medium flex items-center gap-2"><Truck className="w-4 h-4" /> Add Tracking Info</h4>
+                          <p className="text-sm text-amber-600">This order needs shipment processing.</p>
+                          <Select value={carrier} onValueChange={setCarrier}>
+                            <SelectTrigger><SelectValue placeholder="Select carrier" /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="usps">USPS</SelectItem>
+                              <SelectItem value="ups">UPS</SelectItem>
+                              <SelectItem value="fedex">FedEx</SelectItem>
+                              <SelectItem value="dhl">DHL</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Input placeholder="Tracking number" value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} />
+                          <Input placeholder="Tracking URL (optional)" value={trackingUrl} onChange={(e) => setTrackingUrl(e.target.value)} />
+                          <Button size="sm" disabled={!trackingNumber || updateShipment.isPending}
+                            onClick={() => updateShipment.mutate({ id: selectedOrder.id, trackingNumber, trackingUrl: trackingUrl || undefined, carrier: carrier || undefined })}>
+                            <Truck className="w-4 h-4 mr-2" />
+                            {updateShipment.isPending ? "Updating..." : "Mark as Shipped & Notify Customer"}
+                          </Button>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <p className="text-sm text-neutral-400 py-4 text-center">No tracking information available.</p>
+                    )}
+                  </TabsContent>
+
+                  {/* ACTIONS TAB */}
+                  <TabsContent value="actions" className="space-y-3 mt-4">
+                    <Card>
+                      <CardContent className="p-4 space-y-3">
+                        <h4 className="font-medium flex items-center gap-2"><Mail className="w-4 h-4" /> Email Customer</h4>
+                        <div className="flex flex-wrap gap-2">
+                          <Button size="sm" variant="outline" disabled={sendConfirmationEmail.isPending}
+                            onClick={() => { setSendingEmail("confirm"); sendConfirmationEmail.mutate({ orderId: selectedOrder.id }); }}>
+                            <Send className="w-3 h-3 mr-1" />
+                            {sendConfirmationEmail.isPending ? "Sending..." : "Send Order Confirmation"}
+                          </Button>
+                          {selectedOrder.trackingNumber && (
+                            <Button size="sm" variant="outline" disabled={sendShippingEmail.isPending}
+                              onClick={() => { setSendingEmail("ship"); sendShippingEmail.mutate({ orderId: selectedOrder.id, trackingNumber: selectedOrder.trackingNumber, trackingUrl: selectedOrder.trackingUrl || undefined }); }}>
+                              <Truck className="w-3 h-3 mr-1" />
+                              {sendShippingEmail.isPending ? "Sending..." : "Resend Shipping Email"}
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardContent className="p-4 space-y-3">
+                        <h4 className="font-medium flex items-center gap-2"><Package className="w-4 h-4" /> Update Status</h4>
+                        <Select value={selectedOrder.status} onValueChange={(v) => handleStatusChange(selectedOrder.id, v)}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="processing">Processing</SelectItem>
+                            <SelectItem value="shipped">Shipped</SelectItem>
+                            <SelectItem value="delivered">Delivered</SelectItem>
+                            <SelectItem value="cancelled">Cancelled</SelectItem>
+                            <SelectItem value="refunded">Refunded</SelectItem>
+                            <SelectItem value="on_hold">On Hold</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+                </Tabs>
               )}
               <DialogFooter>
-                <Button variant="outline" onClick={() => setSelectedOrder(null)}>
-                  Close
-                </Button>
+                <Button variant="outline" onClick={() => setSelectedOrder(null)}>Close</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
+
         </div>
       </main>
     </div>

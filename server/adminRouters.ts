@@ -14,6 +14,7 @@ async function ensureGeminiInitialized() {
   }
 }
 import { generateVideoThumbnail } from "./mediaConversionService";
+import { sendShippingNotificationEmail, sendDeliveryConfirmationEmail } from "./orderEmails";
 import { publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import * as fs from "fs";
@@ -3229,7 +3230,7 @@ export const adminRouter = router({
   orders: router({
     list: adminProcedure
       .input(z.object({
-        status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled", "refunded"]).optional(),
+        status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled", "refunded", "on_hold"]).optional(),
         search: z.string().optional(),
         limit: z.number().optional().default(50),
         offset: z.number().optional().default(0),
@@ -3297,7 +3298,7 @@ export const adminRouter = router({
     updateStatus: adminProcedure
       .input(z.object({
         id: z.number(),
-        status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled", "refunded"]),
+        status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled", "refunded", "on_hold"]),
         trackingNumber: z.string().optional(),
         trackingUrl: z.string().optional(),
         notes: z.string().optional(),
@@ -3321,7 +3322,7 @@ export const adminRouter = router({
           .set(setData)
           .where(eq(schema.orders.id, id));
         
-        // Create notification for shipment
+        // Create notification and send customer email for shipment
         if (input.status === "shipped") {
           const [order] = await db.select().from(schema.orders).where(eq(schema.orders.id, id));
           if (order) {
@@ -3334,7 +3335,14 @@ export const adminRouter = router({
               relatedId: id,
               relatedType: "order",
             }).catch(() => {});
+            // Auto-send shipping email to customer
+            sendShippingNotificationEmail(id, input.trackingNumber || '', input.trackingUrl).catch(() => {});
           }
+        }
+        
+        // Send delivery confirmation email
+        if (input.status === "delivered") {
+          sendDeliveryConfirmationEmail(id).catch(() => {});
         }
         
         return { success: true };
@@ -3361,7 +3369,7 @@ export const adminRouter = router({
           })
           .where(eq(schema.orders.id, input.id));
         
-        // Create notification
+        // Create notification and send shipping email
         const [order] = await db.select().from(schema.orders).where(eq(schema.orders.id, input.id));
         if (order) {
           await db.insert(schema.adminNotifications).values({
@@ -3373,6 +3381,8 @@ export const adminRouter = router({
             relatedId: input.id,
             relatedType: "order",
           }).catch(() => {});
+          // Auto-send shipping email to customer
+          sendShippingNotificationEmail(input.id, input.trackingNumber, input.trackingUrl, input.carrier).catch(() => {});
         }
         
         return { success: true };

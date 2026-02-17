@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { getDb } from "./db";
 import { orders, eventRegistrations, adminNotifications } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
+import { sendOrderConfirmationEmail } from "./orderEmails";
 
 // Lazy Stripe initialization
 let _stripe: Stripe | null = null;
@@ -115,6 +116,9 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       relatedId: order.id,
       relatedType: "order",
     }).catch(e => console.warn("[Webhook] Failed to create notification:", e.message));
+
+    // Auto-send order confirmation email to customer
+    sendOrderConfirmationEmail(order.id).catch(e => console.warn("[Webhook] Failed to send confirmation email:", e.message));
   }
 
   // Update event registration payment status if it exists

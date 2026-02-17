@@ -717,8 +717,8 @@ export const orders = mysqlTable("orders", {
   userId: int("userId"), // Optional: for guest checkout
   email: varchar("email", { length: 320 }).notNull(),
   phone: varchar("phone", { length: 50 }),
-  status: mysqlEnum("status", ["pending", "processing", "shipped", "delivered", "cancelled", "refunded"]).default("pending").notNull(),
-  paymentStatus: mysqlEnum("paymentStatus", ["pending", "paid", "failed", "refunded"]).default("pending").notNull(),
+  status: mysqlEnum("status", ["pending", "processing", "shipped", "delivered", "cancelled", "refunded", "on_hold"]).default("pending").notNull(),
+  paymentStatus: mysqlEnum("paymentStatus", ["pending", "paid", "failed", "refunded", "partially_refunded", "disputed"]).default("pending").notNull(),
   paymentMethod: varchar("paymentMethod", { length: 50 }), // stripe, paypal, etc.
   paymentIntentId: varchar("paymentIntentId", { length: 255 }), // Stripe payment intent
   subtotal: int("subtotal").notNull(), // In cents
