@@ -12,6 +12,7 @@ import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { getDb } from "../db";
 import { siteSettings, pages } from "../../drizzle/schema";
+import { createStripeWebhookRouter } from "../stripeWebhook";
 import { eq } from "drizzle-orm";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -36,6 +37,9 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 async function startServer() {
   const app = express();
   const server = createServer(app);
+  
+  // Stripe webhook — must be mounted BEFORE json body parser (needs raw body for signature verification)
+  app.use("/api/stripe/webhook", createStripeWebhookRouter());
   
   // Configure body parser with larger size limit for file uploads (200MB for videos)
   app.use(express.json({ limit: "200mb" }));
