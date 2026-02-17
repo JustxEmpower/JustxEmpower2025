@@ -67,9 +67,7 @@ const navItems = [
   // Resources / Document Library
   { icon: FileDown, label: 'Resources', path: '/admin/resources' },
   // Financial section
-  { icon: DollarSign, label: 'Revenue', path: '/admin/revenue' },
-  { icon: CreditCard, label: 'Payments', path: '/admin/payments' },
-  { icon: TrendingUp, label: 'Financial Analytics', path: '/admin/financial-analytics' },
+  { icon: DollarSign, label: 'Finance', path: '/admin/finance' },
   // User management
   { icon: Users, label: 'Users', path: '/admin/users' },
   // Design & Branding

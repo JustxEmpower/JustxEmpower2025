@@ -460,6 +460,13 @@ export default function AdminOrders() {
                       </span>
                     </div>
                   </div>
+                  {selectedOrder.paymentIntentId && (
+                    <div className="flex items-center gap-2 p-3 bg-indigo-50 dark:bg-indigo-950/30 rounded-lg border border-indigo-200 dark:border-indigo-800">
+                      <CreditCard className="w-4 h-4 text-indigo-500" />
+                      <span className="text-sm text-indigo-700 dark:text-indigo-300">Stripe Payment ID:</span>
+                      <code className="text-xs font-mono bg-white dark:bg-neutral-800 px-2 py-0.5 rounded">{selectedOrder.paymentIntentId}</code>
+                    </div>
+                  )}
 
                   </TabsContent>
 

@@ -34,6 +34,7 @@ import AdminAttendees from "@/pages/AdminAttendeesEnhanced";
 import AdminRevenue from "@/pages/AdminRevenueEnhanced";
 import AdminPayments from "@/pages/AdminPaymentsEnhanced";
 import AdminFinancialAnalytics from "@/pages/AdminFinancialAnalyticsEnhanced";
+import AdminFinance from "@/pages/AdminFinance";
 import AdminResourcesPage from "@/pages/AdminResourcesPage";
 import AdminContactMessages from "@/pages/AdminMessagesInbox";
 import AdminNewsletter from "@/pages/AdminNewsletter";
@@ -116,9 +117,10 @@ function Router() {
       <Route path="/admin/reviews" component={AdminReviews} />
       <Route path="/admin/categories" component={AdminCategories} />
       <Route path="/admin/attendees" component={AdminAttendees} />
-      <Route path="/admin/revenue" component={AdminRevenue} />
-      <Route path="/admin/payments" component={AdminPayments} />
-      <Route path="/admin/financial-analytics" component={AdminFinancialAnalytics} />
+      <Route path="/admin/finance" component={AdminFinance} />
+      <Route path="/admin/revenue">{() => { window.location.href = '/admin/finance'; return null; }}</Route>
+      <Route path="/admin/payments">{() => { window.location.href = '/admin/finance'; return null; }}</Route>
+      <Route path="/admin/financial-analytics">{() => { window.location.href = '/admin/finance'; return null; }}</Route>
       <Route path="/admin/resources" component={AdminResourcesPage} />
       <Route path="/admin/messages" component={AdminContactMessages} />
       <Route path="/admin/newsletter" component={AdminNewsletter} />

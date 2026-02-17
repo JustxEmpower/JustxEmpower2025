@@ -67,6 +67,7 @@ export const financialRouter = router({
         total: schema.orders.total,
         paymentStatus: schema.orders.paymentStatus,
         paymentMethod: schema.orders.paymentMethod,
+        paymentIntentId: schema.orders.paymentIntentId,
         status: schema.orders.status,
         createdAt: schema.orders.createdAt,
       }).from(schema.orders)
