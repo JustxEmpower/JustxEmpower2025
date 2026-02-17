@@ -98,7 +98,7 @@ export const financialRouter = router({
       if (from) c.push(gte(dateField, from));
       if (to) c.push(sql`${dateField} < ${to}`);
       const [r] = await db.select({ rev: sql<number>`COALESCE(SUM(total),0)`, cnt: sql<number>`COUNT(*)` }).from(table).where(and(...c));
-      return { rev: r?.rev || 0, cnt: r?.cnt || 0 };
+      return { rev: Number(r?.rev) || 0, cnt: Number(r?.cnt) || 0 };
     };
 
     const mShop = await q(schema.orders, schema.orders.paymentStatus, schema.orders.createdAt, thisMonth);
@@ -122,7 +122,7 @@ export const financialRouter = router({
       allTimeRevenue: allRev, avgOrderValue: allCnt > 0 ? Math.round(allRev / allCnt) : 0,
       monthShopRevenue: mShop.rev, monthShopOrders: mShop.cnt,
       monthEventRevenue: mEvt.rev, monthEventRegs: mEvt.cnt,
-      pendingShipments: pendShip?.count || 0,
+      pendingShipments: Number(pendShip?.count) || 0,
     };
   }),
 });

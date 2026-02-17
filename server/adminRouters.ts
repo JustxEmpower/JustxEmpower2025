@@ -3477,7 +3477,7 @@ export const adminRouter = router({
               gte(schema.orders.createdAt, prevStartDate),
               sql`${schema.orders.createdAt} < ${prevEndDate}`
             ));
-          prevShopRevenue = prevShopStats?.totalRevenue || 0;
+          prevShopRevenue = Number(prevShopStats?.totalRevenue) || 0;
           
           const [prevEventStats] = await db
             .select({
@@ -3489,13 +3489,13 @@ export const adminRouter = router({
               gte(schema.eventRegistrations.createdAt, prevStartDate),
               sql`${schema.eventRegistrations.createdAt} < ${prevEndDate}`
             ));
-          prevEventRevenue = prevEventStats?.totalRevenue || 0;
+          prevEventRevenue = Number(prevEventStats?.totalRevenue) || 0;
         }
         
-        const shopRevenue = shopStats?.totalRevenue || 0;
-        const eventRevenue = eventStats?.totalRevenue || 0;
+        const shopRevenue = Number(shopStats?.totalRevenue) || 0;
+        const eventRevenue = Number(eventStats?.totalRevenue) || 0;
         const totalRevenue = shopRevenue + eventRevenue;
-        const prevTotalRevenue = prevShopRevenue + prevEventRevenue;
+        const prevTotalRevenue = Number(prevShopRevenue) + Number(prevEventRevenue);
         
         const percentChange = prevTotalRevenue > 0 
           ? Math.round(((totalRevenue - prevTotalRevenue) / prevTotalRevenue) * 100)
@@ -3505,8 +3505,8 @@ export const adminRouter = router({
           totalRevenue,
           shopRevenue,
           eventRevenue,
-          orderCount: shopStats?.orderCount || 0,
-          registrationCount: eventStats?.registrationCount || 0,
+          orderCount: Number(shopStats?.orderCount) || 0,
+          registrationCount: Number(eventStats?.registrationCount) || 0,
           percentChange,
           period,
         };
