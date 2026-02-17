@@ -45,6 +45,8 @@ export default function AdminOrders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [trackingNumber, setTrackingNumber] = useState("");
+  const [trackingUrl, setTrackingUrl] = useState("");
 
   const ordersQuery = trpc.admin.orders.list.useQuery(
     statusFilter !== "all" ? { status: statusFilter as any } : {}
@@ -57,6 +59,19 @@ export default function AdminOrders() {
     },
     onError: (error) => {
       toast.error("Error updating order: " + error.message);
+    },
+  });
+
+  const updateShipment = trpc.admin.orders.updateShipment.useMutation({
+    onSuccess: () => {
+      toast.success("Shipment info updated & order marked as shipped");
+      ordersQuery.refetch();
+      setTrackingNumber("");
+      setTrackingUrl("");
+      setSelectedOrder(null);
+    },
+    onError: (error) => {
+      toast.error("Error updating shipment: " + error.message);
     },
   });
 
@@ -375,6 +390,41 @@ export default function AdminOrders() {
                         {selectedOrder.status}
                       </span>
                     </div>
+                  </div>
+
+                  {/* Shipment Tracking */}
+                  <div className="border rounded-lg p-4 bg-stone-50">
+                    <h4 className="font-medium mb-3 flex items-center gap-2">
+                      <Truck className="w-4 h-4" /> Shipment Tracking
+                    </h4>
+                    {selectedOrder.trackingNumber ? (
+                      <div className="space-y-2">
+                        <p className="text-sm"><span className="text-neutral-500">Tracking #:</span> <span className="font-mono">{selectedOrder.trackingNumber}</span></p>
+                        {selectedOrder.trackingUrl && (
+                          <a href={selectedOrder.trackingUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+                            <ArrowUpRight className="w-3 h-3" /> Track Package
+                          </a>
+                        )}
+                        {selectedOrder.shippedAt && <p className="text-xs text-neutral-500">Shipped: {formatDate(selectedOrder.shippedAt)}</p>}
+                        {selectedOrder.deliveredAt && <p className="text-xs text-neutral-500">Delivered: {formatDate(selectedOrder.deliveredAt)}</p>}
+                      </div>
+                    ) : selectedOrder.paymentStatus === "paid" && selectedOrder.status !== "cancelled" && selectedOrder.status !== "refunded" ? (
+                      <div className="space-y-3">
+                        <p className="text-sm text-amber-600 mb-2">This order needs shipment processing.</p>
+                        <Input placeholder="Tracking number" value={trackingNumber} onChange={(e) => setTrackingNumber(e.target.value)} />
+                        <Input placeholder="Tracking URL (optional)" value={trackingUrl} onChange={(e) => setTrackingUrl(e.target.value)} />
+                        <Button
+                          size="sm"
+                          disabled={!trackingNumber || updateShipment.isPending}
+                          onClick={() => updateShipment.mutate({ id: selectedOrder.id, trackingNumber, trackingUrl: trackingUrl || undefined })}
+                        >
+                          <Truck className="w-4 h-4 mr-2" />
+                          {updateShipment.isPending ? "Updating..." : "Mark as Shipped"}
+                        </Button>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-neutral-400">No tracking information available.</p>
+                    )}
                   </div>
                 </div>
               )}

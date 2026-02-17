@@ -1,7 +1,7 @@
 import { Router, raw } from "express";
 import Stripe from "stripe";
 import { getDb } from "./db";
-import { orders, eventRegistrations } from "../drizzle/schema";
+import { orders, eventRegistrations, adminNotifications } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 
 // Lazy Stripe initialization
@@ -106,6 +106,15 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       .set({ paymentStatus: "paid", status: "processing" })
       .where(eq(orders.id, order.id));
     console.log(`[Webhook] Order ${order.orderNumber} marked as paid`);
+    await db.insert(adminNotifications).values({
+      type: "order",
+      title: `New sale: Order ${order.orderNumber}`,
+      message: `$${(paymentIntent.amount / 100).toFixed(2)} from ${order.email}`,
+      link: "/admin/orders",
+      priority: "high",
+      relatedId: order.id,
+      relatedType: "order",
+    }).catch(e => console.warn("[Webhook] Failed to create notification:", e.message));
   }
 
   // Update event registration payment status if it exists
@@ -120,6 +129,15 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       .set({ paymentStatus: "paid" })
       .where(eq(eventRegistrations.id, registration.id));
     console.log(`[Webhook] Registration ${registration.confirmationNumber} marked as paid`);
+    await db.insert(adminNotifications).values({
+      type: "event_registration",
+      title: `Event registration: ${registration.confirmationNumber}`,
+      message: `$${(paymentIntent.amount / 100).toFixed(2)} from ${registration.email}`,
+      link: "/admin/events",
+      priority: "medium",
+      relatedId: registration.id,
+      relatedType: "registration",
+    }).catch(e => console.warn("[Webhook] Failed to create notification:", e.message));
   }
 }
 
@@ -172,6 +190,15 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
       })
       .where(eq(orders.id, order.id));
     console.log(`[Webhook] Order ${order.orderNumber} marked as ${isFullRefund ? "refunded" : "partially refunded"}`);
+    await db.insert(adminNotifications).values({
+      type: "refund",
+      title: `Refund: Order ${order.orderNumber}`,
+      message: `${isFullRefund ? "Full" : "Partial"} refund of $${(charge.amount_refunded / 100).toFixed(2)}`,
+      link: "/admin/orders",
+      priority: "high",
+      relatedId: order.id,
+      relatedType: "order",
+    }).catch(() => {});
   }
 
   // Update event registration
@@ -212,5 +239,14 @@ async function handleDisputeCreated(dispute: Stripe.Dispute) {
       .set({ paymentStatus: "disputed", status: "on_hold" })
       .where(eq(orders.id, order.id));
     console.log(`[Webhook] Order ${order.orderNumber} marked as disputed and put on hold`);
+    await db.insert(adminNotifications).values({
+      type: "dispute",
+      title: `Dispute: Order ${order.orderNumber}`,
+      message: `Reason: ${dispute.reason}`,
+      link: "/admin/orders",
+      priority: "urgent",
+      relatedId: order.id,
+      relatedType: "order",
+    }).catch(() => {});
   }
 }

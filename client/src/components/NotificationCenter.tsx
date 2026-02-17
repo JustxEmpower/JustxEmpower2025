@@ -9,30 +9,36 @@ import {
   Bell, X, Check, CheckCheck, Trash2, Mail, MessageSquare, ShoppingCart,
   Calendar, Users, FileText, Image, AlertCircle, AlertTriangle, Info,
   Package, DollarSign, Star, Settings, ExternalLink, Clock, Filter,
-  MailOpen, Archive, RefreshCw, Sparkles, Zap, TrendingUp
+  MailOpen, Archive, RefreshCw, Sparkles, Zap, TrendingUp, Truck
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface Notification {
-  id: string;
-  type: "message" | "order" | "event" | "user" | "system" | "alert" | "success";
+  id: number | string;
+  type: "message" | "order" | "event" | "user" | "system" | "alert" | "success" | "payment" | "shipment" | "refund" | "dispute" | "event_registration" | "low_stock";
   title: string;
   description: string;
   timestamp: Date;
   read: boolean;
   link?: string;
-  icon?: string;
-  priority?: "low" | "medium" | "high";
+  priority?: "low" | "medium" | "high" | "urgent";
+  source?: "db" | "local";
 }
 
-const typeConfig = {
-  message: { icon: MessageSquare, color: "blue", bg: "bg-blue-500/20", text: "text-blue-400" },
-  order: { icon: ShoppingCart, color: "emerald", bg: "bg-emerald-500/20", text: "text-emerald-400" },
-  event: { icon: Calendar, color: "purple", bg: "bg-purple-500/20", text: "text-purple-400" },
-  user: { icon: Users, color: "cyan", bg: "bg-cyan-500/20", text: "text-cyan-400" },
-  system: { icon: Settings, color: "slate", bg: "bg-slate-500/20", text: "text-slate-400" },
-  alert: { icon: AlertTriangle, color: "amber", bg: "bg-amber-500/20", text: "text-amber-400" },
-  success: { icon: Check, color: "green", bg: "bg-green-500/20", text: "text-green-400" },
+const typeConfig: Record<string, { icon: any; bg: string; text: string }> = {
+  message: { icon: MessageSquare, bg: "bg-blue-500/20", text: "text-blue-400" },
+  order: { icon: ShoppingCart, bg: "bg-emerald-500/20", text: "text-emerald-400" },
+  event: { icon: Calendar, bg: "bg-purple-500/20", text: "text-purple-400" },
+  event_registration: { icon: Calendar, bg: "bg-purple-500/20", text: "text-purple-400" },
+  user: { icon: Users, bg: "bg-cyan-500/20", text: "text-cyan-400" },
+  system: { icon: Settings, bg: "bg-slate-500/20", text: "text-slate-400" },
+  alert: { icon: AlertTriangle, bg: "bg-amber-500/20", text: "text-amber-400" },
+  success: { icon: Check, bg: "bg-green-500/20", text: "text-green-400" },
+  payment: { icon: DollarSign, bg: "bg-green-500/20", text: "text-green-400" },
+  shipment: { icon: Truck, bg: "bg-indigo-500/20", text: "text-indigo-400" },
+  refund: { icon: DollarSign, bg: "bg-red-500/20", text: "text-red-400" },
+  dispute: { icon: AlertTriangle, bg: "bg-red-500/20", text: "text-red-400" },
+  low_stock: { icon: Package, bg: "bg-orange-500/20", text: "text-orange-400" },
 };
 
 interface NotificationCenterProps {
@@ -43,148 +49,77 @@ interface NotificationCenterProps {
 
 export default function NotificationCenter({ isOpen, onClose }: NotificationCenterProps) {
   const [filter, setFilter] = useState<"all" | "unread">("all");
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [localNotifs, setLocalNotifs] = useState<Notification[]>([]);
 
-  // Fetch real data from various sources
-  const messagesQuery = trpc.contact.list.useQuery({ limit: 10 });
+  // DB-backed notifications
+  const dbNotifsQuery = trpc.adminNotifications.list.useQuery({ limit: 50 }, { enabled: isOpen });
+  const markReadMut = trpc.adminNotifications.markRead.useMutation({ onSuccess: () => dbNotifsQuery.refetch() });
+  const markAllReadMut = trpc.adminNotifications.markAllRead.useMutation({ onSuccess: () => dbNotifsQuery.refetch() });
+  const dismissMut = trpc.adminNotifications.dismiss.useMutation({ onSuccess: () => dbNotifsQuery.refetch() });
+  const dismissAllMut = trpc.adminNotifications.dismissAll.useMutation({ onSuccess: () => dbNotifsQuery.refetch() });
+
+  // Legacy data sources
+  const messagesQuery = trpc.contact.list.useQuery({ limit: 5 });
   const statsQuery = trpc.admin.dashboard.stats.useQuery();
 
-  // Generate notifications from real data
   useEffect(() => {
     const notifs: Notification[] = [];
-    
-    // Contact messages
     if (messagesQuery.data) {
       messagesQuery.data.forEach((msg: any, i: number) => {
-        if (i < 5) {
+        if (i < 3) {
           notifs.push({
-            id: `msg-${msg.id}`,
-            type: "message",
+            id: `msg-${msg.id}`, type: "message",
             title: `New message from ${msg.firstName} ${msg.lastName}`,
             description: msg.subject || msg.message?.substring(0, 50) + "...",
-            timestamp: new Date(msg.createdAt),
-            read: msg.status !== "new",
-            link: "/admin/messages",
-            priority: "medium",
+            timestamp: new Date(msg.createdAt), read: msg.status !== "new",
+            link: "/admin/messages", priority: "medium", source: "local",
           });
         }
       });
     }
-
-    // Stats-based notifications
-    if (statsQuery.data) {
-      const stats = statsQuery.data;
-      
-      if (stats.unreadSubmissions > 0) {
-        notifs.push({
-          id: "unread-forms",
-          type: "alert",
-          title: `${stats.unreadSubmissions} unread form submissions`,
-          description: "You have new form submissions waiting for review",
-          timestamp: new Date(),
-          read: false,
-          link: "/admin/forms",
-          priority: "high",
-        });
-      }
-
-      if (stats.recentOrders > 0) {
-        notifs.push({
-          id: "recent-orders",
-          type: "order",
-          title: `${stats.recentOrders} new orders`,
-          description: "Recent orders need your attention",
-          timestamp: new Date(),
-          read: false,
-          link: "/admin/orders",
-          priority: "high",
-        });
-      }
-
-      if (stats.totalSubscribers > 0) {
-        notifs.push({
-          id: "subscribers",
-          type: "user",
-          title: `${stats.totalSubscribers} newsletter subscribers`,
-          description: "Your community is growing!",
-          timestamp: new Date(Date.now() - 3600000),
-          read: true,
-          link: "/admin/newsletter",
-          priority: "low",
-        });
-      }
+    if (statsQuery.data?.unreadSubmissions > 0) {
+      notifs.push({
+        id: "unread-forms", type: "alert",
+        title: `${statsQuery.data.unreadSubmissions} unread form submissions`,
+        description: "You have new form submissions waiting for review",
+        timestamp: new Date(), read: false, link: "/admin/forms", priority: "high", source: "local",
+      });
     }
-
-    // Add system notifications
-    notifs.push({
-      id: "welcome",
-      type: "system",
-      title: "Welcome to Just Empower Admin",
-      description: "Your dashboard is ready. Explore all the features!",
-      timestamp: new Date(Date.now() - 86400000),
-      read: true,
-      priority: "low",
-    });
-
-    notifs.push({
-      id: "ai-training",
-      type: "success",
-      title: "AI Training Center Available",
-      description: "Train your AI assistant with custom Q&A pairs",
-      timestamp: new Date(Date.now() - 7200000),
-      read: true,
-      link: "/admin/ai-training",
-      priority: "low",
-    });
-
-    // Sort by timestamp (newest first)
-    notifs.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-    
-    setNotifications(notifs);
-    setIsLoading(false);
+    setLocalNotifs(notifs);
   }, [messagesQuery.data, statsQuery.data]);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
-  const filteredNotifications = filter === "unread" 
-    ? notifications.filter(n => !n.read) 
-    : notifications;
+  // Merge DB notifications + local notifications
+  const dbNotifs: Notification[] = (dbNotifsQuery.data?.notifications || []).map((n: any) => ({
+    id: n.id, type: n.type, title: n.title, description: n.message || "",
+    timestamp: new Date(n.createdAt), read: n.read === 1, link: n.link || undefined,
+    priority: n.priority, source: "db" as const,
+  }));
 
-  const markAsRead = (id: string) => {
-    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  const allNotifications = [...dbNotifs, ...localNotifs].sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+  const unreadCount = allNotifications.filter(n => !n.read).length;
+  const filteredNotifications = filter === "unread" ? allNotifications.filter(n => !n.read) : allNotifications;
+
+  const handleMarkRead = (n: Notification) => {
+    if (n.source === "db" && typeof n.id === "number") markReadMut.mutate({ id: n.id });
   };
 
-  const markAllAsRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  const handleDelete = (n: Notification) => {
+    if (n.source === "db" && typeof n.id === "number") dismissMut.mutate({ id: n.id });
+    else setLocalNotifs(prev => prev.filter(ln => ln.id !== n.id));
   };
 
-  const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
-  };
-
-  const clearAll = () => {
-    setNotifications([]);
-  };
+  const handleMarkAllRead = () => { markAllReadMut.mutate(); };
+  const handleClearAll = () => { dismissAllMut.mutate(); setLocalNotifs([]); };
 
   if (!isOpen) return null;
 
   return (
     <>
-      {/* Backdrop */}
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40" onClick={onClose} />
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
-        onClick={onClose}
-      />
-
-      {/* Panel */}
-      <motion.div
-        initial={{ opacity: 0, x: 20, scale: 0.95 }}
-        animate={{ opacity: 1, x: 0, scale: 1 }}
-        exit={{ opacity: 0, x: 20, scale: 0.95 }}
-        transition={{ type: "spring", damping: 25, stiffness: 300 }}
+        initial={{ opacity: 0, x: 20, scale: 0.95 }} animate={{ opacity: 1, x: 0, scale: 1 }}
+        exit={{ opacity: 0, x: 20, scale: 0.95 }} transition={{ type: "spring", damping: 25, stiffness: 300 }}
         className="fixed top-16 right-4 w-[420px] max-h-[calc(100vh-100px)] bg-slate-900 border border-white/10 rounded-2xl shadow-2xl z-50 overflow-hidden"
       >
         {/* Header */}
@@ -196,137 +131,82 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
               </div>
               <div>
                 <h2 className="text-lg font-bold text-white">Notifications</h2>
-                <p className="text-xs text-slate-400">
-                  {unreadCount > 0 ? `${unreadCount} unread` : "All caught up!"}
-                </p>
+                <p className="text-xs text-slate-400">{unreadCount > 0 ? `${unreadCount} unread` : "All caught up!"}</p>
               </div>
             </div>
             <Button variant="ghost" size="icon" onClick={onClose} className="text-slate-400 hover:text-white hover:bg-white/10">
               <X className="w-5 h-5" />
             </Button>
           </div>
-
-          {/* Filter tabs */}
           <div className="flex items-center gap-2">
-            <Button 
-              variant={filter === "all" ? "default" : "ghost"} 
-              size="sm" 
-              onClick={() => setFilter("all")}
-              className={filter === "all" ? "bg-white text-slate-900" : "text-slate-400 hover:text-white"}
-            >
-              All
-            </Button>
-            <Button 
-              variant={filter === "unread" ? "default" : "ghost"} 
-              size="sm" 
-              onClick={() => setFilter("unread")}
-              className={filter === "unread" ? "bg-white text-slate-900" : "text-slate-400 hover:text-white"}
-            >
+            <Button variant={filter === "all" ? "default" : "ghost"} size="sm" onClick={() => setFilter("all")}
+              className={filter === "all" ? "bg-white text-slate-900" : "text-slate-400 hover:text-white"}>All</Button>
+            <Button variant={filter === "unread" ? "default" : "ghost"} size="sm" onClick={() => setFilter("unread")}
+              className={filter === "unread" ? "bg-white text-slate-900" : "text-slate-400 hover:text-white"}>
               Unread {unreadCount > 0 && <Badge className="ml-1 bg-red-500 text-white">{unreadCount}</Badge>}
             </Button>
             <div className="flex-1" />
             {unreadCount > 0 && (
-              <Button variant="ghost" size="sm" onClick={markAllAsRead} className="text-purple-400 hover:text-purple-300">
+              <Button variant="ghost" size="sm" onClick={handleMarkAllRead} className="text-purple-400 hover:text-purple-300">
                 <CheckCheck className="w-4 h-4 mr-1" />Mark all read
               </Button>
             )}
           </div>
         </div>
 
-        {/* Content */}
         <ScrollArea className="h-[400px]">
-          {isLoading ? (
-            <div className="flex items-center justify-center py-12">
-              <RefreshCw className="w-6 h-6 text-purple-400 animate-spin" />
-            </div>
-          ) : filteredNotifications.length === 0 ? (
+          {filteredNotifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 px-4">
               <div className="w-16 h-16 rounded-full bg-purple-500/20 flex items-center justify-center mb-4">
                 <Sparkles className="w-8 h-8 text-purple-400" />
               </div>
               <h3 className="text-white font-medium mb-1">All caught up!</h3>
-              <p className="text-slate-400 text-sm text-center">
-                {filter === "unread" ? "No unread notifications" : "No notifications yet"}
-              </p>
+              <p className="text-slate-400 text-sm text-center">{filter === "unread" ? "No unread notifications" : "No notifications yet"}</p>
             </div>
           ) : (
             <div className="p-2">
               <AnimatePresence>
                 {filteredNotifications.map((notification, i) => {
-                  const config = typeConfig[notification.type];
+                  const config = typeConfig[notification.type] || typeConfig.system;
                   const Icon = config.icon;
-                  
                   return (
-                    <motion.div
-                      key={notification.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: -20 }}
+                    <motion.div key={`${notification.source}-${notification.id}`}
+                      initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, x: -20 }}
                       transition={{ delay: i * 0.03 }}
-                      className={`group relative p-3 rounded-xl mb-2 transition-all ${
-                        notification.read ? "bg-white/5 hover:bg-white/10" : "bg-purple-500/10 hover:bg-purple-500/20"
-                      }`}
+                      className={`group relative p-3 rounded-xl mb-2 transition-all ${notification.read ? "bg-white/5 hover:bg-white/10" : "bg-purple-500/10 hover:bg-purple-500/20"}`}
                     >
                       <div className="flex gap-3">
                         <div className={`w-10 h-10 rounded-xl ${config.bg} flex items-center justify-center flex-shrink-0`}>
                           <Icon className={`w-5 h-5 ${config.text}`} />
                         </div>
-                        
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
                             <div>
-                              <p className={`font-medium text-sm ${notification.read ? "text-slate-300" : "text-white"}`}>
-                                {notification.title}
-                              </p>
-                              <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">
-                                {notification.description}
-                              </p>
+                              <p className={`font-medium text-sm ${notification.read ? "text-slate-300" : "text-white"}`}>{notification.title}</p>
+                              <p className="text-xs text-slate-400 mt-0.5 line-clamp-2">{notification.description}</p>
                             </div>
-                            {!notification.read && (
-                              <div className="w-2 h-2 rounded-full bg-purple-500 flex-shrink-0 mt-1.5" />
-                            )}
+                            {!notification.read && <div className="w-2 h-2 rounded-full bg-purple-500 flex-shrink-0 mt-1.5" />}
                           </div>
-                          
                           <div className="flex items-center gap-3 mt-2">
                             <span className="text-xs text-slate-500 flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {formatDistanceToNow(notification.timestamp, { addSuffix: true })}
+                              <Clock className="w-3 h-3" />{formatDistanceToNow(notification.timestamp, { addSuffix: true })}
                             </span>
-                            
-                            {notification.priority === "high" && (
-                              <Badge className="bg-red-500/20 text-red-400 text-xs">Urgent</Badge>
+                            {(notification.priority === "high" || notification.priority === "urgent") && (
+                              <Badge className="bg-red-500/20 text-red-400 text-xs">{notification.priority === "urgent" ? "Urgent" : "High"}</Badge>
                             )}
                           </div>
                         </div>
-
-                        {/* Actions */}
                         <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                           {!notification.read && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-7 w-7 text-slate-400 hover:text-white hover:bg-white/10"
-                              onClick={() => markAsRead(notification.id)}
-                            >
-                              <Check className="w-3.5 h-3.5" />
-                            </Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-white hover:bg-white/10"
+                              onClick={() => handleMarkRead(notification)}><Check className="w-3.5 h-3.5" /></Button>
                           )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-slate-400 hover:text-red-400 hover:bg-red-500/10"
-                            onClick={() => deleteNotification(notification.id)}
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </Button>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 text-slate-400 hover:text-red-400 hover:bg-red-500/10"
+                            onClick={() => handleDelete(notification)}><Trash2 className="w-3.5 h-3.5" /></Button>
                         </div>
                       </div>
-
-                      {/* Link overlay */}
                       {notification.link && (
-                        <Link href={notification.link}>
-                          <a className="absolute inset-0 rounded-xl" onClick={onClose} />
-                        </Link>
+                        <Link href={notification.link}><a className="absolute inset-0 rounded-xl" onClick={onClose} /></Link>
                       )}
                     </motion.div>
                   );
@@ -336,21 +216,14 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
           )}
         </ScrollArea>
 
-        {/* Footer */}
         <div className="p-3 border-t border-white/10 bg-slate-900/50">
           <div className="flex items-center justify-between">
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-slate-400 hover:text-white"
-              onClick={clearAll}
-            >
+            <Button variant="ghost" size="sm" className="text-slate-400 hover:text-white" onClick={handleClearAll}>
               <Trash2 className="w-4 h-4 mr-1" />Clear all
             </Button>
-            <Link href="/admin/messages">
+            <Link href="/admin/orders">
               <Button size="sm" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white" onClick={onClose}>
-                View all messages
-                <ExternalLink className="w-4 h-4 ml-1" />
+                View orders <ExternalLink className="w-4 h-4 ml-1" />
               </Button>
             </Link>
           </div>
@@ -360,33 +233,24 @@ export default function NotificationCenter({ isOpen, onClose }: NotificationCent
   );
 }
 
-// Export the bell button component for easy use
-export function NotificationBell({ unreadCount = 0 }: { unreadCount?: number }) {
+export function NotificationBell({ unreadCount: _externalCount = 0 }: { unreadCount?: number }) {
   const [isOpen, setIsOpen] = useState(false);
+  const notifsQuery = trpc.adminNotifications.list.useQuery({ limit: 1, unreadOnly: true }, { refetchInterval: 30000 });
+  const dbUnread = notifsQuery.data?.unreadCount || 0;
+  const totalUnread = dbUnread + _externalCount;
 
   return (
     <>
-      <Button 
-        variant="outline" 
-        size="icon" 
-        className="relative"
-        onClick={() => setIsOpen(true)}
-      >
+      <Button variant="outline" size="icon" className="relative" onClick={() => setIsOpen(true)}>
         <Bell className="w-4 h-4" />
-        {unreadCount > 0 && (
-          <motion.span 
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center"
-          >
-            {unreadCount > 9 ? "9+" : unreadCount}
+        {totalUnread > 0 && (
+          <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+            className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+            {totalUnread > 9 ? "9+" : totalUnread}
           </motion.span>
         )}
       </Button>
-      
-      <AnimatePresence>
-        {isOpen && <NotificationCenter isOpen={isOpen} onClose={() => setIsOpen(false)} />}
-      </AnimatePresence>
+      <AnimatePresence>{isOpen && <NotificationCenter isOpen={isOpen} onClose={() => setIsOpen(false)} />}</AnimatePresence>
     </>
   );
 }

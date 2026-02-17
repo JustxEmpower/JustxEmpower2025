@@ -3300,16 +3300,80 @@ export const adminRouter = router({
         status: z.enum(["pending", "processing", "shipped", "delivered", "cancelled", "refunded"]),
         trackingNumber: z.string().optional(),
         trackingUrl: z.string().optional(),
+        notes: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         const db = await getDb();
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
         
         const { id, ...updates } = input;
+        const setData: any = { ...updates };
+        
+        // Auto-set timestamps based on status
+        if (input.status === "shipped") {
+          setData.shippedAt = new Date();
+        } else if (input.status === "delivered") {
+          setData.deliveredAt = new Date();
+        }
+        
         await db
           .update(schema.orders)
-          .set(updates)
+          .set(setData)
           .where(eq(schema.orders.id, id));
+        
+        // Create notification for shipment
+        if (input.status === "shipped") {
+          const [order] = await db.select().from(schema.orders).where(eq(schema.orders.id, id));
+          if (order) {
+            await db.insert(schema.adminNotifications).values({
+              type: "shipment",
+              title: `Order ${order.orderNumber} shipped`,
+              message: `Tracking: ${input.trackingNumber || 'N/A'}`,
+              link: "/admin/orders",
+              priority: "medium",
+              relatedId: id,
+              relatedType: "order",
+            }).catch(() => {});
+          }
+        }
+        
+        return { success: true };
+      }),
+
+    updateShipment: adminProcedure
+      .input(z.object({
+        id: z.number(),
+        trackingNumber: z.string(),
+        trackingUrl: z.string().optional(),
+        carrier: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+        
+        await db
+          .update(schema.orders)
+          .set({
+            trackingNumber: input.trackingNumber,
+            trackingUrl: input.trackingUrl || null,
+            status: "shipped",
+            shippedAt: new Date(),
+          })
+          .where(eq(schema.orders.id, input.id));
+        
+        // Create notification
+        const [order] = await db.select().from(schema.orders).where(eq(schema.orders.id, input.id));
+        if (order) {
+          await db.insert(schema.adminNotifications).values({
+            type: "shipment",
+            title: `Order ${order.orderNumber} shipped`,
+            message: `Carrier: ${input.carrier || 'N/A'} | Tracking: ${input.trackingNumber}`,
+            link: "/admin/orders",
+            priority: "medium",
+            relatedId: input.id,
+            relatedType: "order",
+          }).catch(() => {});
+        }
         
         return { success: true };
       }),

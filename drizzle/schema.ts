@@ -1292,3 +1292,24 @@ export const pageContentSchema = mysqlTable("pageContentSchema", {
 
 export type PageContentSchema = typeof pageContentSchema.$inferSelect;
 export type InsertPageContentSchema = typeof pageContentSchema.$inferInsert;
+
+/**
+ * Admin Notifications — persistent notification system for sales, shipments, alerts
+ */
+export const adminNotifications = mysqlTable("admin_notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  type: mysqlEnum("type", ["order", "payment", "shipment", "refund", "dispute", "event_registration", "low_stock", "system"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message"),
+  link: varchar("link", { length: 500 }),
+  priority: mysqlEnum("priority", ["low", "medium", "high", "urgent"]).default("medium").notNull(),
+  read: int("read").default(0).notNull(),
+  dismissed: int("dismissed").default(0).notNull(),
+  relatedId: int("relatedId"), // order id, registration id, etc.
+  relatedType: varchar("relatedType", { length: 50 }), // "order", "registration", etc.
+  metadata: text("metadata"), // JSON string for extra data
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type AdminNotification = typeof adminNotifications.$inferSelect;
+export type InsertAdminNotification = typeof adminNotifications.$inferInsert;
