@@ -170,8 +170,9 @@ export default function Header() {
     setOpenMobileDropdown(openMobileDropdown === label ? null : label);
   };
 
-  // Get logo URL from brand assets, site settings, or use default
-  const logoUrl = brandAssets?.logo_header || siteSettings?.logoUrl || getMediaUrl('/media/logo-white.png');
+  // Get logo URLs — white for dark backgrounds, dark for light backgrounds
+  const logoWhite = brandAssets?.logo_header || siteSettings?.logoWhiteUrl || getMediaUrl('/media/logo-white.png');
+  const logoDark = siteSettings?.logoUrl || getMediaUrl('/media/logo-black.png');
   const siteName = siteSettings?.siteName || 'Site Logo';
 
   // Only the homepage has a guaranteed dark hero — all other pages default to light background
@@ -189,13 +190,14 @@ export default function Header() {
     return 'text-white';
   };
 
-  // Logo class - invert when scrolled OR on light background pages
-  // In dark mode when scrolled, keep logo white (no invert needed)
-  const getLogoClass = () => {
+  // Choose the correct logo variant based on context
+  const getLogoSrc = () => {
     if (isScrolled || isMobileMenuOpen || hasLightBackground) {
-      return 'invert brightness-0 dark:invert-0 dark:brightness-100';
+      // Light background in light mode → dark logo; dark mode → white logo
+      return { light: logoDark, dark: logoWhite };
     }
-    return 'invert-0 brightness-100';
+    // Dark hero background → always white logo
+    return { light: logoWhite, dark: logoWhite };
   };
 
   // CTA button class
@@ -224,11 +226,19 @@ export default function Header() {
       <div className="flex items-center justify-between max-w-[1920px] mx-auto w-full">
         <Link href="/" className="block w-12 h-12 md:w-14 md:h-14 relative transition-transform duration-300 hover:scale-105 z-50 flex-shrink-0">
           <img 
-            src={logoUrl} 
+            src={getLogoSrc().light} 
             alt={siteName} 
             className={cn(
               "w-full h-full object-contain transition-all duration-300",
-              getLogoClass()
+              "dark:hidden"
+            )}
+          />
+          <img 
+            src={getLogoSrc().dark} 
+            alt={siteName} 
+            className={cn(
+              "w-full h-full object-contain transition-all duration-300",
+              "hidden dark:block"
             )}
           />
         </Link>
