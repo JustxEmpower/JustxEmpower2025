@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation } from "wouter";
+import { useLocation, Link } from "wouter";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { trpc } from "@/lib/trpc";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import AdminSidebar from '@/components/AdminSidebar';
-import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, ShoppingBag, Calendar, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { DollarSign, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, ShoppingBag, Calendar, Loader2, ExternalLink, RefreshCw } from "lucide-react";
 
 type Period = "today" | "week" | "month" | "year" | "all";
 
@@ -19,6 +20,8 @@ const statusColors: Record<string, string> = {
   shipped: "bg-indigo-100 text-indigo-800",
   cancelled: "bg-red-100 text-red-800",
   refunded: "bg-gray-100 text-gray-800",
+  paid: "bg-green-100 text-green-800",
+  on_hold: "bg-orange-100 text-orange-800",
 };
 
 export default function AdminRevenue() {
@@ -179,7 +182,12 @@ export default function AdminRevenue() {
               {/* Recent Transactions */}
               <Card>
                 <CardHeader>
+                  <div className="flex items-center justify-between">
                   <CardTitle>Recent Transactions</CardTitle>
+                  <Button variant="outline" size="sm" onClick={() => transactionsQuery.refetch()}>
+                    <RefreshCw className="w-4 h-4 mr-1" /> Refresh
+                  </Button>
+                </div>
                 </CardHeader>
                 <CardContent>
                   {transactionsQuery.isLoading ? (
@@ -200,7 +208,11 @@ export default function AdminRevenue() {
                       </TableHeader>
                       <TableBody>
                         {transactions.map((tx: any) => (
-                          <TableRow key={`${tx.type}-${tx.id}`}>
+                          <TableRow
+                            key={`${tx.type}-${tx.id}`}
+                            className="cursor-pointer hover:bg-neutral-50 dark:hover:bg-neutral-900"
+                            onClick={() => setLocation(tx.type === "order" ? "/admin/orders" : "/admin/events")}
+                          >
                             <TableCell>
                               <Badge variant="outline" className="capitalize">
                                 {tx.type === "order" ? (
@@ -210,7 +222,7 @@ export default function AdminRevenue() {
                                 )}
                               </Badge>
                             </TableCell>
-                            <TableCell className="font-mono text-sm">{tx.reference}</TableCell>
+                            <TableCell className="font-mono text-sm font-medium">{tx.reference || 'N/A'}</TableCell>
                             <TableCell>{tx.email}</TableCell>
                             <TableCell className="font-semibold">{formatPrice(tx.amount)}</TableCell>
                             <TableCell>

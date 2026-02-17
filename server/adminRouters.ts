@@ -3425,8 +3425,8 @@ export const adminRouter = router({
             break;
         }
         
-        // Get shop revenue from orders
-        const shopConditions = [eq(schema.orders.status, "delivered")];
+        // Get shop revenue from orders (count all paid orders as revenue)
+        const shopConditions = [eq(schema.orders.paymentStatus, "paid")];
         if (startDate) {
           shopConditions.push(gte(schema.orders.createdAt, startDate));
         }
@@ -3473,7 +3473,7 @@ export const adminRouter = router({
             })
             .from(schema.orders)
             .where(and(
-              eq(schema.orders.status, "delivered"),
+              eq(schema.orders.paymentStatus, "paid"),
               gte(schema.orders.createdAt, prevStartDate),
               sql`${schema.orders.createdAt} < ${prevEndDate}`
             ));
