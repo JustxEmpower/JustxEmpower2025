@@ -12,16 +12,19 @@ import {
 import { eq, and, desc, asc, gte, lte, sql, or, like } from "drizzle-orm";
 import Stripe from "stripe";
 
-// Initialize Stripe only if API key is provided
-let stripe: Stripe | null = null;
-if (process.env.STRIPE_SECRET_KEY) {
-  try {
-    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2024-12-18.acacia" as any,
-    });
-  } catch (e) {
-    console.warn("Stripe initialization failed - payment features disabled");
+// Lazy Stripe initialization — env vars may not be loaded at module init time
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe | null {
+  if (!_stripe && process.env.STRIPE_SECRET_KEY) {
+    try {
+      _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: "2024-12-18.acacia" as any,
+      });
+    } catch (e) {
+      console.warn("Stripe initialization failed - payment features disabled", e);
+    }
   }
+  return _stripe;
 }
 
 function formatPrice(cents: number): string {
@@ -211,6 +214,7 @@ export const eventsRouter = router({
       }
       
       // Create Stripe payment intent
+      const stripe = getStripe();
       if (!stripe) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing not configured" });
       const paymentIntent = await stripe.paymentIntents.create({
         amount: totalAmount,
@@ -276,6 +280,7 @@ export const eventsRouter = router({
       if (totalAmount > 0) {
         if (!paymentIntentId) throw new TRPCError({ code: "BAD_REQUEST", message: "Payment required" });
         
+        const stripe = getStripe();
         if (!stripe) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing not configured" });
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
         if (paymentIntent.status !== "succeeded") throw new TRPCError({ code: "BAD_REQUEST", message: "Payment not completed" });

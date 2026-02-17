@@ -15,16 +15,19 @@ import {
 import { eq, and, desc, asc, like, sql, gte, lte, or, isNotNull } from "drizzle-orm";
 import Stripe from "stripe";
 
-// Initialize Stripe only if API key is provided
-let stripe: Stripe | null = null;
-if (process.env.STRIPE_SECRET_KEY) {
-  try {
-    stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-      apiVersion: "2024-12-18.acacia" as any,
-    });
-  } catch (e) {
-    console.warn("Stripe initialization failed - payment features disabled");
+// Lazy Stripe initialization — env vars may not be loaded at module init time
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe | null {
+  if (!_stripe && process.env.STRIPE_SECRET_KEY) {
+    try {
+      _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
+        apiVersion: "2024-12-18.acacia" as any,
+      });
+    } catch (e) {
+      console.warn("Stripe initialization failed - payment features disabled", e);
+    }
   }
+  return _stripe;
 }
 
 // Helper to generate order number
@@ -322,7 +325,8 @@ export const shopRouter = router({
         const taxAmount = 0;
         const total = subtotal - discountAmount + shippingAmount + taxAmount;
         
-        if (!stripe) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing not configured" });
+        const stripe = getStripe();
+        if (!stripe) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing not configured. STRIPE_SECRET_KEY=" + (process.env.STRIPE_SECRET_KEY ? 'SET' : 'MISSING') });
         const paymentIntent = await stripe.paymentIntents.create({
           amount: total,
           currency: "usd",
@@ -365,6 +369,7 @@ export const shopRouter = router({
         if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
         const { sessionId, paymentIntentId, email, phone, shippingAddress, customerNotes } = input;
         
+        const stripe = getStripe();
         if (!stripe) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing not configured" });
         const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
         if (paymentIntent.status !== "succeeded") throw new TRPCError({ code: "BAD_REQUEST", message: "Payment not completed" });
