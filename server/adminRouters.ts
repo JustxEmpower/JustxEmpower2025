@@ -3261,9 +3261,25 @@ export const adminRouter = router({
           .select({ count: sql<number>`count(*)` })
           .from(schema.orders)
           .where(conditions.length > 0 ? and(...conditions) : undefined);
-        
+
+        // Fetch line items for all returned orders in one query
+        const orderIds = orders.map((o: any) => o.id);
+        let allItems: any[] = [];
+        if (orderIds.length > 0) {
+          allItems = await db
+            .select({ orderId: schema.orderItems.orderId, name: schema.orderItems.name, quantity: schema.orderItems.quantity, price: schema.orderItems.price, total: schema.orderItems.total, imageUrl: schema.orderItems.imageUrl, sku: schema.orderItems.sku })
+            .from(schema.orderItems)
+            .where(sql`${schema.orderItems.orderId} IN (${sql.join(orderIds.map(id => sql`${id}`), sql`, `)})`);
+        }
+        // Group items by orderId
+        const itemsByOrder = new Map<number, any[]>();
+        for (const item of allItems) {
+          if (!itemsByOrder.has(item.orderId)) itemsByOrder.set(item.orderId, []);
+          itemsByOrder.get(item.orderId)!.push(item);
+        }
+
         return {
-          orders,
+          orders: orders.map((o: any) => ({ ...o, items: itemsByOrder.get(o.id) || [] })),
           total: countResult?.count || 0,
         };
       }),

@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import AdminSidebar from "@/components/AdminSidebar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
@@ -111,6 +114,8 @@ function StatusBadge({ status }: { status: string }) {
 
 // === MAIN COMPONENT ===
 export default function AdminFinance() {
+  const [, setLocation] = useLocation();
+  const { isAuthenticated, isChecking } = useAdminAuth();
   const [activeTab, setActiveTab] = useState("command-center");
   const [txSearch, setTxSearch] = useState("");
   const [txFilter, setTxFilter] = useState("all");
@@ -126,8 +131,18 @@ export default function AdminFinance() {
 
   const refreshAll = () => { refetchCC(); };
 
+  useEffect(() => {
+    if (!isChecking && !isAuthenticated) setLocation("/admin/login");
+  }, [isAuthenticated, isChecking, setLocation]);
+
+  if (isChecking) return <div className="min-h-screen flex items-center justify-center"><p className="text-neutral-500">Loading...</p></div>;
+  if (!isAuthenticated) return null;
+
   return (
-    <div className="space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+      <AdminSidebar variant="dark" />
+      <main className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-6 py-6 space-y-4">
       {/* HEADER */}
       <div className="flex items-center justify-between">
         <div>
@@ -672,6 +687,8 @@ export default function AdminFinance() {
           )}
         </TabsContent>
       </Tabs>
+        </div>
+      </main>
     </div>
   );
 }

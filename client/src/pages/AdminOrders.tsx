@@ -312,37 +312,60 @@ export default function AdminOrders() {
                     transition={{ delay: index * 0.03 }}
                   >
                     <Card className="hover:shadow-md transition-all">
-                      <CardContent className="flex items-center gap-4 p-4">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0">
-                          <ShoppingBag className="w-6 h-6 text-primary" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-semibold">{order.orderNumber}</h3>
-                            <Badge className={`${getStatusColor(order.status)}`}>
-                              {order.status}
-                            </Badge>
-                            {order.paymentStatus === "paid" && (
-                              <Badge className="bg-green-100 text-green-700 hover:bg-green-100">
-                                <CreditCard className="w-3 h-3 mr-1" />
-                                Paid
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-4">
+                          {/* Item thumbnail or icon */}
+                          {order.items?.[0]?.imageUrl ? (
+                            <img src={order.items[0].imageUrl} alt={order.items[0].name} className="w-14 h-14 rounded-lg object-cover flex-shrink-0 border" />
+                          ) : (
+                            <div className="w-14 h-14 rounded-lg bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center flex-shrink-0">
+                              <ShoppingBag className="w-6 h-6 text-primary" />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h3 className="font-semibold text-sm">{order.orderNumber}</h3>
+                              <Badge className={`${getStatusColor(order.status)} text-[10px]`}>
+                                {order.status}
                               </Badge>
-                            )}
+                              {order.paymentStatus === "paid" && (
+                                <Badge className="bg-green-100 text-green-700 hover:bg-green-100 text-[10px]">
+                                  <CreditCard className="w-3 h-3 mr-1" />
+                                  Paid
+                                </Badge>
+                              )}
+                            </div>
+                            {/* Purchased items summary */}
+                            <div className="mt-1.5">
+                              {order.items?.length > 0 ? (
+                                <div className="space-y-0.5">
+                                  {order.items.slice(0, 3).map((item: any, i: number) => (
+                                    <p key={i} className="text-sm text-stone-700 truncate">
+                                      <span className="font-medium">{item.name}</span>
+                                      <span className="text-stone-400 ml-1">× {item.quantity}</span>
+                                      <span className="text-stone-500 ml-1">${(item.price / 100).toFixed(2)}</span>
+                                    </p>
+                                  ))}
+                                  {order.items.length > 3 && (
+                                    <p className="text-xs text-stone-400">+{order.items.length - 3} more item{order.items.length - 3 > 1 ? 's' : ''}</p>
+                                  )}
+                                </div>
+                              ) : (
+                                <p className="text-sm text-stone-400 italic">No item details</p>
+                              )}
+                            </div>
+                            <p className="text-xs text-stone-500 mt-1.5">
+                              {order.shippingFirstName} {order.shippingLastName} · {order.email} · {formatDate(order.createdAt)}
+                            </p>
                           </div>
-                          <p className="text-sm text-stone-600 mt-1">
-                            {order.shippingFirstName} {order.shippingLastName} • {order.email}
-                          </p>
-                          <p className="text-xs text-stone-400 mt-1">
-                            {formatDate(order.createdAt)}
-                          </p>
+                          <div className="text-right flex-shrink-0">
+                            <p className="text-xl font-bold text-primary">${(order.total / 100).toFixed(2)}</p>
+                            <p className="text-xs text-stone-500 mt-1">
+                              {order.items?.length || 1} item{(order.items?.length || 1) !== 1 ? 's' : ''}
+                            </p>
+                          </div>
                         </div>
-                        <div className="text-right">
-                          <p className="text-xl font-bold text-primary">${(order.total / 100).toFixed(2)}</p>
-                          <p className="text-xs text-stone-500 mt-1">
-                            {order.itemCount || 1} item{order.itemCount !== 1 ? 's' : ''}
-                          </p>
-                    </div>
-                        <div className="flex items-center gap-2 mt-2">
+                        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-stone-100">
                           <Select 
                             value={order.status} 
                             onValueChange={(value) => handleStatusChange(order.id, value)}
