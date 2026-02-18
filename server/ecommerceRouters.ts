@@ -125,7 +125,9 @@ export const financialRouter = router({
       pendingShipments: Number(pendShip?.count) || 0,
     };
   }),
+});
 
+export const commandCenterRouter = router({
   // === COMMAND CENTER: All KPIs in one call ===
   commandCenter: adminProcedure.query(async () => {
     const db = await getDb();

@@ -115,14 +115,14 @@ export default function AdminFinance() {
   const [txSearch, setTxSearch] = useState("");
   const [txFilter, setTxFilter] = useState("all");
 
-  const { data: cc, refetch: refetchCC, isLoading: ccLoading } = useTRPC("adminFinancial.commandCenter");
-  const { data: trend } = useTRPC("adminFinancial.revenueByDay", { days: 30 });
-  const { data: topProducts } = useTRPC("adminFinancial.revenueByProduct", { limit: 10 });
-  const { data: customers } = useTRPC("adminFinancial.topCustomers", { limit: 15 });
-  const { data: activity } = useTRPC("adminFinancial.activityFeed", { limit: 30 });
+  const { data: cc, refetch: refetchCC, isLoading: ccLoading } = useTRPC("adminCommand.commandCenter");
+  const { data: trend } = useTRPC("adminCommand.revenueByDay", { days: 30 });
+  const { data: topProducts } = useTRPC("adminCommand.revenueByProduct", { limit: 10 });
+  const { data: customers } = useTRPC("adminCommand.topCustomers", { limit: 15 });
+  const { data: activity } = useTRPC("adminCommand.activityFeed", { limit: 30 });
   const { data: payments } = useTRPC("adminFinancial.payments");
-  const { data: lowStock } = useTRPC("adminFinancial.lowStockAlerts");
-  const { data: abandoned } = useTRPC("adminFinancial.abandonedCarts");
+  const { data: lowStock } = useTRPC("adminCommand.lowStockAlerts");
+  const { data: abandoned } = useTRPC("adminCommand.abandonedCarts");
 
   const refreshAll = () => { refetchCC(); };
 
