@@ -53,6 +53,7 @@ export const notificationsRouter = router({
 });
 
 export const financialRouter = router({
+  ping: adminProcedure.query(async () => { return { ok: true, time: new Date().toISOString() }; }),
   payments: adminProcedure
     .input(z.object({ status: z.string().optional(), limit: z.number().optional().default(50) }).optional())
     .query(async ({ input }) => {
