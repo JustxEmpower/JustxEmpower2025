@@ -24,11 +24,11 @@ const useTRPC = (path: string, input?: any) => {
   return useQuery({
     queryKey: [path, input],
     queryFn: async () => {
-      const params = input ? `?input=${encodeURIComponent(JSON.stringify(input))}` : "";
+      const params = input ? `?input=${encodeURIComponent(JSON.stringify({ json: input }))}` : "";
       const res = await fetch(`/api/trpc/${path}${params}`, { headers: { "x-admin-token": adminToken } });
       const json = await res.json();
-      if (json.error) throw new Error(json.error.message);
-      return json.result?.data;
+      if (json.error) throw new Error(json.error.json?.message || json.error.message || "Unknown error");
+      return json.result?.data?.json ?? json.result?.data;
     },
   });
 };
