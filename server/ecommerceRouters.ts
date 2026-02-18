@@ -53,7 +53,6 @@ export const notificationsRouter = router({
 });
 
 export const financialRouter = router({
-  ping: adminProcedure.query(async () => { return { ok: true, time: new Date().toISOString() }; }),
   payments: adminProcedure
     .input(z.object({ status: z.string().optional(), limit: z.number().optional().default(50) }).optional())
     .query(async ({ input }) => {
@@ -126,9 +125,6 @@ export const financialRouter = router({
       pendingShipments: Number(pendShip?.count) || 0,
     };
   }),
-});
-
-export const commandCenterRouter = router({
   // === COMMAND CENTER: All KPIs in one call ===
   commandCenter: adminProcedure.query(async () => {
     const db = await getDb();
