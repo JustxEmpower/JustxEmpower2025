@@ -1116,12 +1116,14 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
   const defaultTextColor = effectiveDark ? '#ffffff' : '#1a1a1a';
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
   
-  // Per-field colors (fallback to textColor or default)
-  const baseTextColor = content.textColor || defaultTextColor;
-  const titleColor = content.titleColor || baseTextColor;
-  const subtitleColor = content.subtitleColor || content.labelColor || undefined; // Let it use primary color if not set
-  const descriptionColor = content.descriptionColor || baseTextColor;
-  const ctaTextColor = content.ctaTextColor || baseTextColor;
+  // When system dark mode is active but block wasn't designed for dark,
+  // ignore stored text colors (they were set for light mode and would be invisible)
+  const forceSystemDark = systemIsDark && !content.dark;
+  const baseTextColor = forceSystemDark ? defaultTextColor : (content.textColor || defaultTextColor);
+  const titleColor = forceSystemDark ? defaultTextColor : (content.titleColor || baseTextColor);
+  const subtitleColor = forceSystemDark ? undefined : (content.subtitleColor || content.labelColor || undefined); // Let it use primary color if not set
+  const descriptionColor = forceSystemDark ? defaultTextColor : (content.descriptionColor || baseTextColor);
+  const ctaTextColor = forceSystemDark ? defaultTextColor : (content.ctaTextColor || baseTextColor);
 
   // Layout values
   const sectionPaddingY = content.sectionPaddingY || '6rem';
