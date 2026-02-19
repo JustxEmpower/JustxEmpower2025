@@ -2,6 +2,7 @@ import React, { memo, useState, useRef, useEffect } from 'react';
 import { Link } from 'wouter';
 import { PageBlock, usePageBuilderStore } from '../usePageBuilderStore';
 import { JERendererProps, normalizeJERendererProps } from './jeRendererTypes';
+import { useTheme } from '@/contexts/ThemeContext';
 import Carousel from '@/components/Carousel';
 import NewsletterSignup from '@/components/NewsletterSignup';
 import { Heart, Compass, Crown, Leaf, Star, Sparkles, ChevronDown, Mail, Phone, MapPin, ArrowRight, Play, Pause, Volume2, VolumeX, AlertCircle, ImageIcon } from 'lucide-react';
@@ -1103,11 +1104,16 @@ export function JESectionRenderer({ block, isEditing = false, isBlockSelected = 
   useGoogleFonts(content.label, `${block.id}-section-label`);
   useGoogleFonts(content.description, `${block.id}-section-description`);
 
+  // Detect system dark mode from ThemeContext
+  const { theme: systemTheme } = useTheme();
+  const systemIsDark = systemTheme === 'dark';
+
   // Custom colors override dark mode defaults
   const hasCustomBg = content.backgroundColor && content.backgroundColor !== '';
   const hasCustomText = content.textColor && content.textColor !== '';
-  const bgClass = hasCustomBg ? '' : (content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]');
-  const defaultTextColor = content.dark ? '#ffffff' : '#1a1a1a';
+  const effectiveDark = content.dark || systemIsDark;
+  const bgClass = hasCustomBg ? '' : (content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0] dark:bg-[#1a1a1a]');
+  const defaultTextColor = effectiveDark ? '#ffffff' : '#1a1a1a';
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
   
   // Per-field colors (fallback to textColor or default)
@@ -1869,10 +1875,12 @@ export function JENewsletterRenderer({ block, isEditing = false, isBlockSelected
     textColor?: string;
   };
 
-  // Support custom background color
+  // Support custom background color + system dark mode
+  const { theme: nlTheme } = useTheme();
+  const nlSystemDark = nlTheme === 'dark';
   const hasCustomBg = content.backgroundColor && content.backgroundColor !== '';
-  const bgClass = hasCustomBg ? '' : (content.dark !== false ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]');
-  const isDark = content.dark !== false && !hasCustomBg;
+  const bgClass = hasCustomBg ? '' : (content.dark !== false ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0] dark:bg-[#1a1a1a]');
+  const isDark = content.dark !== false || nlSystemDark;
   const textColor = content.textColor || (isDark ? '#ffffff' : '#1a1a1a');
   const descColor = isDark ? 'rgba(255,255,255,0.7)' : (content.textColor || '#525252');
 
@@ -1908,7 +1916,7 @@ export function JEQuoteRenderer({ block, isEditing = false, isBlockSelected = fa
     dark?: boolean;
   };
 
-  const bgClass = content.dark ? 'bg-[#1a1a1a] text-white' : 'bg-[#f5f5f0]';
+  const bgClass = content.dark ? 'bg-[#1a1a1a] text-white' : 'bg-[#f5f5f0] dark:bg-[#1a1a1a] dark:text-white';
 
   return (
     <div className={`py-24 px-6 ${bgClass}`}>
@@ -1955,9 +1963,9 @@ export function JEPillarGridRenderer({ block, isEditing = false, isBlockSelected
   const pillars = (content.pillars && content.pillars.length > 0) ? content.pillars : defaultPillars;
   
   const isDark = content.dark === true;
-  const bgClass = isDark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]';
-  const textClass = isDark ? 'text-white' : 'text-foreground';
-  const subtextClass = isDark ? 'text-white/70' : 'text-neutral-600';
+  const bgClass = isDark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0] dark:bg-[#1a1a1a]';
+  const textClass = isDark ? 'text-white' : 'text-foreground dark:text-white';
+  const subtextClass = isDark ? 'text-white/70' : 'text-neutral-600 dark:text-white/70';
 
   return (
     <section className={`py-24 px-6 ${bgClass}`}>
@@ -2083,11 +2091,11 @@ export function JECommunityRenderer({ block, isEditing = false, isBlockSelected 
   };
 
   const imageUrl = content.imageUrl ? getMediaUrl(content.imageUrl) : undefined;
-  const bgClass = content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]';
-  const textClass = content.dark ? 'text-white' : 'text-foreground';
-  const descClass = content.dark ? 'text-white/70' : 'text-neutral-600';
-  const borderClass = content.dark ? 'border-white/30' : 'border-neutral-900';
-  const hoverClass = content.dark ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white';
+  const bgClass = content.dark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0] dark:bg-[#1a1a1a]';
+  const textClass = content.dark ? 'text-white' : 'text-foreground dark:text-white';
+  const descClass = content.dark ? 'text-white/70' : 'text-neutral-600 dark:text-white/70';
+  const borderClass = content.dark ? 'border-white/30' : 'border-neutral-900 dark:border-white/30';
+  const hoverClass = content.dark ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black';
   const borderRadius = content.imageBorderRadius || '2rem';
 
   return (
@@ -2183,11 +2191,11 @@ export function JERootedUnityRenderer({ block, isEditing = false, isBlockSelecte
   
   // Default to dark theme for this block
   const isDark = content.dark !== false;
-  const bgClass = isDark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0]';
-  const textClass = isDark ? 'text-white' : 'text-foreground';
-  const descClass = isDark ? 'text-white/70' : 'text-neutral-600';
-  const borderClass = isDark ? 'border-white/30' : 'border-neutral-900';
-  const hoverClass = isDark ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white';
+  const bgClass = isDark ? 'bg-[#1a1a1a]' : 'bg-[#f5f5f0] dark:bg-[#1a1a1a]';
+  const textClass = isDark ? 'text-white' : 'text-foreground dark:text-white';
+  const descClass = isDark ? 'text-white/70' : 'text-neutral-600 dark:text-white/70';
+  const borderClass = isDark ? 'border-white/30' : 'border-neutral-900 dark:border-white/30';
+  const hoverClass = isDark ? 'hover:bg-white hover:text-black' : 'hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black';
   const borderRadius = content.imageBorderRadius || '2rem';
 
   return (
@@ -2459,7 +2467,7 @@ export function JEParagraphRenderer({ block, isEditing = false, isBlockSelected 
   const maxWidthClass = useNewMarginSystem ? '' : (maxWidthClasses[maxWidthValue] || 'max-w-2xl');
   const alignClass = alignmentClasses[content.alignment || 'center'] || 'text-center';
   
-  const textClass = content.dark ? 'text-white/70' : 'text-neutral-600';
+  const textClass = content.dark ? 'text-white/70' : 'text-neutral-600 dark:text-white/70';
 
   // Build inline styles from Style tab using helper functions
   const calculatedWidth = getTextWidth();
