@@ -189,6 +189,16 @@
     background: rgba(212, 175, 55, 0.8);
   }
   
+  /* Dark mode: force white text in page-builder sections designed for light mode */
+  .force-dark-text,
+  .force-dark-text *:not(img):not(video):not(svg):not(path) {
+    color: #ffffff !important;
+  }
+  .force-dark-text .je-section-subtitle,
+  .force-dark-text .je-section-subtitle * {
+    color: var(--primary, #D4AF37) !important;
+  }
+
   /* Lenis Smooth Scroll */
   html.lenis, html.lenis body {
     height: auto;
