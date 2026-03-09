@@ -26,7 +26,7 @@ export default function CodexPortal() {
   if (!portal?.user?.tier) {
     return (
       <div className="codex-env">
-        <div className="max-w-5xl mx-auto px-6 py-16">
+        <div className="max-w-5xl mx-auto px-6 pt-28 pb-16">
           <div className="text-center cx-fade-in mb-16">
             <div className="text-6xl mb-6 cx-slow-pulse" style={{ lineHeight: 1 }}>{"\u{1F702}"}</div>
             <h1 className="cx-heading-xl mb-4">The Living Codex™</h1>
@@ -50,7 +50,7 @@ export default function CodexPortal() {
                     </li>
                   ))}
                 </ul>
-                <button className="cx-btn-primary w-full" onClick={() => go(`/account/codex/purchase?tier=${t.id}`)}>
+                <button className="cx-btn-primary w-full" onClick={() => window.open(`mailto:april@justxempower.com?subject=Living Codex — ${t.name}&body=I would like to begin the ${t.name} journey (${t.priceDisplay}).`, '_blank')}>
                   Begin Journey
                 </button>
               </div>
@@ -71,7 +71,7 @@ export default function CodexPortal() {
 
   return (
     <div className="codex-env">
-      <main className="max-w-5xl mx-auto px-6 py-10">
+      <main className="max-w-5xl mx-auto px-6 pt-28 pb-10">
         {/* ── Welcome ── */}
         <div className="text-center mb-16 cx-fade-in">
           <div className="text-5xl mb-6 cx-float" style={{ lineHeight: 1 }}>{"\u{1F702}"}</div>
