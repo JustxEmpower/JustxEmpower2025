@@ -1,11 +1,28 @@
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function CodexPortal() {
   const [, go] = useLocation();
+  const [purchasing, setPurchasing] = useState<string | null>(null);
   const portalQuery = trpc.codex.client.portal.useQuery();
   const constantsQuery = trpc.codex.client.constants.useQuery();
+  const purchaseMutation = trpc.codex.client.purchaseTier.useMutation({
+    onSuccess: (data) => { if (data.checkoutUrl) window.location.href = data.checkoutUrl; },
+    onError: () => setPurchasing(null),
+  });
+  const confirmMutation = trpc.codex.client.confirmTierPurchase.useMutation({
+    onSuccess: () => { portalQuery.refetch(); },
+  });
+
+  // Handle Stripe success redirect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('purchase') === 'success' && params.get('tier')) {
+      confirmMutation.mutate({ tierId: params.get('tier')! });
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   const portal = portalQuery.data;
   const tiers = constantsQuery.data?.journeyTiers || [];
@@ -50,8 +67,12 @@ export default function CodexPortal() {
                     </li>
                   ))}
                 </ul>
-                <button className="cx-btn-primary w-full" onClick={() => window.open(`mailto:april@justxempower.com?subject=Living Codex — ${t.name}&body=I would like to begin the ${t.name} journey (${t.priceDisplay}).`, '_blank')}>
-                  Begin Journey
+                <button
+                  className="cx-btn-primary w-full"
+                  disabled={purchasing === t.id}
+                  onClick={() => { setPurchasing(t.id); purchaseMutation.mutate({ tierId: t.id }); }}
+                >
+                  {purchasing === t.id ? "Redirecting to checkout…" : "Begin Journey"}
                 </button>
               </div>
             ))}

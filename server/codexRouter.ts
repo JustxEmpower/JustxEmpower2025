@@ -12,6 +12,15 @@ import { nanoid } from "nanoid";
 import bcrypt from "bcryptjs";
 import { runScoringEngine, type ResponseRecord, type AnswerMetadata } from "./lib/codexScoringEngine";
 import { SECTION_META, ARCHETYPES, JOURNEY_TIERS, SCROLL_MODULES } from "./lib/codexConstants";
+import Stripe from "stripe";
+
+let _stripe: Stripe | null = null;
+function getStripe(): Stripe | null {
+  if (!_stripe && process.env.STRIPE_SECRET_KEY) {
+    try { _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: "2024-12-18.acacia" as any }); } catch {}
+  }
+  return _stripe;
+}
 
 function cuid() { return nanoid(25); }
 
@@ -383,6 +392,38 @@ const codexClientRouter = router({
       await db.insert(schema.codexScrollEntries).values({ id: cuid(), userId: u.id, moduleNum: input.moduleNum, promptId: input.promptId, responseText: input.responseText });
     }
     return { success: true };
+  }),
+
+  // Purchase a tier via Stripe Checkout
+  purchaseTier: customerProc.input(z.object({ tierId: z.string() })).mutation(async ({ ctx, input }) => {
+    const stripe = getStripe();
+    if (!stripe) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing not configured" });
+    const tier = JOURNEY_TIERS.find(t => t.id === input.tierId);
+    if (!tier) throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid tier" });
+    const customer = (ctx as any).customer as schema.Customer;
+    const baseUrl = process.env.APP_URL || `${ctx.req.protocol}://${ctx.req.get('host')}`;
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      customer_email: customer.email,
+      line_items: [{ price_data: { currency: "usd", product_data: { name: `Living Codex™ — ${tier.name}`, description: tier.description }, unit_amount: tier.price }, quantity: 1 }],
+      success_url: `${baseUrl}/account/codex?purchase=success&tier=${tier.id}`,
+      cancel_url: `${baseUrl}/account/codex`,
+      metadata: { customerId: String(customer.id), tierId: tier.id, type: "codex_tier" },
+    });
+    return { checkoutUrl: session.url };
+  }),
+
+  // Confirm tier after successful Stripe payment (called from success redirect)
+  confirmTierPurchase: customerProc.input(z.object({ tierId: z.string() })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const tier = JOURNEY_TIERS.find(t => t.id === input.tierId);
+    if (!tier) throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid tier" });
+    const customer = (ctx as any).customer as schema.Customer;
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    // Update both customers table and codex_users table
+    await db.update(schema.customers).set({ codexTier: tier.id, codexPurchaseDate: new Date() }).where(eq(schema.customers.id, customer.id));
+    await db.update(schema.codexUsers).set({ tier: tier.id, purchaseDate: new Date() }).where(eq(schema.codexUsers.id, u.id));
+    return { success: true, tier: tier.id };
   }),
 
   // Get constants (archetypes, tiers, scroll modules) for frontend
