@@ -5,7 +5,7 @@ import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { User, Package, MapPin, Heart, LogOut, Settings } from 'lucide-react';
+import { User, Package, MapPin, Heart, LogOut, Settings, Flame } from 'lucide-react';
 
 export default function CustomerAccount() {
   const [, go] = useLocation();
@@ -18,6 +18,7 @@ export default function CustomerAccount() {
     { k:'orders', l:'My Orders', i:Package, h:'/account/orders' },
     { k:'addresses', l:'Addresses', i:MapPin, h:'/account/addresses' },
     { k:'wishlist', l:'Wishlist', i:Heart, h:'/account/wishlist' },
+    { k:'codex', l:'Living Codex™', i:Flame, h:'/account/codex' },
     { k:'settings', l:'Settings', i:Settings },
   ];
   return (

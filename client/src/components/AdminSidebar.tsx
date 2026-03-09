@@ -43,6 +43,8 @@ import {
   PanelLeftClose,
   PanelLeft,
   ChevronRight,
+  Flame,
+  ScrollText,
 } from 'lucide-react';
 
 // Complete list of all admin navigation items matching the original design
@@ -80,6 +82,9 @@ const navItems = [
   { icon: Mail, label: 'Messages', path: '/admin/messages' },
   { icon: Users, label: 'Newsletter', path: '/admin/newsletter' },
   { icon: LinkIcon, label: 'Redirects', path: '/admin/redirects' },
+  // Living Codex™
+  { icon: Flame, label: 'Codex Clients', path: '/admin/codex/clients' },
+  { icon: ScrollText, label: 'Codex Content', path: '/admin/codex/content' },
   // Advanced
   { icon: Code, label: 'Custom Code', path: '/admin/code' },
   { icon: Database, label: 'Backup', path: '/admin/backup' },

@@ -88,6 +88,12 @@ import CustomerOrders from "@/pages/CustomerOrders";
 import TrackOrder from "@/pages/TrackOrder";
 import CustomerAddresses from "@/pages/CustomerAddresses";
 import CustomerWishlist from "@/pages/CustomerWishlist";
+import AdminCodexClients from "@/pages/AdminCodexClients";
+import AdminCodexContent from "@/pages/AdminCodexContent";
+import CodexPortal from "@/pages/CodexPortal";
+import CodexAssessment from "@/pages/CodexAssessment";
+import CodexMirrorReport from "@/pages/CodexMirrorReport";
+import CodexScroll from "@/pages/CodexScroll";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -140,6 +146,9 @@ function Router() {
       <Route path="/admin/block-store" component={AdminBlockStore} />
       <Route path="/admin/block-creator" component={AdminBlockCreator} />
       <Route path="/admin/activity" component={AdminActivity} />
+      {/* Living Codex™ Admin */}
+      <Route path="/admin/codex/clients" component={AdminCodexClients} />
+      <Route path="/admin/codex/content" component={AdminCodexContent} />
       <Route path={"/404"} component={NotFound} />
       <Route path="/about">{() => <About />}</Route>
       <Route path="/about-just-empower" component={AboutJustEmpower} />
@@ -180,6 +189,11 @@ function Router() {
       <Route path="/account/addresses" component={CustomerAddresses} />
       <Route path="/account/wishlist" component={CustomerWishlist} />
       <Route path="/track-order" component={TrackOrder} />
+      {/* Living Codex™ Customer Portal */}
+      <Route path="/account/codex" component={CodexPortal} />
+      <Route path="/account/codex/assessment" component={CodexAssessment} />
+      <Route path="/account/codex/mirror-report" component={CodexMirrorReport} />
+      <Route path="/account/codex/scroll/:moduleNum" component={CodexScroll} />
       {/* Dynamic page router handles all other pages based on template field */}
       <Route path="/:slug" component={DynamicPageRouter} />
       <Route component={NotFound} />

@@ -58,6 +58,8 @@ import {
   Eye,
   Zap,
   Command as CommandIcon,
+  Flame,
+  ScrollText,
 } from 'lucide-react';
 
 // Quick action definitions
@@ -100,6 +102,13 @@ const NAV_SECTIONS = [
       { label: 'Messages', path: '/admin/messages', icon: Mail },
       { label: 'Subscribers', path: '/admin/subscribers', icon: Users },
       { label: 'Analytics', path: '/admin/analytics', icon: BarChart3 },
+    ]
+  },
+  {
+    title: 'Living Codex™',
+    items: [
+      { label: 'Codex Clients', path: '/admin/codex/clients', icon: Flame },
+      { label: 'Codex Content', path: '/admin/codex/content', icon: ScrollText },
     ]
   },
   {

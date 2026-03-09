@@ -1342,6 +1342,9 @@ export const customers = mysqlTable("customers", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   lastLoginAt: timestamp("lastLoginAt"),
+  // Living Codex fields
+  codexTier: varchar("codexTier", { length: 30 }), // threshold | self_guided | awakening | reclamation | legacy
+  codexPurchaseDate: timestamp("codexPurchaseDate"),
 });
 
 export type Customer = typeof customers.$inferSelect;
@@ -1397,3 +1400,180 @@ export const customerWishlist = mysqlTable("customerWishlist", {
 
 export type CustomerWishlistItem = typeof customerWishlist.$inferSelect;
 export type InsertCustomerWishlistItem = typeof customerWishlist.$inferInsert;
+
+
+/**
+ * ==========================================
+ * LIVING CODEX™ TABLES
+ * Matches existing Prisma-created tables in RDS (varchar(30) cuid IDs)
+ * ==========================================
+ */
+
+/**
+ * Codex users (Prisma-created, separate from JXE customers)
+ */
+export const codexUsers = mysqlTable("codex_users", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  name: varchar("name", { length: 255 }),
+  passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
+  role: varchar("role", { length: 20 }).default("client").notNull(), // client | admin
+  tier: varchar("tier", { length: 30 }), // threshold | self_guided | awakening | reclamation | legacy
+  purchaseDate: timestamp("purchaseDate"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexUser = typeof codexUsers.$inferSelect;
+export type InsertCodexUser = typeof codexUsers.$inferInsert;
+
+/**
+ * Codex assessment sessions
+ */
+export const codexAssessments = mysqlTable("codex_assessments", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  status: varchar("status", { length: 30 }).default("not_started").notNull(),
+  currentSection: int("currentSection").default(1).notNull(),
+  currentQuestion: int("currentQuestion").default(1).notNull(),
+  startedAt: timestamp("startedAt"),
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexAssessment = typeof codexAssessments.$inferSelect;
+export type InsertCodexAssessment = typeof codexAssessments.$inferInsert;
+
+/**
+ * Codex individual question responses
+ */
+export const codexResponses = mysqlTable("codex_responses", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  assessmentId: varchar("assessmentId", { length: 30 }).notNull(),
+  sectionNum: int("sectionNum").notNull(),
+  questionId: varchar("questionId", { length: 30 }).notNull(),
+  answerCode: varchar("answerCode", { length: 10 }),
+  openText: text("openText"),
+  isGhost: int("isGhost").default(0).notNull(),
+  answeredAt: timestamp("answeredAt").defaultNow().notNull(),
+});
+
+export type CodexResponse = typeof codexResponses.$inferSelect;
+export type InsertCodexResponse = typeof codexResponses.$inferInsert;
+
+/**
+ * Codex scoring results
+ */
+export const codexScorings = mysqlTable("codex_scorings", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  assessmentId: varchar("assessmentId", { length: 30 }).notNull().unique(),
+  resultJson: longtext("resultJson").notNull(),
+  scoredAt: timestamp("scoredAt").defaultNow().notNull(),
+});
+
+export type CodexScoring = typeof codexScorings.$inferSelect;
+export type InsertCodexScoring = typeof codexScorings.$inferInsert;
+
+/**
+ * Codex mirror reports
+ */
+export const codexMirrorReports = mysqlTable("codex_mirror_reports", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  assessmentId: varchar("assessmentId", { length: 30 }),
+  scoringId: varchar("scoringId", { length: 30 }),
+  status: varchar("status", { length: 30 }).default("generating").notNull(),
+  contentJson: longtext("contentJson").notNull(),
+  aprilNote: text("aprilNote"),
+  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+  reviewedAt: timestamp("reviewedAt"),
+  releasedAt: timestamp("releasedAt"),
+});
+
+export type CodexMirrorReport = typeof codexMirrorReports.$inferSelect;
+export type InsertCodexMirrorReport = typeof codexMirrorReports.$inferInsert;
+
+/**
+ * Codex scroll journal entries
+ */
+export const codexScrollEntries = mysqlTable("codex_scroll_entries", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  moduleNum: int("moduleNum").notNull(),
+  promptId: varchar("promptId", { length: 30 }).notNull(),
+  responseText: text("responseText"),
+  ledgerJson: text("ledgerJson"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexScrollEntry = typeof codexScrollEntries.$inferSelect;
+export type InsertCodexScrollEntry = typeof codexScrollEntries.$inferInsert;
+
+/**
+ * Codex admin notes on clients
+ */
+export const codexAdminNotes = mysqlTable("codex_admin_notes", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexAdminNote = typeof codexAdminNotes.$inferSelect;
+export type InsertCodexAdminNote = typeof codexAdminNotes.$inferInsert;
+
+/**
+ * Codex assessment section definitions
+ */
+export const codexSections = mysqlTable("codex_sections", {
+  id: int("id").primaryKey(),
+  title: varchar("title", { length: 255 }).notNull(),
+  subtitle: varchar("subtitle", { length: 500 }),
+  glyph: varchar("glyph", { length: 10 }),
+  entryText: text("entryText"),
+  isSpecial: int("isSpecial").default(0).notNull(),
+  weight: varchar("weight", { length: 20 }).default("1").notNull(),
+});
+
+export type CodexSection = typeof codexSections.$inferSelect;
+export type InsertCodexSection = typeof codexSections.$inferInsert;
+
+/**
+ * Codex assessment questions
+ */
+export const codexQuestions = mysqlTable("codex_questions", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  sectionNum: int("sectionNum").notNull(),
+  questionNum: int("questionNum").notNull(),
+  questionText: text("questionText").notNull(),
+  invitation: text("invitation"),
+  isGhost: int("isGhost").default(0).notNull(),
+  isOpenEnded: int("isOpenEnded").default(0).notNull(),
+});
+
+export type CodexQuestion = typeof codexQuestions.$inferSelect;
+export type InsertCodexQuestion = typeof codexQuestions.$inferInsert;
+
+/**
+ * Codex answer options with scoring metadata
+ */
+export const codexAnswers = mysqlTable("codex_answers", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  questionId: varchar("questionId", { length: 30 }).notNull(),
+  code: varchar("code", { length: 10 }).notNull(),
+  answerText: text("text").notNull(),
+  spectrumDepth: varchar("spectrumDepth", { length: 30 }).notNull(),
+  arPrimary: varchar("arPrimary", { length: 50 }).notNull(),
+  arSecondary: varchar("arSecondary", { length: 50 }).notNull(),
+  wi: varchar("wi", { length: 50 }).notNull(),
+  mp: varchar("mp", { length: 50 }).notNull(),
+  mmi: varchar("mmi", { length: 50 }),
+  abi: varchar("abi", { length: 50 }),
+  epcl: varchar("epcl", { length: 50 }),
+  wombField: varchar("wombField", { length: 50 }),
+});
+
+export type CodexAnswer = typeof codexAnswers.$inferSelect;
+export type InsertCodexAnswer = typeof codexAnswers.$inferInsert;

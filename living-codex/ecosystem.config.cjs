@@ -3,7 +3,7 @@ module.exports = {
     name: 'living-codex',
     script: 'node_modules/.bin/next',
     args: 'start -p 3001',
-    cwd: '/var/www/living-codex',
+    cwd: '/var/www/justxempower/living-codex',
     node_args: '--dns-result-order=ipv4first',
     instances: 1,
     autorestart: true,
