@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Flame, Users, FileCheck, Clock, Eye, ScrollText, StickyNote, Search, Send, Trash2, ArrowRight } from "lucide-react";
+import AdminSidebar from "@/components/AdminSidebar";
 
 export default function AdminCodexClients() {
   const [, setLocation] = useLocation();
@@ -45,7 +46,10 @@ export default function AdminCodexClients() {
   const reportStatusColors: Record<string, string> = { generating: "bg-stone-100 text-stone-600", ready_for_review: "bg-amber-100 text-amber-700", released: "bg-emerald-100 text-emerald-700" };
 
   return (
-    <div className="space-y-6">
+    <div className="flex min-h-screen bg-stone-50">
+      <AdminSidebar variant="dark" />
+      <main className="flex-1 p-8 overflow-auto">
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-3">
         <Flame className="w-6 h-6 text-amber-500" />
@@ -279,6 +283,8 @@ export default function AdminCodexClients() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+    </div>
+    </main>
     </div>
   );
 }
