@@ -1,7 +1,7 @@
 import { Router, raw } from "express";
 import Stripe from "stripe";
 import { getDb } from "./db";
-import { orders, eventRegistrations, adminNotifications } from "../drizzle/schema";
+import { orders, eventRegistrations, adminNotifications, customers, codexUsers } from "../drizzle/schema";
 import { eq } from "drizzle-orm";
 import { sendOrderConfirmationEmail } from "./orderEmails";
 
@@ -69,6 +69,10 @@ export function createStripeWebhookRouter(): Router {
 
           case "charge.dispute.created":
             await handleDisputeCreated(event.data.object as Stripe.Dispute);
+            break;
+
+          case "checkout.session.completed":
+            await handleCheckoutSessionCompleted(event.data.object as Stripe.Checkout.Session);
             break;
 
           default:
@@ -218,6 +222,45 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
       .where(eq(eventRegistrations.id, registration.id));
     console.log(`[Webhook] Registration ${registration.confirmationNumber} marked as refunded`);
   }
+}
+
+async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
+  const meta = session.metadata || {};
+  if (meta.type !== "codex_tier") return; // Only handle Living Codex purchases
+
+  const customerId = meta.customerId ? Number(meta.customerId) : null;
+  const tierId = meta.tierId;
+  if (!customerId || !tierId) {
+    console.warn("[Webhook] Codex checkout missing metadata", meta);
+    return;
+  }
+
+  console.log(`[Webhook] Codex tier purchase: customer=${customerId}, tier=${tierId}, session=${session.id}`);
+
+  const db = await getDb();
+  if (!db) return;
+
+  // Update customers table
+  await db.update(customers).set({ codexTier: tierId, codexPurchaseDate: new Date() }).where(eq(customers.id, customerId));
+
+  // Update codex_users table (linked by email)
+  const [customer] = await db.select().from(customers).where(eq(customers.id, customerId)).limit(1);
+  if (customer) {
+    await db.update(codexUsers).set({ tier: tierId, purchaseDate: new Date() }).where(eq(codexUsers.email, customer.email));
+  }
+
+  // Create admin notification
+  await db.insert(adminNotifications).values({
+    type: "codex_purchase",
+    title: `Living Codex purchase: ${tierId}`,
+    message: `Customer #${customerId} purchased the ${tierId} tier — $${((session.amount_total || 0) / 100).toFixed(2)}`,
+    link: "/admin/codex/clients",
+    priority: "high",
+    relatedId: customerId,
+    relatedType: "customer",
+  }).catch(e => console.warn("[Webhook] Failed to create notification:", e.message));
+
+  console.log(`[Webhook] Codex tier ${tierId} assigned to customer ${customerId}`);
 }
 
 async function handleDisputeCreated(dispute: Stripe.Dispute) {
