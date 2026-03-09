@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid()) @db.VarChar(30)
+  email         String    @unique @db.VarChar(320)
+  name          String?   @db.VarChar(255)
+  passwordHash  String    @db.VarChar(255)
+  role          String    @default("client") @db.VarChar(20) // client | admin
+  tier          String?   @db.VarChar(30) // threshold | self_guided | awakening | reclamation | legacy
+  purchaseDate  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  assessments   Assessment[]
+  scrollEntries ScrollEntry[]
+  mirrorReports MirrorReport[]
+  notes         AdminNote[]
+
+  @@map("codex_users")
+}
+
+model Assessment {
+  id              String   @id @default(cuid()) @db.VarChar(30)
+  userId          String   @db.VarChar(30)
+  status          String   @default("not_started") @db.VarChar(30) // not_started | in_progress | complete
+  currentSection  Int      @default(1)
+  currentQuestion Int      @default(1)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id])
+  responses Response[]
+  scoring   Scoring?
+
+  @@index([userId])
+  @@map("codex_assessments")
+}
+
+model Response {
+  id           String   @id @default(cuid()) @db.VarChar(30)
+  assessmentId String   @db.VarChar(30)
+  sectionNum   Int
+  questionId   String   @db.VarChar(30) // e.g. "Q1", "Q5"
+  answerCode   String?  @db.VarChar(10) // e.g. "A", "B", "C", "D", "E" (null for open-ended S12)
+  openText     String?  @db.Text // for Section 12 open-ended responses
+  isGhost      Boolean  @default(false)
+  answeredAt   DateTime @default(now())
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+
+  @@unique([assessmentId, sectionNum, questionId])
+  @@index([assessmentId])
+  @@map("codex_responses")
+}
+
+model Scoring {
+  id           String @id @default(cuid()) @db.VarChar(30)
+  assessmentId String @unique @db.VarChar(30)
+  resultJson   String @db.LongText // Full JSON scoring output object
+  scoredAt     DateTime @default(now())
+
+  assessment Assessment @relation(fields: [assessmentId], references: [id])
+
+  @@map("codex_scorings")
+}
+
+model MirrorReport {
+  id           String   @id @default(cuid()) @db.VarChar(30)
+  userId       String   @db.VarChar(30)
+  assessmentId String?  @db.VarChar(30)
+  scoringId    String?  @db.VarChar(30)
+  status       String   @default("generating") @db.VarChar(30) // generating | ready_for_review | released
+  contentJson  String   @db.LongText // Full report content as JSON
+  aprilNote    String?  @db.Text // Personal closing message from April
+  generatedAt  DateTime @default(now())
+  reviewedAt   DateTime?
+  releasedAt   DateTime?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("codex_mirror_reports")
+}
+
+model ScrollEntry {
+  id           String   @id @default(cuid()) @db.VarChar(30)
+  userId       String   @db.VarChar(30)
+  moduleNum    Int      // 1-9
+  promptId     String   @db.VarChar(30)
+  responseText String?  @db.Text
+  ledgerJson   String?  @db.Text // Weekly commitment tracker data
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([userId, moduleNum, promptId])
+  @@index([userId])
+  @@map("codex_scroll_entries")
+}
+
+model AdminNote {
+  id        String   @id @default(cuid()) @db.VarChar(30)
+  userId    String   @db.VarChar(30)
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@map("codex_admin_notes")
+}
+
+model Section {
+  id          Int    @id
+  title       String @db.VarChar(255)
+  subtitle    String? @db.VarChar(500)
+  glyph       String? @db.VarChar(10)
+  entryText   String? @db.Text
+  isSpecial   Boolean @default(false) // S12 open-ended, S14 safety protocol
+  weight      Float   @default(1.0)
+
+  @@map("codex_sections")
+}
+
+model Question {
+  id           String  @id @default(cuid()) @db.VarChar(30)
+  sectionNum   Int
+  questionNum  Int
+  questionText String  @db.Text
+  invitation   String? @db.Text
+  isGhost      Boolean @default(false)
+  isOpenEnded  Boolean @default(false) // Section 12
+
+  answers Answer[]
+
+  @@unique([sectionNum, questionNum])
+  @@index([sectionNum])
+  @@map("codex_questions")
+}
+
+model Answer {
+  id            String @id @default(cuid()) @db.VarChar(30)
+  questionId    String @db.VarChar(30)
+  code          String @db.VarChar(10) // A, B, C, D, E
+  text          String @db.Text
+  spectrumDepth String @db.VarChar(30) // SHADOW, THRESHOLD, GIFT, GHOST
+  arPrimary     String @db.VarChar(50) // Archetype Resonance primary
+  arSecondary   String @db.VarChar(50) // Archetype Resonance secondary
+  wi            String @db.VarChar(50) // Wound Imprint
+  mp            String @db.VarChar(50) // Mirror Pattern
+  mmi           String? @db.VarChar(50) // Masculine Mirror Imprint (S13 only)
+  abi           String? @db.VarChar(50) // Abuse Bond Imprint (S14 only)
+  epcl          String? @db.VarChar(50) // Escape/Power/Control Loop (S15 only)
+  wombField     String? @db.VarChar(50) // Womb Field (S16 only)
+
+  question Question @relation(fields: [questionId], references: [id])
+
+  @@unique([questionId, code])
+  @@index([questionId])
+  @@map("codex_answers")
+}

@@ -277,7 +277,7 @@ export function generateWeeklyReportEmail(analytics: WeeklyAnalytics): string {
 /**
  * Send email via configured provider - Real Implementation
  */
-export async function sendEmail(to: string[], subject: string, htmlContent: string): Promise<boolean> {
+export async function sendEmail(to: string[], subject: string, htmlContent: string, fromOverride?: string): Promise<boolean> {
   const settings = await getEmailSettings();
   
   if (!settings || !settings.emailProvider) {
@@ -286,7 +286,7 @@ export async function sendEmail(to: string[], subject: string, htmlContent: stri
   }
 
   const provider = settings.emailProvider.toLowerCase();
-  const fromEmail = settings.fromEmail || process.env.SES_FROM_EMAIL || process.env.ADMIN_EMAIL;
+  const fromEmail = fromOverride || settings.fromEmail || process.env.SES_FROM_EMAIL || process.env.ADMIN_EMAIL;
 
   if (!fromEmail) {
     console.error("[Email] No from email configured");

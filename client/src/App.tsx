@@ -82,6 +82,12 @@ import PrivacyPolicy from "@/pages/PrivacyPolicy";
 import TermsOfService from "@/pages/TermsOfService";
 import AccessibilityStatement from "@/pages/AccessibilityStatement";
 import CookiePolicy from "@/pages/CookiePolicy";
+import CustomerLogin from "@/pages/CustomerLogin";
+import CustomerAccount from "@/pages/CustomerAccount";
+import CustomerOrders from "@/pages/CustomerOrders";
+import TrackOrder from "@/pages/TrackOrder";
+import CustomerAddresses from "@/pages/CustomerAddresses";
+import CustomerWishlist from "@/pages/CustomerWishlist";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -165,6 +171,15 @@ function Router() {
       <Route path="/terms-of-service" component={TermsOfService} />
       <Route path="/accessibility" component={AccessibilityStatement} />
       <Route path="/cookie-policy" component={CookiePolicy} />
+      {/* Customer Account */}
+      <Route path="/login" component={CustomerLogin} />
+      <Route path="/register" component={CustomerLogin} />
+      <Route path="/account" component={CustomerAccount} />
+      <Route path="/account/orders" component={CustomerOrders} />
+      <Route path="/account/orders/:orderNumber" component={CustomerOrders} />
+      <Route path="/account/addresses" component={CustomerAddresses} />
+      <Route path="/account/wishlist" component={CustomerWishlist} />
+      <Route path="/track-order" component={TrackOrder} />
       {/* Dynamic page router handles all other pages based on template field */}
       <Route path="/:slug" component={DynamicPageRouter} />
       <Route component={NotFound} />

@@ -1,0 +1,163 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    --codex-black: #0A0A0A;
+    --codex-deep: #12090F;
+    --codex-plum: #1A0E17;
+    --codex-dark: #1E1118;
+    --codex-wine: #2A1520;
+    --codex-muted: #3D2233;
+    --codex-gold: #C9A84C;
+    --codex-gold-light: #D4B96E;
+    --codex-gold-dim: #8B7332;
+    --codex-cream: #F5E6D3;
+    --codex-cream-dark: #D4C4B0;
+    --codex-parchment: #2C1F28;
+    --codex-ember: #8B3A3A;
+    --codex-sage: #4A6B4A;
+    --codex-moonlight: #C5B8D0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-codex-black text-codex-cream font-inter antialiased;
+  }
+
+  ::selection {
+    background-color: rgba(201, 168, 76, 0.3);
+    color: #F5E6D3;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: var(--codex-deep);
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--codex-muted);
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--codex-gold-dim);
+  }
+}
+
+@layer components {
+  /* Sacred heading styles */
+  .codex-heading {
+    @apply font-cormorant font-light tracking-wide text-codex-gold;
+  }
+
+  .codex-heading-lg {
+    @apply font-cormorant font-light text-4xl md:text-5xl lg:text-6xl tracking-wide text-codex-gold;
+  }
+
+  .codex-heading-xl {
+    @apply font-cormorant font-light text-5xl md:text-6xl lg:text-7xl tracking-wider text-codex-gold;
+  }
+
+  .codex-body {
+    @apply font-inter text-base leading-relaxed text-codex-cream/90;
+  }
+
+  .codex-invitation {
+    @apply font-cormorant italic text-lg text-codex-gold-light/80;
+  }
+
+  /* Answer card styling */
+  .codex-answer-card {
+    @apply relative p-6 rounded-lg border border-codex-muted/30 
+           bg-codex-parchment/40 backdrop-blur-sm
+           transition-all duration-500 ease-in-out cursor-pointer
+           hover:border-codex-gold/40 hover:shadow-[0_0_15px_rgba(201,168,76,0.1)];
+  }
+
+  .codex-answer-card.selected {
+    @apply border-codex-gold/60 bg-codex-wine/60
+           shadow-[0_0_20px_rgba(201,168,76,0.2)];
+  }
+
+  /* Progress bar */
+  .codex-progress {
+    @apply h-[2px] bg-gradient-to-r from-codex-gold/80 to-codex-gold-light/60
+           transition-all duration-1200 ease-in-out;
+  }
+
+  /* Section gateway */
+  .codex-gateway {
+    @apply min-h-screen flex flex-col items-center justify-center 
+           text-center px-8 bg-codex-deep;
+  }
+
+  /* Parchment card */
+  .codex-card {
+    @apply bg-codex-parchment/60 border border-codex-muted/20 
+           rounded-xl backdrop-blur-sm p-8;
+  }
+
+  /* Gold divider */
+  .codex-divider {
+    @apply w-24 h-px bg-gradient-to-r from-transparent via-codex-gold/60 to-transparent mx-auto my-8;
+  }
+
+  /* Button styles */
+  .codex-btn-primary {
+    @apply px-8 py-3 bg-codex-gold/10 border border-codex-gold/40 
+           text-codex-gold font-cormorant text-lg tracking-wider
+           rounded-lg transition-all duration-500
+           hover:bg-codex-gold/20 hover:border-codex-gold/60 
+           hover:shadow-[0_0_20px_rgba(201,168,76,0.15)]
+           active:scale-[0.98];
+  }
+
+  .codex-btn-secondary {
+    @apply px-6 py-2 border border-codex-muted/40 text-codex-cream/70
+           font-inter text-sm rounded-lg transition-all duration-300
+           hover:border-codex-cream/40 hover:text-codex-cream/90;
+  }
+
+  /* Ambient particle background */
+  .codex-ambient {
+    @apply fixed inset-0 pointer-events-none overflow-hidden z-0;
+  }
+}
+
+@layer utilities {
+  .text-shadow-gold {
+    text-shadow: 0 0 40px rgba(201, 168, 76, 0.15);
+  }
+
+  .animate-descent {
+    animation: descent 1200ms ease-in-out;
+  }
+
+  @keyframes descent {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

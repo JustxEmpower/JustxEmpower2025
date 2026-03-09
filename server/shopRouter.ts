@@ -14,6 +14,7 @@ import {
 } from "../drizzle/schema";
 import { eq, and, desc, asc, like, sql, gte, lte, or, isNotNull } from "drizzle-orm";
 import Stripe from "stripe";
+import { getUspsTracking } from "./uspsTracking";
 
 // Lazy Stripe initialization — env vars may not be loaded at module init time
 let _stripe: Stripe | null = null;
@@ -30,11 +31,16 @@ function getStripe(): Stripe | null {
   return _stripe;
 }
 
-// Helper to generate order number
-function generateOrderNumber(): string {
-  const timestamp = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `JE-${timestamp}-${random}`;
+// Helper to generate order number (sequential: JE-10001, JE-10002, ...)
+async function generateOrderNumber(): Promise<string> {
+  const db = await getDb();
+  if (db) {
+    const [result] = await db.select({ count: sql<number>`count(*)` }).from(orders);
+    const next = (result?.count || 0) + 10001;
+    return `JE-${next}`;
+  }
+  const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+  return `JE-${rand}`;
 }
 
 // Helper to format price from cents
@@ -383,7 +389,7 @@ export const shopRouter = router({
         const shippingAmount = subtotal >= 10000 ? 0 : 1000;
         const taxAmount = 0;
         const total = subtotal - discountAmount + shippingAmount + taxAmount;
-        const orderNumber = generateOrderNumber();
+        const orderNumber = await generateOrderNumber();
         
         const [orderResult] = await db.insert(orders).values({
           orderNumber, email, phone,
@@ -470,6 +476,39 @@ export const shopRouter = router({
           formattedShipping: order.shippingAmount === 0 ? "FREE" : formatPrice(order.shippingAmount || 0),
           formattedDiscount: formatPrice(order.discountAmount || 0),
         };
+      }),
+
+    trackShipment: publicProcedure
+      .input(z.object({
+        trackingNumber: z.string().optional(),
+        orderNumber: z.string().optional(),
+        email: z.string().email().optional(),
+      }))
+      .query(async ({ input }) => {
+        let trackingNum = input.trackingNumber?.trim();
+
+        // If order number + email provided, look up the tracking number from the order
+        if (!trackingNum && input.orderNumber && input.email) {
+          const db = await getDb();
+          if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database not available" });
+          const [order] = await db.select().from(orders).where(
+            and(eq(orders.orderNumber, input.orderNumber.trim()), eq(orders.email, input.email.trim().toLowerCase()))
+          );
+          if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Order not found. Please check your order number and email." });
+          if (!order.trackingNumber) throw new TRPCError({ code: "NOT_FOUND", message: "This order has not been shipped yet. You will receive a shipping notification email once it ships." });
+          trackingNum = order.trackingNumber;
+        }
+
+        if (!trackingNum) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Please enter a tracking number, or your order number and email." });
+        }
+
+        try {
+          const tracking = await getUspsTracking(trackingNum);
+          return { success: true as const, ...tracking };
+        } catch (e: any) {
+          throw new TRPCError({ code: "NOT_FOUND", message: e.message || "Unable to retrieve tracking information. Please verify your tracking number." });
+        }
       }),
   }),
 });

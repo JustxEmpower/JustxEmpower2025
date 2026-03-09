@@ -32,14 +32,14 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
       gsap.set(logoRef.current, { 
         scale: 0.8, 
         opacity: 0,
-        filter: 'blur(10px)'
+        filter: 'blur(10px) brightness(0) invert(1)'
       });
       gsap.set(progressRef.current, { scaleX: 0 });
 
       // Animation sequence
       tl.to(logoRef.current, {
         opacity: 1,
-        filter: 'blur(0px)',
+        filter: 'blur(0px) brightness(0) invert(1)',
         duration: 1.5,
         ease: 'power2.out'
       })
@@ -56,7 +56,7 @@ export default function Preloader({ onComplete }: { onComplete: () => void }) {
       .to(logoRef.current, {
         opacity: 0,
         scale: 1.1,
-        filter: 'blur(5px)',
+        filter: 'blur(5px) brightness(0) invert(1)',
         duration: 0.8,
         ease: 'power2.in',
         delay: 0.2

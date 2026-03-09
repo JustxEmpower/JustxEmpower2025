@@ -46,7 +46,7 @@ export default function NewsletterPopup() {
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
         <div 
-          className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl max-w-md w-full p-8 pointer-events-auto animate-in zoom-in-95 duration-300"
+          className="relative bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl max-w-md w-full p-8 pointer-events-auto animate-in zoom-in-95 duration-300"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close Button */}

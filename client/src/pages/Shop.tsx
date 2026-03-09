@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
-import { ShoppingBag, ArrowLeft } from "lucide-react";
+import { ShoppingBag, ArrowLeft, User, Package } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import CartSlideout from "@/components/CartSlideout";
 import { EditablePageZone } from '@/components/PageZone';
@@ -55,7 +55,7 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
   return (
     <div className="min-h-screen bg-background transition-colors duration-300">
       {/* Shop Category Navigation Bar - positioned below main header */}
-      <div className="fixed top-[88px] left-0 right-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
+      <div className="fixed top-[128px] left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Back to Home + Category Navigation - Yeezy Style */}
           <nav className="flex items-center gap-6 flex-wrap">
@@ -91,17 +91,38 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
             ))}
           </nav>
           
-          {/* Cart */}
-          <button
-            type="button"
-            onClick={() => setCartOpen(true)}
-            className="relative text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
-          >
-            <ShoppingBag className="w-4 h-4" />
-            {cartItemCount > 0 && (
-              <span className="text-foreground font-medium">{cartItemCount}</span>
-            )}
-          </button>
+          {/* Right side actions */}
+          <div className="flex items-center gap-5">
+            {/* Track Order */}
+            <Link
+              href="/track-order"
+              className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+            >
+              <Package className="w-3.5 h-3.5" />
+              Track Order
+            </Link>
+            
+            {/* Account / Login */}
+            <Link
+              href="/account"
+              className="text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
+            >
+              <User className="w-3.5 h-3.5" />
+              Login
+            </Link>
+            
+            {/* Cart */}
+            <button
+              type="button"
+              onClick={() => setCartOpen(true)}
+              className="relative text-[11px] uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2"
+            >
+              <ShoppingBag className="w-4 h-4" />
+              {cartItemCount > 0 && (
+                <span className="text-foreground font-medium">{cartItemCount}</span>
+              )}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -112,7 +133,7 @@ export default function Shop({ slug = 'shop' }: ShopProps) {
       <EditablePageZone pageSlug="shop" zoneName="mid-page" />
 
       {/* Products Grid - Apple-inspired elegant layout */}
-      <main className="pt-[140px] pb-20">
+      <main className="pt-[188px] pb-20">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
@@ -281,7 +302,7 @@ function ProductCard({ product }: ProductCardProps) {
             <img
               src={getMediaUrl(isHovered ? hoverImage : mainImage)}
               alt={product.name}
-              className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-[1.03]"
+              className="w-full h-full object-contain p-4 transition-all duration-700 ease-out group-hover:scale-[1.03]"
               onError={() => setImageError(true)}
               loading="lazy"
             />

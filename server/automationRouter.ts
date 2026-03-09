@@ -15,6 +15,7 @@ import { getDb } from "./db";
 import * as schema from "../drizzle/schema";
 import { eq, desc, sql, and, gte, lte, lt } from "drizzle-orm";
 import { sendEmail } from "./emailService";
+import { sendOrderConfirmationEmail, sendShippingNotificationEmail } from "./orderEmails";
 
 // Admin procedure middleware
 const adminProcedure = publicProcedure.use(async ({ ctx, next }) => {
@@ -377,85 +378,10 @@ export const automationRouter = router({
       if (!order) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
       }
-      
-      // Get order items
-      const items = await db
-        .select()
-        .from(schema.orderItems)
-        .where(eq(schema.orderItems.orderId, order.id));
-      
-      const itemRows = items.map(item => `
-        <tr>
-          <td style="padding: 12px; border-bottom: 1px solid #e5e5e5;">
-            ${item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">` : ''}
-          </td>
-          <td style="padding: 12px; border-bottom: 1px solid #e5e5e5;">${item.name}</td>
-          <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: center;">${item.quantity}</td>
-          <td style="padding: 12px; border-bottom: 1px solid #e5e5e5; text-align: right;">$${(item.total / 100).toFixed(2)}</td>
-        </tr>
-      `).join('');
 
-      const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: Georgia, serif; background: #faf8f5; padding: 40px; }
-    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; padding: 40px; }
-    .header { text-align: center; margin-bottom: 32px; }
-    .logo { font-size: 24px; font-style: italic; color: #1a1a19; }
-    .order-number { background: #faf8f5; border-radius: 8px; padding: 16px; text-align: center; margin: 24px 0; }
-    table { width: 100%; border-collapse: collapse; }
-    th { background: #faf8f5; padding: 12px; text-align: left; font-size: 12px; text-transform: uppercase; }
-    .totals { margin-top: 24px; text-align: right; }
-    .total-row { padding: 8px 0; }
-    .grand-total { font-size: 20px; font-weight: bold; border-top: 2px solid #1a1a19; padding-top: 16px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="logo">Just Empower</div>
-      <h2 style="font-weight: normal; font-style: italic;">Order Confirmation</h2>
-    </div>
-    
-    <p>Thank you for your order, ${order.shippingFirstName || 'Valued Customer'}!</p>
-    
-    <div class="order-number">
-      <p style="margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #666;">Order Number</p>
-      <p style="margin: 8px 0 0 0; font-size: 24px; font-weight: bold;">${order.orderNumber}</p>
-    </div>
-    
-    <table>
-      <thead>
-        <tr>
-          <th></th>
-          <th>Item</th>
-          <th style="text-align: center;">Qty</th>
-          <th style="text-align: right;">Total</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${itemRows}
-      </tbody>
-    </table>
-    
-    <div class="totals">
-      <div class="total-row">Subtotal: $${(order.subtotal / 100).toFixed(2)}</div>
-      ${order.discountAmount ? `<div class="total-row">Discount: -$${(order.discountAmount / 100).toFixed(2)}</div>` : ''}
-      ${order.shippingAmount ? `<div class="total-row">Shipping: $${(order.shippingAmount / 100).toFixed(2)}</div>` : ''}
-      ${order.taxAmount ? `<div class="total-row">Tax: $${(order.taxAmount / 100).toFixed(2)}</div>` : ''}
-      <div class="total-row grand-total">Total: $${(order.total / 100).toFixed(2)}</div>
-    </div>
-    
-    <p style="margin-top: 32px; text-align: center; color: #666; font-size: 14px;">
-      Questions? Reply to this email or contact us at support@justxempower.com
-    </p>
-  </div>
-</body>
-</html>`;
-
-      await sendEmail([order.email], `Order Confirmed - ${order.orderNumber}`, htmlContent);
+      // Delegate to the canonical branded template in orderEmails.ts
+      const sent = await sendOrderConfirmationEmail(input.orderId);
+      if (!sent) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to send order confirmation email" });
 
       return { success: true, email: order.email };
     }),
@@ -491,54 +417,9 @@ export const automationRouter = router({
         throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
       }
 
-      const htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <style>
-    body { font-family: Georgia, serif; background: #faf8f5; padding: 40px; }
-    .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 16px; padding: 40px; }
-    .header { text-align: center; margin-bottom: 32px; }
-    .logo { font-size: 24px; font-style: italic; color: #1a1a19; }
-    .tracking-box { background: #faf8f5; border-radius: 12px; padding: 24px; text-align: center; margin: 24px 0; }
-    .tracking-number { font-size: 20px; font-weight: bold; font-family: monospace; margin: 12px 0; }
-    .track-button { display: inline-block; background: #1a1a19; color: white; padding: 12px 32px; border-radius: 9999px; text-decoration: none; margin-top: 16px; }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <div class="header">
-      <div class="logo">Just Empower</div>
-      <h2 style="font-weight: normal; font-style: italic;">Your Order Has Shipped! 📦</h2>
-    </div>
-    
-    <p>Great news, ${order.shippingFirstName || 'Valued Customer'}! Your order is on its way.</p>
-    
-    <div class="tracking-box">
-      <p style="margin: 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #666;">
-        ${input.carrier || 'Tracking Number'}
-      </p>
-      <p class="tracking-number">${input.trackingNumber}</p>
-      ${input.trackingUrl ? `<a href="${input.trackingUrl}" class="track-button">Track Your Package</a>` : ''}
-    </div>
-    
-    <p style="color: #666; font-size: 14px;">
-      <strong>Shipping To:</strong><br>
-      ${order.shippingFirstName} ${order.shippingLastName}<br>
-      ${order.shippingAddress1}<br>
-      ${order.shippingAddress2 ? `${order.shippingAddress2}<br>` : ''}
-      ${order.shippingCity}, ${order.shippingState} ${order.shippingPostalCode}<br>
-      ${order.shippingCountry}
-    </p>
-    
-    <p style="margin-top: 32px; text-align: center; color: #666; font-size: 14px;">
-      Questions about your shipment? Reply to this email.
-    </p>
-  </div>
-</body>
-</html>`;
-
-      await sendEmail([order.email], `Your Order Has Shipped - ${order.orderNumber}`, htmlContent);
+      // Delegate to the canonical branded template in orderEmails.ts
+      const sent = await sendShippingNotificationEmail(input.orderId, input.trackingNumber, input.trackingUrl, input.carrier);
+      if (!sent) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Failed to send shipping notification email" });
 
       return { success: true, email: order.email };
     }),

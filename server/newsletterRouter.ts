@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { publicProcedure, router } from './_core/trpc.js';
 import { subscribeToNewsletter, updateMailchimpSettings } from './mailchimp.js';
+import { pushTemplatesToMailchimp } from './mailchimpTemplates.js';
 import { getDb } from './db.js';
 import * as schema from '../drizzle/schema.js';
 
@@ -40,6 +41,22 @@ export const newsletterRouter = router({
       return {
         success: true,
         message: result.message,
+      };
+    }),
+
+  // Admin-only: Push branded templates to Mailchimp
+  pushTemplates: publicProcedure
+    .mutation(async () => {
+      const results = await pushTemplatesToMailchimp();
+
+      if (!results.welcome.success && !results.campaign.success) {
+        throw new Error(results.welcome.error || results.campaign.error || 'Failed to push templates');
+      }
+
+      return {
+        success: true,
+        welcome: results.welcome,
+        campaign: results.campaign,
       };
     }),
 

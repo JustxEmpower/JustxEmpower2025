@@ -14,7 +14,8 @@ async function ensureGeminiInitialized() {
   }
 }
 import { generateVideoThumbnail } from "./mediaConversionService";
-import { sendShippingNotificationEmail, sendDeliveryConfirmationEmail } from "./orderEmails";
+import { sendOrderConfirmationEmail, sendShippingNotificationEmail, sendDeliveryConfirmationEmail } from "./orderEmails";
+import { syncOrderTracking } from "./uspsTracking";
 import { publicProcedure, router } from "./_core/trpc";
 import { TRPCError } from "@trpc/server";
 import * as fs from "fs";
@@ -3356,9 +3357,23 @@ export const adminRouter = router({
           }
         }
         
-        // Send delivery confirmation email
+        // Send delivery confirmation email + admin notification
         if (input.status === "delivered") {
-          sendDeliveryConfirmationEmail(id).catch(() => {});
+          const [deliveredOrder] = await db.select().from(schema.orders).where(eq(schema.orders.id, id));
+          if (deliveredOrder) {
+            await db.insert(schema.adminNotifications).values({
+              type: "delivery",
+              title: `Order ${deliveredOrder.orderNumber} delivered`,
+              message: `${deliveredOrder.shippingFirstName} ${deliveredOrder.shippingLastName} — delivered`,
+              link: "/admin/orders",
+              priority: "low",
+              relatedId: id,
+              relatedType: "order",
+            }).catch(() => {});
+          }
+          sendDeliveryConfirmationEmail(id).catch((e) =>
+            console.warn(`[OrderStatus] Failed to send delivery email for order ${id}:`, e)
+          );
         }
         
         return { success: true };
@@ -3378,6 +3393,7 @@ export const adminRouter = router({
         await db
           .update(schema.orders)
           .set({
+            carrier: input.carrier || null,
             trackingNumber: input.trackingNumber,
             trackingUrl: input.trackingUrl || null,
             status: "shipped",
@@ -3402,6 +3418,136 @@ export const adminRouter = router({
         }
         
         return { success: true };
+      }),
+
+    createManual: adminProcedure
+      .input(z.object({
+        email: z.string().email(),
+        phone: z.string().optional(),
+        shippingFirstName: z.string().min(1),
+        shippingLastName: z.string().min(1),
+        shippingAddress1: z.string().min(1),
+        shippingAddress2: z.string().optional(),
+        shippingCity: z.string().min(1),
+        shippingState: z.string().min(1),
+        shippingPostalCode: z.string().min(1),
+        shippingCountry: z.string().default("US"),
+        items: z.array(z.object({
+          name: z.string().min(1),
+          price: z.number().min(0),
+          quantity: z.number().min(1).default(1),
+          sku: z.string().optional(),
+          imageUrl: z.string().optional(),
+        })).min(1),
+        shippingAmount: z.number().default(0),
+        discountAmount: z.number().default(0),
+        taxAmount: z.number().default(0),
+        notes: z.string().optional(),
+        customerNotes: z.string().optional(),
+        sendConfirmationEmail: z.boolean().default(true),
+      }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+        // Generate sequential order number (JE-10001, JE-10002, ...)
+        const [countResult] = await db.select({ count: sql<number>`count(*)` }).from(schema.orders);
+        const orderNumber = `JE-${(countResult?.count || 0) + 10001}`;
+
+        // Calculate totals (prices are in cents)
+        const subtotal = input.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const total = subtotal - input.discountAmount + input.shippingAmount + input.taxAmount;
+
+        // Insert order
+        const [orderResult] = await db.insert(schema.orders).values({
+          orderNumber,
+          email: input.email,
+          phone: input.phone,
+          status: "processing",
+          paymentStatus: "paid",
+          paymentMethod: "manual",
+          subtotal,
+          discountAmount: input.discountAmount,
+          shippingAmount: input.shippingAmount,
+          taxAmount: input.taxAmount,
+          total,
+          currency: "USD",
+          shippingFirstName: input.shippingFirstName,
+          shippingLastName: input.shippingLastName,
+          shippingAddress1: input.shippingAddress1,
+          shippingAddress2: input.shippingAddress2,
+          shippingCity: input.shippingCity,
+          shippingState: input.shippingState,
+          shippingPostalCode: input.shippingPostalCode,
+          shippingCountry: input.shippingCountry,
+          notes: input.notes,
+          customerNotes: input.customerNotes,
+        });
+
+        const orderId = Number(orderResult.insertId);
+
+        // Insert line items
+        for (const item of input.items) {
+          await db.insert(schema.orderItems).values({
+            orderId,
+            productId: 0,
+            name: item.name,
+            sku: item.sku || null,
+            price: item.price,
+            quantity: item.quantity,
+            total: item.price * item.quantity,
+            imageUrl: item.imageUrl || null,
+          });
+        }
+
+        // Create admin notification
+        await db.insert(schema.adminNotifications).values({
+          type: "order",
+          title: `Manual order ${orderNumber} created`,
+          message: `${input.shippingFirstName} ${input.shippingLastName} — $${(total / 100).toFixed(2)}`,
+          link: "/admin/orders",
+          priority: "medium",
+          relatedId: orderId,
+          relatedType: "order",
+        }).catch(() => {});
+
+        // Send confirmation email
+        if (input.sendConfirmationEmail) {
+          sendOrderConfirmationEmail(orderId).catch((e) =>
+            console.warn(`[ManualOrder] Failed to send confirmation email for ${orderNumber}:`, e)
+          );
+        }
+
+        console.log(`[ManualOrder] Created ${orderNumber} for ${input.email} — $${(total / 100).toFixed(2)}`);
+
+        return { success: true, orderId, orderNumber };
+      }),
+
+    delete: adminProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const db = await getDb();
+        if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Database unavailable" });
+
+        // Delete order items first, then the order
+        await db.delete(schema.orderItems).where(eq(schema.orderItems.orderId, input.id));
+        await db.delete(schema.orders).where(eq(schema.orders.id, input.id));
+
+        return { success: true };
+      }),
+
+    trackUsps: adminProcedure
+      .input(z.object({ orderId: z.number() }))
+      .query(async ({ input }) => {
+        try {
+          const result = await syncOrderTracking(input.orderId);
+          if (!result) {
+            return { available: false as const, reason: "No USPS tracking number found or carrier is not USPS." };
+          }
+          return { available: true as const, ...result };
+        } catch (e: any) {
+          return { available: false as const, reason: e.message || "Failed to fetch USPS tracking." };
+        }
       }),
   }),
 

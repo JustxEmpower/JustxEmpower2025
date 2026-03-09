@@ -747,6 +747,7 @@ export const orders = mysqlTable("orders", {
   billingPostalCode: varchar("billingPostalCode", { length: 20 }),
   billingCountry: varchar("billingCountry", { length: 100 }),
   // Tracking
+  carrier: varchar("carrier", { length: 50 }),
   trackingNumber: varchar("trackingNumber", { length: 255 }),
   trackingUrl: varchar("trackingUrl", { length: 500 }),
   shippedAt: timestamp("shippedAt"),
@@ -1313,3 +1314,86 @@ export const adminNotifications = mysqlTable("admin_notifications", {
 
 export type AdminNotification = typeof adminNotifications.$inferSelect;
 export type InsertAdminNotification = typeof adminNotifications.$inferInsert;
+
+/**
+ * ==========================================
+ * CUSTOMER ACCOUNTS TABLES
+ * ==========================================
+ */
+
+/**
+ * Customers table — customer accounts for the storefront
+ */
+export const customers = mysqlTable("customers", {
+  id: int("id").autoincrement().primaryKey(),
+  email: varchar("email", { length: 320 }).notNull().unique(),
+  passwordHash: varchar("passwordHash", { length: 255 }).notNull(),
+  firstName: varchar("firstName", { length: 100 }).notNull(),
+  lastName: varchar("lastName", { length: 100 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  avatarUrl: varchar("avatarUrl", { length: 500 }),
+  tier: mysqlEnum("tier", ["customer", "vip", "wholesale"]).default("customer").notNull(),
+  stripeCustomerId: varchar("stripeCustomerId", { length: 255 }),
+  preferences: text("preferences"), // JSON: communication prefs, size prefs, etc.
+  emailVerified: int("emailVerified").default(0).notNull(),
+  emailVerifyToken: varchar("emailVerifyToken", { length: 255 }),
+  resetToken: varchar("resetToken", { length: 255 }),
+  resetTokenExpiresAt: timestamp("resetTokenExpiresAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  lastLoginAt: timestamp("lastLoginAt"),
+});
+
+export type Customer = typeof customers.$inferSelect;
+export type InsertCustomer = typeof customers.$inferInsert;
+
+/**
+ * Customer sessions — JWT-backed session tokens
+ */
+export const customerSessions = mysqlTable("customerSessions", {
+  token: varchar("token", { length: 255 }).notNull().primaryKey(),
+  customerId: int("customerId").notNull(),
+  expiresAt: timestamp("expiresAt").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CustomerSession = typeof customerSessions.$inferSelect;
+
+/**
+ * Customer addresses — address book (multiple per customer)
+ */
+export const customerAddresses = mysqlTable("customerAddresses", {
+  id: int("id").autoincrement().primaryKey(),
+  customerId: int("customerId").notNull(),
+  label: varchar("label", { length: 50 }), // Home, Work, etc.
+  firstName: varchar("firstName", { length: 100 }).notNull(),
+  lastName: varchar("lastName", { length: 100 }).notNull(),
+  address1: varchar("address1", { length: 255 }).notNull(),
+  address2: varchar("address2", { length: 255 }),
+  city: varchar("city", { length: 100 }).notNull(),
+  state: varchar("state", { length: 100 }).notNull(),
+  postalCode: varchar("postalCode", { length: 20 }).notNull(),
+  country: varchar("country", { length: 100 }).default("US").notNull(),
+  phone: varchar("phone", { length: 50 }),
+  isDefaultShipping: int("isDefaultShipping").default(0).notNull(),
+  isDefaultBilling: int("isDefaultBilling").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CustomerAddress = typeof customerAddresses.$inferSelect;
+export type InsertCustomerAddress = typeof customerAddresses.$inferInsert;
+
+/**
+ * Customer wishlist — saved products
+ */
+export const customerWishlist = mysqlTable("customerWishlist", {
+  id: int("id").autoincrement().primaryKey(),
+  customerId: int("customerId").notNull(),
+  productId: int("productId").notNull(),
+  variantId: int("variantId"),
+  addedAt: timestamp("addedAt").defaultNow().notNull(),
+});
+
+export type CustomerWishlistItem = typeof customerWishlist.$inferSelect;
+export type InsertCustomerWishlistItem = typeof customerWishlist.$inferInsert;

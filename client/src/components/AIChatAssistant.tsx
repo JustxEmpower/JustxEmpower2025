@@ -167,13 +167,13 @@ export function AIChatAssistant() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className={`fixed ${positionClasses} z-50 w-20 h-20 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform duration-200 overflow-hidden bg-white`}
+          className={`fixed ${positionClasses} z-50 w-24 h-24 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform duration-200 overflow-hidden bg-white`}
           aria-label="Open AI Chat Assistant"
         >
           <img 
-            src="/assets/2025-6/11/LOGO_TM_FINAL_MASTER.png" 
+            src="https://justxempower-assets.s3.us-east-1.amazonaws.com/media/brand/logo-r-final.png" 
             alt="Just Empower" 
-            className="w-18 h-18 object-contain"
+            className="w-20 h-20 object-contain"
           />
         </button>
       )}

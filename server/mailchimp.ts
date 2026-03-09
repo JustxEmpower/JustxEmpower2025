@@ -3,6 +3,7 @@ import mailchimp from '@mailchimp/mailchimp_marketing';
 import { getDb } from './db.js';
 import { adminUsers, newsletterSubscribers } from '../drizzle/schema.js';
 import { eq } from 'drizzle-orm';
+import { sendWelcomeEmail } from './mailchimpTemplates.js';
 
 interface MailchimpConfig {
   apiKey: string;
@@ -73,6 +74,8 @@ export async function subscribeToNewsletter(
 
     if (!config) {
       // If Mailchimp is not configured, still return success since we saved to database
+      // Send welcome email via SES
+      sendWelcomeEmail(email, firstName).catch(e => console.error('[Welcome] fire-and-forget error:', e));
       return {
         success: true,
         message: 'Successfully subscribed to newsletter!',
@@ -106,6 +109,9 @@ export async function subscribeToNewsletter(
         console.error('Error updating sync status:', updateError);
       }
     }
+
+    // Send welcome email via SES
+    sendWelcomeEmail(email, firstName).catch(e => console.error('[Welcome] fire-and-forget error:', e));
 
     return {
       success: true,

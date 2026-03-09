@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Link, useLocation } from 'wouter';
 import { cn } from '@/lib/utils';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, User } from 'lucide-react';
 import gsap from 'gsap';
 import { getMediaUrl } from '@/lib/media';
 import { trpc } from '@/lib/trpc';
@@ -190,13 +190,14 @@ export default function Header() {
   };
 
   // CSS filter class to make logo visible on different backgrounds
+  // New ® logo has black text — use brightness(0)+invert(1) on dark hero for clean white silhouette
   const getLogoClass = () => {
     if (isScrolled || isMobileMenuOpen || hasLightBackground) {
-      // Light background: invert white logo to dark in light mode, keep white in dark mode
-      return 'invert dark:invert-0';
+      // Light background: black logo as-is in light mode, white silhouette in dark mode
+      return 'dark:brightness-0 dark:invert';
     }
-    // Dark hero background: white logo as-is
-    return '';
+    // Dark hero background: white silhouette
+    return 'brightness-0 invert';
   };
 
   // CTA button class
@@ -223,7 +224,7 @@ export default function Header() {
       )}
     >
       <div className="flex items-center justify-between max-w-[1920px] mx-auto w-full">
-        <Link href="/" className="block w-12 h-12 md:w-14 md:h-14 relative transition-transform duration-300 hover:scale-105 z-50 flex-shrink-0">
+        <Link href="/" className="block w-16 h-16 md:w-20 md:h-20 relative transition-transform duration-300 hover:scale-105 z-50 flex-shrink-0">
           <img 
             src={logoUrl} 
             alt={siteName} 
@@ -297,6 +298,19 @@ export default function Header() {
           
           {/* Theme Toggle */}
           <ThemeToggle isScrolled={isScrolled} />
+          
+          {/* Account / Login */}
+          <Link 
+            href="/account" 
+            className={cn(
+              "uppercase tracking-[0.15em] hover:opacity-70 transition-all duration-300 flex items-center gap-1.5",
+              navFontSize,
+              getNavTextClass()
+            )}
+          >
+            <User className="w-4 h-4" />
+            Account
+          </Link>
           
           {/* Button Navigation Items (CTA buttons) */}
           {buttonNavItems.map((link) => (
@@ -384,6 +398,14 @@ export default function Header() {
                 )}
               </div>
             ))}
+
+            {/* Mobile Account Link */}
+            <Link 
+              href="/account"
+              className="font-serif text-3xl md:text-4xl text-foreground hover:opacity-70 transition-opacity flex items-center gap-3"
+            >
+              <User className="w-6 h-6" /> My Account
+            </Link>
 
             {/* Mobile CTA Buttons */}
             {buttonNavItems.map((link) => (

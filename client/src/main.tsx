@@ -61,6 +61,11 @@ const trpcClient = trpc.createClient({
           headers['x-admin-token'] = adminToken;
         }
         
+        const customerToken = typeof window !== 'undefined' ? localStorage.getItem('customerToken') : null;
+        if (customerToken) {
+          headers['x-customer-token'] = customerToken;
+        }
+        
         return globalThis.fetch(input, {
           ...(init ?? {}),
           credentials: "include",
