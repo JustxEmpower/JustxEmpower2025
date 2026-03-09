@@ -2,13 +2,12 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ScrollText, ChevronRight, Edit, Save, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { ScrollText, ChevronRight, Pencil, Save } from "lucide-react";
 
 export default function AdminCodexContent() {
   const [, setLocation] = useLocation();
@@ -47,90 +46,88 @@ export default function AdminCodexContent() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center gap-3">
         <ScrollText className="w-6 h-6 text-amber-500" />
-        <h1 className="text-2xl font-bold">Living Codex™ Content CMS</h1>
+        <div>
+          <h1 className="text-xl font-bold">Living Codex — Content CMS</h1>
+          <p className="text-sm text-muted-foreground">Browse and edit assessment sections, questions, and answer metadata</p>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Sections */}
-        <div className="lg:col-span-3 space-y-2 max-h-[75vh] overflow-y-auto">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Sections</h3>
-          {sections.map(s => (
-            <Card
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4" style={{ minHeight: '70vh' }}>
+        {/* ── Col 1: Sections ── */}
+        <div className="lg:col-span-3 space-y-1 max-h-[75vh] overflow-y-auto pr-1">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2 px-1">16 Sections</p>
+          {sections.map((s: any) => (
+            <div
               key={s.id}
-              className={`cursor-pointer transition hover:shadow-md ${selectedSection === s.id ? "ring-2 ring-primary" : ""}`}
               onClick={() => { setSelectedSection(s.id); setSelectedQuestionId(null); }}
+              className={`p-2.5 rounded-lg cursor-pointer border transition-all flex items-center gap-2.5 ${selectedSection === s.id ? "border-primary bg-primary/5" : "border-transparent hover:bg-muted/50"}`}
             >
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{s.glyph}</span>
-                    <div>
-                      <p className="font-semibold text-sm">S{s.id}: {s.title}</p>
-                      <p className="text-xs text-muted-foreground truncate max-w-[180px]">{s.subtitle}</p>
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </CardContent>
-            </Card>
+              <span className="text-base flex-shrink-0">{s.glyph}</span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium truncate">{s.title}</p>
+                <p className="text-[10px] text-muted-foreground truncate">{s.subtitle}</p>
+              </div>
+              <span className="text-[10px] text-muted-foreground flex-shrink-0">S{s.id}</span>
+            </div>
           ))}
         </div>
 
-        {/* Questions */}
-        <div className="lg:col-span-4 space-y-2 max-h-[75vh] overflow-y-auto">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-            {selectedSection ? `Section ${selectedSection} Questions` : "Select a section"}
-          </h3>
-          {!selectedSection && <p className="text-sm text-muted-foreground p-4">← Select a section to view questions</p>}
-          {questions.map(q => (
-            <Card
+        {/* ── Col 2: Questions ── */}
+        <div className="lg:col-span-4 space-y-1 max-h-[75vh] overflow-y-auto pr-1">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2 px-1">
+            {selectedSection ? `Section ${selectedSection} — Questions` : "Select a section"}
+          </p>
+          {!selectedSection && <p className="text-xs text-muted-foreground p-4">← Choose a section to see its questions</p>}
+          {questions.map((q: any) => (
+            <div
               key={q.id}
-              className={`cursor-pointer transition hover:shadow-md ${selectedQuestionId === q.id ? "ring-2 ring-primary" : ""}`}
               onClick={() => setSelectedQuestionId(q.id)}
+              className={`p-2.5 rounded-lg cursor-pointer border transition-all ${selectedQuestionId === q.id ? "border-primary bg-primary/5" : "border-transparent hover:bg-muted/50"}`}
             >
-              <CardContent className="p-3">
-                <div className="flex items-center justify-between mb-1">
-                  <Badge variant="outline" className="text-xs">Q{q.questionNum}</Badge>
-                  <div className="flex items-center gap-1">
-                    {q.isGhost === 1 && <Badge className="bg-stone-100 text-stone-500 text-xs">Ghost</Badge>}
-                    {q.isOpenEnded === 1 && <Badge className="bg-blue-100 text-blue-600 text-xs">Open</Badge>}
-                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0" onClick={e => { e.stopPropagation(); setEditingQuestion({ id: q.id, questionText: q.questionText, invitation: q.invitation || "" }); }}>
-                      <Edit className="w-3 h-3" />
-                    </Button>
-                  </div>
+              <div className="flex items-center justify-between mb-1">
+                <div className="flex items-center gap-1.5">
+                  <Badge variant="outline" className="text-[10px] px-1.5 py-0">Q{q.questionNum}</Badge>
+                  {q.isGhost === 1 && <Badge className="bg-stone-100 text-stone-500 text-[10px] px-1.5 py-0">Ghost</Badge>}
+                  {q.isOpenEnded === 1 && <Badge className="bg-blue-50 text-blue-600 text-[10px] px-1.5 py-0">Open</Badge>}
                 </div>
-                <p className="text-sm line-clamp-2">{q.questionText}</p>
-                {q.invitation && <p className="text-xs text-muted-foreground italic mt-1 line-clamp-1">{q.invitation}</p>}
-              </CardContent>
-            </Card>
+                <Button size="sm" variant="ghost" className="h-5 w-5 p-0" onClick={e => { e.stopPropagation(); setEditingQuestion({ id: q.id, questionText: q.questionText, invitation: q.invitation || "" }); }}>
+                  <Pencil className="w-3 h-3" />
+                </Button>
+              </div>
+              <p className="text-sm line-clamp-2 leading-snug">{q.questionText}</p>
+              {q.invitation && <p className="text-[10px] text-muted-foreground italic mt-1 line-clamp-1">{q.invitation}</p>}
+            </div>
           ))}
         </div>
 
-        {/* Answers */}
-        <div className="lg:col-span-5 space-y-2 max-h-[75vh] overflow-y-auto">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-            {selectedQuestionId ? "Answer Options & Metadata" : "Select a question"}
-          </h3>
-          {!selectedQuestionId && <p className="text-sm text-muted-foreground p-4">← Select a question to view answers</p>}
-          {answers.map(a => (
-            <Card key={a.id}>
+        {/* ── Col 3: Answers + Metadata ── */}
+        <div className="lg:col-span-5 space-y-2 max-h-[75vh] overflow-y-auto pr-1">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-2 px-1">
+            {selectedQuestionId ? "Answers & Scoring Metadata" : "Select a question"}
+          </p>
+          {!selectedQuestionId && <p className="text-xs text-muted-foreground p-4">← Choose a question to inspect its answers</p>}
+          {answers.map((a: any) => (
+            <Card key={a.id} className="overflow-hidden">
               <CardContent className="p-3 space-y-2">
                 <div className="flex items-center gap-2">
-                  <Badge variant="outline" className="font-mono">{a.code}</Badge>
-                  <Badge className={spectrumColors[a.spectrumDepth?.toUpperCase()] || "bg-stone-100"}>{a.spectrumDepth}</Badge>
+                  <Badge variant="outline" className="font-mono text-xs">{a.code}</Badge>
+                  <Badge className={`text-[10px] px-1.5 py-0 ${spectrumColors[(a.spectrumDepth || "").toUpperCase()] || "bg-stone-100"}`}>
+                    {a.spectrumDepth}
+                  </Badge>
                 </div>
-                <p className="text-sm">{a.answerText}</p>
-                <div className="grid grid-cols-2 gap-1 text-xs">
-                  <div><span className="text-muted-foreground">AR Primary:</span> <span className="font-medium">{a.arPrimary}</span></div>
-                  <div><span className="text-muted-foreground">AR Secondary:</span> <span className="font-medium">{a.arSecondary}</span></div>
-                  <div><span className="text-muted-foreground">WI:</span> <span className="font-medium">{a.wi}</span></div>
-                  <div><span className="text-muted-foreground">MP:</span> <span className="font-medium">{a.mp}</span></div>
-                  {a.mmi && <div><span className="text-muted-foreground">MMI:</span> <span className="font-medium">{a.mmi}</span></div>}
-                  {a.abi && <div><span className="text-muted-foreground">ABI:</span> <span className="font-medium">{a.abi}</span></div>}
-                  {a.epcl && <div><span className="text-muted-foreground">EPCL:</span> <span className="font-medium">{a.epcl}</span></div>}
-                  {a.wombField && <div><span className="text-muted-foreground">Womb:</span> <span className="font-medium">{a.wombField}</span></div>}
+                <p className="text-sm leading-snug">{a.answerText}</p>
+                <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[11px] pt-1 border-t border-border/50">
+                  <MetaRow label="AR Primary" value={a.arPrimary} />
+                  <MetaRow label="AR Secondary" value={a.arSecondary} />
+                  <MetaRow label="WI" value={a.wi} />
+                  <MetaRow label="MP" value={a.mp} />
+                  {a.mmi && <MetaRow label="MMI" value={a.mmi} />}
+                  {a.abi && <MetaRow label="ABI" value={a.abi} />}
+                  {a.epcl && <MetaRow label="EPCL" value={a.epcl} />}
+                  {a.wombField && <MetaRow label="Womb" value={a.wombField} />}
                 </div>
               </CardContent>
             </Card>
@@ -145,31 +142,41 @@ export default function AdminCodexContent() {
           {editingQuestion && (
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium">Question Text</label>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Question Text</label>
                 <Textarea
                   value={editingQuestion.questionText}
                   onChange={e => setEditingQuestion({ ...editingQuestion, questionText: e.target.value })}
-                  className="min-h-[100px]"
+                  className="min-h-[100px] mt-1"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium">Invitation (ritual/somatic cue)</label>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Invitation (ritual/somatic cue)</label>
                 <Textarea
                   value={editingQuestion.invitation}
                   onChange={e => setEditingQuestion({ ...editingQuestion, invitation: e.target.value })}
-                  className="min-h-[60px]"
+                  className="min-h-[60px] mt-1"
+                  placeholder="Optional invitation text…"
                 />
               </div>
-              <div className="flex justify-end gap-2">
+              <DialogFooter>
                 <Button variant="outline" onClick={() => setEditingQuestion(null)}>Cancel</Button>
                 <Button onClick={() => updateQuestionMutation.mutate(editingQuestion)} disabled={updateQuestionMutation.isPending}>
-                  <Save className="w-4 h-4 mr-1" /> Save
+                  <Save className="w-4 h-4 mr-1" /> {updateQuestionMutation.isPending ? "Saving…" : "Save"}
                 </Button>
-              </div>
+              </DialogFooter>
             </div>
           )}
         </DialogContent>
       </Dialog>
+    </div>
+  );
+}
+
+function MetaRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center gap-1">
+      <span className="text-muted-foreground">{label}:</span>
+      <span className="font-medium truncate">{value}</span>
     </div>
   );
 }

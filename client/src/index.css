@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Cinzel:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -298,6 +299,277 @@ video::-webkit-media-controls-play-button {
 }
 video::-webkit-media-controls-overlay-play-button {
   display: none !important;
+}
+
+/* ===========================================
+   LIVING CODEX™ DESIGN SYSTEM
+   Dark luxury aesthetic — deep plum/navy + gold
+   =========================================== */
+
+.codex-env {
+  --cx-black: #0A0A0A;
+  --cx-deep: #12090F;
+  --cx-plum: #1A0E17;
+  --cx-dark: #1E1118;
+  --cx-wine: #2A1520;
+  --cx-muted: #3D2233;
+  --cx-gold: #C9A84C;
+  --cx-gold-light: #D4B96E;
+  --cx-gold-dim: #8B7332;
+  --cx-cream: #F5E6D3;
+  --cx-cream-dark: #D4C4B0;
+  --cx-parchment: #2C1F28;
+  --cx-ember: #8B3A3A;
+  --cx-ember-light: #A85454;
+  --cx-sage: #4A6B4A;
+  --cx-moonlight: #C5B8D0;
+
+  background: var(--cx-deep);
+  color: var(--cx-cream);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.codex-env ::selection {
+  background-color: rgba(201, 168, 76, 0.3);
+  color: #F5E6D3;
+}
+
+.codex-env ::-webkit-scrollbar { width: 6px; }
+.codex-env ::-webkit-scrollbar-track { background: var(--cx-deep); }
+.codex-env ::-webkit-scrollbar-thumb { background: var(--cx-muted); border-radius: 3px; }
+.codex-env ::-webkit-scrollbar-thumb:hover { background: var(--cx-gold-dim); }
+
+/* Typography */
+.cx-font-heading { font-family: 'Cormorant Garamond', serif; }
+.cx-font-accent { font-family: 'Cinzel', serif; }
+
+.cx-heading-xl {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  letter-spacing: 0.04em;
+  color: var(--cx-gold);
+  text-shadow: 0 0 40px rgba(201, 168, 76, 0.15);
+}
+
+.cx-heading-lg {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  letter-spacing: 0.03em;
+  color: var(--cx-gold);
+}
+
+.cx-heading-md {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--cx-gold);
+}
+
+.cx-body {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: rgba(245, 230, 211, 0.9);
+}
+
+.cx-invitation {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: 1.125rem;
+  color: rgba(212, 185, 110, 0.8);
+}
+
+/* Component: Card */
+.cx-card {
+  background: rgba(44, 31, 40, 0.6);
+  border: 1px solid rgba(61, 34, 51, 0.2);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(8px);
+  padding: 2rem;
+}
+
+/* Component: Answer Card */
+.cx-answer-card {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(61, 34, 51, 0.3);
+  background: rgba(44, 31, 40, 0.4);
+  backdrop-filter: blur(4px);
+  cursor: pointer;
+  transition: all 500ms ease-in-out;
+}
+.cx-answer-card:hover {
+  border-color: rgba(201, 168, 76, 0.4);
+  box-shadow: 0 0 15px rgba(201, 168, 76, 0.1);
+}
+.cx-answer-card.cx-selected {
+  border-color: rgba(201, 168, 76, 0.6);
+  background: rgba(42, 21, 32, 0.6);
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.2);
+}
+
+/* Component: Buttons */
+.cx-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 2rem;
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.4);
+  color: var(--cx-gold);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.125rem;
+  letter-spacing: 0.08em;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 500ms;
+}
+.cx-btn-primary:hover {
+  background: rgba(201, 168, 76, 0.2);
+  border-color: rgba(201, 168, 76, 0.6);
+  box-shadow: 0 0 20px rgba(201, 168, 76, 0.15);
+}
+.cx-btn-primary:active { transform: scale(0.98); }
+.cx-btn-primary:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.cx-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.5rem;
+  border: 1px solid rgba(61, 34, 51, 0.4);
+  color: rgba(245, 230, 211, 0.7);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 300ms;
+  background: transparent;
+}
+.cx-btn-secondary:hover {
+  border-color: rgba(245, 230, 211, 0.4);
+  color: rgba(245, 230, 211, 0.9);
+}
+
+/* Component: Divider */
+.cx-divider {
+  width: 6rem;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(201, 168, 76, 0.6), transparent);
+  margin: 2rem auto;
+}
+
+/* Component: Progress Bar */
+.cx-progress {
+  height: 2px;
+  background: linear-gradient(to right, rgba(201, 168, 76, 0.8), rgba(212, 185, 110, 0.6));
+  transition: width 1200ms ease-in-out;
+}
+
+/* Component: Gateway (full-screen section entry) */
+.cx-gateway {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: var(--cx-deep);
+}
+
+/* Component: Textarea */
+.cx-textarea {
+  width: 100%;
+  min-height: 10rem;
+  background: rgba(44, 31, 40, 0.3);
+  border: 1px solid rgba(61, 34, 51, 0.2);
+  border-radius: 0.5rem;
+  padding: 1.25rem;
+  color: rgba(245, 230, 211, 0.85);
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  line-height: 1.75;
+  resize: vertical;
+  transition: border-color 500ms;
+  outline: none;
+}
+.cx-textarea::placeholder {
+  color: rgba(245, 230, 211, 0.15);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+.cx-textarea:focus {
+  border-color: rgba(201, 168, 76, 0.3);
+}
+
+/* Animations */
+@keyframes cx-fade-up {
+  0% { opacity: 0; transform: translateY(20px) scale(0.97); }
+  100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes cx-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes cx-slow-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+@keyframes cx-gold-glow {
+  0% { box-shadow: 0 0 5px rgba(201, 168, 76, 0.1); }
+  100% { box-shadow: 0 0 20px rgba(201, 168, 76, 0.3); }
+}
+@keyframes cx-descent {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes cx-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.cx-fade-up { animation: cx-fade-up 700ms ease-out both; }
+.cx-fade-in { animation: cx-fade-in 1000ms ease-in-out both; }
+.cx-slow-pulse { animation: cx-slow-pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+.cx-gold-glow { animation: cx-gold-glow 3s ease-in-out infinite alternate; }
+.cx-descent { animation: cx-descent 1200ms ease-in-out both; }
+.cx-float { animation: cx-float 6s ease-in-out infinite; }
+
+/* Stagger delays */
+.cx-delay-1 { animation-delay: 100ms; }
+.cx-delay-2 { animation-delay: 200ms; }
+.cx-delay-3 { animation-delay: 300ms; }
+.cx-delay-4 { animation-delay: 400ms; }
+.cx-delay-5 { animation-delay: 500ms; }
+
+/* Spectrum colors */
+.cx-spectrum-shadow { color: var(--cx-ember); }
+.cx-spectrum-threshold { color: var(--cx-gold); }
+.cx-spectrum-gift { color: var(--cx-sage); }
+
+/* Print styles for Mirror Report */
+@media print {
+  .codex-env { background: white !important; color: #1a1a1a !important; }
+  .cx-card { border: 1px solid #ddd !important; background: #fafafa !important; }
+  .cx-heading-xl, .cx-heading-lg, .cx-heading-md { color: #1a1a1a !important; text-shadow: none !important; }
+  .cx-body { color: #333 !important; }
+  .cx-print-hide { display: none !important; }
+  .cx-print-break { page-break-before: always; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .codex-env *, .codex-env *::before, .codex-env *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ===========================================
