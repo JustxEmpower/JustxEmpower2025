@@ -409,6 +409,7 @@ const codexClientRouter = router({
       success_url: `${baseUrl}/account/codex?purchase=success&tier=${tier.id}`,
       cancel_url: `${baseUrl}/account/codex`,
       metadata: { customerId: String(customer.id), tierId: tier.id, type: "codex_tier" },
+      allow_promotion_codes: true,
     });
     return { checkoutUrl: session.url };
   }),
