@@ -36,6 +36,10 @@ export default function CodexPortal() {
   const [purchasing, setPurchasing] = useState<string | null>(null);
   const [gatePassed, setGatePassed] = useState(false);
   const [expandedTier, setExpandedTier] = useState<string | null>(null);
+  const [confirming, setConfirming] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('purchase') === 'success' && !!params.get('tier');
+  });
 
   const portalQuery = trpc.codex.client.portal.useQuery();
   const constantsQuery = trpc.codex.client.constants.useQuery();
@@ -44,14 +48,21 @@ export default function CodexPortal() {
     onError: () => setPurchasing(null),
   });
   const confirmMutation = trpc.codex.client.confirmTierPurchase.useMutation({
-    onSuccess: () => { portalQuery.refetch(); },
+    onSuccess: () => {
+      window.history.replaceState({}, '', window.location.pathname);
+      portalQuery.refetch().then(() => setConfirming(false));
+    },
+    onError: () => {
+      window.history.replaceState({}, '', window.location.pathname);
+      setConfirming(false);
+    },
   });
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('purchase') === 'success' && params.get('tier')) {
+      setConfirming(true);
       confirmMutation.mutate({ tierId: params.get('tier')! });
-      window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
 
@@ -65,12 +76,15 @@ export default function CodexPortal() {
   const tiers = constantsQuery.data?.journeyTiers || [];
   const scrollModules = constantsQuery.data?.scrollModules || [];
 
-  /* ── Loading state ── */
-  if (portalQuery.isLoading) {
+  /* ── Loading / Confirming state ── */
+  if (portalQuery.isLoading || confirming) {
     return (
       <div className="codex-env">
         <div className="cx-gateway">
           <div className="text-5xl cx-slow-pulse" style={{ lineHeight: 1 }}>{"\u{1F702}"}</div>
+          {confirming && (
+            <p className="cx-invitation mt-8" style={{ opacity: 0.6 }}>Activating your journey…</p>
+          )}
         </div>
       </div>
     );
