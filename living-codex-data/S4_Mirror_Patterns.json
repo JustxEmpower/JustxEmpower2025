@@ -1,0 +1,626 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "When someone is emotionally distant or withdrawn, I tend to\u2026\n\n\u2726 The first internal movement before the strategy.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Shift parts of myself to match what I think they want \u2014 hoping it draws them back.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Conditional Love Coding",
+        "mp": "Adaptive Camouflage Pattern"
+      },
+      {
+        "code": "B",
+        "text": "Feel unworthy or emotionally invisible \u2014 their distance must mean something about me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "C",
+        "text": "Stay grounded \u2014 I can witness their behavior without absorbing it as my own.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "D",
+        "text": "Take responsibility and search for what I caused.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Fault-Loop Mirror"
+      },
+      {
+        "code": "E",
+        "text": "Match their distance \u2014 even if I ache for closeness.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Ghost",
+        "wi": "Abandonment Anticipation",
+        "mp": "Reactive Withdrawal Response"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "When someone reacts negatively to me, I usually\u2026\n\n\u2726 The response that happens before you choose a better one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Replay the moment \u2014 wondering how I caused it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "B",
+        "text": "Adjust immediately to avoid further friction \u2014 smooth it over before it escalates.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Soother",
+        "wi": "Conditional Worth Coding",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Shut down or go silent \u2014 I freeze or disappear inside myself.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Wound of Disconnection",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "D",
+        "text": "Take a breath, stay anchored, and reflect before responding.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "E",
+        "text": "Mirror their intensity \u2014 I match their energy without realizing it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "When I feel someone's energy shift \u2014 subtly, or all at once \u2014 I often\u2026\n\n\u2726 You may feel it before you can name it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Scan myself to see if I caused it \u2014 I assume responsibility before I know the facts.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "B",
+        "text": "Mirror their tone or mood without realizing it \u2014 I lose my own frequency.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Disconnected Knower",
+        "ar_secondary": "The Mid-Void Traveler",
+        "wi": "Enmeshment Burn / Loss of Autonomy",
+        "mp": "Adaptive Camouflage Pattern"
+      },
+      {
+        "code": "C",
+        "text": "Try to smooth things over or help them feel better \u2014 I need the atmosphere to be okay.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "D",
+        "text": "Observe what's theirs and stay in my own energy \u2014 I can feel the shift without taking it on.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "E",
+        "text": "Withdraw or shut down \u2014 energy shifts feel unsafe and I respond by closing.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "Abandonment Anticipation",
+        "mp": "Reactive Withdrawal Response"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "When I'm around strong personalities or dominant energy, I tend to\u2026\n\n\u2726 Before you consciously manage the room.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Shrink or become smaller \u2014 I don't want to take up too much space.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Ghost",
+        "wi": "Conditional Worth Coding",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "B",
+        "text": "Shift my tone or presence to match theirs \u2014 I adapt without deciding to.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Conditional Love Coding",
+        "mp": "Adaptive Camouflage Pattern"
+      },
+      {
+        "code": "C",
+        "text": "Get activated or reactive \u2014 something in me pushes back.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "D",
+        "text": "Hold my ground \u2014 I can stay rooted in my own energy without needing to dominate or disappear.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "E",
+        "text": "Feel overwhelmed, frozen, or energetically drained.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Wound of Disconnection",
+        "mp": "Energetic Fog Response"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "When emotions in the room feel heavy, I often\u2026\n\n\u2726 The involuntary response \u2014 before the chosen one.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Absorb them before I realize what's happening.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Push my own feelings down so I can manage the space.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Mirror the mood and lose touch with myself.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Go numb or check out mentally.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Wonder if I somehow caused the heaviness.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "When someone projects their pain or anger onto me, I tend to\u2026\n\n\u2726 What lands in your body when you're someone else's target.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Internalize the blame \u2014 wonder what I did to deserve it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "B",
+        "text": "Try to soothe or fix them so the energy calms.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "React with equal intensity \u2014 something in me gets activated.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "D",
+        "text": "Numb out or emotionally disengage \u2014 it's too much to stay present for.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Wound of Disconnection",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      },
+      {
+        "code": "E",
+        "text": "Name the projection calmly and hold my ground \u2014 their pain is not my truth.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "When others are deeply emotionally expressive around me, I often\u2026\n\n\u2726 What happens in your body when someone else's emotional world enters the room.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel responsible for helping them feel better \u2014 their state becomes my problem to solve.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "B",
+        "text": "Mirror their feelings and absorb their state \u2014 I lose track of what's mine.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Disconnected Knower",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Enmeshment Burn / Loss of Autonomy",
+        "mp": "Adaptive Camouflage Pattern"
+      },
+      {
+        "code": "C",
+        "text": "Stay grounded \u2014 I can hold space for their experience without absorbing it.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "D",
+        "text": "Feel overwhelmed and want to leave the room.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Wound of Disconnection",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "E",
+        "text": "Evaluate carefully whether it's safe for me to feel anything at all right now.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Guarded Mystic",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "Conditional Worth Coding",
+        "mp": "Silence-as-Safety Reflex"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "When I receive criticism or feedback, I tend to\u2026\n\n\u2726 The landing \u2014 before the recovery strategy.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Take it personally, even when it's gentle \u2014 it activates the old verdict.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "B",
+        "text": "Over-apologize or explain myself \u2014 I need them to know I'm not bad.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Receive it openly, assess its value, and choose what to integrate.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Returning One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "D",
+        "text": "Defend or justify myself automatically \u2014 the armor rises before I invite it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Criticism-Armoring Loop"
+      },
+      {
+        "code": "E",
+        "text": "Shut down or spiral into self-doubt.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Internal Blame Loop"
+      }
+    ]
+  },
+  {
+    "id": "Q9",
+    "question_text": "When others' reflections of me feel unclear or distorted, I\u2026\n\n\u2726 The internal experience of being misread or unseen.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Over-explain myself until I feel understood.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Doubt if they'll ever truly see me.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Shift who I am to fit their perception.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Feel invisible \u2014 like I don't exist in their eyes.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Hold steady, though a quiet part of me still questions.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q10",
+    "question_text": "When I feel misunderstood, I tend to\u2026\n\n\u2726 Not the graceful response. The first one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Try to explain myself again \u2014 if I can just find the right words, they'll understand.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Conditional Worth Coding",
+        "mp": "Overprocessing Field"
+      },
+      {
+        "code": "B",
+        "text": "Feel hurt and withdraw \u2014 I don't want to risk being misread again.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Ghost",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Stay centered \u2014 I can't control how I'm received, only how I show up.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "D",
+        "text": "Assume it's my fault for not being clearer.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "E",
+        "text": "Get angry or defensive \u2014 they should try harder to understand.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      }
+    ]
+  },
+  {
+    "id": "Q11",
+    "question_text": "When someone shares something vulnerable with me, I usually\u2026\n\n\u2726 What rises in you when someone else becomes unguarded.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel pressure to respond perfectly \u2014 to say exactly the right thing.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop"
+      },
+      {
+        "code": "B",
+        "text": "Try to fix or soothe it \u2014 I need them to feel better.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Absorb their pain as if it were mine \u2014 I feel what they feel.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Disconnected Knower",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Enmeshment Burn / Loss of Autonomy",
+        "mp": "Adaptive Camouflage Pattern"
+      },
+      {
+        "code": "D",
+        "text": "Stay present and grounded \u2014 I can let them be fully seen without collapsing into them.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Feel discomfort \u2014 I'm unsure how to hold the weight of their openness.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Guarded Mystic",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Internal Blame Loop"
+      }
+    ]
+  },
+  {
+    "id": "Q12",
+    "question_text": "When I feel someone is upset with me, I tend to\u2026\n\n\u2726 The internal weather before the external response.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Apologize quickly \u2014 even before I know what I'm apologizing for.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "B",
+        "text": "Mirror their mood \u2014 I become agitated or reactive in kind.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "C",
+        "text": "Overanalyze every word and action that led to this moment.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "D",
+        "text": "Ground myself first \u2014 then approach them with genuine curiosity.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Returning One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "E",
+        "text": "Retreat \u2014 I give space but feel anxious and guilty in the distance.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Abandonment Anxiety",
+        "mp": "Reactive Withdrawal Response"
+      }
+    ]
+  }
+]

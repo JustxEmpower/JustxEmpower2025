@@ -1,0 +1,130 @@
+{
+  "S10 Longing Reclamation": {
+    "sheet_name": "S10 Longing Reclamation",
+    "file": "LC_Section10_Rebuilt_v1.xlsx",
+    "question_count": 12,
+    "scored_questions": 10,
+    "ghost_questions": 2,
+    "total_answers": 60
+  },
+  "S11 Thresholds": {
+    "sheet_name": "S11 Thresholds",
+    "file": "LC_Section11_Rebuilt_v1.xlsx",
+    "question_count": 13,
+    "scored_questions": 11,
+    "ghost_questions": 2,
+    "total_answers": 65
+  },
+  "S12 Open-Ended Integration": {
+    "sheet_name": "S12 Open-Ended Integration",
+    "file": "LC_Section12_Rebuilt_v1 copy.xlsx",
+    "question_count": 10,
+    "scored_questions": 10,
+    "ghost_questions": 0,
+    "total_answers": 0
+  },
+  "S13 Masculine Mirror": {
+    "sheet_name": "S13 Masculine Mirror",
+    "file": "LC_Section13-15_Rebuilt_v1.xlsx",
+    "question_count": 12,
+    "scored_questions": 10,
+    "ghost_questions": 2,
+    "total_answers": 60
+  },
+  "S14 Abuse Bond Imprint": {
+    "sheet_name": "S14 Abuse Bond Imprint",
+    "file": "LC_Section13-15_Rebuilt_v1.xlsx",
+    "question_count": 12,
+    "scored_questions": 10,
+    "ghost_questions": 2,
+    "total_answers": 60
+  },
+  "S15 Escape Power Loops": {
+    "sheet_name": "S15 Escape Power Loops",
+    "file": "LC_Section13-15_Rebuilt_v1.xlsx",
+    "question_count": 12,
+    "scored_questions": 10,
+    "ghost_questions": 2,
+    "total_answers": 60
+  },
+  "S16 Womb Mapping": {
+    "sheet_name": "S16 Womb Mapping",
+    "file": "LC_Section16_Rebuilt_v1.xlsx",
+    "question_count": 8,
+    "scored_questions": 6,
+    "ghost_questions": 2,
+    "total_answers": 40
+  },
+  "Section 1": {
+    "sheet_name": "Section 1 \u2014 Voice & Visibility",
+    "file": "LC_Section1_Rebuilt_v1.xlsx",
+    "question_count": 11,
+    "scored_questions": 9,
+    "ghost_questions": 2,
+    "total_answers": 55
+  },
+  "S2 Relational Patterns": {
+    "sheet_name": "S2 Relational Patterns",
+    "file": "LC_Section2-4_Rebuilt_v1.xlsx",
+    "question_count": 12,
+    "scored_questions": 10,
+    "ghost_questions": 2,
+    "total_answers": 60
+  },
+  "S3 Wound Imprints": {
+    "sheet_name": "S3 Wound Imprints",
+    "file": "LC_Section2-4_Rebuilt_v1.xlsx",
+    "question_count": 12,
+    "scored_questions": 10,
+    "ghost_questions": 2,
+    "total_answers": 60
+  },
+  "S4 Mirror Patterns": {
+    "sheet_name": "S4 Mirror Patterns",
+    "file": "LC_Section2-4_Rebuilt_v1.xlsx",
+    "question_count": 12,
+    "scored_questions": 10,
+    "ghost_questions": 2,
+    "total_answers": 60
+  },
+  "S5 Survival Archetypes": {
+    "sheet_name": "S5 Survival Archetypes",
+    "file": "LC_Section5_Rebuilt_v1 (1).xlsx",
+    "question_count": 13,
+    "scored_questions": 10,
+    "ghost_questions": 3,
+    "total_answers": 65
+  },
+  "S6 Soul Disconnection": {
+    "sheet_name": "S6 Soul Disconnection",
+    "file": "LC_Section6-9_Rebuilt_v1.xlsx",
+    "question_count": 12,
+    "scored_questions": 10,
+    "ghost_questions": 2,
+    "total_answers": 60
+  },
+  "S7 Somatic Embodiment": {
+    "sheet_name": "S7 Somatic Embodiment",
+    "file": "LC_Section6-9_Rebuilt_v1.xlsx",
+    "question_count": 12,
+    "scored_questions": 10,
+    "ghost_questions": 2,
+    "total_answers": 60
+  },
+  "S8 Lineage Imprint": {
+    "sheet_name": "S8 Lineage Imprint",
+    "file": "LC_Section6-9_Rebuilt_v1.xlsx",
+    "question_count": 12,
+    "scored_questions": 10,
+    "ghost_questions": 2,
+    "total_answers": 60
+  },
+  "S9 Money Survival": {
+    "sheet_name": "S9 Money Survival",
+    "file": "LC_Section6-9_Rebuilt_v1.xlsx",
+    "question_count": 12,
+    "scored_questions": 10,
+    "ghost_questions": 2,
+    "total_answers": 60
+  }
+}

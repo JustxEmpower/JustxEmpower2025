@@ -1,0 +1,626 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "My relationship with my mother (or primary maternal figure) felt\u2026\n\n\u2726 Not the eulogy version \u2014 the honest internal one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Conditional \u2014 I often adjusted who I was to feel accepted or loved.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Shape-Shifter",
+        "wi": "Conditional Love Coding",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "B",
+        "text": "Distant \u2014 emotionally or physically unavailable in ways I couldn't name.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Neglect / Invisible Child Wound",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "C",
+        "text": "Close but intertwined \u2014 I sometimes felt responsible for her emotional state.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "D",
+        "text": "Nourishing \u2014 I felt seen, supported, and emotionally safe.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Mixed \u2014 mostly warm, but with moments of disconnection I couldn't predict.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Conditional Love Coding",
+        "mp": "Inconsistent Nurturance Field"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "My relationship with my father (or primary paternal figure) felt\u2026\n\n\u2726 Not the story you tell \u2014 the one your nervous system still holds.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Distant \u2014 physically present but emotionally out of reach.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Neglect / Invisible Child Wound",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "B",
+        "text": "Harsh or critical \u2014 love came packaged with pressure or conditions.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop"
+      },
+      {
+        "code": "C",
+        "text": "Supportive \u2014 I felt protected, valued, and guided.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "Overwhelming \u2014 his energy or moods felt too dominant to navigate.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Criticism-Armoring Loop"
+      },
+      {
+        "code": "E",
+        "text": "Inconsistent \u2014 sometimes present, sometimes unreachable, never quite predictable.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Conditional Love Coding",
+        "mp": "Inconsistent Nurturance Field"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "When I reflect on my childhood emotional needs, I remember\u2026\n\n\u2726 What the child you were actually needed, and what happened to that need.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Trying to be easy \u2014 small, quiet, low-maintenance so I wouldn't be a burden.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Conditional Worth Coding",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "B",
+        "text": "Wanting someone to notice I was struggling without me having to say it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Neglect / Invisible Child Wound",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "C",
+        "text": "Feeling responsible for keeping the peace \u2014 carrying what wasn't mine to carry.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Soother",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "D",
+        "text": "Feeling held, seen, and supported enough to feel safe.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Having much of what I needed, but still sensing something was missing.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Conditional Love Coding",
+        "mp": "Inconsistent Nurturance Field"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "When I think about the care I received growing up, I sometimes\u2026\n\n\u2726 The internal movement when you look back \u2014 not the gratitude, the other thing.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Assume my needs were 'too much' from the start.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Feel like no amount of love could have filled the gap.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Doubt my memories \u2014 I question if things were really that hard.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Tell myself it didn't matter, though part of me still aches.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Wonder if I somehow caused the imbalance.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "When I reflect on the parenting I received, I feel\u2026\n\n\u2726 Not what you think you should feel. What's actually there.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Sad \u2014 there are things I never received that I still long for.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "B",
+        "text": "Grateful for many things \u2014 and clear-eyed about the gaps.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Conditional Worth Coding",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "C",
+        "text": "Angry \u2014 too much was placed on me, or I wasn't protected when I needed it most.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "D",
+        "text": "Grateful \u2014 I carry warmth and security from the way I was loved.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Confused \u2014 love and harm were woven so tightly together I can't separate them.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Conditional Love Coding",
+        "mp": "Threshold Dissolution"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "In my adult relationships, I notice patterns that feel like\u2026\n\n\u2726 Not the relationships you want to have. The ones you keep finding yourself in.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I'm still trying to earn love by being useful, agreeable, or easy.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Soother",
+        "wi": "Conditional Worth Coding",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "B",
+        "text": "I don't fully trust anyone to stay \u2014 the shoe always drops eventually.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Shielded One",
+        "wi": "Abandonment Anxiety",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "C",
+        "text": "I'm building something genuinely new \u2014 the old patterns have less grip on me.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "D",
+        "text": "I repeat the original dynamics without meaning to \u2014 I see it and I'm working on it.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Destiny Disruption",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "E",
+        "text": "I have healthy connections but still slide into familiar grooves under pressure.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Conditional Love Coding",
+        "mp": "Inconsistent Nurturance Field"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "When I think about my inner child, I\u2026\n\n\u2726 Not what inner child work taught you to do \u2014 what you actually feel.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel protective \u2014 she endured things she shouldn't have had to.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Abandonment Anticipation",
+        "mp": "Criticism-Armoring Loop"
+      },
+      {
+        "code": "B",
+        "text": "Struggle to connect \u2014 she feels distant, like she belongs to someone else's past.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Wound of Disconnection",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Feel grief \u2014 I turned away from her and I'm still making my way back.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "D",
+        "text": "Love her deeply \u2014 I've brought her home and she knows she's safe now.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Experience moments of connection, but I still waver.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Conditional Love Coding",
+        "mp": "Inconsistent Nurturance Field"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "The way my caregivers related to their own emotions \u2014 what they modeled \u2014 was\u2026\n\n\u2726 You inherited a template. What did that template actually teach?",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Suppression \u2014 feelings were hidden, controlled, or pushed down.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Ancestral Silence Encoding",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "B",
+        "text": "Emotional integrity \u2014 they owned and expressed their feelings honestly.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "Volatility \u2014 emotions were intense, unpredictable, or unsafe.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "D",
+        "text": "Projection \u2014 I was made responsible for their emotional state.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Soother",
+        "wi": "Guilt Imprint / Emotional Responsibility",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "E",
+        "text": "Mixed \u2014 some openness, many things avoided, inconsistent across moods.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Returning One",
+        "wi": "Conditional Worth Coding",
+        "mp": "Inconsistent Nurturance Field"
+      }
+    ]
+  },
+  {
+    "id": "Q9",
+    "question_text": "When I imagine my caregivers seeing my fully authentic self, I\u2026\n\n\u2726 Not what you wish they would have done. What your body still braces for.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel fear \u2014 they wouldn't have accepted it.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Feel shame \u2014 I was never supposed to take up that much space.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Imagine rejection \u2014 love would have been withdrawn.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Feel small \u2014 like I had to hide or contort to be loved.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Question whether they ever truly saw me at all.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q10",
+    "question_text": "The messages I received growing up about who I was supposed to be were\u2026\n\n\u2726 Not the spoken rules. The ones that got into your body.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "'Be easy, quiet, agreeable \u2014 don't take up too much space.'",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "B",
+        "text": "'You are loved exactly as you are \u2014 all of you is welcome here.'",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "'Be strong \u2014 emotions are a weakness, don't let them show.'",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Criticism-Armoring Loop"
+      },
+      {
+        "code": "D",
+        "text": "'Make others feel better \u2014 their comfort matters more than yours.'",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "E",
+        "text": "'Be yourself \u2014 but only the version that doesn't upset the balance.'",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Conditional Love Coding",
+        "mp": "Mirror of Invalidation"
+      }
+    ]
+  },
+  {
+    "id": "Q11",
+    "question_text": "When I think about stepping fully into my power \u2014 who I could be without the inherited limitations\u2026\n\n\u2726 Not the motivational version. The one that surfaces at 2 a.m.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I feel I'd be betraying or outshining those who couldn't or didn't.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "B",
+        "text": "I feel completely free \u2014 I've rewritten the script.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "C",
+        "text": "I fear I'll be judged, punished, or no longer recognizable to the people I love.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "D",
+        "text": "I have no model for it \u2014 I don't know what that version of me would look like.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Purpose Amnesia",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "E",
+        "text": "I see what's possible and I'm consciously moving toward it.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Seeker",
+        "wi": "Destiny Disruption",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q12",
+    "question_text": "The legacy I carry from my family feels\u2026\n\n\u2726 All of it \u2014 the love and the damage and everything woven between.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Heavy \u2014 a weight of pain, silence, or unexpressed grief.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Self-Exile Grief",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "B",
+        "text": "Sacred \u2014 I've alchemized what I received into something that serves my life.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "Complicated \u2014 love and harm are so tightly woven I'm still sorting them.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Meaning Miner",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Conditional Worth Coding",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "D",
+        "text": "Severed \u2014 I feel disconnected from my roots and don't fully know my own inheritance.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Ghost",
+        "wi": "Wound of Disconnection",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "E",
+        "text": "Evolving \u2014 I've kept what nourishes me and I'm consciously releasing the rest.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Self-Exile Grief",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  }
+]

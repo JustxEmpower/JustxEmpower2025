@@ -1,0 +1,678 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "When something ends \u2014 a relationship, a role, a version of myself \u2014 I usually\u2026\n\n\u2726 Stay with what actually happens first, before the story comes.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel undone for a while \u2014 something in me aches to knit itself back together.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Mid-Void Traveler",
+        "ar_secondary": "The Drifting One",
+        "wi": "Self-Exile Grief",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "B",
+        "text": "Move toward the next chapter quickly, as if staying too long in the ending might undo me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Achiever",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Fast-Forward Bypass"
+      },
+      {
+        "code": "C",
+        "text": "Honor it as a sacred passage \u2014 even when it aches, I let it complete.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Returning One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "Sense the shift but stay suspended \u2014 uncertain, not quite here or there.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Drifting One",
+        "wi": "Intuition Suppression",
+        "mp": "Energetic Fog Response"
+      },
+      {
+        "code": "E",
+        "text": "Search for meaning right away \u2014 I need to understand what it's teaching me before I can rest.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Purpose Amnesia",
+        "mp": "Meaning-Rush Reflex"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "When something happens I can't explain \u2014 a vivid dream, an uncanny sign, a knowing that arrived without reason\u2026\n\n\u2726 Not what you did with it. What your first instinct was.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I explain it away, reaching for rational ground before the mystery can take hold.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Disconnected Knower",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Intuition Suppression / Betrayal Scar",
+        "mp": "Intuition Override Reflex"
+      },
+      {
+        "code": "B",
+        "text": "I keep it to myself \u2014 I don't trust it will be understood or taken seriously.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Quiet Mystic",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "C",
+        "text": "I receive it \u2014 let the mystery be its own complete language without needing to decode it.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Guarded Mystic",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "I record or track it \u2014 I sense a pattern might emerge if I stay curious.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Archivist",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Sacred Documentation Instinct"
+      },
+      {
+        "code": "E",
+        "text": "I return to it obsessively \u2014 I feel pulled to find its message and decode what it means.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Archivist",
+        "ar_secondary": "The Meaning Miner",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Overprocessing Field"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "Looking back, the single moment that most redefined who I believed myself to be\u2026\n\n\u2726 Don't choose the most dramatic one. Choose the one your body still remembers.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Still feels unfinished \u2014 I haven't fully closed or grieved what it took from me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Mid-Void Traveler",
+        "ar_secondary": "The Resigned One",
+        "wi": "Self-Exile Grief",
+        "mp": "Identity Collapse Field"
+      },
+      {
+        "code": "B",
+        "text": "Initiated me \u2014 it broke me open so something truer could emerge.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "C",
+        "text": "Took something I'll never get back \u2014 and left a hollow space where it was.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Abandonment Anxiety",
+        "mp": "Fault-Loop Mirror"
+      },
+      {
+        "code": "D",
+        "text": "Was necessary \u2014 but I'm still discovering who I truly became because of it.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Mid-Void Traveler",
+        "wi": "Intuition Suppression",
+        "mp": "Energetic Fog Response"
+      },
+      {
+        "code": "E",
+        "text": "Reshaped me \u2014 I still carry its echoes in how I move through the world.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Turning Flame",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Self-Exile Grief",
+        "mp": "Meaning-as-Embodiment"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "When I look back across the arc of my life, I tend to\u2026\n\n\u2726 Not what you think you should feel. What actually rises.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "See distinct chapters \u2014 almost like different selves, each carrying its own lessons.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Returning One",
+        "wi": "Existential Disenchantment",
+        "mp": "Identity Collapse Field"
+      },
+      {
+        "code": "B",
+        "text": "Still ache \u2014 parts of my story remain tender, the wound not yet fully closed.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Self-Exile Grief",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "C",
+        "text": "Feel a pang for what I didn't yet know \u2014 even while honoring who I was then.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "D",
+        "text": "Recognize moments that seemed guided beyond coincidence \u2014 a pattern I couldn't have planned.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "Intuition Suppression",
+        "mp": "Intuition Override Reflex"
+      },
+      {
+        "code": "E",
+        "text": "Understand that each chapter carried its own gift in the greater unfolding \u2014 even the hard ones.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Aligned One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "When I stand at the edge of something unknown \u2014 a threshold, a beginning, an ending I didn't choose\u2026\n\n\u2726 Feel for what happens in the body first.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Fear rises and I look for something to hold onto \u2014 steadiness before I can move.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "B",
+        "text": "I want to step forward but my feet don't move \u2014 I hesitate at the door.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "C",
+        "text": "I rush ahead \u2014 sometimes before I've fully checked in with myself.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Achiever",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Fast-Forward Bypass"
+      },
+      {
+        "code": "D",
+        "text": "I wait for something \u2014 a sign, a nudge, an internal permission \u2014 before I cross.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Quiet Mystic",
+        "ar_secondary": "The Seeker",
+        "wi": "Intuition Suppression",
+        "mp": "Intuition Override Reflex"
+      },
+      {
+        "code": "E",
+        "text": "I step forward in trust \u2014 not because I can see what's ahead, but because something in me knows.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "When I sense I'm standing at a symbolic doorway, I\u2026\n\n\u2726 First feeling, before you manage it.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Freeze \u2014 uncertain if it's really meant for me.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Push through quickly, afraid it may close before I'm ready.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Wait for someone else to affirm or acknowledge that I'm seeing it correctly.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Question whether I've misread the sign altogether.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Linger at the edge \u2014 feeling both called and hesitant.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "When I'm between who I was and who I'm becoming \u2014 that in-between space that has no name yet\u2026\n\n\u2726 What do you do with the not-yet?",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I feel lost \u2014 like I've slipped out of place, time, or purpose.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Mid-Void Traveler",
+        "wi": "Existential Disenchantment",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      },
+      {
+        "code": "B",
+        "text": "I rush forward \u2014 I don't like being 'in between' and I want to arrive somewhere.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Fast-Forward Bypass"
+      },
+      {
+        "code": "C",
+        "text": "I search for answers \u2014 mentors, messages, meaning \u2014 anything to fill the gap.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Purpose Amnesia",
+        "mp": "Meaning-Rush Reflex"
+      },
+      {
+        "code": "D",
+        "text": "I honor the space \u2014 it's uncomfortable, but I've learned it carries its own intelligence.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Mid-Void Traveler",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "E",
+        "text": "I retreat inward \u2014 solitude and reflection become my ground when nothing else is solid.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "Neglect / Invisible Child Wound",
+        "mp": "Sacred Silencing"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "I've noticed certain patterns, people, or lessons keep returning to my life\u2026\n\n\u2726 Not which pattern \u2014 but how you meet it when it comes again.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "And I greet them now as sacred teachers \u2014 they bring something I haven't yet fully received.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "B",
+        "text": "And it's frustrating \u2014 it feels like the same test, and I'm tired of failing it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Fault-Loop Mirror"
+      },
+      {
+        "code": "C",
+        "text": "And I'm still exploring why \u2014 they show up in ways I don't yet fully understand.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Overprocessing Field"
+      },
+      {
+        "code": "D",
+        "text": "And I'm beginning to notice them sooner \u2014 and choosing new responses before I'm swept in.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Aligned One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "E",
+        "text": "And they feel heavier each time \u2014 like the lesson is getting louder as I keep missing it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Resigned One",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Internal Blame Loop"
+      }
+    ]
+  },
+  {
+    "id": "Q9",
+    "question_text": "After something significant happens \u2014 a loss, a shift, a crossing I didn't expect \u2014 I tend to\u2026\n\n\u2726 Watch your actual pattern, not the ideal one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Move forward quickly \u2014 I focus on what's next because staying feels like sinking.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Escaping One",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Fast-Forward Bypass"
+      },
+      {
+        "code": "B",
+        "text": "Hold it quietly within \u2014 carrying the ache of unspoken change that has no language yet.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Mid-Void Traveler",
+        "wi": "Self-Exile Grief",
+        "mp": "Language Loss Pattern"
+      },
+      {
+        "code": "C",
+        "text": "Let it reshape how I live \u2014 I carry it forward as wisdom, not wound.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "Return to it often \u2014 I need to understand it more deeply before I can set it down.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Turning Flame",
+        "ar_secondary": "The Meaning Miner",
+        "wi": "Purpose Amnesia",
+        "mp": "Overprocessing Field"
+      },
+      {
+        "code": "E",
+        "text": "Capture it in writing, ritual, or memory \u2014 marking it as a passage worth honoring.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Archivist",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Sacred Documentation Instinct"
+      }
+    ]
+  },
+  {
+    "id": "Q10",
+    "question_text": "When life shifts direction \u2014 even when I can't name why or where it's leading\u2026\n\n\u2726 Not the response you wish you had. The one you actually have.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I look for ways to steady myself and regain control \u2014 uncertainty feels dangerous.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Achiever",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "B",
+        "text": "I pause to reassess \u2014 wondering if I misread something, if I caused the shift.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "C",
+        "text": "I seek signs or input from others \u2014 I don't fully trust my own reading of the moment.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Disconnected Knower",
+        "ar_secondary": "The Seeker",
+        "wi": "Intuition Suppression / Betrayal Scar",
+        "mp": "Intuition Override Reflex"
+      },
+      {
+        "code": "D",
+        "text": "I lean into trust \u2014 I may not fully understand, but I believe the unfolding is serving me.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Aligned One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "E",
+        "text": "I get quiet and feel into the deeper current \u2014 what is moving beneath the surface shift?",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Quiet Mystic",
+        "ar_secondary": "The Returning One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      }
+    ]
+  },
+  {
+    "id": "Q11",
+    "question_text": "When I realize a threshold has already been crossed \u2014 without me noticing \u2014 I\u2026\n\n\u2726 Not retrospective analysis. The immediate feeling.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel disoriented, as if I missed something important.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Question whether it ever really happened.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Minimize it and move on without marking it.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Obsess over the signs I overlooked.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Sense a quiet shift, but say nothing.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q12",
+    "question_text": "When I feel something inside me calling for change \u2014 not circumstance, but something deeper\u2026\n\n\u2726 The call that lives beneath the noise.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I feel the weight of it and wonder if I'm ready \u2014 if I have enough yet.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "B",
+        "text": "I delay \u2014 telling myself the timing isn't right, the conditions not yet aligned.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Shielded One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "I say yes \u2014 even with fear \u2014 because I've learned that the call knows more than I do.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "I grieve the part of me that will be left behind \u2014 I need to mourn before I can move.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Mid-Void Traveler",
+        "wi": "Self-Exile Grief",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "E",
+        "text": "I begin preparing inwardly \u2014 shifting beliefs and habits before the outer moves.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q13",
+    "question_text": "In the past year or so, the threshold I've been living closest to is\u2026\n\n\u2726 Not the most dramatic one \u2014 the one that still lives in your body.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "A release \u2014 something has been completing and I have been learning to let it go.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Turning Flame",
+        "ar_secondary": "The Resigned One",
+        "wi": "Self-Exile Grief",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "B",
+        "text": "A grief \u2014 loss or absence I am still learning to carry without it consuming me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Abandonment Anxiety",
+        "mp": "Fault-Loop Mirror"
+      },
+      {
+        "code": "C",
+        "text": "An expansion \u2014 new beginnings opening me into ground I've never stood on before.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "A transformation \u2014 a body, health, or identity shift that has been quietly remaking me.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Identity Collapse Field"
+      },
+      {
+        "code": "E",
+        "text": "A steadiness \u2014 no great upheaval, but a deepening of what was already here.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Aligned One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  }
+]

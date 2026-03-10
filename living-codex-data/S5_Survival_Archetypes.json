@@ -1,0 +1,678 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "When I feel emotionally unsafe, I tend to\u2026\n\n\u2726 Watch the first thing your body does before your mind catches up.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Pause, breathe, and assess what's actually happening \u2014 I can hold the discomfort without reacting.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "B",
+        "text": "Become overly nice, helpful, or agreeable \u2014 if I keep everyone comfortable, I'm safe.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Soother",
+        "wi": "Conditional Worth Coding",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Get defensive, sharp, or armored \u2014 I meet threat with threat before it reaches me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Achiever",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Criticism-Armoring Loop"
+      },
+      {
+        "code": "D",
+        "text": "Overfunction \u2014 take control, fix something, organize the room \u2014 anything to feel less helpless.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Shielded One",
+        "wi": "Control Mirrors / External Authority Coding",
+        "mp": "Overprocessing Field"
+      },
+      {
+        "code": "E",
+        "text": "Withdraw completely \u2014 it feels safer to disappear than to stay and be hurt.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Drifting One",
+        "wi": "Wound of Disconnection",
+        "mp": "Reactive Withdrawal Response"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "When I feel out of control \u2014 emotionally or in a situation \u2014 I tend to\u2026\n\n\u2726 The response that happens before you choose a better one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Sit with the discomfort \u2014 I've learned that control isn't the same as safety.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "B",
+        "text": "Try to fix, plan, or manage everything around me \u2014 if I can contain it, I can survive it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Shielded One",
+        "wi": "Control Mirrors / External Authority Coding",
+        "mp": "Overprocessing Field"
+      },
+      {
+        "code": "C",
+        "text": "Blame myself \u2014 I must have caused the chaos somehow.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "D",
+        "text": "Shut down \u2014 I go silent, go distant, or go somewhere else inside myself.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Drifting One",
+        "wi": "Wound of Disconnection",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "E",
+        "text": "Escape \u2014 through distraction, fantasy, substances, or anything that removes me from the feeling.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Soul Drift Pattern"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "When something painful happens, my first instinct is usually to\u2026\n\n\u2726 Not the response you're proud of. The one that comes first.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Replay it over and over \u2014 trying to understand what went wrong so it never happens again.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Meaning Miner",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Overprocessing Field"
+      },
+      {
+        "code": "B",
+        "text": "Allow the pain to move through me \u2014 I've learned that feeling it is how it completes.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Returning One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "Immediately try to make it better \u2014 for myself or for others \u2014 because sitting in pain feels unbearable.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "D",
+        "text": "Withdraw completely \u2014 I need to shut everything out until I can breathe again.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Shielded One",
+        "wi": "Wound of Disconnection",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "E",
+        "text": "Pretend I'm fine \u2014 I keep it inside and show nothing, even if I'm hurting deeply.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Ghost",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Silence-as-Safety Reflex"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "When I feel like survival is all I have, I tend to\u2026\n\n\u2726 The thing you reach for when there's nothing left.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Disappear inward, hoping no one notices my struggle.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Overcompensate by controlling or fixing everything around me.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Distract myself until the pressure fades.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Blame myself for not being stronger.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Wonder if I'll ever find my way out of survival mode.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "When I sense someone might reject me \u2014 even before it happens \u2014 I tend to\u2026\n\n\u2726 The preemptive move. What the body does before the mind decides.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Pull away first \u2014 I'd rather leave before I'm left.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Abandonment Anticipation",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "B",
+        "text": "Shift who I am to be more likable, less threatening, more of what they want.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Conditional Love Coding",
+        "mp": "Adaptive Camouflage Pattern"
+      },
+      {
+        "code": "C",
+        "text": "Stay present with the feeling and remind myself that rejection doesn't define my worth.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "D",
+        "text": "Pretend it doesn't matter \u2014 but something tightens beneath the surface.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Resigned One",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "E",
+        "text": "Work harder \u2014 prove my value before they have the chance to find it lacking.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "When I feel emotionally overwhelmed \u2014 more than I can carry \u2014 I tend to\u2026\n\n\u2726 The overflow response. Before the management strategy.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Get irritated or lash out \u2014 I don't mean to, but the pressure has nowhere else to go.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "B",
+        "text": "Take care of everyone else instead \u2014 helping others lets me avoid what I'm feeling.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Pause, tend to my body, and find my center before I do anything else.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "D",
+        "text": "Shut down completely \u2014 go still, go quiet, go numb.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Wound of Disconnection",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      },
+      {
+        "code": "E",
+        "text": "Numb out \u2014 TV, food, scrolling, anything that gets me out of my own head.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Wound of Disconnection",
+        "mp": "Soul Drift Pattern"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "When I notice I've gone into a survival pattern, I usually\u2026\n\n\u2726 The moment of recognition \u2014 what happens right after you see it.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Tell myself I'll do better next time and move on.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Feel ashamed that I keep returning to the same responses.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Try to override it immediately \u2014 force a different response.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Justify why the pattern made sense given the circumstances.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Notice it and stay curious \u2014 without judgment or rush to fix it.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "When I feel I'm not good enough \u2014 that quiet internal verdict \u2014 I usually\u2026\n\n\u2726 Not the self-talk you want to have. The one that's already running.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Push myself harder \u2014 achieve, perform, prove it wrong through output.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop"
+      },
+      {
+        "code": "B",
+        "text": "Shrink or silence myself \u2014 if I'm not visible, I can't be found lacking.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Quiet Mystic",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Replay past moments that confirm it \u2014 building the case against myself.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "D",
+        "text": "Remind myself of my innate value \u2014 the verdict isn't true, and I know it.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "E",
+        "text": "Distract myself \u2014 reach for something that moves the feeling out of reach.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Soul Drift Pattern"
+      }
+    ]
+  },
+  {
+    "id": "Q9",
+    "question_text": "When I feel emotionally exposed or vulnerable \u2014 more seen than I intended \u2014 I tend to\u2026\n\n\u2726 The impulse before you manage it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Retreat \u2014 suddenly I don't want to continue the conversation.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Drifting One",
+        "wi": "Wound of Disconnection",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "B",
+        "text": "Breathe into the discomfort and stay open \u2014 vulnerability is not the same as danger.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "Laugh it off or change the subject \u2014 the intensity needs somewhere to go.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Adaptive Camouflage Pattern"
+      },
+      {
+        "code": "D",
+        "text": "Soften or sugarcoat what I share \u2014 make it more palatable so I'm harder to reject.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Soother",
+        "wi": "Conditional Love Coding",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "E",
+        "text": "Over-explain myself \u2014 if I can pre-answer every objection, I might stay safe.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Overprocessing Field"
+      }
+    ]
+  },
+  {
+    "id": "Q10",
+    "question_text": "When I feel too exposed in front of others, I often\u2026\n\n\u2726 The involuntary response before the chosen one.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Joke or deflect so they don't see what's real.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Shrink or minimize myself to stay below notice.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Lash out or sharpen to cover the softness.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Go quiet and wait for the moment to pass.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Pretend I'm fine, though I feel raw underneath.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q11",
+    "question_text": "When I feel rejected or not chosen \u2014 passed over, overlooked, left out \u2014 I tend to\u2026\n\n\u2726 The wound response. What it actually does to you.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Wonder what I did wrong \u2014 replay what I could have done differently.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "B",
+        "text": "Acknowledge the pain and trust that what's truly aligned for me won't require me to beg for it.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "C",
+        "text": "Shut down emotionally \u2014 it's safer not to feel anything for a while.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Wound of Disconnection",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      },
+      {
+        "code": "D",
+        "text": "Try to win them back \u2014 overgiving, over-performing, proving my worth after the fact.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Soother",
+        "wi": "Conditional Worth Coding",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "E",
+        "text": "Become closed or bitter \u2014 I armor up so it can't reach me again.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Abandonment Anticipation",
+        "mp": "Reactive Withdrawal Response"
+      }
+    ]
+  },
+  {
+    "id": "Q12",
+    "question_text": "When I sense others expect something of me \u2014 performance, availability, agreement\u2026\n\n\u2726 The internal response before the external one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Say yes before I've even checked in with myself \u2014 disappointing people feels dangerous.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Soother",
+        "wi": "Conditional Love Coding",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "B",
+        "text": "Resent the pressure quietly \u2014 but I don't express it because that feels worse.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Avoid the situation entirely \u2014 delay, go quiet, or disappear.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Shielded One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "D",
+        "text": "Check in with myself first \u2014 what do I actually want? That comes before the answer.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "E",
+        "text": "Analyze what's expected and figure out how to deliver it without friction.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Achiever",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop"
+      }
+    ]
+  },
+  {
+    "id": "Q13",
+    "question_text": "When life feels uncertain or beyond my control, I tend to\u2026\n\n\u2726 The survival strategy that runs when the ground shifts.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Plan obsessively \u2014 micromanage details, make lists, organize what I can reach.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Shielded One",
+        "wi": "Control Mirrors / External Authority Coding",
+        "mp": "Overprocessing Field"
+      },
+      {
+        "code": "B",
+        "text": "Distract myself with anything that numbs the uncertainty.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "C",
+        "text": "Anchor into my body, values, and practices \u2014 I've built enough ground to stand on.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "D",
+        "text": "Collapse or go still \u2014 the helplessness is bigger than my capacity to act.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Resigned One",
+        "wi": "Wound of Disconnection",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      },
+      {
+        "code": "E",
+        "text": "Rebel or resist \u2014 I push back against any structure that feels imposed.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      }
+    ]
+  }
+]

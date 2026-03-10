@@ -1,0 +1,626 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "When I start to feel emotionally close to someone\u2026\n\n\u2726 Notice the first internal movement \u2014 toward or away.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I feel concern rise \u2014 what if they drift away once they really know me?",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Abandonment Anxiety",
+        "mp": "Reunion Longing Field"
+      },
+      {
+        "code": "B",
+        "text": "I welcome the closeness while staying rooted in who I am.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "C",
+        "text": "I find myself stepping back \u2014 closeness has a way of costing me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Enmeshment Burn / Loss of Autonomy",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "D",
+        "text": "I adjust myself to match what I sense they want \u2014 even if it's not fully me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Conditional Love Coding",
+        "mp": "Adaptive Camouflage Pattern"
+      },
+      {
+        "code": "E",
+        "text": "I feel the pull toward connection and stay curious about where it leads.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Conditional Love Coding",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "When conflict arises with someone important to me\u2026\n\n\u2726 The first impulse \u2014 before the managed response.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I avoid the conversation to preserve peace \u2014 I'd rather hold it than risk the fight.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Resigned One",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "B",
+        "text": "I stay present, listen fully, and speak honestly even when it's uncomfortable.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "C",
+        "text": "I take responsibility even when it's not mine \u2014 ending the tension matters more.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "D",
+        "text": "I push harder until I'm heard \u2014 even if it escalates.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Conditional Worth Coding",
+        "mp": "Criticism-Armoring Loop"
+      },
+      {
+        "code": "E",
+        "text": "I pause to understand both sides, then move forward with care.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Meaning Miner",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "When I look back honestly at my patterns in love and close relationships\u2026\n\n\u2726 Not the story you tell others \u2014 the one your body still holds.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I gave more than I received \u2014 and convinced myself that was how love worked.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "B",
+        "text": "I felt safe, met, and able to be my whole self.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Returning One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "I often felt small \u2014 like I had to prove my worth or earn my place.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Conditional Worth Coding",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "D",
+        "text": "I became who I thought they needed \u2014 and sometimes lost myself in the becoming.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Conditional Love Coding",
+        "mp": "Adaptive Camouflage Pattern"
+      },
+      {
+        "code": "E",
+        "text": "I can honor the lessons while holding respect for myself and for them.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "When someone I care about withdraws \u2014 goes quiet, pulls back, creates distance\u2026\n\n\u2726 The internal event, not the strategy you use to manage it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I feel panic or urgency rise \u2014 I need to reconnect before they're gone.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Drifting One",
+        "wi": "Abandonment Anxiety",
+        "mp": "Reunion Longing Field"
+      },
+      {
+        "code": "B",
+        "text": "I match their distance \u2014 I shut down too, even if it hurts.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Ghost",
+        "wi": "Wound of Disconnection",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "C",
+        "text": "I overanalyze \u2014 trying to find what I did to cause the shift.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "D",
+        "text": "I give them space without losing my own center \u2014 I can hold both.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "E",
+        "text": "I check in with myself first, then approach them with care when the time feels right.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Quiet Mystic",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Abandonment Anxiety",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "When I notice red flags in a relationship \u2014 things that don't sit right\u2026\n\n\u2726 What you actually do, not what you know you should do.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I minimize them or hope they'll change \u2014 I don't want to lose what we have.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Escaping One",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "B",
+        "text": "I adapt myself to make things smoother \u2014 become less, need less.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Soother",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "I acknowledge them clearly and let that knowing guide my next move.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "D",
+        "text": "I step back to protect myself \u2014 even if it means losing the connection.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "E",
+        "text": "I confront the behavior directly \u2014 sometimes with more intensity than I intended.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Achiever",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Criticism-Armoring Loop"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "When someone is fully present and available to me, I sometimes\u2026\n\n\u2726 Not what you want to feel. What actually happens.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel like it's too much \u2014 I want to pull back.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Doubt whether they're being genuine.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Overcompensate by giving more than I need to.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Relax into it fully without fear.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Feel both comforted and unsettled at the same time.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "When I'm in a relationship where I feel truly seen, my deepest fear tends to be\u2026\n\n\u2726 The one beneath the one you usually name.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "That I'll do something to ruin it \u2014 that the version they see will disappoint them.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Conditional Worth Coding",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "B",
+        "text": "That it won't last \u2014 that loss is only a matter of time.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Abandonment Anxiety",
+        "mp": "Reunion Longing Field"
+      },
+      {
+        "code": "C",
+        "text": "That I don't actually deserve it \u2014 that I've been performing and they haven't noticed.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Ghost",
+        "wi": "Conditional Love Coding",
+        "mp": "Adaptive Camouflage Pattern"
+      },
+      {
+        "code": "D",
+        "text": "That my needs will eventually become too much for them to hold.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Resigned One",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "E",
+        "text": "There is no fear beneath the love \u2014 I can hold both the connection and the uncertainty.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "When I feel the need for more space or autonomy in a relationship\u2026\n\n\u2726 How you ask \u2014 or don't ask \u2014 for what you need.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I don't ask \u2014 I just start to slowly disappear or go quiet.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Drifting One",
+        "wi": "Enmeshment Burn / Loss of Autonomy",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "B",
+        "text": "I ask for it directly and without guilt \u2014 my needs are valid.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "C",
+        "text": "I hint or signal rather than name it \u2014 asking feels too risky.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "D",
+        "text": "I resent the closeness instead of addressing it \u2014 the irritation comes out sideways.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "E",
+        "text": "I name the need and negotiate it together \u2014 space and closeness can coexist.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Returning One",
+        "wi": "Enmeshment Burn / Loss of Autonomy",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q9",
+    "question_text": "When I find myself giving more than I'm receiving in a relationship\u2026\n\n\u2726 When the imbalance is clearly visible to you \u2014 what do you do?",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I give more \u2014 maybe if I pour enough in, balance will come.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "B",
+        "text": "I name it honestly and ask for reciprocity \u2014 clearly and without apology.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "C",
+        "text": "I silently resent it but say nothing \u2014 the cost of speaking feels too high.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "D",
+        "text": "I start to withdraw \u2014 emotional distance becomes the boundary I can't name.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Wound of Disconnection",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "E",
+        "text": "I notice the pattern and start to examine what in me allows the imbalance to continue.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q10",
+    "question_text": "When I think about what I most deeply want from a close relationship\u2026\n\n\u2726 Not the socially acceptable answer \u2014 the honest one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "To be loved unconditionally \u2014 exactly as I am, without needing to earn it.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Returning One",
+        "wi": "Abandonment Anxiety",
+        "mp": "Reunion Longing Field"
+      },
+      {
+        "code": "B",
+        "text": "To be fully known and still chosen \u2014 even in the parts I hide from everyone.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Conditional Love Coding",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "C",
+        "text": "Safety \u2014 to rest into closeness without bracing for the loss of it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Shielded One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "D",
+        "text": "A partnership in which both of us are becoming \u2014 and we choose that together.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "To give generously and feel that generosity returned in kind.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      }
+    ]
+  },
+  {
+    "id": "Q11",
+    "question_text": "When I sense I'm losing myself inside a relationship \u2014 becoming less me, more them\u2026\n\n\u2726 The moment of noticing. What happens right after you see it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I don't notice until I'm far in \u2014 by then, I barely recognize myself.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Ghost",
+        "wi": "Conditional Love Coding",
+        "mp": "Adaptive Camouflage Pattern"
+      },
+      {
+        "code": "B",
+        "text": "I notice but stay \u2014 I tell myself it's what love requires.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Resigned One",
+        "wi": "Enmeshment Burn / Loss of Autonomy",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "I return to myself \u2014 sometimes gradually, sometimes all at once.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "D",
+        "text": "I feel the pull between self and connection and don't yet know how to hold both.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Enmeshment Burn / Loss of Autonomy",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "E",
+        "text": "I freeze \u2014 unsure if reclaiming myself means losing the relationship.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Abandonment Anticipation",
+        "mp": "Threshold Dissolution"
+      }
+    ]
+  },
+  {
+    "id": "Q12",
+    "question_text": "My first instinct in intimacy is often\u2026\n\n\u2726 Before the strategy \u2014 the raw first movement.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "To hold back parts of myself until I feel safer.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "To dive in quickly, even if it feels risky.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "To analyze whether they'll stay once they know me.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "To trust the flow and see what unfolds.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "To question if I'm ready for this much closeness.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  }
+]

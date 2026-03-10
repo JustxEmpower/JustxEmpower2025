@@ -1,0 +1,626 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "When intense emotion moves through my body, I\u2026\n\n\u2726 The first thing the body does before the mind steps in to manage it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Numb it \u2014 distraction, food, scrolling, busyness \u2014 anything to soften the signal.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Escaping One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "B",
+        "text": "Stay present \u2014 I allow myself to feel it without rushing to make it stop.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "Try to think my way out of it \u2014 analysis feels safer than sensation.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Control Mirrors / External Authority Coding",
+        "mp": "Internalized Rationality Code"
+      },
+      {
+        "code": "D",
+        "text": "Freeze or go blank \u2014 I don't know what I'm feeling or what to do with it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Divine Detachment",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "E",
+        "text": "Redirect \u2014 I clean, move, organize, or do something physical to burn it off.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Shielded One",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Overprocessing Field"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "When I slow down and notice my body \u2014 just turn attention inward \u2014 I\u2026\n\n\u2726 Before the judgment. What do you actually find?",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel disconnected or numb \u2014 there's less sensation than I'd expect.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "Divine Detachment",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      },
+      {
+        "code": "B",
+        "text": "Hear critical thoughts about how my body feels or how it looks.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "C",
+        "text": "Notice discomfort or tension, then instinctively want to pull away from it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Shielded One",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "D",
+        "text": "Find it difficult to stay present \u2014 restlessness or distraction pulls me out.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Abandonment Anticipation",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "E",
+        "text": "Sense clear feelings and receive subtle messages \u2014 I trust what I find here.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "When I try to be fully present in my body, I\u2026\n\n\u2726 The automatic response \u2014 before you try to override it.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel like I'm performing presence rather than living it.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Immediately judge or critique what I sense.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Disconnect \u2014 it's easier to float above myself.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Get restless or agitated, like I don't belong there.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Question whether embodied presence is even possible for me.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "When I feel overwhelmed or anxious, what my body does first is\u2026\n\n\u2726 The physiological response before the strategy.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Actively disconnect \u2014 I mentally step away or leave my body.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Ghost",
+        "wi": "Wound of Disconnection",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "B",
+        "text": "Clench, tighten, or stop breathing \u2014 armor rises without my permission.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "C",
+        "text": "Try to solve or rationalize the feeling \u2014 if I understand it, it will stop.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Escaping One",
+        "wi": "Control Mirrors / External Authority Coding",
+        "mp": "Internalized Rationality Code"
+      },
+      {
+        "code": "D",
+        "text": "Ground \u2014 breath, touch, stillness \u2014 I've learned to meet the sensation before managing it.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Stay busy or productive \u2014 override the sensation with momentum.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Overprocessing Field"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "My relationship with physical touch feels\u2026\n\n\u2726 Not the ideal version \u2014 the honest current one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Receptive \u2014 I welcome safe, conscious touch without bracing or managing.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Living Flame",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "B",
+        "text": "Numb \u2014 I don't always register how it makes me feel or what it means.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "Divine Detachment",
+        "mp": "Sensory Flatline Pattern"
+      },
+      {
+        "code": "C",
+        "text": "Guarded \u2014 I tense or flinch when touched unexpectedly.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "D",
+        "text": "Conditional \u2014 I crave it sometimes but also fear it in equal measure.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Shielded One",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "E",
+        "text": "Avoidant \u2014 I often bypass or sidestep physical contact.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Drifting One",
+        "wi": "Abandonment Anticipation",
+        "mp": "Reactive Withdrawal Response"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "When I try to rest \u2014 truly stop, without agenda or screen or task \u2014 I\u2026\n\n\u2726 Not what you do with rest. What happens inside when you attempt it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel guilty \u2014 rest reads as laziness and laziness feels dangerous.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop"
+      },
+      {
+        "code": "B",
+        "text": "Drop into it fully \u2014 my body knows how to receive rest.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "Get restless \u2014 stillness feels like a threat, not a resource.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Escaping One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "D",
+        "text": "Find something else to do \u2014 I don't stay still for long.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Shielded One",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Overprocessing Field"
+      },
+      {
+        "code": "E",
+        "text": "Space out or disconnect \u2014 I go somewhere else inside myself rather than truly landing.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "Divine Detachment",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "When I notice pleasure, aliveness, or physical joy in my body, I\u2026\n\n\u2726 The moment after delight \u2014 what follows?",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Welcome it \u2014 pleasure is sacred and it belongs to me.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Living Flame",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "B",
+        "text": "Feel shame or try to contain it \u2014 something says it's too much.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Disconnect \u2014 I can't stay present long enough to receive it fully.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Wound of Disconnection",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "D",
+        "text": "Overindulge, then feel regret \u2014 the pleasure becomes evidence against me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Fault-Loop Mirror"
+      },
+      {
+        "code": "E",
+        "text": "Feel confused \u2014 I don't have a clear sense of what I'm allowed to enjoy.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Guarded Mystic",
+        "wi": "Intuitive Disorientation",
+        "mp": "Overprocessing Field"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "When I sense pleasure, aliveness, or vitality moving through me, I\u2026\n\n\u2726 The automatic response to being alive in your body.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Doubt it \u2014 as if my body can't really feel that.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Overanalyze it until the sensation passes.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Distract myself \u2014 I don't want to get lost in the feeling.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Dismiss it quickly \u2014 it feels fleeting or untrustworthy.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Allow it briefly, then feel guilt or self-consciousness.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q9",
+    "question_text": "My relationship with movement \u2014 how I inhabit my body in motion \u2014 feels\u2026\n\n\u2726 Not the workout or the fitness goal. The felt experience of moving.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Disconnected \u2014 I rarely move with presence, mostly on autopilot.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Ghost",
+        "wi": "Wound of Disconnection",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      },
+      {
+        "code": "B",
+        "text": "Punitive \u2014 I move to change or control my body, not to inhabit it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop"
+      },
+      {
+        "code": "C",
+        "text": "Sacred \u2014 movement is how I come home to myself.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Living Flame",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "Sporadic \u2014 sometimes present and alive in it, often not.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Intuitive Disorientation",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "E",
+        "text": "Uncertain \u2014 I'm not sure how to be in my body without direction.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Guarded Mystic",
+        "wi": "Intuitive Disorientation",
+        "mp": "Fault-Loop Mirror"
+      }
+    ]
+  },
+  {
+    "id": "Q10",
+    "question_text": "When I'm triggered emotionally, the first thing my body does is\u2026\n\n\u2726 The physiological reflex \u2014 before recovery or choice.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Disconnect \u2014 I leave my body before I realize I've gone.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Resigned One",
+        "wi": "Wound of Disconnection",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "B",
+        "text": "React from my head \u2014 I analyze or defend before I can feel.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Shielded One",
+        "wi": "Control Mirrors / External Authority Coding",
+        "mp": "Internalized Rationality Code"
+      },
+      {
+        "code": "C",
+        "text": "Get flooded \u2014 the feeling comes so fast I have to shut down to survive it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "D",
+        "text": "Mask it \u2014 my face settles into calm while the inside contracts.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "E",
+        "text": "Anchor \u2014 breath or stillness, before I respond.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      }
+    ]
+  },
+  {
+    "id": "Q11",
+    "question_text": "When I try to self-regulate \u2014 to settle, soothe, or return to my center \u2014 I usually\u2026\n\n\u2726 Not what works ideally. What you actually reach for.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Reach for something external \u2014 food, phone, a person \u2014 before I try anything internal.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "B",
+        "text": "Have practices that genuinely bring me home \u2014 breath, movement, touch, stillness.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "Struggle to self-regulate at all \u2014 the window of tolerance feels very small.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Resigned One",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "D",
+        "text": "Intellectualize \u2014 I think about what I should do more than I actually do it.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Control Mirrors / External Authority Coding",
+        "mp": "Internalized Rationality Code"
+      },
+      {
+        "code": "E",
+        "text": "Push through \u2014 I override the signal and keep going until I can't.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Shielded One",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Overprocessing Field"
+      }
+    ]
+  },
+  {
+    "id": "Q12",
+    "question_text": "When I imagine living fully in my body \u2014 not escaping it, not fighting it, just inhabiting it\u2026\n\n\u2726 Not the aspiration. What arises when you hold the image.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel afraid \u2014 it seems unsafe to be that present.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Ghost",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "B",
+        "text": "Feel resistance \u2014 I don't know how to begin or where the door is.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Intuitive Disorientation",
+        "mp": "Fault-Loop Mirror"
+      },
+      {
+        "code": "C",
+        "text": "Sense shame \u2014 vulnerability lives in that much presence.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "D",
+        "text": "Feel grief \u2014 I've been disconnected for so long.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Mid-Void Traveler",
+        "wi": "Self-Exile Grief",
+        "mp": "Reunion Longing Field"
+      },
+      {
+        "code": "E",
+        "text": "Feel inspired and already moving toward it.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      }
+    ]
+  }
+]

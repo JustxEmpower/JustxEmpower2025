@@ -1,0 +1,626 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "When I'm criticized or made to feel wrong, I\u2026\n\n\u2726 The wound response before the grown-up one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel instantly defensive or shut down \u2014 my armor rises before I can choose otherwise.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Criticism-Armoring Loop"
+      },
+      {
+        "code": "B",
+        "text": "Consider the feedback honestly, keep what serves me, and release the rest.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "C",
+        "text": "Apologize or try to make it right \u2014 even when I wasn't at fault.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "D",
+        "text": "Replay the moment obsessively \u2014 searching for what I did wrong.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "E",
+        "text": "Speak my truth \u2014 even if my voice shakes.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Returning One",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Truth-Claiming Field"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "When I need help or support, I\u2026\n\n\u2726 What actually happens \u2014 not the version where you handle it gracefully.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Avoid asking \u2014 I don't want to be a burden or seem like I can't manage.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Conditional Worth Coding",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "B",
+        "text": "Drop hints or hope someone notices without me having to say it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Ask directly, but feel anxious while I wait for the response.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "D",
+        "text": "Ask openly and receive without guilt \u2014 I'm allowed to need things.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "E",
+        "text": "Decide based on my own clarity \u2014 not on fear of being too much.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Returning One",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "When someone I trust hurts me, I\u2026\n\n\u2726 Not the response that protects the relationship. The first one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Withdraw completely \u2014 close the door and go quiet.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Ghost",
+        "wi": "Wound of Disconnection",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "B",
+        "text": "Share what I felt honestly and set a boundary \u2014 even if it's uncomfortable.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "C",
+        "text": "Pretend I'm fine to avoid conflict \u2014 I process it alone where no one can see.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "D",
+        "text": "Try to fix or repair the bond immediately \u2014 the rupture is unbearable.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "E",
+        "text": "Hold space for what I'm feeling, then choose the most aligned response.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Returning One",
+        "wi": "Wound of Disconnection",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "When pain feels too familiar \u2014 like something you've been here before\u2026\n\n\u2726 The internal movement when the wound recognizes itself.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I assume it means nothing will ever change.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "I try to erase it quickly through distraction.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "I look for someone else to fix or soothe it.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "I minimize it \u2014 tell myself it isn't that important.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "I wonder if I somehow created it by being who I am.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "When I remember my earliest hurts \u2014 the ones that formed before I had language for them\u2026\n\n\u2726 Not the story. The sensation.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I feel the same emotions as if it's happening now \u2014 the gap between then and now collapses.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Mid-Void Traveler",
+        "wi": "Self-Exile Grief",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "B",
+        "text": "I hold compassion for my younger self \u2014 she was doing the best she could.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Returning One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "I struggle to remember clearly \u2014 but I feel a heaviness that doesn't have a name.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Intuition Suppression",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "D",
+        "text": "I analyze the memory \u2014 trying to understand why it happened so it makes sense.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Meaning Miner",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Purpose Amnesia",
+        "mp": "Meaning-Rush Reflex"
+      },
+      {
+        "code": "E",
+        "text": "I witness it with care \u2014 present enough to feel it, grounded enough not to be swept away.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Quiet Mystic",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Self-Exile Grief",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "When I feel unseen or unheard \u2014 like I'm not registering in someone's awareness\u2026\n\n\u2726 The internal experience of invisibility.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I shrink back and stop trying \u2014 the effort to be seen starts to feel humiliating.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "B",
+        "text": "I stay connected to my own truth \u2014 my value doesn't depend on being witnessed.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "C",
+        "text": "I speak louder or push for recognition \u2014 I refuse to be invisible.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Conditional Worth Coding",
+        "mp": "Criticism-Armoring Loop"
+      },
+      {
+        "code": "D",
+        "text": "I find another way to prove my worth \u2014 through performance, output, or contribution.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop"
+      },
+      {
+        "code": "E",
+        "text": "I name it with care \u2014 I can say I don't feel seen without making it a fight.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Returning One",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Truth-Claiming Field"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "In moments I feel unseen, I often\u2026\n\n\u2726 The reflex \u2014 not the considered response.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Disappear inwardly, even while present in the room.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Overperform or exaggerate to capture attention.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Withdraw into silence until it passes.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Question if I deserve to be seen at all.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Shift focus outward to stop feeling the sting.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "When I sit with the feeling of not being enough \u2014 that quiet internal verdict \u2014 it most often sounds like\u2026\n\n\u2726 Whose voice is it actually?",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "You always fall short. No matter how hard you try, you miss the mark.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "B",
+        "text": "You're too much \u2014 your needs, your feelings, your presence overwhelms people.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "C",
+        "text": "That voice isn't mine \u2014 I know it as the wound, not as truth.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "D",
+        "text": "You'll be left. People always leave once they see who you really are.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Resigned One",
+        "wi": "Abandonment Anxiety",
+        "mp": "Reunion Longing Field"
+      },
+      {
+        "code": "E",
+        "text": "I hear the voice but I'm learning to question it rather than obey it.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Conditional Worth Coding",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q9",
+    "question_text": "The wound I carry that most shapes how I move through the world is\u2026\n\n\u2726 This question doesn't ask for the worst thing that happened. It asks what stayed.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "The wound of not being enough \u2014 of always needing to prove, earn, perform.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop"
+      },
+      {
+        "code": "B",
+        "text": "The wound of abandonment \u2014 of loving people who leave, or fearing they will.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Abandonment Anxiety",
+        "mp": "Reunion Longing Field"
+      },
+      {
+        "code": "C",
+        "text": "I am no longer primarily defined by a wound \u2014 I carry the story without living inside it.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "The wound of invisibility \u2014 of being present but not seen, heard, or chosen.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "E",
+        "text": "The wound of over-responsibility \u2014 of carrying more than was ever mine to carry.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Soother",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      }
+    ]
+  },
+  {
+    "id": "Q10",
+    "question_text": "When I imagine what it would feel like to no longer be driven by the wound\u2026\n\n\u2726 Not performing wellness. What actual freedom from it might feel like.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Foreign \u2014 the wound is so woven into how I function I'm not sure who I'd be without it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Drifting One",
+        "wi": "Self-Exile Grief",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      },
+      {
+        "code": "B",
+        "text": "Light \u2014 like setting down something I didn't realize I was still carrying.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Self-Exile Grief",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "C",
+        "text": "I am already in that process \u2014 I'm not free yet, but I'm moving toward it.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "D",
+        "text": "Terrifying \u2014 my defenses have kept me safe and I'm not sure how to live without them.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "E",
+        "text": "Desirable but distant \u2014 I want it, I just don't know how to get there.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Existential Disenchantment",
+        "mp": "Meaning-Rush Reflex"
+      }
+    ]
+  },
+  {
+    "id": "Q11",
+    "question_text": "When I think about the version of me that existed before the wound took hold\u2026\n\n\u2726 She's still in there somewhere. What do you know about her?",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I don't remember her clearly \u2014 she's been quiet for so long.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "Self-Exile Grief",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      },
+      {
+        "code": "B",
+        "text": "I can feel her \u2014 she's closer than she's been in years.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "She felt like someone else \u2014 I'm not sure I can get back to her.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Resigned One",
+        "wi": "Existential Disenchantment",
+        "mp": "Identity Collapse Field"
+      },
+      {
+        "code": "D",
+        "text": "I grieve her \u2014 she was softer, more open, before the world taught her to armor up.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Mid-Void Traveler",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Self-Exile Grief",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "E",
+        "text": "She is who I'm becoming \u2014 not going back, but forward into someone she would recognize.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Self-Exile Grief",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q12",
+    "question_text": "When I think about what has cost me the most to carry \u2014 the weight I was never meant to bear alone\u2026\n\n\u2726 Not the polished wound story. The one still living in your body.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "The silence \u2014 all the things I swallowed, the truths I held that were never allowed to land.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Ghost",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "B",
+        "text": "The guilt \u2014 the belief that I was responsible for everyone else's pain and my own.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Soother",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "I am learning to put it down \u2014 not all at once, but piece by piece.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "The loneliness of being in a room full of people and still feeling completely unseen.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "E",
+        "text": "The not-enoughness \u2014 the endless accounting of my own deficiency.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Achiever",
+        "wi": "Conditional Worth Coding",
+        "mp": "Internal Blame Loop"
+      }
+    ]
+  }
+]

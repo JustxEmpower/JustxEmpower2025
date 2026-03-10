@@ -1,0 +1,676 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "I've often felt most drawn to masculine energy that seemed\u2026\n\n\u2726 Not the partner you chose consciously. The pull before the choice.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Intense \u2014 mysterious, hard to reach, emotionally unpredictable.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Reactive Withdrawal Response",
+        "mmi": "The Withholding Masculine"
+      },
+      {
+        "code": "B",
+        "text": "Wounded \u2014 carrying pain I believed I could help or redeem.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex",
+        "mmi": "The Broken Masculine"
+      },
+      {
+        "code": "C",
+        "text": "Powerful \u2014 commanding, dominant, larger than the room.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Shape-Shifter",
+        "wi": "Control Mirrors / External Authority Coding",
+        "mp": "Peacekeeping Reflex",
+        "mmi": "The Overpowering Masculine"
+      },
+      {
+        "code": "D",
+        "text": "Steady \u2014 present, self-aware, emotionally mature and safe.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment",
+        "mmi": "The Balanced Masculine"
+      },
+      {
+        "code": "E",
+        "text": "Elusive \u2014 running hot and cold, drawing me in then pulling back.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Abandonment Anticipation",
+        "mp": "Reactive Withdrawal Response",
+        "mmi": "The Avoidant Masculine"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "In relationship with the masculine, I've often felt\u2026\n\n\u2726 The pattern beneath the relationship \u2014 the wound it activated.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Like I had to prove my worth through effort, giving, or performance.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Achiever",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop",
+        "mmi": "The Extractive Masculine"
+      },
+      {
+        "code": "B",
+        "text": "Responsible for holding the emotional center \u2014 managing stability for both of us.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex",
+        "mmi": "The Unevolved Masculine"
+      },
+      {
+        "code": "C",
+        "text": "Met in equality and respect \u2014 my truth welcomed and honored.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field",
+        "mmi": "The Balanced Masculine"
+      },
+      {
+        "code": "D",
+        "text": "Invisible \u2014 my needs overlooked, minimized, or simply not seen.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Neglect / Invisible Child Wound",
+        "mp": "Mirror of Invalidation",
+        "mmi": "The Withholding Masculine"
+      },
+      {
+        "code": "E",
+        "text": "Controlled \u2014 my voice or freedom quietly muted to maintain connection.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Control Mirrors / External Authority Coding",
+        "mp": "Sacred Silencing",
+        "mmi": "The Controlling Masculine"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "In past relational dynamics with the masculine, I've often found myself\u2026\n\n\u2726 The behavioral pattern \u2014 what you kept doing even when you saw it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Carrying emotional responsibility for both of us \u2014 regulating moods, supporting growth.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex",
+        "mmi": "The Unevolved Masculine"
+      },
+      {
+        "code": "B",
+        "text": "Seeking reconnection when distance appeared \u2014 replaying what went wrong.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Abandonment Anticipation",
+        "mp": "Overprocessing Field",
+        "mmi": "The Withdrawn Mirror"
+      },
+      {
+        "code": "C",
+        "text": "Minimizing my needs or softening my edges to maintain the connection.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Conditional Love Coding",
+        "mp": "Adaptive Camouflage Pattern",
+        "mmi": "The Fragility Trigger"
+      },
+      {
+        "code": "D",
+        "text": "Being met in mutual respect, care, and recognition.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field",
+        "mmi": "The Balanced Masculine"
+      },
+      {
+        "code": "E",
+        "text": "Experiencing an initial pedestal \u2014 then criticism or diminishment over time.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Criticism-Armoring Loop",
+        "mmi": "The Narcissistic Arc"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "When I imagine the masculine meeting me with real steadiness and integrity, I\u2026\n\n\u2726 Not what you want to feel. What actually moves through you.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel a surge of hope \u2014 then immediately brace for the letdown.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Scan for what's hidden \u2014 part of me doesn't trust it yet.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Soften briefly, then pull back to stay in control.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Lose the feeling by overanalyzing what it 'means.'",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Go quiet inside \u2014 unsure how to receive what I've wanted.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "The earliest masculine imprint I carry \u2014 from father, figure, or early force \u2014 is\u2026\n\n\u2726 Not the relationship you understood \u2014 the one your nervous system learned from.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Distant or absent \u2014 teaching me to rely deeply on myself.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Shielded One",
+        "wi": "Neglect / Invisible Child Wound",
+        "mp": "Emotional Armoring",
+        "mmi": "The Vanishing Masculine"
+      },
+      {
+        "code": "B",
+        "text": "Volatile or unpredictable \u2014 teaching me to read the room and anticipate shifts.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Overprocessing Field",
+        "mmi": "The Explosive Masculine"
+      },
+      {
+        "code": "C",
+        "text": "Present but inconsistent \u2014 love felt uncertain and absence felt personal.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Conditional Love Coding",
+        "mp": "Reactive Withdrawal Response",
+        "mmi": "The Inconsistent Masculine"
+      },
+      {
+        "code": "D",
+        "text": "Strong, steady, and attuned \u2014 rooting me in trust and presence.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field",
+        "mmi": "The Integrated Masculine"
+      },
+      {
+        "code": "E",
+        "text": "Passive or collapsed \u2014 shaping my relationship to masculine strength and protection.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Peacekeeping Reflex",
+        "mmi": "The Collapsed Masculine"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "When I relate to the masculine within myself \u2014 drive, direction, structure, authority \u2014 I tend to\u2026\n\n\u2726 The inner masculine is not the outer one. What does yours do?",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Push hard without pause \u2014 striving, fixing, doing \u2014 rarely stopping.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Sacred Perfectionism Loop",
+        "mmi": "Internalized Hustle Masculine"
+      },
+      {
+        "code": "B",
+        "text": "Balance my inner masculine and feminine \u2014 I feel both held and directed from within.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field",
+        "mmi": "Embodied Sovereign Masculine"
+      },
+      {
+        "code": "C",
+        "text": "Second-guess my own authority \u2014 hesitating or deferring when under pressure.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Internal Blame Loop",
+        "mmi": "The Dormant Masculine"
+      },
+      {
+        "code": "D",
+        "text": "Resist structure \u2014 avoiding plans, routines, or forward momentum.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Enmeshment Burn / Loss of Autonomy",
+        "mp": "Reactive Withdrawal Response",
+        "mmi": "Masculine Disassociation"
+      },
+      {
+        "code": "E",
+        "text": "Use my inner drive as armor \u2014 strength covering the tenderness beneath.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring",
+        "mmi": "Guarded Masculine Overlay"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "At my deepest level, what I fear the masculine will do is\u2026\n\n\u2726 Not what your mind says. What your body still braces for.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Leave when I need them most.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Drifting One",
+        "wi": "Abandonment Anxiety",
+        "mp": "Reactive Withdrawal Response",
+        "mmi": "The Evaporating Masculine"
+      },
+      {
+        "code": "B",
+        "text": "Override my autonomy or silence my voice.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Shielded One",
+        "wi": "Enmeshment Burn / Loss of Autonomy",
+        "mp": "Truth-Claiming Field",
+        "mmi": "The Authority-Imposed Masculine"
+      },
+      {
+        "code": "C",
+        "text": "None of these \u2014 I've transformed those fears into discernment.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment",
+        "mmi": "The Transparent Masculine"
+      },
+      {
+        "code": "D",
+        "text": "Take without reciprocating \u2014 energy, intimacy, presence.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Mirror of Invalidation",
+        "mmi": "The Consuming Masculine"
+      },
+      {
+        "code": "E",
+        "text": "See my unguarded truth \u2014 and reject it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Ghost",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Sacred Silencing",
+        "mmi": "The Shaming Masculine"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "If I'm honest, part of me has been drawn to certain masculine energy because\u2026\n\n\u2726 The attraction beneath the attraction \u2014 the wound it was feeding.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I wanted to be chosen \u2014 their attention felt like confirmation of my worth.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Ghost",
+        "wi": "Conditional Worth Coding",
+        "mp": "Mirror of Invalidation",
+        "mmi": "The Pedestal Masculine"
+      },
+      {
+        "code": "B",
+        "text": "I believed I could support, inspire, or awaken them.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Meaning Miner",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex",
+        "mmi": "The Sleeping Masculine"
+      },
+      {
+        "code": "C",
+        "text": "The connection was conscious, mutual, and rooted in real respect.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment",
+        "mmi": "The Sovereign Masculine"
+      },
+      {
+        "code": "D",
+        "text": "I thought enduring difficulty was what deep love required.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Fault-Loop Mirror",
+        "mmi": "The Wounded Masculine"
+      },
+      {
+        "code": "E",
+        "text": "I felt safe in their presence \u2014 even when that safety came with conditions.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Returning One",
+        "wi": "Conditional Love Coding",
+        "mp": "Peacekeeping Reflex",
+        "mmi": "The Guard-Dog Masculine"
+      }
+    ]
+  },
+  {
+    "id": "Q9",
+    "question_text": "The feeling that still lives in my body when I think about the masculine is\u2026\n\n\u2726 Not the interpretation. The sensation.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "A lingering ache for something I never fully received.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Neglect / Invisible Child Wound",
+        "mp": "Reunion Longing Field",
+        "mmi": "The Absent Masculine"
+      },
+      {
+        "code": "B",
+        "text": "Anger or resentment over the times I felt dismissed or unseen.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Shielded One",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Criticism-Armoring Loop",
+        "mmi": "The Disempowering Masculine"
+      },
+      {
+        "code": "C",
+        "text": "Confusion \u2014 I still don't fully understand what happened or why.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Drifting One",
+        "wi": "Dismissal / Gaslight Normalization",
+        "mp": "Overprocessing Field",
+        "mmi": "The Distorting Masculine"
+      },
+      {
+        "code": "D",
+        "text": "Peace and clarity \u2014 free from the old weight.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Returning One",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field",
+        "mmi": "The Healed Masculine"
+      },
+      {
+        "code": "E",
+        "text": "A quiet closing \u2014 I shut down in order to protect myself.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Disconnected Knower",
+        "wi": "Wound of Disconnection",
+        "mp": "Self-Gift Fragmentation",
+        "mmi": "The Overwhelming Masculine"
+      }
+    ]
+  },
+  {
+    "id": "Q10",
+    "question_text": "When masculine energy approaches me now \u2014 in connection, intimacy, or leadership \u2014 I tend to\u2026\n\n\u2726 The first internal movement before you decide how to respond.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Assess slowly \u2014 I observe intentions before I open.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "Intuition Suppression / Betrayal Scar",
+        "mp": "Overprocessing Field",
+        "mmi": "The Distrusted Masculine"
+      },
+      {
+        "code": "B",
+        "text": "Meet it with both openness and discernment \u2014 I know the difference.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field",
+        "mmi": "The Conscious Masculine"
+      },
+      {
+        "code": "C",
+        "text": "Open quickly \u2014 sometimes more than I intended to.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Living Flame",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Conditional Love Coding",
+        "mp": "Meaning-Rush Reflex",
+        "mmi": "The Magnetized Masculine"
+      },
+      {
+        "code": "D",
+        "text": "Keep distance until I feel the integrity of the connection.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Returning One",
+        "wi": "Divine Detachment",
+        "mp": "Reactive Withdrawal Response",
+        "mmi": "The Intruding Masculine"
+      },
+      {
+        "code": "E",
+        "text": "Go quiet or contract \u2014 my body protects before my mind decides.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring",
+        "mmi": "The Overwhelming Masculine"
+      }
+    ]
+  },
+  {
+    "id": "Q11",
+    "question_text": "When masculine energy approaches me now \u2014 in connection, intimacy, or guidance \u2014 I tend to\u2026\n\n\u2726 The automatic internal response before the considered one.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Take time to assess intentions before trusting anything.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Observe closely \u2014 read cues and dynamics before engaging.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Open quickly, sometimes more than I intended to.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Keep some distance until I feel the integrity of the connection.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Meet them with both openness and genuine discernment.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q12",
+    "question_text": "What I've truly wanted from the masculine \u2014 beneath all of it \u2014 is\u2026\n\n\u2726 Not the diplomatic version. The one your body has been asking for.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Safety \u2014 the kind that lets me rest into my own softness.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Peacekeeping Reflex",
+        "mmi": "The Unsafe Masculine"
+      },
+      {
+        "code": "B",
+        "text": "To be fully seen \u2014 and still chosen, still embraced.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Sacred Silencing",
+        "mmi": "The Rejecting Masculine"
+      },
+      {
+        "code": "C",
+        "text": "Nothing less than integrity, presence, and real love \u2014 I know what I'm worth.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field",
+        "mmi": "The Sacred Masculine"
+      },
+      {
+        "code": "D",
+        "text": "Partnership in power, depth, and full presence \u2014 something mutual.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Reunion Longing Field",
+        "mmi": "The Diminished Masculine"
+      },
+      {
+        "code": "E",
+        "text": "To be chosen with reverence \u2014 not from need, but from recognition.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Seeker",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Reunion Longing Field",
+        "mmi": "The Half-Chosen Masculine"
+      }
+    ]
+  }
+]

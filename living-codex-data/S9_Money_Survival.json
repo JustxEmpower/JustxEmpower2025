@@ -1,0 +1,626 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "My earliest memory or emotional feeling about money is\u2026\n\n\u2726 Not a financial fact. The atmosphere that surrounded it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Uneasy \u2014 I remember sensing that it could be scarce or taken away.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Drifting One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "B",
+        "text": "Supportive \u2014 it was present, available, and carried no emotional charge.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "C",
+        "text": "Hesitant \u2014 it felt like something we didn't talk about openly.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Resigned One",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "D",
+        "text": "Pressured \u2014 I was aware of adult stress around it and somehow felt responsible.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "E",
+        "text": "Neutral \u2014 it was present but didn't carry a strong feeling either way.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Returning One",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Reactive Withdrawal Response"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "When I think about asking for support \u2014 financial, emotional, or practical \u2014 I usually\u2026\n\n\u2726 The internal experience of needing something from someone.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel guilty \u2014 self-reliance feels safer and more trustworthy than need.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "B",
+        "text": "Feel open \u2014 giving and receiving are part of a balanced exchange I trust.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "Worry about being seen as needy, weak, or dependent.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Shielded One",
+        "wi": "Conditional Worth Coding",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "D",
+        "text": "Feel I must give first or prove my worth before I'm allowed to receive.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Soother",
+        "wi": "Conditional Worth Coding",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "E",
+        "text": "Ask rarely \u2014 I'd rather adapt quietly than risk depending on someone else.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Self-Exile Grief",
+        "mp": "Reactive Withdrawal Response"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "My current relationship with money feels\u2026\n\n\u2726 Not where you want it to be. Where it actually is.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Anxious \u2014 I think about it often and find it hard to fully relax.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Overprocessing Field"
+      },
+      {
+        "code": "B",
+        "text": "Avoidant \u2014 I focus elsewhere and only engage with it when forced.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Ghost",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Energetic Fog Response"
+      },
+      {
+        "code": "C",
+        "text": "Aligned \u2014 I engage with it consciously, with clarity and respect.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "D",
+        "text": "Overcontrolled \u2014 I track everything tightly to keep the anxiety manageable.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Shielded One",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Sacred Perfectionism Loop"
+      },
+      {
+        "code": "E",
+        "text": "In progress \u2014 I'm not yet where I want to be, but I'm in motion.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Purpose Amnesia",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "When I witness others with wealth or abundance, I notice myself\u2026\n\n\u2726 The first internal reaction before the considered response.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feeling a mix of longing, envy, or judgment \u2014 often all at once.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Fault-Loop Mirror"
+      },
+      {
+        "code": "B",
+        "text": "Feeling smaller or less capable by comparison.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "C",
+        "text": "Feeling inspired \u2014 I see it as a reflection of what is also possible for me.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "Wondering what choices or luck led them there \u2014 and whether I could replicate it.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "E",
+        "text": "Staying neutral \u2014 their abundance feels unrelated to my own path.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Quiet Mystic",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Divine Detachment",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "When I picture 'having more than enough,' I\u2026\n\n\u2726 The internal response to imagining abundance \u2014 before the plan.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel quiet panic \u2014 like it would change me or cost me something.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Start justifying how I'd deserve it before I can actually receive it.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Go foggy \u2014 I can't hold the picture clearly or fill in details.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Plan immediately \u2014 control the numbers to keep abundance feeling 'safe.'",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Feel possibility for a moment, then talk myself back out of it.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "When I consider receiving large amounts of money or support, I\u2026\n\n\u2726 The felt sense \u2014 not the financial plan.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel unworthy \u2014 I question why it would come to me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Conditional Worth Coding",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "B",
+        "text": "Immediately think of how to use it for others first.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Feel ready \u2014 I trust myself to hold it with integrity and use it wisely.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field"
+      },
+      {
+        "code": "D",
+        "text": "Feel uneasy \u2014 more resources feel like more responsibility I might fail.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "E",
+        "text": "Have trouble picturing it or believing it could arrive for someone like me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Resigned One",
+        "wi": "Intuitive Disorientation",
+        "mp": "Energetic Fog Response"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "When I reflect on how my caregivers related to money, I recall\u2026\n\n\u2726 Not their intention \u2014 the atmosphere it created.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Fear or limitation \u2014 scarcity was a presence in our home.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Fault-Loop Mirror"
+      },
+      {
+        "code": "B",
+        "text": "Secrecy \u2014 money wasn't discussed, which felt strange even as a child.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Ghost",
+        "wi": "Ancestral Silence Encoding",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "C",
+        "text": "Conflict \u2014 it was a source of tension, arguments, or emotional unpredictability.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Emotional Manipulation",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "D",
+        "text": "Steadiness \u2014 it was managed with clarity, balance, and without drama.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "E",
+        "text": "Strong emphasis \u2014 worth or success was tied directly to income or achievement.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "When I try to set financial goals or name what I actually want, I\u2026\n\n\u2726 Not what's realistic. What you actually want and what happens when you try to name it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Struggle \u2014 I feel vague, blocked, or like the picture won't stay still.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Ghost",
+        "wi": "Purpose Amnesia",
+        "mp": "Self-Gift Fragmentation"
+      },
+      {
+        "code": "B",
+        "text": "Lower my expectations preemptively \u2014 I edit the want before I've even spoken it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "C",
+        "text": "Feel clear \u2014 I see goals as acts of alignment and self-trust.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "Feel hesitant \u2014 naming what I want feels greedy or presumptuous.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Emotional Minimization Reflex"
+      },
+      {
+        "code": "E",
+        "text": "Lose focus \u2014 it's hard to sustain attention on something that feels unearned.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Achiever",
+        "wi": "Conditional Worth Coding",
+        "mp": "Identity Collapse Field"
+      }
+    ]
+  },
+  {
+    "id": "Q9",
+    "question_text": "When I feel financial stress or uncertainty, I tend to\u2026\n\n\u2726 The survival response \u2014 before the responsible strategy.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Spiral into worry or overthinking \u2014 the fear takes over the room.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Criticism-Armoring Loop"
+      },
+      {
+        "code": "B",
+        "text": "Numb out or delay looking at it \u2014 avoidance feels more survivable than the truth.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Ghost",
+        "wi": "Self-Exile Grief",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "C",
+        "text": "Blame myself or someone else \u2014 someone has to be responsible for this.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Turning Flame",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Fault-Loop Mirror"
+      },
+      {
+        "code": "D",
+        "text": "Pause, ground, and return to trust \u2014 I've been here before and I found my way through.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Clamp down \u2014 tighten control over spending and details until the anxiety recedes.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Achiever",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Emotional Armoring"
+      }
+    ]
+  },
+  {
+    "id": "Q10",
+    "question_text": "The idea of charging for my work, skills, or gifts makes me feel\u2026\n\n\u2726 Not what you think about pricing. What rises in your body when you name a number.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Empowered \u2014 charging is an act of respect, alignment, and mutual value.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "B",
+        "text": "Guilty \u2014 something says it should be free, or that asking is too much.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Unsure \u2014 I struggle to know what my work is actually worth.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Resigned One",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "D",
+        "text": "Defensive \u2014 I feel the need to explain or justify the number before I've said it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Shielded One",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Sacred Perfectionism Loop"
+      },
+      {
+        "code": "E",
+        "text": "Resistant \u2014 I'd rather give it away than navigate the money conversation.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      }
+    ]
+  },
+  {
+    "id": "Q11",
+    "question_text": "When I think about what 'true wealth' means to me \u2014 not the number, but what it represents\u2026\n\n\u2726 Not the financial goal. The quality of life underneath it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Peace of mind \u2014 to stop bracing for the next thing to go wrong.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "B",
+        "text": "The ability to give generously \u2014 to be a source rather than a sponge.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Living Flame",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Peacekeeping Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Ease and freedom \u2014 to move through life without the weight of survival.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Seeker",
+        "wi": "Destiny Disruption",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "D",
+        "text": "Full alignment \u2014 being resourced in every dimension of my life to fully become myself.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Enough \u2014 enough to live, enough to breathe, enough to stop counting.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Existential Disenchantment",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      }
+    ]
+  },
+  {
+    "id": "Q12",
+    "question_text": "When I picture myself financially free and fully resourced, I\u2026\n\n\u2726 Before the plan \u2014 what moves through you when you hold the image.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel it briefly, then dismiss it as wishful thinking.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Start making it smaller \u2014 edit it down to something believable.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Feel a quiet grief \u2014 like I've already given up on that version.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Feel activated and clear \u2014 it's not a fantasy, it's a direction.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Feel unsure if I deserve to want that much.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  }
+]

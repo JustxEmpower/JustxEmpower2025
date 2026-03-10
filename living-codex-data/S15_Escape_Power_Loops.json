@@ -1,0 +1,676 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "When I feel disconnected from myself, I tend to\u2026\n\n\u2726 The automatic reach \u2014 before you decide to do something better.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Seek attention \u2014 social media, validation, someone noticing me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Conditional Worth Coding",
+        "mp": "Mirror of Invalidation",
+        "epcl": "Attention Loop"
+      },
+      {
+        "code": "B",
+        "text": "Numb out \u2014 food, scrolling, substances, anything that softens the signal.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Escaping One",
+        "wi": "Wound of Disconnection",
+        "mp": "Spiritual Detachment / Void Identity Field",
+        "epcl": "Numbing Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Return to myself \u2014 breath, stillness, body, what I actually feel.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment",
+        "epcl": "Self-Connection Pattern"
+      },
+      {
+        "code": "D",
+        "text": "Isolate or disappear without explanation \u2014 go quiet until it passes.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Ghost",
+        "wi": "Self-Exile Grief",
+        "mp": "Silence-as-Safety Reflex",
+        "epcl": "Vanishment Loop"
+      },
+      {
+        "code": "E",
+        "text": "Crave intensity \u2014 chaos, drama, fast-paced stimulation to feel alive.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Criticism-Armoring Loop",
+        "epcl": "Distraction-as-Life Pattern"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "When I don't feel in control of my life, I tend to\u2026\n\n\u2726 The compensatory behavior \u2014 what you reach for when the ground shifts.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Micromanage myself or others to restore a sense of order.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Shielded One",
+        "wi": "Over-Responsibility Imprint",
+        "mp": "Sacred Perfectionism Loop",
+        "epcl": "Order Compensation Loop"
+      },
+      {
+        "code": "B",
+        "text": "Work harder, achieve more \u2014 so no one sees the chaos underneath.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Divine Performance Scar",
+        "mp": "Sacred Perfectionism Loop",
+        "epcl": "Image Management Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Ground myself \u2014 I've built practices for exactly this kind of moment.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Truth-Claiming Field",
+        "epcl": "Core Power Stability"
+      },
+      {
+        "code": "D",
+        "text": "Use my desirability or sexual energy to feel powerful again.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Living Flame",
+        "wi": "Conditional Worth Coding",
+        "mp": "Emotional Armoring",
+        "epcl": "Power-Through-Desire Pattern"
+      },
+      {
+        "code": "E",
+        "text": "Create distance or conflict \u2014 protection through disruption.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Turning Flame",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Reactive Withdrawal Response",
+        "epcl": "Disruption-As-Safety Cycle"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "When shame creeps in, I often\u2026\n\n\u2726 Not the response you're proud of. The first one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Over-explain or defend myself to feel understood and safe.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Overprocessing Field",
+        "epcl": "Verbalized Validation Reflex"
+      },
+      {
+        "code": "B",
+        "text": "Compare myself to others and spiral inward.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Mirror of Invalidation",
+        "epcl": "Unworthiness Amplification Loop"
+      },
+      {
+        "code": "C",
+        "text": "Meet it \u2014 name it, feel it, then choose what's actually true.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field",
+        "epcl": "Inner Restoration Cycle"
+      },
+      {
+        "code": "D",
+        "text": "Pretend I don't care \u2014 detach, numb, or shift personas.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Shape-Shifter",
+        "wi": "Wound of Disconnection",
+        "mp": "Adaptive Camouflage Pattern",
+        "epcl": "Indifference Armor Pattern"
+      },
+      {
+        "code": "E",
+        "text": "Swing between feeling superior and self-loathing \u2014 both at once.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Identity Collapse Field",
+        "epcl": "False Power Compensation"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "When I catch myself slipping into an old escape or control loop, I usually\u2026\n\n\u2726 Not what you aim to do \u2014 what actually happens when you notice it.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Reframe it quickly so it sounds like growth \u2014 then keep doing it.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Bargain: one more scroll, one more hit, then I'll stop.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Swap it for a 'healthier' version without facing the root.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Hide it \u2014 perform regulation on the outside while chaos continues inside.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Pause briefly, feel the truth \u2014 then talk myself out of changing.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "After being hurt, I sometimes find myself thinking\u2026\n\n\u2726 The thought that comes in the raw hours \u2014 before the considered response.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I'll never let anyone get that close again.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Ghost",
+        "wi": "Abandonment Anxiety",
+        "mp": "Emotional Armoring",
+        "epcl": "Walling Strategy"
+      },
+      {
+        "code": "B",
+        "text": "I don't care anymore \u2014 I'll just focus on pleasure or distraction.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Adaptive Camouflage Pattern",
+        "epcl": "Self-Soothe via Excess"
+      },
+      {
+        "code": "C",
+        "text": "The pain is part of it \u2014 I hold what happened without needing it to harden me.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment",
+        "epcl": "Non-Reactivity Pattern"
+      },
+      {
+        "code": "D",
+        "text": "Maybe it was my fault. If I had done more, it might have worked.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Guilt Imprint / Emotional Responsibility",
+        "mp": "Internal Blame Loop",
+        "epcl": "Worth-Through-Fault Pattern"
+      },
+      {
+        "code": "E",
+        "text": "They'll regret losing me \u2014 I'll become someone undeniable.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Returning One",
+        "wi": "Divine Performance Scar",
+        "mp": "Sacred Perfectionism Loop",
+        "epcl": "Success Compensation Pattern"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "When I feel unseen, I tend to\u2026\n\n\u2726 The behavior that rises before you can choose something more rooted.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Post something online \u2014 likes, comments, any response to confirm I exist.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Pleaser Flame",
+        "ar_secondary": "The Seeker",
+        "wi": "Conditional Worth Coding",
+        "mp": "Mirror of Invalidation",
+        "epcl": "External Reflection Loop"
+      },
+      {
+        "code": "B",
+        "text": "Dim or disappear further \u2014 I shrink to avoid the risk of rejection.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Ghost",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Silence-as-Safety Reflex",
+        "epcl": "Fade Response Pattern"
+      },
+      {
+        "code": "C",
+        "text": "Hold steady in my own knowing \u2014 my visibility doesn't depend on being witnessed.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment",
+        "epcl": "Internal Light Reaffirmation"
+      },
+      {
+        "code": "D",
+        "text": "Create scenarios where someone will reach out or notice me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Seeker",
+        "wi": "Conditional Love Coding",
+        "mp": "Adaptive Camouflage Pattern",
+        "epcl": "Engagement Engineering Loop"
+      },
+      {
+        "code": "E",
+        "text": "Fantasize about being desired \u2014 by an ex, a stranger, anyone who might choose me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Drifting One",
+        "wi": "Conditional Worth Coding",
+        "mp": "Soul Drift Pattern",
+        "epcl": "Fantasized Relevance Cycle"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "When I crave intimacy or connection, I sometimes\u2026\n\n\u2726 Before the considered reach \u2014 the automatic one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Reach for someone I know isn't right for me \u2014 just to feel wanted.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Abandonment Anticipation",
+        "mp": "Reactive Withdrawal Response",
+        "epcl": "Temporary Bond Loop"
+      },
+      {
+        "code": "B",
+        "text": "Avoid closeness entirely \u2014 better to feel nothing than risk the ache.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Wound of Disconnection",
+        "mp": "Spiritual Detachment / Void Identity Field",
+        "epcl": "Self-Preservation Shutdown"
+      },
+      {
+        "code": "C",
+        "text": "Move toward real connection \u2014 with discernment about who I'm opening to.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field",
+        "epcl": "Safe Intimacy Integration"
+      },
+      {
+        "code": "D",
+        "text": "Flirt, entice, or use my sensuality to feel powerful or needed.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Living Flame",
+        "wi": "Conditional Worth Coding",
+        "mp": "Emotional Armoring",
+        "epcl": "Seduction-as-Validation Pattern"
+      },
+      {
+        "code": "E",
+        "text": "Withhold connection \u2014 waiting for others to prove themselves before I'll open.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Control Mirrors / External Authority Coding",
+        "mp": "Reactive Withdrawal Response",
+        "epcl": "Control-through-Deprivation Cycle"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "When I don't feel desirable, I sometimes\u2026\n\n\u2726 Not what you know you should do. What the wound actually does.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Fixate on my appearance \u2014 scroll, compare, plan how to change it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Achiever",
+        "wi": "Self-Doubt Encoding",
+        "mp": "Sacred Perfectionism Loop",
+        "epcl": "Surface Validation Cycle"
+      },
+      {
+        "code": "B",
+        "text": "I stay connected to my own sense of worth \u2014 my desirability lives inside, not in the mirror.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Living Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field",
+        "epcl": "Internal Value Stabilization"
+      },
+      {
+        "code": "C",
+        "text": "Try to perform worthiness \u2014 become extra sweet, impressive, or agreeable.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shape-Shifter",
+        "ar_secondary": "The Achiever",
+        "wi": "Conditional Worth Coding",
+        "mp": "Sacred Perfectionism Loop",
+        "epcl": "Power-Through-Perfection Reflex"
+      },
+      {
+        "code": "D",
+        "text": "Shame myself for not being 'enough' or 'healed' yet.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Fault-Bearer",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Internal Blame Loop",
+        "epcl": "Self-Punishment Pattern"
+      },
+      {
+        "code": "E",
+        "text": "Fantasize about someone seeing me differently \u2014 a new version of the story.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Drifting One",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Soul Drift Pattern",
+        "epcl": "Unlived Potential Longing"
+      }
+    ]
+  },
+  {
+    "id": "Q9",
+    "question_text": "When I notice I've been using something to fill a deeper void, I usually\u2026\n\n\u2726 The moment of recognition \u2014 what happens right after you see it.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Keep going \u2014 I can't stop even knowing it isn't serving me.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Feel worse immediately \u2014 more empty, more invisible, more disconnected.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Swap it for a 'better' version without touching the root.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Don't recognize myself afterward \u2014 like I vanished for a bit.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Pause, feel what's underneath, and reach for something real.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q10",
+    "question_text": "When I feel like I've failed or disappointed someone, I\u2026\n\n\u2726 The immediate internal response \u2014 before you collect yourself.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Over-apologize or try to fix everything so I can be forgiven.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Soother",
+        "ar_secondary": "The Pleaser Flame",
+        "wi": "Guilt Imprint / Emotional Responsibility",
+        "mp": "Peacekeeping Reflex",
+        "epcl": "Pleaser Pendulum"
+      },
+      {
+        "code": "B",
+        "text": "Collapse inward and quietly punish myself.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Shame-Defense Reflex",
+        "mp": "Internal Blame Loop",
+        "epcl": "Shame-Induced Withdrawal"
+      },
+      {
+        "code": "C",
+        "text": "Hold what happened with honesty and self-compassion \u2014 without self-punishment.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field",
+        "epcl": "Repair Through Self-Honor Pattern"
+      },
+      {
+        "code": "D",
+        "text": "Cut them off before they can cut me off.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Ghost",
+        "wi": "Abandonment Anticipation",
+        "mp": "Reactive Withdrawal Response",
+        "epcl": "Hurt-First Reflex"
+      },
+      {
+        "code": "E",
+        "text": "Push harder to prove I still deserve love or approval.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Divine Performance Scar",
+        "mp": "Sacred Perfectionism Loop",
+        "epcl": "Worth-Through-Doing Loop"
+      }
+    ]
+  },
+  {
+    "id": "Q11",
+    "question_text": "Peace and stability sometimes make me feel\u2026\n\n\u2726 The honest internal response when the chaos actually stops.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Bored or restless \u2014 I miss the intensity, even knowing what it costs.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Escaping One",
+        "ar_secondary": "The Drifting One",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Criticism-Armoring Loop",
+        "epcl": "Aliveness-Through-Chaos Loop"
+      },
+      {
+        "code": "B",
+        "text": "Grounded \u2014 I've built enough internal safety that stillness no longer threatens me.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Selective Integration Field",
+        "epcl": "Stability-as-Sanctuary Reflex"
+      },
+      {
+        "code": "C",
+        "text": "Anxious \u2014 the other shoe is about to drop, I just can't see it yet.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Intuitive Distrust Coding",
+        "epcl": "Fear-of-Safety Pattern"
+      },
+      {
+        "code": "D",
+        "text": "Empty or flat \u2014 too quiet without the rush to feel like myself.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Existential Disenchantment",
+        "mp": "Soul Drift Pattern",
+        "epcl": "Silence-Self Loss Loop"
+      },
+      {
+        "code": "E",
+        "text": "Like I've lost my edge or hunger \u2014 I wonder if I still have what it takes.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Achiever",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Overprocessing Field",
+        "epcl": "Drive-Through-Depletion Cycle"
+      }
+    ]
+  },
+  {
+    "id": "Q12",
+    "question_text": "When I imagine my life fully reclaimed \u2014 no more loops, no more escaping, no more performing \u2014 I\u2026\n\n\u2726 Not the goal. The felt sense of what that version of you would actually be like.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel a complicated grief \u2014 for the time spent inside the loop.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Mid-Void Traveler",
+        "wi": "Self-Exile Grief",
+        "mp": "Reunion Longing Field",
+        "epcl": "Grief-Before-Return Cycle"
+      },
+      {
+        "code": "B",
+        "text": "Feel inspired and already moving \u2014 I can see her clearly.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment",
+        "epcl": "Embodied Reclamation Pattern"
+      },
+      {
+        "code": "C",
+        "text": "Feel disbelief \u2014 I can't hold the image without it collapsing.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "Existential Disenchantment",
+        "mp": "Soul Drift Pattern",
+        "epcl": "Future-Self Erasure Loop"
+      },
+      {
+        "code": "D",
+        "text": "Feel her \u2014 distantly, like someone I was before everything got complicated.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Drifting One",
+        "wi": "Purpose Amnesia",
+        "mp": "Identity Collapse Field",
+        "epcl": "Origin-Self Disconnection"
+      },
+      {
+        "code": "E",
+        "text": "Feel resistance \u2014 something in me does not trust that version is safe.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Reactive Withdrawal Response",
+        "epcl": "Self-Reclamation Block"
+      }
+    ]
+  }
+]

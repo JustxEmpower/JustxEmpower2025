@@ -1,0 +1,418 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Attuned \u2014 I know where I am in my cycle and I move with it, not against it.",
+        "spectrum_depth": "",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Aligned One",
+        "wi": "",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "B",
+        "text": "Erratic \u2014 my cycle is hard to track, irregular, or unpredictable.",
+        "spectrum_depth": "",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Returning One",
+        "wi": "",
+        "mp": "Energetic Fog Response"
+      },
+      {
+        "code": "C",
+        "text": "Managed \u2014 I use birth control, medication, or medical protocol to regulate it.",
+        "spectrum_depth": "",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Archivist",
+        "wi": "",
+        "mp": "Internalized Rationality Code"
+      },
+      {
+        "code": "D",
+        "text": "In a season of closing \u2014 I am in perimenopause, menopause, or post-menopause.",
+        "spectrum_depth": "",
+        "ar_primary": "The Quiet Mystic",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "E",
+        "text": "Absent from my awareness \u2014 I rarely notice or connect with my cycle at all.",
+        "spectrum_depth": "",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Question whether I'm imagining it or making it up.",
+        "spectrum_depth": "",
+        "ar_primary": "\u2014",
+        "ar_secondary": "\u2014",
+        "wi": "",
+        "mp": "\u2014"
+      },
+      {
+        "code": "B",
+        "text": "Wait for a 'big' sensation, missing the subtle ones.",
+        "spectrum_depth": "",
+        "ar_primary": "\u2014",
+        "ar_secondary": "\u2014",
+        "wi": "",
+        "mp": "\u2014"
+      },
+      {
+        "code": "C",
+        "text": "Think about it conceptually rather than feeling directly.",
+        "spectrum_depth": "",
+        "ar_primary": "\u2014",
+        "ar_secondary": "\u2014",
+        "wi": "",
+        "mp": "\u2014"
+      },
+      {
+        "code": "D",
+        "text": "Compare myself to how connected others seem.",
+        "spectrum_depth": "",
+        "ar_primary": "\u2014",
+        "ar_secondary": "\u2014",
+        "wi": "",
+        "mp": "\u2014"
+      },
+      {
+        "code": "E",
+        "text": "Glimpse a connection, then second-guess and pull away.",
+        "spectrum_depth": "",
+        "ar_primary": "\u2014",
+        "ar_secondary": "\u2014",
+        "wi": "",
+        "mp": "\u2014"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Whole and present \u2014 this space is alive and I inhabit it.",
+        "spectrum_depth": "",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Aligned One",
+        "wi": "",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "B",
+        "text": "Medically complex \u2014 I carry diagnosis, symptoms, or conditions that shape my experience.",
+        "spectrum_depth": "",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Archivist",
+        "wi": "",
+        "mp": "Internalized Rationality Code"
+      },
+      {
+        "code": "C",
+        "text": "Marked by loss \u2014 miscarriage, termination, infertility, or surgery lives here.",
+        "spectrum_depth": "",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "D",
+        "text": "In transition \u2014 postpartum, post-loss, or reawakening after a long silence.",
+        "spectrum_depth": "",
+        "ar_primary": "The Turning Flame",
+        "ar_secondary": "The Returning One",
+        "wi": "",
+        "mp": "Identity Collapse Field"
+      },
+      {
+        "code": "E",
+        "text": "Distant from me \u2014 I don't think about this space or claim it as mine.",
+        "spectrum_depth": "",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Drifting One",
+        "wi": "",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Alive and generative \u2014 warmth, creative charge, or readiness.",
+        "spectrum_depth": "",
+        "ar_primary": "The Living Flame",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "B",
+        "text": "Heavy or burdened \u2014 I carry weight, grief, or old emotion here.",
+        "spectrum_depth": "",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Soother",
+        "wi": "",
+        "mp": "Emotional Armoring"
+      },
+      {
+        "code": "C",
+        "text": "Still and sacred \u2014 a quiet that holds something ancient.",
+        "spectrum_depth": "",
+        "ar_primary": "The Quiet Mystic",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "D",
+        "text": "Scattered or untethered \u2014 energy moves but without direction or anchor.",
+        "spectrum_depth": "",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Seeker",
+        "wi": "",
+        "mp": "Energetic Fog Response"
+      },
+      {
+        "code": "E",
+        "text": "Flat or absent \u2014 there is little charge or feeling here.",
+        "spectrum_depth": "",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Reverence \u2014 she has held everything and is still here.",
+        "spectrum_depth": "",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "B",
+        "text": "Grief \u2014 there are things stored here I have not yet fully mourned.",
+        "spectrum_depth": "",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Mid-Void Traveler",
+        "wi": "",
+        "mp": "Reunion Longing Field"
+      },
+      {
+        "code": "C",
+        "text": "Tenderness \u2014 I want to honor this space more than I currently do.",
+        "spectrum_depth": "",
+        "ar_primary": "The Quiet Mystic",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "D",
+        "text": "Disconnection \u2014 I have not thought of this space as holding anything.",
+        "spectrum_depth": "",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "E",
+        "text": "Complexity \u2014 there is both beauty and pain here and I'm still learning to hold both.",
+        "spectrum_depth": "",
+        "ar_primary": "The Meaning Miner",
+        "ar_secondary": "The Returning One",
+        "wi": "",
+        "mp": "Selective Integration Field"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "I feel an active current \u2014 creative energy moves through this space when I allow it.",
+        "spectrum_depth": "",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Living Flame",
+        "wi": "",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "B",
+        "text": "I feel blocked \u2014 creative energy exists but something stops it from flowing freely.",
+        "spectrum_depth": "",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Shielded One",
+        "wi": "",
+        "mp": "Self-Gift Fragmentation"
+      },
+      {
+        "code": "C",
+        "text": "I feel untethered \u2014 creative energy sparks but doesn't anchor into form.",
+        "spectrum_depth": "",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Seeker",
+        "wi": "",
+        "mp": "Energetic Fog Response"
+      },
+      {
+        "code": "D",
+        "text": "I feel reclaiming \u2014 I am actively restoring access to this power after a long absence.",
+        "spectrum_depth": "",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Sovereign",
+        "wi": "",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "E",
+        "text": "I feel disconnected from this entirely \u2014 this isn't a dimension I've claimed.",
+        "spectrum_depth": "",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "",
+        "mp": "Soul Drift Pattern"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "To be spoken to \u2014 acknowledged, addressed, not just managed or medicated.",
+        "spectrum_depth": "",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Quiet Mystic",
+        "wi": "",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "B",
+        "text": "To rest \u2014 to be released from carrying what I have asked her to hold.",
+        "spectrum_depth": "",
+        "ar_primary": "The Burdened Flame",
+        "ar_secondary": "The Soother",
+        "wi": "",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "C",
+        "text": "To be witnessed \u2014 seen in her grief, her history, her full record.",
+        "spectrum_depth": "",
+        "ar_primary": "The Ghost",
+        "ar_secondary": "The Returning One",
+        "wi": "",
+        "mp": "Reunion Longing Field"
+      },
+      {
+        "code": "D",
+        "text": "To be trusted \u2014 to have her signals received rather than overridden.",
+        "spectrum_depth": "",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Disconnected Knower",
+        "wi": "",
+        "mp": "Selective Integration Field"
+      },
+      {
+        "code": "E",
+        "text": "To create \u2014 to be given the conditions to bring something new into the world.",
+        "spectrum_depth": "",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Living Flame",
+        "wi": "",
+        "mp": "Meaning-as-Embodiment"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "It is tired. It needs rest and acknowledgment before it can open.",
+        "spectrum_depth": "",
+        "ar_primary": "\u2014",
+        "ar_secondary": "\u2014",
+        "wi": "",
+        "mp": "\u2014"
+      },
+      {
+        "code": "B",
+        "text": "There is grief here that has not been named. It is waiting.",
+        "spectrum_depth": "",
+        "ar_primary": "\u2014",
+        "ar_secondary": "\u2014",
+        "wi": "",
+        "mp": "\u2014"
+      },
+      {
+        "code": "C",
+        "text": "There is power here you have not yet claimed. It is ready.",
+        "spectrum_depth": "",
+        "ar_primary": "\u2014",
+        "ar_secondary": "\u2014",
+        "wi": "",
+        "mp": "\u2014"
+      },
+      {
+        "code": "D",
+        "text": "There is something it is protecting that you are not yet ready to receive.",
+        "spectrum_depth": "",
+        "ar_primary": "\u2014",
+        "ar_secondary": "\u2014",
+        "wi": "",
+        "mp": "\u2014"
+      },
+      {
+        "code": "E",
+        "text": "It is asking to be seen \u2014 not analyzed, not fixed. Just seen.",
+        "spectrum_depth": "",
+        "ar_primary": "\u2014",
+        "ar_secondary": "\u2014",
+        "wi": "",
+        "mp": "\u2014"
+      }
+    ]
+  }
+]

@@ -1,0 +1,626 @@
+[
+  {
+    "id": "Q1",
+    "question_text": "When I hear the phrase 'your soul knows,' I feel\u2026\n\n\u2726 Let the first internal response register before you choose an answer.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "A pang of longing \u2014 I've been searching for that part of me and haven't found her.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Seeker",
+        "ar_secondary": "The Drifting One",
+        "wi": "Self-Exile Grief",
+        "mp": "Reunion Longing Field"
+      },
+      {
+        "code": "B",
+        "text": "Confused \u2014 I'm not sure what that even means for me anymore.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Intuition Suppression",
+        "mp": "Intuitive Distrust Coding"
+      },
+      {
+        "code": "C",
+        "text": "A quiet recognition \u2014 my body knows exactly what that means.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Rooted Flame",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "Resistant \u2014 I've learned not to trust what arises from inside me.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Guarded Mystic",
+        "ar_secondary": "The Shielded One",
+        "wi": "Intuition Suppression / Betrayal Scar",
+        "mp": "Intuition Override Reflex"
+      },
+      {
+        "code": "E",
+        "text": "Numb \u2014 I feel nothing when I hear that. That channel seems to be closed.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Divine Detachment",
+        "mp": "Silence-as-Safety Reflex"
+      }
+    ]
+  },
+  {
+    "id": "Q2",
+    "question_text": "When I try to connect with my intuition or inner voice, I usually\u2026\n\n\u2726 The internal experience \u2014 not the method you use.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Doubt what I hear \u2014 I second-guess myself until the signal disappears.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Intuition Suppression / Betrayal Scar",
+        "mp": "Intuition Override Reflex"
+      },
+      {
+        "code": "B",
+        "text": "Feel like there's silence \u2014 I can't access anything at all.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Wound of Disconnection",
+        "mp": "Ancestral Silence Encoding"
+      },
+      {
+        "code": "C",
+        "text": "Want to trust it, but logic always rises faster and takes over.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Control Mirrors / External Authority Coding",
+        "mp": "Internalized Rationality Code"
+      },
+      {
+        "code": "D",
+        "text": "Feel a clear, embodied sense \u2014 I trust what arises without needing to justify it.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Receive impressions but feel disoriented \u2014 I don't know which to trust.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Disconnected Knower",
+        "ar_secondary": "The Drifting One",
+        "wi": "Intuitive Disorientation",
+        "mp": "Overprocessing Field"
+      }
+    ]
+  },
+  {
+    "id": "Q3",
+    "question_text": "When I try to 'feel' my soul or inner guidance, I often\u2026\n\n\u2726 Not what you want to access \u2014 what actually happens when you try.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Sense a faint whisper that fades the moment I notice it.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Override it with logic because certainty feels safer.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Doubt it immediately \u2014 maybe I'm making it up.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Go numb, as if that channel closes on its own.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Feel something real, then question it until it disappears.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q4",
+    "question_text": "When I try to connect spiritually \u2014 through prayer, stillness, ritual, or nature\u2026\n\n\u2726 What actually happens when you attempt the practice.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel like I'm going through the motions \u2014 something is present but I can't reach it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "Wound of Disconnection",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      },
+      {
+        "code": "B",
+        "text": "Experience a grounded stillness \u2014 I feel something that exists beyond language.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Luminous Witness",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "Sense a block \u2014 something in me resists fully opening.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Guarded Mystic",
+        "ar_secondary": "The Silent Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Energetic Fog Response"
+      },
+      {
+        "code": "D",
+        "text": "Feel overwhelmed or suddenly emotional \u2014 I don't know where it comes from.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Drifting One",
+        "wi": "Self-Exile Grief",
+        "mp": "Threshold Dissolution"
+      },
+      {
+        "code": "E",
+        "text": "Doubt if any of it is real or if I'm just talking to myself.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Intuition Suppression / Betrayal Scar",
+        "mp": "Intuition Override Reflex"
+      }
+    ]
+  },
+  {
+    "id": "Q5",
+    "question_text": "When I think about trusting life \u2014 or a wisdom larger than my own \u2014 I\u2026\n\n\u2726 The internal response \u2014 not the theology.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel deep resistance \u2014 I've been let down too many times to open that door again.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Destiny Disruption",
+        "mp": "Reactive Withdrawal Response"
+      },
+      {
+        "code": "B",
+        "text": "Want to believe, but fear that trusting will make me naive or leave me unprotected.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Resigned One",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "C",
+        "text": "Try to surrender, but part of me still clings to control.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Control Mirrors / External Authority Coding"
+      },
+      {
+        "code": "D",
+        "text": "Struggle to feel any real connection \u2014 I don't know what I'm supposed to trust.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Drifting One",
+        "wi": "Wound of Disconnection",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "E",
+        "text": "Open into it \u2014 it feels like returning to something ancient and already known.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      }
+    ]
+  },
+  {
+    "id": "Q6",
+    "question_text": "When I reflect on my purpose or the reason I'm here, I usually\u2026\n\n\u2726 Not the answer you'd give in public. The honest internal one.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel completely adrift \u2014 I don't know why I'm here or what my life is for.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Purpose Amnesia",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "B",
+        "text": "Know that my path unfolds through alignment \u2014 I don't have to chase it.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "C",
+        "text": "Feel an intense pressure to figure it out or get it right before time runs out.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Achiever",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Divine Performance Scar",
+        "mp": "Sacred Perfectionism Loop"
+      },
+      {
+        "code": "D",
+        "text": "Feel like I once knew \u2014 but somewhere along the way, I lost the thread.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Mid-Void Traveler",
+        "ar_secondary": "The Seeker",
+        "wi": "Destiny Disruption",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "E",
+        "text": "Doubt that I have a higher purpose \u2014 maybe some people just don't.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Resigned One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Existential Disenchantment",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      }
+    ]
+  },
+  {
+    "id": "Q7",
+    "question_text": "When I try to access spiritual guidance or inner knowing, I tend to\u2026\n\n\u2726 The experience when you reach inward.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel a wall \u2014 like there's a barrier between me and whatever is 'out there.'",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Disconnected Knower",
+        "ar_secondary": "The Guarded Mystic",
+        "wi": "Wound of Disconnection",
+        "mp": "Ancestral Silence Encoding"
+      },
+      {
+        "code": "B",
+        "text": "Receive scattered impressions but I can't trust or decipher them.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Over-Analyzer",
+        "wi": "Intuitive Disorientation",
+        "mp": "Overprocessing Field"
+      },
+      {
+        "code": "C",
+        "text": "Doubt everything I receive \u2014 I assume it's just my mind playing games.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Intuition Suppression / Betrayal Scar",
+        "mp": "Intuition Override Reflex"
+      },
+      {
+        "code": "D",
+        "text": "Feel a quiet clarity \u2014 I know when it's guidance and when it's fear.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Awakened Creatrix",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Hear conflicting messages and can't find my footing in them.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Shielded One",
+        "wi": "Intuitive Disorientation",
+        "mp": "Fault-Loop Mirror"
+      }
+    ]
+  },
+  {
+    "id": "Q8",
+    "question_text": "When I think about being fully seen in my spiritual or intuitive gifts, I\u2026\n\n\u2726 Not whether you believe in them. Whether you'd let anyone else see them.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel afraid \u2014 I'd be judged, dismissed, or seen as strange.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Quiet Mystic",
+        "ar_secondary": "The Shielded One",
+        "wi": "Rejection Imprint / Invisibility Wound",
+        "mp": "Sacred Silencing"
+      },
+      {
+        "code": "B",
+        "text": "Want to share but feel unworthy \u2014 like I haven't yet earned the right.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Conditional Worth Coding",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "C",
+        "text": "Hold back because I'm not fully sure they're real or that I can trust them.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Guarded Mystic",
+        "ar_secondary": "The Rational Pilgrim",
+        "wi": "Intuitive Disorientation",
+        "mp": "Self-Gift Fragmentation"
+      },
+      {
+        "code": "D",
+        "text": "Feel grounded in them \u2014 my gifts are real and they are mine.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Awakened Creatrix",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Have been burned before \u2014 I learned to keep that part of me out of sight.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Ghost",
+        "wi": "Dismissal / Worth-Devaluation",
+        "mp": "Ancestral Silence Encoding"
+      }
+    ]
+  },
+  {
+    "id": "Q9",
+    "question_text": "When I sense something stirring in my body \u2014 a knowing, an impulse, a call \u2014 I usually\u2026\n\n\u2726 The first inner movement before analysis takes over.",
+    "is_ghost": true,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Doubt it immediately \u2014 sense a faint whisper that fades before I can name it.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "B",
+        "text": "Override it with logic \u2014 something more provable feels safer.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "C",
+        "text": "Allow it briefly, then talk myself out of it.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "D",
+        "text": "Feel it clearly but stay quiet \u2014 that part of me doesn't get to speak out loud.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      },
+      {
+        "code": "E",
+        "text": "Follow it \u2014 even when I can't explain why.",
+        "spectrum_depth": "\u25cb GHOST",
+        "ar_primary": "Ghost Entry",
+        "ar_secondary": "Ghost Entry",
+        "wi": "Ghost WI",
+        "mp": "Ghost MP"
+      }
+    ]
+  },
+  {
+    "id": "Q10",
+    "question_text": "When I'm in nature or true stillness, I usually\u2026\n\n\u2726 The experience in the body \u2014 not the idea of it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel a brief sense of peace, but it fades before I can hold it.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Wound of Disconnection",
+        "mp": "Soul Drift Pattern"
+      },
+      {
+        "code": "B",
+        "text": "Struggle to slow down \u2014 I stay in my head even when the world goes quiet.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Over-Analyzer",
+        "ar_secondary": "The Burdened Flame",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Internalized Rationality Code"
+      },
+      {
+        "code": "C",
+        "text": "Feel numb \u2014 like I should be feeling more than I actually do.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Spirit-Dimmed",
+        "ar_secondary": "The Ghost",
+        "wi": "Divine Detachment",
+        "mp": "Silence-as-Safety Reflex"
+      },
+      {
+        "code": "D",
+        "text": "Feel a deep remembering \u2014 I belong here. This is where I come from.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Rooted Flame",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Want to connect more deeply, but something keeps the door from fully opening.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Guarded Mystic",
+        "wi": "Wound of Disconnection",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      }
+    ]
+  },
+  {
+    "id": "Q11",
+    "question_text": "When I consider the idea of being guided by something larger than myself, I\u2026\n\n\u2726 Not what you believe intellectually. What your body does with the idea.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel unsure \u2014 I can't fully trust anything I can't see or control.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Rational Pilgrim",
+        "ar_secondary": "The Shielded One",
+        "wi": "Existential Disenchantment",
+        "mp": "Spiritual Detachment / Void Identity Field"
+      },
+      {
+        "code": "B",
+        "text": "Long for that connection, but feel I'm not deserving or qualified enough to be reached.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Forsaken Child",
+        "ar_secondary": "The Spirit-Dimmed",
+        "wi": "Self-Exile Grief",
+        "mp": "Mirror of Invalidation"
+      },
+      {
+        "code": "C",
+        "text": "Trust it \u2014 it's woven into how I move through the world.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Sovereign",
+        "ar_secondary": "The Luminous Witness",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "D",
+        "text": "Fear losing control \u2014 surrender has cost me before.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Guarded Mystic",
+        "wi": "Fear-Based Survival Coding",
+        "mp": "Control Mirrors / External Authority Coding"
+      },
+      {
+        "code": "E",
+        "text": "Want to believe it's possible \u2014 I'm not there yet, but I'm moving toward it.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Seeker",
+        "wi": "Existential Disenchantment",
+        "mp": "Threshold Dissolution"
+      }
+    ]
+  },
+  {
+    "id": "Q12",
+    "question_text": "When I reflect on the idea of 'coming home to myself,' I\u2026\n\n\u2726 Not the spiritual concept \u2014 the felt sense of it.",
+    "is_ghost": false,
+    "answers": [
+      {
+        "code": "A",
+        "text": "Feel grief for the years I abandoned my own presence to survive.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Forsaken Child",
+        "wi": "Self-Exile Grief",
+        "mp": "Reunion Longing Field"
+      },
+      {
+        "code": "B",
+        "text": "Struggle to know what 'home' even feels like from the inside.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Drifting One",
+        "ar_secondary": "The Ghost",
+        "wi": "Wound of Disconnection",
+        "mp": "Identity Collapse Field"
+      },
+      {
+        "code": "C",
+        "text": "Carry self-blame for the ways I betrayed or silenced parts of myself.",
+        "spectrum_depth": "\u25cf SHADOW",
+        "ar_primary": "The Silent Flame",
+        "ar_secondary": "The Fault-Bearer",
+        "wi": "Shame Encoding / Blame Internalization",
+        "mp": "Internal Blame Loop"
+      },
+      {
+        "code": "D",
+        "text": "Am already returning \u2014 piece by piece, I am finding my way back.",
+        "spectrum_depth": "\u2605 GIFT",
+        "ar_primary": "The Returning One",
+        "ar_secondary": "The Sovereign",
+        "wi": "Truth Integrity Activation (SI)",
+        "mp": "Meaning-as-Embodiment"
+      },
+      {
+        "code": "E",
+        "text": "Fear what I might find if I actually stop running and look inward.",
+        "spectrum_depth": "\u25d0 THRESHOLD",
+        "ar_primary": "The Shielded One",
+        "ar_secondary": "The Mid-Void Traveler",
+        "wi": "Core Shame Exposure / Vulnerability",
+        "mp": "Mirror of Invalidation"
+      }
+    ]
+  }
+]
