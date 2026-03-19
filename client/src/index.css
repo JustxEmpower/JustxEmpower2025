@@ -553,6 +553,38 @@ video::-webkit-media-controls-overlay-play-button {
 .cx-spectrum-threshold { color: var(--cx-gold); }
 .cx-spectrum-gift { color: var(--cx-sage); }
 
+/* Portal sidebar responsive */
+@media (max-width: 768px) {
+  .codex-env { flex-direction: column !important; }
+  .codex-env > aside {
+    width: 100% !important;
+    height: auto !important;
+    position: relative !important;
+    flex-direction: row !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(61, 34, 51, 0.15) !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+  }
+  .codex-env > aside > nav {
+    flex-direction: row !important;
+    padding: 0.5rem !important;
+    gap: 0.15rem !important;
+    overflow-x: auto !important;
+  }
+  .codex-env > aside > nav button {
+    flex-shrink: 0 !important;
+    padding: 0.5rem 0.75rem !important;
+  }
+  .codex-env > aside > div:first-child,
+  .codex-env > aside > div:last-child {
+    display: none !important;
+  }
+  .codex-env > main {
+    height: auto !important;
+  }
+}
+
 /* Print styles for Mirror Report */
 @media print {
   .codex-env { background: white !important; color: #1a1a1a !important; }

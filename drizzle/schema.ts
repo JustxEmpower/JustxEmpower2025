@@ -1577,3 +1577,70 @@ export const codexAnswers = mysqlTable("codex_answers", {
 
 export type CodexAnswer = typeof codexAnswers.$inferSelect;
 export type InsertCodexAnswer = typeof codexAnswers.$inferInsert;
+
+/**
+ * Codex journal entries — prompted reflections with AI-powered insights
+ */
+export const codexJournalEntries = mysqlTable("codex_journal_entries", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  content: text("content").notNull(),
+  mood: varchar("mood", { length: 50 }),
+  themes: text("themes"), // JSON array of theme strings
+  aiPrompt: text("aiPrompt"), // the Gemini prompt that inspired this entry
+  aiSummary: text("aiSummary"), // Gemini-generated reflection on the entry
+  phase: varchar("phase", { length: 50 }),
+  archetypeContext: varchar("archetypeContext", { length: 100 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+
+export type CodexJournalEntry = typeof codexJournalEntries.$inferSelect;
+export type InsertCodexJournalEntry = typeof codexJournalEntries.$inferInsert;
+
+/**
+ * Codex AI guide conversations
+ */
+export const codexGuideConversations = mysqlTable("codex_guide_conversations", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  guideId: varchar("guideId", { length: 50 }).notNull(), // orientation, archetype, wound, shadow, embodiment, sovereignty
+  title: varchar("title", { length: 255 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+
+export type CodexGuideConversation = typeof codexGuideConversations.$inferSelect;
+export type InsertCodexGuideConversation = typeof codexGuideConversations.$inferInsert;
+
+/**
+ * Codex AI guide messages within conversations
+ */
+export const codexGuideMessages = mysqlTable("codex_guide_messages", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  conversationId: varchar("conversationId", { length: 30 }).notNull(),
+  role: varchar("role", { length: 20 }).notNull(), // "user" | "assistant"
+  content: text("content").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexGuideMessage = typeof codexGuideMessages.$inferSelect;
+export type InsertCodexGuideMessage = typeof codexGuideMessages.$inferInsert;
+
+/**
+ * Codex user settings (weather zip, guide preferences, etc.)
+ */
+export const codexUserSettings = mysqlTable("codex_user_settings", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  weatherZip: varchar("weatherZip", { length: 10 }),
+  weatherLat: varchar("weatherLat", { length: 20 }),
+  weatherLon: varchar("weatherLon", { length: 20 }),
+  guideStyle: varchar("guideStyle", { length: 50 }).default("poetic"),
+  guideFrequency: varchar("guideFrequency", { length: 50 }).default("daily"),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull(),
+});
+
+export type CodexUserSettings = typeof codexUserSettings.$inferSelect;
+export type InsertCodexUserSettings = typeof codexUserSettings.$inferInsert;

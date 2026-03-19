@@ -12,6 +12,7 @@ import { nanoid } from "nanoid";
 import bcrypt from "bcryptjs";
 import { runScoringEngine, type ResponseRecord, type AnswerMetadata } from "./lib/codexScoringEngine";
 import { SECTION_META, ARCHETYPES, JOURNEY_TIERS, SCROLL_MODULES } from "./lib/codexConstants";
+import { CODEX_GUIDES, codexGuideChat, generateJournalPrompt, reflectOnJournalEntry, generateGrowthInsight, type UserContext } from "./lib/codexAI";
 import Stripe from "stripe";
 
 let _stripe: Stripe | null = null;
@@ -21,8 +22,6 @@ function getStripe(): Stripe | null {
   }
   return _stripe;
 }
-
-function cuid() { return nanoid(25); }
 
 // ── Admin auth (same pattern as adminRouters.ts) ────────────────────
 async function validateAdminSession(token: string): Promise<string | null> {
@@ -54,7 +53,7 @@ async function getOrCreateCodexUser(customer: schema.Customer) {
   const db = await getDb(); if (!db) throw new Error("DB N/A");
   const [existing] = await db.select().from(schema.codexUsers).where(eq(schema.codexUsers.email, customer.email)).limit(1);
   if (existing) return existing;
-  const id = cuid();
+  const id = nanoid();
   await db.insert(schema.codexUsers).values({
     id,
     email: customer.email,
@@ -117,7 +116,7 @@ const codexAdminRouter = router({
   // Add admin note
   addNote: adminProc.input(z.object({ userId: z.string(), content: z.string().min(1) })).mutation(async ({ input, ctx }) => {
     const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-    const id = cuid();
+    const id = nanoid();
     await db.insert(schema.codexAdminNotes).values({ id, userId: input.userId, content: input.content });
     return { success: true, id };
   }),
@@ -213,7 +212,7 @@ const codexClientRouter = router({
     }
     const [report] = await db.select().from(schema.codexMirrorReports).where(eq(schema.codexMirrorReports.userId, u.id)).orderBy(desc(schema.codexMirrorReports.generatedAt)).limit(1);
     const scrollProgress = await db.select({ moduleNum: schema.codexScrollEntries.moduleNum }).from(schema.codexScrollEntries).where(eq(schema.codexScrollEntries.userId, u.id));
-    const completedModules = [...new Set(scrollProgress.map(e => e.moduleNum))];
+    const completedModules = Array.from(new Set(scrollProgress.map(e => e.moduleNum)));
 
     return {
       user: { name: u.name, tier: u.tier, purchaseDate: u.purchaseDate?.toISOString() || null },
@@ -251,7 +250,7 @@ const codexClientRouter = router({
     const [existing] = await db.select().from(schema.codexAssessments).where(and(eq(schema.codexAssessments.userId, u.id), eq(schema.codexAssessments.status, "in_progress"))).limit(1);
     if (existing) return { assessmentId: existing.id, currentSection: existing.currentSection, currentQuestion: existing.currentQuestion, resumed: true };
     // Create new
-    const id = cuid();
+    const id = nanoid();
     await db.insert(schema.codexAssessments).values({ id, userId: u.id, status: "in_progress", startedAt: new Date() });
     return { assessmentId: id, currentSection: 1, currentQuestion: 1, resumed: false };
   }),
@@ -266,7 +265,7 @@ const codexClientRouter = router({
     isGhost: z.boolean().default(false),
   })).mutation(async ({ input }) => {
     const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-    const id = cuid();
+    const id = nanoid();
     // Upsert response
     const [existing] = await db.select().from(schema.codexResponses).where(and(
       eq(schema.codexResponses.assessmentId, input.assessmentId),
@@ -333,14 +332,14 @@ const codexClientRouter = router({
     const result = runScoringEngine(records, answerLookup);
 
     // Save scoring
-    const scoringId = cuid();
+    const scoringId = nanoid();
     await db.insert(schema.codexScorings).values({ id: scoringId, assessmentId: input.assessmentId, resultJson: JSON.stringify(result) });
 
     // Mark assessment complete
     await db.update(schema.codexAssessments).set({ status: "complete", completedAt: new Date() }).where(eq(schema.codexAssessments.id, input.assessmentId));
 
     // Auto-generate mirror report
-    const reportId = cuid();
+    const reportId = nanoid();
     const reportContent = {
       archetypeConstellation: result.archetypeConstellation,
       activeWounds: result.activeWounds,
@@ -389,7 +388,7 @@ const codexClientRouter = router({
     if (existing) {
       await db.update(schema.codexScrollEntries).set({ responseText: input.responseText }).where(eq(schema.codexScrollEntries.id, existing.id));
     } else {
-      await db.insert(schema.codexScrollEntries).values({ id: cuid(), userId: u.id, moduleNum: input.moduleNum, promptId: input.promptId, responseText: input.responseText });
+      await db.insert(schema.codexScrollEntries).values({ id: nanoid(), userId: u.id, moduleNum: input.moduleNum, promptId: input.promptId, responseText: input.responseText });
     }
     return { success: true };
   }),
@@ -427,12 +426,245 @@ const codexClientRouter = router({
     return { success: true, tier: tier.id };
   }),
 
+  // ── Dashboard Data (enriched) ─────────────────────────────────────
+  dashboardData: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const [assessment] = await db.select().from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    let scoring = null;
+    if (assessment) {
+      const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+      scoring = s ? JSON.parse(s.resultJson) : null;
+    }
+    const scrollProgress = await db.select({ moduleNum: schema.codexScrollEntries.moduleNum }).from(schema.codexScrollEntries).where(eq(schema.codexScrollEntries.userId, u.id));
+    const completedModules = Array.from(new Set(scrollProgress.map(e => e.moduleNum)));
+    const [journalCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.codexJournalEntries).where(eq(schema.codexJournalEntries.userId, u.id));
+    const [report] = await db.select().from(schema.codexMirrorReports).where(eq(schema.codexMirrorReports.userId, u.id)).orderBy(desc(schema.codexMirrorReports.generatedAt)).limit(1);
+    const daysActive = u.purchaseDate ? Math.floor((Date.now() - new Date(u.purchaseDate).getTime()) / 86400000) : 0;
+
+    // Build user context for AI
+    const userContext: UserContext = {
+      name: u.name || undefined,
+      primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype,
+      phase: scoring?.spectrumProfile?.thresholdPct > 40 ? "threshold" : scoring?.spectrumProfile?.giftPct > 30 ? "integration" : "discovery",
+      activeWounds: scoring?.activeWounds?.slice(0, 3).map((w: any) => w.wound),
+      spectrumProfile: scoring?.spectrumProfile,
+      integrationIndex: scoring?.integrationIndex,
+      tier: u.tier || undefined,
+    };
+
+    let growthInsight = "";
+    try { growthInsight = await generateGrowthInsight(userContext); } catch {}
+
+    return {
+      user: { name: u.name, tier: u.tier, purchaseDate: u.purchaseDate?.toISOString() || null },
+      assessment: assessment ? { id: assessment.id, status: assessment.status, currentSection: assessment.currentSection } : null,
+      scoring,
+      reportStatus: report?.status || "none",
+      completedModules,
+      journalCount: journalCount?.count || 0,
+      daysActive,
+      growthInsight,
+    };
+  }),
+
+  // ── Journal Endpoints ──────────────────────────────────────────────
+  journalList: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    return db.select().from(schema.codexJournalEntries).where(eq(schema.codexJournalEntries.userId, u.id)).orderBy(desc(schema.codexJournalEntries.createdAt));
+  }),
+
+  journalCreate: customerProc.input(z.object({
+    title: z.string().min(1),
+    content: z.string().min(1),
+    mood: z.string().optional(),
+    aiPrompt: z.string().optional(),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const id = nanoid();
+
+    // Get user context for AI reflection
+    const [assessment] = await db.select().from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    let scoring = null;
+    if (assessment) {
+      const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+      scoring = s ? JSON.parse(s.resultJson) : null;
+    }
+    const userContext: UserContext = {
+      primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype,
+      phase: scoring?.spectrumProfile?.thresholdPct > 40 ? "threshold" : "discovery",
+    };
+
+    let aiResult = { themes: [] as string[], reflection: "" };
+    try { aiResult = await reflectOnJournalEntry(input.content, userContext); } catch {}
+
+    await db.insert(schema.codexJournalEntries).values({
+      id,
+      userId: u.id,
+      title: input.title,
+      content: input.content,
+      mood: input.mood || null,
+      themes: JSON.stringify(aiResult.themes),
+      aiPrompt: input.aiPrompt || null,
+      aiSummary: aiResult.reflection || null,
+      phase: userContext.phase || null,
+      archetypeContext: userContext.primaryArchetype || null,
+    });
+
+    const [entry] = await db.select().from(schema.codexJournalEntries).where(eq(schema.codexJournalEntries.id, id)).limit(1);
+    return entry;
+  }),
+
+  journalPrompt: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const [assessment] = await db.select().from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    let scoring = null;
+    if (assessment) {
+      const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+      scoring = s ? JSON.parse(s.resultJson) : null;
+    }
+    const userContext: UserContext = {
+      primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype,
+      phase: scoring?.spectrumProfile?.thresholdPct > 40 ? "threshold" : "discovery",
+      activeWounds: scoring?.activeWounds?.slice(0, 2).map((w: any) => w.wound),
+    };
+    const prompt = await generateJournalPrompt(userContext);
+    return { prompt };
+  }),
+
+  // ── AI Guide Endpoints ─────────────────────────────────────────────
+  guideList: customerProc.query(() => CODEX_GUIDES),
+
+  guideConversations: customerProc.input(z.object({ guideId: z.string() })).query(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    return db.select().from(schema.codexGuideConversations).where(and(
+      eq(schema.codexGuideConversations.userId, u.id),
+      eq(schema.codexGuideConversations.guideId, input.guideId),
+    )).orderBy(desc(schema.codexGuideConversations.updatedAt));
+  }),
+
+  guideMessages: customerProc.input(z.object({ conversationId: z.string() })).query(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    return db.select().from(schema.codexGuideMessages).where(eq(schema.codexGuideMessages.conversationId, input.conversationId)).orderBy(asc(schema.codexGuideMessages.createdAt));
+  }),
+
+  guideSend: customerProc.input(z.object({
+    guideId: z.string(),
+    conversationId: z.string().optional(),
+    message: z.string().min(1),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Create or get conversation
+    let convId = input.conversationId;
+    if (!convId) {
+      convId = nanoid();
+      await db.insert(schema.codexGuideConversations).values({
+        id: convId, userId: u.id, guideId: input.guideId,
+        title: input.message.substring(0, 100),
+      });
+    }
+
+    // Save user message
+    await db.insert(schema.codexGuideMessages).values({ id: nanoid(), conversationId: convId, role: "user", content: input.message });
+
+    // Get history
+    const history = await db.select().from(schema.codexGuideMessages).where(eq(schema.codexGuideMessages.conversationId, convId)).orderBy(asc(schema.codexGuideMessages.createdAt));
+
+    // Build user context
+    const [assessment] = await db.select().from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    let scoring = null;
+    if (assessment) {
+      const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+      scoring = s ? JSON.parse(s.resultJson) : null;
+    }
+    const userContext: UserContext = {
+      name: u.name || undefined,
+      primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype,
+      phase: scoring?.spectrumProfile?.thresholdPct > 40 ? "threshold" : "discovery",
+      activeWounds: scoring?.activeWounds?.slice(0, 3).map((w: any) => w.wound),
+      spectrumProfile: scoring?.spectrumProfile,
+      integrationIndex: scoring?.integrationIndex,
+    };
+
+    // Get AI response
+    const chatHistory = history.map(m => ({ role: m.role as "user" | "assistant", content: m.content }));
+    const aiResponse = await codexGuideChat(input.guideId, input.message, chatHistory, userContext);
+
+    // Save AI response
+    const aiMsgId = nanoid();
+    await db.insert(schema.codexGuideMessages).values({ id: aiMsgId, conversationId: convId, role: "assistant", content: aiResponse });
+    await db.update(schema.codexGuideConversations).set({ updatedAt: new Date() }).where(eq(schema.codexGuideConversations.id, convId));
+
+    return { conversationId: convId, response: aiResponse, messageId: aiMsgId };
+  }),
+
+  // ── User Settings ─────────────────────────────────────────────────
+  getSettings: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const [settings] = await db.select().from(schema.codexUserSettings).where(eq(schema.codexUserSettings.userId, u.id)).limit(1);
+    return settings || null;
+  }),
+
+  updateSettings: customerProc.input(z.object({
+    weatherZip: z.string().optional(),
+    weatherLat: z.string().optional(),
+    weatherLon: z.string().optional(),
+    guideStyle: z.string().optional(),
+    guideFrequency: z.string().optional(),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const [existing] = await db.select().from(schema.codexUserSettings).where(eq(schema.codexUserSettings.userId, u.id)).limit(1);
+    if (existing) {
+      await db.update(schema.codexUserSettings).set({ ...input, updatedAt: new Date() }).where(eq(schema.codexUserSettings.id, existing.id));
+    } else {
+      await db.insert(schema.codexUserSettings).values({ id: nanoid(), userId: u.id, ...input });
+    }
+    return { success: true };
+  }),
+
+  // ── Weather Proxy (Open-Meteo — free, no API key) ─────────────────
+  weather: customerProc.input(z.object({
+    lat: z.string(),
+    lon: z.string(),
+  })).query(async ({ input }) => {
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${input.lat}&longitude=${input.lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max&current_weather=true&temperature_unit=fahrenheit&windspeed_unit=mph&timezone=auto&forecast_days=7`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Weather API failed");
+      return await res.json();
+    } catch (e: any) {
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: e.message || "Weather fetch failed" });
+    }
+  }),
+
+  geocode: publicProcedure.input(z.object({ zip: z.string() })).query(async ({ input }) => {
+    try {
+      const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(input.zip)}&count=1&language=en&format=json`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error("Geocode failed");
+      const data = await res.json();
+      if (!data.results?.length) throw new Error("Location not found");
+      return { lat: String(data.results[0].latitude), lon: String(data.results[0].longitude), name: data.results[0].name, country: data.results[0].country };
+    } catch (e: any) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: e.message || "Geocode failed" });
+    }
+  }),
+
   // Get constants (archetypes, tiers, scroll modules) for frontend
   constants: publicProcedure.query(() => ({
     sectionMeta: SECTION_META,
     archetypes: ARCHETYPES,
     journeyTiers: JOURNEY_TIERS,
     scrollModules: SCROLL_MODULES,
+    guides: CODEX_GUIDES,
   })),
 });
 
