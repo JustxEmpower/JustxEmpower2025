@@ -261,12 +261,12 @@ export default function AdminCodeTurbo() {
   });
 
   // Queries
-  const settingsQuery = trpc.admin.siteSettings.get.useQuery(undefined, {
+  const settingsQuery = trpc.admin.siteSettings.getAll.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
   // Mutation
-  const updateSettingMutation = trpc.admin.siteSettings.update.useMutation({
+  const updateSettingMutation = trpc.admin.siteSettings.upsert.useMutation({
     onSuccess: () => {
       settingsQuery.refetch();
     },
