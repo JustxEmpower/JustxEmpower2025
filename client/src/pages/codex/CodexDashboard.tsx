@@ -1,5 +1,11 @@
 import { trpc } from "@/lib/trpc";
 import CodexWeather from "./CodexWeather";
+import {
+  PhaseJourneyMap,
+  ContradictionExplorer,
+  WeeklyPracticeCard,
+  CommunityCircleCard,
+} from "./CodexDashboardExpansions";
 
 interface Props {
   onNavigate: (view: string) => void;
@@ -106,6 +112,15 @@ export default function CodexDashboard({ onNavigate }: Props) {
             </div>
           </div>
 
+          {/* Phase Journey */}
+          {scoring && (
+            <PhaseJourneyMap
+              currentPhase={scoring?.phase || 1}
+              completedPhases={(d as any).completedPhases || []}
+              primaryArchetype={primary?.archetype || ""}
+            />
+          )}
+
           {/* Stats */}
           <div className="cx-card cx-fade-up cx-delay-2">
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1rem" }}>
@@ -173,6 +188,30 @@ export default function CodexDashboard({ onNavigate }: Props) {
                     "Shadow patterns surfacing"}
               </p>
             </div>
+          )}
+
+          {/* Weekly Practice */}
+          {(d as any).routing && (
+            <WeeklyPracticeCard
+              weeklyPrompt={(d as any).routing.weeklyPrompt}
+              practiceRecommendations={(d as any).routing.practiceRecommendations || []}
+              nextRecommendedStep={(d as any).routing.nextRecommendedStep || "Continue Your Journey"}
+              primaryArchetype={primary?.archetype || ""}
+            />
+          )}
+
+          {/* Contradiction Patterns */}
+          {scoring?.contradictionFlags?.length > 0 && (
+            <ContradictionExplorer contradictions={scoring.contradictionFlags} />
+          )}
+
+          {/* Community Circles */}
+          {(d as any).routing?.recommendedCircles && (
+            <CommunityCircleCard
+              recommendedCircles={(d as any).routing.recommendedCircles}
+              communityTier={(d as any).routing.communityTier || "peer"}
+              primaryArchetype={primary?.archetype || ""}
+            />
           )}
         </div>
       </div>

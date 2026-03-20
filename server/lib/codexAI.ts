@@ -2,7 +2,8 @@
  * Living Codex™ AI Integration — Gemini-powered guides, journal prompts, and growth insights
  */
 import { ensureGeminiFromDatabase, getGeminiClient } from "../aiService";
-import { GOVERNANCE_BLOCK } from "./codexGuidePrompts";
+import { GOVERNANCE_BLOCK, buildGuideSystemPrompt } from "./codexGuidePrompts";
+import { assembleGuidePromptWithEvidence } from "./codexCorpusCitations";
 
 // ── Guide Personas ──────────────────────────────────────────────────
 export const CODEX_GUIDES = [
@@ -133,7 +134,36 @@ export async function codexGuideChat(
   if (!genAI) throw new Error("AI not available");
 
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-  const systemPrompt = getGuideSystemPrompt(guideId, userContext);
+
+  // Wire full ELEVATE guide prompts + FORTIFY evidence injection
+  const GUIDE_TYPE_MAP: Record<string, string> = {
+    orientation: "codex_orientation",
+    archetype: "archetype_reflection",
+    wound: "journal_companion",
+    shadow: "archetype_reflection",
+    embodiment: "ns_support",
+    sovereignty: "community_concierge",
+  };
+  const guideType = (GUIDE_TYPE_MAP[guideId] || "codex_orientation") as import("./codexGuidePrompts").GuideType;
+  const userProfile: import("./codexGuidePrompts").UserProfile = {
+    userId: "session",
+    phase: parseInt(userContext.phase || "1"),
+    primaryArchetype: userContext.primaryArchetype || "",
+    shadowArchetype: "",
+    woundPrioritySet: userContext.activeWounds || [],
+    nsDominant: "regulated",
+    pathway: "discovery",
+    modulesCompleted: [],
+    daysInPhase: 0,
+  };
+  let systemPrompt: string;
+  try {
+    const basePrompt = buildGuideSystemPrompt(guideType, userProfile, "session");
+    systemPrompt = assembleGuidePromptWithEvidence(guideType, userProfile, basePrompt);
+  } catch {
+    // Fallback to simplified prompt if full system fails
+    systemPrompt = getGuideSystemPrompt(guideId, userContext);
+  }
 
   const historyText = history
     .map(m => `${m.role === "user" ? "Seeker" : "Guide"}: ${m.content}`)

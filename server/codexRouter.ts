@@ -459,6 +459,34 @@ const codexClientRouter = router({
     let growthInsight = "";
     try { growthInsight = await generateGrowthInsight(userContext); } catch {}
 
+    // Compute routing engine output for dashboard expansions
+    let routing = null;
+    if (scoring) {
+      try {
+        routing = routePortalContent({
+          primaryArchetype: scoring.archetypeConstellation?.[0]?.archetype || "",
+          shadowArchetype: scoring.archetypeConstellation?.[1]?.archetype || "",
+          archetypeCluster: scoring.archetypeConstellation?.slice(0, 3).map((a: any) => a.archetype) || [],
+          woundPrioritySet: scoring.activeWounds?.map((w: any) => w.wiCode || w.wound) || [],
+          mirrorMap: scoring.activeMirrors?.map((m: any) => m.mpCode) || [],
+          spectrumProfile: {
+            shadowPercent: scoring.spectrumProfile?.shadowPct || 0,
+            thresholdPercent: scoring.spectrumProfile?.thresholdPct || 0,
+            giftPercent: scoring.spectrumProfile?.giftPct || 0,
+          },
+          siProportion: 0.5,
+          nsProfile: { ns_freeze: 0, ns_fight: 0, ns_collapse: 0, ns_hypervigilant: 0, ns_regulated: 1 },
+          phase: String(scoring.phase || 1),
+          selfPlacedPhase: String(scoring.phase || 1),
+          pathwayType: "discovery",
+          depthLevel: "intermediate",
+          supportStyle: "general",
+          timeCapacity: "moderate",
+          completedModules: completedModules.map(Number),
+        });
+      } catch {}
+    }
+
     return {
       user: { name: u.name, tier: u.tier, purchaseDate: u.purchaseDate?.toISOString() || null },
       assessment: assessment ? { id: assessment.id, status: assessment.status, currentSection: assessment.currentSection } : null,
@@ -468,6 +496,7 @@ const codexClientRouter = router({
       journalCount: journalCount?.count || 0,
       daysActive,
       growthInsight,
+      routing,
     };
   }),
 
