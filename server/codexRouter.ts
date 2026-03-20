@@ -14,6 +14,8 @@ import { runScoringEngine, type ResponseRecord, type AnswerMetadata } from "./li
 import { SECTION_META, ARCHETYPES, JOURNEY_TIERS, SCROLL_MODULES } from "./lib/codexConstants";
 import { CODEX_GUIDES, codexGuideChat, generateJournalPrompt, reflectOnJournalEntry, generateGrowthInsight, type UserContext } from "./lib/codexAI";
 import { interceptUserMessage, validateAIResponse } from "./lib/codexEscalationEngine";
+import { generateMirrorReport } from "./lib/codexMirrorReport";
+import { routePortalContent } from "./lib/codexRoutingEngine";
 import Stripe from "stripe";
 
 let _stripe: Stripe | null = null;
@@ -687,6 +689,72 @@ const codexClientRouter = router({
       return { lat: String(data.results[0].latitude), lon: String(data.results[0].longitude), name: data.results[0].name, country: data.results[0].country };
     } catch (e: any) {
       throw new TRPCError({ code: "BAD_REQUEST", message: e.message || "Geocode failed" });
+    }
+  }),
+
+  // ── Mirror Report Generator ────────────────────────────────────────
+  generateMirrorReport: customerProc.mutation(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const [assessment] = await db.select().from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    if (!assessment) throw new TRPCError({ code: "NOT_FOUND", message: "No assessment found. Complete an assessment first." });
+    const [scoringRow] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+    if (!scoringRow) throw new TRPCError({ code: "NOT_FOUND", message: "No scoring data found." });
+    const scoring = JSON.parse(scoringRow.resultJson);
+
+    const scoringResult = {
+      userId: u.id,
+      assessmentId: assessment.id,
+      primaryArchetype: scoring.archetypeConstellation?.[0]?.archetype || "the-silent-flame",
+      shadowArchetype: scoring.archetypeConstellation?.[1]?.archetype || "the-fierce-protector",
+      primaryWounds: (scoring.activeWounds || []).map((w: any) => ({ name: w.wound, score: w.score || 0 })),
+      nervousSystemProfile: { dominantState: scoring.nsProfile?.dominant || "ventral-vagal", score: 0 },
+      mirrorPatterns: (scoring.activeMirrors || []).map((m: any) => ({ name: m.mirror, intensity: m.score || 0 })),
+      phase: scoring.spectrumProfile?.thresholdPct > 40 ? "phase-4-integration" : "phase-1-awakening",
+      spectrumScores: { shadow: scoring.spectrumProfile?.shadowPct || 0, threshold: scoring.spectrumProfile?.thresholdPct || 0, gift: scoring.spectrumProfile?.giftPct || 0 },
+      siProportion: scoring.spectrumProfile?.siProportion || 0,
+    };
+
+    const routingResult = { phase: scoringResult.phase, pathway: "reclamation", modulePath: "" };
+    const report = generateMirrorReport(u.name || "Beloved", scoringResult, routingResult);
+    return report;
+  }),
+
+  // ── Portal Routing Engine ──────────────────────────────────────────
+  getPortalRouting: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const [assessment] = await db.select().from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    if (!assessment) return null;
+    const [scoringRow] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+    if (!scoringRow) return null;
+    const scoring = JSON.parse(scoringRow.resultJson);
+
+    try {
+      const routingInput = {
+        primaryArchetype: scoring.archetypeConstellation?.[0]?.archetype || "the-silent-flame",
+        shadowArchetype: scoring.archetypeConstellation?.[1]?.archetype || "the-fierce-protector",
+        archetypeCluster: (scoring.archetypeConstellation || []).slice(0, 3).map((a: any) => a.archetype),
+        woundPrioritySet: (scoring.activeWounds || []).slice(0, 3).map((w: any) => w.wound),
+        mirrorMap: (scoring.activeMirrors || []).slice(0, 3).map((m: any) => m.mirror),
+        spectrumProfile: {
+          shadowPercent: scoring.spectrumProfile?.shadowPct || 0,
+          thresholdPercent: scoring.spectrumProfile?.thresholdPct || 0,
+          giftPercent: scoring.spectrumProfile?.giftPct || 0,
+        },
+        siProportion: scoring.spectrumProfile?.siProportion || 0,
+        nsProfile: scoring.nsProfile || { ns_freeze: 0, ns_fight: 0, ns_collapse: 0, ns_hypervigilant: 0, ns_regulated: 0.5 },
+        phase: scoring.spectrumProfile?.thresholdPct > 40 ? "4" : "1",
+        selfPlacedPhase: "1",
+        pathwayType: "reclamation",
+        depthLevel: "intermediate",
+        supportStyle: "general",
+        timeCapacity: "moderate",
+      };
+      return routePortalContent(routingInput);
+    } catch (e) {
+      console.warn("[Codex] Routing engine error:", e);
+      return null;
     }
   }),
 
