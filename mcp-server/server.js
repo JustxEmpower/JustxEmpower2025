@@ -101,23 +101,34 @@ SERVER MODULES (server/lib/codex*.ts):
 
 CLIENT (client/src/pages/codex/):
   Shell: CodexPortalShell → Dashboard, Journey, Guide, Journal, Modules
-  Enhanced: HolographicAvatar (Three.js, lazy), AIGuide, JournalVault, MyCodex, CodexEvents
+  Enhanced: HolographicAvatar (CSS animated orb + server-side Gemini via tRPC), AIGuide, JournalVault, MyCodex, CodexEvents
+  Dashboard: CodexDashboardExpansions → PhaseJourneyMap, ContradictionExplorer, WeeklyPracticeCard, PatternConnectionsPanel, CommunityCircleCard
   Journey: ArchetypeCard, SpectrumDisplay, MirrorReportViewer, GrowthTimeline, ProgressMarkers, ReAssessmentTrigger
   System: codexDesignSystem, codexAnimations, useGuideSession, useCodexState, types
 
+HOLOGRAPHIC AVATAR (HolographicAvatar.tsx):
+  Visual: CSS animated holographic orb with glow rings, pulse/speak animations, radial gradient bg
+  AI: Routes messages through guideSend tRPC mutation (server-side Gemini, NO client API key)
+  Voice: Web Speech API with interim transcript accumulation, sends on stop
+  Props: onSendMessage callback for server-routed AI, guideType, userProfile, isActive
+
 tRPC ENDPOINTS (codexRouter.ts):
-  portal, dashboardData, assessmentStart/Submit/Status
+  portal, dashboardData (+ routing engine output), assessmentStart/Submit/Status
   journalList/Create/Prompt/Reflect
-  guideSend (ESCALATION WIRED), guideConversations/History
+  guideSend (ESCALATION WIRED — used by both text chat and holographic avatar), guideConversations/History
   generateMirrorReport, getPortalRouting
   purchaseTier, confirmTierPurchase, settings, weather
 
 SAFETY PIPELINE (guideSend):
   1. interceptUserMessage → crisis detection
   2. Escalation? → override + admin notify + return
-  3. Safe? → AI generates with GOVERNANCE_BLOCK
+  3. Safe? → AI generates with GOVERNANCE_BLOCK + FORTIFY evidence injection
   4. validateAIResponse → boundary check
-  5. Violation? → sanitized replacement`;
+  5. Violation? → sanitized replacement
+
+LAYOUT (App.tsx):
+  AIChatAssistant hidden on /account/codex pages (isCodexPage check)
+  CodexPortalShell uses calc(100vh - 6rem) to account for fixed Header`;
       return { content: [{ type: "text", text: arch }] };
     });
 
