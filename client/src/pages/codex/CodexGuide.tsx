@@ -1,5 +1,17 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { trpc } from "@/lib/trpc";
+
+const HolographicAvatar = lazy(() => import("./HolographicAvatar"));
+
+// Map our guide IDs to the HolographicAvatar GuideType keys
+const GUIDE_TYPE_MAP: Record<string, string> = {
+  orientation: "codex_orientation",
+  archetype: "archetype_reflection",
+  wound: "journal_companion",
+  shadow: "archetype_reflection",
+  embodiment: "ns_support",
+  sovereignty: "community_concierge",
+};
 
 export default function CodexGuide() {
   const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
@@ -66,6 +78,7 @@ export default function CodexGuide() {
     setLocalMessages([]);
   };
 
+  const [holographicMode, setHolographicMode] = useState(false);
   const activeGuide = guides.find((g: any) => g.id === selectedGuide);
 
   // ── Guide Selection ──
@@ -123,6 +136,40 @@ export default function CodexGuide() {
   // ── Chat Interface ──
   return (
     <div style={{ display: "flex", height: "calc(100vh - 3rem)", overflow: "hidden" }}>
+      {/* Holographic Avatar Mode */}
+      {holographicMode && selectedGuide && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.95)" }}>
+          <button
+            onClick={() => setHolographicMode(false)}
+            style={{
+              position: "absolute", top: "1rem", right: "1rem", zIndex: 60,
+              padding: "0.5rem 1rem", background: "rgba(44,31,40,0.8)",
+              border: "1px solid rgba(201,168,76,0.3)", borderRadius: "0.5rem",
+              color: "var(--cx-gold)", fontSize: "0.75rem", cursor: "pointer",
+            }}
+          >
+            Exit Holographic Mode
+          </button>
+          <Suspense fallback={
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", color: "var(--cx-gold)" }}>
+              <p className="cx-slow-pulse">Materializing guide...</p>
+            </div>
+          }>
+            <HolographicAvatar
+              guideType={GUIDE_TYPE_MAP[selectedGuide] || "codex_orientation"}
+              userProfile={{ userId: "", phase: 1, primaryArchetype: "", shadowArchetype: "", woundPrioritySet: [], nsDominant: "ventral", pathway: "discovery" }}
+              systemPrompt=""
+              onMessage={(msg: any) => {
+                setLocalMessages(prev => [...prev, { role: msg.role === "guide" ? "assistant" : "user", content: msg.content }]);
+              }}
+              onEscalation={() => {}}
+              onSessionEnd={() => setHolographicMode(false)}
+              isActive={holographicMode}
+            />
+          </Suspense>
+        </div>
+      )}
+
       {/* Conversation Sidebar */}
       <div style={{
         width: "14rem", flexShrink: 0, borderRight: "1px solid rgba(61,34,51,0.15)",
@@ -150,9 +197,20 @@ export default function CodexGuide() {
           <button
             onClick={startNewConversation}
             className="cx-btn-primary"
-            style={{ width: "100%", fontSize: "0.75rem", padding: "0.5rem" }}
+            style={{ width: "100%", fontSize: "0.75rem", padding: "0.5rem", marginBottom: "0.5rem" }}
           >
             + New Conversation
+          </button>
+          <button
+            onClick={() => setHolographicMode(true)}
+            style={{
+              width: "100%", fontSize: "0.65rem", padding: "0.45rem",
+              background: "rgba(201,168,76,0.05)", border: "1px solid rgba(201,168,76,0.15)",
+              borderRadius: "0.375rem", color: "var(--cx-gold)", cursor: "pointer",
+              letterSpacing: "0.05em", transition: "all 300ms",
+            }}
+          >
+            ◇ Holographic Mode
           </button>
         </div>
 

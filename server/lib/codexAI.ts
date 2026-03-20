@@ -2,6 +2,7 @@
  * Living Codex™ AI Integration — Gemini-powered guides, journal prompts, and growth insights
  */
 import { ensureGeminiFromDatabase, getGeminiClient } from "../aiService";
+import { GOVERNANCE_BLOCK } from "./codexGuidePrompts";
 
 // ── Guide Personas ──────────────────────────────────────────────────
 export const CODEX_GUIDES = [
@@ -67,7 +68,9 @@ Your boundaries:
 - If someone expresses crisis or suicidal ideation, gently direct them to professional help
 - Keep responses to 2-4 paragraphs unless depth is requested
 
-Always remember: The Codex does not fix. It remembers.`;
+Always remember: The Codex does not fix. It remembers.
+
+${GOVERNANCE_BLOCK}`;
 
 function getGuideSystemPrompt(guideId: string, userContext: UserContext): string {
   const guide = CODEX_GUIDES.find(g => g.id === guideId);

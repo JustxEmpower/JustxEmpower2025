@@ -13,6 +13,7 @@ import bcrypt from "bcryptjs";
 import { runScoringEngine, type ResponseRecord, type AnswerMetadata } from "./lib/codexScoringEngine";
 import { SECTION_META, ARCHETYPES, JOURNEY_TIERS, SCROLL_MODULES } from "./lib/codexConstants";
 import { CODEX_GUIDES, codexGuideChat, generateJournalPrompt, reflectOnJournalEntry, generateGrowthInsight, type UserContext } from "./lib/codexAI";
+import { interceptUserMessage, validateAIResponse } from "./lib/codexEscalationEngine";
 import Stripe from "stripe";
 
 let _stripe: Stripe | null = null;
@@ -573,6 +574,30 @@ const codexClientRouter = router({
     // Save user message
     await db.insert(schema.codexGuideMessages).values({ id: nanoid(), conversationId: convId, role: "user", content: input.message });
 
+    // ── ESCALATION CHECK: Run every message through crisis detection ──
+    const escalation = interceptUserMessage(u.id, convId, input.message);
+    if (escalation.shouldEscalate && escalation.aiResponseOverride) {
+      // Save the escalation response as AI message
+      const escMsgId = nanoid();
+      await db.insert(schema.codexGuideMessages).values({ id: escMsgId, conversationId: convId, role: "assistant", content: escalation.aiResponseOverride });
+      await db.update(schema.codexGuideConversations).set({ updatedAt: new Date() }).where(eq(schema.codexGuideConversations.id, convId));
+      // Create admin notification for high/critical severity
+      if (escalation.severity === "high" || escalation.severity === "critical") {
+        try {
+          await db.insert(schema.adminNotifications).values({
+            type: "system",
+            title: `Codex Escalation: ${escalation.severity}`,
+            message: `User ${u.name || u.id} triggered ${escalation.triggers.join(", ")} (${escalation.severity}). Action: ${escalation.action}.`,
+            link: "/admin/codex/clients",
+            priority: escalation.severity === "critical" ? "critical" : "high",
+            relatedId: Number(u.id) || undefined,
+            relatedType: "customer",
+          }).catch(() => {});
+        } catch {}
+      }
+      return { conversationId: convId, response: escalation.aiResponseOverride, messageId: escMsgId, escalated: true, severity: escalation.severity };
+    }
+
     // Get history
     const history = await db.select().from(schema.codexGuideMessages).where(eq(schema.codexGuideMessages.conversationId, convId)).orderBy(asc(schema.codexGuideMessages.createdAt));
 
@@ -594,7 +619,14 @@ const codexClientRouter = router({
 
     // Get AI response
     const chatHistory = history.map(m => ({ role: m.role as "user" | "assistant", content: m.content }));
-    const aiResponse = await codexGuideChat(input.guideId, input.message, chatHistory, userContext);
+    let aiResponse = await codexGuideChat(input.guideId, input.message, chatHistory, userContext);
+
+    // ── BOUNDARY CHECK: Validate AI response before delivery ──
+    const validation = validateAIResponse(aiResponse, input.guideId);
+    if (!validation.approved) {
+      aiResponse = validation.response;
+      console.warn(`[Codex] AI response boundary violation: ${validation.violations.join(", ")}`);
+    }
 
     // Save AI response
     const aiMsgId = nanoid();
