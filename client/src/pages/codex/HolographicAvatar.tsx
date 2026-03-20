@@ -525,6 +525,43 @@ interface UseGeminiLiveReturn {
   endSession: () => void;
 }
 
+// ============================================================================
+// VOICE CONFIGURATION — Maps guide voices to SpeechSynthesis voices
+// ============================================================================
+
+const GUIDE_VOICE_PREFS: Record<string, { preferredNames: string[]; lang: string; pitch: number; rate: number }> = {
+  Kore:   { preferredNames: ['Samantha', 'Karen', 'Zira', 'Google UK English Female', 'Microsoft Zira'], lang: 'en-US', pitch: 1.0, rate: 0.9 },
+  Aoede:  { preferredNames: ['Moira', 'Fiona', 'Google UK English Female', 'Microsoft Hazel'], lang: 'en-GB', pitch: 0.95, rate: 0.85 },
+  Leda:   { preferredNames: ['Samantha', 'Victoria', 'Google US English', 'Microsoft Zira'], lang: 'en-US', pitch: 1.05, rate: 0.88 },
+  Theia:  { preferredNames: ['Karen', 'Tessa', 'Google UK English Female', 'Microsoft Susan'], lang: 'en-US', pitch: 0.9, rate: 0.82 },
+  Selene: { preferredNames: ['Moira', 'Fiona', 'Google UK English Female', 'Microsoft Hazel'], lang: 'en-GB', pitch: 1.0, rate: 0.9 },
+  Zephyr: { preferredNames: ['Samantha', 'Karen', 'Google US English', 'Microsoft Zira'], lang: 'en-US', pitch: 1.1, rate: 0.95 },
+};
+
+/**
+ * Find the best available SpeechSynthesis voice for a guide.
+ * Tries preferred names first, then falls back to any female English voice.
+ */
+function selectVoiceForGuide(guideName: string): SpeechSynthesisVoice | null {
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length === 0) return null;
+
+  const prefs = GUIDE_VOICE_PREFS[guideName] || GUIDE_VOICE_PREFS.Kore;
+
+  // Try preferred voice names first
+  for (const name of prefs.preferredNames) {
+    const match = voices.find(v => v.name.includes(name));
+    if (match) return match;
+  }
+
+  // Fallback: any English female-sounding voice
+  const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Zira')));
+  if (englishVoice) return englishVoice;
+
+  // Last resort: any English voice
+  return voices.find(v => v.lang.startsWith('en')) || voices[0] || null;
+}
+
 function useGeminiLive(
   systemPrompt: string,
   guideConfig: GuideVisualConfig,
@@ -544,31 +581,93 @@ function useGeminiLive(
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const pendingTranscriptRef = useRef<string>('');
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const shouldKeepListeningRef = useRef(false);
 
-  // Initialize session — server handles AI, so just mark connected
+  // Initialize session + preload voices
   useEffect(() => {
     setIsConnected(true);
+
+    // Preload speech synthesis voices (Chrome loads them async)
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
+
     return () => {
-      if (sessionRef.current) {
-        sessionRef.current = null;
-      }
+      if (sessionRef.current) sessionRef.current = null;
+      // Cancel any ongoing speech on unmount
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     };
   }, []);
 
-  // Audio level monitoring
+  // Audio level monitoring — driven by real speech events
   useEffect(() => {
     if (!isSpeaking) {
       setAudioLevel(0);
       return;
     }
 
-    // Simulate audio levels for avatar animation
+    // Animate audio levels while TTS is playing
     const interval = setInterval(() => {
       setAudioLevel(Math.random() * 0.8 + 0.2);
     }, 100);
 
     return () => clearInterval(interval);
   }, [isSpeaking]);
+
+  // ── Text-to-Speech: Make the guide actually speak ──
+  const speakText = useCallback((text: string) => {
+    if (!('speechSynthesis' in window)) {
+      console.warn('[HolographicAvatar] SpeechSynthesis not supported');
+      return;
+    }
+
+    // Cancel any in-progress speech
+    window.speechSynthesis.cancel();
+
+    const prefs = GUIDE_VOICE_PREFS[guideConfig.name] || GUIDE_VOICE_PREFS.Kore;
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // Select voice
+    const voice = selectVoiceForGuide(guideConfig.name);
+    if (voice) utterance.voice = voice;
+    utterance.lang = prefs.lang;
+    utterance.pitch = prefs.pitch;
+    utterance.rate = prefs.rate;
+    utterance.volume = 1.0;
+
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+    };
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setCurrentGesture('idle');
+      utteranceRef.current = null;
+      // If user had voice mode on, restart listening after guide finishes speaking
+      if (shouldKeepListeningRef.current && recognitionRef.current === null) {
+        // Small delay so mic doesn't pick up tail-end of TTS
+        setTimeout(() => {
+          if (shouldKeepListeningRef.current) {
+            startListeningInternal();
+          }
+        }, 500);
+      }
+    };
+
+    utterance.onerror = (event) => {
+      console.error('[HolographicAvatar] TTS error:', event.error);
+      setIsSpeaking(false);
+      setCurrentGesture('idle');
+      utteranceRef.current = null;
+    };
+
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  }, [guideConfig.name]);
 
   // Detect emotion from response text
   const detectEmotion = useCallback((text: string): AvatarEmotion => {
@@ -628,6 +727,12 @@ function useGeminiLive(
       // Check escalation before processing
       if (checkEscalation(text)) return;
 
+      // Pause STT while processing so mic doesn't pick up guide's voice
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch {}
+        recognitionRef.current = null;
+      }
+
       // Add user message
       onMessage({
         role: 'user',
@@ -640,12 +745,12 @@ function useGeminiLive(
 
       try {
         if (!onSendMessage) {
+          // Demo mode — still speak the response out loud
           setTimeout(() => {
             const demoResponse = `I hear you. That's a meaningful reflection. Within the Codex, this connects to your current phase of growth. What resonates most with what you're noticing?`;
             const emotion = detectEmotion(demoResponse);
             setCurrentEmotion(emotion);
             setCurrentGesture(detectGesture(demoResponse, false));
-            setIsSpeaking(true);
 
             onMessage({
               role: 'guide',
@@ -654,11 +759,8 @@ function useGeminiLive(
               emotion,
             });
 
-            setTimeout(() => {
-              setIsSpeaking(false);
-              setCurrentGesture('idle');
-              setCurrentEmotion('neutral');
-            }, 3000);
+            // Speak the response with TTS
+            speakText(demoResponse);
           }, 1500);
           return;
         }
@@ -671,7 +773,6 @@ function useGeminiLive(
 
         setCurrentEmotion(emotion);
         setCurrentGesture(gesture);
-        setIsSpeaking(true);
 
         onMessage({
           role: 'guide',
@@ -680,34 +781,41 @@ function useGeminiLive(
           emotion,
         });
 
-        // Simulate speaking duration based on text length
-        const speakDuration = Math.min(guideText.length * 50, 15000);
-        setTimeout(() => {
-          setIsSpeaking(false);
-          setCurrentGesture('idle');
-        }, speakDuration);
+        // Speak the response with real TTS — isSpeaking is set by utterance.onstart
+        speakText(guideText);
       } catch (error) {
         console.error('[HolographicAvatar] Message send failed:', error);
         setCurrentGesture('idle');
         setCurrentEmotion('concern');
       }
     },
-    [onSendMessage, onMessage, checkEscalation, detectEmotion, detectGesture]
+    [onSendMessage, onMessage, checkEscalation, detectEmotion, detectGesture, speakText]
   );
 
-  // Speech recognition for voice mode
-  const startListening = useCallback(() => {
+  // ── Speech Recognition — robust STT with auto-restart ──
+
+  const startListeningInternal = useCallback(() => {
+    // Don't start if guide is currently speaking (mic would pick up TTS)
+    if (isSpeaking) return;
+
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-      console.warn('[HolographicAvatar] Speech recognition not supported');
+      console.warn('[HolographicAvatar] Speech recognition not supported in this browser');
       return;
+    }
+
+    // Clean up any existing recognition
+    if (recognitionRef.current) {
+      try { recognitionRef.current.stop(); } catch {}
+      recognitionRef.current = null;
     }
 
     const SpeechRecognition =
       (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     const recognition = new SpeechRecognition();
-    recognition.continuous = true;
+    recognition.continuous = false;    // Use single-shot mode — more reliable in Chrome
     recognition.interimResults = true;
     recognition.lang = 'en-US';
+    recognition.maxAlternatives = 1;
 
     recognition.onresult = (event: any) => {
       let finalText = '';
@@ -720,41 +828,104 @@ function useGeminiLive(
           interimText += result[0].transcript;
         }
       }
-      if (finalText) {
+
+      if (finalText.trim()) {
         pendingTranscriptRef.current = '';
-        setTranscript(finalText);
-        sendTextMessage(finalText);
+        setTranscript(finalText.trim());
+        sendTextMessage(finalText.trim());
       } else if (interimText) {
         pendingTranscriptRef.current = interimText;
         setTranscript(interimText);
       }
     };
 
-    recognition.onstart = () => setIsListening(true);
-    recognition.onend = () => setIsListening(false);
+    recognition.onstart = () => {
+      setIsListening(true);
+    };
+
+    recognition.onend = () => {
+      recognitionRef.current = null;
+      // Auto-restart if user still wants to listen and guide isn't speaking
+      if (shouldKeepListeningRef.current && !isSpeaking) {
+        // Send any pending interim text that didn't finalize
+        if (pendingTranscriptRef.current.trim()) {
+          const pending = pendingTranscriptRef.current.trim();
+          pendingTranscriptRef.current = '';
+          setTranscript(pending);
+          sendTextMessage(pending);
+        } else {
+          // Restart recognition for next utterance
+          setTimeout(() => {
+            if (shouldKeepListeningRef.current) {
+              startListeningInternal();
+            } else {
+              setIsListening(false);
+            }
+          }, 200);
+        }
+      } else {
+        setIsListening(false);
+      }
+    };
+
     recognition.onerror = (event: any) => {
       console.error('[HolographicAvatar] Speech error:', event.error);
+      recognitionRef.current = null;
+
+      // 'no-speech' is normal — user just didn't say anything yet. Restart.
+      if (event.error === 'no-speech' && shouldKeepListeningRef.current) {
+        setTimeout(() => {
+          if (shouldKeepListeningRef.current) startListeningInternal();
+        }, 300);
+        return;
+      }
+
+      // 'aborted' happens when we intentionally stop — not an error
+      if (event.error === 'aborted') return;
+
+      // Real errors — stop listening
       setIsListening(false);
+      shouldKeepListeningRef.current = false;
     };
 
     recognitionRef.current = recognition;
-    recognition.start();
-  }, [sendTextMessage]);
+
+    try {
+      recognition.start();
+    } catch (e) {
+      console.error('[HolographicAvatar] Failed to start recognition:', e);
+      recognitionRef.current = null;
+      setIsListening(false);
+    }
+  }, [sendTextMessage, isSpeaking]);
+
+  const startListening = useCallback(() => {
+    shouldKeepListeningRef.current = true;
+    // Stop TTS if guide is speaking — user wants to talk
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
+    startListeningInternal();
+  }, [startListeningInternal]);
 
   const stopListening = useCallback(() => {
+    shouldKeepListeningRef.current = false;
     if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsListening(false);
-      // Send any accumulated interim transcript that wasn't finalized
-      if (pendingTranscriptRef.current.trim()) {
-        sendTextMessage(pendingTranscriptRef.current.trim());
-        pendingTranscriptRef.current = '';
-      }
+      try { recognitionRef.current.stop(); } catch {}
+      recognitionRef.current = null;
+    }
+    setIsListening(false);
+    // Send any accumulated interim transcript
+    if (pendingTranscriptRef.current.trim()) {
+      sendTextMessage(pendingTranscriptRef.current.trim());
+      pendingTranscriptRef.current = '';
     }
   }, [sendTextMessage]);
 
   const endSession = useCallback(() => {
     stopListening();
+    // Cancel any ongoing TTS
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
     if (sessionRef.current) {
       sessionRef.current = null;
     }
