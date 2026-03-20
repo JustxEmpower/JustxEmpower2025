@@ -176,7 +176,8 @@ app.get("/sse", async (req, res) => {
   console.log("[MCP] SSE connection opened");
   const server = new McpServer({ name: "jxe-codebase", version: "1.0.0" });
   registerTools(server);
-  const transport = new SSEServerTransport("/messages", res);
+  const basePath = process.env.MCP_BASE_PATH || "/mcp";
+  const transport = new SSEServerTransport(`${basePath}/messages`, res);
   transports[transport.sessionId] = { transport, server };
   res.on("close", () => { delete transports[transport.sessionId]; console.log("[MCP] SSE closed"); });
   await server.connect(transport);

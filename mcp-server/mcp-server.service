@@ -8,6 +8,7 @@ WorkingDirectory=/var/www/justxempower/mcp-server
 ExecStart=/usr/bin/node /var/www/justxempower/mcp-server/server.js
 Environment=MCP_PORT=3847
 Environment=JXE_PROJECT_ROOT=/var/www/justxempower
+Environment=MCP_BASE_PATH=/mcp
 Restart=always
 RestartSec=5
 
