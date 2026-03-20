@@ -70,17 +70,91 @@ function registerTools(server) {
   server.tool("git_status", "Current git status.", {},
     async () => ({ content: [{ type: "text", text: `Branch: ${run("git branch --show-current").trim()}\n${run("git status --short") || "(clean)"}` }] }));
 
-  server.tool("project_overview", "High-level project map.", {},
+  server.tool("project_overview", "Full project map including Living Codex integration.", {},
     async () => {
       const pkg = JSON.parse(fs.readFileSync(path.join(PROJECT_ROOT, "package.json"), "utf-8"));
-      const deps = Object.keys(pkg.dependencies||{}).slice(0,25).join(", ");
+      const deps = Object.keys(pkg.dependencies||{}).slice(0,30).join(", ");
       const pages = run("ls client/src/pages/ 2>/dev/null").trim();
+      const codexPages = run("ls client/src/pages/codex/ 2>/dev/null").trim();
       const srv = run("ls server/*.ts 2>/dev/null").trim();
-      return { content: [{ type: "text", text: `# JustxEmpower2025\n\nDeps: ${deps}\n\nPages:\n${pages}\n\nServer:\n${srv}` }] };
+      const codexLibs = run("ls server/lib/codex*.ts 2>/dev/null").trim();
+      return { content: [{ type: "text", text: `# JustxEmpower2025 + Living Codex\nStack: Vite+React19+tRPC+Drizzle+MySQL/RDS+Express | EC2 PM2 :8083\n\nDeps: ${deps}\n\nPages:\n${pages}\n\nCodex Portal (client/src/pages/codex/):\n${codexPages}\n\nServer Routers:\n${srv}\n\nLiving Codex Modules (server/lib/):\n${codexLibs}` }] };
     });
 
   server.tool("git_diff", "Show diffs.", { target: z.string().default("") },
     async ({ target }) => ({ content: [{ type: "text", text: run(`git diff ${target} | head -300`) || "(no diff)" }] }));
+
+  server.tool("codex_architecture", "Living Codex system architecture — modules, wiring, endpoints, safety layers.", {},
+    async () => {
+      const arch = `# Living Codex Architecture (27-agent build)
+
+SERVER MODULES (server/lib/codex*.ts):
+  Intelligence: codexAI.ts, codexScoringEngine.ts, codexRoutingEngine.ts, codexGrowthEngine.ts
+  Research: codexResearchCorpus.ts (76 citations), codexCorpusCitations.ts, codexGuidePrompts.ts (6 guides), codexCorpusGovernance.ts
+  Safety: codexEscalationEngine.ts → interceptUserMessage() + validateAIResponse()
+  Assessment: codexAssessmentDomains1to4.ts, codexAssessmentDomains5to8.ts
+  Reports: codexMirrorReport.ts, codexNotifications.ts, codexConstants.ts
+
+CLIENT (client/src/pages/codex/):
+  Shell: CodexPortalShell → Dashboard, Journey, Guide, Journal, Modules
+  Enhanced: HolographicAvatar (Three.js, lazy), AIGuide, JournalVault, MyCodex, CodexEvents
+  Journey: ArchetypeCard, SpectrumDisplay, MirrorReportViewer, GrowthTimeline, ProgressMarkers, ReAssessmentTrigger
+  System: codexDesignSystem, codexAnimations, useGuideSession, useCodexState, types
+
+tRPC ENDPOINTS (codexRouter.ts):
+  portal, dashboardData, assessmentStart/Submit/Status
+  journalList/Create/Prompt/Reflect
+  guideSend (ESCALATION WIRED), guideConversations/History
+  generateMirrorReport, getPortalRouting
+  purchaseTier, confirmTierPurchase, settings, weather
+
+SAFETY PIPELINE (guideSend):
+  1. interceptUserMessage → crisis detection
+  2. Escalation? → override + admin notify + return
+  3. Safe? → AI generates with GOVERNANCE_BLOCK
+  4. validateAIResponse → boundary check
+  5. Violation? → sanitized replacement`;
+      return { content: [{ type: "text", text: arch }] };
+    });
+
+  server.tool("codex_modules", "List all Living Codex files with line counts and sizes.", {},
+    async () => {
+      const serverLibs = run("wc -l server/lib/codex*.ts 2>/dev/null").trim();
+      const clientFiles = run("wc -l client/src/pages/codex/*.tsx client/src/pages/codex/*.ts 2>/dev/null").trim();
+      const journeyFiles = run("wc -l client/src/pages/codex/journey/*.tsx 2>/dev/null").trim();
+      const router = run("wc -l server/codexRouter.ts 2>/dev/null").trim();
+      return { content: [{ type: "text", text: `# Living Codex File Inventory\n\nServer Libs:\n${serverLibs}\n\nRouter:\n${router}\n\nClient Components:\n${clientFiles}\n\nJourney Components:\n${journeyFiles}` }] };
+    });
+
+  server.tool("codex_endpoints", "List all tRPC endpoints in codexRouter with line numbers.", {},
+    async () => {
+      const endpoints = run("grep -n 'customerProc\\|publicProcedure\\|adminProc' server/codexRouter.ts | head -40").trim();
+      const imports = run("head -20 server/codexRouter.ts").trim();
+      return { content: [{ type: "text", text: `# Codex Router Endpoints\n\nImports:\n${imports}\n\nEndpoints:\n${endpoints}` }] };
+    });
+
+  server.tool("deployment_status", "Check PM2, git, and server health on EC2.", {},
+    async () => {
+      const gitHead = run("git log -1 --pretty=format:'%h %s' 2>/dev/null").trim();
+      const branch = run("git branch --show-current 2>/dev/null").trim();
+      const dirty = run("git status --short 2>/dev/null").trim();
+      const pm2 = run("pm2 jlist 2>/dev/null || echo 'pm2 not available'").trim();
+      let pm2Status = "unavailable";
+      try { const list = JSON.parse(pm2); pm2Status = list.map(p => `${p.name}: ${p.pm2_env?.status} (pid:${p.pid}, uptime:${Math.round((Date.now()-p.pm2_env?.pm_uptime)/60000)}m, restarts:${p.pm2_env?.restart_time})`).join("\n"); } catch {}
+      return { content: [{ type: "text", text: `# Deployment Status\n\nBranch: ${branch}\nHEAD: ${gitHead}\nDirty: ${dirty || "(clean)"}\n\nPM2:\n${pm2Status}` }] };
+    });
+
+  server.tool("db_schema", "Show Drizzle schema table definitions.", { table: z.string().optional() },
+    async ({ table }) => {
+      const schemaPath = safePath("drizzle/schema.ts");
+      if (!fs.existsSync(schemaPath)) return { content: [{ type: "text", text: "Schema file not found" }] };
+      if (table) {
+        const r = run(`grep -A 20 "export const ${table}" drizzle/schema.ts`).trim();
+        return { content: [{ type: "text", text: r || `Table '${table}' not found in schema` }] };
+      }
+      const tables = run("grep 'export const.*mysqlTable\\|export const.*pgTable\\|export const.*sqliteTable' drizzle/schema.ts").trim();
+      return { content: [{ type: "text", text: `# Drizzle Schema Tables\n\n${tables}` }] };
+    });
 }
 
 // Express + SSE
