@@ -793,6 +793,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
   const config = GUIDE_CONFIGS[guideType];
   const [textInput, setTextInput] = useState('');
   const [showTextFallback, setShowTextFallback] = useState(false);
+  const [canvasError, setCanvasError] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<GuideMessage[]>([]);
 
@@ -831,7 +832,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
   return (
     <div className="relative w-full h-full min-h-[600px] bg-gray-950 rounded-2xl overflow-hidden">
       {/* Three.js Canvas — Holographic Avatar */}
-      {!prefersReducedMotion ? (
+      {false ? (
         <div className="absolute inset-0">
           <Canvas
             camera={{ position: [0, 0, 6], fov: 50 }}
@@ -861,30 +862,21 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 isSpeaking={gemini.isSpeaking}
               />
 
-              <GuideName name={config.name} color={config.primaryColor} />
-
-              <Environment preset="night" />
+              <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.5} />
             </Suspense>
           </Canvas>
         </div>
       ) : (
-        /* Reduced motion fallback */
-        <div
-          className="absolute inset-0 flex items-center justify-center"
-          style={{ backgroundColor: PHASE_AMBIENTS[userProfile.phase]?.fog || '#0A0A1A' }}
-        >
-          <div className="text-center">
-            <div
-              className="w-24 h-24 rounded-full mx-auto mb-4"
-              style={{
-                backgroundColor: config.primaryColor,
-                boxShadow: `0 0 40px ${config.emissiveColor}`,
-                opacity: gemini.isSpeaking ? 0.9 : 0.6,
-              }}
-            />
-            <p className="text-lg font-medium" style={{ color: config.primaryColor }}>
-              {config.name}
-            </p>
+        <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(ellipse at center, ${config.secondaryColor}cc 0%, #0A0A1A 70%)` }}>
+          <style>{`@keyframes hp{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.08);opacity:.95}}@keyframes hs{0%,100%{transform:scale(1)}25%{transform:scale(1.12)}75%{transform:scale(.95)}}@keyframes hr{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
+          <div style={{textAlign:'center',marginTop:'-3rem'}}>
+            <div style={{width:'14rem',height:'14rem',margin:'0 auto',position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <div style={{position:'absolute',inset:0,borderRadius:'50%',border:`2px solid ${config.primaryColor}30`,animation:'hr 20s linear infinite'}}/>
+              <div style={{position:'absolute',inset:'1rem',borderRadius:'50%',border:`1px solid ${config.primaryColor}20`,animation:'hr 15s linear infinite reverse'}}/>
+              <div style={{width:'8rem',height:'8rem',borderRadius:'50%',background:`radial-gradient(circle at 35% 35%, ${config.primaryColor}, ${config.emissiveColor}80)`,boxShadow:`0 0 60px ${config.emissiveColor}, 0 0 120px ${config.emissiveColor}40`,animation:gemini.isSpeaking?'hs .8s ease-in-out infinite':'hp 3s ease-in-out infinite'}}/>
+            </div>
+            <p style={{fontSize:'1.1rem',fontWeight:500,color:config.primaryColor,letterSpacing:'0.15em',marginTop:'1rem'}}>{config.name}</p>
+            <p style={{fontSize:'0.65rem',color:'rgba(255,255,255,0.3)',marginTop:'0.35rem'}}>{gemini.isSpeaking?'Speaking...':gemini.isListening?'Listening...':'Holographic Guide'}</p>
           </div>
         </div>
       )}
