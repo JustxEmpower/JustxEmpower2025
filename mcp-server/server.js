@@ -253,6 +253,12 @@ SAFETY PIPELINE (guideSend):
 const app = express();
 const transports = {};
 
+// Request logging
+app.use((req, res, next) => {
+  console.log(`[MCP] ${req.method} ${req.path} ${req.query.sessionId || ""}`);
+  next();
+});
+
 // CORS — required for browser-based MCP clients like Claude co-work
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
