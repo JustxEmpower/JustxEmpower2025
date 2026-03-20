@@ -253,6 +253,16 @@ SAFETY PIPELINE (guideSend):
 const app = express();
 const transports = {};
 
+// CORS — required for browser-based MCP clients like Claude co-work
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept");
+  res.setHeader("Access-Control-Expose-Headers", "Content-Type");
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
+
 if (TOKEN) {
   app.use((req, res, next) => {
     if (req.path === "/health") return next();
