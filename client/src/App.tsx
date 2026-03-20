@@ -207,6 +207,7 @@ function App() {
   
   // Check if we're on an admin page
   const isAdminPage = typeof location === 'string' && location.startsWith('/admin');
+  const isCodexPage = typeof location === 'string' && location.startsWith('/account/codex');
 
   // Only show preloader on initial load or home page refresh
   useEffect(() => {
@@ -231,7 +232,7 @@ function App() {
             <Router />
             {!isAdminPage && <Footer />}
             {!isAdminPage && <NewsletterPopup />}
-            {!isAdminPage && <AIChatAssistant />}
+            {!isAdminPage && !isCodexPage && <AIChatAssistant />}
             {isAdminPage && <AdminAIAssistant />}
             {!isAdminPage && <AnalyticsTracker />}
             <Analytics />

@@ -541,6 +541,7 @@ function useGeminiLive(
   const recognitionRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const pendingTranscriptRef = useRef<string>('');
 
   // Initialize Gemini Live session
   useEffect(() => {
@@ -768,16 +769,23 @@ function useGeminiLive(
     recognition.lang = 'en-US';
 
     recognition.onresult = (event: any) => {
-      let finalTranscript = '';
+      let finalText = '';
+      let interimText = '';
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         if (result.isFinal) {
-          finalTranscript += result[0].transcript;
+          finalText += result[0].transcript;
+        } else {
+          interimText += result[0].transcript;
         }
       }
-      if (finalTranscript) {
-        setTranscript(finalTranscript);
-        sendTextMessage(finalTranscript);
+      if (finalText) {
+        pendingTranscriptRef.current = '';
+        setTranscript(finalText);
+        sendTextMessage(finalText);
+      } else if (interimText) {
+        pendingTranscriptRef.current = interimText;
+        setTranscript(interimText);
       }
     };
 
@@ -796,8 +804,13 @@ function useGeminiLive(
     if (recognitionRef.current) {
       recognitionRef.current.stop();
       setIsListening(false);
+      // Send any accumulated interim transcript that wasn't finalized
+      if (pendingTranscriptRef.current.trim()) {
+        sendTextMessage(pendingTranscriptRef.current.trim());
+        pendingTranscriptRef.current = '';
+      }
     }
-  }, []);
+  }, [sendTextMessage]);
 
   const endSession = useCallback(() => {
     stopListening();

@@ -150,6 +150,7 @@ export default function CodexGuide() {
           >
             Exit Holographic Mode
           </button>
+          <div style={{ width: "100%", height: "100%" }}>
           <Suspense fallback={
             <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", color: "var(--cx-gold)" }}>
               <p className="cx-slow-pulse">Materializing guide...</p>
@@ -167,6 +168,7 @@ export default function CodexGuide() {
               isActive={holographicMode}
             />
           </Suspense>
+          </div>
         </div>
       )}
 
