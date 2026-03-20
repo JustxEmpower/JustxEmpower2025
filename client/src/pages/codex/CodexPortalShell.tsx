@@ -42,13 +42,13 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
   };
 
   return (
-    <div className="codex-env" style={{ display: "flex", minHeight: "100vh", overflow: "hidden" }}>
+    <div className="codex-env" style={{ display: "flex", minHeight: "calc(100vh - 6rem)", overflow: "hidden", paddingTop: "6rem" }}>
       {/* Sidebar */}
       <aside style={{
         width: collapsed ? "4rem" : "13rem", flexShrink: 0,
         background: "rgba(10,10,10,0.7)", borderRight: "1px solid rgba(61,34,51,0.15)",
         display: "flex", flexDirection: "column", transition: "width 400ms ease",
-        position: "sticky", top: 0, height: "100vh", overflowY: "auto", overflowX: "hidden",
+        position: "sticky", top: 0, height: "calc(100vh - 6rem)", overflowY: "auto", overflowX: "hidden",
       }}>
         {/* Logo */}
         <div style={{
@@ -113,7 +113,7 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
       </aside>
 
       {/* Main Content */}
-      <main style={{ flex: 1, overflowY: "auto", height: "100vh" }}>
+      <main style={{ flex: 1, overflowY: "auto", height: "calc(100vh - 6rem)" }}>
         {renderView()}
       </main>
     </div>
