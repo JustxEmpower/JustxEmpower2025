@@ -166,6 +166,15 @@ export default function CodexGuide() {
               onEscalation={() => {}}
               onSessionEnd={() => setHolographicMode(false)}
               isActive={holographicMode}
+              onSendMessage={async (text: string) => {
+                const result = await sendMutation.mutateAsync({
+                  guideId: selectedGuide,
+                  conversationId: conversationId || undefined,
+                  message: text,
+                });
+                if (!conversationId) setConversationId(result.conversationId);
+                return result.response;
+              }}
             />
           </Suspense>
           </div>

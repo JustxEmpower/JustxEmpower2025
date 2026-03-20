@@ -53,6 +53,7 @@ export interface HolographicAvatarProps {
   onEscalation: (event: EscalationEvent) => void;
   onSessionEnd: () => void;
   isActive: boolean;
+  onSendMessage?: (message: string) => Promise<string>;
 }
 
 type GuideType =
@@ -528,7 +529,8 @@ function useGeminiLive(
   systemPrompt: string,
   guideConfig: GuideVisualConfig,
   onMessage: (msg: GuideMessage) => void,
-  onEscalation: (event: EscalationEvent) => void
+  onEscalation: (event: EscalationEvent) => void,
+  onSendMessage?: (message: string) => Promise<string>
 ): UseGeminiLiveReturn {
   const [isConnected, setIsConnected] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -543,52 +545,15 @@ function useGeminiLive(
   const analyserRef = useRef<AnalyserNode | null>(null);
   const pendingTranscriptRef = useRef<string>('');
 
-  // Initialize Gemini Live session
+  // Initialize session — server handles AI, so just mark connected
   useEffect(() => {
-    const initSession = async () => {
-      try {
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-        if (!apiKey) {
-          console.warn('[HolographicAvatar] No Gemini API key — running in demo mode');
-          setIsConnected(true);
-          return;
-        }
-
-        // Initialize Gemini Live streaming session
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:streamGenerateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: systemPrompt }] },
-              contents: [],
-              generationConfig: {
-                temperature: 0.7,
-                topP: 0.9,
-                maxOutputTokens: 1024,
-              },
-            }),
-          }
-        );
-
-        if (response.ok) {
-          setIsConnected(true);
-        }
-      } catch (error) {
-        console.error('[HolographicAvatar] Session init failed:', error);
-        setIsConnected(true); // Fallback to demo mode
-      }
-    };
-
-    initSession();
-
+    setIsConnected(true);
     return () => {
       if (sessionRef.current) {
         sessionRef.current = null;
       }
     };
-  }, [systemPrompt]);
+  }, []);
 
   // Audio level monitoring
   useEffect(() => {
@@ -674,10 +639,7 @@ function useGeminiLive(
       setCurrentEmotion('listening');
 
       try {
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-
-        if (!apiKey) {
-          // Demo mode response
+        if (!onSendMessage) {
           setTimeout(() => {
             const demoResponse = `I hear you. That's a meaningful reflection. Within the Codex, this connects to your current phase of growth. What resonates most with what you're noticing?`;
             const emotion = detectEmotion(demoResponse);
@@ -701,57 +663,36 @@ function useGeminiLive(
           return;
         }
 
-        // Real Gemini API call
-        const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              system_instruction: { parts: [{ text: systemPrompt }] },
-              contents: [{ role: 'user', parts: [{ text }] }],
-              generationConfig: {
-                temperature: 0.7,
-                topP: 0.9,
-                maxOutputTokens: 1024,
-              },
-            }),
-          }
-        );
+        // Server-side AI — no API key exposed to client
+        const guideText = await onSendMessage(text);
 
-        if (response.ok) {
-          const data = await response.json();
-          const guideText =
-            data.candidates?.[0]?.content?.parts?.[0]?.text || 'I need a moment to reflect on that.';
+        const emotion = detectEmotion(guideText);
+        const gesture = detectGesture(guideText, guideText.includes('?'));
 
-          const emotion = detectEmotion(guideText);
-          const gesture = detectGesture(guideText, guideText.includes('?'));
+        setCurrentEmotion(emotion);
+        setCurrentGesture(gesture);
+        setIsSpeaking(true);
 
-          setCurrentEmotion(emotion);
-          setCurrentGesture(gesture);
-          setIsSpeaking(true);
+        onMessage({
+          role: 'guide',
+          content: guideText,
+          timestamp: new Date().toISOString(),
+          emotion,
+        });
 
-          onMessage({
-            role: 'guide',
-            content: guideText,
-            timestamp: new Date().toISOString(),
-            emotion,
-          });
-
-          // Simulate speaking duration based on text length
-          const speakDuration = Math.min(guideText.length * 50, 15000);
-          setTimeout(() => {
-            setIsSpeaking(false);
-            setCurrentGesture('idle');
-          }, speakDuration);
-        }
+        // Simulate speaking duration based on text length
+        const speakDuration = Math.min(guideText.length * 50, 15000);
+        setTimeout(() => {
+          setIsSpeaking(false);
+          setCurrentGesture('idle');
+        }, speakDuration);
       } catch (error) {
         console.error('[HolographicAvatar] Message send failed:', error);
         setCurrentGesture('idle');
         setCurrentEmotion('concern');
       }
     },
-    [systemPrompt, onMessage, checkEscalation, detectEmotion, detectGesture]
+    [onSendMessage, onMessage, checkEscalation, detectEmotion, detectGesture]
   );
 
   // Speech recognition for voice mode
@@ -847,6 +788,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
   onEscalation,
   onSessionEnd,
   isActive,
+  onSendMessage,
 }) => {
   const config = GUIDE_CONFIGS[guideType];
   const [textInput, setTextInput] = useState('');
@@ -867,7 +809,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
     [onMessage]
   );
 
-  const gemini = useGeminiLive(systemPrompt, config, handleMessage, onEscalation);
+  const gemini = useGeminiLive(systemPrompt, config, handleMessage, onEscalation, onSendMessage);
 
   // Auto-scroll chat
   useEffect(() => {
