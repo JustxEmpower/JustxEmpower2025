@@ -10,6 +10,7 @@ import express from "express";
 const PORT = parseInt(process.env.MCP_PORT || "3847", 10);
 const TOKEN = process.env.MCP_TOKEN || "";
 const PROJECT_ROOT = process.env.JXE_PROJECT_ROOT || path.resolve(new URL(".", import.meta.url).pathname, "..");
+const MAX_FILE_LINES = 1000;
 
 function safePath(rel) {
   const abs = path.resolve(PROJECT_ROOT, rel);
@@ -17,13 +18,14 @@ function safePath(rel) {
   return abs;
 }
 
-function run(cmd) {
-  try { return execSync(cmd, { cwd: PROJECT_ROOT, encoding: "utf-8", timeout: 15000, maxBuffer: 1024*1024 }); }
+function run(cmd, timeout = 15000) {
+  try { return execSync(cmd, { cwd: PROJECT_ROOT, encoding: "utf-8", timeout, maxBuffer: 2*1024*1024 }); }
   catch (e) { return e.stdout || e.stderr || e.message; }
 }
 
-const TEXT_EXTS = new Set([".ts",".tsx",".js",".jsx",".cjs",".mjs",".json",".md",".css",".html",".sql",".sh",".yml",".yaml",".toml",".txt",".prisma",".svg",".xml",".gitignore"]);
+const TEXT_EXTS = new Set([".ts",".tsx",".js",".jsx",".cjs",".mjs",".json",".md",".css",".html",".sql",".sh",".yml",".yaml",".toml",".txt",".prisma",".svg",".xml",".gitignore",".env",".lock",".conf",".service"]);
 function isText(f) { return TEXT_EXTS.has(path.extname(f).toLowerCase()) || path.extname(f) === ""; }
+function fileSize(abs) { try { return fs.statSync(abs).size; } catch { return 0; } }
 
 function registerTools(server) {
   server.tool("list_directory", "List files/dirs at a path relative to project root.",
@@ -31,7 +33,7 @@ function registerTools(server) {
     async ({ path: rel }) => {
       const abs = safePath(rel);
       if (!fs.existsSync(abs) || !fs.statSync(abs).isDirectory()) return { content: [{ type: "text", text: "Not a valid directory: " + rel }] };
-      const entries = fs.readdirSync(abs, { withFileTypes: true }).filter(e => e.name !== ".git");
+      const entries = fs.readdirSync(abs, { withFileTypes: true }).filter(e => e.name !== ".git" && e.name !== "node_modules");
       const lines = entries.map(e => {
         if (e.isDirectory()) return `📁 ${e.name}/`;
         const kb = (fs.statSync(path.join(abs, e.name)).size / 1024).toFixed(1);
@@ -49,8 +51,8 @@ function registerTools(server) {
       let lines = fs.readFileSync(abs, "utf-8").split("\n");
       const total = lines.length;
       if (start_line || end_line) { const s = Math.max(1, start_line||1)-1; const e = Math.min(total, end_line||total); lines = lines.slice(s, e); return { content: [{ type: "text", text: `${rel} (${s+1}-${e} of ${total})\n\n` + lines.map((l,i)=>`${s+i+1}\t${l}`).join("\n") }] }; }
-      if (total > 500) lines = lines.slice(0, 500);
-      return { content: [{ type: "text", text: `${rel} (${Math.min(total,500)} of ${total} lines)\n\n` + lines.map((l,i)=>`${i+1}\t${l}`).join("\n") }] };
+      if (total > MAX_FILE_LINES) lines = lines.slice(0, MAX_FILE_LINES);
+      return { content: [{ type: "text", text: `${rel} (${Math.min(total,MAX_FILE_LINES)} of ${total} lines)\n\n` + lines.map((l,i)=>`${i+1}\t${l}`).join("\n") }] };
     });
 
   server.tool("search_codebase", "Grep the codebase.",
@@ -155,6 +157,96 @@ SAFETY PIPELINE (guideSend):
       const tables = run("grep 'export const.*mysqlTable\\|export const.*pgTable\\|export const.*sqliteTable' drizzle/schema.ts").trim();
       return { content: [{ type: "text", text: `# Drizzle Schema Tables\n\n${tables}` }] };
     });
+
+  // ════════════════════════════════════════════════════════════════════
+  // TEAM TOOLS — Write, Edit, Tree, Find, Regex, Imports, Shell, Env
+  // ════════════════════════════════════════════════════════════════════
+
+  server.tool("write_file", "Create or overwrite a file. Parent dirs created automatically.",
+    { path: z.string(), content: z.string() },
+    async ({ path: rel, content }) => {
+      const abs = safePath(rel);
+      fs.mkdirSync(path.dirname(abs), { recursive: true });
+      fs.writeFileSync(abs, content, "utf-8");
+      return { content: [{ type: "text", text: `Wrote ${content.split("\n").length} lines to ${rel} (${(Buffer.byteLength(content)/1024).toFixed(1)}KB)` }] };
+    });
+
+  server.tool("edit_file", "Find and replace text in a file. Set replace_all to true for global replace.",
+    { path: z.string(), old_text: z.string(), new_text: z.string(), replace_all: z.boolean().default(false) },
+    async ({ path: rel, old_text, new_text, replace_all }) => {
+      const abs = safePath(rel);
+      if (!fs.existsSync(abs)) return { content: [{ type: "text", text: "Not found: " + rel }] };
+      let src = fs.readFileSync(abs, "utf-8");
+      if (!src.includes(old_text)) return { content: [{ type: "text", text: "old_text not found in " + rel }] };
+      if (replace_all) { src = src.split(old_text).join(new_text); } else { src = src.replace(old_text, new_text); }
+      fs.writeFileSync(abs, src, "utf-8");
+      return { content: [{ type: "text", text: `Edited ${rel} — replaced ${replace_all ? "all occurrences" : "first occurrence"}` }] };
+    });
+
+  server.tool("file_tree", "Recursive directory tree with depth limit. Excludes node_modules and .git.",
+    { path: z.string().default("."), depth: z.number().default(3) },
+    async ({ path: rel, depth }) => {
+      const abs = safePath(rel);
+      const r = run(`find "${abs}" -maxdepth ${depth} -not -path "*/node_modules/*" -not -path "*/.git/*" -not -path "*/dist/*" | sort | head -200`);
+      const cleaned = r.replace(new RegExp(PROJECT_ROOT + "/?", "g"), "");
+      return { content: [{ type: "text", text: cleaned || "Empty" }] };
+    });
+
+  server.tool("find_files", "Find files by name pattern (glob). Returns paths relative to project root.",
+    { pattern: z.string(), path: z.string().default("."), type: z.enum(["file","directory","any"]).default("file") },
+    async ({ pattern, path: rel, type }) => {
+      const abs = safePath(rel);
+      const typeFlag = type === "file" ? "-type f" : type === "directory" ? "-type d" : "";
+      const r = run(`find "${abs}" ${typeFlag} -name "${pattern}" -not -path "*/node_modules/*" -not -path "*/.git/*" | sort | head -100`);
+      const cleaned = r.replace(new RegExp(PROJECT_ROOT + "/?", "g"), "");
+      return { content: [{ type: "text", text: cleaned || "No matches" }] };
+    });
+
+  server.tool("regex_search", "Search codebase with regex pattern. Use -E for extended regex. Shows context lines.",
+    { pattern: z.string(), path: z.string().default("."), include: z.string().optional(), context: z.number().default(0), max_results: z.number().default(50) },
+    async ({ pattern, path: rel, include, context, max_results }) => {
+      const abs = safePath(rel);
+      let cmd = `grep -rn --color=never -E`;
+      if (context > 0) cmd += ` -C ${Math.min(context, 5)}`;
+      if (include) cmd += ` --include="${include}"`;
+      cmd += ` "${pattern.replace(/"/g, '\\"')}" "${abs}" | head -${max_results}`;
+      const r = run(cmd).replace(new RegExp(PROJECT_ROOT + "/", "g"), "");
+      return { content: [{ type: "text", text: r || "No results" }] };
+    });
+
+  server.tool("file_imports", "Show all imports/exports for a TypeScript/JS file. Useful for understanding dependencies.",
+    { path: z.string() },
+    async ({ path: rel }) => {
+      const abs = safePath(rel);
+      if (!fs.existsSync(abs)) return { content: [{ type: "text", text: "Not found: " + rel }] };
+      const src = fs.readFileSync(abs, "utf-8");
+      const imports = src.split("\n").filter(l => /^\s*(import|export)\s/.test(l));
+      const exportLines = src.split("\n").map((l, i) => /^export\s+(function|const|class|type|interface|enum|default)/.test(l) ? `${i+1}: ${l.trim().slice(0,120)}` : null).filter(Boolean);
+      return { content: [{ type: "text", text: `# ${rel}\n\nImports:\n${imports.join("\n") || "(none)"}\n\nExported symbols:\n${exportLines.join("\n") || "(none)"}` }] };
+    });
+
+  server.tool("run_shell", "Run a read-only shell command in the project root. For diagnostics only — no writes.",
+    { command: z.string() },
+    async ({ command }) => {
+      const blocked = ["rm ", "rm\t", "rmdir", "mv ", "dd ", "> ", ">> ", "mkfs", "chmod", "chown", "kill", "reboot", "shutdown", "systemctl stop", "systemctl disable", "npm publish", "git push", "git reset --hard"];
+      const lower = command.toLowerCase();
+      if (blocked.some(b => lower.includes(b))) return { content: [{ type: "text", text: "Blocked: destructive command not allowed via MCP" }] };
+      const r = run(command, 30000);
+      return { content: [{ type: "text", text: r.slice(0, 5000) || "(no output)" }] };
+    });
+
+  server.tool("env_info", "Show server environment: Node version, disk, memory, uptime, PM2 processes, ports.",
+    {},
+    async () => {
+      const node = run("node -v").trim();
+      const pnpm = run("pnpm -v 2>/dev/null || npm -v").trim();
+      const disk = run("df -h / | tail -1").trim();
+      const mem = run("free -h 2>/dev/null | head -2 || vm_stat 2>/dev/null | head -5").trim();
+      const up = run("uptime").trim();
+      const pm2 = run("pm2 list --no-color 2>/dev/null || echo 'pm2 not found'").trim();
+      const ports = run("ss -tlnp 2>/dev/null | grep LISTEN || netstat -tlnp 2>/dev/null | grep LISTEN || echo 'no port info'").trim();
+      return { content: [{ type: "text", text: `# Environment\nNode: ${node}\nPackage mgr: pnpm ${pnpm}\n\nDisk:\n${disk}\n\nMemory:\n${mem}\n\nUptime: ${up}\n\nPM2:\n${pm2}\n\nListening ports:\n${ports}` }] };
+    });
 }
 
 // Express + SSE
@@ -174,7 +266,7 @@ app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
 app.get("/sse", async (req, res) => {
   console.log("[MCP] SSE connection opened");
-  const server = new McpServer({ name: "jxe-codebase", version: "1.0.0" });
+  const server = new McpServer({ name: "jxe-codebase", version: "2.0.0" });
   registerTools(server);
   const basePath = process.env.MCP_BASE_PATH || "/mcp";
   const transport = new SSEServerTransport(`${basePath}/messages`, res);
