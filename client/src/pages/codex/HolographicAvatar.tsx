@@ -40,6 +40,8 @@ import {
   OrbitControls,
 } from '@react-three/drei';
 import * as THREE from 'three';
+import { KokoroTTSManager, GUIDE_VOICE_DEFAULTS, getVoiceById, type TTSStatus } from './KokoroTTSService';
+import { VoiceSettingsButton, VoiceSelector } from './VoiceSelector';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -131,7 +133,7 @@ const GUIDE_CONFIGS: Record<GuideType, GuideVisualConfig> = {
     secondaryColor: '#2D1B35',
     emissiveColor: '#C9A96E',
     particleColor: '#FFD700',
-    voiceId: 'alloy',
+    voiceId: 'af_kore',
     avatarScale: 1.2,
     ambientIntensity: 0.6,
     geometryType: 'icosahedron',
@@ -143,7 +145,7 @@ const GUIDE_CONFIGS: Record<GuideType, GuideVisualConfig> = {
     secondaryColor: '#1A1A2E',
     emissiveColor: '#9B59B6',
     particleColor: '#B39DDB',
-    voiceId: 'nova',
+    voiceId: 'af_aoede',
     avatarScale: 1.1,
     ambientIntensity: 0.5,
     geometryType: 'dodecahedron',
@@ -155,7 +157,7 @@ const GUIDE_CONFIGS: Record<GuideType, GuideVisualConfig> = {
     secondaryColor: '#2D1B35',
     emissiveColor: '#E91E63',
     particleColor: '#F8BBD0',
-    voiceId: 'shimmer',
+    voiceId: 'af_heart',
     avatarScale: 1.0,
     ambientIntensity: 0.7,
     geometryType: 'sphere',
@@ -167,7 +169,7 @@ const GUIDE_CONFIGS: Record<GuideType, GuideVisualConfig> = {
     secondaryColor: '#0D3B21',
     emissiveColor: '#4CAF50',
     particleColor: '#A5D6A7',
-    voiceId: 'echo',
+    voiceId: 'af_nova',
     avatarScale: 1.15,
     ambientIntensity: 0.65,
     geometryType: 'torusKnot',
@@ -179,7 +181,7 @@ const GUIDE_CONFIGS: Record<GuideType, GuideVisualConfig> = {
     secondaryColor: '#0D1B3E',
     emissiveColor: '#5C6BC0',
     particleColor: '#90CAF9',
-    voiceId: 'fable',
+    voiceId: 'bf_emma',
     avatarScale: 1.0,
     ambientIntensity: 0.55,
     geometryType: 'octahedron',
@@ -191,7 +193,7 @@ const GUIDE_CONFIGS: Record<GuideType, GuideVisualConfig> = {
     secondaryColor: '#3E1B0D',
     emissiveColor: '#FF9800',
     particleColor: '#FFE0B2',
-    voiceId: 'onyx',
+    voiceId: 'af_bella',
     avatarScale: 1.1,
     ambientIntensity: 0.6,
     geometryType: 'torus',
@@ -523,44 +525,12 @@ interface UseGeminiLiveReturn {
   startListening: () => void;
   stopListening: () => void;
   endSession: () => void;
+  currentVoice: string;
+  setCurrentVoice: (id: string) => void;
+  ttsReady: boolean;
 }
 
-// ============================================================================
-// VOICE CONFIGURATION — Maps guide voices to SpeechSynthesis voices
-// ============================================================================
-
-const GUIDE_VOICE_PREFS: Record<string, { preferredNames: string[]; lang: string; pitch: number; rate: number }> = {
-  Kore:   { preferredNames: ['Samantha', 'Karen', 'Zira', 'Google UK English Female', 'Microsoft Zira'], lang: 'en-US', pitch: 1.0, rate: 0.9 },
-  Aoede:  { preferredNames: ['Moira', 'Fiona', 'Google UK English Female', 'Microsoft Hazel'], lang: 'en-GB', pitch: 0.95, rate: 0.85 },
-  Leda:   { preferredNames: ['Samantha', 'Victoria', 'Google US English', 'Microsoft Zira'], lang: 'en-US', pitch: 1.05, rate: 0.88 },
-  Theia:  { preferredNames: ['Karen', 'Tessa', 'Google UK English Female', 'Microsoft Susan'], lang: 'en-US', pitch: 0.9, rate: 0.82 },
-  Selene: { preferredNames: ['Moira', 'Fiona', 'Google UK English Female', 'Microsoft Hazel'], lang: 'en-GB', pitch: 1.0, rate: 0.9 },
-  Zephyr: { preferredNames: ['Samantha', 'Karen', 'Google US English', 'Microsoft Zira'], lang: 'en-US', pitch: 1.1, rate: 0.95 },
-};
-
-/**
- * Find the best available SpeechSynthesis voice for a guide.
- * Tries preferred names first, then falls back to any female English voice.
- */
-function selectVoiceForGuide(guideName: string): SpeechSynthesisVoice | null {
-  const voices = window.speechSynthesis.getVoices();
-  if (voices.length === 0) return null;
-
-  const prefs = GUIDE_VOICE_PREFS[guideName] || GUIDE_VOICE_PREFS.Kore;
-
-  // Try preferred voice names first
-  for (const name of prefs.preferredNames) {
-    const match = voices.find(v => v.name.includes(name));
-    if (match) return match;
-  }
-
-  // Fallback: any English female-sounding voice
-  const englishVoice = voices.find(v => v.lang.startsWith('en') && (v.name.toLowerCase().includes('female') || v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Zira')));
-  if (englishVoice) return englishVoice;
-
-  // Last resort: any English voice
-  return voices.find(v => v.lang.startsWith('en')) || voices[0] || null;
-}
+// Voice config now handled by KokoroTTSService
 
 function useGeminiLive(
   systemPrompt: string,
@@ -576,98 +546,45 @@ function useGeminiLive(
   const [currentEmotion, setCurrentEmotion] = useState<AvatarEmotion>('neutral');
   const [currentGesture, setCurrentGesture] = useState<AvatarGesture>('idle');
   const [transcript, setTranscript] = useState('');
+  const [currentVoice, setCurrentVoice] = useState(GUIDE_VOICE_DEFAULTS[guideConfig.name] || 'af_heart');
+  const [ttsReady, setTtsReady] = useState(false);
   const sessionRef = useRef<any>(null);
   const recognitionRef = useRef<any>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
   const pendingTranscriptRef = useRef<string>('');
-  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const shouldKeepListeningRef = useRef(false);
+  const kokoroRef = useRef<KokoroTTSManager | null>(null);
+  const resumeListeningRef = useRef<() => void>(() => {});
 
-  // Initialize session + preload voices
+  // Initialize Kokoro TTS
   useEffect(() => {
     setIsConnected(true);
-
-    // Preload speech synthesis voices (Chrome loads them async)
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.getVoices();
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
-      };
-    }
-
-    return () => {
-      if (sessionRef.current) sessionRef.current = null;
-      // Cancel any ongoing speech on unmount
-      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    };
+    const mgr = new KokoroTTSManager({
+      onStart: () => setIsSpeaking(true),
+      onEnd: () => {
+        setIsSpeaking(false);
+        setCurrentGesture('idle');
+        // Resume listening after guide finishes speaking
+        if (shouldKeepListeningRef.current && recognitionRef.current === null) {
+          setTimeout(() => { if (shouldKeepListeningRef.current) resumeListeningRef.current(); }, 500);
+        }
+      },
+      onError: (err) => { console.error('[KokoroTTS]', err); setIsSpeaking(false); },
+      onAudioLevel: setAudioLevel,
+      onLoading: () => {},
+    });
+    mgr.setVoice(currentVoice);
+    kokoroRef.current = mgr;
+    mgr.init().then(ok => setTtsReady(ok));
+    return () => { mgr.dispose(); kokoroRef.current = null; };
   }, []);
 
-  // Audio level monitoring — driven by real speech events
-  useEffect(() => {
-    if (!isSpeaking) {
-      setAudioLevel(0);
-      return;
-    }
+  // Sync voice changes to Kokoro manager
+  useEffect(() => { kokoroRef.current?.setVoice(currentVoice); }, [currentVoice]);
 
-    // Animate audio levels while TTS is playing
-    const interval = setInterval(() => {
-      setAudioLevel(Math.random() * 0.8 + 0.2);
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [isSpeaking]);
-
-  // ── Text-to-Speech: Make the guide actually speak ──
-  const speakText = useCallback((text: string) => {
-    if (!('speechSynthesis' in window)) {
-      console.warn('[HolographicAvatar] SpeechSynthesis not supported');
-      return;
-    }
-
-    // Cancel any in-progress speech
-    window.speechSynthesis.cancel();
-
-    const prefs = GUIDE_VOICE_PREFS[guideConfig.name] || GUIDE_VOICE_PREFS.Kore;
-    const utterance = new SpeechSynthesisUtterance(text);
-
-    // Select voice
-    const voice = selectVoiceForGuide(guideConfig.name);
-    if (voice) utterance.voice = voice;
-    utterance.lang = prefs.lang;
-    utterance.pitch = prefs.pitch;
-    utterance.rate = prefs.rate;
-    utterance.volume = 1.0;
-
-    utterance.onstart = () => {
-      setIsSpeaking(true);
-    };
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      setCurrentGesture('idle');
-      utteranceRef.current = null;
-      // If user had voice mode on, restart listening after guide finishes speaking
-      if (shouldKeepListeningRef.current && recognitionRef.current === null) {
-        // Small delay so mic doesn't pick up tail-end of TTS
-        setTimeout(() => {
-          if (shouldKeepListeningRef.current) {
-            startListeningInternal();
-          }
-        }, 500);
-      }
-    };
-
-    utterance.onerror = (event) => {
-      console.error('[HolographicAvatar] TTS error:', event.error);
-      setIsSpeaking(false);
-      setCurrentGesture('idle');
-      utteranceRef.current = null;
-    };
-
-    utteranceRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-  }, [guideConfig.name]);
+  // ── Text-to-Speech via Kokoro (falls back to SpeechSynthesis) ──
+  const speakText = useCallback(async (text: string) => {
+    kokoroRef.current?.speak(text);
+  }, []);
 
   // Detect emotion from response text
   const detectEmotion = useCallback((text: string): AvatarEmotion => {
@@ -899,11 +816,13 @@ function useGeminiLive(
     }
   }, [sendTextMessage, isSpeaking]);
 
+  // Keep resumeListeningRef in sync so Kokoro onEnd can call it
+  useEffect(() => { resumeListeningRef.current = startListeningInternal; }, [startListeningInternal]);
+
   const startListening = useCallback(() => {
     shouldKeepListeningRef.current = true;
     // Stop TTS if guide is speaking — user wants to talk
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    setIsSpeaking(false);
+    kokoroRef.current?.stop();
     startListeningInternal();
   }, [startListeningInternal]);
 
@@ -923,12 +842,9 @@ function useGeminiLive(
 
   const endSession = useCallback(() => {
     stopListening();
-    // Cancel any ongoing TTS
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    kokoroRef.current?.stop();
     setIsSpeaking(false);
-    if (sessionRef.current) {
-      sessionRef.current = null;
-    }
+    if (sessionRef.current) sessionRef.current = null;
     setIsConnected(false);
   }, [stopListening]);
 
@@ -944,6 +860,9 @@ function useGeminiLive(
     startListening,
     stopListening,
     endSession,
+    currentVoice,
+    setCurrentVoice,
+    ttsReady,
   };
 }
 
@@ -965,6 +884,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
   const [textInput, setTextInput] = useState('');
   const [showTextFallback, setShowTextFallback] = useState(false);
   const [canvasError, setCanvasError] = useState(false);
+  const [voiceSelectorOpen, setVoiceSelectorOpen] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<GuideMessage[]>([]);
 
@@ -982,6 +902,11 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
   );
 
   const gemini = useGeminiLive(systemPrompt, config, handleMessage, onEscalation, onSendMessage);
+
+  // Get current voice's color data for the orb
+  const voiceData = getVoiceById(gemini.currentVoice);
+  const orbColor = voiceData?.orbColor || config.primaryColor;
+  const orbGlow = voiceData?.orbGlow || config.emissiveColor;
 
   // Auto-scroll chat
   useEffect(() => {
@@ -1039,15 +964,15 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
         </div>
       ) : (
         <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(ellipse at center, ${config.secondaryColor}cc 0%, #0A0A1A 70%)` }}>
-          <style>{`@keyframes hp{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.08);opacity:.95}}@keyframes hs{0%,100%{transform:scale(1)}25%{transform:scale(1.12)}75%{transform:scale(.95)}}@keyframes hr{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
+          <style>{`@keyframes hp{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.08);opacity:.95}}@keyframes hs{0%,100%{transform:scale(1)}25%{transform:scale(1.12)}75%{transform:scale(.95)}}@keyframes hr{from{transform:rotate(0)}to{transform:rotate(360deg)}}@keyframes voPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}@keyframes voGlow{0%,100%{opacity:.8}50%{opacity:1}}`}</style>
           <div style={{textAlign:'center',marginTop:'-3rem'}}>
             <div style={{width:'14rem',height:'14rem',margin:'0 auto',position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <div style={{position:'absolute',inset:0,borderRadius:'50%',border:`2px solid ${config.primaryColor}30`,animation:'hr 20s linear infinite'}}/>
-              <div style={{position:'absolute',inset:'1rem',borderRadius:'50%',border:`1px solid ${config.primaryColor}20`,animation:'hr 15s linear infinite reverse'}}/>
-              <div style={{width:'8rem',height:'8rem',borderRadius:'50%',background:`radial-gradient(circle at 35% 35%, ${config.primaryColor}, ${config.emissiveColor}80)`,boxShadow:`0 0 60px ${config.emissiveColor}, 0 0 120px ${config.emissiveColor}40`,animation:gemini.isSpeaking?'hs .8s ease-in-out infinite':'hp 3s ease-in-out infinite'}}/>
+              <div style={{position:'absolute',inset:0,borderRadius:'50%',border:`2px solid ${orbColor}30`,animation:'hr 20s linear infinite',transition:'border-color 0.5s ease'}}/>
+              <div style={{position:'absolute',inset:'1rem',borderRadius:'50%',border:`1px solid ${orbColor}20`,animation:'hr 15s linear infinite reverse',transition:'border-color 0.5s ease'}}/>
+              <div style={{width:'8rem',height:'8rem',borderRadius:'50%',background:`radial-gradient(circle at 35% 35%, ${orbColor}, ${orbGlow})`,boxShadow:`0 0 60px ${orbGlow}, 0 0 120px ${orbGlow}`,animation:gemini.isSpeaking?'hs .8s ease-in-out infinite':'hp 3s ease-in-out infinite',transition:'background 0.5s ease, box-shadow 0.5s ease',transform:gemini.isSpeaking?`scale(${1+gemini.audioLevel*0.15})`:'scale(1)'}}/>
             </div>
-            <p style={{fontSize:'1.1rem',fontWeight:500,color:config.primaryColor,letterSpacing:'0.15em',marginTop:'1rem'}}>{config.name}</p>
-            <p style={{fontSize:'0.65rem',color:'rgba(255,255,255,0.3)',marginTop:'0.35rem'}}>{gemini.isSpeaking?'Speaking...':gemini.isListening?'Listening...':'Holographic Guide'}</p>
+            <p style={{fontSize:'1.1rem',fontWeight:500,color:orbColor,letterSpacing:'0.15em',marginTop:'1rem',transition:'color 0.5s ease'}}>{config.name}</p>
+            <p style={{fontSize:'0.65rem',color:'rgba(255,255,255,0.3)',marginTop:'0.35rem'}}>{gemini.isSpeaking?'Speaking...':gemini.isListening?'Listening...':gemini.ttsReady?'Ready':'Loading voice...'}</p>
           </div>
         </div>
       )}
@@ -1139,15 +1064,22 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
 
           {/* Status bar */}
           <div className="flex items-center justify-between mt-2 text-xs text-white/40">
-            <span>
-              {gemini.isListening
-                ? 'Listening...'
-                : gemini.isSpeaking
-                ? `${config.name} is speaking...`
-                : gemini.isConnected
-                ? 'Connected'
-                : 'Connecting...'}
-            </span>
+            <div className="flex items-center gap-2">
+              <span>
+                {gemini.isListening
+                  ? 'Listening...'
+                  : gemini.isSpeaking
+                  ? `${config.name} is speaking...`
+                  : gemini.isConnected
+                  ? 'Connected'
+                  : 'Connecting...'}
+              </span>
+              <VoiceSettingsButton
+                voiceId={gemini.currentVoice}
+                onClick={() => setVoiceSelectorOpen(true)}
+                speaking={gemini.isSpeaking}
+              />
+            </div>
             <button
               onClick={() => {
                 gemini.endSession();
@@ -1160,6 +1092,21 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Voice Selector Modal */}
+      <VoiceSelector
+        isOpen={voiceSelectorOpen}
+        onClose={() => setVoiceSelectorOpen(false)}
+        currentVoice={gemini.currentVoice}
+        onSelectVoice={gemini.setCurrentVoice}
+        guideName={config.name}
+        onPreview={(id) => {
+          // Preview: temporarily speak a short phrase with that voice
+          const mgr = new KokoroTTSManager();
+          mgr.setVoice(id);
+          mgr.init().then(() => mgr.speak(`Hello, I'm ${getVoiceById(id)?.name || 'your guide'}.`));
+        }}
+      />
     </div>
   );
 };
