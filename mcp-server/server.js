@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
+import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
 import { z } from "zod";
 import { execSync } from "node:child_process";
+import { randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import express from "express";
@@ -262,9 +264,9 @@ app.use((req, res, next) => {
 // CORS — required for browser-based MCP clients like Claude co-work
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept");
-  res.setHeader("Access-Control-Expose-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Mcp-Session-Id");
+  res.setHeader("Access-Control-Expose-Headers", "Content-Type, Mcp-Session-Id");
   if (req.method === "OPTIONS") return res.sendStatus(204);
   next();
 });
@@ -280,17 +282,60 @@ if (TOKEN) {
 
 app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
-app.get("/sse", async (req, res) => {
-  console.log("[MCP] SSE connection opened");
+// ═══ Streamable HTTP transport (primary — used by Claude co-work) ═══
+
+function createServer() {
   const server = new McpServer({ name: "jxe-codebase", version: "2.0.0" });
   registerTools(server);
+  return server;
+}
+
+app.post("/sse", express.json(), async (req, res) => {
+  const sid = req.headers["mcp-session-id"];
+  if (sid && transports[sid]) {
+    console.log("[MCP] Streamable HTTP POST (existing session)", sid);
+    await transports[sid].transport.handleRequest(req, res, req.body);
+    return;
+  }
+  console.log("[MCP] Streamable HTTP POST (new session)");
+  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: () => randomUUID() });
+  const server = createServer();
+  await server.connect(transport);
+  const newSid = transport.sessionId;
+  if (newSid) transports[newSid] = { transport, server };
+  transport.onclose = () => { if (newSid) delete transports[newSid]; console.log("[MCP] Streamable session closed", newSid); };
+  await transport.handleRequest(req, res, req.body);
+});
+
+app.get("/sse", async (req, res) => {
+  const sid = req.headers["mcp-session-id"];
+  if (sid && transports[sid]) {
+    console.log("[MCP] Streamable HTTP GET (SSE stream)", sid);
+    await transports[sid].transport.handleRequest(req, res);
+    return;
+  }
+  // Legacy SSE fallback
+  console.log("[MCP] Legacy SSE connection opened");
+  const server = createServer();
   const basePath = process.env.MCP_BASE_PATH || "/mcp";
   const transport = new SSEServerTransport(`${basePath}/messages`, res);
   transports[transport.sessionId] = { transport, server };
-  res.on("close", () => { delete transports[transport.sessionId]; console.log("[MCP] SSE closed"); });
+  res.on("close", () => { delete transports[transport.sessionId]; console.log("[MCP] Legacy SSE closed"); });
   await server.connect(transport);
 });
 
+app.delete("/sse", async (req, res) => {
+  const sid = req.headers["mcp-session-id"];
+  if (sid && transports[sid]) {
+    console.log("[MCP] Streamable HTTP DELETE", sid);
+    await transports[sid].transport.handleRequest(req, res);
+    delete transports[sid];
+    return;
+  }
+  res.status(404).json({ error: "Session not found" });
+});
+
+// Legacy SSE message endpoint
 app.post("/messages", express.json(), async (req, res) => {
   const sid = req.query.sessionId;
   const entry = transports[sid];
@@ -298,4 +343,4 @@ app.post("/messages", express.json(), async (req, res) => {
   await entry.transport.handlePostMessage(req, res);
 });
 
-app.listen(PORT, "0.0.0.0", () => console.log(`[MCP] Listening on http://0.0.0.0:${PORT}/sse`));
+app.listen(PORT, "0.0.0.0", () => console.log(`[MCP] Listening on http://0.0.0.0:${PORT} (Streamable HTTP + SSE)`));
