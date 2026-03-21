@@ -440,17 +440,52 @@ export class KokoroTTSManager {
       const hasWebGPU = !!(navigator as any).gpu;
       const device = hasWebGPU ? 'webgpu' : 'wasm';
 
-      this.loadingProgress = `Loading Kokoro model (${device})...`;
+      // Check if model is likely cached (transformers-cache or service worker)
+      let isCached = false;
+      try {
+        const cache = await caches.open('transformers-cache');
+        const keys = await cache.keys();
+        isCached = keys.some(k => k.url.includes('Kokoro') || k.url.includes('kokoro'));
+      } catch {}
+
+      this.loadingProgress = isCached
+        ? `Loading voice from cache (${device})...`
+        : `Downloading voice model (${device})... one-time setup`;
       this.emit('loading', { progress: this.loadingProgress });
+
+      const startTime = Date.now();
+
+      // Try self-hosted model first (same-origin = faster), fall back to HuggingFace
+      let modelSource = 'onnx-community/Kokoro-82M-v1.0-ONNX';
+      try {
+        const probe = await fetch('/models/kokoro/config.json', { method: 'HEAD' });
+        if (probe.ok) {
+          modelSource = `${window.location.origin}/models/kokoro/`;
+          console.log('[Kokoro TTS] Using self-hosted model');
+        }
+      } catch {}
 
       // Initialize the model via static factory
       this.model = await KokoroTTS.from_pretrained(
-        'onnx-community/Kokoro-82M-v1.0-ONNX',
+        modelSource,
         {
-          dtype: 'q8',
+          dtype: 'q4',
           device: device,
+          progress_callback: (progress: any) => {
+            if (progress?.status === 'download' && progress?.total) {
+              const pct = Math.round((progress.loaded / progress.total) * 100);
+              this.loadingProgress = `Downloading model: ${pct}%`;
+              this.emit('loading', { progress: this.loadingProgress });
+            } else if (progress?.status === 'done') {
+              this.loadingProgress = 'Initializing model...';
+              this.emit('loading', { progress: this.loadingProgress });
+            }
+          },
         },
       );
+
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+      console.log(`[Kokoro TTS] Model loaded in ${elapsed}s (cached: ${isCached}, source: ${modelSource})`);
 
       // AudioContext is created lazily on first speak() to ensure user gesture context
       this.isReady = true;

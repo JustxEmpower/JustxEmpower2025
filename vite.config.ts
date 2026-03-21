@@ -57,6 +57,26 @@ export default defineConfig({
           if (id.includes('node_modules/react-hook-form/') || id.includes('node_modules/@hookform/') || id.includes('node_modules/zod/')) {
             return 'vendor-forms';
           }
+          // Kokoro TTS + transformers.js (loaded lazily via dynamic import)
+          if (id.includes('node_modules/kokoro-js/') || id.includes('node_modules/@huggingface/transformers/')) {
+            return 'kokoro';
+          }
+          // ONNX runtime
+          if (id.includes('node_modules/onnxruntime-')) {
+            return 'onnx-runtime';
+          }
+          // Mermaid (heavy diagram library)
+          if (id.includes('node_modules/mermaid/')) {
+            return 'vendor-mermaid';
+          }
+          // Markdown rendering
+          if (id.includes('node_modules/marked/') || id.includes('node_modules/markdown-') || id.includes('node_modules/remark-') || id.includes('node_modules/rehype-')) {
+            return 'vendor-markdown';
+          }
+          // html2canvas
+          if (id.includes('node_modules/html2canvas')) {
+            return 'html2canvas';
+          }
         },
       },
     },

@@ -149,9 +149,31 @@ export function serveStatic(app: Express) {
     );
   }
 
-  // Serve static assets (JS, CSS, images) but NOT index.html
+  // Aggressive cache headers for model files (ONNX, WASM, voice bins) — 1 year
+  // Models stored in persistent dir outside dist/ so they survive builds
+  const modelsPath = fs.existsSync('/var/www/justxempower/models')
+    ? '/var/www/justxempower/models'
+    : path.join(distPath, 'models');
+  console.log(`[Static] Serving model files from: ${modelsPath}`);
+  app.use('/models', express.static(modelsPath, {
+    maxAge: '365d',
+    immutable: true,
+    setHeaders: (res) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    },
+  }));
+
+  // Hashed assets (JS, CSS) get 1 year cache — hash changes on new builds
+  app.use('/assets', express.static(path.join(distPath, 'assets'), {
+    maxAge: '365d',
+    immutable: true,
+  }));
+
+  // Serve remaining static assets (images, sw.js, etc.) but NOT index.html
   app.use(express.static(distPath, {
     index: false, // Don't serve index.html automatically
+    maxAge: '1d', // 1 day for non-hashed files
   }));
 
   // Serve index.html with injected meta tags for ALL routes
