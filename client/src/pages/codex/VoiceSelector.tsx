@@ -77,6 +77,8 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
     overflowY: 'auto',
     boxShadow: '0 20px 60px rgba(212, 175, 55, 0.15)',
     animation: 'fadeIn 0.3s ease-out',
+    willChange: 'scroll-position',
+    contain: 'layout style',
   };
 
   // Header styles
@@ -379,18 +381,16 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
     return <div style={orbStyle} />;
   };
 
-  // Render a voice card
+  // Render a voice card — no React state for hover, use CSS :hover for perf
   const renderVoiceCard = (voice: KokoroVoice) => {
     const isSelected = currentVoice === voice.id;
     const isDefault = voice.isDefault && GUIDE_VOICE_DEFAULTS[currentGuide] === voice.id;
-    const [isHovered, setIsHovered] = React.useState(false);
 
     return (
       <div
         key={voice.id}
-        style={isHovered ? voiceCardHoverStyle(isSelected, isDefault) : voiceCardStyle(isSelected, isDefault)}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        className="voice-card"
+        style={voiceCardStyle(isSelected, isDefault)}
       >
         {isDefault && <div style={defaultBadgeCornerStyle}>Guide Match</div>}
         {isSelected && <span style={checkmarkStyle}>✓</span>}
@@ -421,21 +421,23 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
 
         <div style={buttonContainerStyle}>
           <button
+            className="voice-btn voice-btn-preview"
             onClick={(e) => {
               e.stopPropagation();
               onPreviewVoice(voice.id);
             }}
-            style={isHovered ? buttonHoverStyle('preview') : buttonStyle('preview')}
+            style={buttonStyle('preview')}
             disabled={isPreviewPlaying && currentVoice !== voice.id}
           >
             {isPreviewPlaying && currentVoice === voice.id ? '⏸ Pause' : '▶ Preview'}
           </button>
           <button
+            className="voice-btn voice-btn-select"
             onClick={(e) => {
               e.stopPropagation();
               onSelectVoice(voice.id);
             }}
-            style={isHovered ? buttonHoverStyle('select') : buttonStyle('select')}
+            style={buttonStyle('select')}
           >
             {isSelected ? '✓ Selected' : 'Select'}
           </button>
@@ -599,6 +601,23 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
 
         ::-webkit-scrollbar-thumb:hover {
           background: rgba(212, 175, 55, 0.5);
+        }
+
+        .voice-card {
+          contain: content;
+          transition: all 0.2s ease;
+        }
+        .voice-card:hover {
+          border-color: rgba(212, 175, 55, 0.5) !important;
+          background-color: rgba(40, 40, 40, 0.9) !important;
+          box-shadow: 0 0 16px rgba(212, 175, 55, 0.25) !important;
+        }
+        .voice-btn {
+          transition: all 0.15s ease;
+        }
+        .voice-btn:hover {
+          background-color: rgba(212, 175, 55, 0.15) !important;
+          border-color: rgba(212, 175, 55, 0.7) !important;
         }
       `}</style>
     </div>

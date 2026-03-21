@@ -1103,11 +1103,15 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
 
   const handlePreviewVoice = useCallback(
     (voiceId: string) => {
-      gemini.setVoice(voiceId);
-      // Speak preview immediately (no setTimeout — preserves user gesture for AudioContext)
-      gemini.speakText(`Hello. I am ${config.name}, your guide through the Living Codex.`, voiceId);
+      // Look up the voice's actual display name from the catalog
+      const voiceData = KOKORO_VOICE_CATALOG.find(v => v.id === voiceId);
+      const voiceName = voiceData?.name || voiceId;
+      // Use the voice's own name and style in preview text
+      const previewText = `Hello, I am ${voiceName}. ${voiceData?.style || 'I will be your guide through the Living Codex.'}`;
+      // Speak preview with the specific voice override
+      gemini.speakText(previewText, voiceId);
     },
-    [gemini, config.name]
+    [gemini]
   );
 
   if (!isActive) return null;
