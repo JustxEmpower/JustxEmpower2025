@@ -1101,18 +1101,13 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
     [textInput, gemini]
   );
 
-  const handlePreviewVoice = useCallback(
-    (voiceId: string) => {
-      // Look up the voice's actual display name from the catalog
-      const voiceData = KOKORO_VOICE_CATALOG.find(v => v.id === voiceId);
-      const voiceName = voiceData?.name || voiceId;
-      // Use the voice's own name and style in preview text
-      const previewText = `Hello, I am ${voiceName}. ${voiceData?.style || 'I will be your guide through the Living Codex.'}`;
-      // Speak preview with the specific voice override
-      gemini.speakText(previewText, voiceId);
-    },
-    [gemini]
-  );
+  const prevAudioRef = useRef<HTMLAudioElement|null>(null);
+  const handlePreviewVoice = useCallback((voiceId: string) => {
+    if (prevAudioRef.current) { prevAudioRef.current.pause(); prevAudioRef.current = null; }
+    const a = new Audio(`/api/tts/preview/${voiceId}`);
+    prevAudioRef.current = a;
+    a.play().catch(e => console.warn('[Preview] failed:', e));
+  }, []);
 
   if (!isActive) return null;
 
