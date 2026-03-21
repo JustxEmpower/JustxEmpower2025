@@ -107,10 +107,26 @@ CLIENT (client/src/pages/codex/):
   System: codexDesignSystem, codexAnimations, useGuideSession, useCodexState, types
 
 HOLOGRAPHIC AVATAR (HolographicAvatar.tsx):
-  Visual: CSS animated holographic orb with glow rings, pulse/speak animations, radial gradient bg
+  Visual: CSS animated holographic orb with voice-colored glow rings, pulse/speak animations
   AI: Routes messages through guideSend tRPC mutation (server-side Gemini, NO client API key)
-  Voice: Web Speech API with interim transcript accumulation, sends on stop
+  Voice: Kokoro TTS (WASM/WebGPU neural voices) with per-guide voice mapping
+  Avatar: LoRA-trained founder portraits (Kore Prime) + 24 diverse presets via FLUX 1.1 Pro
   Props: onSendMessage callback for server-routed AI, guideType, userProfile, isActive
+
+AVATAR SYSTEM (client/src/pages/codex/):
+  AvatarSystem.ts: Core types, 6 Founder Prime presets + 24 diverse presets, safety, expressions, visemes
+  RealisticAvatarRenderer.tsx: Three.js + React Three Fiber photorealistic rendering (SSS, Fresnel, lip-sync)
+  AvatarSelector.tsx: Modal for filtering/selecting avatar presets with founder priority
+  AvatarCustomizer.tsx: Avatar customization UI
+  KokoroTTSService.ts: Neural TTS with voice catalog, per-guide defaults, orb colors
+  VoiceSelector.tsx: Voice selection UI with animated orbs
+
+AVATAR PIPELINE (scripts/replicate-avatar-pipeline.mjs):
+  LoRA v2: Trained on founder photos via ostris/flux-dev-lora-trainer on Replicate
+  Model: justxempower/living-codex-founder-lora
+  Generation: FLUX 1.1 Pro with LoRA weights for founder likeness
+  Assets: 6 primes + 24 presets + expression sheets (6 emotions × 30 chars)
+  Deployed: public/assets/avatars/{kore-prime,presets}/
 
 tRPC ENDPOINTS (codexRouter.ts):
   portal, dashboardData (+ routing engine output), assessmentStart/Submit/Status
@@ -130,6 +146,16 @@ LAYOUT (App.tsx):
   AIChatAssistant hidden on /account/codex pages (isCodexPage check)
   CodexPortalShell uses calc(100vh - 6rem) to account for fixed Header`;
       return { content: [{ type: "text", text: arch }] };
+    });
+
+  server.tool("avatar_system", "Living Codex Avatar System — LoRA training, presets, pipeline, assets.", {},
+    async () => {
+      const primes = run("ls public/assets/avatars/kore-prime/ 2>/dev/null").trim();
+      const presets = run("ls public/assets/avatars/presets/ 2>/dev/null").trim();
+      const expressions = run("ls generated-avatars/expressions/primes/ 2>/dev/null | head -20").trim();
+      const loraUrl = run("cat generated-avatars/lora-url.txt 2>/dev/null").trim();
+      const avatarFiles = run("wc -l client/src/pages/codex/AvatarSystem.ts client/src/pages/codex/RealisticAvatarRenderer.tsx client/src/pages/codex/AvatarSelector.tsx client/src/pages/codex/AvatarCustomizer.tsx client/src/pages/codex/KokoroTTSService.ts client/src/pages/codex/VoiceSelector.tsx 2>/dev/null").trim();
+      return { content: [{ type: "text", text: `# Avatar System\n\nLoRA Model: ${loraUrl || '(not trained)'}\nTrigger Word: LIVINGCODEX_FOUNDER\nTraining: ostris/flux-dev-lora-trainer (1200 steps, rank 32)\nGeneration: FLUX 1.1 Pro + LoRA weights\n\nFounder Primes (public/assets/avatars/kore-prime/):\n${primes || '(none)'}\n\nDiverse Presets (public/assets/avatars/presets/):\n${presets || '(none)'}\n\nExpression Sheets:\n${expressions || '(none)'}\n\nAvatar Source Files:\n${avatarFiles}\n\nGuide → Voice Mapping (Kokoro TTS):\n  kore → af_heart (warm alto)\n  aoede → af_nova (bright soprano)\n  leda → af_bella (gentle mezzo)\n  theia → af_sky (clear soprano)\n  selene → af_nicole (calm contralto)\n  zephyr → am_adam (warm baritone)` }] };
     });
 
   server.tool("codex_modules", "List all Living Codex files with line counts and sizes.", {},
