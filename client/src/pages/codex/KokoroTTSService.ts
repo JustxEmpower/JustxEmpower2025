@@ -449,19 +449,7 @@ export class KokoroTTSManager {
         },
       );
 
-      // Initialize AudioContext
-      if (!this.audioContext) {
-        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
-      }
-
-      // Create audio nodes
-      this.gainNode = this.audioContext.createGain();
-      this.analyser = this.audioContext.createAnalyser();
-      this.analyser.fftSize = 2048;
-
-      this.gainNode.connect(this.analyser);
-      this.analyser.connect(this.audioContext.destination);
-
+      // AudioContext is created lazily on first speak() to ensure user gesture context
       this.isReady = true;
       this.isLoading = false;
       this.loadingProgress = 'TTS Ready';
@@ -478,12 +466,32 @@ export class KokoroTTSManager {
   }
 
   /**
+   * Ensure AudioContext and audio nodes exist (lazy init on first use)
+   */
+  private ensureAudioContext(): void {
+    if (!this.audioContext) {
+      console.log('[Kokoro TTS] Creating AudioContext (lazy init)');
+      this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    }
+    if (!this.gainNode || !this.analyser) {
+      this.gainNode = this.audioContext.createGain();
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = 2048;
+      this.gainNode.connect(this.analyser);
+      this.analyser.connect(this.audioContext.destination);
+    }
+  }
+
+  /**
    * Generate and play speech
    */
   async speak(text: string, voiceId?: string): Promise<void> {
-    if (!this.isReady || !this.model || !this.audioContext || !this.gainNode) {
+    if (!this.isReady || !this.model) {
       throw new Error('KokoroTTS not initialized. Call initialize() first.');
     }
+
+    // Create AudioContext lazily (must happen in or near user gesture)
+    this.ensureAudioContext();
 
     if (this.isSpeaking) {
       this.stop();
@@ -501,32 +509,33 @@ export class KokoroTTSManager {
         voice: voice,
       });
 
+      const ctx = this.audioContext!;
+      const gain = this.gainNode!;
+
       // Resume audio context if suspended
-      if (this.audioContext.state === 'suspended') {
-        await this.audioContext.resume();
+      if (ctx.state === 'suspended') {
+        console.log('[Kokoro TTS] Resuming suspended AudioContext...');
+        await ctx.resume();
       }
+      console.log(`[Kokoro TTS] AudioContext state: ${ctx.state}`);
 
       // Create AudioBuffer from the generated RawAudio object
       const samples = audio.audio as Float32Array;
       const sampleRate = audio.sampling_rate || 24000;
-      const audioBuffer = this.audioContext.createBuffer(
-        1, // mono
-        samples.length,
-        sampleRate,
-      );
+      console.log(`[Kokoro TTS] Generated ${samples.length} samples at ${sampleRate}Hz (${(samples.length/sampleRate).toFixed(1)}s)`);
 
-      const channelData = audioBuffer.getChannelData(0);
-      channelData.set(samples);
+      const audioBuffer = ctx.createBuffer(1, samples.length, sampleRate);
+      audioBuffer.getChannelData(0).set(samples);
 
       // Stop any existing playback
       if (this.audioSource) {
-        this.audioSource.stop();
+        try { this.audioSource.stop(); } catch (_) {}
       }
 
       // Create and play audio source
-      this.audioSource = this.audioContext.createBufferSource();
+      this.audioSource = ctx.createBufferSource();
       this.audioSource.buffer = audioBuffer;
-      this.audioSource.connect(this.gainNode!);
+      this.audioSource.connect(gain);
 
       // Start audio level monitoring
       this.startAudioLevelMonitoring();
@@ -552,9 +561,11 @@ export class KokoroTTSManager {
    * Generate and play speech with streaming
    */
   async speakStreaming(text: string, voiceId?: string): Promise<void> {
-    if (!this.isReady || !this.model || !this.audioContext || !this.gainNode) {
+    if (!this.isReady || !this.model) {
       throw new Error('KokoroTTS not initialized. Call initialize() first.');
     }
+
+    this.ensureAudioContext();
 
     if (this.isSpeaking) {
       this.stop();
@@ -568,9 +579,12 @@ export class KokoroTTSManager {
     try {
       this.emit('loading', { progress: 'Initializing streaming...' });
 
+      const ctx = this.audioContext!;
+      const gain = this.gainNode!;
+
       // Resume audio context if suspended
-      if (this.audioContext.state === 'suspended') {
-        await this.audioContext.resume();
+      if (ctx.state === 'suspended') {
+        await ctx.resume();
       }
 
       // Create text splitter and stream
@@ -592,12 +606,12 @@ export class KokoroTTSManager {
           const samples = chunk.audio.audio as Float32Array;
           const sampleRate = chunk.audio.sampling_rate || 24000;
 
-          const audioBuffer = this.audioContext.createBuffer(1, samples.length, sampleRate);
+          const audioBuffer = ctx.createBuffer(1, samples.length, sampleRate);
           audioBuffer.getChannelData(0).set(samples);
 
-          const source = this.audioContext.createBufferSource();
+          const source = ctx.createBufferSource();
           source.buffer = audioBuffer;
-          source.connect(this.gainNode!);
+          source.connect(gain);
           source.start(0);
 
           // Wait for chunk to finish playing before next
@@ -748,7 +762,10 @@ export class KokoroTTSManager {
    * Resume AudioContext (must be called from user gesture context)
    */
   async resumeAudioContext(): Promise<void> {
+    // Create context if it doesn't exist yet (user gesture = perfect time)
+    this.ensureAudioContext();
     if (this.audioContext && this.audioContext.state === 'suspended') {
+      console.log('[Kokoro TTS] Resuming AudioContext from user gesture');
       await this.audioContext.resume();
     }
   }

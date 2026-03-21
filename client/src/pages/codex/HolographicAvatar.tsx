@@ -669,15 +669,23 @@ function useGeminiLive(
     const kokoro = kokoroRef.current;
     const voice = voiceOverride || currentVoice;
 
+    console.log(`[speakText] voice=${voice}, kokoroReady=${kokoro?.getState().isReady}`);
+
     // Try Kokoro first
     if (kokoro && kokoro.getState().isReady) {
-      kokoro.speak(text, voice).catch((err) => {
-        console.warn('[Kokoro TTS] Speak failed, falling back to browser TTS:', err);
+      // Resume/create AudioContext now (still in user gesture chain)
+      kokoro.resumeAudioContext().then(() => {
+        kokoro.speak(text, voice).catch((err: any) => {
+          console.warn('[Kokoro TTS] Speak failed, falling back to browser TTS:', err);
+          speakWithBrowserTTS(text);
+        });
+      }).catch(() => {
         speakWithBrowserTTS(text);
       });
       return;
     }
 
+    console.log('[speakText] Kokoro not ready, using browser TTS');
     // Fallback to SpeechSynthesis
     speakWithBrowserTTS(text);
   }, [currentVoice]);
