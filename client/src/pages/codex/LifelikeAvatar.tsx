@@ -168,10 +168,9 @@ export default function LifelikeAvatar({
         onReady?.();
       } catch (err: any) {
         if (cancelled) return;
-        console.error('[LifelikeAvatar] Warm-up failed:', err.message);
-        setErrorMessage(err.message);
-        setState('error');
-        onError?.(err.message);
+        console.warn('[LifelikeAvatar] Kling warm-up failed, using portrait fallback:', err.message);
+        // Don't call onError — show animated portrait instead of falling back to orb
+        setState('idle');
       }
     }
 
@@ -349,37 +348,10 @@ export default function LifelikeAvatar({
         <LoadingOverlay guideId={guideId} message={loadingMessage} />
       )}
 
-      {/* Error state */}
+      {/* Error state — still show portrait, just note the error subtly */}
       {state === 'error' && (
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            background: 'rgba(15,10,25,0.95)',
-            zIndex: 10,
-          }}
-        >
-          <p style={{ color: '#ff6b6b', fontSize: 14 }}>Avatar generation failed</p>
-          <p style={{ color: '#666', fontSize: 12, marginTop: 4 }}>{errorMessage}</p>
-          <button
-            onClick={() => window.location.reload()}
-            style={{
-              marginTop: 16,
-              padding: '8px 20px',
-              background: `${guideColor}33`,
-              border: `1px solid ${guideColor}66`,
-              borderRadius: 8,
-              color: guideColor,
-              cursor: 'pointer',
-              fontSize: 13,
-            }}
-          >
-            Retry
-          </button>
+        <div style={{ position: 'absolute', bottom: 40, left: 0, right: 0, textAlign: 'center', zIndex: 10 }}>
+          <p style={{ color: '#ff6b6b88', fontSize: 11 }}>Video generation unavailable</p>
         </div>
       )}
 
@@ -406,21 +378,43 @@ export default function LifelikeAvatar({
         />
       )}
 
-      {/* Portrait fallback (shown while videos load) */}
-      {!currentVideoUrl && state !== 'loading' && state !== 'error' && (
-        <img
-          src={portraitUrl}
-          alt={`${guideId} guide`}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            borderRadius: 16,
-            filter: 'brightness(0.9)',
-          }}
-        />
+      {/* Animated portrait — shown when no video (Kling loading/failed) */}
+      {!currentVideoUrl && state !== 'loading' && (
+        <>
+          <style>{`
+            @keyframes lifelike-breathe { 0%,100% { transform: scale(1) translateY(0); } 50% { transform: scale(1.015) translateY(-2px); } }
+            @keyframes lifelike-glow { 0%,100% { box-shadow: 0 0 40px ${guideColor}40, 0 0 80px ${guideColor}15; } 50% { box-shadow: 0 0 60px ${guideColor}60, 0 0 120px ${guideColor}25; } }
+            @keyframes lifelike-speak { 0%,100% { box-shadow: 0 0 50px ${guideColor}70, 0 0 100px ${guideColor}35; filter: brightness(1.05); } 50% { box-shadow: 0 0 80px ${guideColor}90, 0 0 140px ${guideColor}50; filter: brightness(1.12); } }
+            @keyframes lifelike-ring { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+          `}</style>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `radial-gradient(ellipse at center, ${guideColor}18 0%, #0A0A1A 70%)` }}>
+            <div style={{ position: 'relative', width: '70%', maxWidth: 320, aspectRatio: '1' }}>
+              {/* Holographic rings */}
+              <div style={{ position: 'absolute', inset: -16, borderRadius: '50%', border: `2px solid ${guideColor}20`, animation: 'lifelike-ring 25s linear infinite' }} />
+              <div style={{ position: 'absolute', inset: -8, borderRadius: '50%', border: `1px solid ${guideColor}12`, animation: 'lifelike-ring 18s linear infinite reverse' }} />
+              {/* Portrait with effects */}
+              <div style={{
+                width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden',
+                border: `3px solid ${guideColor}50`,
+                animation: isSpeaking
+                  ? 'lifelike-speak 1s ease-in-out infinite, lifelike-breathe 2s ease-in-out infinite'
+                  : 'lifelike-glow 3s ease-in-out infinite, lifelike-breathe 4s ease-in-out infinite',
+                transition: 'box-shadow 0.4s ease',
+              }}>
+                <img
+                  src={portraitUrl}
+                  alt={`${guideId} guide`}
+                  onError={() => onError?.('Portrait image failed to load')}
+                  style={{
+                    width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%',
+                    filter: isSpeaking ? 'brightness(1.08)' : 'brightness(1)',
+                    transition: 'filter 0.3s ease',
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </>
       )}
 
       {/* Subtle vignette overlay */}

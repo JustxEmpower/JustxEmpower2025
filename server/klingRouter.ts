@@ -45,7 +45,7 @@ export function createKlingRouter(): Router {
       }
 
       // Allowlist task types
-      const allowedTypes = ['video_generation', 'lip_sync', 'extend_video', 'effects'];
+      const allowedTypes = ['video_generation', 'lip_sync', 'extend_video', 'effects', 'omni'];
       if (!allowedTypes.includes(body.task_type)) {
         return res.status(400).json({
           error: `Invalid task_type. Allowed: ${allowedTypes.join(', ')}`,

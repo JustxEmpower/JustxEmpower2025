@@ -282,14 +282,11 @@ export class KlingAvatarService {
   private async createIdleVideoTask(request: IdleVideoRequest): Promise<string> {
     const body: Record<string, unknown> = {
       model: 'kling',
-      task_type: 'video_generation',
+      task_type: 'omni',
       input: {
         prompt: request.prompt,
-        image_url: request.imageUrl,
-        duration: request.duration || 10,
-        mode: request.mode || 'std',
-        version: '2.6',
-        cfg_scale: '0.5',
+        start_image_url: request.imageUrl,
+        duration: request.duration || 5,
         negative_prompt: 'blurry, distorted face, extra limbs, deformed, ugly, cartoon, anime, nsfw',
       },
       config: {
@@ -406,9 +403,9 @@ export class KlingAvatarService {
 
   /** Cancel all active polling operations */
   cancelAll(): void {
-    for (const [taskId, controller] of this.activePolls) {
+    Array.from(this.activePolls.values()).forEach(controller => {
       controller.abort();
-    }
+    });
     this.activePolls.clear();
   }
 

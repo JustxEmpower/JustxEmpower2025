@@ -1302,7 +1302,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 className="text-white/40 hover:text-white/70 transition-colors text-xs px-2 py-1 border border-white/20 rounded hover:border-white/40"
                 title={avatarMode === 'lifelike' ? 'Switch to orb mode' : 'Switch to lifelike avatar'}
               >
-                {avatarMode === 'lifelike' ? 'Lifelike' : 'Orb'}
+                {avatarMode === 'orb' ? '👤 Lifelike' : '🔮 Orb'}
               </button>
               <VoiceSettingsButton
                 onClick={() => setShowVoiceSelector(true)}
