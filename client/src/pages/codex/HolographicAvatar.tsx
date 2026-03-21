@@ -618,8 +618,7 @@ function useGeminiLive(
       console.error('[Kokoro TTS] Error:', data?.message);
       setIsSpeaking(false);
       setCurrentGesture('idle');
-      // Fallback to SpeechSynthesis if Kokoro fails
-      setTtsLoading('Kokoro unavailable — using browser voice');
+      setTtsLoading('Kokoro unavailable — retrying...');
     });
 
     kokoro.addEventListener('loading', (data: any) => {
@@ -639,10 +638,15 @@ function useGeminiLive(
         console.log(`[Kokoro TTS] Ready for ${guideConfig.name}`);
       })
       .catch((err) => {
-        console.warn('[Kokoro TTS] Init failed, will use SpeechSynthesis fallback:', err);
-        setTtsLoading('Using browser voice (Kokoro loading failed)');
-        // Still mark as "ready" — we'll fallback to SpeechSynthesis
-        setTtsReady(true);
+        console.warn('[Kokoro TTS] Init failed:', err);
+        setTtsLoading('Kokoro loading failed — retrying...');
+        // Retry init after 5s
+        setTimeout(() => {
+          kokoroRef.current?.initialize().then(() => {
+            setTtsReady(true);
+            setTtsLoading('');
+          }).catch(() => {});
+        }, 5000);
       });
 
     // Audio level animation loop — reads real RMS from Kokoro analyser
@@ -655,75 +659,51 @@ function useGeminiLive(
     };
     audioLevelFrameRef.current = requestAnimationFrame(updateAudioLevel);
 
+    // Stop all audio on page unload (prevents lingering playback)
+    const handleUnload = () => {
+      kokoro.stop();
+      kokoro.dispose();
+      window.speechSynthesis?.cancel();
+    };
+    window.addEventListener('beforeunload', handleUnload);
+
     return () => {
+      window.removeEventListener('beforeunload', handleUnload);
       if (audioLevelFrameRef.current) {
         cancelAnimationFrame(audioLevelFrameRef.current);
       }
+      kokoro.stop();
       kokoro.dispose();
       kokoroRef.current = null;
     };
   }, []);
 
-  // ── Text-to-Speech: Kokoro TTS with SpeechSynthesis fallback ──
+  // ── Text-to-Speech: Kokoro TTS only (server-side) ──
   const speakText = useCallback((text: string, voiceOverride?: string) => {
     const kokoro = kokoroRef.current;
     const voice = voiceOverride || currentVoice;
-
     console.log(`[speakText] voice=${voice}, kokoroReady=${kokoro?.getState().isReady}`);
-
-    // Try Kokoro first
     if (kokoro && kokoro.getState().isReady) {
-      // Resume/create AudioContext now (still in user gesture chain)
       kokoro.resumeAudioContext().then(() => {
         kokoro.speak(text, voice).catch((err: any) => {
-          console.warn('[Kokoro TTS] Speak failed, falling back to browser TTS:', err);
-          speakWithBrowserTTS(text);
+          console.error('[Kokoro TTS] Speak failed:', err);
+          setIsSpeaking(false);
+          setCurrentGesture('idle');
         });
-      }).catch(() => {
-        speakWithBrowserTTS(text);
       });
-      return;
+    } else {
+      console.warn('[speakText] Kokoro not ready yet, queuing retry...');
+      // Retry once after 2s if model is still loading
+      setTimeout(() => {
+        const k = kokoroRef.current;
+        if (k && k.getState().isReady) {
+          k.speak(text, voice).catch(() => {});
+        }
+      }, 2000);
     }
-
-    console.log('[speakText] Kokoro not ready, using browser TTS');
-    // Fallback to SpeechSynthesis
-    speakWithBrowserTTS(text);
   }, [currentVoice]);
 
-  // Browser TTS fallback
-  const speakWithBrowserTTS = useCallback((text: string) => {
-    if (!('speechSynthesis' in window)) return;
-
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-
-    // Find a reasonable voice
-    const voices = window.speechSynthesis.getVoices();
-    const englishVoice = voices.find(v =>
-      v.lang.startsWith('en') && (v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Zira'))
-    ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
-    if (englishVoice) utterance.voice = englishVoice;
-    utterance.lang = 'en-US';
-    utterance.rate = 0.9;
-    utterance.pitch = 1.0;
-
-    utterance.onstart = () => setIsSpeaking(true);
-    utterance.onend = () => {
-      setIsSpeaking(false);
-      setCurrentGesture('idle');
-      if (shouldKeepListeningRef.current && recognitionRef.current === null) {
-        setTimeout(() => {
-          if (shouldKeepListeningRef.current) startListeningInternal();
-        }, 500);
-      }
-    };
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-      setCurrentGesture('idle');
-    };
-
-    window.speechSynthesis.speak(utterance);
-  }, []);
+  // Browser SpeechSynthesis DELETED — Kokoro server TTS only
 
   // Set voice
   const setVoice = useCallback((voiceId: string) => {
@@ -977,8 +957,6 @@ function useGeminiLive(
     if (kokoroRef.current) {
       kokoroRef.current.stop();
     }
-    // Also cancel browser SpeechSynthesis fallback
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     setIsSpeaking(false);
     startListeningInternal();
   }, [startListeningInternal]);
@@ -1003,8 +981,6 @@ function useGeminiLive(
     if (kokoroRef.current) {
       kokoroRef.current.stop();
     }
-    // Also cancel browser SpeechSynthesis fallback
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     setIsSpeaking(false);
     if (sessionRef.current) {
       sessionRef.current = null;
@@ -1272,7 +1248,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
               type="text"
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
-              placeholder={`Speak with ${config.name}...`}
+              placeholder={`Speak with ${KOKORO_VOICE_CATALOG.find(v => v.id === gemini.currentVoice)?.name || config.name}...`}
               className="flex-1 bg-white/10 text-white placeholder-white/40 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-opacity-50"
               style={{ focusRingColor: config.primaryColor } as any}
             />
@@ -1335,6 +1311,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
         <VoiceSelector
           currentGuide={config.name}
           currentVoice={gemini.currentVoice}
+          avatarMode={avatarMode}
           onSelectVoice={(voiceId) => {
             gemini.setVoice(voiceId);
             setShowVoiceSelector(false);

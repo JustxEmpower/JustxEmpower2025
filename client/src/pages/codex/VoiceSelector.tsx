@@ -16,6 +16,7 @@ interface FilterState {
 interface VoiceSelectorProps {
   currentGuide: string;
   currentVoice: string;
+  avatarMode?: 'orb' | 'lifelike';
   onSelectVoice: (voiceId: string) => void;
   onPreviewVoice: (voiceId: string) => void;
   isPreviewPlaying: boolean;
@@ -25,14 +26,16 @@ interface VoiceSelectorProps {
 export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
   currentGuide,
   currentVoice,
+  avatarMode = 'orb',
   onSelectVoice,
   onPreviewVoice,
   isPreviewPlaying,
   onClose,
 }) => {
+  // Lifelike avatar is modeled after a woman — default to female voices only
   const [filters, setFilters] = useState<FilterState>({
     language: 'All',
-    gender: 'All',
+    gender: avatarMode === 'lifelike' ? 'Female' : 'All',
   });
 
   // Get recommended voices for current guide
@@ -512,7 +515,10 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
 
             <div style={filterGroupStyle}>
               <span style={filterLabelStyle}>Gender:</span>
-              {(['All', 'Female', 'Male'] as const).map((gender) => (
+              {(avatarMode === 'lifelike'
+                ? (['Female'] as const)
+                : (['All', 'Female', 'Male'] as const)
+              ).map((gender) => (
                 <button
                   key={gender}
                   onClick={() => handleGenderFilter(gender)}
@@ -521,6 +527,11 @@ export const VoiceSelector: React.FC<VoiceSelectorProps> = ({
                   {gender}
                 </button>
               ))}
+              {avatarMode === 'lifelike' && (
+                <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '0.7rem', marginLeft: '0.5rem' }}>
+                  Lifelike avatar — female voices only
+                </span>
+              )}
             </div>
           </div>
 
