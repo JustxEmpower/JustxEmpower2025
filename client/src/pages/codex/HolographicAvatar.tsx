@@ -550,6 +550,7 @@ interface UseGeminiLiveReturn {
   // Kokoro TTS additions
   currentVoice: string;
   setVoice: (voiceId: string) => void;
+  speakText: (text: string, voiceOverride?: string) => void;
   ttsReady: boolean;
   ttsLoading: string;
 }
@@ -655,12 +656,13 @@ function useGeminiLive(
   }, []);
 
   // ── Text-to-Speech: Kokoro TTS with SpeechSynthesis fallback ──
-  const speakText = useCallback((text: string) => {
+  const speakText = useCallback((text: string, voiceOverride?: string) => {
     const kokoro = kokoroRef.current;
+    const voice = voiceOverride || currentVoice;
 
     // Try Kokoro first
     if (kokoro && kokoro.getState().isReady) {
-      kokoro.speak(text, currentVoice).catch((err) => {
+      kokoro.speak(text, voice).catch((err) => {
         console.warn('[Kokoro TTS] Speak failed, falling back to browser TTS:', err);
         speakWithBrowserTTS(text);
       });
@@ -786,6 +788,11 @@ function useGeminiLive(
 
       setCurrentGesture('thinking');
       setCurrentEmotion('listening');
+
+      // Warm up AudioContext while we still have user gesture context
+      if (kokoroRef.current) {
+        kokoroRef.current.resumeAudioContext().catch(() => {});
+      }
 
       try {
         if (!onSendMessage) {
@@ -998,6 +1005,7 @@ function useGeminiLive(
     endSession,
     currentVoice,
     setVoice,
+    speakText,
     ttsReady,
     ttsLoading,
   };
@@ -1073,11 +1081,8 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
   const handlePreviewVoice = useCallback(
     (voiceId: string) => {
       gemini.setVoice(voiceId);
-      // Speak a short preview
-      const previewText = `Hello. I am ${config.name}, your guide through the Living Codex.`;
-      gemini.sendTextMessage(''); // Dummy to not actually send — just preview voice
-      // Directly speak preview through the hook's TTS
-      // We need a small preview mechanism
+      // Speak preview immediately (no setTimeout — preserves user gesture for AudioContext)
+      gemini.speakText(`Hello. I am ${config.name}, your guide through the Living Codex.`, voiceId);
     },
     [gemini, config.name]
   );
@@ -1319,7 +1324,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 <AvatarSettingsButton
                   onClick={() => setShowAvatarSelector(true)}
                   currentAvatarName={currentPreset?.name || config.name}
-                  skinToneColor={currentPreset?.diversity?.skinTone || config.primaryColor}
+                  skinToneColor={currentPreset?.diversityMetadata?.skinTone || config.primaryColor}
                 />
               )}
               <VoiceSettingsButton
@@ -1350,9 +1355,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
             gemini.setVoice(voiceId);
             setShowVoiceSelector(false);
           }}
-          onPreviewVoice={(voiceId) => {
-            gemini.setVoice(voiceId);
-          }}
+          onPreviewVoice={handlePreviewVoice}
           isPreviewPlaying={gemini.isSpeaking}
           onClose={() => setShowVoiceSelector(false)}
         />

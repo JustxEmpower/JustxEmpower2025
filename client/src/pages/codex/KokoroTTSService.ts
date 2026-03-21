@@ -391,7 +391,7 @@ export type KokoroTTSEvent = 'start' | 'end' | 'error' | 'loading';
 export class KokoroTTSManager {
   private model: any = null;
   private audioContext: AudioContext | null = null;
-  private audioSource: AudioBufferAudioSourceNode | null = null;
+  private audioSource: AudioBufferSourceNode | null = null;
   private gainNode: GainNode | null = null;
   private analyser: AnalyserNode | null = null;
 
@@ -753,6 +753,15 @@ export class KokoroTTSManager {
           console.error(`[Kokoro TTS] Event listener error:`, error);
         }
       });
+    }
+  }
+
+  /**
+   * Resume AudioContext (must be called from user gesture context)
+   */
+  async resumeAudioContext(): Promise<void> {
+    if (this.audioContext && this.audioContext.state === 'suspended') {
+      await this.audioContext.resume();
     }
   }
 
