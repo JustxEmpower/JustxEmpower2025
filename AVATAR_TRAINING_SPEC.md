@@ -71,7 +71,7 @@ You need **10-20 high-quality reference photos** of the founder with:
     "input_images": "<zip of 10-20 founder photos>",
     "trigger_word": "LIVINGCODEX_FOUNDER",
     "autocaption": true,
-    "autocaption_prefix": "A photo of LIVINGCODEX_FOUNDER, a woman in her 30s with olive skin, green-hazel eyes, long dark wavy hair, visible tattoo sleeve on right arm",
+    "autocaption_prefix": "A photo of LIVINGCODEX_FOUNDER, a woman in her 30s with olive-tan skin, hazel-green eyes, long blonde honey-blonde hair, visible colorful full sleeve tattoo on right arm, athletic-curvy body type",
     "steps": 1200,
     "learning_rate": 0.0004,
     "batch_size": 1,

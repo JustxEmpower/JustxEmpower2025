@@ -90,44 +90,48 @@ const NEGATIVE_PROMPT =
 // Founder Prime Definitions
 // ============================================================================
 
-const FOUNDER_BASE = `${CONFIG.triggerWord}, a woman in her 30s, olive skin tone, green-hazel eyes, long dark wavy brown hair, visible full sleeve tattoo on right arm, athletic-curvy body type, small gold nose ring, gold feather earrings`;
+/** Blonde version of the founder (Kore, Leda, Zephyr) */
+const FOUNDER_BASE_BLONDE = `${CONFIG.triggerWord}, a woman in her 30s, olive-tan skin tone, hazel-green eyes, long blonde honey-blonde hair, visible colorful full sleeve tattoo on right arm and torso, athletic-curvy body type, small gold nose ring, gold feather earrings`;
+
+/** Dark brown hair version of the founder (Aoede, Theia, Selene) */
+const FOUNDER_BASE_BRUNETTE = `${CONFIG.triggerWord}, a woman in her 30s, olive-tan skin tone, hazel-green eyes, long dark brown wavy hair, visible colorful full sleeve tattoo on right arm and torso, athletic-curvy body type, small gold nose ring, gold feather earrings`;
 
 const FOUNDER_PRIMES = [
   {
     id: 'kore-prime',
     guide: 'kore',
     filename: 'portrait-kore',
-    prompt: `${FOUNDER_BASE}, wearing flowing golden-cream sacred robes with intricate embroidery, gold circlet crown on head, tattoo sleeve visible through sheer fabric on right arm, layered gold necklaces, gold arm cuffs over tattoo sleeve, standing in a warm sacred temple space with soft golden light, portrait framing from waist up, looking directly at camera with wise gentle expression, professional portrait photography, soft studio lighting, bokeh background, photorealistic, 8k, detailed skin texture`,
+    prompt: `${FOUNDER_BASE_BLONDE}, wearing flowing golden-cream sacred robes with intricate embroidery, gold circlet crown on head, tattoo sleeve visible through sheer fabric on right arm, layered gold necklaces, gold arm cuffs over tattoo sleeve, standing in a warm sacred temple space with soft golden light, portrait framing from waist up, looking directly at camera with wise gentle expression, professional portrait photography, soft studio lighting, bokeh background, photorealistic, 8k, detailed skin texture`,
   },
   {
     id: 'aoede-prime',
     guide: 'aoede',
     filename: 'portrait-aoede',
-    prompt: `${FOUNDER_BASE}, wearing a deep violet artistic draped dress with asymmetric neckline, silver moonstone pendant necklace, tattoo sleeve visible, standing in a creative studio space with mirrors and soft purple-violet lighting, portrait framing from waist up, looking at camera with creative inspired expression, professional portrait photography, soft studio lighting, bokeh background, photorealistic, 8k, detailed skin texture`,
+    prompt: `${FOUNDER_BASE_BRUNETTE}, wearing a deep violet artistic draped dress with asymmetric neckline, silver moonstone pendant necklace, tattoo sleeve visible, standing in a creative studio space with mirrors and soft purple-violet lighting, portrait framing from waist up, looking at camera with creative inspired expression, professional portrait photography, soft studio lighting, bokeh background, photorealistic, 8k, detailed skin texture`,
   },
   {
     id: 'leda-prime',
     guide: 'leda',
     filename: 'portrait-leda',
-    prompt: `${FOUNDER_BASE}, hair pulled softly to one side, wearing a soft rose-blush flowing blouse with gathered neckline, delicate gold layered necklaces, holding an ornate leather journal, sitting in a warm garden alcove with climbing roses and soft natural light, portrait framing from waist up, looking at camera with warm compassionate expression, professional portrait photography, golden hour lighting, bokeh background, photorealistic, 8k, detailed skin texture`,
+    prompt: `${FOUNDER_BASE_BLONDE}, hair pulled softly to one side, wearing a soft rose-blush flowing blouse with gathered neckline, delicate gold layered necklaces, holding an ornate leather journal, sitting in a warm garden alcove with climbing roses and soft natural light, portrait framing from waist up, looking at camera with warm compassionate expression, professional portrait photography, golden hour lighting, bokeh background, photorealistic, 8k, detailed skin texture`,
   },
   {
     id: 'theia-prime',
     guide: 'theia',
     filename: 'portrait-theia',
-    prompt: `${FOUNDER_BASE}, hair in loose waves, wearing an emerald green fitted sacred warrior tunic with gold arm cuffs, geometric shoulder detail, minimal gold jewelry, standing among ancient mossy stones in a misty forest clearing, portrait framing from waist up, looking at camera with grounded healing expression, professional portrait photography, soft diffused forest light, bokeh background, photorealistic, 8k, detailed skin texture`,
+    prompt: `${FOUNDER_BASE_BRUNETTE}, hair in loose waves, wearing an emerald green fitted sacred warrior tunic with gold arm cuffs, geometric shoulder detail, minimal gold jewelry, standing among ancient mossy stones in a misty forest clearing, portrait framing from waist up, looking at camera with grounded healing expression, professional portrait photography, soft diffused forest light, bokeh background, photorealistic, 8k, detailed skin texture`,
   },
   {
     id: 'selene-prime',
     guide: 'selene',
     filename: 'portrait-selene',
-    prompt: `${FOUNDER_BASE}, dark wavy hair in a sophisticated low bun, tattoo sleeve partially visible at wrist cuff, wearing an elegant sapphire blue fitted blazer-dress with pearl brooch, structured shoulders, reading glasses pushed up on head, standing in a grand library with floor-to-ceiling bookshelves and warm lamp light, portrait framing from waist up, looking at camera with scholarly knowing expression, professional portrait photography, warm library lighting, bokeh background, photorealistic, 8k, detailed skin texture`,
+    prompt: `${FOUNDER_BASE_BRUNETTE}, dark wavy hair in a sophisticated low bun, tattoo sleeve partially visible at wrist cuff, wearing an elegant sapphire blue fitted blazer-dress with pearl brooch, structured shoulders, reading glasses pushed up on head, standing in a grand library with floor-to-ceiling bookshelves and warm lamp light, portrait framing from waist up, looking at camera with scholarly knowing expression, professional portrait photography, warm library lighting, bokeh background, photorealistic, 8k, detailed skin texture`,
   },
   {
     id: 'zephyr-prime',
     guide: 'zephyr',
     filename: 'portrait-zephyr',
-    prompt: `${FOUNDER_BASE}, long wavy hair with natural movement, both arm tattoos clearly visible, wearing a warm coral-orange modern wrap top with flowing wide-leg pants, layered bracelets on both wrists, welcoming open posture, standing on a sunset terrace with warm city skyline behind, portrait framing from waist up, looking at camera with warm welcoming expression, professional portrait photography, golden hour sunset lighting, bokeh background, photorealistic, 8k, detailed skin texture`,
+    prompt: `${FOUNDER_BASE_BLONDE}, long wavy hair with natural movement, both arm tattoos clearly visible, wearing a warm coral-orange modern wrap top with flowing wide-leg pants, layered bracelets on both wrists, welcoming open posture, standing on a sunset terrace with warm city skyline behind, portrait framing from waist up, looking at camera with warm welcoming expression, professional portrait photography, golden hour sunset lighting, bokeh background, photorealistic, 8k, detailed skin texture`,
   },
 ];
 
@@ -512,7 +516,7 @@ async function trainLoRA() {
       input_images: trainingFileUrl,
       trigger_word: CONFIG.triggerWord,
       autocaption: true,
-      autocaption_prefix: `A photo of ${CONFIG.triggerWord}, a woman in her 30s with olive skin, green-hazel eyes, long dark wavy hair, visible tattoo sleeve on right arm`,
+      autocaption_prefix: `A photo of ${CONFIG.triggerWord}, a woman in her 30s with olive-tan skin, hazel-green eyes, long blonde honey-blonde hair, visible colorful full sleeve tattoo on right arm`,
       ...CONFIG.trainingDefaults,
     },
   });

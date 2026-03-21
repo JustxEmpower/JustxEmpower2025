@@ -290,7 +290,7 @@ export const AVATAR_PRESETS: AvatarPreset[] = [
     customization: {
       skinTone: '#D4A574',
       hairStyle: 'wavy',
-      hairColor: '#2C1810',
+      hairColor: '#C9A86C',
       bodyType: 'curvy',
       ageRange: 'adult_30s',
       eyeColor: '#6B8E5A',
@@ -504,7 +504,7 @@ export const AVATAR_PRESETS: AvatarPreset[] = [
     customization: {
       skinTone: '#D4A574',
       hairStyle: 'wavy',
-      hairColor: '#2C1810',
+      hairColor: '#3B2314',
       bodyType: 'curvy',
       ageRange: 'adult_30s',
       eyeColor: '#6B8E5A',
@@ -699,7 +699,7 @@ export const AVATAR_PRESETS: AvatarPreset[] = [
     customization: {
       skinTone: '#D4A574',
       hairStyle: 'wavy',
-      hairColor: '#2C1810',
+      hairColor: '#C9A86C',
       bodyType: 'curvy',
       ageRange: 'adult_30s',
       eyeColor: '#6B8E5A',
@@ -879,7 +879,7 @@ export const AVATAR_PRESETS: AvatarPreset[] = [
     customization: {
       skinTone: '#D4A574',
       hairStyle: 'wavy',
-      hairColor: '#2C1810',
+      hairColor: '#3B2314',
       bodyType: 'curvy',
       ageRange: 'adult_30s',
       eyeColor: '#6B8E5A',
@@ -1069,7 +1069,7 @@ export const AVATAR_PRESETS: AvatarPreset[] = [
     customization: {
       skinTone: '#D4A574',
       hairStyle: 'long_flowing',
-      hairColor: '#2C1810',
+      hairColor: '#3B2314',
       bodyType: 'curvy',
       ageRange: 'adult_30s',
       eyeColor: '#6B8E5A',
@@ -1269,7 +1269,7 @@ export const AVATAR_PRESETS: AvatarPreset[] = [
     customization: {
       skinTone: '#D4A574',
       hairStyle: 'wavy',
-      hairColor: '#2C1810',
+      hairColor: '#C9A86C',
       bodyType: 'curvy',
       ageRange: 'adult_30s',
       eyeColor: '#6B8E5A',

@@ -13,6 +13,7 @@ import { createContext } from "./context";
 import { getDb } from "../db";
 import { siteSettings, pages } from "../../drizzle/schema";
 import { createStripeWebhookRouter } from "../stripeWebhook";
+import { createKlingRouter } from "../klingRouter";
 import { eq } from "drizzle-orm";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -54,6 +55,9 @@ async function startServer() {
     next(err);
   });
   
+  // Kling Avatar API proxy (PiAPI) — keeps API key server-side
+  app.use("/api/kling", createKlingRouter());
+
   // tRPC API with increased body size limit
   app.use(
     "/api/trpc",

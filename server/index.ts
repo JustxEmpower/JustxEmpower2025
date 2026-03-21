@@ -2,6 +2,7 @@ import express from "express";
 import { createServer } from "http";
 import path from "path";
 import { fileURLToPath } from "url";
+import { createKlingRouter } from "./klingRouter.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -16,7 +17,13 @@ async function startServer() {
       ? path.resolve(__dirname, "public")
       : path.resolve(__dirname, "..", "dist", "public");
 
+  // JSON body parser for API routes
+  app.use(express.json({ limit: '25mb' }));
+
   app.use(express.static(staticPath));
+
+  // ── API Routes ──
+  app.use('/api/kling', createKlingRouter());
 
   // Handle client-side routing - serve index.html for all routes
   app.get("*", (_req, res) => {
