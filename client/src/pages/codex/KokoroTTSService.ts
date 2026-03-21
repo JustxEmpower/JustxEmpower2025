@@ -440,15 +440,14 @@ export class KokoroTTSManager {
       this.loadingProgress = `Loading Kokoro model (${device})...`;
       this.emit('loading', { progress: this.loadingProgress });
 
-      // Initialize the model
-      this.model = new KokoroTTS({
-        model_id: 'onnx-community/Kokoro-82M-v1.0-ONNX',
-        dtype: 'q8',
-        device: device,
-      });
-
-      // Wait for model to be ready
-      await this.model.ready;
+      // Initialize the model via static factory
+      this.model = await KokoroTTS.from_pretrained(
+        'onnx-community/Kokoro-82M-v1.0-ONNX',
+        {
+          dtype: 'q8',
+          device: device,
+        },
+      );
 
       // Initialize AudioContext
       if (!this.audioContext) {
@@ -507,17 +506,17 @@ export class KokoroTTSManager {
         await this.audioContext.resume();
       }
 
-      // Create AudioBuffer from the generated audio
+      // Create AudioBuffer from the generated RawAudio object
+      const samples = audio.audio as Float32Array;
+      const sampleRate = audio.sampling_rate || 24000;
       const audioBuffer = this.audioContext.createBuffer(
         1, // mono
-        audio.length,
-        24000 // 24kHz sample rate
+        samples.length,
+        sampleRate,
       );
 
       const channelData = audioBuffer.getChannelData(0);
-      for (let i = 0; i < audio.length; i++) {
-        channelData[i] = audio[i];
-      }
+      channelData.set(samples);
 
       // Stop any existing playback
       if (this.audioSource) {
@@ -578,42 +577,31 @@ export class KokoroTTSManager {
       const splitter = new TextSplitterStream();
       const stream = await this.model.stream(splitter, { voice });
 
-      // Push text tokens into the splitter
-      const sentences = text.split(/[.!?]+/).filter(s => s.trim());
-
       this.emit('loading', { progress: 'Streaming audio...' });
       this.startAudioLevelMonitoring();
 
-      for (const sentence of sentences) {
+      // Push all text into splitter, then close
+      splitter.push(text);
+      splitter.close();
+
+      // Consume stream chunks — each yields { text, phonemes, audio }
+      for await (const chunk of stream) {
         if (this.abortController.signal.aborted) break;
 
-        // Push sentence to splitter
-        splitter.push(sentence.trim() + '. ');
+        if (chunk && chunk.audio) {
+          const samples = chunk.audio.audio as Float32Array;
+          const sampleRate = chunk.audio.sampling_rate || 24000;
 
-        // Get audio chunks from stream
-        for await (const chunk of stream) {
-          if (this.abortController.signal.aborted) break;
+          const audioBuffer = this.audioContext.createBuffer(1, samples.length, sampleRate);
+          audioBuffer.getChannelData(0).set(samples);
 
-          if (chunk && chunk.length > 0) {
-            // Create and play audio buffer
-            const audioBuffer = this.audioContext.createBuffer(
-              1,
-              chunk.length,
-              24000
-            );
-            const channelData = audioBuffer.getChannelData(0);
-            for (let i = 0; i < chunk.length; i++) {
-              channelData[i] = chunk[i];
-            }
+          const source = this.audioContext.createBufferSource();
+          source.buffer = audioBuffer;
+          source.connect(this.gainNode!);
+          source.start(0);
 
-            const source = this.audioContext.createBufferSource();
-            source.buffer = audioBuffer;
-            source.connect(this.gainNode!);
-            source.start(0);
-
-            // Small delay between chunks for natural flow
-            await new Promise(resolve => setTimeout(resolve, 50));
-          }
+          // Wait for chunk to finish playing before next
+          await new Promise(resolve => setTimeout(resolve, (samples.length / sampleRate) * 1000));
         }
       }
 
