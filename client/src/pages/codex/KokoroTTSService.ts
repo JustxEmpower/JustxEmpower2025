@@ -392,6 +392,8 @@ export class KokoroTTSManager {
   private model: any = null;
   private audioContext: AudioContext | null = null;
   private audioSource: AudioBufferSourceNode | null = null;
+  private audioElement: HTMLAudioElement | null = null;
+  private mediaSource: MediaElementAudioSourceNode | null = null;
   private gainNode: GainNode | null = null;
   private analyser: AnalyserNode | null = null;
 
@@ -402,6 +404,7 @@ export class KokoroTTSManager {
   private currentVoice: string = 'af_kore';
   private audioLevel: number = 0;
   private audioLevelInterval: NodeJS.Timeout | null = null;
+  private currentBlobUrl: string | null = null;
 
   private eventListeners: Map<KokoroTTSEvent, Set<Function>> = new Map();
   private abortController: AbortController | null = null;
@@ -504,49 +507,61 @@ export class KokoroTTSManager {
     try {
       this.emit('loading', { progress: 'Generating audio...' });
 
-      // Generate audio
-      const audio = await this.model.generate(text, {
-        voice: voice,
-      });
+      // Generate audio using Kokoro model
+      const rawAudio = await this.model.generate(text, { voice });
 
-      const ctx = this.audioContext!;
-      const gain = this.gainNode!;
+      const samples = rawAudio.audio as Float32Array;
+      const sampleRate = rawAudio.sampling_rate || 24000;
+      console.log(`[Kokoro TTS] Generated ${samples.length} samples at ${sampleRate}Hz (${(samples.length / sampleRate).toFixed(1)}s)`);
 
-      // Resume audio context if suspended
-      if (ctx.state === 'suspended') {
-        console.log('[Kokoro TTS] Resuming suspended AudioContext...');
-        await ctx.resume();
+      // Convert to WAV blob using kokoro-js built-in method (handles encoding properly)
+      const blob = rawAudio.toBlob() as Blob;
+
+      // Clean up previous blob URL
+      if (this.currentBlobUrl) {
+        URL.revokeObjectURL(this.currentBlobUrl);
       }
-      console.log(`[Kokoro TTS] AudioContext state: ${ctx.state}`);
-
-      // Create AudioBuffer from the generated RawAudio object
-      const samples = audio.audio as Float32Array;
-      const sampleRate = audio.sampling_rate || 24000;
-      console.log(`[Kokoro TTS] Generated ${samples.length} samples at ${sampleRate}Hz (${(samples.length/sampleRate).toFixed(1)}s)`);
-
-      const audioBuffer = ctx.createBuffer(1, samples.length, sampleRate);
-      audioBuffer.getChannelData(0).set(samples);
+      this.currentBlobUrl = URL.createObjectURL(blob);
 
       // Stop any existing playback
-      if (this.audioSource) {
-        try { this.audioSource.stop(); } catch (_) {}
-      }
+      this.stopAudioElement();
 
-      // Create and play audio source
-      this.audioSource = ctx.createBufferSource();
-      this.audioSource.buffer = audioBuffer;
-      this.audioSource.connect(gain);
+      // Play via HTML Audio element — most reliable cross-browser playback
+      this.audioElement = new Audio(this.currentBlobUrl);
+      this.audioElement.volume = 1.0;
+
+      // Wire up analyser for audio level visualization (optional)
+      try {
+        this.ensureAudioContext();
+        const ctx = this.audioContext!;
+        if (ctx.state === 'suspended') await ctx.resume();
+        if (!this.mediaSource) {
+          this.mediaSource = ctx.createMediaElementSource(this.audioElement);
+          this.mediaSource.connect(this.analyser || ctx.destination);
+          if (this.analyser) this.analyser.connect(ctx.destination);
+        }
+      } catch (e) {
+        console.warn('[Kokoro TTS] Analyser setup failed (audio will still play):', e);
+      }
 
       // Start audio level monitoring
       this.startAudioLevelMonitoring();
 
-      this.audioSource.onended = () => {
+      this.audioElement.onended = () => {
         this.isSpeaking = false;
         this.stopAudioLevelMonitoring();
         this.emit('end', { voice });
       };
 
-      this.audioSource.start(0);
+      this.audioElement.onerror = (e) => {
+        console.error('[Kokoro TTS] Audio playback error:', e);
+        this.isSpeaking = false;
+        this.stopAudioLevelMonitoring();
+        this.emit('error', { message: 'Audio playback failed' });
+      };
+
+      await this.audioElement.play();
+      console.log('[Kokoro TTS] Playing audio via Audio element');
     } catch (error) {
       this.isSpeaking = false;
       this.stopAudioLevelMonitoring();
@@ -579,14 +594,6 @@ export class KokoroTTSManager {
     try {
       this.emit('loading', { progress: 'Initializing streaming...' });
 
-      const ctx = this.audioContext!;
-      const gain = this.gainNode!;
-
-      // Resume audio context if suspended
-      if (ctx.state === 'suspended') {
-        await ctx.resume();
-      }
-
       // Create text splitter and stream
       const splitter = new TextSplitterStream();
       const stream = await this.model.stream(splitter, { voice });
@@ -603,19 +610,19 @@ export class KokoroTTSManager {
         if (this.abortController.signal.aborted) break;
 
         if (chunk && chunk.audio) {
-          const samples = chunk.audio.audio as Float32Array;
-          const sampleRate = chunk.audio.sampling_rate || 24000;
+          const rawAudio = chunk.audio;
+          const blob = rawAudio.toBlob() as Blob;
+          const url = URL.createObjectURL(blob);
 
-          const audioBuffer = ctx.createBuffer(1, samples.length, sampleRate);
-          audioBuffer.getChannelData(0).set(samples);
-
-          const source = ctx.createBufferSource();
-          source.buffer = audioBuffer;
-          source.connect(gain);
-          source.start(0);
-
-          // Wait for chunk to finish playing before next
-          await new Promise(resolve => setTimeout(resolve, (samples.length / sampleRate) * 1000));
+          // Play chunk via Audio element and wait for it to finish
+          await new Promise<void>((resolve, reject) => {
+            const el = new Audio(url);
+            el.volume = 1.0;
+            el.onended = () => { URL.revokeObjectURL(url); resolve(); };
+            el.onerror = () => { URL.revokeObjectURL(url); resolve(); };
+            el.play().catch(() => { URL.revokeObjectURL(url); resolve(); });
+            this.audioElement = el;
+          });
         }
       }
 
@@ -642,6 +649,8 @@ export class KokoroTTSManager {
    * Stop current speech playback
    */
   stop(): void {
+    this.stopAudioElement();
+
     if (this.audioSource) {
       try {
         this.audioSource.stop();
@@ -658,6 +667,27 @@ export class KokoroTTSManager {
 
     this.isSpeaking = false;
     this.stopAudioLevelMonitoring();
+  }
+
+  private stopAudioElement(): void {
+    if (this.audioElement) {
+      try {
+        this.audioElement.pause();
+        this.audioElement.src = '';
+      } catch {
+        // Already stopped
+      }
+      this.audioElement = null;
+    }
+    // Disconnect media source so a new one can be created for new audio elements
+    if (this.mediaSource) {
+      try { this.mediaSource.disconnect(); } catch {}
+      this.mediaSource = null;
+    }
+    if (this.currentBlobUrl) {
+      URL.revokeObjectURL(this.currentBlobUrl);
+      this.currentBlobUrl = null;
+    }
   }
 
   /**
@@ -789,6 +819,7 @@ export class KokoroTTSManager {
    */
   dispose(): void {
     this.stop();
+    this.stopAudioElement();
     if (this.audioContext) {
       this.audioContext.close();
       this.audioContext = null;
