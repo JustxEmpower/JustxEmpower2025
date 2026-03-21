@@ -1028,10 +1028,10 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
 
   // Avatar state
   const [currentPreset, setCurrentPreset] = useState<AvatarPreset | null>(() =>
-    getDefaultPreset(config.name) || null
+    getDefaultPreset(config.name.toLowerCase()) || null
   );
   const [customAppearance, setCustomAppearance] = useState<Partial<AvatarCustomization> | undefined>();
-  const [avatarMode, setAvatarMode] = useState<'orb' | 'humanoid'>('orb');
+  const [avatarMode, setAvatarMode] = useState<'orb' | 'humanoid'>('humanoid');
 
   // Check for reduced motion preference
   const prefersReducedMotion =
@@ -1122,21 +1122,55 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
           </Canvas>
         </div>
       ) : avatarMode === 'humanoid' && currentPreset ? (
-        /* ── HUMANOID AVATAR MODE — Photorealistic Renderer ── */
-        <div className="absolute inset-0">
-          <RealisticAvatarRenderer
-            avatarImageUrl={currentPreset.imageUrl || `/assets/avatars/${currentPreset.id}.png`}
-            guideColor={config.primaryColor}
-            glowColor={config.emissiveColor}
-            audioLevel={gemini.audioLevel}
-            isSpeaking={gemini.isSpeaking}
-            isListening={gemini.isListening}
-            emotion={gemini.currentEmotion}
-            skinTone={currentPreset.diversity?.skinTone}
-            eyeColor={customAppearance?.eyeColor}
-            width="100%"
-            height="100%"
-          />
+        /* ── HUMANOID AVATAR MODE — Trained Portrait Display ── */
+        <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(ellipse at center, ${config.secondaryColor}cc 0%, #0A0A1A 70%)` }}>
+          <style>{`
+            @keyframes portraitBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
+            @keyframes portraitGlow{0%,100%{box-shadow:0 0 30px ${config.emissiveColor}60, 0 0 60px ${config.emissiveColor}20}50%{box-shadow:0 0 50px ${config.emissiveColor}80, 0 0 100px ${config.emissiveColor}40}}
+            @keyframes portraitSpeak{0%,100%{box-shadow:0 0 40px ${config.emissiveColor}90, 0 0 80px ${config.emissiveColor}50, 0 0 120px ${config.primaryColor}30}50%{box-shadow:0 0 60px ${config.emissiveColor}, 0 0 120px ${config.emissiveColor}70, 0 0 180px ${config.primaryColor}50}}
+            @keyframes ringRotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+          `}</style>
+          <div style={{ textAlign: 'center', marginTop: '-2rem' }}>
+            {/* Holographic rings */}
+            <div style={{ width: '18rem', height: '18rem', margin: '0 auto', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `2px solid ${config.primaryColor}25`, animation: 'ringRotate 20s linear infinite' }} />
+              <div style={{ position: 'absolute', inset: '0.5rem', borderRadius: '50%', border: `1px solid ${config.primaryColor}15`, animation: 'ringRotate 15s linear infinite reverse' }} />
+              {/* Portrait image */}
+              <div style={{
+                width: '14rem',
+                height: '14rem',
+                borderRadius: '50%',
+                overflow: 'hidden',
+                border: `3px solid ${config.primaryColor}60`,
+                animation: gemini.isSpeaking
+                  ? 'portraitSpeak 1.2s ease-in-out infinite'
+                  : 'portraitBreath 4s ease-in-out infinite, portraitGlow 3s ease-in-out infinite',
+                transition: 'box-shadow 0.4s ease',
+              }}>
+                <img
+                  src={currentPreset.imageUrl || `/assets/avatars/${currentPreset.id}.png`}
+                  alt={currentPreset.name}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center 20%',
+                    filter: gemini.isSpeaking ? 'brightness(1.1)' : 'brightness(1)',
+                    transition: 'filter 0.3s ease',
+                  }}
+                  onError={(e) => {
+                    // Fallback to orb mode if image fails to load
+                    (e.target as HTMLImageElement).style.display = 'none';
+                    setAvatarMode('orb');
+                  }}
+                />
+              </div>
+            </div>
+            <p style={{ fontSize: '1.1rem', fontWeight: 500, color: config.primaryColor, letterSpacing: '0.15em', marginTop: '0.75rem' }}>{config.name}</p>
+            <p style={{ fontSize: '0.65rem', color: 'rgba(255,255,255,0.3)', marginTop: '0.35rem' }}>
+              {gemini.isSpeaking ? 'Speaking...' : gemini.isListening ? 'Listening...' : 'Holographic Guide'}
+            </p>
+          </div>
         </div>
       ) : (
         /* ── ORB MODE (default) ── */
