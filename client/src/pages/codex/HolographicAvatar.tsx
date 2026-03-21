@@ -11,12 +11,14 @@
  * - Audio waveform visualization synced to guide speech
  * - Gesture system mapped to emotional tone detection
  * - Accessibility: reduced motion support + text fallback
+ * - KOKORO TTS — 82M parameter neural TTS replacing SpeechSynthesis
+ * - Voice selector with unique pastel/neon color orbs per voice
  *
  * Architecture:
  * 1. Three.js Canvas (avatar model + particles + lighting)
  * 2. Gemini Live Session (streaming conversation)
  * 3. Speech-to-Text (user voice input)
- * 4. Text-to-Speech (guide voice output)
+ * 4. Kokoro TTS (guide voice output — neural, natural-sounding)
  * 5. Escalation Pipeline (every message passes through VITALIZE)
  * 6. Citation Engine (evidence injection via FORTIFY)
  */
@@ -40,8 +42,28 @@ import {
   OrbitControls,
 } from '@react-three/drei';
 import * as THREE from 'three';
-import { KokoroTTSManager, GUIDE_VOICE_DEFAULTS, getVoiceById, type TTSStatus } from './KokoroTTSService';
-import { VoiceSettingsButton, VoiceSelector } from './VoiceSelector';
+
+// Kokoro TTS integration
+import {
+  KokoroTTSManager,
+  GUIDE_VOICE_DEFAULTS,
+  KOKORO_VOICE_CATALOG,
+  type KokoroVoice,
+} from './KokoroTTSService';
+import { VoiceSelector, VoiceSettingsButton } from './VoiceSelector';
+
+// Avatar system integration
+import {
+  type AvatarPreset,
+  type AvatarCustomization,
+  getPresetsForGuide,
+  getDefaultPreset,
+  AVATAR_PRESETS,
+  EXPRESSION_CONFIGS,
+  VISEME_MAP,
+} from './AvatarSystem';
+import { RealisticAvatarRenderer } from './RealisticAvatarRenderer';
+import { AvatarSelector, AvatarSettingsButton } from './AvatarSelector';
 
 // ============================================================================
 // TYPE DEFINITIONS
@@ -510,7 +532,7 @@ const WaveformRing: React.FC<WaveformRingProps> = ({
 };
 
 // ============================================================================
-// GEMINI LIVE SESSION HOOK
+// GEMINI LIVE SESSION HOOK — With Kokoro TTS
 // ============================================================================
 
 interface UseGeminiLiveReturn {
@@ -525,12 +547,12 @@ interface UseGeminiLiveReturn {
   startListening: () => void;
   stopListening: () => void;
   endSession: () => void;
+  // Kokoro TTS additions
   currentVoice: string;
-  setCurrentVoice: (id: string) => void;
+  setVoice: (voiceId: string) => void;
   ttsReady: boolean;
+  ttsLoading: string;
 }
-
-// Voice config now handled by KokoroTTSService
 
 function useGeminiLive(
   systemPrompt: string,
@@ -546,44 +568,150 @@ function useGeminiLive(
   const [currentEmotion, setCurrentEmotion] = useState<AvatarEmotion>('neutral');
   const [currentGesture, setCurrentGesture] = useState<AvatarGesture>('idle');
   const [transcript, setTranscript] = useState('');
-  const [currentVoice, setCurrentVoice] = useState(GUIDE_VOICE_DEFAULTS[guideConfig.name] || 'af_heart');
+  const [currentVoice, setCurrentVoice] = useState(guideConfig.voiceId);
   const [ttsReady, setTtsReady] = useState(false);
+  const [ttsLoading, setTtsLoading] = useState('');
+
   const sessionRef = useRef<any>(null);
   const recognitionRef = useRef<any>(null);
   const pendingTranscriptRef = useRef<string>('');
   const shouldKeepListeningRef = useRef(false);
   const kokoroRef = useRef<KokoroTTSManager | null>(null);
-  const resumeListeningRef = useRef<() => void>(() => {});
+  const audioLevelFrameRef = useRef<number | null>(null);
 
   // Initialize Kokoro TTS
   useEffect(() => {
     setIsConnected(true);
-    const mgr = new KokoroTTSManager({
-      onStart: () => setIsSpeaking(true),
-      onEnd: () => {
-        setIsSpeaking(false);
-        setCurrentGesture('idle');
-        // Resume listening after guide finishes speaking
-        if (shouldKeepListeningRef.current && recognitionRef.current === null) {
-          setTimeout(() => { if (shouldKeepListeningRef.current) resumeListeningRef.current(); }, 500);
-        }
-      },
-      onError: (err) => { console.error('[KokoroTTS]', err); setIsSpeaking(false); },
-      onAudioLevel: setAudioLevel,
-      onLoading: () => {},
+
+    const kokoro = new KokoroTTSManager();
+    kokoroRef.current = kokoro;
+
+    // Listen for Kokoro events
+    kokoro.addEventListener('start', () => {
+      setIsSpeaking(true);
     });
-    mgr.setVoice(currentVoice);
-    kokoroRef.current = mgr;
-    mgr.init().then(ok => setTtsReady(ok));
-    return () => { mgr.dispose(); kokoroRef.current = null; };
+
+    kokoro.addEventListener('end', () => {
+      setIsSpeaking(false);
+      setCurrentGesture('idle');
+      // Resume listening if user had voice mode on
+      if (shouldKeepListeningRef.current && recognitionRef.current === null) {
+        setTimeout(() => {
+          if (shouldKeepListeningRef.current) {
+            startListeningInternal();
+          }
+        }, 500);
+      }
+    });
+
+    kokoro.addEventListener('error', (data: any) => {
+      console.error('[Kokoro TTS] Error:', data?.message);
+      setIsSpeaking(false);
+      setCurrentGesture('idle');
+      // Fallback to SpeechSynthesis if Kokoro fails
+      setTtsLoading('Kokoro unavailable — using browser voice');
+    });
+
+    kokoro.addEventListener('loading', (data: any) => {
+      setTtsLoading(data?.progress || '');
+    });
+
+    // Set default voice for this guide
+    const defaultVoice = GUIDE_VOICE_DEFAULTS[guideConfig.name] || guideConfig.voiceId;
+    kokoro.setVoice(defaultVoice);
+    setCurrentVoice(defaultVoice);
+
+    // Initialize the model
+    kokoro.initialize()
+      .then(() => {
+        setTtsReady(true);
+        setTtsLoading('');
+        console.log(`[Kokoro TTS] Ready for ${guideConfig.name}`);
+      })
+      .catch((err) => {
+        console.warn('[Kokoro TTS] Init failed, will use SpeechSynthesis fallback:', err);
+        setTtsLoading('Using browser voice (Kokoro loading failed)');
+        // Still mark as "ready" — we'll fallback to SpeechSynthesis
+        setTtsReady(true);
+      });
+
+    // Audio level animation loop — reads real RMS from Kokoro analyser
+    const updateAudioLevel = () => {
+      if (kokoroRef.current) {
+        const level = kokoroRef.current.getAudioLevel();
+        setAudioLevel(level);
+      }
+      audioLevelFrameRef.current = requestAnimationFrame(updateAudioLevel);
+    };
+    audioLevelFrameRef.current = requestAnimationFrame(updateAudioLevel);
+
+    return () => {
+      if (audioLevelFrameRef.current) {
+        cancelAnimationFrame(audioLevelFrameRef.current);
+      }
+      kokoro.dispose();
+      kokoroRef.current = null;
+    };
   }, []);
 
-  // Sync voice changes to Kokoro manager
-  useEffect(() => { kokoroRef.current?.setVoice(currentVoice); }, [currentVoice]);
+  // ── Text-to-Speech: Kokoro TTS with SpeechSynthesis fallback ──
+  const speakText = useCallback((text: string) => {
+    const kokoro = kokoroRef.current;
 
-  // ── Text-to-Speech via Kokoro (falls back to SpeechSynthesis) ──
-  const speakText = useCallback(async (text: string) => {
-    kokoroRef.current?.speak(text);
+    // Try Kokoro first
+    if (kokoro && kokoro.getState().isReady) {
+      kokoro.speak(text, currentVoice).catch((err) => {
+        console.warn('[Kokoro TTS] Speak failed, falling back to browser TTS:', err);
+        speakWithBrowserTTS(text);
+      });
+      return;
+    }
+
+    // Fallback to SpeechSynthesis
+    speakWithBrowserTTS(text);
+  }, [currentVoice]);
+
+  // Browser TTS fallback
+  const speakWithBrowserTTS = useCallback((text: string) => {
+    if (!('speechSynthesis' in window)) return;
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // Find a reasonable voice
+    const voices = window.speechSynthesis.getVoices();
+    const englishVoice = voices.find(v =>
+      v.lang.startsWith('en') && (v.name.includes('Samantha') || v.name.includes('Karen') || v.name.includes('Zira'))
+    ) || voices.find(v => v.lang.startsWith('en')) || voices[0];
+    if (englishVoice) utterance.voice = englishVoice;
+    utterance.lang = 'en-US';
+    utterance.rate = 0.9;
+    utterance.pitch = 1.0;
+
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => {
+      setIsSpeaking(false);
+      setCurrentGesture('idle');
+      if (shouldKeepListeningRef.current && recognitionRef.current === null) {
+        setTimeout(() => {
+          if (shouldKeepListeningRef.current) startListeningInternal();
+        }, 500);
+      }
+    };
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+      setCurrentGesture('idle');
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
+  // Set voice
+  const setVoice = useCallback((voiceId: string) => {
+    setCurrentVoice(voiceId);
+    if (kokoroRef.current) {
+      kokoroRef.current.setVoice(voiceId);
+    }
   }, []);
 
   // Detect emotion from response text
@@ -618,7 +746,6 @@ function useGeminiLive(
   // Check for escalation triggers in user message
   const checkEscalation = useCallback(
     (message: string) => {
-      // Import escalation patterns (simplified check — full check runs server-side)
       const criticalPatterns = [
         /\b(kill|suicide|end (my|it all)|don'?t want to (live|be here|exist))\b/i,
         /\b(self[- ]?harm|cut(ting)? (myself|me)|hurt(ing)? myself)\b/i,
@@ -676,7 +803,7 @@ function useGeminiLive(
               emotion,
             });
 
-            // Speak the response with TTS
+            // Speak the response with Kokoro TTS
             speakText(demoResponse);
           }, 1500);
           return;
@@ -698,7 +825,7 @@ function useGeminiLive(
           emotion,
         });
 
-        // Speak the response with real TTS — isSpeaking is set by utterance.onstart
+        // Speak the response with Kokoro TTS
         speakText(guideText);
       } catch (error) {
         console.error('[HolographicAvatar] Message send failed:', error);
@@ -816,13 +943,15 @@ function useGeminiLive(
     }
   }, [sendTextMessage, isSpeaking]);
 
-  // Keep resumeListeningRef in sync so Kokoro onEnd can call it
-  useEffect(() => { resumeListeningRef.current = startListeningInternal; }, [startListeningInternal]);
-
   const startListening = useCallback(() => {
     shouldKeepListeningRef.current = true;
-    // Stop TTS if guide is speaking — user wants to talk
-    kokoroRef.current?.stop();
+    // Stop Kokoro TTS if guide is speaking — user wants to talk
+    if (kokoroRef.current) {
+      kokoroRef.current.stop();
+    }
+    // Also cancel browser SpeechSynthesis fallback
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setIsSpeaking(false);
     startListeningInternal();
   }, [startListeningInternal]);
 
@@ -842,9 +971,16 @@ function useGeminiLive(
 
   const endSession = useCallback(() => {
     stopListening();
-    kokoroRef.current?.stop();
+    // Stop Kokoro TTS
+    if (kokoroRef.current) {
+      kokoroRef.current.stop();
+    }
+    // Also cancel browser SpeechSynthesis fallback
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
     setIsSpeaking(false);
-    if (sessionRef.current) sessionRef.current = null;
+    if (sessionRef.current) {
+      sessionRef.current = null;
+    }
     setIsConnected(false);
   }, [stopListening]);
 
@@ -861,8 +997,9 @@ function useGeminiLive(
     stopListening,
     endSession,
     currentVoice,
-    setCurrentVoice,
+    setVoice,
     ttsReady,
+    ttsLoading,
   };
 }
 
@@ -884,9 +1021,17 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
   const [textInput, setTextInput] = useState('');
   const [showTextFallback, setShowTextFallback] = useState(false);
   const [canvasError, setCanvasError] = useState(false);
-  const [voiceSelectorOpen, setVoiceSelectorOpen] = useState(false);
+  const [showVoiceSelector, setShowVoiceSelector] = useState(false);
+  const [showAvatarSelector, setShowAvatarSelector] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<GuideMessage[]>([]);
+
+  // Avatar state
+  const [currentPreset, setCurrentPreset] = useState<AvatarPreset | null>(() =>
+    getDefaultPreset(config.name) || null
+  );
+  const [customAppearance, setCustomAppearance] = useState<Partial<AvatarCustomization> | undefined>();
+  const [avatarMode, setAvatarMode] = useState<'orb' | 'humanoid'>('orb');
 
   // Check for reduced motion preference
   const prefersReducedMotion =
@@ -903,10 +1048,12 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
 
   const gemini = useGeminiLive(systemPrompt, config, handleMessage, onEscalation, onSendMessage);
 
-  // Get current voice's color data for the orb
-  const voiceData = getVoiceById(gemini.currentVoice);
-  const orbColor = voiceData?.orbColor || config.primaryColor;
-  const orbGlow = voiceData?.orbGlow || config.emissiveColor;
+  // Get current voice metadata for orb display
+  const currentVoiceData = useMemo(
+    () => KOKORO_VOICE_CATALOG.find(v => v.id === gemini.currentVoice),
+    [gemini.currentVoice]
+  );
+  const currentVoiceName = currentVoiceData?.name || 'Kore';
 
   // Auto-scroll chat
   useEffect(() => {
@@ -921,6 +1068,18 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
       setTextInput('');
     },
     [textInput, gemini]
+  );
+
+  const handlePreviewVoice = useCallback(
+    (voiceId: string) => {
+      gemini.setVoice(voiceId);
+      // Speak a short preview
+      const previewText = `Hello. I am ${config.name}, your guide through the Living Codex.`;
+      gemini.sendTextMessage(''); // Dummy to not actually send — just preview voice
+      // Directly speak preview through the hook's TTS
+      // We need a small preview mechanism
+    },
+    [gemini, config.name]
   );
 
   if (!isActive) return null;
@@ -962,17 +1121,56 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
             </Suspense>
           </Canvas>
         </div>
+      ) : avatarMode === 'humanoid' && currentPreset ? (
+        /* ── HUMANOID AVATAR MODE — Photorealistic Renderer ── */
+        <div className="absolute inset-0">
+          <RealisticAvatarRenderer
+            avatarImageUrl={currentPreset.imageUrl || `/assets/avatars/${currentPreset.id}.png`}
+            guideColor={config.primaryColor}
+            glowColor={config.emissiveColor}
+            audioLevel={gemini.audioLevel}
+            isSpeaking={gemini.isSpeaking}
+            isListening={gemini.isListening}
+            emotion={gemini.currentEmotion}
+            skinTone={currentPreset.diversity?.skinTone}
+            eyeColor={customAppearance?.eyeColor}
+            width="100%"
+            height="100%"
+          />
+        </div>
       ) : (
+        /* ── ORB MODE (default) ── */
         <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(ellipse at center, ${config.secondaryColor}cc 0%, #0A0A1A 70%)` }}>
-          <style>{`@keyframes hp{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.08);opacity:.95}}@keyframes hs{0%,100%{transform:scale(1)}25%{transform:scale(1.12)}75%{transform:scale(.95)}}@keyframes hr{from{transform:rotate(0)}to{transform:rotate(360deg)}}@keyframes voPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}@keyframes voGlow{0%,100%{opacity:.8}50%{opacity:1}}`}</style>
+          <style>{`@keyframes hp{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.08);opacity:.95}}@keyframes hs{0%,100%{transform:scale(1)}25%{transform:scale(1.12)}75%{transform:scale(.95)}}@keyframes hr{from{transform:rotate(0)}to{transform:rotate(360deg)}}@keyframes kokoroGlow{0%,100%{box-shadow:0 0 60px ${currentVoiceData?.orbGlow || config.emissiveColor}, 0 0 120px ${currentVoiceData?.orbGlow || config.emissiveColor}40}50%{box-shadow:0 0 80px ${currentVoiceData?.orbGlow || config.emissiveColor}, 0 0 160px ${currentVoiceData?.orbGlow || config.emissiveColor}60}}`}</style>
           <div style={{textAlign:'center',marginTop:'-3rem'}}>
             <div style={{width:'14rem',height:'14rem',margin:'0 auto',position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <div style={{position:'absolute',inset:0,borderRadius:'50%',border:`2px solid ${orbColor}30`,animation:'hr 20s linear infinite',transition:'border-color 0.5s ease'}}/>
-              <div style={{position:'absolute',inset:'1rem',borderRadius:'50%',border:`1px solid ${orbColor}20`,animation:'hr 15s linear infinite reverse',transition:'border-color 0.5s ease'}}/>
-              <div style={{width:'8rem',height:'8rem',borderRadius:'50%',background:`radial-gradient(circle at 35% 35%, ${orbColor}, ${orbGlow})`,boxShadow:`0 0 60px ${orbGlow}, 0 0 120px ${orbGlow}`,animation:gemini.isSpeaking?'hs .8s ease-in-out infinite':'hp 3s ease-in-out infinite',transition:'background 0.5s ease, box-shadow 0.5s ease',transform:gemini.isSpeaking?`scale(${1+gemini.audioLevel*0.15})`:'scale(1)'}}/>
+              <div style={{position:'absolute',inset:0,borderRadius:'50%',border:`2px solid ${config.primaryColor}30`,animation:'hr 20s linear infinite'}}/>
+              <div style={{position:'absolute',inset:'1rem',borderRadius:'50%',border:`1px solid ${config.primaryColor}20`,animation:'hr 15s linear infinite reverse'}}/>
+              {/* Main orb — uses voice color when Kokoro is active */}
+              <div style={{
+                width:'8rem',
+                height:'8rem',
+                borderRadius:'50%',
+                background: currentVoiceData
+                  ? `radial-gradient(circle at 35% 35%, ${currentVoiceData.orbColor}, ${currentVoiceData.orbColor}80 50%, ${config.emissiveColor}40)`
+                  : `radial-gradient(circle at 35% 35%, ${config.primaryColor}, ${config.emissiveColor}80)`,
+                boxShadow: currentVoiceData
+                  ? `0 0 60px ${currentVoiceData.orbGlow}, 0 0 120px ${currentVoiceData.orbGlow}40`
+                  : `0 0 60px ${config.emissiveColor}, 0 0 120px ${config.emissiveColor}40`,
+                animation: gemini.isSpeaking ? 'hs .8s ease-in-out infinite, kokoroGlow 2s ease-in-out infinite' : 'hp 3s ease-in-out infinite',
+                transition: 'background 0.5s ease, box-shadow 0.5s ease',
+              }}/>
             </div>
-            <p style={{fontSize:'1.1rem',fontWeight:500,color:orbColor,letterSpacing:'0.15em',marginTop:'1rem',transition:'color 0.5s ease'}}>{config.name}</p>
-            <p style={{fontSize:'0.65rem',color:'rgba(255,255,255,0.3)',marginTop:'0.35rem'}}>{gemini.isSpeaking?'Speaking...':gemini.isListening?'Listening...':gemini.ttsReady?'Ready':'Loading voice...'}</p>
+            <p style={{fontSize:'1.1rem',fontWeight:500,color:config.primaryColor,letterSpacing:'0.15em',marginTop:'1rem'}}>{config.name}</p>
+            <p style={{fontSize:'0.65rem',color:'rgba(255,255,255,0.3)',marginTop:'0.35rem'}}>
+              {gemini.ttsLoading && !gemini.ttsReady
+                ? gemini.ttsLoading
+                : gemini.isSpeaking
+                  ? 'Speaking...'
+                  : gemini.isListening
+                    ? 'Listening...'
+                    : 'Holographic Guide'}
+            </p>
           </div>
         </div>
       )}
@@ -1062,51 +1260,92 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
             </button>
           </form>
 
-          {/* Status bar */}
+          {/* Status bar with voice selector button */}
           <div className="flex items-center justify-between mt-2 text-xs text-white/40">
+            <span>
+              {gemini.isListening
+                ? 'Listening...'
+                : gemini.isSpeaking
+                ? `${config.name} is speaking...`
+                : gemini.isConnected
+                ? 'Connected'
+                : 'Connecting...'}
+            </span>
             <div className="flex items-center gap-2">
-              <span>
-                {gemini.isListening
-                  ? 'Listening...'
-                  : gemini.isSpeaking
-                  ? `${config.name} is speaking...`
-                  : gemini.isConnected
-                  ? 'Connected'
-                  : 'Connecting...'}
-              </span>
+              {/* Avatar mode toggle */}
+              <button
+                onClick={() => setAvatarMode(prev => prev === 'orb' ? 'humanoid' : 'orb')}
+                className="text-white/40 hover:text-white/70 transition-colors text-xs px-2 py-1 border border-white/20 rounded hover:border-white/40"
+                title={avatarMode === 'orb' ? 'Switch to humanoid avatar' : 'Switch to orb mode'}
+              >
+                {avatarMode === 'orb' ? '👤 Avatar' : '🔮 Orb'}
+              </button>
+              {/* Avatar settings (only in humanoid mode) */}
+              {avatarMode === 'humanoid' && (
+                <AvatarSettingsButton
+                  onClick={() => setShowAvatarSelector(true)}
+                  currentAvatarName={currentPreset?.name || config.name}
+                  skinToneColor={currentPreset?.diversity?.skinTone || config.primaryColor}
+                />
+              )}
               <VoiceSettingsButton
-                voiceId={gemini.currentVoice}
-                onClick={() => setVoiceSelectorOpen(true)}
-                speaking={gemini.isSpeaking}
+                onClick={() => setShowVoiceSelector(true)}
+                currentVoiceName={currentVoiceName}
+                currentVoiceId={gemini.currentVoice}
               />
+              <button
+                onClick={() => {
+                  gemini.endSession();
+                  onSessionEnd();
+                }}
+                className="text-white/40 hover:text-white/70 transition-colors"
+              >
+                End session
+              </button>
             </div>
-            <button
-              onClick={() => {
-                gemini.endSession();
-                onSessionEnd();
-              }}
-              className="text-white/40 hover:text-white/70 transition-colors"
-            >
-              End session
-            </button>
           </div>
         </div>
       </div>
 
       {/* Voice Selector Modal */}
-      <VoiceSelector
-        isOpen={voiceSelectorOpen}
-        onClose={() => setVoiceSelectorOpen(false)}
-        currentVoice={gemini.currentVoice}
-        onSelectVoice={gemini.setCurrentVoice}
-        guideName={config.name}
-        onPreview={(id) => {
-          // Preview: temporarily speak a short phrase with that voice
-          const mgr = new KokoroTTSManager();
-          mgr.setVoice(id);
-          mgr.init().then(() => mgr.speak(`Hello, I'm ${getVoiceById(id)?.name || 'your guide'}.`));
-        }}
-      />
+      {showVoiceSelector && (
+        <VoiceSelector
+          currentGuide={config.name}
+          currentVoice={gemini.currentVoice}
+          onSelectVoice={(voiceId) => {
+            gemini.setVoice(voiceId);
+            setShowVoiceSelector(false);
+          }}
+          onPreviewVoice={(voiceId) => {
+            gemini.setVoice(voiceId);
+          }}
+          isPreviewPlaying={gemini.isSpeaking}
+          onClose={() => setShowVoiceSelector(false)}
+        />
+      )}
+
+      {/* Avatar Selector Modal */}
+      {showAvatarSelector && (
+        <AvatarSelector
+          currentGuide={config.name}
+          currentAvatarId={currentPreset?.id || ''}
+          onSelectAvatar={(presetId) => {
+            const preset = AVATAR_PRESETS.find(p => p.id === presetId);
+            if (preset) {
+              setCurrentPreset(preset);
+              setCustomAppearance(undefined);
+              setAvatarMode('humanoid');
+            }
+            setShowAvatarSelector(false);
+          }}
+          onOpenCustomizer={() => {
+            // TODO: open AvatarCustomizer modal
+            setShowAvatarSelector(false);
+          }}
+          onClose={() => setShowAvatarSelector(false)}
+          isOpen={showAvatarSelector}
+        />
+      )}
     </div>
   );
 };

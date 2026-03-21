@@ -21,6 +21,10 @@ build/
 *.swo
 *~
 
+# Avatar pipeline artifacts
+generated-avatars/
+training-data/
+
 # OS generated files
 .DS_Store
 .DS_Store?

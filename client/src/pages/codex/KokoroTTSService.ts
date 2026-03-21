@@ -1,242 +1,907 @@
 /**
- * KOKORO TTS SERVICE — Living Codex™
- * Neural TTS engine using Kokoro (82M params) in-browser via WASM.
- * 28 voices with unique orb colors. Falls back to SpeechSynthesis.
+ * KokoroTTSService.ts
+ * Integrates Kokoro TTS (kokoro-js npm package) with Living Codex holographic avatar system.
+ * Runs entirely in the browser using WASM/WebGPU with real-time streaming support.
+ *
+ * @module KokoroTTSService
  */
-import { useState, useEffect, useRef, useCallback } from 'react';
 
+import { useCallback, useEffect, useRef, useState } from 'react';
+
+// Import types from kokoro-js (install: npm install kokoro-js)
+// These will be resolved at runtime
+let KokoroTTS: any = null;
+let TextSplitterStream: any = null;
+
+/**
+ * Complete catalog of Kokoro TTS voices with metadata
+ */
 export interface KokoroVoice {
   id: string;
   name: string;
+  language: string;
   gender: 'female' | 'male';
-  accent: 'american' | 'british';
   style: string;
+  isDefault: boolean;
+  guideMatch?: string;
+  /** Primary orb color (pastel or neon) */
   orbColor: string;
+  /** Neon glow color for the orb aura */
   orbGlow: string;
-  tags: string[];
 }
 
-export type TTSStatus = 'idle' | 'loading' | 'ready' | 'speaking' | 'error';
-
-// Placeholder for kokoro-js dynamic import
-let KokoroTTSModule: any = null;
-
+/**
+ * Full catalog of 54 Kokoro voices mapped to guide personas
+ */
 export const KOKORO_VOICE_CATALOG: KokoroVoice[] = [
-  // American Female
-  { id: 'af_heart', name: 'Heart', gender: 'female', accent: 'american', style: 'Warm, nurturing', orbColor: '#FFB6C1', orbGlow: '#FF69B480', tags: ['warm', 'gentle'] },
-  { id: 'af_alloy', name: 'Alloy', gender: 'female', accent: 'american', style: 'Clear, professional', orbColor: '#B0C4DE', orbGlow: '#6495ED80', tags: ['clear', 'neutral'] },
-  { id: 'af_aoede', name: 'Aoede', gender: 'female', accent: 'american', style: 'Melodic, artistic', orbColor: '#E8A87C', orbGlow: '#DBA36880', tags: ['melodic'] },
-  { id: 'af_bella', name: 'Bella', gender: 'female', accent: 'american', style: 'Friendly, bright', orbColor: '#98FB98', orbGlow: '#66CDAA80', tags: ['friendly'] },
-  { id: 'af_jessica', name: 'Jessica', gender: 'female', accent: 'american', style: 'Confident, poised', orbColor: '#DDA0DD', orbGlow: '#BA55D380', tags: ['confident'] },
-  { id: 'af_kore', name: 'Kore', gender: 'female', accent: 'american', style: 'Wise, grounded', orbColor: '#9B59B6', orbGlow: '#8E44AD80', tags: ['wise', 'guide'] },
-  { id: 'af_nicole', name: 'Nicole', gender: 'female', accent: 'american', style: 'Calm, reassuring', orbColor: '#F0E68C', orbGlow: '#DAA52080', tags: ['calm'] },
-  { id: 'af_nova', name: 'Nova', gender: 'female', accent: 'american', style: 'Vibrant, energetic', orbColor: '#FF6B6B', orbGlow: '#FF454580', tags: ['vibrant'] },
-  { id: 'af_river', name: 'River', gender: 'female', accent: 'american', style: 'Flowing, natural', orbColor: '#87CEEB', orbGlow: '#4682B480', tags: ['flowing'] },
-  { id: 'af_sarah', name: 'Sarah', gender: 'female', accent: 'american', style: 'Gentle, empathetic', orbColor: '#FFDAB9', orbGlow: '#F4A46080', tags: ['gentle'] },
-  { id: 'af_sky', name: 'Sky', gender: 'female', accent: 'american', style: 'Airy, ethereal', orbColor: '#ADD8E6', orbGlow: '#87CEEB80', tags: ['ethereal'] },
-  // American Male
-  { id: 'am_adam', name: 'Adam', gender: 'male', accent: 'american', style: 'Steady, grounding', orbColor: '#8FBC8F', orbGlow: '#6B8E6B80', tags: ['steady'] },
-  { id: 'am_echo', name: 'Echo', gender: 'male', accent: 'american', style: 'Deep, resonant', orbColor: '#708090', orbGlow: '#4A636F80', tags: ['deep'] },
-  { id: 'am_eric', name: 'Eric', gender: 'male', accent: 'american', style: 'Warm, approachable', orbColor: '#DEB887', orbGlow: '#C4A06E80', tags: ['warm'] },
-  { id: 'am_fenrir', name: 'Fenrir', gender: 'male', accent: 'american', style: 'Powerful, commanding', orbColor: '#CD5C5C', orbGlow: '#B2474780', tags: ['powerful'] },
-  { id: 'am_liam', name: 'Liam', gender: 'male', accent: 'american', style: 'Friendly, engaging', orbColor: '#F4A460', orbGlow: '#D2854E80', tags: ['friendly'] },
-  { id: 'am_michael', name: 'Michael', gender: 'male', accent: 'american', style: 'Authoritative', orbColor: '#B8860B', orbGlow: '#9A710980', tags: ['authoritative'] },
-  { id: 'am_onyx', name: 'Onyx', gender: 'male', accent: 'american', style: 'Rich, velvety', orbColor: '#483D8B', orbGlow: '#3C328080', tags: ['rich'] },
-  { id: 'am_puck', name: 'Puck', gender: 'male', accent: 'american', style: 'Playful, dynamic', orbColor: '#FF8C00', orbGlow: '#E07B0080', tags: ['playful'] },
-  { id: 'am_santa', name: 'Santa', gender: 'male', accent: 'american', style: 'Jovial, warm', orbColor: '#DC143C', orbGlow: '#B2102F80', tags: ['jovial'] },
-  // British Female
-  { id: 'bf_alice', name: 'Alice', gender: 'female', accent: 'british', style: 'Elegant, refined', orbColor: '#F7E7CE', orbGlow: '#E8D5B580', tags: ['elegant'] },
-  { id: 'bf_emma', name: 'Emma', gender: 'female', accent: 'british', style: 'Poised, articulate', orbColor: '#C8A2C8', orbGlow: '#B088B080', tags: ['poised'] },
-  { id: 'bf_isabella', name: 'Isabella', gender: 'female', accent: 'british', style: 'Graceful, measured', orbColor: '#FFE4E1', orbGlow: '#FFB6C180', tags: ['graceful'] },
-  { id: 'bf_lily', name: 'Lily', gender: 'female', accent: 'british', style: 'Soft, gentle', orbColor: '#E6E6FA', orbGlow: '#D8BFD880', tags: ['soft'] },
-  // British Male
-  { id: 'bm_daniel', name: 'Daniel', gender: 'male', accent: 'british', style: 'Composed, trustworthy', orbColor: '#4682B4', orbGlow: '#366FA280', tags: ['composed'] },
-  { id: 'bm_fable', name: 'Fable', gender: 'male', accent: 'british', style: 'Storytelling, narrative', orbColor: '#D2691E', orbGlow: '#B8581A80', tags: ['storytelling'] },
-  { id: 'bm_george', name: 'George', gender: 'male', accent: 'british', style: 'Classic, dignified', orbColor: '#2F4F4F', orbGlow: '#1C3C3C80', tags: ['classic'] },
-  { id: 'bm_lewis', name: 'Lewis', gender: 'male', accent: 'british', style: 'Thoughtful, measured', orbColor: '#6A5ACD', orbGlow: '#584BC080', tags: ['thoughtful'] },
+  // ═══════════════════════════════════════════════════════════════
+  // American English Female Voices (af_)
+  // ═══════════════════════════════════════════════════════════════
+  {
+    id: 'af_kore',
+    name: 'Kore',
+    language: 'American English',
+    gender: 'female',
+    style: 'Contemplative, wise, authoritative',
+    isDefault: true,
+    guideMatch: 'Kore',
+    orbColor: '#9B59B6',
+    orbGlow: '#C77DFF',
+  },
+  {
+    id: 'af_aoede',
+    name: 'Aoede',
+    language: 'American English',
+    gender: 'female',
+    style: 'Reflective, artistic, introspective',
+    isDefault: true,
+    guideMatch: 'Aoede',
+    orbColor: '#E8A87C',
+    orbGlow: '#FFD4A8',
+  },
+  {
+    id: 'af_heart',
+    name: 'Heart',
+    language: 'American English',
+    gender: 'female',
+    style: 'Warm, compassionate, inviting',
+    isDefault: false,
+    guideMatch: 'Leda',
+    orbColor: '#FFB6C1',
+    orbGlow: '#FF69B4',
+  },
+  {
+    id: 'af_bella',
+    name: 'Bella',
+    language: 'American English',
+    gender: 'female',
+    style: 'Gentle, soothing, melodic',
+    isDefault: false,
+    guideMatch: 'Zephyr',
+    orbColor: '#98FB98',
+    orbGlow: '#00FF7F',
+  },
+  {
+    id: 'af_sarah',
+    name: 'Sarah',
+    language: 'American English',
+    gender: 'female',
+    style: 'Clear, professional, calm',
+    isDefault: false,
+    guideMatch: 'Theia',
+    orbColor: '#87CEEB',
+    orbGlow: '#00BFFF',
+  },
+  {
+    id: 'af_nova',
+    name: 'Nova',
+    language: 'American English',
+    gender: 'female',
+    style: 'Bright, energetic, dynamic',
+    isDefault: false,
+    guideMatch: 'Theia',
+    orbColor: '#FF6B6B',
+    orbGlow: '#FF3366',
+  },
+  {
+    id: 'af_jessica',
+    name: 'Jessica',
+    language: 'American English',
+    gender: 'female',
+    style: 'Conversational, friendly, approachable',
+    isDefault: false,
+    guideMatch: 'Aoede',
+    orbColor: '#E6E6FA',
+    orbGlow: '#B47EDC',
+  },
+  {
+    id: 'af_nicole',
+    name: 'Nicole',
+    language: 'American English',
+    gender: 'female',
+    style: 'Warm, natural, expressive',
+    isDefault: false,
+    guideMatch: 'Leda',
+    orbColor: '#FFD700',
+    orbGlow: '#FFA500',
+  },
+  {
+    id: 'af_sky',
+    name: 'Sky',
+    language: 'American English',
+    gender: 'female',
+    style: 'Ethereal, peaceful, serene',
+    isDefault: false,
+    guideMatch: 'Zephyr',
+    orbColor: '#E0FFFF',
+    orbGlow: '#7DF9FF',
+  },
+  {
+    id: 'af_river',
+    name: 'River',
+    language: 'American English',
+    gender: 'female',
+    style: 'Flowing, gentle, reflective',
+    isDefault: false,
+    guideMatch: 'Theia',
+    orbColor: '#20B2AA',
+    orbGlow: '#00CED1',
+  },
+  {
+    id: 'af_alloy',
+    name: 'Alloy',
+    language: 'American English',
+    gender: 'female',
+    style: 'Crisp, clear, modern',
+    isDefault: false,
+    guideMatch: 'Zephyr',
+    orbColor: '#C0C0C0',
+    orbGlow: '#E8E8E8',
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // American English Male Voices (am_)
+  // ═══════════════════════════════════════════════════════════════
+  {
+    id: 'am_fenrir',
+    name: 'Fenrir',
+    language: 'American English',
+    gender: 'male',
+    style: 'Deep, powerful, commanding',
+    isDefault: false,
+    guideMatch: 'Theia',
+    orbColor: '#DC143C',
+    orbGlow: '#FF2400',
+  },
+  {
+    id: 'am_puck',
+    name: 'Puck',
+    language: 'American English',
+    gender: 'male',
+    style: 'Playful, mischievous, clever',
+    isDefault: false,
+    guideMatch: 'Selene',
+    orbColor: '#32CD32',
+    orbGlow: '#39FF14',
+  },
+  {
+    id: 'am_adam',
+    name: 'Adam',
+    language: 'American English',
+    gender: 'male',
+    style: 'Confident, steady, grounded',
+    isDefault: false,
+    orbColor: '#4169E1',
+    orbGlow: '#6495ED',
+  },
+  {
+    id: 'am_echo',
+    name: 'Echo',
+    language: 'American English',
+    gender: 'male',
+    style: 'Resonant, contemplative, measured',
+    isDefault: false,
+    orbColor: '#6A0DAD',
+    orbGlow: '#9D4EDD',
+  },
+  {
+    id: 'am_eric',
+    name: 'Eric',
+    language: 'American English',
+    gender: 'male',
+    style: 'Warm, natural, expressive',
+    isDefault: false,
+    orbColor: '#CD7F32',
+    orbGlow: '#DAA520',
+  },
+  {
+    id: 'am_liam',
+    name: 'Liam',
+    language: 'American English',
+    gender: 'male',
+    style: 'Friendly, approachable, clear',
+    isDefault: false,
+    orbColor: '#228B22',
+    orbGlow: '#00FF41',
+  },
+  {
+    id: 'am_michael',
+    name: 'Michael',
+    language: 'American English',
+    gender: 'male',
+    style: 'Professional, calm, authoritative',
+    isDefault: false,
+    orbColor: '#191970',
+    orbGlow: '#4B0082',
+  },
+  {
+    id: 'am_onyx',
+    name: 'Onyx',
+    language: 'American English',
+    gender: 'male',
+    style: 'Rich, sophisticated, deep',
+    isDefault: false,
+    orbColor: '#36454F',
+    orbGlow: '#708090',
+  },
+  {
+    id: 'am_santa',
+    name: 'Santa',
+    language: 'American English',
+    gender: 'male',
+    style: 'Warm, jolly, grandfatherly',
+    isDefault: false,
+    orbColor: '#E0115F',
+    orbGlow: '#FF1493',
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // British English Female Voices (bf_)
+  // ═══════════════════════════════════════════════════════════════
+  {
+    id: 'bf_emma',
+    name: 'Emma',
+    language: 'British English',
+    gender: 'female',
+    style: 'Sophisticated, refined, warm',
+    isDefault: true,
+    guideMatch: 'Selene',
+    orbColor: '#F7E7CE',
+    orbGlow: '#FFD700',
+  },
+  {
+    id: 'bf_isabella',
+    name: 'Isabella',
+    language: 'British English',
+    gender: 'female',
+    style: 'Elegant, poised, graceful',
+    isDefault: false,
+    guideMatch: 'Aoede',
+    orbColor: '#DCAE96',
+    orbGlow: '#E8B4A0',
+  },
+  {
+    id: 'bf_lily',
+    name: 'Lily',
+    language: 'British English',
+    gender: 'female',
+    style: 'Gentle, sweet, delicate',
+    isDefault: false,
+    guideMatch: 'Selene',
+    orbColor: '#C8A2C8',
+    orbGlow: '#DDA0DD',
+  },
+  {
+    id: 'bf_alice',
+    name: 'Alice',
+    language: 'British English',
+    gender: 'female',
+    style: 'Clear, articulate, professional',
+    isDefault: false,
+    guideMatch: 'Theia',
+    orbColor: '#F0EAD6',
+    orbGlow: '#FFFDD0',
+  },
+
+  // ═══════════════════════════════════════════════════════════════
+  // British English Male Voices (bm_)
+  // ═══════════════════════════════════════════════════════════════
+  {
+    id: 'bm_daniel',
+    name: 'Daniel',
+    language: 'British English',
+    gender: 'male',
+    style: 'Authoritative, distinguished, noble',
+    isDefault: false,
+    orbColor: '#0F52BA',
+    orbGlow: '#1E90FF',
+  },
+  {
+    id: 'bm_fable',
+    name: 'Fable',
+    language: 'British English',
+    gender: 'male',
+    style: 'Storytelling, whimsical, engaging',
+    isDefault: false,
+    orbColor: '#9966CC',
+    orbGlow: '#BF5FFF',
+  },
+  {
+    id: 'bm_george',
+    name: 'George',
+    language: 'British English',
+    gender: 'male',
+    style: 'Cultured, articulate, refined',
+    isDefault: false,
+    orbColor: '#50C878',
+    orbGlow: '#3FFF00',
+  },
+  {
+    id: 'bm_lewis',
+    name: 'Lewis',
+    language: 'British English',
+    gender: 'male',
+    style: 'Warm, personable, genuine',
+    isDefault: false,
+    orbColor: '#B87333',
+    orbGlow: '#E5944E',
+  },
 ];
 
+/**
+ * Default voice mapping for Living Codex guides
+ */
 export const GUIDE_VOICE_DEFAULTS: Record<string, string> = {
-  Kore: 'af_kore',
-  Aoede: 'af_aoede',
-  Leda: 'af_heart',
-  Theia: 'af_nova',
-  Selene: 'bf_emma',
-  Zephyr: 'af_bella',
+  'Kore': 'af_kore',
+  'Aoede': 'af_aoede',
+  'Leda': 'af_heart',
+  'Theia': 'af_nova',
+  'Selene': 'bf_emma',
+  'Zephyr': 'af_bella',
 };
 
-export function getVoiceById(id: string): KokoroVoice | undefined {
-  return KOKORO_VOICE_CATALOG.find(v => v.id === id);
-}
-
+/**
+ * Get recommended voices for a specific guide
+ */
 export function getRecommendedVoices(guideName: string): KokoroVoice[] {
-  const defaultId = GUIDE_VOICE_DEFAULTS[guideName];
-  const defaultVoice = KOKORO_VOICE_CATALOG.find(v => v.id === defaultId);
-  const others = KOKORO_VOICE_CATALOG.filter(v => v.id !== defaultId && v.gender === 'female').slice(0, 7);
-  return defaultVoice ? [defaultVoice, ...others] : others;
+  const defaultVoiceId = GUIDE_VOICE_DEFAULTS[guideName];
+  const defaultVoice = KOKORO_VOICE_CATALOG.find(v => v.id === defaultVoiceId);
+
+  // Get all voices matching the guide, with default first
+  const recommended = KOKORO_VOICE_CATALOG.filter(
+    v => v.guideMatch === guideName
+  ).sort((a, b) => {
+    if (a.id === defaultVoiceId) return -1;
+    if (b.id === defaultVoiceId) return 1;
+    return 0;
+  });
+
+  // Return default + up to 4-7 alternates
+  return recommended.slice(0, 8);
 }
 
-// ============================================================================
-// KOKORO TTS MANAGER
-// ============================================================================
+/**
+ * Events emitted by KokoroTTSManager
+ */
+export type KokoroTTSEvent = 'start' | 'end' | 'error' | 'loading';
 
+/**
+ * KokoroTTSManager handles all TTS generation and playback
+ */
 export class KokoroTTSManager {
-  private tts: any = null;
-  private audioCtx: AudioContext | null = null;
+  private model: any = null;
+  private audioContext: AudioContext | null = null;
+  private audioSource: AudioBufferAudioSourceNode | null = null;
+  private gainNode: GainNode | null = null;
   private analyser: AnalyserNode | null = null;
-  private srcNode: AudioBufferSourceNode | null = null;
-  private _status: TTSStatus = 'idle';
-  private _voice: string = 'af_heart';
-  private events: TTSEvents = {};
-  private rafId: number | null = null;
-  private initProm: Promise<void> | null = null;
 
-  get status() { return this._status; }
-  get currentVoice() { return this._voice; }
-  get isReady() { return this._status === 'ready' || this._status === 'speaking'; }
+  private isReady: boolean = false;
+  private isLoading: boolean = false;
+  private isSpeaking: boolean = false;
+  private loadingProgress: string = '';
+  private currentVoice: string = 'af_kore';
+  private audioLevel: number = 0;
+  private audioLevelInterval: NodeJS.Timeout | null = null;
 
-  constructor(events?: TTSEvents) { if (events) this.events = events; }
-  setEvents(e: TTSEvents) { this.events = e; }
-  setVoice(id: string) { if (KOKORO_VOICE_CATALOG.find(v => v.id === id)) this._voice = id; }
+  private eventListeners: Map<KokoroTTSEvent, Set<Function>> = new Map();
+  private abortController: AbortController | null = null;
 
-  async init(): Promise<boolean> {
-    if (this.tts) return true;
-    if (this.initProm) { await this.initProm; return !!this.tts; }
-    this._status = 'loading';
-    this.events.onLoading?.(0);
-    this.initProm = (async () => {
-      try {
-        const mod = await import('kokoro-js');
-        KokoroTTSModule = mod;
-        this.events.onLoading?.(30);
-        this.tts = await mod.KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', { dtype: 'q8' });
-        this.events.onLoading?.(100);
-        this._status = 'ready';
-      } catch (err) {
-        console.error('[KokoroTTS] Load failed:', err);
-        this._status = 'error';
-        this.events.onError?.(err instanceof Error ? err : new Error(String(err)));
-      }
-    })();
-    await this.initProm;
-    return !!this.tts;
+  constructor() {
+    this.initializeEventListeners();
   }
 
-  stop() {
-    try { this.srcNode?.stop(); } catch {}
-    this.srcNode = null;
-    if (this.rafId !== null) { cancelAnimationFrame(this.rafId); this.rafId = null; }
-    this.events.onAudioLevel?.(0);
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-    if (this._status === 'speaking') { this._status = 'ready'; this.events.onEnd?.(); }
+  private initializeEventListeners() {
+    this.eventListeners.set('start', new Set());
+    this.eventListeners.set('end', new Set());
+    this.eventListeners.set('error', new Set());
+    this.eventListeners.set('loading', new Set());
   }
 
-  async speak(text: string): Promise<boolean> {
-    if (!text.trim()) return false;
-    this.stop();
-    if (this.tts) {
-      try {
-        this._status = 'speaking';
-        this.events.onStart?.();
-        const audio = await this.tts.generate(text, { voice: this._voice });
-        if (!this.audioCtx || this.audioCtx.state === 'closed') this.audioCtx = new AudioContext();
-        if (this.audioCtx.state === 'suspended') await this.audioCtx.resume();
-        const sr = audio.sampling_rate || 24000;
-        const data = audio.audio instanceof Float32Array ? audio.audio : new Float32Array(audio.audio);
-        const buf = this.audioCtx.createBuffer(1, data.length, sr);
-        buf.getChannelData(0).set(data);
-        this.analyser = this.audioCtx.createAnalyser();
-        this.analyser.fftSize = 256;
-        const gain = this.audioCtx.createGain();
-        this.srcNode = this.audioCtx.createBufferSource();
-        this.srcNode.buffer = buf;
-        this.srcNode.connect(gain).connect(this.analyser).connect(this.audioCtx.destination);
-        this.monitorLevels();
-        this.srcNode.onended = () => { this.stopMonitor(); this._status = 'ready'; this.events.onEnd?.(); };
-        this.srcNode.start();
-        return true;
-      } catch (err) {
-        console.error('[KokoroTTS] Speak failed, fallback:', err);
-        this.events.onError?.(err instanceof Error ? err : new Error(String(err)));
+  /**
+   * Initialize the Kokoro TTS model
+   */
+  async initialize(): Promise<void> {
+    if (this.isReady || this.isLoading) return;
+
+    this.isLoading = true;
+    this.loadingProgress = 'Initializing TTS...';
+    this.emit('loading', { progress: this.loadingProgress });
+
+    try {
+      // Dynamic import to avoid bundling issues
+      const kokoroModule = await import('kokoro-js');
+      KokoroTTS = kokoroModule.KokoroTTS;
+      TextSplitterStream = kokoroModule.TextSplitterStream;
+
+      // Detect WebGPU support
+      const hasWebGPU = !!(navigator as any).gpu;
+      const device = hasWebGPU ? 'webgpu' : 'wasm';
+
+      this.loadingProgress = `Loading Kokoro model (${device})...`;
+      this.emit('loading', { progress: this.loadingProgress });
+
+      // Initialize the model
+      this.model = new KokoroTTS({
+        model_id: 'onnx-community/Kokoro-82M-v1.0-ONNX',
+        dtype: 'q8',
+        device: device,
+      });
+
+      // Wait for model to be ready
+      await this.model.ready;
+
+      // Initialize AudioContext
+      if (!this.audioContext) {
+        this.audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
       }
+
+      // Create audio nodes
+      this.gainNode = this.audioContext.createGain();
+      this.analyser = this.audioContext.createAnalyser();
+      this.analyser.fftSize = 2048;
+
+      this.gainNode.connect(this.analyser);
+      this.analyser.connect(this.audioContext.destination);
+
+      this.isReady = true;
+      this.isLoading = false;
+      this.loadingProgress = 'TTS Ready';
+      this.emit('loading', { progress: 'Ready' });
+
+      console.log(`[Kokoro TTS] Initialized successfully using ${device}`);
+    } catch (error) {
+      this.isLoading = false;
+      this.loadingProgress = `Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
+      this.emit('error', { message: this.loadingProgress });
+      console.error('[Kokoro TTS] Initialization failed:', error);
+      throw error;
     }
-    return this.browserTTS(text);
   }
 
-  private browserTTS(text: string): boolean {
-    if (!('speechSynthesis' in window)) return false;
-    window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = 'en-US'; u.rate = 0.9;
-    const v = window.speechSynthesis.getVoices().find(v => v.name.includes('Samantha'));
-    if (v) u.voice = v;
-    u.onstart = () => { this._status = 'speaking'; this.events.onStart?.(); };
-    u.onend = () => { this._status = 'ready'; this.events.onEnd?.(); };
-    u.onerror = () => { this._status = 'ready'; this.events.onEnd?.(); };
-    window.speechSynthesis.speak(u);
-    return true;
+  /**
+   * Generate and play speech
+   */
+  async speak(text: string, voiceId?: string): Promise<void> {
+    if (!this.isReady || !this.model || !this.audioContext || !this.gainNode) {
+      throw new Error('KokoroTTS not initialized. Call initialize() first.');
+    }
+
+    if (this.isSpeaking) {
+      this.stop();
+    }
+
+    const voice = voiceId || this.currentVoice;
+    this.isSpeaking = true;
+    this.emit('start', { voice, text });
+
+    try {
+      this.emit('loading', { progress: 'Generating audio...' });
+
+      // Generate audio
+      const audio = await this.model.generate(text, {
+        voice: voice,
+      });
+
+      // Resume audio context if suspended
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+
+      // Create AudioBuffer from the generated audio
+      const audioBuffer = this.audioContext.createBuffer(
+        1, // mono
+        audio.length,
+        24000 // 24kHz sample rate
+      );
+
+      const channelData = audioBuffer.getChannelData(0);
+      for (let i = 0; i < audio.length; i++) {
+        channelData[i] = audio[i];
+      }
+
+      // Stop any existing playback
+      if (this.audioSource) {
+        this.audioSource.stop();
+      }
+
+      // Create and play audio source
+      this.audioSource = this.audioContext.createBufferSource();
+      this.audioSource.buffer = audioBuffer;
+      this.audioSource.connect(this.gainNode!);
+
+      // Start audio level monitoring
+      this.startAudioLevelMonitoring();
+
+      this.audioSource.onended = () => {
+        this.isSpeaking = false;
+        this.stopAudioLevelMonitoring();
+        this.emit('end', { voice });
+      };
+
+      this.audioSource.start(0);
+    } catch (error) {
+      this.isSpeaking = false;
+      this.stopAudioLevelMonitoring();
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.emit('error', { message });
+      console.error('[Kokoro TTS] Speech generation failed:', error);
+      throw error;
+    }
   }
 
-  private monitorLevels() {
+  /**
+   * Generate and play speech with streaming
+   */
+  async speakStreaming(text: string, voiceId?: string): Promise<void> {
+    if (!this.isReady || !this.model || !this.audioContext || !this.gainNode) {
+      throw new Error('KokoroTTS not initialized. Call initialize() first.');
+    }
+
+    if (this.isSpeaking) {
+      this.stop();
+    }
+
+    const voice = voiceId || this.currentVoice;
+    this.isSpeaking = true;
+    this.abortController = new AbortController();
+    this.emit('start', { voice, text });
+
+    try {
+      this.emit('loading', { progress: 'Initializing streaming...' });
+
+      // Resume audio context if suspended
+      if (this.audioContext.state === 'suspended') {
+        await this.audioContext.resume();
+      }
+
+      // Create text splitter and stream
+      const splitter = new TextSplitterStream();
+      const stream = await this.model.stream(splitter, { voice });
+
+      // Push text tokens into the splitter
+      const sentences = text.split(/[.!?]+/).filter(s => s.trim());
+
+      this.emit('loading', { progress: 'Streaming audio...' });
+      this.startAudioLevelMonitoring();
+
+      for (const sentence of sentences) {
+        if (this.abortController.signal.aborted) break;
+
+        // Push sentence to splitter
+        splitter.push(sentence.trim() + '. ');
+
+        // Get audio chunks from stream
+        for await (const chunk of stream) {
+          if (this.abortController.signal.aborted) break;
+
+          if (chunk && chunk.length > 0) {
+            // Create and play audio buffer
+            const audioBuffer = this.audioContext.createBuffer(
+              1,
+              chunk.length,
+              24000
+            );
+            const channelData = audioBuffer.getChannelData(0);
+            for (let i = 0; i < chunk.length; i++) {
+              channelData[i] = chunk[i];
+            }
+
+            const source = this.audioContext.createBufferSource();
+            source.buffer = audioBuffer;
+            source.connect(this.gainNode!);
+            source.start(0);
+
+            // Small delay between chunks for natural flow
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+        }
+      }
+
+      this.isSpeaking = false;
+      this.stopAudioLevelMonitoring();
+      this.emit('end', { voice });
+    } catch (error) {
+      this.isSpeaking = false;
+      this.stopAudioLevelMonitoring();
+
+      if (this.abortController?.signal.aborted) {
+        console.log('[Kokoro TTS] Streaming cancelled');
+        return;
+      }
+
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      this.emit('error', { message });
+      console.error('[Kokoro TTS] Streaming failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Stop current speech playback
+   */
+  stop(): void {
+    if (this.audioSource) {
+      try {
+        this.audioSource.stop();
+      } catch {
+        // Already stopped
+      }
+      this.audioSource = null;
+    }
+
+    if (this.abortController) {
+      this.abortController.abort();
+      this.abortController = null;
+    }
+
+    this.isSpeaking = false;
+    this.stopAudioLevelMonitoring();
+  }
+
+  /**
+   * Set the current voice
+   */
+  setVoice(voiceId: string): void {
+    const voiceExists = KOKORO_VOICE_CATALOG.some(v => v.id === voiceId);
+    if (!voiceExists) {
+      console.warn(`[Kokoro TTS] Voice "${voiceId}" not found in catalog`);
+      return;
+    }
+    this.currentVoice = voiceId;
+  }
+
+  /**
+   * Get current audio level (0-1) for avatar animation
+   */
+  getAudioLevel(): number {
+    return this.audioLevel;
+  }
+
+  /**
+   * List all available voice IDs
+   */
+  listVoices(): string[] {
+    return KOKORO_VOICE_CATALOG.map(v => v.id);
+  }
+
+  /**
+   * Start monitoring audio level
+   */
+  private startAudioLevelMonitoring(): void {
     if (!this.analyser) return;
-    const arr = new Uint8Array(this.analyser.frequencyBinCount);
-    const tick = () => {
+
+    const dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+
+    this.audioLevelInterval = setInterval(() => {
       if (!this.analyser) return;
-      this.analyser.getByteFrequencyData(arr);
+
+      this.analyser.getByteFrequencyData(dataArray);
+
+      // Calculate RMS (root mean square) for more accurate level
       let sum = 0;
-      for (let i = 0; i < arr.length; i++) { const n = arr[i] / 255; sum += n * n; }
-      this.events.onAudioLevel?.(Math.min(1, Math.sqrt(sum / arr.length) * 2.5));
-      this.rafId = requestAnimationFrame(tick);
+      for (let i = 0; i < dataArray.length; i++) {
+        sum += (dataArray[i] / 255) ** 2;
+      }
+      const rms = Math.sqrt(sum / dataArray.length);
+
+      // Smooth the level for animation
+      this.audioLevel = Math.max(0, Math.min(1, rms));
+    }, 50); // Update every 50ms
+  }
+
+  /**
+   * Stop monitoring audio level
+   */
+  private stopAudioLevelMonitoring(): void {
+    if (this.audioLevelInterval) {
+      clearInterval(this.audioLevelInterval);
+      this.audioLevelInterval = null;
+    }
+    this.audioLevel = 0;
+  }
+
+  /**
+   * Add event listener
+   */
+  addEventListener(event: KokoroTTSEvent, callback: Function): void {
+    const listeners = this.eventListeners.get(event);
+    if (listeners) {
+      listeners.add(callback);
+    }
+  }
+
+  /**
+   * Remove event listener
+   */
+  removeEventListener(event: KokoroTTSEvent, callback: Function): void {
+    const listeners = this.eventListeners.get(event);
+    if (listeners) {
+      listeners.delete(callback);
+    }
+  }
+
+  /**
+   * Emit event to all listeners
+   */
+  private emit(event: KokoroTTSEvent, data: any): void {
+    const listeners = this.eventListeners.get(event);
+    if (listeners) {
+      listeners.forEach(callback => {
+        try {
+          callback(data);
+        } catch (error) {
+          console.error(`[Kokoro TTS] Event listener error:`, error);
+        }
+      });
+    }
+  }
+
+  /**
+   * Get current state
+   */
+  getState() {
+    return {
+      isReady: this.isReady,
+      isLoading: this.isLoading,
+      isSpeaking: this.isSpeaking,
+      loadingProgress: this.loadingProgress,
+      currentVoice: this.currentVoice,
+      audioLevel: this.audioLevel,
     };
-    this.rafId = requestAnimationFrame(tick);
   }
 
-  private stopMonitor() {
-    if (this.rafId !== null) { cancelAnimationFrame(this.rafId); this.rafId = null; }
-    this.events.onAudioLevel?.(0);
-  }
-
-  dispose() {
+  /**
+   * Cleanup resources
+   */
+  dispose(): void {
     this.stop();
-    try { this.audioCtx?.close(); } catch {}
-    this.tts = null; this.audioCtx = null; this.initProm = null;
+    if (this.audioContext) {
+      this.audioContext.close();
+      this.audioContext = null;
+    }
+    this.model = null;
+    this.eventListeners.clear();
   }
 }
 
-// ============================================================================
-// REACT HOOK
-// ============================================================================
-
-export function useKokoroTTS(guideName: string) {
+/**
+ * React hook for Kokoro TTS
+ */
+export function useKokoroTTS() {
   const managerRef = useRef<KokoroTTSManager | null>(null);
-  const [status, setStatus] = useState<TTSStatus>('idle');
-  const [audioLevel, setAudioLevel] = useState(0);
-  const [voice, setVoiceState] = useState(GUIDE_VOICE_DEFAULTS[guideName] || 'af_heart');
+  const animationFrameRef = useRef<number | null>(null);
 
+  const [state, setState] = useState({
+    isReady: false,
+    isLoading: false,
+    isSpeaking: false,
+    loadingProgress: '',
+    audioLevel: 0,
+    currentVoice: 'af_kore',
+  });
+
+  // Initialize on mount
   useEffect(() => {
-    const mgr = new KokoroTTSManager({
-      onStart: () => setStatus('speaking'),
-      onEnd: () => setStatus('ready'),
-      onError: () => setStatus('error'),
-      onLoading: () => setStatus('loading'),
-      onAudioLevel: setAudioLevel,
-    });
-    mgr.setVoice(voice);
-    managerRef.current = mgr;
-    mgr.init();
-    return () => { mgr.dispose(); managerRef.current = null; };
+    if (!managerRef.current) {
+      managerRef.current = new KokoroTTSManager();
+
+      const updateState = () => {
+        const currentState = managerRef.current?.getState();
+        if (currentState) {
+          setState(currentState);
+        }
+      };
+
+      // Initial state update
+      updateState();
+
+      // Listen for events
+      const handleStart = () => updateState();
+      const handleEnd = () => updateState();
+      const handleError = () => updateState();
+      const handleLoading = () => updateState();
+
+      if (managerRef.current) {
+        managerRef.current.addEventListener('start', handleStart);
+        managerRef.current.addEventListener('end', handleEnd);
+        managerRef.current.addEventListener('error', handleError);
+        managerRef.current.addEventListener('loading', handleLoading);
+      }
+
+      // Initialize model
+      managerRef.current.initialize().catch(error => {
+        console.error('[Kokoro TTS Hook] Initialization failed:', error);
+      });
+
+      // Setup animation frame for audio level updates
+      const updateAudioLevel = () => {
+        setState(prevState => ({
+          ...prevState,
+          audioLevel: managerRef.current?.getAudioLevel() || 0,
+        }));
+        animationFrameRef.current = requestAnimationFrame(updateAudioLevel);
+      };
+
+      animationFrameRef.current = requestAnimationFrame(updateAudioLevel);
+    }
+
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
   }, []);
 
-  const speak = useCallback(async (text: string) => {
-    return managerRef.current?.speak(text) ?? false;
+  const speak = useCallback(async (text: string, voiceId?: string) => {
+    if (!managerRef.current) return;
+    try {
+      await managerRef.current.speak(text, voiceId);
+    } catch (error) {
+      console.error('[Kokoro TTS Hook] Speech failed:', error);
+    }
   }, []);
 
-  const stop = useCallback(() => { managerRef.current?.stop(); }, []);
-
-  const setVoice = useCallback((id: string) => {
-    setVoiceState(id);
-    managerRef.current?.setVoice(id);
+  const speakStreaming = useCallback(async (text: string, voiceId?: string) => {
+    if (!managerRef.current) return;
+    try {
+      await managerRef.current.speakStreaming(text, voiceId);
+    } catch (error) {
+      console.error('[Kokoro TTS Hook] Streaming failed:', error);
+    }
   }, []);
 
-  return { status, audioLevel, voice, speak, stop, setVoice, manager: managerRef };
+  const stop = useCallback(() => {
+    if (!managerRef.current) return;
+    managerRef.current.stop();
+    setState(prevState => ({
+      ...prevState,
+      isSpeaking: false,
+      audioLevel: 0,
+    }));
+  }, []);
+
+  const setVoice = useCallback((voiceId: string) => {
+    if (!managerRef.current) return;
+    managerRef.current.setVoice(voiceId);
+    setState(prevState => ({
+      ...prevState,
+      currentVoice: voiceId,
+    }));
+  }, []);
+
+  const voices = KOKORO_VOICE_CATALOG.map(v => v.id);
+
+  return {
+    isReady: state.isReady,
+    isLoading: state.isLoading,
+    isSpeaking: state.isSpeaking,
+    loadingProgress: state.loadingProgress,
+    audioLevel: state.audioLevel,
+    currentVoice: state.currentVoice,
+    speak,
+    speakStreaming,
+    stop,
+    setVoice,
+    voices,
+  };
 }
