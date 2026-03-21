@@ -1060,7 +1060,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
     () => KOKORO_VOICE_CATALOG.find(v => v.id === gemini.currentVoice),
     [gemini.currentVoice]
   );
-  const currentVoiceName = currentVoiceData?.name || 'Kore';
+  const currentVoiceName = currentVoiceData?.name || config.name;
 
   // Auto-scroll chat
   useEffect(() => {
@@ -1168,7 +1168,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 transition: 'background 0.5s ease, box-shadow 0.5s ease',
               }}/>
             </div>
-            <p style={{fontSize:'1.1rem',fontWeight:500,color:config.primaryColor,letterSpacing:'0.15em',marginTop:'1rem'}}>{config.name}</p>
+            <p style={{fontSize:'1.1rem',fontWeight:500,color:config.primaryColor,letterSpacing:'0.15em',marginTop:'1rem'}}>{currentVoiceName}</p>
             <p style={{fontSize:'0.65rem',color:'rgba(255,255,255,0.3)',marginTop:'0.35rem'}}>
               {gemini.ttsLoading && !gemini.ttsReady
                 ? gemini.ttsLoading
@@ -1208,7 +1208,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                     className="text-xs font-medium block mb-1"
                     style={{ color: config.primaryColor }}
                   >
-                    {config.name}
+                    {currentVoiceName}
                   </span>
                 )}
                 {msg.content}
@@ -1248,7 +1248,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
               type="text"
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
-              placeholder={`Speak with ${KOKORO_VOICE_CATALOG.find(v => v.id === gemini.currentVoice)?.name || config.name}...`}
+              placeholder={`Speak with ${currentVoiceName}...`}
               className="flex-1 bg-white/10 text-white placeholder-white/40 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-opacity-50"
               style={{ focusRingColor: config.primaryColor } as any}
             />
@@ -1273,7 +1273,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
               {gemini.isListening
                 ? 'Listening...'
                 : gemini.isSpeaking
-                ? `${config.name} is speaking...`
+                ? `${currentVoiceName} is speaking...`
                 : gemini.isConnected
                 ? 'Connected'
                 : 'Connecting...'}
