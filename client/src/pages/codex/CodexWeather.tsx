@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 
 const WMO_CODES: Record<number, { label: string; icon: string }> = {
@@ -37,9 +37,15 @@ export default function CodexWeather() {
   const [showSettings, setShowSettings] = useState(false);
   const [zipInput, setZipInput] = useState("");
   const [geoError, setGeoError] = useState("");
+  const userSetLocationRef = useRef(false);
 
+  const utils = trpc.useUtils();
   const settingsQuery = trpc.codex.client.getSettings.useQuery();
-  const updateSettings = trpc.codex.client.updateSettings.useMutation();
+  const updateSettings = trpc.codex.client.updateSettings.useMutation({
+    onSuccess: () => {
+      utils.codex.client.getSettings.invalidate();
+    },
+  });
   const geocodeQuery = trpc.codex.client.geocode.useQuery(
     { zip: zipInput },
     { enabled: false }
@@ -47,9 +53,15 @@ export default function CodexWeather() {
 
   // Get location from settings, geolocation, or default
   useEffect(() => {
+    // Don't overwrite if user just manually set a location
+    if (userSetLocationRef.current) return;
+
     const s = settingsQuery.data;
     if (s?.weatherLat && s?.weatherLon) {
       setCoords({ lat: s.weatherLat, lon: s.weatherLon });
+      if (s.weatherZip && !locationName) {
+        setLocationName(s.weatherZip);
+      }
       return;
     }
     if (navigator.geolocation) {
@@ -83,12 +95,18 @@ export default function CodexWeather() {
     try {
       const result = await geocodeQuery.refetch();
       if (result.data) {
+        userSetLocationRef.current = true;
         setCoords({ lat: result.data.lat, lon: result.data.lon });
         setLocationName(result.data.name);
         updateSettings.mutate({
-          weatherZip: zipInput,
+          weatherZip: result.data.name || zipInput,
           weatherLat: result.data.lat,
           weatherLon: result.data.lon,
+        }, {
+          onSuccess: () => {
+            // Allow useEffect to run again now that DB has correct data
+            userSetLocationRef.current = false;
+          },
         });
         setShowSettings(false);
         setZipInput("");

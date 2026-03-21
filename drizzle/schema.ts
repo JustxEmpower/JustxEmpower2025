@@ -1634,7 +1634,7 @@ export type InsertCodexGuideMessage = typeof codexGuideMessages.$inferInsert;
 export const codexUserSettings = mysqlTable("codex_user_settings", {
   id: varchar("id", { length: 30 }).notNull().primaryKey(),
   userId: varchar("userId", { length: 30 }).notNull(),
-  weatherZip: varchar("weatherZip", { length: 10 }),
+  weatherZip: varchar("weatherZip", { length: 100 }),
   weatherLat: varchar("weatherLat", { length: 20 }),
   weatherLon: varchar("weatherLon", { length: 20 }),
   guideStyle: varchar("guideStyle", { length: 50 }).default("poetic"),
