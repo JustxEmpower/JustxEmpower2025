@@ -14,6 +14,7 @@ import { getDb } from "../db";
 import { siteSettings, pages } from "../../drizzle/schema";
 import { createStripeWebhookRouter } from "../stripeWebhook";
 import { createKlingRouter } from "../klingRouter";
+import { createTTSRouter } from "../ttsRouter";
 import { eq } from "drizzle-orm";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -57,6 +58,9 @@ async function startServer() {
   
   // Kling Avatar API proxy (PiAPI) — keeps API key server-side
   app.use("/api/kling", createKlingRouter());
+
+  // Kokoro TTS — server-side neural text-to-speech
+  app.use("/api/tts", createTTSRouter());
 
   // tRPC API with increased body size limit
   app.use(
