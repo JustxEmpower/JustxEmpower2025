@@ -175,9 +175,14 @@ export class KlingAvatarService {
     this.baseUrl = baseUrl;
   }
 
-  /** S3 bucket where Kling-compatible JPEG portraits are hosted.
-   *  PiAPI can't reliably decode images served from nginx, but S3 works. */
-  private static S3_PORTRAIT_BASE = 'https://justxempower-assets.s3.amazonaws.com/avatars';
+  /** S3 bucket base for Kling-compatible assets */
+  private static S3_BASE = 'https://justxempower-assets.s3.amazonaws.com/avatars';
+
+  /** Pre-cached idle videos on S3 (generated via Kling, stored permanently).
+   *  Used as instant fallback when Kling API is unavailable. */
+  private static PRECACHED_IDLE: Record<string, string> = {
+    kore: `https://justxempower-assets.s3.amazonaws.com/avatars/videos/kore-idle.mp4`,
+  };
 
   /** Convert portrait URLs to S3-hosted JPEG URLs for PiAPI/Kling.
    *  Falls back to origin-qualified URL for non-portrait assets. */
@@ -185,7 +190,7 @@ export class KlingAvatarService {
     // For portrait images, use the S3-hosted JPEG copies
     const portraitMatch = url.match(/portrait-(\w+)\.\w+$/);
     if (portraitMatch) {
-      return `${KlingAvatarService.S3_PORTRAIT_BASE}/portrait-${portraitMatch[1]}.jpg`;
+      return `${KlingAvatarService.S3_BASE}/portrait-${portraitMatch[1]}.jpg`;
     }
     // Already absolute
     if (url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -237,16 +242,25 @@ export class KlingAvatarService {
       return cached.videoUrl;
     }
 
-    const prompt = GUIDE_IDLE_PROMPTS[guideId] || GUIDE_IDLE_PROMPTS.kore;
-    const qualifiedUrl = this.qualifyUrl(imageUrl);
-    console.log(`[Kling] generateIdleVideo: guideId=${guideId}, imageUrl=${qualifiedUrl}, mode=${mode}`);
-    const videoUrl = await this.withRetry(async () => {
-      const taskId = await this.createIdleVideoTask({ imageUrl, prompt, duration: 10, mode });
-      console.log(`[Kling] Idle task created: ${taskId}, polling...`);
-      const url = await this.pollUntilComplete(taskId);
-      console.log(`[Kling] Idle video ready: ${url.substring(0, 80)}...`);
-      return url;
-    }, 'generateIdleVideo');
+    // Use pre-cached S3 video if available (instant load, no API call)
+    const precached = KlingAvatarService.PRECACHED_IDLE[guideId];
+    let videoUrl: string;
+    if (precached) {
+      console.log(`[Kling] Using pre-cached idle video for ${guideId}: ${precached}`);
+      videoUrl = precached;
+    } else {
+      // No pre-cached version — generate live via Kling API
+      const prompt = GUIDE_IDLE_PROMPTS[guideId] || GUIDE_IDLE_PROMPTS.kore;
+      const qualifiedUrl = this.qualifyUrl(imageUrl);
+      console.log(`[Kling] generateIdleVideo: guideId=${guideId}, imageUrl=${qualifiedUrl}, mode=${mode}`);
+      videoUrl = await this.withRetry(async () => {
+        const taskId = await this.createIdleVideoTask({ imageUrl, prompt, duration: 10, mode });
+        console.log(`[Kling] Idle task created: ${taskId}, polling...`);
+        const url = await this.pollUntilComplete(taskId);
+        console.log(`[Kling] Idle video ready: ${url.substring(0, 80)}...`);
+        return url;
+      }, 'generateIdleVideo');
+    }
 
     // Cache the idle video
     this.cache.set(cacheKey, {
