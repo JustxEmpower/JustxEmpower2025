@@ -20,7 +20,6 @@ import {
   getKlingAvatarService,
   type AvatarDisplayMode,
   type KlingMode,
-  KLING_TTS_VOICES,
 } from './KlingAvatarService';
 
 // ============================================================================
@@ -166,6 +165,14 @@ export default function LifelikeAvatar({
         setIdleVideoUrl(idleUrl);
         setState('idle');
         onReady?.();
+
+        // Pre-generate speaking + listening animations in background
+        klingService.generateSpeakingAnimationVideo(guideId, portraitUrl, mode)
+          .then(url => { if (!cancelled) setSpeakingVideoUrl(url); })
+          .catch(e => console.warn('[LifelikeAvatar] Speaking anim failed:', e.message));
+        klingService.generateListeningVideo(guideId, portraitUrl, mode)
+          .then(url => { if (!cancelled) setListeningVideoUrl(url); })
+          .catch(e => console.warn('[LifelikeAvatar] Listening anim failed:', e.message));
       } catch (err: any) {
         if (cancelled) return;
         console.warn('[LifelikeAvatar] Kling warm-up failed, using portrait fallback:', err.message);
@@ -182,128 +189,37 @@ export default function LifelikeAvatar({
     };
   }, [guideId, portraitUrl, mode]);
 
-  // --------------------------------------------------------------------------
-  // Pre-generate listening video in background
-  // --------------------------------------------------------------------------
-  useEffect(() => {
-    let cancelled = false;
-
-    async function generateListening() {
-      try {
-        const url = await klingService.generateListeningVideo(guideId, portraitUrl, mode);
-        if (!cancelled) setListeningVideoUrl(url);
-      } catch (err: any) {
-        console.warn('[LifelikeAvatar] Listening video generation failed:', err.message);
-      }
-    }
-
-    // Start generating after idle is ready
-    if (state === 'idle') {
-      generateListening();
-    }
-
-    return () => { cancelled = true; };
-  }, [state === 'idle', guideId, portraitUrl, mode]);
+  // Listening + speaking animations are pre-generated in warmUp above
 
   // --------------------------------------------------------------------------
-  // Speaking: generate lip-synced video when audio/text is provided
+  // Speaking: crossfade to pre-generated speaking animation when Kokoro plays
+  // No per-utterance Kling calls — just swap the cached video instantly
   // --------------------------------------------------------------------------
   useEffect(() => {
-    if (!isSpeaking) return;
-    if (!audioUrl && !spokenText) return;
-
-    let cancelled = false;
-
-    async function generateSpeaking() {
-      try {
-        setState('loading');
-        setLoadingMessage('Generating speech animation...');
-
-        let videoUrl: string;
-
-        if (useKlingTTS && spokenText) {
-          // Use Kling's built-in TTS
-          const voice = KLING_TTS_VOICES[guideId] || KLING_TTS_VOICES.kore;
-          videoUrl = await klingService.generateSpeakingVideo({
-            imageUrl: portraitUrl,
-            ttsText: spokenText,
-            ttsTimbre: voice.timbre,
-            ttsSpeed: 1.0,
-            mode,
-          });
-        } else if (audioUrl) {
-          // Upload Kokoro audio then lip-sync
-          // First, upload the audio blob to get a server URL
-          const uploadResponse = await fetch('/api/kling/upload', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              audio: await blobUrlToBase64(audioUrl),
-              format: 'mp3',
-            }),
-          });
-          const uploadData = await uploadResponse.json();
-
-          if (!uploadData.success) {
-            throw new Error('Audio upload failed');
-          }
-
-          // Use the server URL for Kling lip-sync
-          // Kling needs a fully qualified URL
-          const fullAudioUrl = `${window.location.origin}${uploadData.url}`;
-
-          videoUrl = await klingService.generateSpeakingVideo({
-            imageUrl: portraitUrl,
-            audioUrl: fullAudioUrl,
-            mode,
-          });
-        } else {
-          return;
-        }
-
-        if (cancelled) return;
-
-        setSpeakingVideoUrl(videoUrl);
-        setActiveVideo('speaking');
-        setState('speaking');
-      } catch (err: any) {
-        if (cancelled) return;
-        console.error('[LifelikeAvatar] Speaking generation failed:', err.message);
-        // Fall back to idle — don't show error for speaking failures
-        setState('idle');
-        setActiveVideo('idle');
-      }
-    }
-
-    generateSpeaking();
-    return () => { cancelled = true; };
-  }, [isSpeaking, audioUrl, spokenText]);
-
-  // --------------------------------------------------------------------------
-  // State transitions
-  // --------------------------------------------------------------------------
-  useEffect(() => {
-    if (state === 'loading' || state === 'error') return;
+    if (state === 'loading') return;
 
     if (isSpeaking && speakingVideoUrl) {
       setActiveVideo('speaking');
       setState('speaking');
     } else if (isListening && listeningVideoUrl) {
       setActiveVideo('listening');
-      setState('idle'); // listening is a sub-state of idle
+      setState('idle');
     } else {
       setActiveVideo('idle');
       setState('idle');
     }
-  }, [isSpeaking, isListening, speakingVideoUrl, listeningVideoUrl]);
+  }, [isSpeaking, isListening, speakingVideoUrl, listeningVideoUrl, state]);
+
+
+  // State transitions are handled by the crossfade effect above
 
   // --------------------------------------------------------------------------
   // When speaking video ends, return to idle
   // --------------------------------------------------------------------------
   const handleSpeakingEnded = useCallback(() => {
+    // Don't null out speakingVideoUrl — it's pre-generated and reusable
     setActiveVideo('idle');
     setState('idle');
-    setSpeakingVideoUrl(null);
   }, []);
 
   // --------------------------------------------------------------------------
@@ -361,10 +277,9 @@ export default function LifelikeAvatar({
           ref={videoRef}
           src={currentVideoUrl}
           autoPlay
-          loop={activeVideo !== 'speaking'}
-          muted={activeVideo !== 'speaking'}
+          loop
+          muted
           playsInline
-          onEnded={activeVideo === 'speaking' ? handleSpeakingEnded : undefined}
           style={{
             position: 'absolute',
             inset: 0,

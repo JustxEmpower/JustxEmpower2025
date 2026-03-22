@@ -113,6 +113,15 @@ export const GUIDE_IDLE_PROMPTS: Record<string, string> = {
   zephyr: 'A woman standing on a sunset terrace, gentle breathing, soft natural movement, golden sunset light, warm welcoming expression, subtle blink, photorealistic',
 };
 
+export const GUIDE_SPEAKING_PROMPTS: Record<string, string> = {
+  kore: 'A woman speaking expressively with natural mouth movements, gentle hand gestures, warm golden light, animated wise expression, talking and explaining, photorealistic',
+  aoede: 'A woman speaking with creative passion, expressive mouth movements, purple-violet light, animated artistic expression, talking and gesturing, photorealistic',
+  leda: 'A woman speaking gently with compassionate expression, soft mouth movements, warm garden light, nurturing animated face, talking warmly, photorealistic',
+  theia: 'A woman speaking calmly with grounded expression, natural mouth movements, soft forest light, soothing animated face, talking and explaining, photorealistic',
+  selene: 'A woman speaking thoughtfully with scholarly expression, articulate mouth movements, warm library light, intellectual animated face, talking and teaching, photorealistic',
+  zephyr: 'A woman speaking enthusiastically with warm expression, energetic mouth movements, golden sunset light, welcoming animated face, talking and encouraging, photorealistic',
+};
+
 export const GUIDE_LISTENING_PROMPTS: Record<string, string> = {
   kore: 'A woman listening attentively with slight head nods, warm golden light, engaged wise expression, gentle micro-expressions, photorealistic',
   aoede: 'A woman listening with creative curiosity, slight head tilts, purple studio light, intrigued artistic expression, photorealistic',
@@ -162,6 +171,12 @@ export class KlingAvatarService {
 
   constructor(baseUrl = '') {
     this.baseUrl = baseUrl;
+  }
+
+  /** Convert relative URLs to absolute so PiAPI can fetch them */
+  private qualifyUrl(url: string): string {
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
   // --------------------------------------------------------------------------
@@ -231,12 +246,40 @@ export class KlingAvatarService {
   }
 
   /**
-   * Pre-warm cache by generating idle + listening videos for a guide.
+   * Generate a pre-baked speaking animation loop from a portrait.
+   * Used when Kokoro TTS is playing — shows natural speaking motion.
+   * NOT per-utterance; generated once and cached.
+   */
+  async generateSpeakingAnimationVideo(guideId: string, imageUrl: string, mode: KlingMode = 'std'): Promise<string> {
+    const cacheKey = `speaking-anim-${guideId}`;
+    const cached = this.cache.get(cacheKey);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.videoUrl;
+    }
+
+    const prompt = GUIDE_SPEAKING_PROMPTS[guideId] || GUIDE_SPEAKING_PROMPTS.kore;
+    const taskId = await this.createIdleVideoTask({ imageUrl, prompt, duration: 10, mode });
+    const videoUrl = await this.pollUntilComplete(taskId);
+
+    this.cache.set(cacheKey, {
+      guideId,
+      type: 'speaking',
+      videoUrl,
+      createdAt: Date.now(),
+      expiresAt: Date.now() + KlingAvatarService.IDLE_CACHE_TTL,
+    });
+
+    return videoUrl;
+  }
+
+  /**
+   * Pre-warm cache by generating idle + speaking + listening videos for a guide.
    * Call this when a guide is selected, before the user starts interacting.
    */
   async prewarmGuide(guideId: string, imageUrl: string, mode: KlingMode = 'std'): Promise<void> {
     await Promise.all([
       this.generateIdleVideo(guideId, imageUrl, mode),
+      this.generateSpeakingAnimationVideo(guideId, imageUrl, mode),
       this.generateListeningVideo(guideId, imageUrl, mode),
     ]);
   }
@@ -250,7 +293,7 @@ export class KlingAvatarService {
       model: 'kling',
       task_type: 'lip_sync',
       input: {
-        image_url: request.imageUrl,
+        image_url: this.qualifyUrl(request.imageUrl),
         ...(request.audioUrl ? { local_dubbing_url: request.audioUrl } : {}),
         ...(request.ttsText ? { tts_text: request.ttsText } : {}),
         ...(request.ttsTimbre ? { tts_timbre: request.ttsTimbre } : {}),
@@ -285,7 +328,7 @@ export class KlingAvatarService {
       task_type: 'omni',
       input: {
         prompt: request.prompt,
-        start_image_url: request.imageUrl,
+        start_image_url: this.qualifyUrl(request.imageUrl),
         duration: request.duration || 5,
         negative_prompt: 'blurry, distorted face, extra limbs, deformed, ugly, cartoon, anime, nsfw',
       },
@@ -317,7 +360,7 @@ export class KlingAvatarService {
       model: 'kling',
       task_type: 'lip_sync',
       input: {
-        image_url: request.imageUrl,
+        image_url: this.qualifyUrl(request.imageUrl),
         ...(request.audioUrl ? { local_dubbing_url: request.audioUrl } : {}),
         ...(request.ttsText ? { tts_text: request.ttsText } : {}),
         ...(request.ttsTimbre ? { tts_timbre: request.ttsTimbre } : {}),

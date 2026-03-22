@@ -578,10 +578,14 @@ function useGeminiLive(
   const [currentEmotion, setCurrentEmotion] = useState<AvatarEmotion>('neutral');
   const [currentGesture, setCurrentGesture] = useState<AvatarGesture>('idle');
   const [transcript, setTranscript] = useState('');
-  const [currentVoice, setCurrentVoice] = useState(guideConfig.voiceId);
+  const [currentVoice, setCurrentVoice] = useState(() => {
+    try { return localStorage.getItem('codex_voice') || guideConfig.voiceId; } catch { return guideConfig.voiceId; }
+  });
   const [ttsReady, setTtsReady] = useState(false);
   const [ttsLoading, setTtsLoading] = useState('');
-  const [ttsSpeed, setTtsSpeedState] = useState(1.0);
+  const [ttsSpeed, setTtsSpeedState] = useState(() => {
+    try { const s = localStorage.getItem('codex_tts_speed'); return s ? parseFloat(s) : 1.0; } catch { return 1.0; }
+  });
   const [lastSpokenText, setLastSpokenText] = useState('');
   const [lastAudioUrl, setLastAudioUrl] = useState<string | undefined>(undefined);
 
@@ -628,10 +632,13 @@ function useGeminiLive(
       setTtsLoading(data?.progress || '');
     });
 
-    // Set default voice for this guide
-    const defaultVoice = GUIDE_VOICE_DEFAULTS[guideConfig.name] || guideConfig.voiceId;
-    kokoro.setVoice(defaultVoice);
-    setCurrentVoice(defaultVoice);
+    // Restore saved voice/speed or fall back to guide default
+    const savedVoice = (() => { try { return localStorage.getItem('codex_voice'); } catch { return null; } })();
+    const initVoice = savedVoice || GUIDE_VOICE_DEFAULTS[guideConfig.name] || guideConfig.voiceId;
+    kokoro.setVoice(initVoice);
+    setCurrentVoice(initVoice);
+    const savedSpeed = (() => { try { const s = localStorage.getItem('codex_tts_speed'); return s ? parseFloat(s) : null; } catch { return null; } })();
+    if (savedSpeed) kokoro.setSpeed(savedSpeed);
 
     // Initialize the model
     kokoro.initialize()
@@ -708,18 +715,20 @@ function useGeminiLive(
 
   // Browser SpeechSynthesis DELETED — Kokoro server TTS only
 
-  // Set voice
+  // Set voice (persisted to localStorage)
   const setVoice = useCallback((voiceId: string) => {
     setCurrentVoice(voiceId);
+    try { localStorage.setItem('codex_voice', voiceId); } catch {}
     if (kokoroRef.current) {
       kokoroRef.current.setVoice(voiceId);
     }
   }, []);
 
-  // Set TTS speed (0.5–2.0)
+  // Set TTS speed (0.5–2.0, persisted to localStorage)
   const setTtsSpeed = useCallback((speed: number) => {
     const clamped = Math.max(0.5, Math.min(2.0, speed));
     setTtsSpeedState(clamped);
+    try { localStorage.setItem('codex_tts_speed', String(clamped)); } catch {}
     if (kokoroRef.current) {
       kokoroRef.current.setSpeed(clamped);
     }
@@ -1151,7 +1160,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
             mode="std"
             width="100%"
             height="100%"
-            useKlingTTS={true}
+            useKlingTTS={false}
             onReady={() => console.log(`[LifelikeAvatar] ${config.name} ready`)}
             onError={(err) => {
               console.warn(`[LifelikeAvatar] Falling back to orb: ${err}`);
