@@ -175,14 +175,21 @@ export class KlingAvatarService {
     this.baseUrl = baseUrl;
   }
 
-  /** Convert relative URLs to absolute so PiAPI can fetch them.
-   *  Also swaps .png → .jpg because the portrait PNGs are actually WebP
-   *  (which Kling rejects). The .jpg copies are real JPEG files. */
+  /** S3 bucket where Kling-compatible JPEG portraits are hosted.
+   *  PiAPI can't reliably decode images served from nginx, but S3 works. */
+  private static S3_PORTRAIT_BASE = 'https://justxempower-assets.s3.amazonaws.com/avatars';
+
+  /** Convert portrait URLs to S3-hosted JPEG URLs for PiAPI/Kling.
+   *  Falls back to origin-qualified URL for non-portrait assets. */
   private qualifyUrl(url: string): string {
-    // Swap .png to .jpg for Kling compatibility (portraits are WebP disguised as .png)
-    let fixed = url.replace(/\.png$/i, '.jpg');
-    if (fixed.startsWith('http://') || fixed.startsWith('https://')) return fixed;
-    return `${window.location.origin}${fixed.startsWith('/') ? '' : '/'}${fixed}`;
+    // For portrait images, use the S3-hosted JPEG copies
+    const portraitMatch = url.match(/portrait-(\w+)\.\w+$/);
+    if (portraitMatch) {
+      return `${KlingAvatarService.S3_PORTRAIT_BASE}/portrait-${portraitMatch[1]}.jpg`;
+    }
+    // Already absolute
+    if (url.startsWith('http://') || url.startsWith('https://')) return url;
+    return `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
   // --------------------------------------------------------------------------
