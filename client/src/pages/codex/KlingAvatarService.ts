@@ -37,6 +37,8 @@ export interface KlingTaskResponse {
   error?: {
     code: number;
     message: string;
+    raw_message?: string;
+    detail?: unknown;
   };
   meta?: {
     created_at: string;
@@ -173,10 +175,14 @@ export class KlingAvatarService {
     this.baseUrl = baseUrl;
   }
 
-  /** Convert relative URLs to absolute so PiAPI can fetch them */
+  /** Convert relative URLs to absolute so PiAPI can fetch them.
+   *  Also swaps .png → .jpg because the portrait PNGs are actually WebP
+   *  (which Kling rejects). The .jpg copies are real JPEG files. */
   private qualifyUrl(url: string): string {
-    if (url.startsWith('http://') || url.startsWith('https://')) return url;
-    return `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
+    // Swap .png to .jpg for Kling compatibility (portraits are WebP disguised as .png)
+    let fixed = url.replace(/\.png$/i, '.jpg');
+    if (fixed.startsWith('http://') || fixed.startsWith('https://')) return fixed;
+    return `${window.location.origin}${fixed.startsWith('/') ? '' : '/'}${fixed}`;
   }
 
   // --------------------------------------------------------------------------
@@ -437,7 +443,7 @@ export class KlingAvatarService {
             return videoUrl;
           }
           case 'failed':
-            throw new Error(`Kling task failed: ${task.error?.message || 'Unknown error'}`);
+            throw new Error(`Kling task failed: ${task.error?.raw_message || task.error?.message || 'Unknown error'}`);
           case 'processing':
           case 'pending':
           case 'staged':
