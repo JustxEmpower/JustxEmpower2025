@@ -175,7 +175,8 @@ export default function LifelikeAvatar({
           .catch(e => console.warn('[LifelikeAvatar] Listening anim failed:', e.message));
       } catch (err: any) {
         if (cancelled) return;
-        console.warn('[LifelikeAvatar] Kling warm-up failed, using portrait fallback:', err.message);
+        console.error('[LifelikeAvatar] Kling warm-up failed, using portrait fallback:', err.message);
+        setErrorMessage(`Kling: ${err.message}`);
         // Don't call onError — show animated portrait instead of falling back to orb
         setState('idle');
       }
@@ -265,9 +266,9 @@ export default function LifelikeAvatar({
       )}
 
       {/* Error state — still show portrait, just note the error subtly */}
-      {state === 'error' && (
+      {(state === 'error' || errorMessage) && (
         <div style={{ position: 'absolute', bottom: 40, left: 0, right: 0, textAlign: 'center', zIndex: 10 }}>
-          <p style={{ color: '#ff6b6b88', fontSize: 11 }}>Video generation unavailable</p>
+          <p style={{ color: '#ff6b6b88', fontSize: 11 }}>{errorMessage || 'Video generation unavailable'}</p>
         </div>
       )}
 

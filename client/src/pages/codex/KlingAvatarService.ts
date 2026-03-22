@@ -205,8 +205,12 @@ export class KlingAvatarService {
     }
 
     const prompt = GUIDE_IDLE_PROMPTS[guideId] || GUIDE_IDLE_PROMPTS.kore;
+    const qualifiedUrl = this.qualifyUrl(imageUrl);
+    console.log(`[Kling] generateIdleVideo: guideId=${guideId}, imageUrl=${qualifiedUrl}, mode=${mode}`);
     const taskId = await this.createIdleVideoTask({ imageUrl, prompt, duration: 10, mode });
+    console.log(`[Kling] Idle task created: ${taskId}, polling...`);
     const videoUrl = await this.pollUntilComplete(taskId);
+    console.log(`[Kling] Idle video ready: ${videoUrl.substring(0, 80)}...`);
 
     // Cache the idle video
     this.cache.set(cacheKey, {
@@ -325,17 +329,22 @@ export class KlingAvatarService {
   private async createIdleVideoTask(request: IdleVideoRequest): Promise<string> {
     const body: Record<string, unknown> = {
       model: 'kling',
-      task_type: 'omni',
+      task_type: 'video_generation',
       input: {
         prompt: request.prompt,
-        start_image_url: this.qualifyUrl(request.imageUrl),
+        image_url: this.qualifyUrl(request.imageUrl),
         duration: request.duration || 5,
         negative_prompt: 'blurry, distorted face, extra limbs, deformed, ugly, cartoon, anime, nsfw',
+        cfg_scale: 0.5,
+        aspect_ratio: '1:1',
+        mode: request.mode || 'std',
       },
       config: {
         service_mode: 'public',
       },
     };
+
+    console.log(`[Kling] createIdleVideoTask request:`, JSON.stringify(body, null, 2));
 
     const response = await fetch(`${this.baseUrl}/api/kling/task`, {
       method: 'POST',
@@ -344,12 +353,15 @@ export class KlingAvatarService {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`[Kling] Task creation HTTP error: ${response.status}`, errorText);
       throw new Error(`Kling task creation failed: ${response.status} ${response.statusText}`);
     }
 
     const data = await response.json();
+    console.log(`[Kling] createIdleVideoTask response:`, JSON.stringify(data));
     if (data.code !== 200 || !data.data?.task_id) {
-      throw new Error(`Kling API error: ${data.message || 'Unknown error'}`);
+      throw new Error(`Kling API error: ${data.message || JSON.stringify(data)}`);
     }
 
     return data.data.task_id;
@@ -414,21 +426,25 @@ export class KlingAvatarService {
 
         const data = await response.json();
         const task: KlingTaskResponse = data.data;
+        const status = (task.status || '').toLowerCase();
 
-        switch (task.status) {
-          case 'Completed': {
+        switch (status) {
+          case 'completed': {
             const videoUrl = task.output?.video || task.output?.video_url;
             if (!videoUrl) {
               throw new Error('Kling task completed but no video URL in output');
             }
             return videoUrl;
           }
-          case 'Failed':
+          case 'failed':
             throw new Error(`Kling task failed: ${task.error?.message || 'Unknown error'}`);
-          case 'Processing':
-          case 'Pending':
-          case 'Staged':
+          case 'processing':
+          case 'pending':
+          case 'staged':
             // Keep polling
+            break;
+          default:
+            console.log(`[Kling] Unknown status "${task.status}", continuing to poll...`);
             break;
         }
 
