@@ -14,6 +14,7 @@ export class KokoroTTSManager {
   private isSpeaking = false;
   private loadingProgress = '';
   private currentVoice = 'af_kore';
+  private currentSpeed = 1.0;
   private audioLevel = 0;
   private audioLevelInterval: ReturnType<typeof setInterval> | null = null;
   private abortController: AbortController | null = null;
@@ -89,7 +90,8 @@ export class KokoroTTSManager {
     const signal = this.abortController.signal;
 
     // Fire all sentence fetches in parallel
-    const blobPromises = sentences.map(s => fetchAudio(s, voice, signal));
+    const speed = this.currentSpeed;
+    const blobPromises = sentences.map(s => fetchAudio(s, voice, speed, signal));
 
     this.isSpeaking = true;
     this.emit('start', { voice, text });
@@ -182,6 +184,8 @@ export class KokoroTTSManager {
   }
 
   setVoice(voiceId: string): void { this.currentVoice = voiceId; }
+  setSpeed(speed: number): void { this.currentSpeed = Math.max(0.5, Math.min(2.0, speed)); }
+  getSpeed(): number { return this.currentSpeed; }
   getAudioLevel(): number { return this.audioLevel; }
   listVoices(): string[] { return []; }
 
@@ -217,7 +221,7 @@ export class KokoroTTSManager {
   getState() {
     return {
       isReady: this.isReady, isLoading: this.isLoading, isSpeaking: this.isSpeaking,
-      loadingProgress: this.loadingProgress, currentVoice: this.currentVoice, audioLevel: this.audioLevel,
+      loadingProgress: this.loadingProgress, currentVoice: this.currentVoice, currentSpeed: this.currentSpeed, audioLevel: this.audioLevel,
     };
   }
 

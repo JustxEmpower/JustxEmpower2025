@@ -16,14 +16,16 @@ import fs from 'fs';
 import path from 'path';
 
 const PIAPI_BASE = 'https://api.piapi.ai/api/v1';
-const PIAPI_KEY = process.env.PIAPI_KLING_API_KEY || process.env.KLING_API_KEY || '';
+function getPiapiKey(): string {
+  return process.env.PIAPI_KLING_API_KEY || process.env.KLING_API_KEY || '';
+}
 
 export function createKlingRouter(): Router {
   const router = Router();
 
   // ── Middleware: check API key is configured ──────────────────────────
   router.use((_req: Request, res: Response, next) => {
-    if (!PIAPI_KEY) {
+    if (!getPiapiKey()) {
       console.error('[Kling] PIAPI_KLING_API_KEY not set in environment');
       return res.status(500).json({
         error: 'Kling API not configured. Set PIAPI_KLING_API_KEY in .env',
@@ -62,7 +64,7 @@ export function createKlingRouter(): Router {
       const response = await fetch(`${PIAPI_BASE}/task`, {
         method: 'POST',
         headers: {
-          'X-API-Key': PIAPI_KEY,
+          'X-API-Key': getPiapiKey(),
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
@@ -95,7 +97,7 @@ export function createKlingRouter(): Router {
       const response = await fetch(`${PIAPI_BASE}/task/${taskId}`, {
         method: 'GET',
         headers: {
-          'X-API-Key': PIAPI_KEY,
+          'X-API-Key': getPiapiKey(),
         },
       });
 

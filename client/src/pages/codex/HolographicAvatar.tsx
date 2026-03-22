@@ -554,6 +554,8 @@ interface UseGeminiLiveReturn {
   // Kokoro TTS additions
   currentVoice: string;
   setVoice: (voiceId: string) => void;
+  ttsSpeed: number;
+  setTtsSpeed: (speed: number) => void;
   speakText: (text: string, voiceOverride?: string) => void;
   ttsReady: boolean;
   ttsLoading: string;
@@ -579,6 +581,7 @@ function useGeminiLive(
   const [currentVoice, setCurrentVoice] = useState(guideConfig.voiceId);
   const [ttsReady, setTtsReady] = useState(false);
   const [ttsLoading, setTtsLoading] = useState('');
+  const [ttsSpeed, setTtsSpeedState] = useState(1.0);
   const [lastSpokenText, setLastSpokenText] = useState('');
   const [lastAudioUrl, setLastAudioUrl] = useState<string | undefined>(undefined);
 
@@ -710,6 +713,15 @@ function useGeminiLive(
     setCurrentVoice(voiceId);
     if (kokoroRef.current) {
       kokoroRef.current.setVoice(voiceId);
+    }
+  }, []);
+
+  // Set TTS speed (0.5–2.0)
+  const setTtsSpeed = useCallback((speed: number) => {
+    const clamped = Math.max(0.5, Math.min(2.0, speed));
+    setTtsSpeedState(clamped);
+    if (kokoroRef.current) {
+      kokoroRef.current.setSpeed(clamped);
     }
   }, []);
 
@@ -1002,6 +1014,8 @@ function useGeminiLive(
     endSession,
     currentVoice,
     setVoice,
+    ttsSpeed,
+    setTtsSpeed,
     speakText,
     ttsReady,
     ttsLoading,
@@ -1292,6 +1306,21 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 currentVoiceName={currentVoiceName}
                 currentVoiceId={gemini.currentVoice}
               />
+              {/* Speed adjuster */}
+              <div className="flex items-center gap-1 px-2 py-1 border border-white/20 rounded" title="Speech speed">
+                <span className="text-white/40 text-[10px]">🕐</span>
+                <input
+                  type="range"
+                  min={0.5}
+                  max={2.0}
+                  step={0.1}
+                  value={gemini.ttsSpeed}
+                  onChange={(e) => gemini.setTtsSpeed(parseFloat(e.target.value))}
+                  className="w-14 h-1 accent-purple-400 cursor-pointer"
+                  style={{ WebkitAppearance: 'none', appearance: 'none', background: 'rgba(255,255,255,0.15)', borderRadius: 2, outline: 'none' }}
+                />
+                <span className="text-white/40 text-[10px] w-6 text-center">{gemini.ttsSpeed.toFixed(1)}x</span>
+              </div>
               <button
                 onClick={() => {
                   gemini.endSession();
