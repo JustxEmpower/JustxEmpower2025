@@ -255,11 +255,11 @@ I'd encourage you to connect with a professional who can hold this with you:
 • **Crisis Text Line**: Text **HELLO** to **741741**
 • **RAINN** (if related to sexual assault): **1-800-656-4673**
 
-If you already have a therapist or counselor, this would be a meaningful thing to bring to your next session. Your facilitator has also been notified and will check in with you.`,
+If you already have a therapist or counselor, this would be a meaningful thing to bring to your next session. You deserve that level of care.`,
 
     `What you're describing is real, and it matters. This is territory where you deserve specialized, human support — and the Codex is not a replacement for that.
 
-I'm flagging this for your facilitator so they can follow up with care. In the meantime:
+In the meantime, please reach out to one of these resources:
 • **988 Suicide & Crisis Lifeline**: Call or text **988**
 • **Crisis Text Line**: Text **HELLO** to **741741**
 
@@ -281,7 +281,7 @@ Shall we continue with your Codex exploration?`,
   ],
 
   low: [
-    `I hear that weight in your words, and I want to hold space for it. Within the Codex, we can continue to sit with these feelings and explore what they're reflecting. If at any point you feel you'd benefit from talking to someone trained in supporting deeper emotional processing, your facilitator is available, and professional support is always an option.
+    `I hear that weight in your words, and I want to hold space for it. Within the Codex, we can continue to sit with these feelings and explore what they're reflecting. If at any point you feel you'd benefit from talking to someone trained in supporting deeper emotional processing, reaching out to a therapist or counselor is always an option worth considering.
 
 How would you like to continue?`,
   ],
