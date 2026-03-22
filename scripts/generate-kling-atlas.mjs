@@ -114,12 +114,12 @@ const SPRITE_COLS = 5;
 const SPRITE_ROWS = 3;
 
 const GUIDES = [
-  { id: 'kore',   portrait: '/assets/avatars/kore-prime/portrait-kore.png' },
-  { id: 'aoede',  portrait: '/assets/avatars/kore-prime/portrait-aoede.png' },
-  { id: 'leda',   portrait: '/assets/avatars/kore-prime/portrait-leda.png' },
-  { id: 'theia',  portrait: '/assets/avatars/kore-prime/portrait-theia.png' },
-  { id: 'selene', portrait: '/assets/avatars/kore-prime/portrait-selene.png' },
-  { id: 'zephyr', portrait: '/assets/avatars/kore-prime/portrait-zephyr.png' },
+  { id: 'kore',   portrait: '/assets/avatars/kore-prime/portrait-kore.jpg' },
+  { id: 'aoede',  portrait: '/assets/avatars/kore-prime/portrait-aoede.jpg' },
+  { id: 'leda',   portrait: '/assets/avatars/kore-prime/portrait-leda.jpg' },
+  { id: 'theia',  portrait: '/assets/avatars/kore-prime/portrait-theia.jpg' },
+  { id: 'selene', portrait: '/assets/avatars/kore-prime/portrait-selene.jpg' },
+  { id: 'zephyr', portrait: '/assets/avatars/kore-prime/portrait-zephyr.jpg' },
 ];
 
 const GUIDE_VOICES = {
@@ -347,13 +347,19 @@ async function pollTask(taskId) {
       headers: { 'X-API-Key': PIAPI_KEY },
     });
     const data = await response.json();
-    const status = data.data?.status;
+    const status = (data.data?.status || '').toLowerCase();
 
-    if (status === 'Completed') {
-      return data.data.output?.video || data.data.output?.video_url;
+    if (status === 'completed') {
+      const videoUrl = data.data.output?.video || data.data.output?.video_url || data.data.output?.works?.[0]?.video?.resource_without_watermark || data.data.output?.works?.[0]?.video?.resource;
+      if (!videoUrl) {
+        console.log('\n   ⚠️  Completed but no video URL found. Full output:', JSON.stringify(data.data.output, null, 2));
+        throw new Error('Task completed but no video URL in response');
+      }
+      return videoUrl;
     }
-    if (status === 'Failed') {
-      throw new Error(`Task failed: ${data.data?.error?.message}`);
+    if (status === 'failed') {
+      console.log('\n   ❌ Task failed. Full response:', JSON.stringify(data.data, null, 2));
+      throw new Error(`Task failed: ${data.data?.error?.message || JSON.stringify(data.data?.error || 'unknown')}`);
     }
 
     const elapsed = ((Date.now() - start) / 1000).toFixed(0);
