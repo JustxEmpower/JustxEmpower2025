@@ -98,8 +98,9 @@ const GUIDE_COLORS: Record<string, string> = {
   zephyr: '#FF6B35',
 };
 
-/** Atlas asset base path */
-const ATLAS_BASE = '/assets/avatars/atlas';
+/** Atlas asset base paths — videos on S3, sprites served locally */
+const ATLAS_S3_BASE = 'https://justxempower-assets.s3.amazonaws.com/avatars/atlas';
+const ATLAS_LOCAL_BASE = '/assets/avatars/atlas';
 
 /** Sprite sheet cell dimensions */
 const CELL_W = 256;
@@ -336,9 +337,9 @@ export default function LifelikeAvatar({
   const visemeEngine = useMemo(() => getVisemeEngine(), []);
 
   // Asset URLs
-  // idle-video.mp4 = clean base video (no speech), atlas-video.mp4 = lip-synced (for frame extraction only)
-  const idleVideoUrl = `${ATLAS_BASE}/${guideId}/idle-video.mp4`;
-  const spriteUrl = `${ATLAS_BASE}/${guideId}/viseme-sprite.png`;
+  // idle-video.mp4 = clean base video (no speech) hosted on S3
+  const idleVideoUrl = `${ATLAS_S3_BASE}/${guideId}/idle-video.mp4`;
+  const spriteUrl = `${ATLAS_LOCAL_BASE}/${guideId}/viseme-sprite.png`;
 
   // --------------------------------------------------------------------------
   // Emotion transitions — drives both canvas post-processing AND VisemeEngine
@@ -454,7 +455,7 @@ export default function LifelikeAvatar({
       cancelled = true;
       mountedRef.current = false;
     };
-  }, [guideId, idleVideoUrl, spriteUrl]);
+  }, [guideId, idleVideoUrl, spriteUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --------------------------------------------------------------------------
   // Audio setup: Connect Kokoro TTS audio to VisemeEngine analyser

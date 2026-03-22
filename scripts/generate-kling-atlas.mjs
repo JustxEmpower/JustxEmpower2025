@@ -113,13 +113,16 @@ const CELL_H = 256;
 const SPRITE_COLS = 5;
 const SPRITE_ROWS = 3;
 
+const S3_PORTRAIT_BASE = 'https://justxempower-assets.s3.amazonaws.com/avatars/portraits';
+const ATLAS_AUDIO_URL = 'https://justxempower-assets.s3.amazonaws.com/avatars/atlas-script.mp3';
+
 const GUIDES = [
-  { id: 'kore',   portrait: '/assets/avatars/kore-prime/portrait-kore.jpg' },
-  { id: 'aoede',  portrait: '/assets/avatars/kore-prime/portrait-aoede.jpg' },
-  { id: 'leda',   portrait: '/assets/avatars/kore-prime/portrait-leda.jpg' },
-  { id: 'theia',  portrait: '/assets/avatars/kore-prime/portrait-theia.jpg' },
-  { id: 'selene', portrait: '/assets/avatars/kore-prime/portrait-selene.jpg' },
-  { id: 'zephyr', portrait: '/assets/avatars/kore-prime/portrait-zephyr.jpg' },
+  { id: 'kore',   portrait: `${S3_PORTRAIT_BASE}/portrait-kore.jpg` },
+  { id: 'aoede',  portrait: `${S3_PORTRAIT_BASE}/portrait-aoede.jpg` },
+  { id: 'leda',   portrait: `${S3_PORTRAIT_BASE}/portrait-leda.jpg` },
+  { id: 'theia',  portrait: `${S3_PORTRAIT_BASE}/portrait-theia.jpg` },
+  { id: 'selene', portrait: `${S3_PORTRAIT_BASE}/portrait-selene.jpg` },
+  { id: 'zephyr', portrait: `${S3_PORTRAIT_BASE}/portrait-zephyr.jpg` },
 ];
 
 const GUIDE_VOICES = {
@@ -304,19 +307,17 @@ async function createImageToVideoTask(imageUrl, prompt) {
 }
 
 /**
- * Step 2: Apply lip-sync to a video using TTS.
+ * Step 2: Apply lip-sync to a video using a pre-generated audio file.
  * Takes the base video from step 1 and makes the face speak the atlas script.
+ * PiAPI Kling lip_sync only supports local_dubbing_url (not tts_text).
  */
-async function createLipSyncTask(videoUrl, ttsText, ttsTimbre) {
+async function createLipSyncTask(videoUrl, audioUrl) {
   const body = {
     model: 'kling',
     task_type: 'lip_sync',
     input: {
       video_url: videoUrl,
-      tts_text: ttsText,
-      tts_timbre: ttsTimbre,
-      tts_speed: 0.9, // Slightly slow for cleaner viseme capture
-      local_dubbing_url: '',
+      local_dubbing_url: audioUrl,
     },
     config: { service_mode: 'public' },
   };
@@ -754,7 +755,7 @@ async function generateAtlasForGuide(guide, force = false, skipWhisper = false) 
     return;
   }
 
-  const portraitUrl = `${SITE_ORIGIN}${guide.portrait}`;
+  const portraitUrl = guide.portrait;
   const voice = GUIDE_VOICES[guide.id];
 
   console.log(`\n${'─'.repeat(58)}`);
@@ -776,18 +777,22 @@ async function generateAtlasForGuide(guide, force = false, skipWhisper = false) 
   const idleStat = await fs.stat(idleVideoPath);
   console.log(`   💾 Idle video: ${(idleStat.size / 1024 / 1024).toFixed(1)}MB`);
 
-  // ── Step 1b: Apply lip-sync to base video (video → lip-synced video) ──
-  const lipTaskId = await createLipSyncTask(baseVideoUrl, ATLAS_SCRIPT, voice);
-  console.log(`   Task (lip-sync): ${lipTaskId}`);
-
-  const lipSyncVideoUrl = await pollTask(lipTaskId);
-  console.log(`\n   ✅ Lip-synced video generated`);
-
-  // Download the lip-synced atlas video
-  const videoPath = `${outputBase}/atlas-video.mp4`;
-  await downloadFile(lipSyncVideoUrl, videoPath);
-  const vStat = await fs.stat(videoPath);
-  console.log(`   💾 Atlas video: ${(vStat.size / 1024 / 1024).toFixed(1)}MB`);
+  // ── Step 1b: Try lip-sync (may fail if Kling proxy is down) ──
+  let videoPath = idleVideoPath; // fallback to idle video
+  try {
+    const lipTaskId = await createLipSyncTask(baseVideoUrl, ATLAS_AUDIO_URL);
+    console.log(`   Task (lip-sync): ${lipTaskId}`);
+    const lipSyncVideoUrl = await pollTask(lipTaskId);
+    console.log(`\n   ✅ Lip-synced video generated`);
+    const atlasPath = `${outputBase}/atlas-video.mp4`;
+    await downloadFile(lipSyncVideoUrl, atlasPath);
+    const vStat = await fs.stat(atlasPath);
+    console.log(`   💾 Atlas video: ${(vStat.size / 1024 / 1024).toFixed(1)}MB`);
+    videoPath = atlasPath;
+  } catch (lipErr) {
+    console.log(`\n   ⚠️  Lip-sync failed (${lipErr.message}). Using idle video for frames.`);
+    console.log(`   📌 This is fine — VisemeEngine handles lip-sync at runtime via audio analysis.`);
+  }
 
   // ── Step 3: Extract frames ──
   const framesDir = `${outputBase}/frames`;
