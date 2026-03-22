@@ -192,6 +192,26 @@ export class KlingAvatarService {
     return `${window.location.origin}${url.startsWith('/') ? '' : '/'}${url}`;
   }
 
+  /** Retry a task creation + poll cycle up to maxRetries times on transient failures */
+  private async withRetry<T>(fn: () => Promise<T>, label: string, maxRetries = 3): Promise<T> {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        return await fn();
+      } catch (err: any) {
+        const msg = err?.message || '';
+        const isTransient = msg.includes('upload') || msg.includes('timeout') || msg.includes('500');
+        if (isTransient && attempt < maxRetries) {
+          const delay = attempt * 5000;
+          console.warn(`[Kling] ${label} attempt ${attempt}/${maxRetries} failed (${msg}), retrying in ${delay/1000}s...`);
+          await new Promise(r => setTimeout(r, delay));
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw new Error(`[Kling] ${label} failed after ${maxRetries} attempts`);
+  }
+
   // --------------------------------------------------------------------------
   // Core API Methods (call server proxy)
   // --------------------------------------------------------------------------
@@ -220,10 +240,13 @@ export class KlingAvatarService {
     const prompt = GUIDE_IDLE_PROMPTS[guideId] || GUIDE_IDLE_PROMPTS.kore;
     const qualifiedUrl = this.qualifyUrl(imageUrl);
     console.log(`[Kling] generateIdleVideo: guideId=${guideId}, imageUrl=${qualifiedUrl}, mode=${mode}`);
-    const taskId = await this.createIdleVideoTask({ imageUrl, prompt, duration: 10, mode });
-    console.log(`[Kling] Idle task created: ${taskId}, polling...`);
-    const videoUrl = await this.pollUntilComplete(taskId);
-    console.log(`[Kling] Idle video ready: ${videoUrl.substring(0, 80)}...`);
+    const videoUrl = await this.withRetry(async () => {
+      const taskId = await this.createIdleVideoTask({ imageUrl, prompt, duration: 10, mode });
+      console.log(`[Kling] Idle task created: ${taskId}, polling...`);
+      const url = await this.pollUntilComplete(taskId);
+      console.log(`[Kling] Idle video ready: ${url.substring(0, 80)}...`);
+      return url;
+    }, 'generateIdleVideo');
 
     // Cache the idle video
     this.cache.set(cacheKey, {
@@ -248,8 +271,10 @@ export class KlingAvatarService {
     }
 
     const prompt = GUIDE_LISTENING_PROMPTS[guideId] || GUIDE_LISTENING_PROMPTS.kore;
-    const taskId = await this.createIdleVideoTask({ imageUrl, prompt, duration: 10, mode });
-    const videoUrl = await this.pollUntilComplete(taskId);
+    const videoUrl = await this.withRetry(async () => {
+      const taskId = await this.createIdleVideoTask({ imageUrl, prompt, duration: 10, mode });
+      return this.pollUntilComplete(taskId);
+    }, 'generateListeningVideo');
 
     this.cache.set(cacheKey, {
       guideId,
@@ -275,8 +300,10 @@ export class KlingAvatarService {
     }
 
     const prompt = GUIDE_SPEAKING_PROMPTS[guideId] || GUIDE_SPEAKING_PROMPTS.kore;
-    const taskId = await this.createIdleVideoTask({ imageUrl, prompt, duration: 10, mode });
-    const videoUrl = await this.pollUntilComplete(taskId);
+    const videoUrl = await this.withRetry(async () => {
+      const taskId = await this.createIdleVideoTask({ imageUrl, prompt, duration: 10, mode });
+      return this.pollUntilComplete(taskId);
+    }, 'generateSpeakingAnimationVideo');
 
     this.cache.set(cacheKey, {
       guideId,
