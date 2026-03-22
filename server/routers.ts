@@ -18,6 +18,7 @@ import { imageRouter } from "./imageRouter";
 import { notificationsRouter, financialRouter } from "./ecommerceRouters";
 import { customerRouter } from "./customerRouter";
 import { codexRouter } from "./codexRouter";
+import { governanceRouter } from "./governanceRouter";
 
 export const appRouter = router({
     // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
@@ -113,6 +114,9 @@ export const appRouter = router({
   
   // Living Codex™ (assessment, scoring, mirror reports, scroll journal)
   codex: codexRouter,
+
+  // AI Governance & Escalation Management
+  governance: governanceRouter,
 });
 
 export type AppRouter = typeof appRouter;

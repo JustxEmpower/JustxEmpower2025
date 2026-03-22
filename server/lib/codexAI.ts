@@ -4,6 +4,7 @@
 import { ensureGeminiFromDatabase, getGeminiClient } from "../aiService";
 import { GOVERNANCE_BLOCK, buildGuideSystemPrompt } from "./codexGuidePrompts";
 import { assembleGuidePromptWithEvidence } from "./codexCorpusCitations";
+import { buildGovernanceBlockFromDB, getGovernanceValue } from "./codexGovernanceLoader";
 
 // ── Guide Personas ──────────────────────────────────────────────────
 export const CODEX_GUIDES = [
@@ -156,13 +157,20 @@ export async function codexGuideChat(
     modulesCompleted: [],
     daysInPhase: 0,
   };
+  // Try loading governance block from DB; fall back to hardcoded
+  let dbGovernance: string | null = null;
+  try { dbGovernance = await buildGovernanceBlockFromDB(); } catch {}
+
   let systemPrompt: string;
   try {
     const basePrompt = buildGuideSystemPrompt(guideType, userProfile, "session");
     systemPrompt = assembleGuidePromptWithEvidence(guideType, userProfile, basePrompt);
+    // If DB governance exists, append it (overrides hardcoded block for guardrails)
+    if (dbGovernance) systemPrompt += "\n\n" + dbGovernance;
   } catch {
     // Fallback to simplified prompt if full system fails
     systemPrompt = getGuideSystemPrompt(guideId, userContext);
+    if (dbGovernance) systemPrompt += "\n\n" + dbGovernance;
   }
 
   const historyText = history

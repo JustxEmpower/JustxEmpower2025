@@ -606,7 +606,7 @@ const codexClientRouter = router({
     await db.insert(schema.codexGuideMessages).values({ id: nanoid(), conversationId: convId, role: "user", content: input.message });
 
     // ── ESCALATION CHECK: Run every message through crisis detection ──
-    const escalation = interceptUserMessage(u.id, convId, input.message);
+    const escalation = await interceptUserMessage(u.id, convId, input.message);
     if (escalation.shouldEscalate && escalation.aiResponseOverride) {
       // Save the escalation response as AI message
       const escMsgId = nanoid();

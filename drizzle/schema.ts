@@ -1644,3 +1644,63 @@ export const codexUserSettings = mysqlTable("codex_user_settings", {
 
 export type CodexUserSettings = typeof codexUserSettings.$inferSelect;
 export type InsertCodexUserSettings = typeof codexUserSettings.$inferInsert;
+
+export const codexAIGovernance = mysqlTable("codex_ai_governance", {
+  id: int("id").autoincrement().primaryKey(),
+  configKey: varchar("configKey", { length: 100 }).notNull().unique(),
+  configValue: longtext("configValue").notNull(),
+  category: varchar("category", { length: 50 }).notNull(),
+  guideId: varchar("guideId", { length: 50 }),
+  label: varchar("label", { length: 255 }).notNull(),
+  description: text("description"),
+  isActive: int("isActive").default(1).notNull(),
+  updatedBy: varchar("updatedBy", { length: 100 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CodexAIGovernance = typeof codexAIGovernance.$inferSelect;
+
+export const codexEscalationResources = mysqlTable("codex_escalation_resources", {
+  id: int("id").autoincrement().primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  contact: varchar("contact", { length: 255 }).notNull(),
+  url: varchar("url", { length: 500 }),
+  availability: varchar("availability", { length: 100 }).default("24/7"),
+  category: varchar("category", { length: 100 }).notNull(),
+  triggerTypes: text("triggerTypes"),
+  displayOrder: int("displayOrder").default(0).notNull(),
+  isActive: int("isActive").default(1).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CodexEscalationResource = typeof codexEscalationResources.$inferSelect;
+
+export const codexEscalationTemplates = mysqlTable("codex_escalation_templates", {
+  id: int("id").autoincrement().primaryKey(),
+  severity: varchar("severity", { length: 20 }).notNull(),
+  templateText: longtext("templateText").notNull(),
+  label: varchar("label", { length: 255 }),
+  isActive: int("isActive").default(1).notNull(),
+  updatedBy: varchar("updatedBy", { length: 100 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CodexEscalationTemplate = typeof codexEscalationTemplates.$inferSelect;
+
+export const codexEscalationLog = mysqlTable("codex_escalation_log", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: varchar("userId", { length: 30 }),
+  sessionId: varchar("sessionId", { length: 255 }),
+  triggerType: varchar("triggerType", { length: 50 }).notNull(),
+  severity: varchar("severity", { length: 20 }).notNull(),
+  detectedPatterns: text("detectedPatterns"),
+  userMessageExcerpt: text("userMessageExcerpt"),
+  aiResponseGiven: text("aiResponseGiven"),
+  action: varchar("action", { length: 50 }).notNull(),
+  resourcesOffered: text("resourcesOffered"),
+  resolved: int("resolved").default(0).notNull(),
+  resolvedBy: varchar("resolvedBy", { length: 100 }),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CodexEscalationLogEntry = typeof codexEscalationLog.$inferSelect;

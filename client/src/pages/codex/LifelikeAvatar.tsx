@@ -1,26 +1,44 @@
 /**
  * LifelikeAvatar.tsx
  *
- * Kling AI-powered lifelike talking avatar for Living Codex™.
- * Displays Kling-generated video of the guide character with:
- *   - Idle ambient animation (breathing, micro-movements)
- *   - Lip-synced speaking animation driven by Kokoro TTS audio
- *   - Listening animation with gentle nodding
- *   - Smooth crossfade transitions between states
+ * Canvas-composited lifelike avatar for Living Codex™.
+ * ZERO runtime Kling API calls — all lip-sync + emotion is local.
  *
- * Two display modes available in the parent HolographicAvatar:
- *   1. ORB — procedural Three.js energy orb
- *   2. LIFELIKE — this component (Kling video)
+ * Architecture (3-Layer Composite):
+ *   Layer 1: Kling idle video loop (pre-generated atlas video, seamless crossfade)
+ *   Layer 2: Canvas-driven viseme mouth overlay (sprite sheet frames)
+ *   Layer 3: Emotion post-processing (color grading, glow, breathing dynamics)
+ *   Audio:   Kokoro TTS → VisemeEngine → frame selection at 60fps
+ *
+ * Seamless Loop Strategy:
+ *   Two <video> elements ping-pong. When video A approaches its end (~0.5s before),
+ *   video B starts playing from 0. Canvas crossfades between them over 0.5s.
+ *   Result: zero visible seam, zero flicker, infinite smooth idle.
+ *
+ * Emotion System:
+ *   Receives AvatarEmotion from parent (detected from guide text).
+ *   Maps emotion → color grading, glow intensity, breathing speed, warmth overlay.
+ *   Smooth transitions between emotion states over 0.6s.
+ *
+ * The VisemeEngine blends two signal paths:
+ *   - TEXT predictive (70%): grapheme→phoneme→viseme, knows timing ahead
+ *   - AUDIO reactive (30%): FFT spectral classification, corrects drift
+ *
+ * Assets per guide (generated once by scripts/generate-kling-atlas.mjs):
+ *   public/assets/avatars/atlas/{guideId}/atlas-video.mp4   — idle loop
+ *   public/assets/avatars/atlas/{guideId}/viseme-sprite.png  — 5×3 grid
+ *   public/assets/avatars/atlas/{guideId}/viseme-index.json  — frame map
  *
  * @module codex/LifelikeAvatar
  */
 
 import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import {
-  getKlingAvatarService,
-  type AvatarDisplayMode,
-  type KlingMode,
-} from './KlingAvatarService';
+  getVisemeEngine,
+  type VisemeFrame,
+  SPRITE_COLS,
+  SPRITE_ROWS,
+} from './VisemeEngine';
 
 // ============================================================================
 // Types
@@ -28,10 +46,20 @@ import {
 
 type AvatarState = 'loading' | 'idle' | 'speaking' | 'listening' | 'error';
 
+type AvatarEmotion =
+  | 'neutral'
+  | 'joy'
+  | 'concern'
+  | 'curiosity'
+  | 'calm'
+  | 'listening'
+  | 'empathy'
+  | 'celebration';
+
 interface LifelikeAvatarProps {
   /** Guide identifier (kore, aoede, leda, theia, selene, zephyr) */
   guideId: string;
-  /** URL to the guide's portrait image (LoRA-generated) */
+  /** URL to the guide's portrait image (LoRA-generated, fallback) */
   portraitUrl: string;
   /** Whether the guide is currently speaking */
   isSpeaking: boolean;
@@ -39,24 +67,26 @@ interface LifelikeAvatarProps {
   isListening: boolean;
   /** Audio blob URL from Kokoro TTS (for lip-sync) */
   audioUrl?: string;
-  /** Text being spoken (alternative: use Kling's built-in TTS) */
+  /** Text being spoken (drives predictive viseme path) */
   spokenText?: string;
-  /** Quality mode */
-  mode?: KlingMode;
+  /** Current emotional state of the guide */
+  emotion?: AvatarEmotion;
+  /** Quality mode (kept for API compat) */
+  mode?: string;
   /** Container width */
   width?: string;
   /** Container height */
   height?: string;
-  /** Callback when avatar video is ready */
+  /** Callback when avatar is ready */
   onReady?: () => void;
   /** Callback on error */
   onError?: (error: string) => void;
-  /** Whether to use Kling's built-in TTS instead of Kokoro audio */
+  /** Unused — kept for API compat with HolographicAvatar */
   useKlingTTS?: boolean;
 }
 
 // ============================================================================
-// Loading Spinner
+// Constants
 // ============================================================================
 
 const GUIDE_COLORS: Record<string, string> = {
@@ -67,6 +97,120 @@ const GUIDE_COLORS: Record<string, string> = {
   selene: '#2471A3',
   zephyr: '#FF6B35',
 };
+
+/** Atlas asset base path */
+const ATLAS_BASE = '/assets/avatars/atlas';
+
+/** Sprite sheet cell dimensions */
+const CELL_W = 256;
+const CELL_H = 256;
+
+/** Mouth overlay region within the video frame (centered lower third) */
+const MOUTH_REGION = {
+  x: 0.30,  // 30% from left
+  y: 0.62,  // 62% from top
+  w: 0.40,  // 40% of frame width
+  h: 0.20,  // 20% of frame height
+};
+
+/** Feather radius for mouth blend (px) */
+const FEATHER_PX = 14;
+
+/** How far before video end to start crossfade (seconds) */
+const LOOP_CROSSFADE_LEAD = 0.5;
+
+/** Duration of the crossfade blend (seconds) */
+const LOOP_CROSSFADE_DURATION = 0.5;
+
+// ============================================================================
+// Emotion Profiles
+// ============================================================================
+
+interface EmotionProfile {
+  /** Color overlay tint (RGBA) */
+  tint: [number, number, number, number];
+  /** Glow intensity multiplier (0-1) */
+  glowIntensity: number;
+  /** Breathing animation speed (1 = normal) */
+  breathSpeed: number;
+  /** Brightness adjustment (-0.1 to 0.1) */
+  brightness: number;
+  /** Warmth: shift toward warm or cool (positive = warm) */
+  warmth: number;
+  /** Saturation boost (0 = none, 0.2 = 20% boost) */
+  saturation: number;
+}
+
+const EMOTION_PROFILES: Record<AvatarEmotion, EmotionProfile> = {
+  neutral: {
+    tint: [0, 0, 0, 0],
+    glowIntensity: 0.15,
+    breathSpeed: 1.0,
+    brightness: 0,
+    warmth: 0,
+    saturation: 0,
+  },
+  joy: {
+    tint: [255, 220, 100, 0.06],
+    glowIntensity: 0.5,
+    breathSpeed: 1.3,
+    brightness: 0.06,
+    warmth: 0.08,
+    saturation: 0.12,
+  },
+  concern: {
+    tint: [100, 120, 180, 0.04],
+    glowIntensity: 0.25,
+    breathSpeed: 0.7,
+    brightness: -0.03,
+    warmth: -0.04,
+    saturation: -0.05,
+  },
+  curiosity: {
+    tint: [180, 200, 255, 0.03],
+    glowIntensity: 0.35,
+    breathSpeed: 1.15,
+    brightness: 0.03,
+    warmth: 0,
+    saturation: 0.05,
+  },
+  calm: {
+    tint: [120, 180, 160, 0.03],
+    glowIntensity: 0.12,
+    breathSpeed: 0.6,
+    brightness: 0,
+    warmth: 0.02,
+    saturation: 0,
+  },
+  listening: {
+    tint: [150, 150, 200, 0.02],
+    glowIntensity: 0.2,
+    breathSpeed: 0.8,
+    brightness: 0.01,
+    warmth: 0,
+    saturation: 0,
+  },
+  empathy: {
+    tint: [200, 160, 180, 0.05],
+    glowIntensity: 0.3,
+    breathSpeed: 0.75,
+    brightness: 0.02,
+    warmth: 0.05,
+    saturation: 0.03,
+  },
+  celebration: {
+    tint: [255, 200, 50, 0.08],
+    glowIntensity: 0.7,
+    breathSpeed: 1.5,
+    brightness: 0.08,
+    warmth: 0.1,
+    saturation: 0.18,
+  },
+};
+
+// ============================================================================
+// Loading Overlay
+// ============================================================================
 
 function LoadingOverlay({ guideId, message }: { guideId: string; message: string }) {
   const color = GUIDE_COLORS[guideId] || '#D4AF37';
@@ -84,7 +228,6 @@ function LoadingOverlay({ guideId, message }: { guideId: string; message: string
         zIndex: 10,
       }}
     >
-      {/* Pulsing orb while loading */}
       <div
         style={{
           width: 80,
@@ -118,6 +261,32 @@ function LoadingOverlay({ guideId, message }: { guideId: string; message: string
 }
 
 // ============================================================================
+// Helpers
+// ============================================================================
+
+/** Linearly interpolate between two values */
+function lerp(a: number, b: number, t: number): number {
+  return a + (b - a) * Math.min(1, Math.max(0, t));
+}
+
+/** Interpolate between two EmotionProfiles */
+function lerpProfile(a: EmotionProfile, b: EmotionProfile, t: number): EmotionProfile {
+  return {
+    tint: [
+      lerp(a.tint[0], b.tint[0], t),
+      lerp(a.tint[1], b.tint[1], t),
+      lerp(a.tint[2], b.tint[2], t),
+      lerp(a.tint[3], b.tint[3], t),
+    ],
+    glowIntensity: lerp(a.glowIntensity, b.glowIntensity, t),
+    breathSpeed: lerp(a.breathSpeed, b.breathSpeed, t),
+    brightness: lerp(a.brightness, b.brightness, t),
+    warmth: lerp(a.warmth, b.warmth, t),
+    saturation: lerp(a.saturation, b.saturation, t),
+  };
+}
+
+// ============================================================================
 // Main Component
 // ============================================================================
 
@@ -128,115 +297,477 @@ export default function LifelikeAvatar({
   isListening,
   audioUrl,
   spokenText,
-  mode = 'std',
+  emotion = 'neutral',
   width = '100%',
   height = '500px',
   onReady,
   onError,
-  useKlingTTS = false,
 }: LifelikeAvatarProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const idleVideoRef = useRef<HTMLVideoElement>(null);
-  const [state, setState] = useState<AvatarState>('loading');
-  const [idleVideoUrl, setIdleVideoUrl] = useState<string | null>(null);
-  const [speakingVideoUrl, setSpeakingVideoUrl] = useState<string | null>(null);
-  const [listeningVideoUrl, setListeningVideoUrl] = useState<string | null>(null);
-  const [activeVideo, setActiveVideo] = useState<'idle' | 'speaking' | 'listening'>('idle');
-  const [errorMessage, setErrorMessage] = useState<string>('');
-  const [loadingMessage, setLoadingMessage] = useState('Awakening guide...');
+  // --- Refs ---
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const videoARef = useRef<HTMLVideoElement>(null);
+  const videoBRef = useRef<HTMLVideoElement>(null);
+  const spriteImgRef = useRef<HTMLImageElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const rafRef = useRef<number>(0);
+  const mountedRef = useRef(true);
 
-  const klingService = useMemo(() => getKlingAvatarService(), []);
+  // Seamless loop state
+  const activeVideoRef = useRef<'A' | 'B'>('A');
+  const crossfadeProgressRef = useRef(0); // 0 = fully active, 1 = fully next
+  const isCrossfadingRef = useRef(false);
+
+  // Emotion interpolation
+  const currentProfileRef = useRef<EmotionProfile>(EMOTION_PROFILES.neutral);
+  const targetEmotionRef = useRef<AvatarEmotion>('neutral');
+  const emotionBlendRef = useRef(1); // 1 = fully at target
+
+  // --- State ---
+  const [state, setState] = useState<AvatarState>('loading');
+  const [loadingMessage, setLoadingMessage] = useState('Loading atlas...');
+  const [atlasReady, setAtlasReady] = useState(false);
+  const [videoReady, setVideoReady] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
   const guideColor = GUIDE_COLORS[guideId] || '#D4AF37';
+  const visemeEngine = useMemo(() => getVisemeEngine(), []);
+
+  // Asset URLs
+  const atlasVideoUrl = `${ATLAS_BASE}/${guideId}/atlas-video.mp4`;
+  const spriteUrl = `${ATLAS_BASE}/${guideId}/viseme-sprite.png`;
 
   // --------------------------------------------------------------------------
-  // Pre-warm: generate idle video on mount
+  // Emotion transitions — smooth blend over 0.6s
   // --------------------------------------------------------------------------
   useEffect(() => {
+    if (emotion !== targetEmotionRef.current) {
+      // Snapshot current interpolated profile as new "from" state
+      const currentTarget = EMOTION_PROFILES[targetEmotionRef.current];
+      currentProfileRef.current = lerpProfile(
+        currentProfileRef.current,
+        currentTarget,
+        emotionBlendRef.current
+      );
+      targetEmotionRef.current = emotion;
+      emotionBlendRef.current = 0; // restart blend
+    }
+  }, [emotion]);
+
+  // --------------------------------------------------------------------------
+  // Load atlas assets on mount
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    mountedRef.current = true;
     let cancelled = false;
 
-    async function warmUp() {
-      try {
-        setState('loading');
-        setLoadingMessage('Generating idle animation...');
+    async function loadAssets() {
+      setState('loading');
+      setLoadingMessage('Loading sprite sheet...');
 
-        const idleUrl = await klingService.generateIdleVideo(guideId, portraitUrl, mode);
+      try {
+        // Load sprite sheet image
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        await new Promise<void>((resolve, reject) => {
+          img.onload = () => resolve();
+          img.onerror = () => reject(new Error('Sprite sheet not found'));
+          img.src = spriteUrl;
+        });
+        if (cancelled) return;
+        spriteImgRef.current = img;
+        setAtlasReady(true);
+
+        setLoadingMessage('Loading idle video...');
+
+        // Load both video elements with the same source for seamless ping-pong
+        const videoA = videoARef.current;
+        const videoB = videoBRef.current;
+        if (!videoA || !videoB) throw new Error('Video elements not mounted');
+
+        videoA.src = atlasVideoUrl;
+        videoB.src = atlasVideoUrl;
+        videoA.load();
+        videoB.load();
+
+        // Wait for video A to be playable
+        await new Promise<void>((resolve, reject) => {
+          const onCanPlay = () => {
+            videoA.removeEventListener('canplaythrough', onCanPlay);
+            videoA.removeEventListener('error', onErr);
+            resolve();
+          };
+          const onErr = () => {
+            videoA.removeEventListener('canplaythrough', onCanPlay);
+            videoA.removeEventListener('error', onErr);
+            reject(new Error('Idle video failed to load'));
+          };
+          videoA.addEventListener('canplaythrough', onCanPlay);
+          videoA.addEventListener('error', onErr);
+          if (videoA.readyState >= 4) {
+            videoA.removeEventListener('canplaythrough', onCanPlay);
+            videoA.removeEventListener('error', onErr);
+            resolve();
+          }
+        });
         if (cancelled) return;
 
-        setIdleVideoUrl(idleUrl);
+        // Also wait for video B
+        await new Promise<void>((resolve) => {
+          const onCanPlay = () => {
+            videoB.removeEventListener('canplaythrough', onCanPlay);
+            resolve();
+          };
+          videoB.addEventListener('canplaythrough', onCanPlay);
+          if (videoB.readyState >= 4) {
+            videoB.removeEventListener('canplaythrough', onCanPlay);
+            resolve();
+          }
+        });
+        if (cancelled) return;
+
+        // Start video A playing, keep B paused at 0
+        videoA.play().catch(() => {});
+        videoB.currentTime = 0;
+        activeVideoRef.current = 'A';
+
+        setVideoReady(true);
         setState('idle');
         onReady?.();
-
-        // Pre-generate speaking + listening animations in background
-        klingService.generateSpeakingAnimationVideo(guideId, portraitUrl, mode)
-          .then(url => { if (!cancelled) setSpeakingVideoUrl(url); })
-          .catch(e => console.warn('[LifelikeAvatar] Speaking anim failed:', e.message));
-        klingService.generateListeningVideo(guideId, portraitUrl, mode)
-          .then(url => { if (!cancelled) setListeningVideoUrl(url); })
-          .catch(e => console.warn('[LifelikeAvatar] Listening anim failed:', e.message));
       } catch (err: any) {
         if (cancelled) return;
-        console.error('[LifelikeAvatar] Kling warm-up failed, using portrait fallback:', err.message);
-        setErrorMessage(`Kling: ${err.message}`);
-        // Don't call onError — show animated portrait instead of falling back to orb
+        console.warn('[LifelikeAvatar] Atlas assets not found, using portrait fallback:', err.message);
+        setErrorMessage(err.message);
         setState('idle');
       }
     }
 
-    warmUp();
+    loadAssets();
 
     return () => {
       cancelled = true;
-      klingService.cancelAll();
+      mountedRef.current = false;
     };
-  }, [guideId, portraitUrl, mode]);
-
-  // Listening + speaking animations are pre-generated in warmUp above
+  }, [guideId, atlasVideoUrl, spriteUrl]);
 
   // --------------------------------------------------------------------------
-  // Speaking: crossfade to pre-generated speaking animation when Kokoro plays
-  // No per-utterance Kling calls — just swap the cached video instantly
+  // Audio setup: Connect Kokoro TTS audio to VisemeEngine analyser
   // --------------------------------------------------------------------------
   useEffect(() => {
-    if (state === 'loading') return;
-
-    if (isSpeaking && speakingVideoUrl) {
-      setActiveVideo('speaking');
-      setState('speaking');
-    } else if (isListening && listeningVideoUrl) {
-      setActiveVideo('listening');
-      setState('idle');
-    } else {
-      setActiveVideo('idle');
-      setState('idle');
+    if (!audioUrl || !isSpeaking) {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+      visemeEngine.stopText();
+      return;
     }
-  }, [isSpeaking, isListening, speakingVideoUrl, listeningVideoUrl, state]);
 
-
-  // State transitions are handled by the crossfade effect above
-
-  // --------------------------------------------------------------------------
-  // When speaking video ends, return to idle
-  // --------------------------------------------------------------------------
-  const handleSpeakingEnded = useCallback(() => {
-    // Don't null out speakingVideoUrl — it's pre-generated and reusable
-    setActiveVideo('idle');
-    setState('idle');
-  }, []);
-
-  // --------------------------------------------------------------------------
-  // Current video URL
-  // --------------------------------------------------------------------------
-  const currentVideoUrl = useMemo(() => {
-    switch (activeVideo) {
-      case 'speaking': return speakingVideoUrl;
-      case 'listening': return listeningVideoUrl || idleVideoUrl;
-      case 'idle': default: return idleVideoUrl;
+    // Create or reuse AudioContext
+    if (!audioCtxRef.current) {
+      audioCtxRef.current = new AudioContext();
     }
-  }, [activeVideo, idleVideoUrl, speakingVideoUrl, listeningVideoUrl]);
+    const audioCtx = audioCtxRef.current;
+
+    const audio = new Audio();
+    audio.crossOrigin = 'anonymous';
+    audio.src = audioUrl;
+    audioRef.current = audio;
+
+    // Create analyser
+    if (!analyserRef.current) {
+      const analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 2048;
+      analyser.smoothingTimeConstant = 0.6;
+      analyserRef.current = analyser;
+      visemeEngine.connectAnalyser(analyser);
+    }
+
+    // Connect audio → analyser → destination
+    try {
+      if (sourceNodeRef.current) {
+        sourceNodeRef.current.disconnect();
+      }
+      const source = audioCtx.createMediaElementSource(audio);
+      source.connect(analyserRef.current!);
+      analyserRef.current!.connect(audioCtx.destination);
+      sourceNodeRef.current = source;
+    } catch (e) {
+      console.warn('[LifelikeAvatar] Audio source reconnection:', e);
+    }
+
+    // Prepare text-based prediction
+    if (spokenText) {
+      const wordCount = spokenText.split(/\s+/).length;
+      const estimatedDuration = Math.max(1, wordCount * 0.15);
+      visemeEngine.prepareText(spokenText, estimatedDuration);
+    }
+
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    audio.play().catch(e => {
+      console.warn('[LifelikeAvatar] Audio playback failed:', e);
+    });
+
+    const handleEnded = () => visemeEngine.stopText();
+    audio.addEventListener('ended', handleEnded);
+
+    return () => {
+      audio.removeEventListener('ended', handleEnded);
+      audio.pause();
+      audio.src = '';
+      visemeEngine.stopText();
+    };
+  }, [audioUrl, isSpeaking, spokenText, visemeEngine]);
+
+  // --------------------------------------------------------------------------
+  // Update text prediction when spokenText changes mid-speech
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    if (!isSpeaking || !spokenText) return;
+    const wordCount = spokenText.split(/\s+/).length;
+    const estimatedDuration = Math.max(1, wordCount * 0.15);
+    visemeEngine.prepareText(spokenText, estimatedDuration);
+  }, [spokenText, isSpeaking, visemeEngine]);
+
+  // --------------------------------------------------------------------------
+  // Canvas render loop (60fps)
+  // Composites: seamless idle video + viseme mouth + emotion post-processing
+  // --------------------------------------------------------------------------
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const videoA = videoARef.current;
+    const videoB = videoBRef.current;
+    if (!canvas || !videoA || !videoB || !atlasReady || !videoReady) return;
+
+    const ctx = canvas.getContext('2d', { alpha: false })!;
+    if (!ctx) return;
+
+    // Match canvas to container size (respects devicePixelRatio)
+    const resizeCanvas = () => {
+      const rect = canvas.parentElement?.getBoundingClientRect();
+      if (rect) {
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
+    };
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    let lastTime = performance.now();
+
+    function renderFrame() {
+      if (!mountedRef.current) return;
+
+      const now = performance.now();
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+
+      const dpr = window.devicePixelRatio || 1;
+      const displayW = canvas!.width / dpr;
+      const displayH = canvas!.height / dpr;
+
+      // ==== EMOTION INTERPOLATION ====
+      // Advance blend toward target emotion (0.6s transition)
+      if (emotionBlendRef.current < 1) {
+        emotionBlendRef.current = Math.min(1, emotionBlendRef.current + dt / 0.6);
+      }
+      const targetProfile = EMOTION_PROFILES[targetEmotionRef.current];
+      const emo = lerpProfile(currentProfileRef.current, targetProfile, emotionBlendRef.current);
+
+      // ==== LAYER 1: SEAMLESS IDLE VIDEO ====
+      const activeVid = activeVideoRef.current === 'A' ? videoA! : videoB!;
+      const nextVid = activeVideoRef.current === 'A' ? videoB! : videoA!;
+
+      // Check if we need to start crossfade
+      if (
+        !isCrossfadingRef.current &&
+        activeVid.duration > 0 &&
+        activeVid.currentTime >= activeVid.duration - LOOP_CROSSFADE_LEAD
+      ) {
+        // Start the next video from frame 0
+        nextVid.currentTime = 0;
+        nextVid.play().catch(() => {});
+        isCrossfadingRef.current = true;
+        crossfadeProgressRef.current = 0;
+      }
+
+      // Advance crossfade
+      if (isCrossfadingRef.current) {
+        crossfadeProgressRef.current = Math.min(
+          1,
+          crossfadeProgressRef.current + dt / LOOP_CROSSFADE_DURATION
+        );
+
+        // Draw both videos blended
+        if (activeVid.readyState >= 2) {
+          ctx.globalAlpha = 1 - crossfadeProgressRef.current;
+          ctx.drawImage(activeVid, 0, 0, displayW, displayH);
+        }
+        if (nextVid.readyState >= 2) {
+          ctx.globalAlpha = crossfadeProgressRef.current;
+          ctx.drawImage(nextVid, 0, 0, displayW, displayH);
+        }
+        ctx.globalAlpha = 1;
+
+        // Crossfade complete — swap active
+        if (crossfadeProgressRef.current >= 1) {
+          isCrossfadingRef.current = false;
+          activeVideoRef.current = activeVideoRef.current === 'A' ? 'B' : 'A';
+          // Pause the old video to save resources
+          activeVid.pause();
+          activeVid.currentTime = 0;
+        }
+      } else {
+        // Normal single-video draw
+        if (activeVid.readyState >= 2) {
+          ctx.drawImage(activeVid, 0, 0, displayW, displayH);
+        }
+      }
+
+      // ==== LAYER 2: VISEME MOUTH OVERLAY (only when speaking) ====
+      const sprite = spriteImgRef.current;
+      if (isSpeaking && sprite) {
+        const frame: VisemeFrame = visemeEngine.getCurrentFrame();
+
+        const srcX = frame.spriteCol * CELL_W;
+        const srcY = frame.spriteRow * CELL_H;
+
+        const dstX = displayW * MOUTH_REGION.x;
+        const dstY = displayH * MOUTH_REGION.y;
+        const dstW = displayW * MOUTH_REGION.w;
+        const dstH = displayH * MOUTH_REGION.h;
+
+        // Mouth openness drives overlay opacity (0.5–1.0)
+        const alpha = 0.5 + frame.weight * 0.5;
+
+        ctx.save();
+        ctx.globalAlpha = alpha;
+
+        // Rounded clip for soft edge blending
+        const r = FEATHER_PX;
+        ctx.beginPath();
+        ctx.moveTo(dstX + r, dstY);
+        ctx.lineTo(dstX + dstW - r, dstY);
+        ctx.quadraticCurveTo(dstX + dstW, dstY, dstX + dstW, dstY + r);
+        ctx.lineTo(dstX + dstW, dstY + dstH - r);
+        ctx.quadraticCurveTo(dstX + dstW, dstY + dstH, dstX + dstW - r, dstY + dstH);
+        ctx.lineTo(dstX + r, dstY + dstH);
+        ctx.quadraticCurveTo(dstX, dstY + dstH, dstX, dstY + dstH - r);
+        ctx.lineTo(dstX, dstY + r);
+        ctx.quadraticCurveTo(dstX, dstY, dstX + r, dstY);
+        ctx.closePath();
+        ctx.clip();
+
+        // Draw current viseme sprite cell
+        ctx.drawImage(sprite, srcX, srcY, CELL_W, CELL_H, dstX, dstY, dstW, dstH);
+
+        // Crossfade to next viseme if mid-transition
+        if (frame.blendFactor > 0.05 && frame.blendFactor < 0.95) {
+          const nextSrcX = frame.nextSpriteCol * CELL_W;
+          const nextSrcY = frame.nextSpriteRow * CELL_H;
+          ctx.globalAlpha = alpha * frame.blendFactor;
+          ctx.drawImage(sprite, nextSrcX, nextSrcY, CELL_W, CELL_H, dstX, dstY, dstW, dstH);
+        }
+
+        ctx.restore();
+      }
+
+      // ==== LAYER 3: EMOTION POST-PROCESSING ====
+
+      // 3a. Brightness adjustment
+      if (Math.abs(emo.brightness) > 0.005) {
+        ctx.save();
+        ctx.globalCompositeOperation = emo.brightness > 0 ? 'screen' : 'multiply';
+        const intensity = Math.abs(emo.brightness);
+        const bVal = emo.brightness > 0 ? 255 : 0;
+        ctx.fillStyle = `rgba(${bVal},${bVal},${bVal},${intensity})`;
+        ctx.fillRect(0, 0, displayW, displayH);
+        ctx.restore();
+      }
+
+      // 3b. Warmth shift (warm = orange overlay, cool = blue overlay)
+      if (Math.abs(emo.warmth) > 0.005) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'overlay';
+        if (emo.warmth > 0) {
+          ctx.fillStyle = `rgba(255,180,80,${emo.warmth})`;
+        } else {
+          ctx.fillStyle = `rgba(80,120,255,${Math.abs(emo.warmth)})`;
+        }
+        ctx.fillRect(0, 0, displayW, displayH);
+        ctx.restore();
+      }
+
+      // 3c. Color tint overlay
+      if (emo.tint[3] > 0.005) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'overlay';
+        ctx.fillStyle = `rgba(${Math.round(emo.tint[0])},${Math.round(emo.tint[1])},${Math.round(emo.tint[2])},${emo.tint[3]})`;
+        ctx.fillRect(0, 0, displayW, displayH);
+        ctx.restore();
+      }
+
+      // 3d. Breathing glow border (pulsates with emotion speed)
+      const breathPhase = Math.sin(now / 1000 * emo.breathSpeed * Math.PI) * 0.5 + 0.5;
+      const glowAlpha = emo.glowIntensity * (0.4 + breathPhase * 0.6);
+      if (glowAlpha > 0.01) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        // Radial glow from edges
+        const grad = ctx.createRadialGradient(
+          displayW / 2, displayH / 2, Math.min(displayW, displayH) * 0.35,
+          displayW / 2, displayH / 2, Math.min(displayW, displayH) * 0.55
+        );
+        grad.addColorStop(0, 'rgba(0,0,0,0)');
+        grad.addColorStop(1, `${guideColor}${Math.round(glowAlpha * 255).toString(16).padStart(2, '0')}`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, displayW, displayH);
+        ctx.restore();
+      }
+
+      // 3e. Listening shimmer
+      if (isListening && !isSpeaking) {
+        const shimmer = Math.sin(now / 800) * 0.025 + 0.015;
+        ctx.save();
+        ctx.globalAlpha = shimmer;
+        ctx.fillStyle = guideColor;
+        ctx.fillRect(0, 0, displayW, displayH);
+        ctx.restore();
+      }
+
+      // 3f. Vignette (subtle, always on)
+      ctx.save();
+      const vigGrad = ctx.createRadialGradient(
+        displayW / 2, displayH / 2, Math.min(displayW, displayH) * 0.3,
+        displayW / 2, displayH / 2, Math.max(displayW, displayH) * 0.7
+      );
+      vigGrad.addColorStop(0, 'rgba(0,0,0,0)');
+      vigGrad.addColorStop(1, 'rgba(0,0,0,0.35)');
+      ctx.fillStyle = vigGrad;
+      ctx.fillRect(0, 0, displayW, displayH);
+      ctx.restore();
+
+      rafRef.current = requestAnimationFrame(renderFrame);
+    }
+
+    rafRef.current = requestAnimationFrame(renderFrame);
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      cancelAnimationFrame(rafRef.current);
+    };
+  }, [atlasReady, videoReady, isSpeaking, isListening, guideColor, visemeEngine]);
 
   // --------------------------------------------------------------------------
   // Render
   // --------------------------------------------------------------------------
+  const showCanvas = atlasReady && videoReady;
+
   return (
     <div
       style={{
@@ -260,42 +791,45 @@ export default function LifelikeAvatar({
         }}
       />
 
-      {/* Loading state */}
+      {/* Loading overlay */}
       {state === 'loading' && (
         <LoadingOverlay guideId={guideId} message={loadingMessage} />
       )}
 
-      {/* Error state — still show portrait, just note the error subtly */}
-      {(state === 'error' || errorMessage) && (
-        <div style={{ position: 'absolute', bottom: 40, left: 0, right: 0, textAlign: 'center', zIndex: 10 }}>
-          <p style={{ color: '#ff6b6b88', fontSize: 11 }}>{errorMessage || 'Video generation unavailable'}</p>
-        </div>
-      )}
+      {/* Hidden video elements for seamless ping-pong looping */}
+      <video
+        ref={videoARef}
+        muted
+        playsInline
+        preload="auto"
+        style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+      />
+      <video
+        ref={videoBRef}
+        muted
+        playsInline
+        preload="auto"
+        style={{ position: 'absolute', width: 0, height: 0, opacity: 0, pointerEvents: 'none' }}
+      />
 
-      {/* Main video (speaking or active) */}
-      {currentVideoUrl && (
-        <video
-          ref={videoRef}
-          src={currentVideoUrl}
-          autoPlay
-          loop
-          muted
-          playsInline
+      {/* Main canvas — 3-layer composite output */}
+      {showCanvas && (
+        <canvas
+          ref={canvasRef}
           style={{
             position: 'absolute',
             inset: 0,
             width: '100%',
             height: '100%',
-            objectFit: 'cover',
             borderRadius: 16,
             opacity: state === 'loading' ? 0 : 1,
-            transition: 'opacity 0.8s ease-in-out',
+            transition: 'opacity 0.6s ease-in-out',
           }}
         />
       )}
 
-      {/* Animated portrait — shown when no video (Kling loading/failed) */}
-      {!currentVideoUrl && state !== 'loading' && (
+      {/* Animated portrait fallback — when atlas assets aren't available */}
+      {!showCanvas && state !== 'loading' && (
         <>
           <style>{`
             @keyframes lifelike-breathe { 0%,100% { transform: scale(1) translateY(0); } 50% { transform: scale(1.015) translateY(-2px); } }
@@ -303,26 +837,41 @@ export default function LifelikeAvatar({
             @keyframes lifelike-speak { 0%,100% { box-shadow: 0 0 50px ${guideColor}70, 0 0 100px ${guideColor}35; filter: brightness(1.05); } 50% { box-shadow: 0 0 80px ${guideColor}90, 0 0 140px ${guideColor}50; filter: brightness(1.12); } }
             @keyframes lifelike-ring { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
           `}</style>
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: `radial-gradient(ellipse at center, ${guideColor}18 0%, #0A0A1A 70%)` }}>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: `radial-gradient(ellipse at center, ${guideColor}18 0%, #0A0A1A 70%)`,
+            }}
+          >
             <div style={{ position: 'relative', width: '70%', maxWidth: 320, aspectRatio: '1' }}>
-              {/* Holographic rings */}
               <div style={{ position: 'absolute', inset: -16, borderRadius: '50%', border: `2px solid ${guideColor}20`, animation: 'lifelike-ring 25s linear infinite' }} />
               <div style={{ position: 'absolute', inset: -8, borderRadius: '50%', border: `1px solid ${guideColor}12`, animation: 'lifelike-ring 18s linear infinite reverse' }} />
-              {/* Portrait with effects */}
-              <div style={{
-                width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden',
-                border: `3px solid ${guideColor}50`,
-                animation: isSpeaking
-                  ? 'lifelike-speak 1s ease-in-out infinite, lifelike-breathe 2s ease-in-out infinite'
-                  : 'lifelike-glow 3s ease-in-out infinite, lifelike-breathe 4s ease-in-out infinite',
-                transition: 'box-shadow 0.4s ease',
-              }}>
+              <div
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  border: `3px solid ${guideColor}50`,
+                  animation: isSpeaking
+                    ? 'lifelike-speak 1s ease-in-out infinite, lifelike-breathe 2s ease-in-out infinite'
+                    : 'lifelike-glow 3s ease-in-out infinite, lifelike-breathe 4s ease-in-out infinite',
+                  transition: 'box-shadow 0.4s ease',
+                }}
+              >
                 <img
                   src={portraitUrl}
                   alt={`${guideId} guide`}
                   onError={() => onError?.('Portrait image failed to load')}
                   style={{
-                    width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%',
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    objectPosition: 'center 20%',
                     filter: isSpeaking ? 'brightness(1.08)' : 'brightness(1)',
                     transition: 'filter 0.3s ease',
                   }}
@@ -333,19 +882,7 @@ export default function LifelikeAvatar({
         </>
       )}
 
-      {/* Subtle vignette overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          borderRadius: 16,
-          background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%)',
-          pointerEvents: 'none',
-          zIndex: 2,
-        }}
-      />
-
-      {/* State indicator (subtle) */}
+      {/* State indicator */}
       <div
         style={{
           position: 'absolute',
@@ -364,12 +901,12 @@ export default function LifelikeAvatar({
             height: 8,
             borderRadius: '50%',
             background:
-              state === 'speaking' ? '#2ECC71' :
+              isSpeaking ? '#2ECC71' :
               state === 'loading' ? '#F39C12' :
               state === 'error' ? '#E74C3C' :
               guideColor,
             boxShadow: `0 0 6px ${
-              state === 'speaking' ? '#2ECC71' :
+              isSpeaking ? '#2ECC71' :
               state === 'loading' ? '#F39C12' :
               guideColor
             }`,
@@ -385,9 +922,10 @@ export default function LifelikeAvatar({
             letterSpacing: '0.08em',
           }}
         >
-          {state === 'loading' ? 'Generating...' :
-           state === 'speaking' ? 'Speaking' :
+          {state === 'loading' ? 'Loading...' :
+           isSpeaking ? 'Speaking' :
            isListening ? 'Listening' :
+           emotion !== 'neutral' ? emotion.charAt(0).toUpperCase() + emotion.slice(1) :
            'Present'}
         </span>
       </div>
@@ -395,25 +933,4 @@ export default function LifelikeAvatar({
   );
 }
 
-// ============================================================================
-// Utilities
-// ============================================================================
-
-/** Convert a blob URL to base64 string for uploading */
-async function blobUrlToBase64(blobUrl: string): Promise<string> {
-  const response = await fetch(blobUrl);
-  const blob = await response.blob();
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = reader.result as string;
-      // Strip the data:audio/...;base64, prefix
-      const base64 = dataUrl.split(',')[1];
-      resolve(base64);
-    };
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-}
-
-export { LifelikeAvatar, type LifelikeAvatarProps, type AvatarState };
+export { LifelikeAvatar, type LifelikeAvatarProps, type AvatarState, type AvatarEmotion };

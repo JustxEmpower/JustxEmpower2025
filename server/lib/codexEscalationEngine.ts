@@ -1,3 +1,5 @@
+import { getEscalationResources, getEscalationTemplate, logEscalationEvent } from "./codexGovernanceLoader";
+
 /**
  * ESCALATION ENGINE — VITALIZE
  * ==============================
@@ -434,12 +436,12 @@ export function classifyContent(userMessage: string): ContentClassification {
  * Given a classified message, produces the full escalation response
  * including AI response override, resource block, and log entry.
  */
-export function routeEscalation(
+export async function routeEscalation(
   userId: string,
   sessionId: string,
   userMessage: string,
   classification: ContentClassification
-): EscalationResponse {
+): Promise<EscalationResponse> {
   // Safe content — no escalation
   if (classification.category === 'safe') {
     return {
@@ -460,30 +462,55 @@ export function routeEscalation(
     };
   }
 
-  // Build resource block
-  const resourceKeys = new Set<ResourceKey>();
-  for (const trigger of classification.triggers) {
-    const keys = TRIGGER_TO_RESOURCES[trigger] || [];
-    for (const k of keys) resourceKeys.add(k);
+  // Try DB resources first; fall back to hardcoded
+  let resourceBlock = '';
+  let resourceNames: string[] = [];
+  try {
+    const dbResources = await getEscalationResources(classification.triggers[0]);
+    if (dbResources.length > 0) {
+      resourceBlock = dbResources.map(r => `• **${r.name}**: ${r.contact} (${r.availability})`).join('\n');
+      resourceNames = dbResources.map(r => r.name);
+    }
+  } catch {}
+
+  // Fallback to hardcoded resources if DB returned nothing
+  if (!resourceBlock) {
+    const resourceKeys = new Set<ResourceKey>();
+    for (const trigger of classification.triggers) {
+      const keys = TRIGGER_TO_RESOURCES[trigger] || [];
+      for (const k of keys) resourceKeys.add(k);
+    }
+    const resources = Array.from(resourceKeys).map((key) => CRISIS_RESOURCES[key]);
+    resourceBlock = resources.length > 0
+      ? resources.map((r) => `• **${r.name}**: ${r.contact} (${r.availability})`).join('\n')
+      : '';
+    resourceNames = resources.map((r) => r.name);
   }
 
-  const resources = Array.from(resourceKeys).map((key) => CRISIS_RESOURCES[key]);
-  const resourceBlock = resources.length > 0
-    ? resources
-        .map((r) => `• **${r.name}**: ${r.contact} (${r.availability})`)
-        .join('\n')
-    : '';
+  // Try DB template first; fall back to hardcoded
+  let aiResponseOverride: string;
+  try {
+    const dbTemplate = await getEscalationTemplate(classification.severity);
+    if (dbTemplate) {
+      aiResponseOverride = dbTemplate;
+    } else {
+      const templates = CRISIS_RESPONSE_TEMPLATES[classification.severity];
+      aiResponseOverride = templates[Math.floor(Math.random() * templates.length)];
+    }
+  } catch {
+    const templates = CRISIS_RESPONSE_TEMPLATES[classification.severity];
+    aiResponseOverride = templates[Math.floor(Math.random() * templates.length)];
+  }
 
-  // Select response template
-  const templates = CRISIS_RESPONSE_TEMPLATES[classification.severity];
-  const templateIndex = Math.floor(Math.random() * templates.length);
-  const aiResponseOverride = templates[templateIndex];
+  const excerpt = userMessage.length > 300 ? userMessage.slice(0, 300) + '...' : userMessage;
 
-  // Excerpt for logging (truncate to protect privacy while maintaining context)
-  const excerpt =
-    userMessage.length > 300
-      ? userMessage.slice(0, 300) + '...'
-      : userMessage;
+  // Log escalation event to DB (fire and forget)
+  logEscalationEvent({
+    userId, sessionId, triggerType: classification.triggers[0] || 'out_of_scope',
+    severity: classification.severity, detectedPatterns: classification.triggers,
+    userMessageExcerpt: excerpt, aiResponseGiven: aiResponseOverride,
+    action: classification.action, resourcesOffered: resourceNames,
+  }).catch(() => {});
 
   return {
     shouldEscalate: true,
@@ -501,7 +528,7 @@ export function routeEscalation(
       userMessageExcerpt: excerpt,
       aiResponseDraft: aiResponseOverride,
       action: classification.action,
-      resourcesOffered: resources.map((r) => r.name),
+      resourcesOffered: resourceNames,
     },
   };
 }
@@ -607,13 +634,13 @@ export function checkResponseBoundaries(aiResponse: string): BoundaryCheckResult
  *     // Notify facilitator if severity >= 'high'
  *   }
  */
-export function interceptUserMessage(
+export async function interceptUserMessage(
   userId: string,
   sessionId: string,
   userMessage: string
-): EscalationResponse {
+): Promise<EscalationResponse> {
   const classification = classifyContent(userMessage);
-  return routeEscalation(userId, sessionId, userMessage, classification);
+  return await routeEscalation(userId, sessionId, userMessage, classification);
 }
 
 /**

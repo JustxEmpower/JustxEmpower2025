@@ -45,6 +45,7 @@ import {
   ChevronRight,
   Flame,
   ScrollText,
+  Shield,
 } from 'lucide-react';
 
 // Complete list of all admin navigation items matching the original design
@@ -90,6 +91,7 @@ const navItems = [
   { icon: Database, label: 'Backup', path: '/admin/backup' },
   { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
   { icon: Brain, label: 'AI Training', path: '/admin/ai-training' },
+  { icon: Shield, label: 'AI Governance', path: '/admin/ai-governance' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];
 

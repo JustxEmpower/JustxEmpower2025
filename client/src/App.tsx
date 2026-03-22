@@ -41,6 +41,7 @@ import AdminNewsletter from "@/pages/AdminNewsletter";
 import AdminCarousel from "@/pages/AdminCarouselEnhanced";
 import AdminCarouselManager from "@/pages/AdminCarouselManagerEnhanced";
 import AdminAITraining from "@/pages/AdminAITrainingTurbo";
+import AdminAIGovernance from "@/pages/AdminAIGovernance";
 import PageBuilderPage from "@/pages/PageBuilderPage";
 import AdminZoneEditor from "@/pages/AdminZoneEditor";
 import AdminZoneManager from "@/pages/AdminZoneManager";
@@ -139,6 +140,7 @@ function Router() {
       <Route path="/admin/carousel">{() => { window.location.href = '/admin/carousels'; return null; }}</Route>
       <Route path="/admin/carousels" component={AdminCarouselManager} />
       <Route path="/admin/ai-training" component={AdminAITraining} />
+      <Route path="/admin/ai-governance" component={AdminAIGovernance} />
       <Route path="/admin/page-builder" component={PageBuilderPage} />
       <Route path="/admin/page-builder/:pageId" component={PageBuilderPage} />
       <Route path="/admin/zone-editor/:pageSlug/:zoneName" component={AdminZoneEditor} />

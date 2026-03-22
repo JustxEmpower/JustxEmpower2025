@@ -1157,10 +1157,9 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
             isListening={gemini.isListening}
             audioUrl={gemini.lastAudioUrl}
             spokenText={gemini.lastSpokenText}
-            mode="std"
+            emotion={gemini.currentEmotion}
             width="100%"
             height="100%"
-            useKlingTTS={false}
             onReady={() => console.log(`[LifelikeAvatar] ${config.name} ready`)}
             onError={(err) => {
               console.warn(`[LifelikeAvatar] Falling back to orb: ${err}`);
