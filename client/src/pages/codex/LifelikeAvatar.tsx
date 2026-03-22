@@ -336,13 +336,17 @@ export default function LifelikeAvatar({
   const visemeEngine = useMemo(() => getVisemeEngine(), []);
 
   // Asset URLs
-  const atlasVideoUrl = `${ATLAS_BASE}/${guideId}/atlas-video.mp4`;
+  // idle-video.mp4 = clean base video (no speech), atlas-video.mp4 = lip-synced (for frame extraction only)
+  const idleVideoUrl = `${ATLAS_BASE}/${guideId}/idle-video.mp4`;
   const spriteUrl = `${ATLAS_BASE}/${guideId}/viseme-sprite.png`;
 
   // --------------------------------------------------------------------------
-  // Emotion transitions — smooth blend over 0.6s
+  // Emotion transitions — drives both canvas post-processing AND VisemeEngine
   // --------------------------------------------------------------------------
   useEffect(() => {
+    // Update VisemeEngine emotion (affects mouth openness, speed, width)
+    visemeEngine.setEmotion(emotion);
+
     if (emotion !== targetEmotionRef.current) {
       // Snapshot current interpolated profile as new "from" state
       const currentTarget = EMOTION_PROFILES[targetEmotionRef.current];
@@ -354,7 +358,7 @@ export default function LifelikeAvatar({
       targetEmotionRef.current = emotion;
       emotionBlendRef.current = 0; // restart blend
     }
-  }, [emotion]);
+  }, [emotion, visemeEngine]);
 
   // --------------------------------------------------------------------------
   // Load atlas assets on mount
@@ -387,8 +391,8 @@ export default function LifelikeAvatar({
         const videoB = videoBRef.current;
         if (!videoA || !videoB) throw new Error('Video elements not mounted');
 
-        videoA.src = atlasVideoUrl;
-        videoB.src = atlasVideoUrl;
+        videoA.src = idleVideoUrl;
+        videoB.src = idleVideoUrl;
         videoA.load();
         videoB.load();
 
@@ -450,7 +454,7 @@ export default function LifelikeAvatar({
       cancelled = true;
       mountedRef.current = false;
     };
-  }, [guideId, atlasVideoUrl, spriteUrl]);
+  }, [guideId, idleVideoUrl, spriteUrl]);
 
   // --------------------------------------------------------------------------
   // Audio setup: Connect Kokoro TTS audio to VisemeEngine analyser

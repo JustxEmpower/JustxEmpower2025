@@ -301,6 +301,30 @@ export function classifySpectrum(
 // VisemeEngine Class
 // ============================================================================
 
+/** Emotion modifiers affect how visemes are rendered */
+export interface EmotionModifiers {
+  /** Mouth openness multiplier (1.0 = neutral) */
+  openness: number;
+  /** Mouth width multiplier (1.0 = neutral) */
+  width: number;
+  /** Animation speed multiplier (1.0 = neutral) */
+  speed: number;
+}
+
+const DEFAULT_EMOTION_MODIFIERS: EmotionModifiers = { openness: 1.0, width: 1.0, speed: 1.0 };
+
+/** Built-in emotion presets (matches viseme-index.json _emotionModifiers) */
+const EMOTION_PRESETS: Record<string, EmotionModifiers> = {
+  neutral:     { openness: 1.0,  width: 1.0,  speed: 1.0  },
+  joy:         { openness: 1.3,  width: 1.2,  speed: 1.15 },
+  concern:     { openness: 0.7,  width: 0.9,  speed: 0.85 },
+  curiosity:   { openness: 1.1,  width: 1.0,  speed: 1.05 },
+  calm:        { openness: 0.8,  width: 0.95, speed: 0.75 },
+  listening:   { openness: 0.5,  width: 0.85, speed: 0.6  },
+  empathy:     { openness: 0.9,  width: 0.95, speed: 0.8  },
+  celebration: { openness: 1.4,  width: 1.3,  speed: 1.3  },
+};
+
 export class VisemeEngine {
   private analyser: AnalyserNode | null = null;
   private frequencyData: Uint8Array | null = null;
@@ -321,6 +345,11 @@ export class VisemeEngine {
   private visemeHistory: VisemeId[] = [];
   private readonly HISTORY_SIZE = 3;
   private readonly BLEND_SPEED = 12; // visemes per second transition speed
+
+  // Emotion
+  private emotionModifiers: EmotionModifiers = DEFAULT_EMOTION_MODIFIERS;
+  private targetEmotionMods: EmotionModifiers = DEFAULT_EMOTION_MODIFIERS;
+  private emotionBlend: number = 1;
 
   /**
    * Connect to a Web Audio AnalyserNode for real-time audio analysis.
@@ -351,6 +380,34 @@ export class VisemeEngine {
   }
 
   /**
+   * Set the current emotion, which modifies viseme rendering:
+   *   - openness: how wide the mouth opens (joy = wider, concern = tighter)
+   *   - width: horizontal mouth stretch (celebration = wider)
+   *   - speed: transition speed between visemes (calm = slower)
+   */
+  setEmotion(emotion: string): void {
+    const preset = EMOTION_PRESETS[emotion] || DEFAULT_EMOTION_MODIFIERS;
+    if (
+      preset.openness !== this.targetEmotionMods.openness ||
+      preset.width !== this.targetEmotionMods.width ||
+      preset.speed !== this.targetEmotionMods.speed
+    ) {
+      this.targetEmotionMods = preset;
+      this.emotionBlend = 0;
+    }
+  }
+
+  /** Get current emotion modifiers (interpolated) */
+  getEmotionModifiers(): EmotionModifiers {
+    if (this.emotionBlend >= 1) return this.targetEmotionMods;
+    return {
+      openness: this.emotionModifiers.openness + (this.targetEmotionMods.openness - this.emotionModifiers.openness) * this.emotionBlend,
+      width: this.emotionModifiers.width + (this.targetEmotionMods.width - this.emotionModifiers.width) * this.emotionBlend,
+      speed: this.emotionModifiers.speed + (this.targetEmotionMods.speed - this.emotionModifiers.speed) * this.emotionBlend,
+    };
+  }
+
+  /**
    * Get the current viseme frame for rendering.
    * Call this at 60fps from requestAnimationFrame.
    *
@@ -360,6 +417,15 @@ export class VisemeEngine {
     const now = performance.now() / 1000;
     const dt = Math.min(now - this.lastUpdateTime, 0.1);
     this.lastUpdateTime = now;
+
+    // Advance emotion interpolation (0.5s transition)
+    if (this.emotionBlend < 1) {
+      this.emotionBlend = Math.min(1, this.emotionBlend + dt / 0.5);
+      if (this.emotionBlend >= 1) {
+        this.emotionModifiers = { ...this.targetEmotionMods };
+      }
+    }
+    const emo = this.getEmotionModifiers();
 
     // --- Signal 1: Audio analysis (reactive) ---
     let audioViseme: VisemeId = 'sil';
@@ -431,14 +497,17 @@ export class VisemeEngine {
       this.blendProgress = 0;
     }
 
-    this.blendProgress = Math.min(1, this.blendProgress + dt * this.BLEND_SPEED);
+    // Emotion-modified blend speed (calm = slower transitions, celebration = snappier)
+    const emotionBlendSpeed = this.BLEND_SPEED * emo.speed;
+    this.blendProgress = Math.min(1, this.blendProgress + dt * emotionBlendSpeed);
 
     // --- Build output frame ---
     const currentPos = getSpritePosition(this.currentViseme);
     const targetPos = getSpritePosition(this.targetViseme);
 
-    // Mouth openness (amplitude-based weight)
-    const amplitude = this.getAmplitude();
+    // Mouth openness (amplitude-based weight, modified by emotion openness)
+    const rawAmplitude = this.getAmplitude();
+    const amplitude = Math.min(1, rawAmplitude * emo.openness);
 
     return {
       viseme: this.blendProgress > 0.5 ? this.targetViseme : this.currentViseme,
