@@ -1,3 +1,5 @@
+import { splitSentences, fetchAudio } from './KokoroTTSChunked';
+
 export type KokoroTTSEvent = 'start' | 'end' | 'error' | 'loading';
 
 export class KokoroTTSManager {
@@ -70,61 +72,93 @@ export class KokoroTTSManager {
     }
   }
 
+  /**
+   * Sentence-chunked speak: splits text into sentences, fetches audio for
+   * all in parallel, plays them sequentially so the first sentence starts
+   * playing as soon as its audio is ready (~0.5-1s).
+   */
   async speak(text: string, voiceId?: string): Promise<void> {
     if (!this.isReady) throw new Error('TTS not ready');
     if (this.isSpeaking) this.stop();
+
     const voice = voiceId || this.currentVoice;
+    const sentences = splitSentences(text);
+    console.log(`[Kokoro TTS] Chunked speak: ${sentences.length} sentence(s), voice=${voice}`);
+
+    this.abortController = new AbortController();
+    const signal = this.abortController.signal;
+
+    // Fire all sentence fetches in parallel
+    const blobPromises = sentences.map(s => fetchAudio(s, voice, signal));
+
     this.isSpeaking = true;
     this.emit('start', { voice, text });
+    this.emit('loading', { progress: 'Generating audio...' });
+
     try {
-      this.emit('loading', { progress: 'Generating audio...' });
-      const res = await fetch('/api/tts/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text, voice, speed: 1 }),
-      });
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error || `Server error ${res.status}`);
+      for (let i = 0; i < blobPromises.length; i++) {
+        if (signal.aborted) break;
+
+        const blob = await blobPromises[i];
+        if (signal.aborted) break;
+
+        if (i === 0) this.emit('loading', { progress: '' });
+
+        // Play this sentence
+        await this.playBlob(blob, voice, signal);
       }
-      const blob = await res.blob();
-      if (this.currentBlobUrl) URL.revokeObjectURL(this.currentBlobUrl);
-      this.currentBlobUrl = URL.createObjectURL(blob);
-      this.stopAudioElement();
-      this.audioElement = new Audio(this.currentBlobUrl);
-      this.audioElement.volume = 1.0;
-      try {
-        this.ensureAudioContext();
-        const ctx = this.audioContext!;
-        if (ctx.state === 'suspended') await ctx.resume();
-        if (!this.mediaSource) {
-          this.mediaSource = ctx.createMediaElementSource(this.audioElement);
-          this.mediaSource.connect(this.analyser || ctx.destination);
-          if (this.analyser) this.analyser.connect(ctx.destination);
-        }
-      } catch (e) {
-        console.warn('[TTS] Analyser setup failed:', e);
-      }
-      this.startAudioLevelMonitoring();
-      this.audioElement.onended = () => {
+    } catch (error) {
+      if (signal.aborted) return; // stop() was called, not an error
+      this.emit('error', { message: error instanceof Error ? error.message : 'Unknown' });
+      console.error('[Kokoro TTS] Chunked speak failed:', error);
+    } finally {
+      if (!signal.aborted) {
         this.isSpeaking = false;
         this.stopAudioLevelMonitoring();
         this.emit('end', { voice });
-      };
-      this.audioElement.onerror = (e) => {
-        this.isSpeaking = false;
-        this.stopAudioLevelMonitoring();
-        this.emit('error', { message: 'Playback failed' });
-      };
-      await this.audioElement.play();
-      console.log(`[Kokoro TTS] Playing ${voice} audio from server`);
-    } catch (error) {
-      this.isSpeaking = false;
-      this.stopAudioLevelMonitoring();
-      this.emit('error', { message: error instanceof Error ? error.message : 'Unknown' });
-      console.error('[Kokoro TTS] Speak failed:', error);
-      throw error;
+      }
     }
+  }
+
+  /** Play a single audio blob and resolve when it finishes */
+  private playBlob(blob: Blob, voice: string, signal: AbortSignal): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (signal.aborted) { resolve(); return; }
+
+      this.stopAudioElement();
+      const url = URL.createObjectURL(blob);
+      this.currentBlobUrl = url;
+      this.audioElement = new Audio(url);
+      this.audioElement.volume = 1.0;
+
+      try {
+        this.ensureAudioContext();
+        const ctx = this.audioContext!;
+        if (ctx.state === 'suspended') ctx.resume();
+        this.mediaSource = ctx.createMediaElementSource(this.audioElement);
+        this.mediaSource.connect(this.analyser || ctx.destination);
+      } catch (e) {
+        console.warn('[TTS] Analyser setup failed:', e);
+      }
+
+      this.startAudioLevelMonitoring();
+
+      const onAbort = () => { this.stopAudioElement(); resolve(); };
+      signal.addEventListener('abort', onAbort, { once: true });
+
+      this.audioElement.onended = () => {
+        signal.removeEventListener('abort', onAbort);
+        this.stopAudioLevelMonitoring();
+        resolve();
+      };
+      this.audioElement.onerror = () => {
+        signal.removeEventListener('abort', onAbort);
+        this.stopAudioLevelMonitoring();
+        reject(new Error('Playback failed'));
+      };
+
+      this.audioElement.play().catch(reject);
+    });
   }
 
   async speakStreaming(text: string, voiceId?: string): Promise<void> {
