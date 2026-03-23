@@ -18,10 +18,10 @@ git add -A && git commit -m "<descriptive message>"
 ```
 
 ## Step 3: Push to GitHub
-Use HTTPS with token to avoid SSH timeout issues. Token is stored in env var $GH_TOKEN:
+Uses HTTPS via credential helper (~/.git-credentials). SSH hangs/times out — always use HTTPS.
 ```bash
 cd /Users/aprilgambardella/CascadeProjects/JustxEmpower2025
-nohup git push https://$GH_TOKEN@github.com/JustxEmpower/JustxEmpower2025.git main > /tmp/git-push-output.log 2>&1 &
+nohup git push origin main > /tmp/git-push-output.log 2>&1 &
 echo "PID: $!"
 ```
 Then check result after ~15 seconds:
