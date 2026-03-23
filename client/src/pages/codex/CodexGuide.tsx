@@ -1,7 +1,9 @@
-import { useState, useRef, useEffect, lazy, Suspense } from "react";
+import { useState, useRef, useEffect, useCallback, lazy, Suspense } from "react";
 import { trpc } from "@/lib/trpc";
 
 const HolographicAvatar = lazy(() => import("./HolographicAvatar"));
+import { GuideCharacterSelector } from "./GuideCharacterSelector";
+import { getGuideCharacter } from "./GuideCharacters";
 
 // Map our guide IDs to the HolographicAvatar GuideType keys
 const GUIDE_TYPE_MAP: Record<string, string> = {
@@ -20,6 +22,27 @@ export default function CodexGuide() {
   const [sending, setSending] = useState(false);
   const [localMessages, setLocalMessages] = useState<Array<{ role: string; content: string }>>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const [showCharacterSelector, setShowCharacterSelector] = useState(false);
+
+  // Load user settings (preferred guide character + voice)
+  const settingsQuery = trpc.codex.client.getSettings.useQuery();
+  const updateSettingsMut = trpc.codex.client.updateSettings.useMutation();
+  const preferredGuideId = settingsQuery.data?.preferredGuideId || null;
+  const preferredVoiceId = settingsQuery.data?.preferredVoiceId || null;
+
+  // Show character selector on first visit if no guide chosen yet
+  useEffect(() => {
+    if (settingsQuery.isFetched && !preferredGuideId) {
+      setShowCharacterSelector(true);
+    }
+  }, [settingsQuery.isFetched, preferredGuideId]);
+
+  const handleGuideSelect = useCallback((guideId: string, voiceId: string) => {
+    updateSettingsMut.mutate({ preferredGuideId: guideId, preferredVoiceId: voiceId }, {
+      onSuccess: () => settingsQuery.refetch(),
+    });
+    setShowCharacterSelector(false);
+  }, [updateSettingsMut, settingsQuery]);
 
   const constantsQuery = trpc.codex.client.constants.useQuery();
   const guides = constantsQuery.data?.guides || [];
@@ -80,6 +103,19 @@ export default function CodexGuide() {
 
   const [holographicMode, setHolographicMode] = useState(false);
   const activeGuide = guides.find((g: any) => g.id === selectedGuide);
+  const preferredChar = preferredGuideId ? getGuideCharacter(preferredGuideId) : null;
+
+  // ── Character Selector Overlay ──
+  if (showCharacterSelector) {
+    return (
+      <GuideCharacterSelector
+        currentGuideId={preferredGuideId}
+        isFirstTime={!preferredGuideId}
+        onSelect={handleGuideSelect}
+        onClose={() => setShowCharacterSelector(false)}
+      />
+    );
+  }
 
   // ── Guide Selection ──
   if (!selectedGuide) {
@@ -96,6 +132,19 @@ export default function CodexGuide() {
           <p className="cx-invitation" style={{ opacity: 0.5, maxWidth: "28rem", margin: "0 auto" }}>
             Each guide holds a different mirror. Choose the one that calls to you.
           </p>
+          {/* Current avatar indicator + change button */}
+          {preferredChar && (
+            <div style={{ marginTop: "1rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+              <div style={{ width: 8, height: 8, borderRadius: "50%", background: preferredChar.primaryColor, boxShadow: `0 0 8px ${preferredChar.primaryColor}` }} />
+              <span style={{ fontSize: "0.75rem", color: "rgba(245,230,211,0.5)" }}>Guide: <strong style={{ color: preferredChar.primaryColor }}>{preferredChar.name}</strong></span>
+              <button
+                onClick={() => setShowCharacterSelector(true)}
+                style={{ fontSize: "0.65rem", color: "rgba(201,168,76,0.5)", background: "none", border: "1px solid rgba(201,168,76,0.2)", borderRadius: "0.25rem", padding: "0.2rem 0.5rem", cursor: "pointer" }}
+              >
+                Change Avatar
+              </button>
+            </div>
+          )}
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(16rem, 1fr))", gap: "1rem" }}>
@@ -157,7 +206,10 @@ export default function CodexGuide() {
             </div>
           }>
             <HolographicAvatar
-              guideType={GUIDE_TYPE_MAP[selectedGuide] || "codex_orientation"}
+              guideType={(GUIDE_TYPE_MAP[selectedGuide] || "codex_orientation") as any}
+              preferredGuideId={preferredGuideId || undefined}
+              preferredVoiceId={preferredVoiceId || undefined}
+              onChangeGuide={(guideId, voiceId) => handleGuideSelect(guideId, voiceId)}
               userProfile={{ userId: "", phase: 1, primaryArchetype: "", shadowArchetype: "", woundPrioritySet: [], nsDominant: "ventral", pathway: "discovery" }}
               systemPrompt=""
               onMessage={(msg: any) => {
@@ -222,6 +274,17 @@ export default function CodexGuide() {
             }}
           >
             ◇ Holographic Mode
+          </button>
+          <button
+            onClick={() => setShowCharacterSelector(true)}
+            style={{
+              width: "100%", fontSize: "0.65rem", padding: "0.45rem", marginTop: "0.35rem",
+              background: "rgba(201,168,76,0.02)", border: "1px solid rgba(201,168,76,0.1)",
+              borderRadius: "0.375rem", color: "rgba(201,168,76,0.6)", cursor: "pointer",
+              letterSpacing: "0.05em", transition: "all 300ms",
+            }}
+          >
+            ◇ Change Avatar
           </button>
         </div>
 

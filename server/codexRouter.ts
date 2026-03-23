@@ -681,6 +681,8 @@ const codexClientRouter = router({
     weatherLon: z.string().optional(),
     guideStyle: z.string().optional(),
     guideFrequency: z.string().optional(),
+    preferredGuideId: z.string().optional(),
+    preferredVoiceId: z.string().optional(),
   })).mutation(async ({ ctx, input }) => {
     const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
     const u = (ctx as any).codexUser as schema.CodexUser;

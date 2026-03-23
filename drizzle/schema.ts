@@ -1639,6 +1639,8 @@ export const codexUserSettings = mysqlTable("codex_user_settings", {
   weatherLon: varchar("weatherLon", { length: 20 }),
   guideStyle: varchar("guideStyle", { length: 50 }).default("poetic"),
   guideFrequency: varchar("guideFrequency", { length: 50 }).default("daily"),
+  preferredGuideId: varchar("preferredGuideId", { length: 30 }), // kore, aoede, leda, theia, selene, zephyr
+  preferredVoiceId: varchar("preferredVoiceId", { length: 50 }), // Kokoro voice ID e.g. af_kore
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
 

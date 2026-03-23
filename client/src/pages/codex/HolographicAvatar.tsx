@@ -69,6 +69,10 @@ import { AvatarSelector, AvatarSettingsButton } from './AvatarSelector';
 import LifelikeAvatar from './LifelikeAvatar';
 import { type AvatarDisplayMode } from './KlingAvatarService';
 
+// Guide character system
+import { getGuideCharacter, CHARACTER_TO_GUIDE_TYPE } from './GuideCharacters';
+import { GuideCharacterSelector } from './GuideCharacterSelector';
+
 // ============================================================================
 // TYPE DEFINITIONS
 // ============================================================================
@@ -82,6 +86,12 @@ export interface HolographicAvatarProps {
   onSessionEnd: () => void;
   isActive: boolean;
   onSendMessage?: (message: string) => Promise<string>;
+  /** User's preferred guide character ID (kore, aoede, leda, theia, selene, zephyr) */
+  preferredGuideId?: string;
+  /** User's preferred Kokoro voice ID */
+  preferredVoiceId?: string;
+  /** Callback when user changes guide character */
+  onChangeGuide?: (guideId: string, voiceId: string) => void;
 }
 
 type GuideType =
@@ -1046,13 +1056,22 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
   onSessionEnd,
   isActive,
   onSendMessage,
+  preferredGuideId,
+  preferredVoiceId,
+  onChangeGuide,
 }) => {
-  const config = GUIDE_CONFIGS[guideType];
+  // If user has a preferred character, use that character's config instead
+  const resolvedGuideType = preferredGuideId
+    ? (CHARACTER_TO_GUIDE_TYPE[preferredGuideId] as GuideType) || guideType
+    : guideType;
+  const config = GUIDE_CONFIGS[resolvedGuideType];
+  const activeGuideId = preferredGuideId || config.name.toLowerCase();
   const [textInput, setTextInput] = useState('');
   const [showTextFallback, setShowTextFallback] = useState(false);
   const [canvasError, setCanvasError] = useState(false);
   const [showVoiceSelector, setShowVoiceSelector] = useState(false);
   const [showAvatarSelector, setShowAvatarSelector] = useState(false);
+  const [showGuideSelector, setShowGuideSelector] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [messages, setMessages] = useState<GuideMessage[]>([]);
 
@@ -1151,8 +1170,8 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
         /* ── LIFELIKE MODE — Kling AI Video Avatar ── */
         <div className="absolute inset-0">
           <LifelikeAvatar
-            guideId={config.name.toLowerCase()}
-            portraitUrl={currentPreset?.imageUrl || `/assets/avatars/kore-prime/portrait-${config.name.toLowerCase()}.png`}
+            guideId={activeGuideId}
+            portraitUrl={currentPreset?.imageUrl || `/assets/avatars/kore-prime/portrait-${activeGuideId}.png`}
             isSpeaking={gemini.isSpeaking}
             isListening={gemini.isListening}
             audioUrl={gemini.lastAudioUrl}
@@ -1301,6 +1320,14 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 : 'Connecting...'}
             </span>
             <div className="flex items-center gap-2">
+              {/* Change Guide button */}
+              <button
+                onClick={() => setShowGuideSelector(true)}
+                className="text-white/40 hover:text-white/70 transition-colors text-xs px-2 py-1 border border-white/20 rounded hover:border-white/40"
+                title="Change your guide avatar"
+              >
+                ◇ Guide
+              </button>
               {/* Avatar mode toggle — orb or lifelike only */}
               <button
                 onClick={() => setAvatarMode(prev => prev === 'lifelike' ? 'orb' : 'lifelike')}
@@ -1379,6 +1406,20 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
           }}
           onClose={() => setShowAvatarSelector(false)}
           isOpen={showAvatarSelector}
+        />
+      )}
+
+      {/* Guide Character Selector Modal */}
+      {showGuideSelector && (
+        <GuideCharacterSelector
+          currentGuideId={activeGuideId}
+          onSelect={(guideId, voiceId) => {
+            setShowGuideSelector(false);
+            if (onChangeGuide) onChangeGuide(guideId, voiceId);
+            // Also update the voice immediately
+            gemini.setVoice(voiceId);
+          }}
+          onClose={() => setShowGuideSelector(false)}
         />
       )}
     </div>
