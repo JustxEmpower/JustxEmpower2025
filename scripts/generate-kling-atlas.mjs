@@ -269,6 +269,24 @@ function wordToPhonemes(word) {
 // ============================================================================
 
 /**
+ * Retry wrapper with exponential backoff for Kling API calls.
+ * Kling's internal proxy (172.17.0.1:1080) goes down intermittently.
+ */
+async function withRetry(fn, label, maxRetries = 4) {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const isProxy = err.message?.includes('proxyconnect') || err.message?.includes('task failed');
+      if (!isProxy || attempt === maxRetries) throw err;
+      const delay = attempt * 30; // 30s, 60s, 90s, 120s
+      console.log(`\n   🔄 Retry ${attempt}/${maxRetries} in ${delay}s (proxy issue)...`);
+      await new Promise(r => setTimeout(r, delay * 1000));
+    }
+  }
+}
+
+/**
  * Step 1: Generate a base video from a portrait image.
  * This creates a ~5s video with natural micro-movements.
  * Used as: (a) input for lip-sync, (b) idle loop for Layer 1.
@@ -746,7 +764,7 @@ async function generateSpriteSheet(framesDir, bestFrames, outputPath) {
 // Main Pipeline
 // ============================================================================
 
-async function generateAtlasForGuide(guide, force = false, skipWhisper = false) {
+async function generateAtlasForGuide(guide, force = false, skipWhisper = false, skipLipsync = false) {
   const outputBase = `public/assets/avatars/atlas/${guide.id}`;
   mkdirSync(outputBase, { recursive: true });
 
@@ -765,10 +783,12 @@ async function generateAtlasForGuide(guide, force = false, skipWhisper = false) 
 
   // ── Step 1a: Generate base video from portrait (image → video) ──
   const idlePrompt = GUIDE_IDLE_PROMPTS[guide.id] || GUIDE_IDLE_PROMPTS.kore;
-  const imgTaskId = await createImageToVideoTask(portraitUrl, idlePrompt);
-  console.log(`   Task (image→video): ${imgTaskId}`);
-
-  const baseVideoUrl = await pollTask(imgTaskId);
+  const baseVideoUrl = await withRetry(async () => {
+    const imgTaskId = await createImageToVideoTask(portraitUrl, idlePrompt);
+    console.log(`   Task (image→video): ${imgTaskId}`);
+    const url = await pollTask(imgTaskId);
+    return url;
+  }, 'image→video');
   console.log(`\n   ✅ Base video generated`);
 
   // Download the base video (this doubles as the idle loop for Layer 1)
@@ -777,21 +797,28 @@ async function generateAtlasForGuide(guide, force = false, skipWhisper = false) 
   const idleStat = await fs.stat(idleVideoPath);
   console.log(`   💾 Idle video: ${(idleStat.size / 1024 / 1024).toFixed(1)}MB`);
 
-  // ── Step 1b: Try lip-sync (may fail if Kling proxy is down) ──
+  // ── Step 1b: Try lip-sync with retry (may fail if Kling proxy is down) ──
   let videoPath = idleVideoPath; // fallback to idle video
-  try {
-    const lipTaskId = await createLipSyncTask(baseVideoUrl, ATLAS_AUDIO_URL);
-    console.log(`   Task (lip-sync): ${lipTaskId}`);
-    const lipSyncVideoUrl = await pollTask(lipTaskId);
-    console.log(`\n   ✅ Lip-synced video generated`);
-    const atlasPath = `${outputBase}/atlas-video.mp4`;
-    await downloadFile(lipSyncVideoUrl, atlasPath);
-    const vStat = await fs.stat(atlasPath);
-    console.log(`   💾 Atlas video: ${(vStat.size / 1024 / 1024).toFixed(1)}MB`);
-    videoPath = atlasPath;
-  } catch (lipErr) {
-    console.log(`\n   ⚠️  Lip-sync failed (${lipErr.message}). Using idle video for frames.`);
-    console.log(`   📌 This is fine — VisemeEngine handles lip-sync at runtime via audio analysis.`);
+  if (skipLipsync) {
+    console.log(`   ⏩ Lip-sync skipped (--skip-lipsync). Using idle video for frames.`);
+  } else {
+    try {
+      const lipSyncVideoUrl = await withRetry(async () => {
+        const lipTaskId = await createLipSyncTask(baseVideoUrl, ATLAS_AUDIO_URL);
+        console.log(`   Task (lip-sync): ${lipTaskId}`);
+        const url = await pollTask(lipTaskId);
+        return url;
+      }, 'lip-sync');
+      console.log(`\n   ✅ Lip-synced video generated`);
+      const atlasPath = `${outputBase}/atlas-video.mp4`;
+      await downloadFile(lipSyncVideoUrl, atlasPath);
+      const vStat = await fs.stat(atlasPath);
+      console.log(`   💾 Atlas video: ${(vStat.size / 1024 / 1024).toFixed(1)}MB`);
+      videoPath = atlasPath;
+    } catch (lipErr) {
+      console.log(`\n   ⚠️  Lip-sync failed (${lipErr.message}). Using idle video for frames.`);
+      console.log(`   📌 This is fine — VisemeEngine handles lip-sync at runtime via audio analysis.`);
+    }
   }
 
   // ── Step 3: Extract frames ──
@@ -910,6 +937,7 @@ async function main() {
   const args = process.argv.slice(2);
   const force = args.includes('--force');
   const skipWhisper = args.includes('--skip-whisper');
+  const skipLipsync = args.includes('--skip-lipsync');
   const specificGuide = args.find(a => a.startsWith('--guide='))?.split('=')[1]
     || (args.includes('--guide') ? args[args.indexOf('--guide') + 1] : null);
 
@@ -939,7 +967,7 @@ async function main() {
 
   for (const guide of guidesToProcess) {
     try {
-      await generateAtlasForGuide(guide, force, skipWhisper);
+      await generateAtlasForGuide(guide, force, skipWhisper, skipLipsync);
       ok++;
     } catch (err) {
       console.error(`\n   ❌ ${guide.id}: ${err.message}`);
