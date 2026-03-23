@@ -24,11 +24,22 @@
  *   npm install ffmpeg-static @huggingface/transformers
  *   sharp (already installed)
  *
+ * Lip-sync engines:
+ *   --lipsync-engine kling       Kling via PiAPI proxy (~$0.50/guide, proxy unreliable)
+ *   --lipsync-engine latentsync  LatentSync v1.6 self-hosted (free, needs GPU 8-18GB VRAM)
+ *
+ * LatentSync setup (on GPU server):
+ *   git clone https://github.com/bytedance/LatentSync.git
+ *   cd LatentSync && source setup_env.sh
+ *   Set LATENTSYNC_DIR in .env (or defaults to ~/LatentSync)
+ *
  * Usage:
  *   node scripts/generate-kling-atlas.mjs
  *   node scripts/generate-kling-atlas.mjs --guide kore
  *   node scripts/generate-kling-atlas.mjs --guide kore --force
  *   node scripts/generate-kling-atlas.mjs --skip-whisper   (use proportional timing)
+ *   node scripts/generate-kling-atlas.mjs --lipsync-engine latentsync
+ *   node scripts/generate-kling-atlas.mjs --lipsync-engine latentsync --guide aoede --force
  */
 
 import fs from 'fs/promises';
@@ -100,6 +111,14 @@ async function loadWhisper() {
 const PIAPI_BASE = 'https://api.piapi.ai/api/v1';
 const PIAPI_KEY = process.env.PIAPI_KLING_API_KEY || '';
 const SITE_ORIGIN = process.env.SITE_ORIGIN || 'https://justxempower.com';
+
+// ── LatentSync self-hosted configuration ──
+const LATENTSYNC_DIR = process.env.LATENTSYNC_DIR || path.join(process.env.HOME || '/root', 'LatentSync');
+const LATENTSYNC_CONFIG = process.env.LATENTSYNC_CONFIG || 'configs/unet/stage2_512.yaml';
+const LATENTSYNC_CKPT = process.env.LATENTSYNC_CKPT || 'checkpoints/latentsync_unet.pt';
+const LATENTSYNC_STEPS = parseInt(process.env.LATENTSYNC_STEPS || '20', 10);
+const LATENTSYNC_GUIDANCE = parseFloat(process.env.LATENTSYNC_GUIDANCE || '2.0');
+const LATENTSYNC_SEED = parseInt(process.env.LATENTSYNC_SEED || '0', 10); // 0 = random
 
 /**
  * The "Atlas Script" — phonetically rich, covers all 15 English visemes 2+ times.
@@ -394,6 +413,153 @@ async function downloadFile(url, outputPath) {
   const buffer = Buffer.from(await response.arrayBuffer());
   await fs.writeFile(outputPath, buffer);
   return outputPath;
+}
+
+// ============================================================================
+// LatentSync — Self-hosted lip-sync via ByteDance LatentSync v1.6
+//   Runs locally on GPU. No proxy, no API credits, no rate limits.
+//   Requires: conda env with LatentSync deps + checkpoints downloaded.
+//   Inference: python -m scripts.inference --video_path X --audio_path Y
+// ============================================================================
+
+/**
+ * Check if LatentSync is installed and ready to run.
+ * Returns { ready: boolean, reason?: string }
+ */
+function checkLatentSync() {
+  if (!existsSync(LATENTSYNC_DIR)) {
+    return { ready: false, reason: `LatentSync directory not found: ${LATENTSYNC_DIR}` };
+  }
+  const ckptPath = path.join(LATENTSYNC_DIR, LATENTSYNC_CKPT);
+  if (!existsSync(ckptPath)) {
+    return { ready: false, reason: `Checkpoint not found: ${ckptPath}\n   → Run: cd ${LATENTSYNC_DIR} && source setup_env.sh` };
+  }
+  const configPath = path.join(LATENTSYNC_DIR, LATENTSYNC_CONFIG);
+  if (!existsSync(configPath)) {
+    return { ready: false, reason: `Config not found: ${configPath}` };
+  }
+  return { ready: true };
+}
+
+/**
+ * Download audio from S3 URL to a local file for LatentSync.
+ * LatentSync needs local file paths, not URLs.
+ */
+async function ensureLocalAudio(audioUrl, outputDir) {
+  const localAudioPath = path.join(outputDir, 'atlas-script-input.wav');
+  if (existsSync(localAudioPath)) return localAudioPath;
+
+  // Download the audio
+  console.log(`   📥 Downloading atlas audio...`);
+  const response = await fetch(audioUrl);
+  const buffer = Buffer.from(await response.arrayBuffer());
+
+  // If it's MP3, convert to WAV for LatentSync compatibility
+  if (audioUrl.endsWith('.mp3')) {
+    const mp3Path = path.join(outputDir, 'atlas-script-input.mp3');
+    const { writeFileSync } = await import('fs');
+    writeFileSync(mp3Path, buffer);
+    execFileSync(FFMPEG_BIN, [
+      '-i', mp3Path,
+      '-acodec', 'pcm_s16le',
+      '-ar', '16000',
+      '-ac', '1',
+      localAudioPath,
+      '-y',
+    ], { stdio: 'pipe' });
+    try { await fs.unlink(mp3Path); } catch {}
+    console.log(`   ✅ Audio converted to WAV: ${localAudioPath}`);
+  } else {
+    await fs.writeFile(localAudioPath, buffer);
+    console.log(`   ✅ Audio saved: ${localAudioPath}`);
+  }
+
+  return localAudioPath;
+}
+
+/**
+ * Run LatentSync lip-sync on a local video + audio file.
+ * This replaces the Kling lip_sync API call entirely.
+ *
+ * Pipeline:
+ *   python -m scripts.inference \
+ *     --unet_config_path configs/unet/stage2_512.yaml \
+ *     --inference_ckpt_path checkpoints/latentsync_unet.pt \
+ *     --video_path <idle-video.mp4> \
+ *     --audio_path <atlas-audio.wav> \
+ *     --video_out_path <output.mp4> \
+ *     --inference_steps 20 \
+ *     --guidance_scale 2.0 \
+ *     --seed <seed>
+ *
+ * Returns: path to the generated lip-synced video.
+ */
+async function runLatentSync(videoPath, audioPath, outputPath) {
+  const seed = LATENTSYNC_SEED > 0 ? LATENTSYNC_SEED : Math.floor(Math.random() * 65536);
+
+  const cmd = [
+    'python', '-m', 'scripts.inference',
+    '--unet_config_path', LATENTSYNC_CONFIG,
+    '--inference_ckpt_path', LATENTSYNC_CKPT,
+    '--video_path', path.resolve(videoPath),
+    '--audio_path', path.resolve(audioPath),
+    '--video_out_path', path.resolve(outputPath),
+    '--inference_steps', String(LATENTSYNC_STEPS),
+    '--guidance_scale', String(LATENTSYNC_GUIDANCE),
+    '--seed', String(seed),
+  ];
+
+  console.log(`   🧠 Running LatentSync (steps=${LATENTSYNC_STEPS}, guidance=${LATENTSYNC_GUIDANCE}, seed=${seed})...`);
+  console.log(`   📂 CWD: ${LATENTSYNC_DIR}`);
+
+  const startTime = Date.now();
+
+  try {
+    // Check if we should use conda
+    const useCondaEnv = process.env.LATENTSYNC_CONDA_ENV || '';
+    let shellCmd;
+    if (useCondaEnv) {
+      // Wrap in conda activate for the LatentSync environment
+      shellCmd = `cd "${LATENTSYNC_DIR}" && conda run -n ${useCondaEnv} ${cmd.join(' ')}`;
+    } else {
+      shellCmd = `cd "${LATENTSYNC_DIR}" && ${cmd.join(' ')}`;
+    }
+
+    const result = execSync(shellCmd, {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: 10 * 60 * 1000, // 10 min timeout
+      maxBuffer: 50 * 1024 * 1024, // 50MB buffer for logs
+    });
+
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+
+    if (!existsSync(outputPath)) {
+      throw new Error(`LatentSync completed but output not found: ${outputPath}`);
+    }
+
+    const stat = await fs.stat(outputPath);
+    console.log(`   ✅ LatentSync complete in ${elapsed}s (${(stat.size / 1024 / 1024).toFixed(1)}MB)`);
+    return outputPath;
+
+  } catch (err) {
+    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+    const stderr = err.stderr || err.message || '';
+
+    // Provide actionable error messages
+    if (stderr.includes('CUDA out of memory') || stderr.includes('OutOfMemoryError')) {
+      throw new Error(`LatentSync OOM after ${elapsed}s — try stage2_efficient config or reduce resolution.\n   Set LATENTSYNC_CONFIG=configs/unet/stage2.yaml for lower VRAM.`);
+    }
+    if (stderr.includes('ModuleNotFoundError') || stderr.includes('No module named')) {
+      const module = stderr.match(/No module named '([^']+)'/)?.[1] || 'unknown';
+      throw new Error(`LatentSync missing dependency: ${module}\n   → cd ${LATENTSYNC_DIR} && pip install ${module}`);
+    }
+    if (stderr.includes('FileNotFoundError')) {
+      throw new Error(`LatentSync file not found — ensure checkpoints are downloaded.\n   → cd ${LATENTSYNC_DIR} && source setup_env.sh`);
+    }
+
+    throw new Error(`LatentSync failed after ${elapsed}s: ${stderr.slice(-300)}`);
+  }
 }
 
 // ============================================================================
@@ -764,7 +930,7 @@ async function generateSpriteSheet(framesDir, bestFrames, outputPath) {
 // Main Pipeline
 // ============================================================================
 
-async function generateAtlasForGuide(guide, force = false, skipWhisper = false, skipLipsync = false) {
+async function generateAtlasForGuide(guide, force = false, skipWhisper = false, skipLipsync = false, lipsyncEngine = 'kling') {
   const outputBase = `public/assets/avatars/atlas/${guide.id}`;
   mkdirSync(outputBase, { recursive: true });
 
@@ -797,11 +963,27 @@ async function generateAtlasForGuide(guide, force = false, skipWhisper = false, 
   const idleStat = await fs.stat(idleVideoPath);
   console.log(`   💾 Idle video: ${(idleStat.size / 1024 / 1024).toFixed(1)}MB`);
 
-  // ── Step 1b: Try lip-sync with retry (may fail if Kling proxy is down) ──
+  // ── Step 1b: Lip-sync — Kling (cloud) or LatentSync (self-hosted GPU) ──
   let videoPath = idleVideoPath; // fallback to idle video
   if (skipLipsync) {
     console.log(`   ⏩ Lip-sync skipped (--skip-lipsync). Using idle video for frames.`);
+  } else if (lipsyncEngine === 'latentsync') {
+    // ── LatentSync: self-hosted, no proxy dependency ──
+    console.log(`   🧠 Lip-sync engine: LatentSync (self-hosted)`);
+    try {
+      const localAudioPath = await ensureLocalAudio(ATLAS_AUDIO_URL, outputBase);
+      const atlasPath = `${outputBase}/atlas-video.mp4`;
+      await runLatentSync(idleVideoPath, localAudioPath, atlasPath);
+      const vStat = await fs.stat(atlasPath);
+      console.log(`   💾 Atlas video: ${(vStat.size / 1024 / 1024).toFixed(1)}MB`);
+      videoPath = atlasPath;
+    } catch (lsErr) {
+      console.log(`\n   ⚠️  LatentSync failed: ${lsErr.message}`);
+      console.log(`   📌 Falling back to idle video — VisemeEngine handles lip-sync at runtime.`);
+    }
   } else {
+    // ── Kling: cloud-based via PiAPI proxy ──
+    console.log(`   ☁️  Lip-sync engine: Kling (PiAPI proxy)`);
     try {
       const lipSyncVideoUrl = await withRetry(async () => {
         const lipTaskId = await createLipSyncTask(baseVideoUrl, ATLAS_AUDIO_URL);
@@ -816,8 +998,9 @@ async function generateAtlasForGuide(guide, force = false, skipWhisper = false, 
       console.log(`   💾 Atlas video: ${(vStat.size / 1024 / 1024).toFixed(1)}MB`);
       videoPath = atlasPath;
     } catch (lipErr) {
-      console.log(`\n   ⚠️  Lip-sync failed (${lipErr.message}). Using idle video for frames.`);
-      console.log(`   📌 This is fine — VisemeEngine handles lip-sync at runtime via audio analysis.`);
+      console.log(`\n   ⚠️  Kling lip-sync failed (${lipErr.message}). Using idle video for frames.`);
+      console.log(`   💡 Try: --lipsync-engine latentsync (no proxy needed)`);
+      console.log(`   📌 Falling back to idle video — VisemeEngine handles lip-sync at runtime.`);
     }
   }
 
@@ -877,6 +1060,7 @@ async function generateAtlasForGuide(guide, force = false, skipWhisper = false, 
     fps: FRAME_RATE,
     duration: frameCount / FRAME_RATE,
     atlasScript: ATLAS_SCRIPT,
+    lipsyncEngine: videoPath === idleVideoPath ? 'fallback-idle' : lipsyncEngine,
     alignmentMethod: whisperUsed ? 'whisper-forced' : 'proportional',
     generatedAt: new Date().toISOString(),
   };
@@ -926,13 +1110,8 @@ async function generateAtlasForGuide(guide, force = false, skipWhisper = false, 
 async function main() {
   console.log('╔══════════════════════════════════════════════════════════════╗');
   console.log('║  Living Codex™ — Viseme Atlas Generator                    ║');
-  console.log('║  Phoneme-perfect lip-sync via Kling + Whisper alignment    ║');
+  console.log('║  Lip-sync via Kling or LatentSync + Whisper alignment      ║');
   console.log('╚══════════════════════════════════════════════════════════════╝\n');
-
-  if (!PIAPI_KEY) {
-    console.error('❌ PIAPI_KLING_API_KEY not set in .env');
-    process.exit(1);
-  }
 
   const args = process.argv.slice(2);
   const force = args.includes('--force');
@@ -940,6 +1119,41 @@ async function main() {
   const skipLipsync = args.includes('--skip-lipsync');
   const specificGuide = args.find(a => a.startsWith('--guide='))?.split('=')[1]
     || (args.includes('--guide') ? args[args.indexOf('--guide') + 1] : null);
+
+  // ── Lip-sync engine selection ──
+  const lipsyncEngine = (
+    args.find(a => a.startsWith('--lipsync-engine='))?.split('=')[1]
+    || (args.includes('--lipsync-engine') ? args[args.indexOf('--lipsync-engine') + 1] : null)
+    || 'kling'
+  ).toLowerCase();
+
+  if (!['kling', 'latentsync'].includes(lipsyncEngine)) {
+    console.error(`❌ Unknown lip-sync engine: ${lipsyncEngine}`);
+    console.error('   Available: kling, latentsync');
+    process.exit(1);
+  }
+
+  // Validate engine prerequisites
+  if (lipsyncEngine === 'latentsync') {
+    const check = checkLatentSync();
+    if (!check.ready) {
+      console.error(`❌ LatentSync not ready: ${check.reason}`);
+      console.error('\n   Setup instructions:');
+      console.error(`   1. git clone https://github.com/bytedance/LatentSync.git ${LATENTSYNC_DIR}`);
+      console.error(`   2. cd ${LATENTSYNC_DIR} && source setup_env.sh`);
+      console.error('   3. Set LATENTSYNC_DIR in .env (if not ~/LatentSync)');
+      process.exit(1);
+    }
+    console.log(`✅ LatentSync: ${LATENTSYNC_DIR}`);
+    console.log(`   Config: ${LATENTSYNC_CONFIG}`);
+    console.log(`   Steps: ${LATENTSYNC_STEPS}, Guidance: ${LATENTSYNC_GUIDANCE}`);
+  } else {
+    if (!PIAPI_KEY) {
+      console.error('❌ PIAPI_KLING_API_KEY not set in .env');
+      console.error('   💡 Or use: --lipsync-engine latentsync (no API key needed)');
+      process.exit(1);
+    }
+  }
 
   const guidesToProcess = specificGuide
     ? GUIDES.filter(g => g.id === specificGuide)
@@ -959,7 +1173,12 @@ async function main() {
   }
 
   console.log(`\nGuides: ${guidesToProcess.map(g => g.id).join(', ')}`);
-  console.log(`Cost: ~${(guidesToProcess.length * 1.00).toFixed(2)} (2 Kling calls/guide) + $0 (Whisper local)`);
+  console.log(`Lip-sync: ${lipsyncEngine === 'latentsync' ? 'LatentSync (self-hosted, $0)' : 'Kling (PiAPI, ~$0.50/guide)'}`);
+  if (lipsyncEngine === 'kling') {
+    console.log(`Cost: ~${(guidesToProcess.length * 1.00).toFixed(2)} (2 Kling calls/guide) + $0 (Whisper local)`);
+  } else {
+    console.log(`Cost: $0 (LatentSync local) + $0 (Whisper local) — image→video still uses Kling`);
+  }
   if (force) console.log('🔄 Force mode: regenerating all');
   console.log('');
 
@@ -967,7 +1186,7 @@ async function main() {
 
   for (const guide of guidesToProcess) {
     try {
-      await generateAtlasForGuide(guide, force, skipWhisper, skipLipsync);
+      await generateAtlasForGuide(guide, force, skipWhisper, skipLipsync, lipsyncEngine);
       ok++;
     } catch (err) {
       console.error(`\n   ❌ ${guide.id}: ${err.message}`);
