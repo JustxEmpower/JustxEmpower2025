@@ -206,7 +206,11 @@ export function serveStatic(app: Express) {
       // Inject meta tags into HTML
       html = injectMetaTags(html, meta);
       
-      res.send(html);
+      // Never cache HTML — ensures browser always gets fresh asset references after deploys
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      res.type('html').send(html);
     } catch (error) {
       console.error("[Static] Error serving page:", error);
       res.sendFile(indexPath);
