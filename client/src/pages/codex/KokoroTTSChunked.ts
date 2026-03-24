@@ -1,5 +1,6 @@
 const Q_START = /^(what|where|when|why|how|who|which|do|does|did|is|are|was|were|have|has|can|could|would|should|shall|will|may|might|isn't|aren't|don't|doesn't|won't|wouldn't|couldn't|tell me)\b/i;
 const Q_EMBED = /\b(what do you|how do you|what does|how does|what would|can you|could you|would you|do you|are you|have you|what if|what about|how about)\b/i;
+const EXCLAIM_WORDS = /\b(amazing|beautiful|wonderful|incredible|love|wow|yes|exactly|absolutely|brilliant|welcome|congratulations|fantastic|powerful|profound|brave|courage)\b/i;
 
 function fixPunctuation(s: string): string {
   const t = s.trim();
@@ -8,6 +9,8 @@ function fixPunctuation(s: string): string {
   if (last === '?' || last === '!') return t;
   const body = last === '.' ? t.slice(0, -1).trim() : t;
   if (Q_START.test(body) || Q_EMBED.test(body)) return body + '?';
+  // Detect exclamatory sentences
+  if (EXCLAIM_WORDS.test(body) && body.length < 80) return body + '!';
   if (last === '.') return t;
   return t + '.';
 }
@@ -19,6 +22,8 @@ function cleanForSpeech(text: string): string {
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     .replace(/^[-•#]+\s*/gm, '')
     .replace(/\s*[—–]\s*/g, ', ')
+    .replace(/;\s*/g, '. ')           // semicolons become sentence breaks for natural pauses
+    .replace(/:\s+/g, '. ')           // colons before lists/explanations become pauses
     .replace(/\n+/g, ' ')
     .replace(/\s{2,}/g, ' ')
     .trim();
@@ -27,7 +32,9 @@ function cleanForSpeech(text: string): string {
 export function splitSentences(text: string): string[] {
   const cleaned = cleanForSpeech(text);
   const raw = cleaned.match(/[^.!?]+[.!?]+[\s]*/g) || [cleaned];
-  return raw.map(s => fixPunctuation(s)).filter(s => s.length > 0);
+  return raw
+    .map(s => fixPunctuation(s))
+    .filter(s => s.trim().length > 1);
 }
 
 export async function fetchAudio(sentence: string, voice: string, speed = 1, signal?: AbortSignal): Promise<Blob> {

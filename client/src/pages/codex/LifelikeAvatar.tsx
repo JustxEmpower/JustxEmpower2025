@@ -137,6 +137,9 @@ const VISEME_SHAPES: Record<string, { open: number; width: number; round: number
   U:   { open: 0.38, width: 0.32, round: 0.9 },
 };
 
+/** Avatar zoom-out: 1.0 = full fill, 0.78 = show more shoulders */
+const AVATAR_SCALE = 0.78;
+
 /** How far before video end to start crossfade (seconds) */
 const LOOP_CROSSFADE_LEAD = 0.5;
 
@@ -343,6 +346,12 @@ export default function LifelikeAvatar({
   const targetEmotionRef = useRef<AvatarEmotion>('neutral');
   const emotionBlendRef = useRef(1); // 1 = fully at target
 
+  // Live refs for values used inside render loop (avoids stale closures)
+  const audioLevelRef = useRef(audioLevel);
+  const isSpeakingRef = useRef(isSpeaking);
+  audioLevelRef.current = audioLevel;
+  isSpeakingRef.current = isSpeaking;
+
   // --- State ---
   const [state, setState] = useState<AvatarState>('loading');
   const [loadingMessage, setLoadingMessage] = useState('Loading atlas...');
@@ -410,54 +419,42 @@ export default function LifelikeAvatar({
         if (!videoA || !videoB) throw new Error('Video elements not mounted');
 
         videoA.src = idleVideoUrl;
-        videoB.src = idleVideoUrl;
         videoA.load();
-        videoB.load();
 
-        // Wait for video A to be playable
+        // Wait for video A to have enough data to start playback (canplay, not canplaythrough)
         await new Promise<void>((resolve, reject) => {
           const onCanPlay = () => {
-            videoA.removeEventListener('canplaythrough', onCanPlay);
+            videoA.removeEventListener('canplay', onCanPlay);
             videoA.removeEventListener('error', onErr);
             resolve();
           };
           const onErr = () => {
-            videoA.removeEventListener('canplaythrough', onCanPlay);
+            videoA.removeEventListener('canplay', onCanPlay);
             videoA.removeEventListener('error', onErr);
             reject(new Error('Idle video failed to load'));
           };
-          videoA.addEventListener('canplaythrough', onCanPlay);
+          videoA.addEventListener('canplay', onCanPlay);
           videoA.addEventListener('error', onErr);
-          if (videoA.readyState >= 4) {
-            videoA.removeEventListener('canplaythrough', onCanPlay);
+          if (videoA.readyState >= 3) {
+            videoA.removeEventListener('canplay', onCanPlay);
             videoA.removeEventListener('error', onErr);
             resolve();
           }
         });
         if (cancelled) return;
 
-        // Also wait for video B
-        await new Promise<void>((resolve) => {
-          const onCanPlay = () => {
-            videoB.removeEventListener('canplaythrough', onCanPlay);
-            resolve();
-          };
-          videoB.addEventListener('canplaythrough', onCanPlay);
-          if (videoB.readyState >= 4) {
-            videoB.removeEventListener('canplaythrough', onCanPlay);
-            resolve();
-          }
-        });
-        if (cancelled) return;
-
-        // Start video A playing, keep B paused at 0
+        // Start video A playing immediately, load video B in background
         videoA.play().catch(() => {});
-        videoB.currentTime = 0;
         activeVideoRef.current = 'A';
 
         setVideoReady(true);
         setState('idle');
         onReady?.();
+
+        // Load video B in background for seamless looping (non-blocking)
+        videoB.src = idleVideoUrl;
+        videoB.load();
+        videoB.currentTime = 0;
       } catch (err: any) {
         if (cancelled) return;
         console.warn('[LifelikeAvatar] Atlas assets not found, using portrait fallback:', err.message);
@@ -552,6 +549,16 @@ export default function LifelikeAvatar({
       const activeVid = activeVideoRef.current === 'A' ? videoA! : videoB!;
       const nextVid = activeVideoRef.current === 'A' ? videoB! : videoA!;
 
+      // Zoom-out: draw video centered and scaled down
+      const vidW = displayW * AVATAR_SCALE;
+      const vidH = displayH * AVATAR_SCALE;
+      const vidX = (displayW - vidW) / 2;
+      const vidY = (displayH - vidH) / 2;
+
+      // Fill background behind video
+      ctx.fillStyle = '#0A0619';
+      ctx.fillRect(0, 0, displayW, displayH);
+
       // Check if we need to start crossfade
       if (
         !isCrossfadingRef.current &&
@@ -575,11 +582,11 @@ export default function LifelikeAvatar({
         // Draw both videos blended
         if (activeVid.readyState >= 2) {
           ctx.globalAlpha = 1 - crossfadeProgressRef.current;
-          ctx.drawImage(activeVid, 0, 0, displayW, displayH);
+          ctx.drawImage(activeVid, vidX, vidY, vidW, vidH);
         }
         if (nextVid.readyState >= 2) {
           ctx.globalAlpha = crossfadeProgressRef.current;
-          ctx.drawImage(nextVid, 0, 0, displayW, displayH);
+          ctx.drawImage(nextVid, vidX, vidY, vidW, vidH);
         }
         ctx.globalAlpha = 1;
 
@@ -594,12 +601,14 @@ export default function LifelikeAvatar({
       } else {
         // Normal single-video draw
         if (activeVid.readyState >= 2) {
-          ctx.drawImage(activeVid, 0, 0, displayW, displayH);
+          ctx.drawImage(activeVid, vidX, vidY, vidW, vidH);
         }
       }
 
       // ==== LAYER 2: PROCEDURAL MOUTH ANIMATION (when speaking) ====
-      if (isSpeaking) {
+      const liveAudioLevel = audioLevelRef.current;
+      const liveSpeaking = isSpeakingRef.current;
+      if (liveSpeaking) {
         const frame: VisemeFrame = visemeEngine.getCurrentFrame();
         const shape = VISEME_SHAPES[frame.viseme] || VISEME_SHAPES.sil;
         const nextShape = VISEME_SHAPES[frame.nextViseme] || VISEME_SHAPES.sil;
@@ -611,15 +620,15 @@ export default function LifelikeAvatar({
         const mRound = shape.round * (1 - bf) + nextShape.round * bf;
 
         // Use audioLevel from KokoroTTSManager to modulate openness
-        const amp = Math.max(audioLevel, 0.05);
+        const amp = Math.max(liveAudioLevel, 0.15);
         const openness = mOpen * amp;
 
         // Only draw if mouth is at least slightly open
         if (openness > 0.01) {
-          const cx = displayW * (MOUTH_REGION.x + MOUTH_REGION.w / 2);
-          const cy = displayH * (MOUTH_REGION.y + MOUTH_REGION.h / 2);
-          const maxW = displayW * MOUTH_REGION.w * 0.5;
-          const maxH = displayH * MOUTH_REGION.h * 0.6;
+          const cx = vidX + vidW * (MOUTH_REGION.x + MOUTH_REGION.w / 2);
+          const cy = vidY + vidH * (MOUTH_REGION.y + MOUTH_REGION.h / 2);
+          const maxW = vidW * MOUTH_REGION.w * 0.5;
+          const maxH = vidH * MOUTH_REGION.h * 0.6;
 
           const rx = maxW * mWidth * (0.5 + amp * 0.5);
           const ry = maxH * openness;
@@ -707,7 +716,7 @@ export default function LifelikeAvatar({
       }
 
       // 3e. Listening shimmer
-      if (isListening && !isSpeaking) {
+      if (isListening && !liveSpeaking) {
         const shimmer = Math.sin(now / 800) * 0.025 + 0.015;
         ctx.save();
         ctx.globalAlpha = shimmer;

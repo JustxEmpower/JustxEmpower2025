@@ -1177,6 +1177,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
             audioUrl={gemini.lastAudioUrl}
             spokenText={gemini.lastSpokenText}
             emotion={gemini.currentEmotion}
+            audioLevel={gemini.audioLevel}
             width="100%"
             height="100%"
             onReady={() => console.log(`[LifelikeAvatar] ${config.name} ready`)}
