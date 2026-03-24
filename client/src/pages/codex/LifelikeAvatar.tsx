@@ -26,7 +26,7 @@
  *
  * Assets per guide (generated once by scripts/generate-kling-atlas.mjs):
  *   public/assets/avatars/atlas/{guideId}/atlas-video.mp4   — idle loop
- *   public/assets/avatars/atlas/{guideId}/viseme-sprite.png  — 5×3 grid
+ *   public/assets/avatars/atlas/{guideId}/sprite-sheet.png    — 5×3 grid
  *   public/assets/avatars/atlas/{guideId}/viseme-index.json  — frame map
  *
  * @module codex/LifelikeAvatar
@@ -81,6 +81,8 @@ interface LifelikeAvatarProps {
   onReady?: () => void;
   /** Callback on error */
   onError?: (error: string) => void;
+  /** Audio amplitude (0-1) from KokoroTTSManager for lip-sync */
+  audioLevel?: number;
   /** Unused — kept for API compat with HolographicAvatar */
   useKlingTTS?: boolean;
 }
@@ -98,9 +100,8 @@ const GUIDE_COLORS: Record<string, string> = {
   zephyr: '#FF6B35',
 };
 
-/** Atlas asset base paths — videos on S3, sprites served locally */
+/** Atlas asset base paths — all assets served from S3 */
 const ATLAS_S3_BASE = 'https://justxempower-assets.s3.amazonaws.com/avatars/atlas';
-const ATLAS_LOCAL_BASE = '/assets/avatars/atlas';
 
 /** Sprite sheet cell dimensions */
 const CELL_W = 256;
@@ -116,6 +117,25 @@ const MOUTH_REGION = {
 
 /** Feather radius for mouth blend (px) */
 const FEATHER_PX = 14;
+
+/** Procedural mouth shape parameters per viseme (no sprite sheet needed) */
+const VISEME_SHAPES: Record<string, { open: number; width: number; round: number }> = {
+  sil: { open: 0.00, width: 0.55, round: 0.3 },
+  PP:  { open: 0.00, width: 0.45, round: 0.5 },
+  FF:  { open: 0.12, width: 0.60, round: 0.2 },
+  TH:  { open: 0.18, width: 0.60, round: 0.2 },
+  DD:  { open: 0.18, width: 0.50, round: 0.3 },
+  kk:  { open: 0.28, width: 0.48, round: 0.4 },
+  CH:  { open: 0.22, width: 0.38, round: 0.7 },
+  SS:  { open: 0.08, width: 0.55, round: 0.2 },
+  nn:  { open: 0.12, width: 0.50, round: 0.3 },
+  RR:  { open: 0.18, width: 0.38, round: 0.6 },
+  aa:  { open: 0.85, width: 0.65, round: 0.3 },
+  E:   { open: 0.50, width: 0.65, round: 0.2 },
+  I:   { open: 0.28, width: 0.60, round: 0.2 },
+  O:   { open: 0.65, width: 0.45, round: 0.8 },
+  U:   { open: 0.38, width: 0.32, round: 0.9 },
+};
 
 /** How far before video end to start crossfade (seconds) */
 const LOOP_CROSSFADE_LEAD = 0.5;
@@ -303,16 +323,13 @@ export default function LifelikeAvatar({
   height = '500px',
   onReady,
   onError,
+  audioLevel = 0,
 }: LifelikeAvatarProps) {
   // --- Refs ---
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const videoARef = useRef<HTMLVideoElement>(null);
   const videoBRef = useRef<HTMLVideoElement>(null);
   const spriteImgRef = useRef<HTMLImageElement | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const analyserRef = useRef<AnalyserNode | null>(null);
-  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   const rafRef = useRef<number>(0);
   const mountedRef = useRef(true);
 
@@ -339,7 +356,7 @@ export default function LifelikeAvatar({
   // Asset URLs
   // idle-video.mp4 = clean base video (no speech) hosted on S3
   const idleVideoUrl = `${ATLAS_S3_BASE}/${guideId}/idle-video.mp4`;
-  const spriteUrl = `${ATLAS_LOCAL_BASE}/${guideId}/viseme-sprite.png`;
+  const spriteUrl = `${ATLAS_S3_BASE}/${guideId}/sprite-sheet.png`;
 
   // --------------------------------------------------------------------------
   // Emotion transitions — drives both canvas post-processing AND VisemeEngine
@@ -370,7 +387,7 @@ export default function LifelikeAvatar({
 
     async function loadAssets() {
       setState('loading');
-      setLoadingMessage('Loading sprite sheet...');
+      setLoadingMessage('Loading idle video...');
 
       try {
         // Load sprite sheet image
@@ -378,7 +395,7 @@ export default function LifelikeAvatar({
         img.crossOrigin = 'anonymous';
         await new Promise<void>((resolve, reject) => {
           img.onload = () => resolve();
-          img.onerror = () => reject(new Error('Sprite sheet not found'));
+          img.onerror = () => resolve();
           img.src = spriteUrl;
         });
         if (cancelled) return;
@@ -458,74 +475,21 @@ export default function LifelikeAvatar({
   }, [guideId, idleVideoUrl, spriteUrl]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --------------------------------------------------------------------------
-  // Audio setup: Connect Kokoro TTS audio to VisemeEngine analyser
+  // Viseme text prediction: driven by isSpeaking + spokenText
+  // Audio is played by KokoroTTSManager — we only do text→viseme here.
   // --------------------------------------------------------------------------
   useEffect(() => {
-    if (!audioUrl || !isSpeaking) {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-      }
+    if (!isSpeaking) {
       visemeEngine.stopText();
       return;
     }
-
-    // Create or reuse AudioContext
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new AudioContext();
-    }
-    const audioCtx = audioCtxRef.current;
-
-    const audio = new Audio();
-    audio.crossOrigin = 'anonymous';
-    audio.src = audioUrl;
-    audioRef.current = audio;
-
-    // Create analyser
-    if (!analyserRef.current) {
-      const analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 2048;
-      analyser.smoothingTimeConstant = 0.6;
-      analyserRef.current = analyser;
-      visemeEngine.connectAnalyser(analyser);
-    }
-
-    // Connect audio → analyser → destination
-    try {
-      if (sourceNodeRef.current) {
-        sourceNodeRef.current.disconnect();
-      }
-      const source = audioCtx.createMediaElementSource(audio);
-      source.connect(analyserRef.current!);
-      analyserRef.current!.connect(audioCtx.destination);
-      sourceNodeRef.current = source;
-    } catch (e) {
-      console.warn('[LifelikeAvatar] Audio source reconnection:', e);
-    }
-
-    // Prepare text-based prediction
     if (spokenText) {
       const wordCount = spokenText.split(/\s+/).length;
       const estimatedDuration = Math.max(1, wordCount * 0.15);
       visemeEngine.prepareText(spokenText, estimatedDuration);
     }
-
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-
-    audio.play().catch(e => {
-      console.warn('[LifelikeAvatar] Audio playback failed:', e);
-    });
-
-    const handleEnded = () => visemeEngine.stopText();
-    audio.addEventListener('ended', handleEnded);
-
-    return () => {
-      audio.removeEventListener('ended', handleEnded);
-      audio.pause();
-      audio.src = '';
-      visemeEngine.stopText();
-    };
-  }, [audioUrl, isSpeaking, spokenText, visemeEngine]);
+    return () => { visemeEngine.stopText(); };
+  }, [isSpeaking, spokenText, visemeEngine]);
 
   // --------------------------------------------------------------------------
   // Update text prediction when spokenText changes mid-speech
@@ -634,52 +598,59 @@ export default function LifelikeAvatar({
         }
       }
 
-      // ==== LAYER 2: VISEME MOUTH OVERLAY (only when speaking) ====
-      const sprite = spriteImgRef.current;
-      if (isSpeaking && sprite) {
+      // ==== LAYER 2: PROCEDURAL MOUTH ANIMATION (when speaking) ====
+      if (isSpeaking) {
         const frame: VisemeFrame = visemeEngine.getCurrentFrame();
+        const shape = VISEME_SHAPES[frame.viseme] || VISEME_SHAPES.sil;
+        const nextShape = VISEME_SHAPES[frame.nextViseme] || VISEME_SHAPES.sil;
 
-        const srcX = frame.spriteCol * CELL_W;
-        const srcY = frame.spriteRow * CELL_H;
+        // Blend between current and next viseme shape
+        const bf = frame.blendFactor;
+        const mOpen = shape.open * (1 - bf) + nextShape.open * bf;
+        const mWidth = shape.width * (1 - bf) + nextShape.width * bf;
+        const mRound = shape.round * (1 - bf) + nextShape.round * bf;
 
-        const dstX = displayW * MOUTH_REGION.x;
-        const dstY = displayH * MOUTH_REGION.y;
-        const dstW = displayW * MOUTH_REGION.w;
-        const dstH = displayH * MOUTH_REGION.h;
+        // Use audioLevel from KokoroTTSManager to modulate openness
+        const amp = Math.max(audioLevel, 0.05);
+        const openness = mOpen * amp;
 
-        // Mouth openness drives overlay opacity (0.5–1.0)
-        const alpha = 0.5 + frame.weight * 0.5;
+        // Only draw if mouth is at least slightly open
+        if (openness > 0.01) {
+          const cx = displayW * (MOUTH_REGION.x + MOUTH_REGION.w / 2);
+          const cy = displayH * (MOUTH_REGION.y + MOUTH_REGION.h / 2);
+          const maxW = displayW * MOUTH_REGION.w * 0.5;
+          const maxH = displayH * MOUTH_REGION.h * 0.6;
 
-        ctx.save();
-        ctx.globalAlpha = alpha;
+          const rx = maxW * mWidth * (0.5 + amp * 0.5);
+          const ry = maxH * openness;
 
-        // Rounded clip for soft edge blending
-        const r = FEATHER_PX;
-        ctx.beginPath();
-        ctx.moveTo(dstX + r, dstY);
-        ctx.lineTo(dstX + dstW - r, dstY);
-        ctx.quadraticCurveTo(dstX + dstW, dstY, dstX + dstW, dstY + r);
-        ctx.lineTo(dstX + dstW, dstY + dstH - r);
-        ctx.quadraticCurveTo(dstX + dstW, dstY + dstH, dstX + dstW - r, dstY + dstH);
-        ctx.lineTo(dstX + r, dstY + dstH);
-        ctx.quadraticCurveTo(dstX, dstY + dstH, dstX, dstY + dstH - r);
-        ctx.lineTo(dstX, dstY + r);
-        ctx.quadraticCurveTo(dstX, dstY, dstX + r, dstY);
-        ctx.closePath();
-        ctx.clip();
+          ctx.save();
+          ctx.globalCompositeOperation = 'multiply';
+          ctx.globalAlpha = 0.25 + openness * 0.35;
 
-        // Draw current viseme sprite cell
-        ctx.drawImage(sprite, srcX, srcY, CELL_W, CELL_H, dstX, dstY, dstW, dstH);
+          // Draw mouth shadow ellipse (simulates open mouth)
+          ctx.beginPath();
+          ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+          ctx.closePath();
 
-        // Crossfade to next viseme if mid-transition
-        if (frame.blendFactor > 0.05 && frame.blendFactor < 0.95) {
-          const nextSrcX = frame.nextSpriteCol * CELL_W;
-          const nextSrcY = frame.nextSpriteRow * CELL_H;
-          ctx.globalAlpha = alpha * frame.blendFactor;
-          ctx.drawImage(sprite, nextSrcX, nextSrcY, CELL_W, CELL_H, dstX, dstY, dstW, dstH);
+          // Radial gradient for soft edges
+          const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rx, ry));
+          grad.addColorStop(0, 'rgba(20,10,15,1)');
+          grad.addColorStop(0.6, 'rgba(30,15,20,0.8)');
+          grad.addColorStop(1, 'rgba(40,20,25,0)');
+          ctx.fillStyle = grad;
+          ctx.fill();
+
+          // Lip highlight (subtle lighter edge on top lip)
+          ctx.globalCompositeOperation = 'screen';
+          ctx.globalAlpha = 0.08 + openness * 0.06;
+          ctx.beginPath();
+          ctx.ellipse(cx, cy - ry * 0.8, rx * 0.9, ry * 0.15, 0, Math.PI, Math.PI * 2);
+          ctx.fillStyle = `rgba(180,120,130,0.5)`;
+          ctx.fill();
+
+          ctx.restore();
         }
-
-        ctx.restore();
       }
 
       // ==== LAYER 3: EMOTION POST-PROCESSING ====

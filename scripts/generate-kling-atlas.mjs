@@ -156,14 +156,14 @@ const GUIDE_VOICES = {
 /** Must match VisemeEngine.ts VISEME_ORDER exactly */
 const VISEME_ORDER = ['sil', 'PP', 'FF', 'TH', 'DD', 'kk', 'CH', 'SS', 'nn', 'RR', 'aa', 'E', 'I', 'O', 'U'];
 
-/** Idle video generation prompts (natural micro-movements, clear face) */
+/** Idle video generation prompts (professional, approachable, diverse — NOT glamorous) */
 const GUIDE_IDLE_PROMPTS = {
-  kore:   'A beautiful woman with blonde honey hair, hazel-green eyes, olive-tan skin, gentle warm expression, soft ambient lighting, looking directly at camera, subtle natural micro-movements, breathing gently, serene atmosphere, photorealistic, 4K',
-  aoede:  'A beautiful woman with dark brown hair, hazel-green eyes, olive-tan skin, creative thoughtful expression, warm studio lighting, looking directly at camera, subtle natural micro-movements, gentle head tilt, photorealistic, 4K',
-  leda:   'A beautiful woman with blonde honey hair, hazel-green eyes, olive-tan skin, nurturing compassionate expression, soft pink-toned lighting, looking directly at camera, subtle breathing movements, warm atmosphere, photorealistic, 4K',
-  theia:  'A beautiful woman with dark brown hair, hazel-green eyes, olive-tan skin, wise knowing expression, natural green-toned lighting, looking directly at camera, calm steady presence, subtle micro-expressions, photorealistic, 4K',
-  selene: 'A beautiful woman with dark brown hair, hazel-green eyes, olive-tan skin, serene introspective expression, cool blue-toned lighting, looking directly at camera, peaceful stillness, subtle breathing, photorealistic, 4K',
-  zephyr: 'A beautiful woman with blonde honey hair, hazel-green eyes, olive-tan skin, energetic confident expression, warm orange-toned lighting, looking directly at camera, lively subtle movements, bright atmosphere, photorealistic, 4K',
+  kore:   'A warm professional woman in her late 30s, light brown hair in a soft updo, kind brown eyes, wearing a cream blouse and simple gold necklace, gentle welcoming expression, soft ambient lighting, looking directly at camera, subtle natural breathing, calm counselor energy, professional headshot style, photorealistic, 4K',
+  aoede:  'A creative Black woman in her early 40s, natural coily hair with silver streaks, warm dark eyes, wearing a deep plum wrap top, thoughtful artistic expression, warm studio lighting, looking directly at camera, subtle natural breathing, poet-mentor energy, professional headshot style, photorealistic, 4K',
+  leda:   'A nurturing East Asian woman in her mid 30s, shoulder-length dark hair, gentle eyes, wearing a soft rose cardigan over white blouse, compassionate warm expression, soft natural lighting, looking directly at camera, subtle breathing movements, therapist energy, professional headshot style, photorealistic, 4K',
+  theia:  'A grounded South Asian woman in her early 40s, dark hair pulled back loosely, calm steady gaze, wearing an olive green top with wooden bead bracelet, wise knowing expression, warm natural lighting, looking directly at camera, calm steady presence, wellness practitioner energy, professional headshot style, photorealistic, 4K',
+  selene: 'A serene mixed-race woman in her late 30s, wavy dark brown hair, intelligent thoughtful eyes, wearing a slate blue blazer over white top, introspective scholarly expression, cool-toned studio lighting, looking directly at camera, peaceful stillness, librarian-scholar energy, professional headshot style, photorealistic, 4K',
+  zephyr: 'A confident Latina woman in her mid 30s, dark auburn hair in a neat low bun, bright determined eyes, wearing a warm amber blouse with small hoop earrings, encouraging confident expression, warm golden lighting, looking directly at camera, poised subtle energy, executive coach energy, professional headshot style, photorealistic, 4K',
 };
 
 // ============================================================================
@@ -318,7 +318,7 @@ async function createImageToVideoTask(imageUrl, prompt) {
       prompt,
       image_url: imageUrl,
       duration: 5,
-      negative_prompt: 'blurry, distorted face, extra limbs, deformed, ugly, cartoon, anime, nsfw',
+      negative_prompt: 'blurry, distorted face, extra limbs, deformed, ugly, cartoon, anime, nsfw, sexy, cleavage, revealing clothing, glamorous, model, seductive, provocative, makeup heavy',
       cfg_scale: 0.5,
       aspect_ratio: '1:1',
       mode: 'std',
