@@ -424,27 +424,6 @@ export default function SimliAvatar({
         </div>
       )}
 
-      {/* Diagnostic overlay — TEMPORARY for debugging lip-sync */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 4,
-          left: 4,
-          background: 'rgba(0,0,0,0.75)',
-          color: '#0f0',
-          fontSize: 9,
-          fontFamily: 'monospace',
-          padding: '2px 6px',
-          borderRadius: 4,
-          zIndex: 20,
-          maxWidth: '90%',
-          wordBreak: 'break-all',
-          pointerEvents: 'none',
-        }}
-      >
-        {SIMLI_BUILD} | {debugInfo}
-      </div>
-
       {/* Listening indicator */}
       {isListening && connected && (
         <div

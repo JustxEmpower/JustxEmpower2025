@@ -76,9 +76,6 @@ import SimliAvatar from './SimliAvatar';
 // For multiple guides, use VITE_SIMLI_FACE_ID_KORE, VITE_SIMLI_FACE_ID_AOEDE, etc.
 const SIMLI_FACE_IDS: Record<string, string> = (() => {
   const ids: Record<string, string> = {};
-  // TEMPORARY: Use Simli preset face to test lip-sync pipeline
-  // Once confirmed working, revert to env-based face IDs
-  const PRESET_TEST_FACE = 'tmp9i8bbq7c';
   const globalId = (import.meta as any).env?.VITE_SIMLI_FACE_ID || '';
   if (globalId) {
     ['kore','aoede','leda','theia','selene','zephyr'].forEach(g => { ids[g] = globalId; });
@@ -90,8 +87,6 @@ const SIMLI_FACE_IDS: Record<string, string> = (() => {
     const val = (import.meta as any).env?.[envKey];
     if (val) ids[g] = val;
   }
-  // Override Kore with preset face for testing
-  ids['kore'] = PRESET_TEST_FACE;
   return ids;
 })();
 
