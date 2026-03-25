@@ -37,50 +37,12 @@ interface SimliAvatarProps {
 }
 
 // ============================================================================
-// Audio Conversion Utilities
+// Audio Playback Utilities
 // ============================================================================
 
-/** Decode a WAV blob to PCM16 Uint8Array at 16KHz for Simli */
-async function wavBlobToPCM16(blob: Blob): Promise<Uint8Array> {
-  const arrayBuffer = await blob.arrayBuffer();
-
-  // Create an AudioContext to decode the WAV
-  const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({
-    sampleRate: 16000,
-  });
-
-  try {
-    // Decode the audio data
-    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-
-    // If the decoded sample rate isn't 16KHz, resample via OfflineAudioContext
-    let samples: Float32Array;
-    if (audioBuffer.sampleRate !== 16000) {
-      const duration = audioBuffer.duration;
-      const numSamples = Math.ceil(duration * 16000);
-      const offlineCtx = new OfflineAudioContext(1, numSamples, 16000);
-      const source = offlineCtx.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(offlineCtx.destination);
-      source.start(0);
-      const resampled = await offlineCtx.startRendering();
-      samples = resampled.getChannelData(0);
-    } else {
-      samples = audioBuffer.getChannelData(0);
-    }
-
-    // Convert Float32 [-1, 1] to Int16 PCM
-    const pcm16 = new Int16Array(samples.length);
-    for (let i = 0; i < samples.length; i++) {
-      const s = Math.max(-1, Math.min(1, samples[i]));
-      pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
-    }
-
-    return new Uint8Array(pcm16.buffer);
-  } finally {
-    await audioCtx.close();
-  }
-}
+// No manual PCM conversion needed — we route decoded audio through a
+// MediaStreamDestination so Simli's own AudioWorklet handles chunking,
+// sample-rate conversion, and real-time streaming.
 
 // ============================================================================
 // SimliAvatar Component
@@ -101,6 +63,9 @@ export default function SimliAvatar({
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
   const simliRef = useRef<any>(null);
+  // AudioContext + MediaStreamDestination for routing TTS audio → Simli AudioWorklet
+  const playbackCtxRef = useRef<AudioContext | null>(null);
+  const streamDestRef = useRef<MediaStreamAudioDestinationNode | null>(null);
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -215,6 +180,26 @@ export default function SimliAvatar({
         await client.start();
         simliRef.current = client;
 
+        // 6. Set up MediaStream audio pipeline for TTS → Simli lip-sync.
+        // Create a 16kHz AudioContext + MediaStreamDestination, then connect
+        // the destination's track to Simli's AudioWorklet via listenToMediastreamTrack.
+        // This routes decoded TTS audio through Simli's own chunking/streaming pipeline.
+        try {
+          const playCtx = new (window.AudioContext || (window as any).webkitAudioContext)({ sampleRate: 16000 });
+          const dest = playCtx.createMediaStreamDestination();
+          playbackCtxRef.current = playCtx;
+          streamDestRef.current = dest;
+          const audioTrack = dest.stream.getAudioTracks()[0];
+          if (audioTrack) {
+            client.listenToMediastreamTrack(audioTrack);
+            console.log('[SimliAvatar] Audio pipeline connected: TTS → MediaStream → Simli AudioWorklet');
+          } else {
+            console.warn('[SimliAvatar] No audio track from MediaStreamDestination');
+          }
+        } catch (pipeErr) {
+          console.error('[SimliAvatar] Audio pipeline setup failed:', pipeErr);
+        }
+
         console.log('[SimliAvatar] Client started, waiting for WebRTC...');
       } catch (err: any) {
         if (cancelled) return;
@@ -234,26 +219,37 @@ export default function SimliAvatar({
         simliRef.current.stop();
         simliRef.current = null;
       }
+      if (playbackCtxRef.current) {
+        playbackCtxRef.current.close().catch(() => {});
+        playbackCtxRef.current = null;
+      }
+      streamDestRef.current = null;
       setConnected(false);
     };
   }, [faceId, guideId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Public method: send audio to Simli ──
+  // ── Public method: send audio to Simli via MediaStream pipeline ──
+  // Decodes the WAV blob and plays it through the AudioContext connected to
+  // the MediaStreamDestination → Simli AudioWorklet → WebSocket → lip-sync.
   const sendAudioToSimli = useCallback(async (audioBlob: Blob) => {
-    const client = simliRef.current;
-    if (!client) {
-      console.warn('[SimliAvatar] Cannot send audio — not connected');
+    const ctx = playbackCtxRef.current;
+    const dest = streamDestRef.current;
+    if (!ctx || !dest) {
+      console.warn('[SimliAvatar] Cannot send audio — playback pipeline not ready');
       return;
     }
 
     try {
-      const pcm16 = await wavBlobToPCM16(audioBlob);
-      // Use sendAudioDataImmediate — it prepends PLAY_IMMEDIATE header so Simli
-      // renders lip-sync immediately instead of buffering server-side.
-      console.log(`[SimliAvatar] Sending ${pcm16.length} bytes via sendAudioDataImmediate`);
-      client.sendAudioDataImmediate(pcm16);
+      if (ctx.state === 'suspended') await ctx.resume();
+      const arrayBuffer = await audioBlob.arrayBuffer();
+      const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(dest);
+      source.start(0);
+      console.log(`[SimliAvatar] Playing ${audioBuffer.duration.toFixed(2)}s of audio through Simli pipeline`);
     } catch (err) {
-      console.error('[SimliAvatar] Audio conversion failed:', err);
+      console.error('[SimliAvatar] Audio playback to Simli failed:', err);
     }
   }, []);
 
