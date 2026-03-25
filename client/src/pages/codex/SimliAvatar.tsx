@@ -6,7 +6,18 @@
  */
 
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { SimliClient, LogLevel } from 'simli-client';
+
+// Dynamic import to avoid Rollup resolution issues in production build
+let SimliClient: any = null;
+let LogLevel: any = null;
+const loadSimliClient = async () => {
+  if (!SimliClient) {
+    const mod = await import('simli-client');
+    SimliClient = mod.SimliClient;
+    LogLevel = mod.LogLevel;
+  }
+  return { SimliClient, LogLevel };
+};
 
 // ============================================================================
 // Types
@@ -89,7 +100,7 @@ export default function SimliAvatar({
 }: SimliAvatarProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
-  const simliRef = useRef<SimliClient | null>(null);
+  const simliRef = useRef<any>(null);
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -141,18 +152,19 @@ export default function SimliAvatar({
         }
         if (cancelled) return;
 
-        // 3. Initialize SimliClient
+        // 3. Initialize SimliClient (dynamically loaded)
         const videoEl = videoRef.current;
         const audioEl = audioRef.current;
         if (!videoEl || !audioEl) throw new Error('Video/audio elements not mounted');
 
+        const { SimliClient: SC, LogLevel: LL } = await loadSimliClient();
         const transportMode = iceServers ? 'p2p' : 'livekit';
-        const client = new SimliClient(
+        const client = new SC(
           session_token,
           videoEl,
           audioEl,
           iceServers,
-          LogLevel.INFO,
+          LL.INFO,
           transportMode,
         );
 
