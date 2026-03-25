@@ -126,7 +126,7 @@ export default function SimliAvatar({
         const tokenRes = await fetch('/api/simli/token', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ faceId, maxSessionLength: 600, maxIdleTime: 300 }),
+          body: JSON.stringify({ faceId, maxSessionLength: 3600, maxIdleTime: 3600 }),
         });
 
         if (!tokenRes.ok) {
@@ -189,10 +189,16 @@ export default function SimliAvatar({
         });
 
         client.on('error', () => {
-          console.error('[SimliAvatar] WebRTC error');
+          console.error('[SimliAvatar] WebRTC error — will auto-reconnect');
           if (!cancelled) {
-            setError('Connection lost');
-            onError?.('WebRTC connection error');
+            setConnected(false);
+            // Auto-reconnect after a brief delay
+            setTimeout(() => {
+              if (!cancelled) {
+                console.log('[SimliAvatar] Auto-reconnecting...');
+                initSimli();
+              }
+            }, 2000);
           }
         });
 
@@ -242,15 +248,10 @@ export default function SimliAvatar({
 
     try {
       const pcm16 = await wavBlobToPCM16(audioBlob);
-      // Simli expects audio in small chunks (matching its AudioWorklet buffer of 6000 Int16 samples = 12000 bytes).
-      // Sending the entire sentence at once overwhelms the signaling pipeline.
-      const CHUNK_BYTES = 12000; // 6000 Int16 samples × 2 bytes each
-      const totalChunks = Math.ceil(pcm16.length / CHUNK_BYTES);
-      console.log(`[SimliAvatar] Sending ${pcm16.length} bytes in ${totalChunks} chunks`);
-      for (let offset = 0; offset < pcm16.length; offset += CHUNK_BYTES) {
-        const chunk = pcm16.slice(offset, offset + CHUNK_BYTES);
-        client.sendAudioData(chunk);
-      }
+      // Use sendAudioDataImmediate — it prepends PLAY_IMMEDIATE header so Simli
+      // renders lip-sync immediately instead of buffering server-side.
+      console.log(`[SimliAvatar] Sending ${pcm16.length} bytes via sendAudioDataImmediate`);
+      client.sendAudioDataImmediate(pcm16);
     } catch (err) {
       console.error('[SimliAvatar] Audio conversion failed:', err);
     }

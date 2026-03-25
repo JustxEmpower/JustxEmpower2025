@@ -737,10 +737,12 @@ function useGeminiLive(
   const speakText = useCallback((text: string, voiceOverride?: string) => {
     const kokoro = kokoroRef.current;
     const voice = voiceOverride || currentVoice;
+    // Strip ™/®/© symbols so TTS doesn't say "trademark" / "registered" / "copyright"
+    const cleanText = text.replace(/[™®©]/g, '');
     console.log(`[speakText] voice=${voice}, kokoroReady=${kokoro?.getState().isReady}`);
     if (kokoro && kokoro.getState().isReady) {
       kokoro.resumeAudioContext().then(() => {
-        kokoro.speak(text, voice).catch((err: any) => {
+        kokoro.speak(cleanText, voice).catch((err: any) => {
           console.error('[Kokoro TTS] Speak failed:', err);
           setIsSpeaking(false);
           setCurrentGesture('idle');
@@ -752,7 +754,7 @@ function useGeminiLive(
       setTimeout(() => {
         const k = kokoroRef.current;
         if (k && k.getState().isReady) {
-          k.speak(text, voice).catch(() => {});
+          k.speak(cleanText, voice).catch(() => {});
         }
       }, 2000);
     }
