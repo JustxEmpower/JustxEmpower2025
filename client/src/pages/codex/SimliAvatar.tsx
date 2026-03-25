@@ -74,29 +74,16 @@ async function blobToPCM16Chunks(blob: Blob, chunkMs = 100): Promise<Int16Array[
   }
 }
 
-/** Stream PCM16 chunks to Simli at real-time pace (120ms interval, matching official example) */
-function streamChunksToSimli(client: any, chunks: Int16Array[]): Promise<void> {
-  return new Promise((resolve) => {
-    let idx = 0;
-    const interval = setInterval(() => {
-      if (idx >= chunks.length) {
-        clearInterval(interval);
-        resolve();
-        return;
-      }
-      const chunk = chunks[idx];
-      try {
-        // Send as Uint8Array (v3 API) wrapping the Int16Array buffer
-        client.sendAudioData(new Uint8Array(chunk.buffer));
-      } catch (err) {
-        console.error('[SimliAvatar] sendAudioData error:', err);
-        clearInterval(interval);
-        resolve();
-        return;
-      }
-      idx++;
-    }, 120);
-  });
+/** Send all PCM16 chunks to Simli immediately — server handles buffering (matches official v3 example) */
+function sendAllChunksToSimli(client: any, chunks: Int16Array[]): void {
+  for (const chunk of chunks) {
+    try {
+      client.sendAudioData(chunk as any);
+    } catch (err) {
+      console.error('[SimliAvatar] sendAudioData error:', err);
+      return;
+    }
+  }
 }
 
 // ============================================================================
@@ -143,7 +130,7 @@ export default function SimliAvatar({
         const tokenRes = await fetch('/api/simli/token', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ faceId, maxSessionLength: 3600, maxIdleTime: 3600 }),
+          body: JSON.stringify({ faceId, maxSessionLength: 3600, maxIdleTime: 3600, model: 'fasttalk' }),
         });
 
         if (!tokenRes.ok) {
@@ -265,9 +252,9 @@ export default function SimliAvatar({
     try {
       const chunks = await blobToPCM16Chunks(audioBlob, 100);
       const totalSamples = chunks.reduce((sum, c) => sum + c.length, 0);
-      console.log(`[SimliAvatar] Streaming ${chunks.length} chunks (${(totalSamples / 16000).toFixed(2)}s) to Simli`);
-      await streamChunksToSimli(client, chunks);
-      console.log('[SimliAvatar] Audio stream complete');
+      console.log(`[SimliAvatar] Sending ${chunks.length} chunks (${(totalSamples / 16000).toFixed(2)}s) to Simli`);
+      sendAllChunksToSimli(client, chunks);
+      console.log('[SimliAvatar] Audio send complete');
     } catch (err) {
       console.error('[SimliAvatar] Audio conversion/send failed:', err);
     }

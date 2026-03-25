@@ -13,7 +13,7 @@ export function createSimliRouter() {
       return res.status(500).json({ error: 'SIMLI_API_KEY not configured' });
     }
 
-    const { faceId, maxSessionLength = 600, maxIdleTime = 180 } = req.body;
+    const { faceId, maxSessionLength = 600, maxIdleTime = 180, model = 'fasttalk' } = req.body;
     if (!faceId) {
       return res.status(400).json({ error: 'faceId required' });
     }
@@ -30,6 +30,7 @@ export function createSimliRouter() {
           maxSessionLength,
           maxIdleTime,
           handleSilence: true,
+          model,
         }),
       });
 
