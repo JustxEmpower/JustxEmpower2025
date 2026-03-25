@@ -15,6 +15,7 @@ import { siteSettings, pages } from "../../drizzle/schema";
 import { createStripeWebhookRouter } from "../stripeWebhook";
 import { createKlingRouter } from "../klingRouter";
 import { createTTSRouter } from "../ttsRouter";
+import { createSimliRouter } from "../simliRouter";
 import { eq } from "drizzle-orm";
 
 function isPortAvailable(port: number): Promise<boolean> {
@@ -61,6 +62,9 @@ async function startServer() {
 
   // Kokoro TTS — server-side neural text-to-speech
   app.use("/api/tts", createTTSRouter());
+
+  // Simli avatar lip-sync — session token proxy (keeps API key server-side)
+  app.use("/api/simli", createSimliRouter());
 
   // tRPC API with increased body size limit
   app.use(
