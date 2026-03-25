@@ -242,8 +242,15 @@ export default function SimliAvatar({
 
     try {
       const pcm16 = await wavBlobToPCM16(audioBlob);
-      console.log(`[SimliAvatar] Sending ${pcm16.length} bytes of PCM16 audio`);
-      client.sendAudioData(pcm16);
+      // Simli expects audio in small chunks (matching its AudioWorklet buffer of 6000 Int16 samples = 12000 bytes).
+      // Sending the entire sentence at once overwhelms the signaling pipeline.
+      const CHUNK_BYTES = 12000; // 6000 Int16 samples × 2 bytes each
+      const totalChunks = Math.ceil(pcm16.length / CHUNK_BYTES);
+      console.log(`[SimliAvatar] Sending ${pcm16.length} bytes in ${totalChunks} chunks`);
+      for (let offset = 0; offset < pcm16.length; offset += CHUNK_BYTES) {
+        const chunk = pcm16.slice(offset, offset + CHUNK_BYTES);
+        client.sendAudioData(chunk);
+      }
     } catch (err) {
       console.error('[SimliAvatar] Audio conversion failed:', err);
     }
@@ -285,7 +292,7 @@ export default function SimliAvatar({
         style={{
           width: '100%',
           height: '100%',
-          objectFit: 'cover',
+          objectFit: 'contain',
           borderRadius: 14,
           opacity: connected ? 1 : 0,
           transition: 'opacity 0.6s ease-in-out',

@@ -636,6 +636,8 @@ function useGeminiLive(
   const micFrameRef = useRef<number | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSpeechTimeRef = useRef<number>(0);
+  // Ref to track isSpeaking without stale closure issues in recognition callbacks
+  const isSpeakingRef = useRef(false);
 
   // Initialize Kokoro TTS
   useEffect(() => {
@@ -647,18 +649,20 @@ function useGeminiLive(
     // Listen for Kokoro events
     kokoro.addEventListener('start', () => {
       setIsSpeaking(true);
+      isSpeakingRef.current = true;
     });
 
     kokoro.addEventListener('end', () => {
       setIsSpeaking(false);
+      isSpeakingRef.current = false;
       setCurrentGesture('idle');
-      // Resume listening if user had voice mode on
+      // Resume listening if user had voice mode on — longer delay to avoid picking up tail-end audio
       if (shouldKeepListeningRef.current && recognitionRef.current === null) {
         setTimeout(() => {
-          if (shouldKeepListeningRef.current) {
+          if (shouldKeepListeningRef.current && !isSpeakingRef.current) {
             startListeningInternal();
           }
-        }, 500);
+        }, 1200);
       }
     });
 
@@ -992,7 +996,8 @@ function useGeminiLive(
 
   const startListeningInternal = useCallback(() => {
     // Don't start if guide is currently speaking (mic would pick up TTS)
-    if (isSpeaking) return;
+    // Use ref to avoid stale closure — isSpeaking state may be outdated in callbacks
+    if (isSpeakingRef.current) return;
 
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
       console.warn('[HolographicAvatar] Speech recognition not supported in this browser');
@@ -1044,7 +1049,8 @@ function useGeminiLive(
     recognition.onend = () => {
       recognitionRef.current = null;
       // Auto-restart if user still wants to listen and guide isn't speaking
-      if (shouldKeepListeningRef.current && !isSpeaking) {
+      // Use ref to get real-time value (not stale closure)
+      if (shouldKeepListeningRef.current && !isSpeakingRef.current) {
         // Send any pending interim text that didn't finalize
         if (pendingTranscriptRef.current.trim()) {
           const pending = pendingTranscriptRef.current.trim();
@@ -1096,7 +1102,16 @@ function useGeminiLive(
       recognitionRef.current = null;
       setIsListening(false);
     }
-  }, [sendTextMessage, isSpeaking]);
+  }, [sendTextMessage]);
+
+  // Kill STT immediately whenever TTS starts — prevents mic from picking up guide audio
+  useEffect(() => {
+    if (isSpeaking && recognitionRef.current) {
+      console.log('[STT] Stopping recognition — guide is speaking');
+      try { recognitionRef.current.stop(); } catch {}
+      recognitionRef.current = null;
+    }
+  }, [isSpeaking]);
 
   const startListening = useCallback(() => {
     shouldKeepListeningRef.current = true;
@@ -1414,7 +1429,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                     textTransform: 'uppercase',
                     marginBottom: 4,
                   }}>
-                    {currentVoiceName}
+                    {config.name}
                   </span>
                 )}
                 {msg.content}
@@ -1511,7 +1526,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
               type="text"
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
-              placeholder={gemini.isListening ? 'Listening...' : `Message ${currentVoiceName}...`}
+              placeholder={gemini.isListening ? 'Listening...' : `Message ${config.name}...`}
               style={{
                 flex: 1,
                 height: 48,
