@@ -5,7 +5,13 @@ import { GUIDE_CHARACTERS, type GuideCharacter } from './GuideCharacters';
 // Video-game-style character selector
 // Each guide is shown living & breathing with their idle video playing.
 // Selecting one sets both the avatar and the voice.
+//
+// Only guides with Simli face IDs are shown as selectable.
+// Others will appear as "Coming Soon" once their 24hr Simli conversion completes.
 // ============================================================================
+
+// Guides with completed Simli avatar faces — add IDs here as they become ready
+const SIMLI_READY_GUIDE_IDS = new Set(['kore']);
 
 interface GuideCharacterSelectorProps {
   /** Currently selected guide ID (kore, aoede, etc.) */
@@ -340,16 +346,48 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
           animation: 'fade-up 0.8s ease-out 0.15s both',
         }}
       >
-        {GUIDE_CHARACTERS.map((char) => (
-          <CharacterCard
-            key={char.id}
-            character={char}
-            isSelected={selectedId === char.id}
-            isHighlighted={hoveredId === char.id}
-            onHover={() => setHoveredId(char.id)}
-            onClick={() => setSelectedId(char.id)}
-          />
-        ))}
+        {GUIDE_CHARACTERS.map((char) => {
+          const isReady = SIMLI_READY_GUIDE_IDS.has(char.id);
+          return (
+            <div key={char.id} style={{ position: 'relative' }}>
+              <CharacterCard
+                character={char}
+                isSelected={selectedId === char.id}
+                isHighlighted={hoveredId === char.id}
+                onHover={() => { if (isReady) setHoveredId(char.id); }}
+                onClick={() => { if (isReady) setSelectedId(char.id); }}
+              />
+              {/* Coming Soon overlay for guides without Simli faces yet */}
+              {!isReady && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: 16,
+                    background: 'rgba(0,0,0,0.7)',
+                    backdropFilter: 'blur(2px)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 5,
+                    cursor: 'not-allowed',
+                  }}
+                >
+                  <span style={{
+                    fontFamily: "'Inter', sans-serif",
+                    fontSize: '0.65rem',
+                    letterSpacing: '0.15em',
+                    textTransform: 'uppercase',
+                    color: 'rgba(255,255,255,0.35)',
+                  }}>
+                    Coming Soon
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Active Character Detail Panel */}

@@ -69,6 +69,28 @@ import { AvatarSelector, AvatarSettingsButton } from './AvatarSelector';
 import LifelikeAvatar from './LifelikeAvatar';
 import { type AvatarDisplayMode } from './KlingAvatarService';
 
+// Simli real-time lip-sync avatar
+import SimliAvatar from './SimliAvatar';
+
+// Simli face IDs per guide — set VITE_SIMLI_FACE_ID in .env
+// For multiple guides, use VITE_SIMLI_FACE_ID_KORE, VITE_SIMLI_FACE_ID_AOEDE, etc.
+const SIMLI_FACE_IDS: Record<string, string> = (() => {
+  const ids: Record<string, string> = {};
+  const globalId = (import.meta as any).env?.VITE_SIMLI_FACE_ID || '';
+  if (globalId) {
+    // Apply the global face ID to all guides as default
+    ['kore','aoede','leda','theia','selene','zephyr'].forEach(g => { ids[g] = globalId; });
+  }
+  // Per-guide overrides
+  const guides = ['kore','aoede','leda','theia','selene','zephyr'];
+  for (const g of guides) {
+    const envKey = `VITE_SIMLI_FACE_ID_${g.toUpperCase()}`;
+    const val = (import.meta as any).env?.[envKey];
+    if (val) ids[g] = val;
+  }
+  return ids;
+})();
+
 // Guide character system
 import { getGuideCharacter, CHARACTER_TO_GUIDE_TYPE } from './GuideCharacters';
 import { GuideCharacterSelector } from './GuideCharacterSelector';
@@ -554,6 +576,7 @@ interface UseGeminiLiveReturn {
   isListening: boolean;
   isSpeaking: boolean;
   audioLevel: number;
+  micLevel: number;
   currentEmotion: AvatarEmotion;
   currentGesture: AvatarGesture;
   transcript: string;
@@ -598,6 +621,7 @@ function useGeminiLive(
   });
   const [lastSpokenText, setLastSpokenText] = useState('');
   const [lastAudioUrl, setLastAudioUrl] = useState<string | undefined>(undefined);
+  const [micLevel, setMicLevel] = useState(0);
 
   const sessionRef = useRef<any>(null);
   const recognitionRef = useRef<any>(null);
@@ -605,6 +629,13 @@ function useGeminiLive(
   const shouldKeepListeningRef = useRef(false);
   const kokoroRef = useRef<KokoroTTSManager | null>(null);
   const audioLevelFrameRef = useRef<number | null>(null);
+  // VAD: mic stream + silence timer for fast end-of-speech detection
+  const micStreamRef = useRef<MediaStream | null>(null);
+  const micAnalyserRef = useRef<AnalyserNode | null>(null);
+  const micAudioCtxRef = useRef<AudioContext | null>(null);
+  const micFrameRef = useRef<number | null>(null);
+  const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastSpeechTimeRef = useRef<number>(0);
 
   // Initialize Kokoro TTS
   useEffect(() => {
@@ -875,7 +906,89 @@ function useGeminiLive(
     [onSendMessage, onMessage, checkEscalation, detectEmotion, detectGesture, speakText]
   );
 
-  // ── Speech Recognition — robust STT with auto-restart ──
+  // ── Mic Audio Monitoring (VAD) — Web Audio API ──
+  // Provides real-time mic level + silence detection for fast end-of-speech
+
+  const SILENCE_THRESHOLD = 0.02;   // RMS below this = silence
+  const SILENCE_TIMEOUT_MS = 1200;  // Send after 1.2s silence with pending text
+
+  const startMicMonitoring = useCallback(async () => {
+    try {
+      if (micStreamRef.current) return; // already monitoring
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      micStreamRef.current = stream;
+
+      const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      micAudioCtxRef.current = ctx;
+      const source = ctx.createMediaStreamSource(stream);
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 512;
+      source.connect(analyser);
+      micAnalyserRef.current = analyser;
+
+      const data = new Uint8Array(analyser.frequencyBinCount);
+      lastSpeechTimeRef.current = Date.now();
+
+      const monitorLoop = () => {
+        if (!micAnalyserRef.current) return;
+        micAnalyserRef.current.getByteFrequencyData(data);
+        let sum = 0;
+        for (let i = 0; i < data.length; i++) sum += (data[i] / 255) ** 2;
+        const rms = Math.sqrt(sum / data.length);
+        setMicLevel(rms);
+
+        // Track last time we heard speech
+        if (rms > SILENCE_THRESHOLD) {
+          lastSpeechTimeRef.current = Date.now();
+          // Clear any pending silence timer
+          if (silenceTimerRef.current) {
+            clearTimeout(silenceTimerRef.current);
+            silenceTimerRef.current = null;
+          }
+        } else if (pendingTranscriptRef.current.trim() && !silenceTimerRef.current) {
+          // Silence detected and we have pending text — start silence timer
+          silenceTimerRef.current = setTimeout(() => {
+            silenceTimerRef.current = null;
+            const pending = pendingTranscriptRef.current.trim();
+            if (pending && shouldKeepListeningRef.current) {
+              console.log(`[VAD] Silence detected, auto-sending: "${pending}"`);
+              pendingTranscriptRef.current = '';
+              setTranscript(pending);
+              // Stop recognition to force finalize, then send
+              if (recognitionRef.current) {
+                try { recognitionRef.current.stop(); } catch {}
+              }
+              sendTextMessage(pending);
+            }
+          }, SILENCE_TIMEOUT_MS);
+        }
+
+        micFrameRef.current = requestAnimationFrame(monitorLoop);
+      };
+      micFrameRef.current = requestAnimationFrame(monitorLoop);
+      console.log('[VAD] Mic monitoring started');
+    } catch (err) {
+      console.warn('[VAD] Mic access failed:', err);
+    }
+  }, [sendTextMessage]);
+
+  const stopMicMonitoring = useCallback(() => {
+    if (micFrameRef.current) { cancelAnimationFrame(micFrameRef.current); micFrameRef.current = null; }
+    if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
+    if (micStreamRef.current) {
+      micStreamRef.current.getTracks().forEach(t => t.stop());
+      micStreamRef.current = null;
+    }
+    if (micAudioCtxRef.current) {
+      micAudioCtxRef.current.close().catch(() => {});
+      micAudioCtxRef.current = null;
+    }
+    micAnalyserRef.current = null;
+    setMicLevel(0);
+    console.log('[VAD] Mic monitoring stopped');
+  }, []);
+
+  // ── Speech Recognition — robust STT with auto-restart + VAD ──
 
   const startListeningInternal = useCallback(() => {
     // Don't start if guide is currently speaking (mic would pick up TTS)
@@ -914,6 +1027,8 @@ function useGeminiLive(
 
       if (finalText.trim()) {
         pendingTranscriptRef.current = '';
+        // Clear any VAD silence timer — we have a finalized result
+        if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
         setTranscript(finalText.trim());
         sendTextMessage(finalText.trim());
       } else if (interimText) {
@@ -934,6 +1049,7 @@ function useGeminiLive(
         if (pendingTranscriptRef.current.trim()) {
           const pending = pendingTranscriptRef.current.trim();
           pendingTranscriptRef.current = '';
+          if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
           setTranscript(pending);
           sendTextMessage(pending);
         } else {
@@ -990,7 +1106,9 @@ function useGeminiLive(
     }
     setIsSpeaking(false);
     startListeningInternal();
-  }, [startListeningInternal]);
+    // Start mic audio monitoring for VAD + visual feedback
+    startMicMonitoring();
+  }, [startListeningInternal, startMicMonitoring]);
 
   const stopListening = useCallback(() => {
     shouldKeepListeningRef.current = false;
@@ -999,12 +1117,14 @@ function useGeminiLive(
       recognitionRef.current = null;
     }
     setIsListening(false);
+    // Stop mic monitoring
+    stopMicMonitoring();
     // Send any accumulated interim transcript
     if (pendingTranscriptRef.current.trim()) {
       sendTextMessage(pendingTranscriptRef.current.trim());
       pendingTranscriptRef.current = '';
     }
-  }, [sendTextMessage]);
+  }, [sendTextMessage, stopMicMonitoring]);
 
   const endSession = useCallback(() => {
     stopListening();
@@ -1024,6 +1144,7 @@ function useGeminiLive(
     isListening,
     isSpeaking,
     audioLevel,
+    micLevel,
     currentEmotion,
     currentGesture,
     transcript,
@@ -1129,127 +1250,170 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
 
   if (!isActive) return null;
 
+  /* Jony Ive-inspired holographic keyframes */
+  const iveKeyframes = `
+    @keyframes breathe{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.06);opacity:.92}}
+    @keyframes speak-pulse{0%,100%{transform:scale(1)}25%{transform:scale(1.10)}75%{transform:scale(.96)}}
+    @keyframes orbit{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+    @keyframes orb-glow{0%,100%{box-shadow:0 0 50px var(--glow),0 0 100px var(--glow-dim)}50%{box-shadow:0 0 70px var(--glow),0 0 140px var(--glow-dim)}}
+    @keyframes mic-breathe{0%{transform:scale(1);opacity:0.7}100%{transform:scale(1.8);opacity:0}}
+    @keyframes fade-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes status-dot{0%,100%{opacity:.4}50%{opacity:1}}
+  `;
+
   return (
-    <div className="relative w-full h-full min-h-[600px] bg-gray-950 rounded-2xl overflow-hidden">
-      {/* Three.js Canvas — Holographic Avatar */}
-      {false ? (
+    <div
+      className="relative w-full h-full min-h-[600px] overflow-hidden"
+      style={{
+        background: '#000',
+        borderRadius: 20,
+        boxShadow: 'inset 0 0 80px rgba(0,0,0,0.6)',
+      }}
+    >
+      <style>{iveKeyframes}</style>
+
+      {/* ── Avatar Display ── */}
+      {avatarMode === 'lifelike' ? (
+        /* ── LIFELIKE MODE — Simli real-time lip-sync or LifelikeAvatar fallback ── */
         <div className="absolute inset-0">
-          <Canvas
-            camera={{ position: [0, 0, 6], fov: 50 }}
-            dpr={[1, 2]}
-            gl={{ antialias: true, alpha: true }}
-          >
-            <Suspense fallback={null}>
-              <SceneLighting config={config} phase={userProfile.phase} />
-
-              <AvatarCore
-                config={config}
-                emotion={gemini.currentEmotion}
-                gesture={gemini.currentGesture}
-                isSpeaking={gemini.isSpeaking}
-                audioLevel={gemini.audioLevel}
-              />
-
-              <SacredParticles
-                color={config.particleColor}
-                phase={userProfile.phase}
-                isSpeaking={gemini.isSpeaking}
-              />
-
-              <WaveformRing
-                audioLevel={gemini.audioLevel}
-                color={config.emissiveColor}
-                isSpeaking={gemini.isSpeaking}
-              />
-
-              <OrbitControls enableZoom={false} enablePan={false} autoRotate autoRotateSpeed={0.5} />
-            </Suspense>
-          </Canvas>
-        </div>
-      ) : avatarMode === 'lifelike' ? (
-        /* ── LIFELIKE MODE — Kling AI Video Avatar ── */
-        <div className="absolute inset-0">
-          <LifelikeAvatar
-            guideId={activeGuideId}
-            portraitUrl={currentPreset?.imageUrl || `/assets/avatars/kore-prime/portrait-${activeGuideId}.png`}
-            isSpeaking={gemini.isSpeaking}
-            isListening={gemini.isListening}
-            audioUrl={gemini.lastAudioUrl}
-            spokenText={gemini.lastSpokenText}
-            emotion={gemini.currentEmotion}
-            audioLevel={gemini.audioLevel}
-            width="100%"
-            height="100%"
-            onReady={() => console.log(`[LifelikeAvatar] ${config.name} ready`)}
-            onError={(err) => {
-              console.warn(`[LifelikeAvatar] Falling back to orb: ${err}`);
-              setAvatarMode('orb');
-            }}
-          />
+          {SIMLI_FACE_IDS[activeGuideId] ? (
+            <SimliAvatar
+              guideId={activeGuideId}
+              faceId={SIMLI_FACE_IDS[activeGuideId]}
+              isSpeaking={gemini.isSpeaking}
+              isListening={gemini.isListening}
+              width="100%"
+              height="100%"
+              guideColor={config.primaryColor}
+              onReady={() => console.log(`[SimliAvatar] ${config.name} ready`)}
+              onError={(err) => {
+                console.warn(`[SimliAvatar] Falling back to LifelikeAvatar: ${err}`);
+              }}
+            />
+          ) : (
+            <LifelikeAvatar
+              guideId={activeGuideId}
+              portraitUrl={currentPreset?.imageUrl || `/assets/avatars/kore-prime/portrait-${activeGuideId}.png`}
+              isSpeaking={gemini.isSpeaking}
+              isListening={gemini.isListening}
+              audioUrl={gemini.lastAudioUrl}
+              spokenText={gemini.lastSpokenText}
+              emotion={gemini.currentEmotion}
+              audioLevel={gemini.audioLevel}
+              width="100%"
+              height="100%"
+              onReady={() => console.log(`[LifelikeAvatar] ${config.name} ready`)}
+              onError={(err) => {
+                console.warn(`[LifelikeAvatar] Falling back to orb: ${err}`);
+                setAvatarMode('orb');
+              }}
+            />
+          )}
+          {/* Cinematic vignette overlay for lifelike mode */}
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.6) 100%)',
+          }} />
+          {/* Subtle ambient glow at avatar center */}
+          <div className="absolute inset-0 pointer-events-none" style={{
+            background: `radial-gradient(circle at 50% 40%, ${config.primaryColor}08 0%, transparent 60%)`,
+          }} />
         </div>
       ) : (
-        /* ── ORB MODE (default) ── */
-        <div className="absolute inset-0 flex items-center justify-center" style={{ background: `radial-gradient(ellipse at center, ${config.secondaryColor}cc 0%, #0A0A1A 70%)` }}>
-          <style>{`@keyframes hp{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.08);opacity:.95}}@keyframes hs{0%,100%{transform:scale(1)}25%{transform:scale(1.12)}75%{transform:scale(.95)}}@keyframes hr{from{transform:rotate(0)}to{transform:rotate(360deg)}}@keyframes kokoroGlow{0%,100%{box-shadow:0 0 60px ${currentVoiceData?.orbGlow || config.emissiveColor}, 0 0 120px ${currentVoiceData?.orbGlow || config.emissiveColor}40}50%{box-shadow:0 0 80px ${currentVoiceData?.orbGlow || config.emissiveColor}, 0 0 160px ${currentVoiceData?.orbGlow || config.emissiveColor}60}}`}</style>
-          <div style={{textAlign:'center',marginTop:'-3rem'}}>
-            <div style={{width:'14rem',height:'14rem',margin:'0 auto',position:'relative',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <div style={{position:'absolute',inset:0,borderRadius:'50%',border:`2px solid ${config.primaryColor}30`,animation:'hr 20s linear infinite'}}/>
-              <div style={{position:'absolute',inset:'1rem',borderRadius:'50%',border:`1px solid ${config.primaryColor}20`,animation:'hr 15s linear infinite reverse'}}/>
-              {/* Main orb — uses voice color when Kokoro is active */}
+        /* ── ORB MODE — Refined, minimal ── */
+        <div className="absolute inset-0 flex items-center justify-center" style={{
+          background: `radial-gradient(ellipse at 50% 45%, ${config.secondaryColor}40 0%, #000 75%)`,
+        }}>
+          <div style={{ textAlign: 'center', marginTop: '-2rem' }}>
+            {/* Orbital rings */}
+            <div style={{ width: '16rem', height: '16rem', margin: '0 auto', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', border: `1px solid ${config.primaryColor}15`, animation: 'orbit 30s linear infinite' }} />
+              <div style={{ position: 'absolute', inset: '1.5rem', borderRadius: '50%', border: `1px solid ${config.primaryColor}10`, animation: 'orbit 22s linear infinite reverse' }} />
+              <div style={{ position: 'absolute', inset: '3rem', borderRadius: '50%', border: `1px solid ${config.primaryColor}08`, animation: 'orbit 16s linear infinite' }} />
+              {/* Core orb */}
               <div style={{
-                width:'8rem',
-                height:'8rem',
-                borderRadius:'50%',
+                '--glow': currentVoiceData?.orbGlow || config.emissiveColor,
+                '--glow-dim': `${currentVoiceData?.orbGlow || config.emissiveColor}30`,
+                width: '7rem',
+                height: '7rem',
+                borderRadius: '50%',
                 background: currentVoiceData
-                  ? `radial-gradient(circle at 35% 35%, ${currentVoiceData.orbColor}, ${currentVoiceData.orbColor}80 50%, ${config.emissiveColor}40)`
-                  : `radial-gradient(circle at 35% 35%, ${config.primaryColor}, ${config.emissiveColor}80)`,
-                boxShadow: currentVoiceData
-                  ? `0 0 60px ${currentVoiceData.orbGlow}, 0 0 120px ${currentVoiceData.orbGlow}40`
-                  : `0 0 60px ${config.emissiveColor}, 0 0 120px ${config.emissiveColor}40`,
-                animation: gemini.isSpeaking ? 'hs .8s ease-in-out infinite, kokoroGlow 2s ease-in-out infinite' : 'hp 3s ease-in-out infinite',
-                transition: 'background 0.5s ease, box-shadow 0.5s ease',
-              }}/>
+                  ? `radial-gradient(circle at 38% 35%, ${currentVoiceData.orbColor}ee, ${currentVoiceData.orbColor}60 55%, ${config.emissiveColor}20)`
+                  : `radial-gradient(circle at 38% 35%, ${config.primaryColor}ee, ${config.emissiveColor}50)`,
+                animation: gemini.isSpeaking
+                  ? 'speak-pulse .7s ease-in-out infinite, orb-glow 1.8s ease-in-out infinite'
+                  : 'breathe 4s ease-in-out infinite, orb-glow 4s ease-in-out infinite',
+                transition: 'background 0.6s cubic-bezier(0.4,0,0.2,1)',
+              } as React.CSSProperties} />
             </div>
-            <p style={{fontSize:'1.1rem',fontWeight:500,color:config.primaryColor,letterSpacing:'0.15em',marginTop:'1rem'}}>{currentVoiceName}</p>
-            <p style={{fontSize:'0.65rem',color:'rgba(255,255,255,0.3)',marginTop:'0.35rem'}}>
+            {/* Name — light, spaced */}
+            <p style={{
+              fontFamily: "'Inter', -apple-system, sans-serif",
+              fontSize: '0.95rem',
+              fontWeight: 400,
+              color: `${config.primaryColor}cc`,
+              letterSpacing: '0.2em',
+              marginTop: '1.2rem',
+              textTransform: 'uppercase',
+            }}>{currentVoiceName}</p>
+            {/* Status — whisper-weight */}
+            <p style={{
+              fontFamily: "'Inter', -apple-system, sans-serif",
+              fontSize: '0.6rem',
+              fontWeight: 300,
+              color: 'rgba(255,255,255,0.25)',
+              letterSpacing: '0.12em',
+              marginTop: '0.4rem',
+            }}>
               {gemini.ttsLoading && !gemini.ttsReady
                 ? gemini.ttsLoading
-                : gemini.isSpeaking
-                  ? 'Speaking...'
-                  : gemini.isListening
-                    ? 'Listening...'
-                    : 'Holographic Guide'}
+                : gemini.isSpeaking ? 'Speaking' : gemini.isListening ? 'Listening' : 'Ready'}
             </p>
           </div>
         </div>
       )}
 
-      {/* Chat Overlay */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-gray-950 via-gray-950/90 to-transparent pt-20">
-        {/* Message Display */}
-        <div className="max-h-48 overflow-y-auto px-4 space-y-2 mb-3">
-          {messages.slice(-6).map((msg, i) => (
+      {/* ── Conversation & Controls Overlay ── */}
+      <div className="absolute bottom-0 left-0 right-0" style={{
+        background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, transparent 100%)',
+        paddingTop: '5rem',
+      }}>
+        {/* Message stream — minimal, floating */}
+        <div className="max-h-40 overflow-y-auto px-6 space-y-2.5 mb-4" style={{ scrollbarWidth: 'none' }}>
+          {messages.slice(-5).map((msg, i) => (
             <div
               key={i}
               className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              style={{ animation: 'fade-in 0.3s ease-out both', animationDelay: `${i * 0.05}s` }}
             >
-              <div
-                className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
-                  msg.role === 'user'
-                    ? 'bg-white/10 text-white'
-                    : 'text-white/90'
-                }`}
-                style={
-                  msg.role === 'guide'
-                    ? { backgroundColor: `${config.primaryColor}20` }
-                    : undefined
-                }
-              >
+              <div style={{
+                maxWidth: '78%',
+                padding: '10px 16px',
+                borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                fontSize: '0.82rem',
+                lineHeight: 1.55,
+                fontFamily: "'Inter', -apple-system, sans-serif",
+                fontWeight: 350,
+                letterSpacing: '0.01em',
+                color: msg.role === 'user' ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.9)',
+                background: msg.role === 'user'
+                  ? 'rgba(255,255,255,0.07)'
+                  : `linear-gradient(135deg, ${config.primaryColor}12, ${config.primaryColor}08)`,
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                border: msg.role === 'user'
+                  ? '1px solid rgba(255,255,255,0.06)'
+                  : `1px solid ${config.primaryColor}15`,
+              }}>
                 {msg.role === 'guide' && (
-                  <span
-                    className="text-xs font-medium block mb-1"
-                    style={{ color: config.primaryColor }}
-                  >
+                  <span style={{
+                    display: 'block',
+                    fontSize: '0.6rem',
+                    fontWeight: 500,
+                    color: `${config.primaryColor}99`,
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    marginBottom: 4,
+                  }}>
                     {currentVoiceName}
                   </span>
                 )}
@@ -1260,91 +1424,234 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
           <div ref={chatEndRef} />
         </div>
 
-        {/* Input Controls */}
-        <div className="px-4 pb-4">
-          <form onSubmit={handleTextSubmit} className="flex gap-2">
-            {/* Voice toggle */}
+        {/* ── Input Bar — Frosted glass ── */}
+        <div style={{ padding: '0 1.25rem 1rem' }}>
+          {/* Live transcript — subtle, breathing */}
+          {gemini.isListening && gemini.transcript && (
+            <div style={{
+              margin: '0 0 10px',
+              padding: '8px 16px',
+              borderRadius: 12,
+              fontSize: '0.8rem',
+              fontStyle: 'italic',
+              fontWeight: 300,
+              color: 'rgba(255,255,255,0.6)',
+              background: 'rgba(255,255,255,0.04)',
+              backdropFilter: 'blur(12px)',
+              border: `1px solid ${config.primaryColor}18`,
+              animation: 'fade-in 0.2s ease-out',
+            }}>
+              {gemini.transcript}
+            </div>
+          )}
+
+          <form onSubmit={handleTextSubmit} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+            {/* ── Mic Button — the hero interaction ── */}
             <button
               type="button"
               onClick={gemini.isListening ? gemini.stopListening : gemini.startListening}
-              className={`flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all ${
-                gemini.isListening
-                  ? 'bg-red-500 text-white animate-pulse'
-                  : 'bg-white/10 text-white/70 hover:bg-white/20'
-              }`}
+              style={{
+                position: 'relative',
+                width: 52,
+                height: 52,
+                borderRadius: '50%',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                background: gemini.isListening
+                  ? `radial-gradient(circle, ${config.primaryColor}40 0%, ${config.primaryColor}15 100%)`
+                  : 'rgba(255,255,255,0.06)',
+                color: gemini.isListening ? config.primaryColor : 'rgba(255,255,255,0.5)',
+                transition: 'all 0.4s cubic-bezier(0.4,0,0.2,1)',
+                boxShadow: gemini.isListening
+                  ? `0 0 ${20 + gemini.micLevel * 30}px ${config.primaryColor}${Math.min(99, Math.round(20 + gemini.micLevel * 50)).toString()}`
+                  : 'none',
+              }}
               aria-label={gemini.isListening ? 'Stop listening' : 'Start voice input'}
             >
+              {/* Breathing ring when listening */}
+              {gemini.isListening && (
+                <span style={{
+                  position: 'absolute',
+                  inset: -2,
+                  borderRadius: '50%',
+                  border: `1.5px solid ${config.primaryColor}50`,
+                  animation: 'mic-breathe 2s ease-out infinite',
+                  pointerEvents: 'none',
+                }} />
+              )}
+              {/* Live audio level ring */}
+              {gemini.isListening && gemini.micLevel > 0.01 && (
+                <span style={{
+                  position: 'absolute',
+                  inset: `${-3 - gemini.micLevel * 10}px`,
+                  borderRadius: '50%',
+                  border: `1.5px solid ${config.primaryColor}`,
+                  opacity: Math.min(0.8, 0.15 + gemini.micLevel),
+                  transition: 'all 0.06s ease-out',
+                  pointerEvents: 'none',
+                }} />
+              )}
               {gemini.isListening ? (
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                  <rect x="6" y="6" width="12" height="12" rx="2" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ position: 'relative', zIndex: 1 }}>
+                  <rect x="6" y="6" width="12" height="12" rx="3" />
                 </svg>
               ) : (
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 1.93c-3.94-.49-7-3.85-7-7.93h2c0 3.31 2.69 6 6 6s6-2.69 6-6h2c0 4.08-3.06 7.44-7 7.93V20h4v2H8v-2h4v-4.07z" />
                 </svg>
               )}
             </button>
 
-            {/* Text input */}
+            {/* ── Text Input — frosted glass pill ── */}
             <input
               type="text"
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
-              placeholder={`Speak with ${currentVoiceName}...`}
-              className="flex-1 bg-white/10 text-white placeholder-white/40 rounded-full px-5 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-opacity-50"
-              style={{ focusRingColor: config.primaryColor } as any}
+              placeholder={gemini.isListening ? 'Listening...' : `Message ${currentVoiceName}...`}
+              style={{
+                flex: 1,
+                height: 48,
+                padding: '0 20px',
+                borderRadius: 24,
+                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'rgba(255,255,255,0.04)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                color: 'rgba(255,255,255,0.9)',
+                fontSize: '0.82rem',
+                fontFamily: "'Inter', -apple-system, sans-serif",
+                fontWeight: 350,
+                letterSpacing: '0.01em',
+                outline: 'none',
+                transition: 'border-color 0.3s ease, background 0.3s ease',
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.borderColor = `${config.primaryColor}40`;
+                e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
+                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
+              }}
             />
 
-            {/* Send button */}
+            {/* ── Send Button — subtle arrow ── */}
             <button
               type="submit"
               disabled={!textInput.trim()}
-              className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center transition-all disabled:opacity-30"
-              style={{ backgroundColor: config.primaryColor }}
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: '50%',
+                border: 'none',
+                cursor: textInput.trim() ? 'pointer' : 'default',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                background: textInput.trim() ? config.primaryColor : 'rgba(255,255,255,0.04)',
+                color: textInput.trim() ? '#000' : 'rgba(255,255,255,0.15)',
+                opacity: textInput.trim() ? 1 : 0.5,
+                transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
+                transform: textInput.trim() ? 'scale(1)' : 'scale(0.92)',
+              }}
               aria-label="Send message"
             >
-              <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a.993.993 0 00-1.39.91L2 9.12c0 .5.37.93.87.99L15 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z" />
               </svg>
             </button>
           </form>
 
-          {/* Status bar with voice selector button */}
-          <div className="flex items-center justify-between mt-2 text-xs text-white/40">
-            <span>
-              {gemini.isListening
-                ? 'Listening...'
-                : gemini.isSpeaking
-                ? `${currentVoiceName} is speaking...`
-                : gemini.isConnected
-                ? 'Connected'
-                : 'Connecting...'}
-            </span>
-            <div className="flex items-center gap-2">
-              {/* Change Guide button */}
+          {/* ── Status & Controls — whisper-weight, tucked ── */}
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginTop: 10,
+            padding: '0 4px',
+          }}>
+            {/* Connection status */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{
+                width: 5,
+                height: 5,
+                borderRadius: '50%',
+                background: gemini.isListening
+                  ? config.primaryColor
+                  : gemini.isSpeaking
+                    ? config.primaryColor
+                    : gemini.isConnected
+                      ? 'rgba(255,255,255,0.25)'
+                      : 'rgba(255,200,0,0.5)',
+                animation: gemini.isListening || gemini.isSpeaking ? 'status-dot 1.5s ease-in-out infinite' : 'none',
+                transition: 'background 0.4s ease',
+              }} />
+              <span style={{
+                fontFamily: "'Inter', -apple-system, sans-serif",
+                fontSize: '0.6rem',
+                fontWeight: 350,
+                letterSpacing: '0.06em',
+                color: 'rgba(255,255,255,0.3)',
+              }}>
+                {gemini.isListening ? 'Listening' : gemini.isSpeaking ? 'Speaking' : gemini.isConnected ? 'Ready' : 'Connecting'}
+              </span>
+            </div>
+
+            {/* Minimal controls */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <button
                 onClick={() => setShowGuideSelector(true)}
-                className="text-white/40 hover:text-white/70 transition-colors text-xs px-2 py-1 border border-white/20 rounded hover:border-white/40"
-                title="Change your guide avatar"
-              >
-                ◇ Guide
-              </button>
-              {/* Avatar mode toggle — orb or lifelike only */}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: 8,
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'transparent',
+                  color: 'rgba(255,255,255,0.3)',
+                  fontSize: '0.58rem',
+                  fontFamily: "'Inter', -apple-system, sans-serif",
+                  fontWeight: 400,
+                  letterSpacing: '0.06em',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; }}
+                title="Change guide"
+              >Guide</button>
+
               <button
                 onClick={() => setAvatarMode(prev => prev === 'lifelike' ? 'orb' : 'lifelike')}
-                className="text-white/40 hover:text-white/70 transition-colors text-xs px-2 py-1 border border-white/20 rounded hover:border-white/40"
-                title={avatarMode === 'lifelike' ? 'Switch to orb mode' : 'Switch to lifelike avatar'}
-              >
-                {avatarMode === 'orb' ? '👤 Lifelike' : '🔮 Orb'}
-              </button>
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: 8,
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  background: 'transparent',
+                  color: 'rgba(255,255,255,0.3)',
+                  fontSize: '0.58rem',
+                  fontFamily: "'Inter', -apple-system, sans-serif",
+                  fontWeight: 400,
+                  letterSpacing: '0.06em',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; }}
+                title={avatarMode === 'lifelike' ? 'Switch to orb' : 'Switch to lifelike'}
+              >{avatarMode === 'orb' ? 'Lifelike' : 'Orb'}</button>
+
               <VoiceSettingsButton
                 onClick={() => setShowVoiceSelector(true)}
                 currentVoiceName={currentVoiceName}
                 currentVoiceId={gemini.currentVoice}
               />
-              {/* Speed adjuster */}
-              <div className="flex items-center gap-1 px-2 py-1 border border-white/20 rounded" title="Speech speed">
-                <span className="text-white/40 text-[10px]">🕐</span>
+
+              {/* Speed — ultra-minimal slider */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)' }} title="Speech speed">
                 <input
                   type="range"
                   min={0.5}
@@ -1352,20 +1659,39 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                   step={0.1}
                   value={gemini.ttsSpeed}
                   onChange={(e) => gemini.setTtsSpeed(parseFloat(e.target.value))}
-                  className="w-14 h-1 accent-purple-400 cursor-pointer"
-                  style={{ WebkitAppearance: 'none', appearance: 'none', background: 'rgba(255,255,255,0.15)', borderRadius: 2, outline: 'none' }}
+                  style={{
+                    width: 44,
+                    height: 2,
+                    WebkitAppearance: 'none',
+                    appearance: 'none' as any,
+                    background: 'rgba(255,255,255,0.12)',
+                    borderRadius: 1,
+                    outline: 'none',
+                    cursor: 'pointer',
+                    accentColor: config.primaryColor,
+                  }}
                 />
-                <span className="text-white/40 text-[10px] w-6 text-center">{gemini.ttsSpeed.toFixed(1)}x</span>
+                <span style={{ fontSize: '0.52rem', color: 'rgba(255,255,255,0.25)', fontFamily: "'Inter', sans-serif", fontWeight: 400, width: 22, textAlign: 'center' }}>{gemini.ttsSpeed.toFixed(1)}x</span>
               </div>
+
               <button
-                onClick={() => {
-                  gemini.endSession();
-                  onSessionEnd();
+                onClick={() => { gemini.endSession(); onSessionEnd(); }}
+                style={{
+                  padding: '4px 10px',
+                  borderRadius: 8,
+                  border: 'none',
+                  background: 'transparent',
+                  color: 'rgba(255,255,255,0.2)',
+                  fontSize: '0.58rem',
+                  fontFamily: "'Inter', -apple-system, sans-serif",
+                  fontWeight: 400,
+                  letterSpacing: '0.06em',
+                  cursor: 'pointer',
+                  transition: 'color 0.3s ease',
                 }}
-                className="text-white/40 hover:text-white/70 transition-colors"
-              >
-                End session
-              </button>
+                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,100,100,0.7)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}
+              >End</button>
             </div>
           </div>
         </div>
