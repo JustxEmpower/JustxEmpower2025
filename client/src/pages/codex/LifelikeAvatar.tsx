@@ -137,8 +137,8 @@ const VISEME_SHAPES: Record<string, { open: number; width: number; round: number
   U:   { open: 0.38, width: 0.32, round: 0.9 },
 };
 
-/** Avatar zoom-out: 1.0 = full fill, 0.78 = show more shoulders */
-const AVATAR_SCALE = 0.78;
+/** Avatar zoom-out: 1.0 = full fill */
+const AVATAR_SCALE = 1.0;
 
 /** How far before video end to start crossfade (seconds) */
 const LOOP_CROSSFADE_LEAD = 0.5;
@@ -482,7 +482,8 @@ export default function LifelikeAvatar({
     }
     if (spokenText) {
       const wordCount = spokenText.split(/\s+/).length;
-      const estimatedDuration = Math.max(1, wordCount * 0.15);
+      const estimatedDuration = Math.max(2, wordCount * 0.45);
+      console.log(`[LifelikeAvatar] START lip sync: words=${wordCount}, dur=${estimatedDuration.toFixed(1)}s, audioLevel=${audioLevel.toFixed(2)}`);
       visemeEngine.prepareText(spokenText, estimatedDuration);
     }
     return () => { visemeEngine.stopText(); };
@@ -494,7 +495,7 @@ export default function LifelikeAvatar({
   useEffect(() => {
     if (!isSpeaking || !spokenText) return;
     const wordCount = spokenText.split(/\s+/).length;
-    const estimatedDuration = Math.max(1, wordCount * 0.15);
+    const estimatedDuration = Math.max(2, wordCount * 0.45);
     visemeEngine.prepareText(spokenText, estimatedDuration);
   }, [spokenText, isSpeaking, visemeEngine]);
 
@@ -605,59 +606,68 @@ export default function LifelikeAvatar({
         }
       }
 
-      // ==== LAYER 2: PROCEDURAL MOUTH ANIMATION (when speaking) ====
+      // ==== LAYER 2: JAW DISPLACEMENT LIP SYNC ====
       const liveAudioLevel = audioLevelRef.current;
       const liveSpeaking = isSpeakingRef.current;
       if (liveSpeaking) {
         const frame: VisemeFrame = visemeEngine.getCurrentFrame();
         const shape = VISEME_SHAPES[frame.viseme] || VISEME_SHAPES.sil;
         const nextShape = VISEME_SHAPES[frame.nextViseme] || VISEME_SHAPES.sil;
-
-        // Blend between current and next viseme shape
         const bf = frame.blendFactor;
         const mOpen = shape.open * (1 - bf) + nextShape.open * bf;
         const mWidth = shape.width * (1 - bf) + nextShape.width * bf;
-        const mRound = shape.round * (1 - bf) + nextShape.round * bf;
-
-        // Use audioLevel from KokoroTTSManager to modulate openness
-        const amp = Math.max(liveAudioLevel, 0.15);
-        const openness = mOpen * amp;
-
-        // Only draw if mouth is at least slightly open
-        if (openness > 0.01) {
-          const cx = vidX + vidW * (MOUTH_REGION.x + MOUTH_REGION.w / 2);
-          const cy = vidY + vidH * (MOUTH_REGION.y + MOUTH_REGION.h / 2);
-          const maxW = vidW * MOUTH_REGION.w * 0.5;
-          const maxH = vidH * MOUTH_REGION.h * 0.6;
-
-          const rx = maxW * mWidth * (0.5 + amp * 0.5);
-          const ry = maxH * openness;
-
+        const amp = Math.max(liveAudioLevel, 0.6);
+        const openness = Math.max(mOpen * amp, 0.08);
+        const mCx = vidX + vidW * (MOUTH_REGION.x + MOUTH_REGION.w / 2);
+        const mTopY = vidY + vidH * MOUTH_REGION.y;
+        const mW = vidW * MOUTH_REGION.w;
+        const mH = vidH * MOUTH_REGION.h;
+        const maxDrop = vidH * 0.10;
+        const jawDrop = maxDrop * openness;
+        const splitY = mTopY + mH * 0.35;
+        const jawW = mW * 1.4;
+        const jawX = mCx - jawW / 2;
+        const jawH = (vidY + vidH) - splitY;
+        if (jawDrop > 0.5) {
+          const srcVid = activeVideoRef.current === 'A' ? videoA : videoB;
+          if (srcVid.readyState >= 2) {
+            const vw = srcVid.videoWidth, vh = srcVid.videoHeight;
+            const sX = (jawX - vidX) / vidW * vw;
+            const sY = (splitY - vidY) / vidH * vh;
+            const sW = jawW / vidW * vw;
+            const sH = jawH / vidH * vh;
+            ctx.save();
+            ctx.beginPath();
+            ctx.ellipse(mCx, splitY + jawH / 2 + jawDrop / 2, jawW / 2 + 8, (jawH + jawDrop) / 2 + 8, 0, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(srcVid, Math.max(0, sX), Math.max(0, sY), Math.min(sW, vw), Math.min(sH, vh), jawX, splitY + jawDrop, jawW, jawH);
+            ctx.restore();
+          }
           ctx.save();
-          ctx.globalCompositeOperation = 'multiply';
-          ctx.globalAlpha = 0.25 + openness * 0.35;
-
-          // Draw mouth shadow ellipse (simulates open mouth)
-          ctx.beginPath();
-          ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
-          ctx.closePath();
-
-          // Radial gradient for soft edges
-          const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rx, ry));
-          grad.addColorStop(0, 'rgba(20,10,15,1)');
-          grad.addColorStop(0.6, 'rgba(30,15,20,0.8)');
-          grad.addColorStop(1, 'rgba(40,20,25,0)');
-          ctx.fillStyle = grad;
-          ctx.fill();
-
-          // Lip highlight (subtle lighter edge on top lip)
-          ctx.globalCompositeOperation = 'screen';
-          ctx.globalAlpha = 0.08 + openness * 0.06;
-          ctx.beginPath();
-          ctx.ellipse(cx, cy - ry * 0.8, rx * 0.9, ry * 0.15, 0, Math.PI, Math.PI * 2);
-          ctx.fillStyle = `rgba(180,120,130,0.5)`;
-          ctx.fill();
-
+          const gCy = splitY + jawDrop * 0.4;
+          const gRx = mW * 0.35 * (0.6 + mWidth * 0.4);
+          const gRy = jawDrop * 0.55;
+          if (gRy > 1) {
+            ctx.beginPath();
+            ctx.ellipse(mCx, gCy, gRx + 3, gRy + 3, 0, 0, Math.PI * 2);
+            ctx.clip();
+            const mg = ctx.createRadialGradient(mCx, gCy, 0, mCx, gCy, Math.max(gRx, gRy));
+            mg.addColorStop(0, 'rgba(15,5,8,0.95)');
+            mg.addColorStop(0.5, 'rgba(25,10,15,0.85)');
+            mg.addColorStop(0.8, 'rgba(40,20,25,0.5)');
+            mg.addColorStop(1, 'rgba(60,30,35,0)');
+            ctx.fillStyle = mg;
+            ctx.beginPath();
+            ctx.ellipse(mCx, gCy, gRx, gRy, 0, 0, Math.PI * 2);
+            ctx.fill();
+            if (openness > 0.25) {
+              ctx.globalAlpha = Math.min(0.3, openness * 0.35);
+              ctx.fillStyle = 'rgba(220,210,200,0.6)';
+              ctx.beginPath();
+              ctx.ellipse(mCx, gCy - gRy * 0.55, gRx * 0.6, gRy * 0.15, 0, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
           ctx.restore();
         }
       }
@@ -760,21 +770,12 @@ export default function LifelikeAvatar({
         width,
         height,
         overflow: 'hidden',
-        borderRadius: 16,
-        background: 'radial-gradient(ellipse at center, rgba(15,10,25,1) 0%, rgba(5,0,15,1) 100%)',
+        borderRadius: 14,
+        background: '#0A0619',
+        border: `2px solid ${guideColor}40`,
+        boxShadow: `0 0 20px ${guideColor}15, 0 0 60px ${guideColor}08`,
       }}
     >
-      {/* Ambient glow border */}
-      <div
-        style={{
-          position: 'absolute',
-          inset: -2,
-          borderRadius: 18,
-          background: `linear-gradient(135deg, ${guideColor}22, transparent 40%, ${guideColor}11)`,
-          pointerEvents: 'none',
-          zIndex: 1,
-        }}
-      />
 
       {/* Loading overlay */}
       {state === 'loading' && (
@@ -806,7 +807,7 @@ export default function LifelikeAvatar({
             inset: 0,
             width: '100%',
             height: '100%',
-            borderRadius: 16,
+            borderRadius: 14,
             opacity: state === 'loading' ? 0 : 1,
             transition: 'opacity 0.6s ease-in-out',
           }}

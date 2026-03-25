@@ -36,54 +36,84 @@ interface SimliAvatarProps {
   onSpeakingChange?: (speaking: boolean) => void;
 }
 
+// Build version for cache-busting verification
+const SIMLI_BUILD = 'v7-fasttalk-wavparse';
+
 // ============================================================================
-// Audio Conversion Utilities
+// Audio Conversion Utilities — Direct WAV parsing (no AudioContext needed)
 // ============================================================================
 
-/**
- * Decode a WAV/audio blob into PCM16 Int16Array chunks at 16kHz.
- * Matches the official Simli blog example: AudioContext at 16kHz,
- * 100ms chunks (1600 samples each).
- */
-async function blobToPCM16Chunks(blob: Blob, chunkMs = 100): Promise<Int16Array[]> {
-  const arrayBuffer = await blob.arrayBuffer();
-  // Create AudioContext at 16kHz — decoded audio will be at 16kHz directly
-  const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({
-    sampleRate: 16000,
-  });
+/** Parse a WAV blob directly and return Int16 samples + sample rate */
+async function parseWavBlob(blob: Blob): Promise<{ samples: Int16Array; sampleRate: number }> {
+  const buf = await blob.arrayBuffer();
+  const view = new DataView(buf);
 
-  try {
-    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-    const rawPCM = audioBuffer.getChannelData(0); // Float32Array at 16kHz
+  // Read WAV header
+  const numChannels = view.getUint16(22, true);
+  const sampleRate = view.getUint32(24, true);
+  const bitsPerSample = view.getUint16(34, true);
 
-    const chunkSamples = Math.floor((chunkMs / 1000) * 16000); // 1600 samples per 100ms
-    const chunks: Int16Array[] = [];
+  // Find 'data' chunk
+  let dataOffset = 12;
+  while (dataOffset < buf.byteLength - 8) {
+    const id = String.fromCharCode(
+      view.getUint8(dataOffset), view.getUint8(dataOffset + 1),
+      view.getUint8(dataOffset + 2), view.getUint8(dataOffset + 3)
+    );
+    const size = view.getUint32(dataOffset + 4, true);
+    if (id === 'data') {
+      dataOffset += 8;
+      const numSamples = size / (bitsPerSample / 8) / numChannels;
+      const samples = new Int16Array(numSamples);
 
-    for (let i = 0; i < rawPCM.length; i += chunkSamples) {
-      const slice = rawPCM.subarray(i, i + chunkSamples);
-      const int16 = new Int16Array(slice.length);
-      for (let j = 0; j < slice.length; j++) {
-        int16[j] = Math.max(-32768, Math.min(32767, Math.round(slice[j] * 32768)));
+      if (bitsPerSample === 16) {
+        for (let i = 0; i < numSamples; i++) {
+          // Take first channel only
+          samples[i] = view.getInt16(dataOffset + i * numChannels * 2, true);
+        }
+      } else if (bitsPerSample === 32) {
+        // Float32
+        for (let i = 0; i < numSamples; i++) {
+          const f = view.getFloat32(dataOffset + i * numChannels * 4, true);
+          samples[i] = Math.max(-32768, Math.min(32767, Math.round(f * 32768)));
+        }
       }
-      chunks.push(int16);
-    }
 
-    return chunks;
-  } finally {
-    await audioCtx.close();
+      console.log(`[SimliAvatar] WAV parsed: ${sampleRate}Hz, ${bitsPerSample}bit, ${numChannels}ch, ${numSamples} samples`);
+      return { samples, sampleRate };
+    }
+    dataOffset += 8 + size;
+    if (size % 2 !== 0) dataOffset++; // padding
   }
+
+  throw new Error('WAV data chunk not found');
 }
 
-/** Send all PCM16 chunks to Simli immediately — server handles buffering (matches official v3 example) */
-function sendAllChunksToSimli(client: any, chunks: Int16Array[]): void {
-  for (const chunk of chunks) {
-    try {
-      client.sendAudioData(chunk as any);
-    } catch (err) {
-      console.error('[SimliAvatar] sendAudioData error:', err);
-      return;
-    }
+/** Downsample Int16 audio from srcRate to 16kHz using linear interpolation (matches Simli OpenAI example) */
+function downsampleTo16k(samples: Int16Array, srcRate: number): Int16Array {
+  if (srcRate === 16000) return samples;
+  const ratio = srcRate / 16000;
+  const newLen = Math.floor(samples.length / ratio);
+  const out = new Int16Array(newLen);
+  for (let i = 0; i < newLen; i++) {
+    const srcIdx = i * ratio;
+    const lo = Math.floor(srcIdx);
+    const hi = Math.min(lo + 1, samples.length - 1);
+    const frac = srcIdx - lo;
+    out[i] = Math.round(samples[lo] * (1 - frac) + samples[hi] * frac);
   }
+  return out;
+}
+
+/** Convert WAV blob to PCM16 Int16Array at 16kHz, ready for Simli */
+async function wavBlobToSimliAudio(blob: Blob): Promise<Int16Array> {
+  const { samples, sampleRate } = await parseWavBlob(blob);
+  return downsampleTo16k(samples, sampleRate);
+}
+
+/** Generate 1s of silence at 16kHz for testing */
+function generateTestSilence(): Int16Array {
+  return new Int16Array(16000); // 1 second of silence
 }
 
 // ============================================================================
@@ -108,6 +138,8 @@ export default function SimliAvatar({
   const [connected, setConnected] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [debugInfo, setDebugInfo] = useState('init');
+  const audioSentCountRef = useRef(0);
 
   // ── Initialize Simli connection ──
   useEffect(() => {
@@ -178,17 +210,31 @@ export default function SimliAvatar({
           if (!cancelled) {
             setConnected(true);
             setLoading(false);
+            setDebugInfo(`connected|${transportMode}`);
             onReady?.();
+
+            // Send test silence to verify the audio pipeline works
+            try {
+              const testSilence = generateTestSilence();
+              client.sendAudioData(testSilence as any);
+              console.log('[SimliAvatar] Test silence sent (16000 samples)');
+              setDebugInfo(prev => prev + '|test-sent');
+            } catch (testErr) {
+              console.error('[SimliAvatar] Test silence FAILED:', testErr);
+              setDebugInfo(prev => prev + '|test-FAIL:' + testErr);
+            }
           }
         });
 
         client.on('speaking', () => {
           console.log('[SimliAvatar] Avatar speaking');
+          setDebugInfo(prev => prev + '|SPEAK');
           onSpeakingChange?.(true);
         });
 
         client.on('silent', () => {
           console.log('[SimliAvatar] Avatar silent');
+          setDebugInfo(prev => prev + '|SILENT');
           onSpeakingChange?.(false);
         });
 
@@ -241,22 +287,30 @@ export default function SimliAvatar({
     };
   }, [faceId, guideId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // ── Public method: send audio to Simli via sendAudioData with real-time pacing ──
+  // ── Public method: send TTS audio to Simli ──
   const sendAudioToSimli = useCallback(async (audioBlob: Blob) => {
     const client = simliRef.current;
     if (!client) {
       console.warn('[SimliAvatar] Cannot send audio — not connected');
+      setDebugInfo(prev => prev + '|NO_CLIENT');
       return;
     }
 
     try {
-      const chunks = await blobToPCM16Chunks(audioBlob, 100);
-      const totalSamples = chunks.reduce((sum, c) => sum + c.length, 0);
-      console.log(`[SimliAvatar] Sending ${chunks.length} chunks (${(totalSamples / 16000).toFixed(2)}s) to Simli`);
-      sendAllChunksToSimli(client, chunks);
+      // Direct WAV parsing + manual downsample (no AudioContext)
+      const pcm16 = await wavBlobToSimliAudio(audioBlob);
+      const durationSec = pcm16.length / 16000;
+      console.log(`[SimliAvatar] Sending ${pcm16.length} samples (${durationSec.toFixed(2)}s) to Simli`);
+
+      // Send as single Int16Array — matches official Simli v3 example
+      client.sendAudioData(pcm16 as any);
+
+      audioSentCountRef.current++;
+      setDebugInfo(prev => prev + `|sent#${audioSentCountRef.current}(${durationSec.toFixed(1)}s)`);
       console.log('[SimliAvatar] Audio send complete');
     } catch (err) {
       console.error('[SimliAvatar] Audio conversion/send failed:', err);
+      setDebugInfo(prev => prev + '|SEND_ERR:' + err);
     }
   }, []);
 
@@ -369,6 +423,27 @@ export default function SimliAvatar({
           </p>
         </div>
       )}
+
+      {/* Diagnostic overlay — TEMPORARY for debugging lip-sync */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 4,
+          left: 4,
+          background: 'rgba(0,0,0,0.75)',
+          color: '#0f0',
+          fontSize: 9,
+          fontFamily: 'monospace',
+          padding: '2px 6px',
+          borderRadius: 4,
+          zIndex: 20,
+          maxWidth: '90%',
+          wordBreak: 'break-all',
+          pointerEvents: 'none',
+        }}
+      >
+        {SIMLI_BUILD} | {debugInfo}
+      </div>
 
       {/* Listening indicator */}
       {isListening && connected && (

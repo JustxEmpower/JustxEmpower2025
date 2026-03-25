@@ -106,8 +106,13 @@ export class KokoroTTSManager {
 
         if (i === 0) this.emit('loading', { progress: '' });
 
-        // Play this sentence
-        await this.playBlob(blob, voice, signal);
+        // Check if Simli is connected — if so, send audio there instead of playing locally
+        const simliSend = (window as any).__simliSendAudio;
+        if (typeof simliSend === 'function') {
+          await this.sendToSimli(blob, simliSend, signal);
+        } else {
+          await this.playBlob(blob, voice, signal);
+        }
       }
     } catch (error) {
       if (signal.aborted) return; // stop() was called, not an error
@@ -161,6 +166,31 @@ export class KokoroTTSManager {
 
       this.audioElement.play().catch(reject);
     });
+  }
+
+  /** Send audio blob to Simli for lip-synced playback instead of local playback */
+  private async sendToSimli(
+    blob: Blob,
+    simliSend: (blob: Blob) => Promise<void>,
+    signal: AbortSignal
+  ): Promise<void> {
+    if (signal.aborted) return;
+    try {
+      // Send the WAV blob to Simli (it handles decoding + lip sync + playback)
+      await simliSend(blob);
+      // Estimate duration from WAV blob size:
+      // WAV = 16-bit PCM mono at ~24KHz ≈ 48000 bytes/sec (plus 44-byte header)
+      const estimatedDuration = Math.max(0.5, (blob.size - 44) / 48000);
+      console.log(`[Kokoro TTS] Sent to Simli: ${blob.size} bytes, ~${estimatedDuration.toFixed(1)}s`);
+      // Wait for the estimated duration so we don't overlap sentences
+      await new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, estimatedDuration * 1000);
+        const onAbort = () => { clearTimeout(timer); resolve(); };
+        signal.addEventListener('abort', onAbort, { once: true });
+      });
+    } catch (err) {
+      console.error('[Kokoro TTS] Simli send failed:', err);
+    }
   }
 
   async speakStreaming(text: string, voiceId?: string): Promise<void> {
