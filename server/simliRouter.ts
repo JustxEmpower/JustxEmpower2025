@@ -30,7 +30,6 @@ export function createSimliRouter() {
           maxSessionLength,
           maxIdleTime,
           handleSilence: true,
-          audioInputFormat: 'pcm16',
         }),
       });
 

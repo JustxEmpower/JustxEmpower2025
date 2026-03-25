@@ -40,69 +40,62 @@ interface SimliAvatarProps {
 // Audio Conversion Utilities
 // ============================================================================
 
-/** Decode a WAV blob to PCM16 Uint8Array at 16KHz for Simli */
-async function wavBlobToPCM16(blob: Blob): Promise<Uint8Array> {
+/**
+ * Decode a WAV/audio blob into PCM16 Int16Array chunks at 16kHz.
+ * Matches the official Simli blog example: AudioContext at 16kHz,
+ * 100ms chunks (1600 samples each).
+ */
+async function blobToPCM16Chunks(blob: Blob, chunkMs = 100): Promise<Int16Array[]> {
   const arrayBuffer = await blob.arrayBuffer();
-  const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+  // Create AudioContext at 16kHz — decoded audio will be at 16kHz directly
+  const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)({
+    sampleRate: 16000,
+  });
 
   try {
     const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+    const rawPCM = audioBuffer.getChannelData(0); // Float32Array at 16kHz
 
-    // Resample to 16kHz via OfflineAudioContext
-    const duration = audioBuffer.duration;
-    const numSamples = Math.ceil(duration * 16000);
-    const offlineCtx = new OfflineAudioContext(1, numSamples, 16000);
-    const source = offlineCtx.createBufferSource();
-    source.buffer = audioBuffer;
-    source.connect(offlineCtx.destination);
-    source.start(0);
-    const resampled = await offlineCtx.startRendering();
-    const samples = resampled.getChannelData(0);
+    const chunkSamples = Math.floor((chunkMs / 1000) * 16000); // 1600 samples per 100ms
+    const chunks: Int16Array[] = [];
 
-    // Convert Float32 [-1, 1] to Int16 PCM
-    const pcm16 = new Int16Array(samples.length);
-    for (let i = 0; i < samples.length; i++) {
-      const s = Math.max(-1, Math.min(1, samples[i]));
-      pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    for (let i = 0; i < rawPCM.length; i += chunkSamples) {
+      const slice = rawPCM.subarray(i, i + chunkSamples);
+      const int16 = new Int16Array(slice.length);
+      for (let j = 0; j < slice.length; j++) {
+        int16[j] = Math.max(-32768, Math.min(32767, Math.round(slice[j] * 32768)));
+      }
+      chunks.push(int16);
     }
 
-    return new Uint8Array(pcm16.buffer);
+    return chunks;
   } finally {
     await audioCtx.close();
   }
 }
 
-/** Send PCM16 data to Simli in paced chunks to simulate real-time streaming */
-function sendPacedAudio(client: any, pcm16: Uint8Array): Promise<void> {
+/** Stream PCM16 chunks to Simli at real-time pace (120ms interval, matching official example) */
+function streamChunksToSimli(client: any, chunks: Int16Array[]): Promise<void> {
   return new Promise((resolve) => {
-    // Simli expects chunks matching its AudioWorklet buffer: 6000 bytes (3000 Int16 samples)
-    // At 16kHz, 3000 samples = 187.5ms of audio
-    const CHUNK_SIZE = 6000;
-    const CHUNK_INTERVAL_MS = 180; // slightly less than 187.5ms to avoid starving
-    let offset = 0;
-
-    function sendNext() {
-      if (offset >= pcm16.length) {
+    let idx = 0;
+    const interval = setInterval(() => {
+      if (idx >= chunks.length) {
+        clearInterval(interval);
         resolve();
         return;
       }
-      const chunk = pcm16.slice(offset, Math.min(offset + CHUNK_SIZE, pcm16.length));
+      const chunk = chunks[idx];
       try {
-        client.sendAudioData(chunk);
+        // Send as Uint8Array (v3 API) wrapping the Int16Array buffer
+        client.sendAudioData(new Uint8Array(chunk.buffer));
       } catch (err) {
         console.error('[SimliAvatar] sendAudioData error:', err);
+        clearInterval(interval);
         resolve();
         return;
       }
-      offset += CHUNK_SIZE;
-      if (offset < pcm16.length) {
-        setTimeout(sendNext, CHUNK_INTERVAL_MS);
-      } else {
-        resolve();
-      }
-    }
-
-    sendNext();
+      idx++;
+    }, 120);
   });
 }
 
@@ -270,11 +263,11 @@ export default function SimliAvatar({
     }
 
     try {
-      const pcm16 = await wavBlobToPCM16(audioBlob);
-      const durationSec = (pcm16.length / 2) / 16000;
-      console.log(`[SimliAvatar] Sending ${pcm16.length} bytes (${durationSec.toFixed(2)}s) via paced sendAudioData`);
-      await sendPacedAudio(client, pcm16);
-      console.log('[SimliAvatar] Audio send complete');
+      const chunks = await blobToPCM16Chunks(audioBlob, 100);
+      const totalSamples = chunks.reduce((sum, c) => sum + c.length, 0);
+      console.log(`[SimliAvatar] Streaming ${chunks.length} chunks (${(totalSamples / 16000).toFixed(2)}s) to Simli`);
+      await streamChunksToSimli(client, chunks);
+      console.log('[SimliAvatar] Audio stream complete');
     } catch (err) {
       console.error('[SimliAvatar] Audio conversion/send failed:', err);
     }
