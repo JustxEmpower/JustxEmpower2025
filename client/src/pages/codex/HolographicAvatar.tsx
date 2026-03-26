@@ -1297,7 +1297,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
       {/* ── Avatar Display ── */}
       {avatarMode === 'lifelike' ? (
         /* ── LIFELIKE MODE — Simli real-time lip-sync or LifelikeAvatar fallback ── */
-        <div className="absolute inset-0" style={{ zIndex: 1 }}>
+        <div className="absolute inset-0">
           {SIMLI_FACE_IDS[activeGuideId] ? (
             <SimliAvatar
               guideId={activeGuideId}
@@ -1398,6 +1398,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
       <div className="absolute bottom-0 left-0 right-0" style={{
         background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, transparent 100%)',
         paddingTop: '5rem',
+        zIndex: 10,
       }}>
         {/* Message stream — minimal, floating */}
         <div className="max-h-40 overflow-y-auto px-6 space-y-2.5 mb-4" style={{ scrollbarWidth: 'none' }}>
