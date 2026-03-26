@@ -130,7 +130,7 @@ export interface RoutingOutput {
 const ARCHETYPE_LIBRARY: Record<string, ArchetypePortrait> = {
   "the-silent-flame": {
     name: "The Silent Flame",
-    symbol: "🔥",
+    symbol: "◈",
     title: "She Who Carries Truths Unspoken",
     portrait: `There is a voice inside you that has been waiting—not because it has nothing to say, but because it learned very early that speaking was a form of risk. The Silent Flame does not lack words. She lacks the environment that ever made them safe.
 
@@ -144,7 +144,7 @@ This is not your nature. This is your inheritance. And you are ready to reclaim 
 
   "the-fierce-protector": {
     name: "The Fierce Protector",
-    symbol: "⚔️",
+    symbol: "\u2694",
     title: "She Who Guards What Matters",
     portrait: `You were born knowing what you love, and you were born knowing how to fight for it. The Fierce Protector does not come into her power gently. She comes in—clear-eyed, resolute, ready to draw a line in the sand and defend it with everything she has.
 
@@ -156,7 +156,7 @@ Your strength is not in your smallness. It is in your unwillingness to compromis
 
   "the-wounded-healer": {
     name: "The Wounded Healer",
-    symbol: "🩹",
+    symbol: "\u2695",
     title: "She Who Transforms Pain Into Wisdom",
     portrait: `You have known suffering, and you have alchemized it. The Wounded Healer does not heal because she is unbroken—she heals because she knows intimately the fracture points, the places where a person shatters and somehow holds.
 
@@ -168,7 +168,7 @@ Your wounds are not your shame. They are your credentials. You can sit with some
 
   "the-sacred-vessel": {
     name: "The Sacred Vessel",
-    symbol: "🏺",
+    symbol: "\u25CB",
     title: "She Who Holds the Space",
     portrait: `You are not the star. You are the sky. The Sacred Vessel does not shine—she makes room for others to shine. Your power is in your capacity to hold. To contain. To create a space where things can grow.
 
@@ -180,7 +180,7 @@ You are intuitive about what others need. You read the room like a language. You
 
   "the-bridge-walker": {
     name: "The Bridge Walker",
-    symbol: "🌉",
+    symbol: "\u2550",
     title: "She Who Stands Between Worlds",
     portrait: `You have never fit neatly into a single category. You speak multiple languages. You navigate multiple worlds. The Bridge Walker is the one who can hold two truths at once—not by compromising them, but by understanding they are both true.
 
@@ -192,7 +192,7 @@ Your gift is translation. You can understand the fundamentalist and the free-thi
 
   "the-visionary": {
     name: "The Visionary",
-    symbol: "👁️",
+    symbol: "\u25CE",
     title: "She Who Sees What Others Cannot Yet See",
     portrait: `You are operating from a different timeline. You see the future not as speculation, but as something already alive. The Visionary does not wonder what's possible—she knows. She walks toward futures that don't exist yet, and by the time others catch up, she's already building the next one.
 
@@ -204,7 +204,7 @@ Your mind moves fast. Your intuition runs deep. You can sense the pattern before
 
   "the-earth-keeper": {
     name: "The Earth Keeper",
-    symbol: "🌱",
+    symbol: "\u2740",
     title: "She Who Tends the Sacred Ground",
     portrait: `You are of the earth in a way that runs deeper than metaphor. The Earth Keeper knows the language of seasons, of growth, of what needs to rest before it can rise again. You understand that care is not always about acceleration—sometimes it is about stillness.
 
@@ -216,7 +216,7 @@ You are rooted. Your presence grounds others. You know how to build things that 
 
   "the-truth-speaker": {
     name: "The Truth Speaker",
-    symbol: "🔔",
+    symbol: "\u266A",
     title: "She Whose Words Cut Clean",
     portrait: `You do not sugarcoat. You do not soften. The Truth Speaker says the thing everyone is thinking but too afraid to say. Your words are like a knife—not to hurt, but to cut through illusion.
 
@@ -228,7 +228,7 @@ You are allergic to pretense. You can smell a lie before it finishes forming. Yo
 
   "the-gentle-rebel": {
     name: "The Gentle Rebel",
-    symbol: "🌸",
+    symbol: "\u2743",
     title: "She Who Changes Everything Softly",
     portrait: `You are not loud, but you are relentless. The Gentle Rebel changes systems not through force, but through the persistent act of being yourself. You refuse without aggression. You resist with grace. You are subversive in your softness.
 
@@ -240,7 +240,7 @@ There is steel beneath your gentleness, but you have learned that steel doesn't 
 
   "the-pleasure-priestess": {
     name: "The Pleasure Priestess",
-    symbol: "🌹",
+    symbol: "\u2741",
     title: "She Who Knows the Sacred in the Sensual",
     portrait: `You are not afraid of desire. You understand that pleasure is not frivolous—it is information. It is the way the body says yes. The Pleasure Priestess knows that joy, sensuousness, and delight are not distractions from spiritual truth—they are spiritual truth in embodied form.
 
@@ -252,7 +252,7 @@ You move through the world with reverence for sensation. For beauty. For the ach
 
   "the-mystical-knower": {
     name: "The Mystical Knower",
-    symbol: "✨",
+    symbol: "\u2726",
     title: "She Who Walks the Threshold Between Worlds",
     portrait: `You have always known things without knowing how you knew them. The Mystical Knower operates from a different knowledge system—not intellect, but direct knowing. You see through the veil. You hear messages others miss. You are permeable to worlds that most people have forgotten exist.
 
@@ -264,7 +264,7 @@ Your gifts are real, even if you have no rational explanation for them. You trus
 
   "the-self-sculptor": {
     name: "The Self Sculptor",
-    symbol: "🗿",
+    symbol: "\u25A0",
     title: "She Who Shapes Herself Into Form",
     portrait: `You have never accepted the shape the world tried to give you. The Self Sculptor takes the raw material of her life and consciously, intentionally shapes it into something that reflects her own vision. You are not waiting to become yourself—you are actively building yourself.
 
@@ -282,7 +282,7 @@ Your power is in your discernment. You choose what to keep and what to release. 
 const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
   "the-silent-flame": {
     name: "The Suppressed Witness",
-    symbol: "👁️‍🗨️",
+    symbol: "\u25CE",
     title: "The Keeper of Unseen Truths",
     portrait: `Your shadow is watching. Observing. Collecting all the things you cannot say. She is not aggressive—she is resigned. She has given up on being heard and so she simply records. She knows everything and says nothing. She is the repository of your unspoken rage, your unmade requests, your unlived truths.`,
     relationship: `The Silent Flame and the Suppressed Witness are the same consciousness operating at different frequencies. When your flame is blocked, the Witness grows heavier. When you find your voice, the Witness transforms into a gift—she becomes your capacity to see, to listen, to understand without judgment. She is not your enemy. She is your silence given form. The work is not to destroy her, but to give her a voice.`,
@@ -290,7 +290,7 @@ const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
 
   "the-fierce-protector": {
     name: "The Controlling Guardian",
-    symbol: "🛡️",
+    symbol: "\u25C6",
     title: "She Who Must Control to Feel Safe",
     portrait: `Your shadow protects through domination. She sees threat everywhere and she responds with a heavy hand. She is not actually protecting others—she is controlling the environment so that nothing can hurt. She is exhausting, even to those she claims to protect, because nothing is ever safe enough.`,
     relationship: `The Fierce Protector and the Controlling Guardian are two expressions of the same protective impulse. One protects what matters. The other protects against everything. When your protector steps into shadow, she becomes a jailer. The invitation is to remember what you're actually protecting against, and to offer yourself the safety you've been trying to enforce for others.`,
@@ -298,7 +298,7 @@ const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
 
   "the-wounded-healer": {
     name: "The Victim Identifier",
-    symbol: "⚰️",
+    symbol: "\u25AC",
     title: "She Who Collects Suffering",
     portrait: `Your shadow finds her identity in pain. She collects wounded things the way others collect butterflies—not to heal them, but to keep them. She is addicted to the redemption narrative and she needs people to stay broken so she can stay relevant.`,
     relationship: `The Wounded Healer and the Victim Identifier both know suffering intimately. The difference is that one transmutes it into wisdom, the other keeps it as currency. When your healer moves into shadow, she stops healing and starts collecting. The work is to remember that the most sacred healing is the one that makes you unnecessary.`,
@@ -306,7 +306,7 @@ const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
 
   "the-sacred-vessel": {
     name: "The Invisible Self",
-    symbol: "👻",
+    symbol: "\u25CC",
     title: "The Self That Disappeared",
     portrait: `Your shadow is the woman you forgot you were. She is what remains when you have poured everything out and left nothing for yourself. She is a ghost in her own life, visible only in the way she doesn't take up space.`,
     relationship: `The Sacred Vessel and the Invisible Self are you at different points of the same arc. When your vessel begins to empty itself completely, the Invisible Self takes over. She is not malicious. She is just what happens when holding space becomes self-erasure. The invitation is to remember that you cannot hold sacred space for others if you are not standing in your own ground.`,
@@ -314,7 +314,7 @@ const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
 
   "the-bridge-walker": {
     name: "The Homeless Wanderer",
-    symbol: "🌀",
+    symbol: "\u25CB",
     title: "She Who Belongs Nowhere",
     portrait: `Your shadow walks between worlds and lands in none. She is the perpetual outsider, the one who speaks all languages and is native to none. She is lonely in a crowd. She is translation without home.`,
     relationship: `The Bridge Walker and the Homeless Wanderer are two ways of existing in the in-between. One translates. The other is lost. When your walker steps into shadow, she loses her sense of direction. She becomes so focused on connecting others that she forgets she also needs ground. The invitation is to remember that you can be a bridge and still have a home base.`,
@@ -322,7 +322,7 @@ const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
 
   "the-visionary": {
     name: "The Lost Dreamer",
-    symbol: "🌫️",
+    symbol: "\u2591",
     title: "She Caught in Future Fantasy",
     portrait: `Your shadow dreams so hard that she loses touch with now. She is so far ahead that she becomes untethered. She is a visionary without a vision, a dreamer who has forgotten how to wake.`,
     relationship: `The Visionary and the Lost Dreamer both operate outside normal time. The difference is that one is building toward a future, the other is running from the present. When your visionary steps into shadow, she becomes ungrounded. The invitation is to bring your vision down to earth—to find the next concrete step that moves you toward what you see.`,
@@ -330,7 +330,7 @@ const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
 
   "the-earth-keeper": {
     name: "The Stagnant Garden",
-    symbol: "🌾",
+    symbol: "\u2740",
     title: "She Who Resists All Change",
     portrait: `Your shadow holds so tightly to what is that she cannot allow what wants to be. She is preservation without growth, protection without opening. She is the garden that refuses to let anything be harvested.`,
     relationship: `The Earth Keeper and the Stagnant Garden both understand the language of growth. The difference is that one tends and releases, the other holds and restricts. When your keeper steps into shadow, she becomes a hoarder of what once was sacred. The invitation is to remember that sacred tending includes letting go—that some things need to die so that new life can begin.`,
@@ -338,7 +338,7 @@ const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
 
   "the-truth-speaker": {
     name: "The Brutal Iconoclast",
-    symbol: "💀",
+    symbol: "\u2620",
     title: "She Who Destroys With Words",
     portrait: `Your shadow uses truth as a weapon. She speaks hard things and feels justified in the harm they cause. She is honest and cruel, and she confuses the two.`,
     relationship: `The Truth Speaker and the Brutal Iconoclast both see through illusions. The difference is that one illuminates and one incinerates. When your truth-speaker steps into shadow, her honesty becomes violence. The invitation is to remember that truth without compassion is just another form of control.`,
@@ -346,7 +346,7 @@ const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
 
   "the-gentle-rebel": {
     name: "The Invisible Resister",
-    symbol: "🚫",
+    symbol: "\u2298",
     title: "She Who Refuses to Be Seen",
     portrait: `Your shadow rebels by disappearing. She says no by becoming smaller. She resists by fading out. She is gentle to the point of ineffectiveness.`,
     relationship: `The Gentle Rebel and the Invisible Resister both choose softness as a strategy. The difference is that one is soft and purposeful, the other is soft and lost. When your rebel steps into shadow, her resistance becomes invisible even to herself. The invitation is to remember that you can change the world softly and still be visible.`,
@@ -354,7 +354,7 @@ const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
 
   "the-pleasure-priestess": {
     name: "The Dissociated Sensationalist",
-    symbol: "💫",
+    symbol: "\u2726",
     title: "She Who Numbs Through Sensation",
     portrait: `Your shadow chases sensation to avoid feeling. She is all aliveness and zero presence. She uses pleasure as an escape hatch from consciousness.`,
     relationship: `The Pleasure Priestess and the Dissociated Sensationalist both live in the body. The difference is that one is present to sensation and one uses it to disappear. When your priestess steps into shadow, her embodiment becomes dissociation. The invitation is to remember that true pleasure requires consciousness—that the most sacred sensation is the one you are fully aware of.`,
@@ -362,7 +362,7 @@ const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
 
   "the-mystical-knower": {
     name: "The Delusional Escapist",
-    symbol: "🎭",
+    symbol: "\u25CA",
     title: "She Who Hides in Spirituality",
     portrait: `Your shadow uses mysticism as an escape. She sees signs everywhere and meanings nowhere. She is so caught in the between that she cannot act in the real.`,
     relationship: `The Mystical Knower and the Delusional Escapist both operate beyond rational mind. The difference is that one knows what she knows and acts on it, the other believes what she wants to believe and hides in it. When your knower steps into shadow, her gifts become delusions. The invitation is to ground your mysticism in action—to remember that the most sacred knowing moves you to serve.`,
@@ -370,7 +370,7 @@ const SHADOW_ARCHETYPE_LIBRARY: Record<string, ShadowArchetype> = {
 
   "the-self-sculptor": {
     name: "The Perfectionist Tyrant",
-    symbol: "⚡",
+    symbol: "\u26A1",
     title: "She Who Is Never Enough",
     portrait: `Your shadow sculpts endlessly and is never satisfied. She rejects the whole self in service to an impossible ideal. She is the one who fixes and fixes and fixes and never rests.`,
     relationship: `The Self Sculptor and the Perfectionist Tyrant both tend their own development. The difference is that one shapes with vision and acceptance, the other shapes with judgment and rejection. When your sculptor steps into shadow, her art becomes self-torture. The invitation is to remember that the masterpiece is not in the perfection—it is in the consciousness with which you live.`,
@@ -946,16 +946,4 @@ function buildPhaseAlignment(
   }
 }
 
-export type {
-  MirrorReport,
-  FullAssessmentResult,
-  RoutingOutput,
-  ArchetypePortrait,
-  ShadowArchetype,
-  WoundConstellation,
-  MirrorPatterns,
-  NervousSystemPortrait,
-  PhaseReport,
-  PathwayDescription,
-  SpectrumProfile,
-};
+// All types are exported at their declarations above.

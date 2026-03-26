@@ -266,8 +266,12 @@ const codexClientRouter = router({
     answerCode: z.string().nullable(),
     openText: z.string().nullable(),
     isGhost: z.boolean().default(false),
-  })).mutation(async ({ input }) => {
+  })).mutation(async ({ ctx, input }) => {
     const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    // RBAC: Verify assessment belongs to this user
+    const [assessment] = await db.select().from(schema.codexAssessments).where(and(eq(schema.codexAssessments.id, input.assessmentId), eq(schema.codexAssessments.userId, u.id))).limit(1);
+    if (!assessment) throw new TRPCError({ code: "NOT_FOUND", message: "Assessment not found" });
     const id = nanoid();
     // Upsert response
     const [existing] = await db.select().from(schema.codexResponses).where(and(
@@ -285,8 +289,12 @@ const codexClientRouter = router({
   }),
 
   // Update assessment progress
-  updateProgress: customerProc.input(z.object({ assessmentId: z.string(), currentSection: z.number(), currentQuestion: z.number() })).mutation(async ({ input }) => {
+  updateProgress: customerProc.input(z.object({ assessmentId: z.string(), currentSection: z.number(), currentQuestion: z.number() })).mutation(async ({ ctx, input }) => {
     const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    // RBAC: Verify assessment belongs to this user
+    const [assessment] = await db.select().from(schema.codexAssessments).where(and(eq(schema.codexAssessments.id, input.assessmentId), eq(schema.codexAssessments.userId, u.id))).limit(1);
+    if (!assessment) throw new TRPCError({ code: "NOT_FOUND", message: "Assessment not found" });
     await db.update(schema.codexAssessments).set({ currentSection: input.currentSection, currentQuestion: input.currentQuestion }).where(eq(schema.codexAssessments.id, input.assessmentId));
     return { success: true };
   }),
@@ -581,6 +589,12 @@ const codexClientRouter = router({
 
   guideMessages: customerProc.input(z.object({ conversationId: z.string() })).query(async ({ ctx, input }) => {
     const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    // RBAC: Verify the conversation belongs to this user
+    const [conv] = await db.select().from(schema.codexGuideConversations)
+      .where(and(eq(schema.codexGuideConversations.id, input.conversationId), eq(schema.codexGuideConversations.userId, u.id)))
+      .limit(1);
+    if (!conv) throw new TRPCError({ code: "NOT_FOUND", message: "Conversation not found" });
     return db.select().from(schema.codexGuideMessages).where(eq(schema.codexGuideMessages.conversationId, input.conversationId)).orderBy(asc(schema.codexGuideMessages.createdAt));
   }),
 
@@ -715,7 +729,7 @@ const codexClientRouter = router({
             title: `Codex Escalation: ${escalation.severity}`,
             message: `User ${u.name || u.id} triggered ${escalation.triggers.join(", ")} (${escalation.severity}). Action: ${escalation.action}.`,
             link: "/admin/codex/clients",
-            priority: escalation.severity === "critical" ? "critical" : "high",
+            priority: escalation.severity === "critical" ? "urgent" : "high",
             relatedId: Number(u.id) || undefined,
             relatedType: "customer",
           }).catch(() => {});

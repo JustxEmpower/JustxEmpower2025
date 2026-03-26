@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { Hexagon, Scale, Diamond, Sun, Zap, ChevronRight, Loader2 } from "lucide-react";
 
 export default function CodexJourney() {
   const [expandedSection, setExpandedSection] = useState<string | null>("archetype");
@@ -11,7 +12,7 @@ export default function CodexJourney() {
   if (dashQuery.isLoading || !d) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
-        <div className="cx-slow-pulse" style={{ fontSize: "2rem" }}>{"\u{1F702}"}</div>
+        <div className="cx-slow-pulse"><Loader2 size={32} className="animate-spin" style={{ color: "var(--cx-violet)" }} /></div>
       </div>
     );
   }
@@ -34,17 +35,17 @@ export default function CodexJourney() {
   const phase = spectrum?.thresholdPct > 40 ? "Threshold" : spectrum?.giftPct > 30 ? "Integration" : "Discovery";
 
   const sections = [
-    { id: "archetype", label: "Archetype Constellation", glyph: "\u{1F702}" },
-    { id: "wounds", label: "Wound Constellation", glyph: "\u2696" },
-    { id: "mirrors", label: "Mirror Patterns", glyph: "\u{1F74A}" },
-    { id: "spectrum", label: "Spectrum Profile", glyph: "\u2600\uFE0F" },
-    { id: "contradictions", label: "Contradiction Flags", glyph: "\u26A1" },
+    { id: "archetype", label: "Archetype Constellation", glyph: <Hexagon size={20} /> },
+    { id: "wounds", label: "Wound Constellation", glyph: <Scale size={20} /> },
+    { id: "mirrors", label: "Mirror Patterns", glyph: <Diamond size={20} /> },
+    { id: "spectrum", label: "Spectrum Profile", glyph: <Sun size={20} /> },
+    { id: "contradictions", label: "Contradiction Flags", glyph: <Zap size={20} /> },
   ];
 
   if (!scoring) {
     return (
       <div style={{ padding: "3rem 2rem", textAlign: "center" }}>
-        <div className="text-5xl mb-6" style={{ lineHeight: 1 }}>{"\u{1F702}"}</div>
+        <div className="mb-6"><Hexagon size={48} style={{ color: "var(--cx-violet)", opacity: 0.5 }} /></div>
         <h1 className="cx-heading-lg mb-4">Your Journey Awaits</h1>
         <p className="cx-invitation" style={{ opacity: 0.5 }}>
           Complete the assessment to reveal your archetypal constellation,<br />wound imprints, and integration pathway.
@@ -89,7 +90,7 @@ export default function CodexJourney() {
                   <span className="cx-font-heading" style={{ fontSize: "1.15rem", color: "var(--cx-gold)", fontWeight: 400 }}>{sec.label}</span>
                 </div>
                 <span style={{ color: "rgba(245,230,211,0.2)", fontSize: "0.8rem", transition: "transform 300ms", transform: isOpen ? "rotate(90deg)" : "none" }}>
-                  {"\u25B6"}
+                  <ChevronRight size={14} />
                 </span>
               </button>
 

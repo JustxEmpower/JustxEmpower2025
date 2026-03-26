@@ -897,7 +897,7 @@ export class AudioVisemeEngine {
       ...Object.keys(this.targetWeights),
     ]);
 
-    for (const key of allKeys) {
+    for (const key of Array.from(allKeys)) {
       const current = (this.currentWeights as any)[key] || 0;
       const target = (this.targetWeights as any)[key] || 0;
       const blended = current + (target - current) * t;
@@ -925,7 +925,7 @@ export class AudioVisemeEngine {
     let highEnergy = 0;
 
     if (this.analyser && this.frequencyData) {
-      this.analyser.getByteFrequencyData(this.frequencyData);
+      this.analyser.getByteFrequencyData(this.frequencyData as Uint8Array<ArrayBuffer>);
       const binCount = this.frequencyData.length;
       const third = Math.floor(binCount / 3);
 
@@ -1045,7 +1045,7 @@ export class BlendShapeCompositor {
     const expressionWeights: Partial<BlendShapeFrame> = {};
 
     const allExprKeys = new Set([...Object.keys(currentExpr), ...Object.keys(targetExpr)]);
-    for (const key of allExprKeys) {
+    for (const key of Array.from(allExprKeys)) {
       const from = (currentExpr as any)[key] || 0;
       const to = (targetExpr as any)[key] || 0;
       (expressionWeights as any)[key] = from + (to - from) * this.emotionBlend;

@@ -215,7 +215,7 @@ export default function LegalPageEditorNew({
                       className="w-full font-mono text-sm"
                     />
                     <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-2">
-                      💡 Tip: Use blank lines to create spacing between paragraphs
+                      Tip: Use blank lines to create spacing between paragraphs
                     </p>
                   </div>
 

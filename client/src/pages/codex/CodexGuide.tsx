@@ -67,6 +67,18 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
     }
   }, [resumeConversationId, resumeGuideId]);
 
+  const constantsQuery = trpc.codex.client.constants.useQuery();
+  const guides = constantsQuery.data?.guides || [];
+  const sendMutation = trpc.codex.client.guideSend.useMutation();
+  const conversationsQuery = trpc.codex.client.guideConversations.useQuery(
+    { guideId: selectedGuide || "" },
+    { enabled: !!selectedGuide }
+  );
+  const messagesQuery = trpc.codex.client.guideMessages.useQuery(
+    { conversationId: conversationId || "" },
+    { enabled: !!conversationId }
+  );
+
   // Export query — enabled only when exportingId is set
   const exportQueryResult = trpc.codex.client.guideExportConversation.useQuery(
     { conversationId: exportingId || "" },
@@ -113,18 +125,6 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
     });
     setShowCharacterSelector(false);
   }, [updateSettingsMut, settingsQuery]);
-
-  const constantsQuery = trpc.codex.client.constants.useQuery();
-  const guides = constantsQuery.data?.guides || [];
-  const sendMutation = trpc.codex.client.guideSend.useMutation();
-  const conversationsQuery = trpc.codex.client.guideConversations.useQuery(
-    { guideId: selectedGuide || "" },
-    { enabled: !!selectedGuide }
-  );
-  const messagesQuery = trpc.codex.client.guideMessages.useQuery(
-    { conversationId: conversationId || "" },
-    { enabled: !!conversationId }
-  );
 
   // Sync messages from query
   useEffect(() => {
@@ -190,59 +190,58 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
   // ── Guide Selection ──
   if (!selectedGuide) {
     return (
-      <div style={{ padding: "2rem", maxWidth: "56rem", margin: "0 auto" }}>
-        <div className="cx-fade-in" style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-          <p style={{ fontSize: "0.65rem", letterSpacing: "0.3em", textTransform: "uppercase", color: "var(--cx-gold-dim)", marginBottom: "0.5rem" }}>
-            AI-Powered Guidance
-          </p>
-          <h1 className="cx-font-heading" style={{ fontSize: "clamp(2rem, 4vw, 3rem)", fontWeight: 300, color: "var(--cx-gold)" }}>
-            Choose Your Guide
+      <div style={{ padding: "2rem 2.5rem", maxWidth: "64rem", margin: "0 auto" }}>
+        <div className="cx-fade-in" style={{ marginBottom: "2.5rem" }}>
+          <h1 style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", fontWeight: 700, letterSpacing: "-0.03em", color: "var(--cx-cream)", marginBottom: "0.375rem" }}>
+            AI Guide
           </h1>
-          <div className="cx-divider" />
-          <p className="cx-invitation" style={{ opacity: 0.5, maxWidth: "28rem", margin: "0 auto" }}>
+          <p style={{ fontSize: "0.9375rem", color: "rgba(240,235,245,0.4)", maxWidth: "32rem" }}>
             Each guide holds a different mirror. Choose the one that calls to you.
           </p>
-          {/* Current avatar indicator + change button */}
           {preferredChar && (
-            <div style={{ marginTop: "1rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+            <div style={{ marginTop: "1rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
               <div style={{ width: 8, height: 8, borderRadius: "50%", background: preferredChar.primaryColor, boxShadow: `0 0 8px ${preferredChar.primaryColor}` }} />
-              <span style={{ fontSize: "0.75rem", color: "rgba(245,230,211,0.5)" }}>Guide: <strong style={{ color: preferredChar.primaryColor }}>{preferredChar.name}</strong></span>
-              <button
-                onClick={() => setShowCharacterSelector(true)}
-                style={{ fontSize: "0.65rem", color: "rgba(201,168,76,0.5)", background: "none", border: "1px solid rgba(201,168,76,0.2)", borderRadius: "0.25rem", padding: "0.2rem 0.5rem", cursor: "pointer" }}
-              >
-                Change Avatar
+              <span style={{ fontSize: "0.8125rem", color: "rgba(240,235,245,0.5)" }}>Active: <strong style={{ color: preferredChar.primaryColor }}>{preferredChar.name}</strong></span>
+              <button onClick={() => setShowCharacterSelector(true)} className="cx-btn-ghost" style={{ fontSize: "0.75rem" }}>
+                Change
               </button>
             </div>
           )}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(16rem, 1fr))", gap: "1rem" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(17rem, 1fr))", gap: "1rem" }}>
           {guides.map((g: any, i: number) => (
             <button
               key={g.id}
               onClick={() => setSelectedGuide(g.id)}
-              className={`cx-fade-up cx-delay-${Math.min(i + 1, 5)}`}
+              className={`cx-widget cx-fade-up cx-delay-${Math.min(i + 1, 6)}`}
               style={{
                 textAlign: "left", cursor: "pointer", padding: "1.5rem",
-                background: "rgba(44,31,40,0.4)", borderRadius: "0.75rem",
-                border: "1px solid rgba(61,34,51,0.2)",
-                transition: "all 400ms",
+                transition: "all 300ms cubic-bezier(0.4,0,0.2,1)",
+                border: "1px solid var(--cx-border)",
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.borderColor = "rgba(201,168,76,0.3)";
-                e.currentTarget.style.background = "rgba(44,31,40,0.6)";
+                e.currentTarget.style.borderColor = "var(--cx-border-bright)";
+                e.currentTarget.style.transform = "translateY(-2px)";
+                e.currentTarget.style.boxShadow = "0 8px 30px rgba(139,92,246,0.1)";
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.borderColor = "rgba(61,34,51,0.2)";
-                e.currentTarget.style.background = "rgba(44,31,40,0.4)";
+                e.currentTarget.style.borderColor = "var(--cx-border)";
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "none";
               }}
             >
-              <div style={{ fontSize: "1.5rem", marginBottom: "0.75rem" }}>{g.icon}</div>
-              <h3 className="cx-font-heading" style={{ fontSize: "1.1rem", color: "var(--cx-gold)", fontWeight: 400, marginBottom: "0.35rem" }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: "0.75rem", marginBottom: "1rem",
+                background: "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(34,211,238,0.08))",
+                border: "1px solid rgba(139,92,246,0.12)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "1.125rem",
+              }}>{g.icon}</div>
+              <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "var(--cx-cream)", letterSpacing: "-0.01em", marginBottom: "0.375rem" }}>
                 {g.name}
               </h3>
-              <p style={{ fontSize: "0.8rem", color: "rgba(245,230,211,0.4)", lineHeight: 1.5 }}>
+              <p style={{ fontSize: "0.8125rem", color: "rgba(240,235,245,0.4)", lineHeight: 1.55 }}>
                 {g.description}
               </p>
             </button>
@@ -254,168 +253,132 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
 
   // ── Chat Interface ──
   return (
-    <div style={{ display: "flex", height: "calc(100vh - 3rem)", overflow: "hidden" }}>
-      {/* Holographic Avatar Mode */}
+    <div style={{ display: "flex", height: "100vh", overflow: "hidden" }}>
+      {/* Holographic Avatar Mode — production-ready wrapper */}
       {holographicMode && selectedGuide && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 50, background: "rgba(0,0,0,0.95)" }}>
+        <div style={{
+          position: "fixed", inset: 0, zIndex: 60,
+          background: "radial-gradient(ellipse at center, rgba(11,11,20,0.97) 0%, rgba(6,6,12,0.99) 100%)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
           <button
             onClick={() => setHolographicMode(false)}
+            className="cx-btn-ghost"
             style={{
-              position: "absolute", top: "1rem", right: "1rem", zIndex: 60,
-              padding: "0.5rem 1rem", background: "rgba(44,31,40,0.8)",
-              border: "1px solid rgba(201,168,76,0.3)", borderRadius: "0.5rem",
-              color: "var(--cx-gold)", fontSize: "0.75rem", cursor: "pointer",
+              position: "absolute", top: "1.5rem", right: "1.5rem", zIndex: 70,
+              background: "rgba(28,25,48,0.6)", border: "1px solid var(--cx-border)",
+              borderRadius: "0.75rem", padding: "0.625rem 1.25rem",
+              color: "var(--cx-cream)", backdropFilter: "blur(12px)",
             }}
           >
-            Exit Holographic Mode
+            Exit Holographic
           </button>
-          <div style={{ width: "100%", height: "100%" }}>
-          <Suspense fallback={
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", color: "var(--cx-gold)" }}>
-              <p className="cx-slow-pulse">Materializing guide...</p>
-            </div>
-          }>
-            <HolographicAvatar
-              guideType={(GUIDE_TYPE_MAP[selectedGuide] || "codex_orientation") as any}
-              preferredGuideId={preferredGuideId || undefined}
-              preferredVoiceId={preferredVoiceId || undefined}
-              onChangeGuide={(guideId, voiceId) => {
-                handleGuideSelect(guideId, voiceId);
-                setConversationId(null);
-                setLocalMessages([]);
-              }}
-              userProfile={{ userId: "", phase: 1, primaryArchetype: "", shadowArchetype: "", woundPrioritySet: [], nsDominant: "ventral", pathway: "discovery" }}
-              systemPrompt=""
-              onMessage={(msg: any) => {
-                setLocalMessages(prev => [...prev, { role: msg.role === "guide" ? "assistant" : "user", content: msg.content }]);
-              }}
-              onEscalation={() => {}}
-              onSessionEnd={() => setHolographicMode(false)}
-              isActive={holographicMode}
-              onSendMessage={async (text: string) => {
-                const result = await sendMutation.mutateAsync({
-                  guideId: preferredGuideId || selectedGuide,
-                  conversationId: conversationId || undefined,
-                  message: text,
-                });
-                if (!conversationId) setConversationId(result.conversationId);
-                return result.response;
-              }}
-            />
-          </Suspense>
+          <div className="cx-avatar-module cx-holo-breathe" style={{ maxWidth: 520 }}>
+            <div className="cx-avatar-ring" />
+            <Suspense fallback={
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", aspectRatio: "1" }}>
+                <div className="cx-slow-pulse" style={{
+                  width: 48, height: 48, borderRadius: "50%",
+                  background: "linear-gradient(135deg, var(--cx-violet), var(--cx-blue))", opacity: 0.5,
+                }} />
+              </div>
+            }>
+              <HolographicAvatar
+                guideType={(GUIDE_TYPE_MAP[selectedGuide] || "codex_orientation") as any}
+                preferredGuideId={preferredGuideId || undefined}
+                preferredVoiceId={preferredVoiceId || undefined}
+                onChangeGuide={(guideId, voiceId) => {
+                  handleGuideSelect(guideId, voiceId);
+                  setConversationId(null);
+                  setLocalMessages([]);
+                }}
+                userProfile={{ userId: "", phase: 1, primaryArchetype: "", shadowArchetype: "", woundPrioritySet: [], nsDominant: "ventral", pathway: "discovery" }}
+                systemPrompt=""
+                onMessage={(msg: any) => {
+                  setLocalMessages(prev => [...prev, { role: msg.role === "guide" ? "assistant" : "user", content: msg.content }]);
+                }}
+                onEscalation={() => {}}
+                onSessionEnd={() => setHolographicMode(false)}
+                isActive={holographicMode}
+                onSendMessage={async (text: string) => {
+                  const result = await sendMutation.mutateAsync({
+                    guideId: preferredGuideId || selectedGuide,
+                    conversationId: conversationId || undefined,
+                    message: text,
+                  });
+                  if (!conversationId) setConversationId(result.conversationId);
+                  return result.response;
+                }}
+              />
+            </Suspense>
           </div>
         </div>
       )}
 
       {/* Conversation Sidebar */}
       <div style={{
-        width: "14rem", flexShrink: 0, borderRight: "1px solid rgba(61,34,51,0.15)",
-        display: "flex", flexDirection: "column", background: "rgba(10,10,10,0.5)",
+        width: "15rem", flexShrink: 0, borderRight: "1px solid var(--cx-border)",
+        display: "flex", flexDirection: "column", background: "var(--cx-sidebar)",
         overflowY: "auto",
       }}>
         <div style={{ padding: "1rem" }}>
-          <button
-            onClick={() => setSelectedGuide(null)}
-            style={{
-              width: "100%", textAlign: "left", padding: "0.5rem",
-              color: "rgba(245,230,211,0.3)", fontSize: "0.7rem", letterSpacing: "0.1em",
-              background: "none", border: "none", cursor: "pointer",
-              marginBottom: "0.75rem",
-            }}
-          >
-            {"<"} All Guides
+          <button onClick={() => setSelectedGuide(null)} className="cx-btn-ghost" style={{ width: "100%", justifyContent: "flex-start", fontSize: "0.75rem", marginBottom: "0.75rem", padding: "0.375rem 0.5rem" }}>
+            {"\u2190"} All Guides
           </button>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1rem" }}>
-            <span style={{ fontSize: "1.1rem" }}>{activeGuide?.icon}</span>
-            <p className="cx-font-heading" style={{ fontSize: "0.95rem", color: "var(--cx-gold)", fontWeight: 400 }}>
-              {activeGuide?.name?.split(" ").slice(0, -1).join(" ")}
-            </p>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1rem" }}>
+            <div style={{
+              width: 32, height: 32, borderRadius: "0.625rem",
+              background: "linear-gradient(135deg, rgba(139,92,246,0.2), rgba(34,211,238,0.1))",
+              border: "1px solid rgba(139,92,246,0.15)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "0.875rem", flexShrink: 0,
+            }}>{activeGuide?.icon}</div>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--cx-cream)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {activeGuide?.name?.split(" ").slice(0, -1).join(" ") || activeGuide?.name}
+              </p>
+            </div>
           </div>
-          <button
-            onClick={startNewConversation}
-            className="cx-btn-primary"
-            style={{ width: "100%", fontSize: "0.75rem", padding: "0.5rem", marginBottom: "0.5rem" }}
-          >
+          <button onClick={startNewConversation} className="cx-btn-primary" style={{ width: "100%", fontSize: "0.8125rem", padding: "0.5rem", marginBottom: "0.5rem" }}>
             + New Conversation
           </button>
-          <button
-            onClick={() => setHolographicMode(true)}
-            style={{
-              width: "100%", fontSize: "0.65rem", padding: "0.45rem",
-              background: "rgba(201,168,76,0.05)", border: "1px solid rgba(201,168,76,0.15)",
-              borderRadius: "0.375rem", color: "var(--cx-gold)", cursor: "pointer",
-              letterSpacing: "0.05em", transition: "all 300ms",
-            }}
-          >
-            ◇ Holographic Mode
-          </button>
-          <button
-            onClick={() => setShowCharacterSelector(true)}
-            style={{
-              width: "100%", fontSize: "0.65rem", padding: "0.45rem", marginTop: "0.35rem",
-              background: "rgba(201,168,76,0.02)", border: "1px solid rgba(201,168,76,0.1)",
-              borderRadius: "0.375rem", color: "rgba(201,168,76,0.6)", cursor: "pointer",
-              letterSpacing: "0.05em", transition: "all 300ms",
-            }}
-          >
-            ◇ Change Avatar
-          </button>
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            style={{
-              width: "100%", fontSize: "0.65rem", padding: "0.45rem", marginTop: "0.35rem",
-              background: "rgba(201,168,76,0.02)", border: "1px solid rgba(201,168,76,0.1)",
-              borderRadius: "0.375rem", color: "rgba(201,168,76,0.6)", cursor: "pointer",
-              letterSpacing: "0.05em", transition: "all 300ms",
-            }}
-          >
-            ↑ Upload Trajectory
+          <div style={{ display: "flex", gap: "0.375rem" }}>
+            <button onClick={() => setHolographicMode(true)} className="cx-btn-ghost" style={{ flex: 1, fontSize: "0.6875rem", padding: "0.4rem", border: "1px solid var(--cx-border)", borderRadius: "0.5rem" }}>
+              Holographic
+            </button>
+            <button onClick={() => setShowCharacterSelector(true)} className="cx-btn-ghost" style={{ flex: 1, fontSize: "0.6875rem", padding: "0.4rem", border: "1px solid var(--cx-border)", borderRadius: "0.5rem" }}>
+              Avatar
+            </button>
+          </div>
+          <button onClick={() => fileInputRef.current?.click()} className="cx-btn-ghost" style={{ width: "100%", fontSize: "0.6875rem", marginTop: "0.375rem", border: "1px solid var(--cx-border)", borderRadius: "0.5rem", padding: "0.4rem" }}>
+            Upload Trajectory
           </button>
           <input ref={fileInputRef} type="file" accept=".json" style={{ display: "none" }} onChange={handleImportFile} />
         </div>
 
-        <div style={{ flex: 1, padding: "0 0.75rem", overflowY: "auto" }}>
+        {/* Conversation list */}
+        <div style={{ flex: 1, padding: "0 0.625rem", overflowY: "auto" }}>
           {(conversationsQuery.data || []).map((c: any) => (
-            <div
-              key={c.id}
-              style={{
-                display: "flex", alignItems: "center", gap: "0.25rem",
-                marginBottom: "0.25rem",
-              }}
-            >
+            <div key={c.id} style={{ display: "flex", alignItems: "center", gap: "0.25rem", marginBottom: "0.125rem" }}>
               <button
                 onClick={() => loadConversation(c.id)}
-                style={{
-                  flex: 1, textAlign: "left", padding: "0.6rem 0.5rem",
-                  borderRadius: "0.375rem",
-                  background: conversationId === c.id ? "rgba(201,168,76,0.08)" : "transparent",
-                  border: conversationId === c.id ? "1px solid rgba(201,168,76,0.15)" : "1px solid transparent",
-                  cursor: "pointer", transition: "all 200ms", minWidth: 0,
-                }}
+                className={`cx-nav-item ${conversationId === c.id ? "active" : ""}`}
+                style={{ flex: 1, padding: "0.5rem 0.625rem", flexDirection: "column", alignItems: "flex-start", gap: "0.125rem" }}
               >
-                <p style={{
-                  fontSize: "0.75rem", color: conversationId === c.id ? "var(--cx-gold)" : "rgba(245,230,211,0.4)",
-                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                }}>
+                <span style={{ fontSize: "0.8125rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "100%", display: "block" }}>
                   {c.title || "Untitled"}
-                </p>
-                <p style={{ fontSize: "0.6rem", color: "rgba(245,230,211,0.15)", marginTop: "0.15rem" }}>
+                </span>
+                <span style={{ fontSize: "0.6875rem", color: "rgba(240,235,245,0.2)" }}>
                   {new Date(c.updatedAt).toLocaleDateString()}
-                </p>
+                </span>
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); setExportingId(c.id); }}
                 title="Export trajectory"
-                style={{
-                  flexShrink: 0, padding: "0.3rem", borderRadius: "0.25rem", fontSize: "0.6rem",
-                  background: "transparent", border: "1px solid transparent",
-                  color: "rgba(245,230,211,0.2)", cursor: "pointer", transition: "all 200ms",
-                  lineHeight: 1,
-                }}
-                onMouseEnter={e => { e.currentTarget.style.color = "var(--cx-gold)"; e.currentTarget.style.borderColor = "rgba(201,168,76,0.2)"; }}
-                onMouseLeave={e => { e.currentTarget.style.color = "rgba(245,230,211,0.2)"; e.currentTarget.style.borderColor = "transparent"; }}
+                className="cx-btn-ghost"
+                style={{ padding: "0.25rem 0.375rem", fontSize: "0.6875rem", flexShrink: 0 }}
               >
-                ↓
+                {"\u2193"}
               </button>
             </div>
           ))}
@@ -423,47 +386,41 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
       </div>
 
       {/* Chat Area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "var(--cx-deep)" }}>
         {/* Messages */}
         <div style={{ flex: 1, overflowY: "auto", padding: "1.5rem 2rem" }}>
           {localMessages.length === 0 && (
-            <div className="cx-fade-in" style={{ textAlign: "center", paddingTop: "6rem" }}>
-              <div style={{ fontSize: "2.5rem", marginBottom: "1rem", opacity: 0.4 }}>{activeGuide?.icon}</div>
-              <h2 className="cx-font-heading" style={{ fontSize: "1.5rem", color: "var(--cx-gold)", fontWeight: 300, marginBottom: "0.5rem" }}>
+            <div className="cx-fade-in" style={{ textAlign: "center", paddingTop: "8rem" }}>
+              <div style={{
+                width: 64, height: 64, borderRadius: "1.25rem", margin: "0 auto 1.25rem",
+                background: "linear-gradient(135deg, rgba(139,92,246,0.12), rgba(34,211,238,0.06))",
+                border: "1px solid rgba(139,92,246,0.12)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: "1.5rem",
+              }}>{activeGuide?.icon}</div>
+              <h2 style={{ fontSize: "1.375rem", fontWeight: 700, color: "var(--cx-cream)", letterSpacing: "-0.02em", marginBottom: "0.5rem" }}>
                 {activeGuide?.name}
               </h2>
-              <p style={{ fontSize: "0.85rem", color: "rgba(245,230,211,0.35)", maxWidth: "24rem", margin: "0 auto", lineHeight: 1.7 }}>
+              <p style={{ fontSize: "0.9375rem", color: "rgba(240,235,245,0.35)", maxWidth: "28rem", margin: "0 auto", lineHeight: 1.65 }}>
                 {activeGuide?.description}. Begin by sharing what is present for you.
               </p>
             </div>
           )}
           {localMessages.map((m, i) => (
             <div key={i} style={{
-              marginBottom: "1.25rem",
+              marginBottom: "1rem",
               display: "flex",
               justifyContent: m.role === "user" ? "flex-end" : "flex-start",
             }}>
-              <div style={{
-                maxWidth: "75%", padding: "1rem 1.25rem", borderRadius: "0.75rem",
-                background: m.role === "user" ? "rgba(201,168,76,0.08)" : "rgba(44,31,40,0.5)",
-                border: `1px solid ${m.role === "user" ? "rgba(201,168,76,0.15)" : "rgba(61,34,51,0.2)"}`,
-              }}>
-                <p style={{
-                  fontSize: "0.9rem", color: "rgba(245,230,211,0.85)", lineHeight: 1.75,
-                  whiteSpace: "pre-wrap",
-                }}>
-                  {m.content}
-                </p>
+              <div className={`cx-chat-bubble ${m.role}`}>
+                {m.content}
               </div>
             </div>
           ))}
           {sending && (
-            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1.25rem" }}>
-              <div style={{
-                padding: "1rem 1.25rem", borderRadius: "0.75rem",
-                background: "rgba(44,31,40,0.5)", border: "1px solid rgba(61,34,51,0.2)",
-              }}>
-                <div className="cx-slow-pulse" style={{ fontSize: "0.9rem", color: "var(--cx-gold)", opacity: 0.5 }}>
+            <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1rem" }}>
+              <div className="cx-chat-bubble assistant">
+                <div className="cx-slow-pulse" style={{ color: "var(--cx-moonlight)", fontSize: "0.875rem" }}>
                   The guide is reflecting...
                 </div>
               </div>
@@ -474,36 +431,30 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
 
         {/* Input */}
         <div style={{
-          padding: "1rem 2rem", borderTop: "1px solid rgba(61,34,51,0.15)",
-          background: "rgba(10,10,10,0.3)",
+          padding: "1rem 2rem 1.25rem", borderTop: "1px solid var(--cx-border)",
+          background: "rgba(11,11,20,0.5)", backdropFilter: "blur(12px)",
         }}>
           <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end" }}>
             <textarea
+              className="cx-chat-input"
               value={message}
               onChange={e => setMessage(e.target.value)}
               onKeyDown={e => {
                 if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
               }}
               placeholder="Share what is present for you..."
-              style={{
-                flex: 1, padding: "0.75rem 1rem", borderRadius: "0.5rem",
-                background: "rgba(44,31,40,0.3)", border: "1px solid rgba(61,34,51,0.2)",
-                color: "var(--cx-cream)", fontSize: "0.9rem", lineHeight: 1.6,
-                resize: "none", outline: "none", minHeight: "2.5rem", maxHeight: "8rem",
-                fontFamily: "Inter, sans-serif",
-              }}
               rows={1}
             />
             <button
               onClick={handleSend}
               disabled={!message.trim() || sending}
               className="cx-btn-primary"
-              style={{ padding: "0.65rem 1.25rem", fontSize: "0.85rem", flexShrink: 0 }}
+              style={{ padding: "0.625rem 1.25rem", flexShrink: 0 }}
             >
               Send
             </button>
           </div>
-          <p style={{ fontSize: "0.6rem", color: "rgba(245,230,211,0.12)", marginTop: "0.5rem", textAlign: "center" }}>
+          <p style={{ fontSize: "0.6875rem", color: "rgba(240,235,245,0.15)", marginTop: "0.625rem", textAlign: "center" }}>
             This guide mirrors your patterns. It is not therapy. For crisis support, contact a professional.
           </p>
         </div>

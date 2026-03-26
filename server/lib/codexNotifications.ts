@@ -504,15 +504,4 @@ export async function updateNotificationPreferences(
 }
 
 // ============ EXPORTS ============
-
-export {
-  NotificationType,
-  Notification,
-  NotificationPreferences,
-  UserProfile,
-  EventData,
-  MilestoneData,
-  GuideData,
-  EventRegistration,
-  RouteAnalysis,
-};
+// All types and functions are exported at their declarations above.

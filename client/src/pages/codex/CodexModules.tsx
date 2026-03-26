@@ -1,4 +1,5 @@
 import { trpc } from "@/lib/trpc";
+import { Loader2, Check } from "lucide-react";
 
 interface Props {
   onNavigate: (view: string) => void;
@@ -14,7 +15,7 @@ export default function CodexModules({ onNavigate }: Props) {
   if (constantsQuery.isLoading) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
-        <div className="cx-slow-pulse" style={{ fontSize: "2rem" }}>{"\u{1F701}"}</div>
+        <div className="cx-slow-pulse"><Loader2 size={32} className="animate-spin" style={{ color: "var(--cx-violet)" }} /></div>
       </div>
     );
   }
@@ -99,7 +100,7 @@ export default function CodexModules({ onNavigate }: Props) {
                     background: "rgba(74,107,74,0.15)", border: "1px solid rgba(74,107,74,0.3)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                   }}>
-                    <span style={{ fontSize: "0.6rem", color: "var(--cx-sage)" }}>{"\u2713"}</span>
+                    <Check size={10} style={{ color: "var(--cx-sage)" }} />
                   </div>
                 )}
                 <div style={{ fontSize: "1.75rem", lineHeight: 1, marginBottom: "0.75rem" }}>{m.glyph}</div>

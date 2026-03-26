@@ -365,7 +365,7 @@ const PathwayMap: React.FC<PathwayMapProps> = ({
                     className="absolute inset-0 rounded-full border border-codex-gold/40"
                   />
                 )}
-                {isLocked && <span className="text-xs">🔒</span>}
+                {isLocked && <span className="text-xs">[locked]</span>}
                 {!isCompleted && !isCurrent && !isLocked && (
                   <span>{moduleId + 1}</span>
                 )}
@@ -395,7 +395,7 @@ const PathwayMap: React.FC<PathwayMapProps> = ({
           <span>Current</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs">🔒</span>
+          <span className="text-xs">[locked]</span>
           <span>Locked</span>
         </div>
       </div>
@@ -460,7 +460,7 @@ const ModuleGrid: React.FC<ModuleGridProps> = ({
             >
               {isLocked && (
                 <div className="absolute inset-0 bg-codex-black/60 rounded-lg backdrop-blur-sm flex items-center justify-center">
-                  <span className="text-2xl">🔒</span>
+                  <span className="text-2xl">[locked]</span>
                 </div>
               )}
 

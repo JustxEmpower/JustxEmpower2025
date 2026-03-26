@@ -152,7 +152,7 @@ const DiversityFilter: React.FC<{
 // ============================================================================
 
 const AvatarPlaceholder: React.FC<{ preset: AvatarPreset }> = ({ preset }) => {
-  const skinToneColor = SKIN_TONE_PALETTE[preset.skinTone] || '#D4B896';
+  const skinToneColor = SKIN_TONE_PALETTE[preset.customization.skinTone]?.hexValue || '#D4B896';
 
   const styles = {
     container: {
@@ -219,8 +219,8 @@ const AvatarPlaceholder: React.FC<{ preset: AvatarPreset }> = ({ preset }) => {
       </div>
       <div style={styles.skinToneSwatch} />
       <div style={styles.metadataOverlay}>
-        <div>{preset.hairStyle}</div>
-        <div>{preset.bodyType}</div>
+        <div>{preset.customization.hairStyle}</div>
+        <div>{preset.customization.bodyType}</div>
       </div>
     </div>
   );
@@ -236,7 +236,7 @@ const AvatarPresetCard: React.FC<{
   onSelect: () => void;
   onPreview: () => void;
 }> = ({ preset, isSelected, onSelect, onPreview }) => {
-  const skinToneColor = SKIN_TONE_PALETTE[preset.skinTone] || '#D4B896';
+  const skinToneColor = SKIN_TONE_PALETTE[preset.customization.skinTone]?.hexValue || '#D4B896';
 
   const styles = {
     card: {
@@ -348,19 +348,19 @@ const AvatarPresetCard: React.FC<{
         <div style={styles.badgeContainer}>
           <div style={styles.badge}>
             <div style={styles.badgeCircle(skinToneColor)} />
-            <span>{getSkinToneLabel(preset.skinTone)}</span>
+            <span>{getSkinToneLabel(preset.customization.skinTone)}</span>
           </div>
           <div style={styles.badge}>
             <div style={styles.badgeCircle('#C9A876')} />
-            <span>{preset.bodyType}</span>
+            <span>{preset.customization.bodyType}</span>
           </div>
           <div style={styles.badge}>
             <div style={styles.badgeCircle('#8B7355')} />
-            <span>{preset.hairStyle}</span>
+            <span>{preset.customization.hairStyle}</span>
           </div>
           <div style={styles.badge}>
             <div style={styles.badgeCircle('#9D7E8A')} />
-            <span>{preset.ageRange}</span>
+            <span>{preset.customization.ageRange}</span>
           </div>
         </div>
 
@@ -412,16 +412,16 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
   // Filter all presets based on selected filters
   const allPresets = useMemo(() => {
     return AVATAR_PRESETS.filter((preset) => {
-      if (filters.skinTone !== 'All' && preset.skinTone !== filters.skinTone.toLowerCase().replace(' ', '')) {
+      if (filters.skinTone !== 'All' && preset.customization.skinTone !== filters.skinTone.toLowerCase().replace(' ', '')) {
         return false;
       }
-      if (filters.bodyType !== 'All' && preset.bodyType !== filters.bodyType.toLowerCase().replace(' ', '')) {
+      if (filters.bodyType !== 'All' && preset.customization.bodyType !== filters.bodyType.toLowerCase().replace(' ', '')) {
         return false;
       }
-      if (filters.hairStyle !== 'All' && preset.hairStyle !== filters.hairStyle.toLowerCase().replace(' ', '')) {
+      if (filters.hairStyle !== 'All' && preset.customization.hairStyle !== filters.hairStyle.toLowerCase().replace(' ', '')) {
         return false;
       }
-      if (filters.ageRange !== 'All' && preset.ageRange !== filters.ageRange.replace('+', '')) {
+      if (filters.ageRange !== 'All' && preset.customization.ageRange !== filters.ageRange.replace('+', '')) {
         return false;
       }
       return true;

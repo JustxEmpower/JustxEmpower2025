@@ -992,7 +992,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-purple-600" />
-              ✨ AI Page Generator - Turbo
+              AI Page Generator - Turbo
             </DialogTitle>
             <DialogDescription>
               Describe your vision and AI will craft a beautiful JE-styled page in seconds.
@@ -1004,12 +1004,12 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
               <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quick Start Templates</Label>
               <div className="grid grid-cols-2 gap-2">
                 {[
-                  { label: '🌟 Workshop Landing', prompt: 'Create a workshop landing page with hero, program benefits using 3 pillars, testimonials from past participants, pricing section, and newsletter signup', type: 'landing' as const },
-                  { label: '👩‍💼 Leadership Program', prompt: 'Create a leadership program page with inspiring hero, numbered principles of leadership, program offerings grid, success stories, FAQ section, and call to action', type: 'services' as const },
-                  { label: '📖 Founder Story', prompt: 'Create an about page telling the founder story with split hero, two-column biography section, philosophy principles, inspirational quote, and community invitation', type: 'about' as const },
-                  { label: '🎉 Event Page', prompt: 'Create an event page with video hero, event details section, speaker/host bio, agenda using principles, testimonials, registration CTA, and FAQ', type: 'landing' as const },
-                  { label: '💫 Retreat Experience', prompt: 'Create a retreat page with immersive image hero, 3 pillars of transformation, daily schedule, testimonials carousel, pricing offerings, and booking form', type: 'services' as const },
-                  { label: '📬 Contact Page', prompt: 'Create a beautiful contact page with minimal hero, contact form, location info in two columns, FAQ for common questions, and newsletter signup', type: 'contact' as const },
+                  { label: 'Workshop Landing', prompt: 'Create a workshop landing page with hero, program benefits using 3 pillars, testimonials from past participants, pricing section, and newsletter signup', type: 'landing' as const },
+                  { label: 'Leadership Program', prompt: 'Create a leadership program page with inspiring hero, numbered principles of leadership, program offerings grid, success stories, FAQ section, and call to action', type: 'services' as const },
+                  { label: 'Founder Story', prompt: 'Create an about page telling the founder story with split hero, two-column biography section, philosophy principles, inspirational quote, and community invitation', type: 'about' as const },
+                  { label: 'Event Page', prompt: 'Create an event page with video hero, event details section, speaker/host bio, agenda using principles, testimonials, registration CTA, and FAQ', type: 'landing' as const },
+                  { label: 'Retreat Experience', prompt: 'Create a retreat page with immersive image hero, 3 pillars of transformation, daily schedule, testimonials carousel, pricing offerings, and booking form', type: 'services' as const },
+                  { label: 'Contact Page', prompt: 'Create a beautiful contact page with minimal hero, contact form, location info in two columns, FAQ for common questions, and newsletter signup', type: 'contact' as const },
                 ].map((template) => (
                   <button
                     key={template.label}
@@ -1030,12 +1030,12 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
                     <SelectValue placeholder="Select page type" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="landing">🚀 Landing Page</SelectItem>
-                    <SelectItem value="about">👤 About Page</SelectItem>
-                    <SelectItem value="services">💼 Services/Programs</SelectItem>
-                    <SelectItem value="contact">📬 Contact Page</SelectItem>
-                    <SelectItem value="blog">📝 Blog/Article</SelectItem>
-                    <SelectItem value="custom">✨ Custom Page</SelectItem>
+                    <SelectItem value="landing">Landing Page</SelectItem>
+                    <SelectItem value="about">About Page</SelectItem>
+                    <SelectItem value="services">Services/Programs</SelectItem>
+                    <SelectItem value="contact">Contact Page</SelectItem>
+                    <SelectItem value="blog">Blog/Article</SelectItem>
+                    <SelectItem value="custom">Custom Page</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1113,7 +1113,7 @@ export default function PageBuilder({ pageId, initialBlocks, initialTitle, onSav
               ) : (
                 <>
                   <Wand2 className="w-4 h-4 mr-2" />
-                  Generate Page ✨
+                  Generate Page
                 </>
               )}
             </Button>

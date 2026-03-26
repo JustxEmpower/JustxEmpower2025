@@ -241,7 +241,7 @@ export default function AdminBlockCreator() {
                     animate={{ opacity: 1, scale: 1 }}
                     className="px-3 py-1.5 bg-white/20 rounded-full text-sm font-medium"
                   >
-                    ✨ {blockTypes.find(b => b.id === selectedBlockType)?.name}
+                    {blockTypes.find(b => b.id === selectedBlockType)?.name}
                   </motion.div>
                 )}
                 <Button 

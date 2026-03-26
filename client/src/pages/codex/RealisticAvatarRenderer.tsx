@@ -798,7 +798,7 @@ const FallbackAvatar: React.FC<FallbackAvatarProps> = ({
 
       if (mouthRef.current) {
         const mouthOpen = isSpeaking ? audioLevel * 10 : 0;
-        mouthRef.current.style.scaleY = 1 + mouthOpen * 0.15;
+        mouthRef.current.style.transform = `scaleY(${1 + mouthOpen * 0.15})`;
       }
     }, 30);
 

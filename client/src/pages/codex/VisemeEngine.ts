@@ -62,12 +62,13 @@ export interface VisemeFrame {
 }
 
 /** Viseme atlas index loaded from the pre-generated JSON */
-export interface VisemeAtlasIndex {
+export type VisemeAtlasIndex = {
   [viseme: string]: {
     bestFrame: number;
     frames: number[];
     timestamp: number;
-  };
+  } | VisemeAtlasIndex['_amplitudeBands'] | VisemeAtlasIndex['_meta'];
+} & {
   _amplitudeBands: {
     [band: string]: {
       viseme: string;
@@ -80,7 +81,7 @@ export interface VisemeAtlasIndex {
     fps: number;
     duration: number;
   };
-}
+};
 
 // ============================================================================
 // Constants
@@ -432,7 +433,7 @@ export class VisemeEngine {
     let audioConfidence = 0;
 
     if (this.analyser && this.frequencyData) {
-      this.analyser.getByteFrequencyData(this.frequencyData);
+      this.analyser.getByteFrequencyData(this.frequencyData as Uint8Array<ArrayBuffer>);
       const result = classifySpectrum(this.frequencyData, this.sampleRate);
       audioViseme = result.viseme;
       audioConfidence = result.confidence;
@@ -543,7 +544,7 @@ export class VisemeEngine {
     }
     let best: VisemeId = 'sil';
     let bestCount = 0;
-    for (const [v, c] of counts) {
+    for (const [v, c] of Array.from(counts)) {
       if (c > bestCount) {
         best = v;
         bestCount = c;

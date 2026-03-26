@@ -118,12 +118,11 @@ interface LivePreviewProps {
 }
 
 const LivePreview: React.FC<LivePreviewProps> = ({ customization, guideName, isAnimating }) => {
-  const skinToneColor = SKIN_TONE_PALETTE.find(
+  const skinToneColor = Object.values(SKIN_TONE_PALETTE).find(
     (tone) => tone.id === customization.skinTone
-  )?.hex || '#C4A57B';
+  )?.hexValue || '#C4A57B';
 
   const hairColorValue =
-    customization.hairColorCustom ||
     (customization.hairColor === 'black'
       ? '#1a1a1a'
       : customization.hairColor === 'brown'
@@ -139,7 +138,7 @@ const LivePreview: React.FC<LivePreviewProps> = ({ customization, guideName, isA
                 : '#FFB6C1');
 
   const hairStyle = HAIR_STYLES.find((h) => h.id === customization.hairStyle);
-  const outfitStyle = OUTFIT_STYLES.find((o) => o.id === customization.outfit);
+  const outfitStyle = OUTFIT_STYLES.find((o) => o.id === customization.outfitStyle);
   const ageRange = AGE_RANGES.find((a) => a.id === customization.ageRange);
 
   const previewContainerStyle: React.CSSProperties = {
@@ -321,12 +320,12 @@ const SkinTonePicker: React.FC<SkinTonePickerProps> = ({
     gap: '12px',
   };
 
-  const swatchStyle = (tone: (typeof SKIN_TONE_PALETTE)[0], isSelected: boolean): React.CSSProperties => ({
+  const swatchStyle = (tone: { hexValue: string }, isSelected: boolean): React.CSSProperties => ({
     position: 'relative',
     width: '48px',
     height: '48px',
     borderRadius: '50%',
-    backgroundColor: tone.hex,
+    backgroundColor: tone.hexValue,
     border: isSelected ? `3px solid ${GOLD}` : `2px solid ${BORDER_DARK}`,
     cursor: 'pointer',
     transition: 'all 0.2s ease',
@@ -359,7 +358,7 @@ const SkinTonePicker: React.FC<SkinTonePickerProps> = ({
   return (
     <div style={containerStyle}>
       <div style={gridStyle}>
-        {SKIN_TONE_PALETTE.map((tone) => (
+        {Object.values(SKIN_TONE_PALETTE).map((tone) => (
           <div
             key={tone.id}
             style={swatchStyle(tone, value === tone.id)}
@@ -503,9 +502,9 @@ const AppearanceTab: React.FC<AppearanceTabProps> = ({ customization, onChange }
         <div style={labelStyle}>Skin Tone</div>
         <SkinTonePicker
           value={customization.skinTone}
-          customHex={customization.skinToneCustom}
+          customHex={customization.skinTone}
           onChange={(toneId) => onChange({ skinTone: toneId })}
-          onCustomChange={(hex) => onChange({ skinToneCustom: hex })}
+          onCustomChange={(hex) => onChange({ skinTone: hex })}
         />
       </div>
 
@@ -530,7 +529,7 @@ const AppearanceTab: React.FC<AppearanceTabProps> = ({ customization, onChange }
         <ButtonGroup
           options={AGE_RANGES}
           value={customization.ageRange}
-          onChange={(ageId) => onChange({ ageRange: ageId })}
+          onChange={(ageId) => onChange({ ageRange: ageId as AvatarCustomization['ageRange'] })}
         />
       </div>
 
@@ -566,8 +565,8 @@ const AppearanceTab: React.FC<AppearanceTabProps> = ({ customization, onChange }
           <label style={{ fontSize: '12px', color: CREAM, opacity: 0.7 }}>Custom:</label>
           <input
             type="color"
-            value={customization.eyeColorCustom || '#8B4513'}
-            onChange={(e) => onChange({ eyeColorCustom: e.target.value })}
+            value={customization.eyeColor || '#8B4513'}
+            onChange={(e) => onChange({ eyeColor: e.target.value })}
             style={{
               width: '40px',
               height: '32px',
@@ -687,8 +686,8 @@ const HairTab: React.FC<HairTabProps> = ({ customization, onChange }) => {
           </label>
           <input
             type="color"
-            value={customization.hairColorCustom || '#FF1493'}
-            onChange={(e) => onChange({ hairColorCustom: e.target.value })}
+            value={customization.hairColor || '#FF1493'}
+            onChange={(e) => onChange({ hairColor: e.target.value })}
             style={{
               width: '40px',
               height: '32px',
@@ -860,8 +859,8 @@ const OutfitTab: React.FC<OutfitTabProps> = ({ customization, onChange }) => {
         {OUTFIT_STYLES.map((os) => (
           <SelectableCard
             key={os.id}
-            selected={customization.outfit === os.id}
-            onClick={() => onChange({ outfit: os.id })}
+            selected={customization.outfitStyle === os.id}
+            onClick={() => onChange({ outfitStyle: os.id as AvatarCustomization['outfitStyle'] })}
           >
             <div style={{ fontSize: '12px', fontWeight: '600' }}>{os.label}</div>
             <div style={{ fontSize: '11px', opacity: 0.7 }}>{os.description}</div>
@@ -880,10 +879,10 @@ interface AccessoriesTabProps {
 const AccessoriesTab: React.FC<AccessoriesTabProps> = ({ customization, onChange }) => {
   const handleToggleAccessory = (accessoryId: string) => {
     const accessories = customization.accessories || [];
-    const updated = accessories.includes(accessoryId)
+    const updated = accessories.includes(accessoryId as any)
       ? accessories.filter((a) => a !== accessoryId)
-      : [...accessories, accessoryId];
-    onChange({ accessories: updated });
+      : [...accessories, accessoryId as AvatarCustomization['accessories'][number]];
+    onChange({ accessories: updated as AvatarCustomization['accessories'] });
   };
 
   const labelStyle: React.CSSProperties = {
@@ -997,15 +996,15 @@ export const AvatarCustomizer: React.FC<AvatarCustomizerProps> = ({
       ...customization,
       faceGeometry,
     };
-    const validation = SafetyValidator.validateCustomization(fullCustomization);
-    if (validation.isValid) {
+    const validation = SafetyValidator.validateAvatarCustomization(fullCustomization);
+    if (validation.valid) {
       onSave(fullCustomization);
     }
   };
 
   const validation = useMemo(
     () =>
-      SafetyValidator.validateCustomization({
+      SafetyValidator.validateAvatarCustomization({
         ...customization,
         faceGeometry,
       }),
@@ -1097,7 +1096,7 @@ export const AvatarCustomizer: React.FC<AvatarCustomizerProps> = ({
     alignItems: 'center',
     gap: '8px',
     fontSize: '12px',
-    color: validation.isValid ? '#4CAF50' : '#FF6B6B',
+    color: validation.valid ? '#4CAF50' : '#FF6B6B',
   };
 
   const buttonGroupBottomStyle: React.CSSProperties = {
@@ -1191,15 +1190,15 @@ export const AvatarCustomizer: React.FC<AvatarCustomizerProps> = ({
 
           <div style={bottomBarStyle}>
             <div style={validationMessageStyle}>
-              {validation.isValid ? (
+              {validation.valid ? (
                 <>
                   <span>✓</span>
                   <span>Avatar ready to save</span>
                 </>
               ) : (
                 <>
-                  <span>⚠</span>
-                  <span>{validation.message}</span>
+                  <span>(!)</span>
+                  <span>{validation.violations?.[0] || 'Validation issue'}</span>
                 </>
               )}
             </div>
@@ -1248,7 +1247,7 @@ export const AvatarCustomizer: React.FC<AvatarCustomizerProps> = ({
               <button
                 style={buttonStyle('primary')}
                 onClick={handleSave}
-                disabled={!validation.isValid}
+                disabled={!validation.valid}
               >
                 Save Avatar
               </button>

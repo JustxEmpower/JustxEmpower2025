@@ -800,7 +800,7 @@ export default function AdminSourceEditorTurbo() {
                   </div>
                   <div className="p-2 border-t border-stone-700 bg-stone-800">
                     <p className="text-[10px] text-stone-500 text-center">
-                      {selectedFile?.endsWith('.css') ? '🎨 Live CSS Preview' : '📄 Syntax-highlighted code view'}
+                      {selectedFile?.endsWith('.css') ? 'Live CSS Preview' : 'Syntax-highlighted code view'}
                     </p>
                   </div>
                 </TabsContent>

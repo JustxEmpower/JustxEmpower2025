@@ -78,7 +78,7 @@ function SortableMediaItem({ id, media, index, onRemove }: SortableMediaItemProp
         <Trash2 className="w-3 h-3" />
       </button>
       <span className="absolute bottom-1 left-1 text-[10px] bg-black/60 text-white px-1.5 py-0.5 rounded">
-        {media.type === 'video' ? '🎬 Video' : '🖼️ Image'}
+        {media.type === 'video' ? 'Video' : 'Image'}
       </span>
     </div>
   );
@@ -723,11 +723,11 @@ export default function AdminProductsEnhanced() {
               <Label className="text-sm font-semibold text-violet-900">Product Type</Label>
               <div className="grid grid-cols-5 gap-2">
                 {[
-                  { value: "physical", label: "Physical", icon: "📦" },
-                  { value: "apparel", label: "Apparel", icon: "👕" },
-                  { value: "book", label: "Book", icon: "📚" },
-                  { value: "course", label: "Course", icon: "🎓" },
-                  { value: "digital", label: "Digital", icon: "💾" },
+                  { value: "physical", label: "Physical", icon: "--" },
+                  { value: "apparel", label: "Apparel", icon: "--" },
+                  { value: "book", label: "Book", icon: "--" },
+                  { value: "course", label: "Course", icon: "--" },
+                  { value: "digital", label: "Digital", icon: "--" },
                 ].map((type) => (
                   <button
                     key={type.value}
@@ -749,7 +749,7 @@ export default function AdminProductsEnhanced() {
             {/* APPAREL FIELDS */}
             {formData.productType === "apparel" && (
               <div className="space-y-4 p-4 bg-amber-50 rounded-lg border border-amber-200">
-                <Label className="text-sm font-semibold text-amber-900">👕 Apparel Details</Label>
+                <Label className="text-sm font-semibold text-amber-900">Apparel Details</Label>
                 
                 <div className="space-y-3">
                   <Label className="text-xs text-amber-700">Size Options</Label>
@@ -798,7 +798,7 @@ export default function AdminProductsEnhanced() {
             {/* BOOK FIELDS */}
             {formData.productType === "book" && (
               <div className="space-y-4 p-4 bg-sky-50 rounded-lg border border-sky-200">
-                <Label className="text-sm font-semibold text-sky-900">📚 Book Details</Label>
+                <Label className="text-sm font-semibold text-sky-900">Book Details</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label className="text-xs text-sky-700">ISBN</Label>
@@ -823,7 +823,7 @@ export default function AdminProductsEnhanced() {
             {/* COURSE FIELDS */}
             {formData.productType === "course" && (
               <div className="space-y-4 p-4 bg-emerald-50 rounded-lg border border-emerald-200">
-                <Label className="text-sm font-semibold text-emerald-900">🎓 Course Details</Label>
+                <Label className="text-sm font-semibold text-emerald-900">Course Details</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label className="text-xs text-emerald-700">Duration</Label>
@@ -851,7 +851,7 @@ export default function AdminProductsEnhanced() {
             {/* DIGITAL FIELDS */}
             {formData.productType === "digital" && (
               <div className="space-y-4 p-4 bg-pink-50 rounded-lg border border-pink-200">
-                <Label className="text-sm font-semibold text-pink-900">💾 Digital Product Details</Label>
+                <Label className="text-sm font-semibold text-pink-900">Digital Product Details</Label>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label className="text-xs text-pink-700">File Type</Label>
@@ -891,7 +891,7 @@ export default function AdminProductsEnhanced() {
             
             {/* Product Details - Separate editable section */}
             <div className="space-y-2 p-4 bg-purple-50 rounded-lg border border-purple-200">
-              <Label className="text-sm font-semibold text-purple-900">📝 Product Details</Label>
+              <Label className="text-sm font-semibold text-purple-900">Product Details</Label>
               <p className="text-xs text-purple-700">This content appears in the expandable "Details" section on the product page</p>
               <Textarea 
                 value={formData.productDetails} 
@@ -904,7 +904,7 @@ export default function AdminProductsEnhanced() {
             
             {/* Display Settings */}
             <div className="space-y-4 p-4 bg-slate-50 rounded-lg border border-slate-200">
-              <Label className="text-sm font-semibold text-slate-900">🎨 Display Settings</Label>
+              <Label className="text-sm font-semibold text-slate-900">Display Settings</Label>
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <Label className="text-xs text-slate-700">Product Name Font Size</Label>

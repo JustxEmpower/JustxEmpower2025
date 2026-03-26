@@ -317,7 +317,7 @@ export function useWaveform(analyserNode: AnalyserNode | null) {
     const animate = () => {
       if (!analyserNode || !dataArrayRef.current) return;
 
-      analyserNode.getByteFrequencyData(dataArrayRef.current);
+      analyserNode.getByteFrequencyData(dataArrayRef.current as Uint8Array<ArrayBuffer>);
 
       // Sample every Nth bar for smoother visualization
       const sampleRate = Math.max(1, Math.floor(bufferLength / 32));

@@ -758,7 +758,7 @@ export default function AdminMediaEnhanced() {
                     className="w-full h-24 p-3 rounded-lg border border-blue-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 resize-none text-sm"
                   />
                   <p className="text-xs text-blue-600 mt-2">
-                    💡 Be descriptive! Include details about motion, lighting, mood, and style.
+                    Tip: Be descriptive! Include details about motion, lighting, mood, and style.
                   </p>
                 </div>
 

@@ -220,10 +220,10 @@ export const Events: React.FC<EventsProps> = ({
 
 const SeasonalThemeBanner: React.FC<{ theme: SeasonalThemeData }> = ({ theme }) => {
   const seasonEmojis = {
-    spring: '🌱',
-    summer: '☀️',
-    autumn: '🍂',
-    winter: '❄️',
+    spring: '*',
+    summer: '+',
+    autumn: '~',
+    winter: '*',
   };
 
   return (

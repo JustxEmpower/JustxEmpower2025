@@ -176,7 +176,7 @@ export default function AdminAIAssistant() {
       setMessages([{
         id: "welcome",
         role: "assistant",
-        content: `Hello! I'm **Aria**, your AI Site Manager. 🚀
+        content: `Hello! I'm **Aria**, your AI Site Manager.
 
 I'm here to help you manage Just Empower strategically. I can assist with:
 

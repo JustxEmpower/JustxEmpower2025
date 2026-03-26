@@ -1636,7 +1636,7 @@ export const blockTypes: BlockType[] = [
   },
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // 🎨 NEW BLOCK VARIATIONS - 50+ ENHANCED BLOCKS
+  // NEW BLOCK VARIATIONS - 50+ ENHANCED BLOCKS
   // ═══════════════════════════════════════════════════════════════════════════
 
   // === HERO VARIATIONS ===

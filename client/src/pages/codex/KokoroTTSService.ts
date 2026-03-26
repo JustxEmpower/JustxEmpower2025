@@ -7,6 +7,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { KokoroTTSManager, type KokoroTTSEvent } from './KokoroTTSManager';
 
 // Server-side TTS — no browser model loading needed
 
@@ -379,7 +380,7 @@ export function getRecommendedVoices(guideName: string): KokoroVoice[] {
 
 
 // Re-export server-side TTS manager (no browser model loading)
-export { KokoroTTSManager, type KokoroTTSEvent } from "./KokoroTTSManager";
+export { KokoroTTSManager, type KokoroTTSEvent };
 
 
 /**

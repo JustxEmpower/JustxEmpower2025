@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
+import { BookHeart } from "lucide-react";
 
 const MOODS = [
   { id: "contemplative", label: "Contemplative", color: "var(--cx-moonlight)" },
@@ -195,7 +196,7 @@ export default function CodexJournal() {
       {/* Entries */}
       {filteredEntries.length === 0 ? (
         <div style={{ textAlign: "center", paddingTop: "4rem" }}>
-          <div style={{ fontSize: "2rem", opacity: 0.3, marginBottom: "1rem" }}>{"\u{1F4D6}"}</div>
+          <div style={{ opacity: 0.3, marginBottom: "1rem" }}><BookHeart size={32} /></div>
           <p className="cx-invitation" style={{ opacity: 0.4 }}>
             {entries.length === 0 ? "Your vault is empty. Begin your first reflection." : "No entries match this filter."}
           </p>

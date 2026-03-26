@@ -251,7 +251,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
   // Create admin notification
   await db.insert(adminNotifications).values({
-    type: "codex_purchase",
+    type: "payment",
     title: `Living Codex purchase: ${tierId}`,
     message: `Customer #${customerId} purchased the ${tierId} tier — $${((session.amount_total || 0) / 100).toFixed(2)}`,
     link: "/admin/codex/clients",

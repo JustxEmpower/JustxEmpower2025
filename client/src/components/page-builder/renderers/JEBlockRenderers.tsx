@@ -4042,7 +4042,7 @@ export function JECalendarRenderer({ block, isEditing = false, isBlockSelected =
                 : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
             }`}
           >
-            📅 Calendar View
+            Calendar View
           </button>
           <button
             onClick={() => setViewMode('list')}

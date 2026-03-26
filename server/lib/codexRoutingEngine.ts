@@ -97,7 +97,7 @@ interface RoutingDecision {
 export function routePortalContent(input: RoutingInput): RoutingOutput {
   const decisions: RoutingDecision[] = [];
 
-  // 1. Determine module sequence
+  // 1. Determine module moduleSequence
   const { firstModule, moduleSequence } = determineModuleSequence(
     input.primaryArchetype,
     input.archetypeCluster
@@ -105,7 +105,7 @@ export function routePortalContent(input: RoutingInput): RoutingOutput {
   decisions.push({
     rule: "MODULE_SEQUENCE",
     input: `primaryArchetype: ${input.primaryArchetype}`,
-    output: `firstModule: ${firstModule}, sequence: [${moduleSequence.join(", ")}]`,
+    output: `firstModule: ${firstModule}, moduleSequence: [${moduleSequence.join(", ")}]`,
     reason: `Archetype-based module progression`,
   });
 
@@ -247,25 +247,25 @@ function determineModuleSequence(
   primaryArchetype: string,
   archetypeCluster: string[]
 ): { firstModule: number; moduleSequence: number[] } {
-  const archetypeMap: Record<string, { firstModule: number; sequence: number[] }> = {
+  const archetypeMap: Record<string, { firstModule: number; moduleSequence: number[] }> = {
     // Primary archetypes
-    "Silent Flame": { firstModule: 1, sequence: [1, 2, 6, 7] },
-    "Forsaken Child": { firstModule: 2, sequence: [2, 3, 8, 10] },
-    "Pleaser Flame": { firstModule: 2, sequence: [2, 1, 5, 13] },
-    "Burdened Flame": { firstModule: 3, sequence: [3, 2, 5, 8] },
-    "Drifting One": { firstModule: 5, sequence: [5, 6, 10, 11] },
-    "Guarded Mystic": { firstModule: 6, sequence: [6, 7, 11, 16] },
-    "Spirit-Dimmed": { firstModule: 6, sequence: [6, 7, 10, 11] },
-    "Fault-Bearer": { firstModule: 3, sequence: [3, 4, 5, 14] },
-    "Shielded One": { firstModule: 2, sequence: [2, 3, 9, 13] },
-    "Rational Pilgrim": { firstModule: 4, sequence: [4, 6, 7, 11] },
-    "Living Flame": { firstModule: 5, sequence: [5, 9, 10, 11] },
-    "Rooted Flame": { firstModule: 1, sequence: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
+    "Silent Flame": { firstModule: 1, moduleSequence: [1, 2, 6, 7] },
+    "Forsaken Child": { firstModule: 2, moduleSequence: [2, 3, 8, 10] },
+    "Pleaser Flame": { firstModule: 2, moduleSequence: [2, 1, 5, 13] },
+    "Burdened Flame": { firstModule: 3, moduleSequence: [3, 2, 5, 8] },
+    "Drifting One": { firstModule: 5, moduleSequence: [5, 6, 10, 11] },
+    "Guarded Mystic": { firstModule: 6, moduleSequence: [6, 7, 11, 16] },
+    "Spirit-Dimmed": { firstModule: 6, moduleSequence: [6, 7, 10, 11] },
+    "Fault-Bearer": { firstModule: 3, moduleSequence: [3, 4, 5, 14] },
+    "Shielded One": { firstModule: 2, moduleSequence: [2, 3, 9, 13] },
+    "Rational Pilgrim": { firstModule: 4, moduleSequence: [4, 6, 7, 11] },
+    "Living Flame": { firstModule: 5, moduleSequence: [5, 9, 10, 11] },
+    "Rooted Flame": { firstModule: 1, moduleSequence: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] },
 
     // Integration markers
-    Sovereign: { firstModule: 1, sequence: [1, 5, 9, 11] },
-    "Awakened Creatrix": { firstModule: 10, sequence: [10, 11, 6, 16] },
-    "Luminous Witness": { firstModule: 6, sequence: [6, 10, 11, 13] },
+    Sovereign: { firstModule: 1, moduleSequence: [1, 5, 9, 11] },
+    "Awakened Creatrix": { firstModule: 10, moduleSequence: [10, 11, 6, 16] },
+    "Luminous Witness": { firstModule: 6, moduleSequence: [6, 10, 11, 13] },
   };
 
   const mapping = archetypeMap[primaryArchetype];
@@ -275,17 +275,17 @@ function determineModuleSequence(
 
   // Fallback to cluster analysis
   if (archetypeCluster.includes("Voice")) {
-    return { firstModule: 1, sequence: [1, 2, 5, 6] };
+    return { firstModule: 1, moduleSequence: [1, 2, 5, 6] };
   } else if (archetypeCluster.includes("Relational")) {
-    return { firstModule: 2, sequence: [2, 3, 5, 8] };
+    return { firstModule: 2, moduleSequence: [2, 3, 5, 8] };
   } else if (archetypeCluster.includes("Wound")) {
-    return { firstModule: 3, sequence: [3, 4, 5, 8] };
+    return { firstModule: 3, moduleSequence: [3, 4, 5, 8] };
   } else if (archetypeCluster.includes("Soul")) {
-    return { firstModule: 6, sequence: [6, 7, 10, 11] };
+    return { firstModule: 6, moduleSequence: [6, 7, 10, 11] };
   }
 
   // Ultimate fallback
-  return { firstModule: 1, sequence: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] };
+  return { firstModule: 1, moduleSequence: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11] };
 }
 
 /**
@@ -319,12 +319,12 @@ function determineModuleUnlock(
     const maxCompleted = Math.max(...completedModules);
     const completionCount = completedModules.length;
 
-    // Add first 3 modules from sequence
+    // Add first 3 modules from moduleSequence
     for (let i = 0; i < Math.min(3, moduleSequence.length); i++) {
       unlocked.add(moduleSequence[i]);
     }
 
-    // After 1 module: unlock next 2 in sequence
+    // After 1 module: unlock next 2 in moduleSequence
     if (completionCount >= 1) {
       const nextIdx = moduleSequence.indexOf(maxCompleted);
       if (nextIdx >= 0 && nextIdx + 1 < moduleSequence.length) {
@@ -659,7 +659,7 @@ function generateNextStep(
 ): string {
   const numPhase = parseInt(phase);
 
-  // Next module in sequence
+  // Next module in moduleSequence
   const nextModuleIdx = moduleSequence.indexOf(inProgressModule) + 1;
   const nextModule =
     nextModuleIdx < moduleSequence.length ? moduleSequence[nextModuleIdx] : null;
@@ -1102,7 +1102,7 @@ export function validateRoutingOutput(output: RoutingOutput): {
 } {
   const errors: string[] = [];
 
-  // Check module sequences
+  // Check module moduleSequences
   if (!output.firstModule || output.firstModule < 1 || output.firstModule > 16) {
     errors.push(`Invalid firstModule: ${output.firstModule}`);
   }

@@ -230,10 +230,10 @@ function App() {
           {isLoading && !isAdminPage && <Preloader onComplete={() => setIsLoading(false)} />}
           <div className={`transition-opacity duration-1000 ${isLoading && !isAdminPage ? 'opacity-0' : 'opacity-100'}`}>
             {/* Only show Header and Footer on non-admin pages */}
-            {!isAdminPage && <Header />}
+            {!isAdminPage && !isCodexPage && <Header />}
             <Router />
-            {!isAdminPage && <Footer />}
-            {!isAdminPage && <NewsletterPopup />}
+            {!isAdminPage && !isCodexPage && <Footer />}
+            {!isAdminPage && !isCodexPage && <NewsletterPopup />}
             {!isAdminPage && !isCodexPage && <AIChatAssistant />}
             {isAdminPage && <AdminAIAssistant />}
             {!isAdminPage && <AnalyticsTracker />}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { LayoutDashboard, Bot, MessageSquare, Compass, ScrollText, BookHeart, ChevronLeft, ChevronRight, ArrowLeft, Menu } from "lucide-react";
 import CodexDashboard from "./CodexDashboard";
 import CodexJourney from "./CodexJourney";
 import CodexGuide from "./CodexGuide";
@@ -6,14 +7,27 @@ import CodexJournal from "./CodexJournal";
 import CodexModules from "./CodexModules";
 import CodexConversationHistory from "./CodexConversationHistory";
 
-const NAV_ITEMS = [
-  { id: "dashboard", label: "Dashboard", glyph: "\u{1F702}" },
-  { id: "journey", label: "My Journey", glyph: "\u{1F9ED}" },
-  { id: "guide", label: "AI Guide", glyph: "\u{1F74A}" },
-  { id: "history", label: "Conversations", glyph: "\u{1F4AC}" },
-  { id: "journal", label: "Journal Vault", glyph: "\u{1F4D6}" },
-  { id: "codex", label: "Codex Scroll", glyph: "\u{1F701}" },
+const NAV_SECTIONS = [
+  {
+    label: "CORE",
+    items: [
+      { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={16} /> },
+      { id: "guide", label: "AI Guide", icon: <Bot size={16} /> },
+      { id: "history", label: "Conversations", icon: <MessageSquare size={16} /> },
+    ],
+  },
+  {
+    label: "JOURNEY",
+    items: [
+      { id: "journey", label: "My Journey", icon: <Compass size={16} /> },
+      { id: "codex", label: "Codex Scroll", icon: <ScrollText size={16} /> },
+      { id: "journal", label: "Journal Vault", icon: <BookHeart size={16} /> },
+    ],
+  },
 ];
+
+const SIDEBAR_W = 240;
+const SIDEBAR_COLLAPSED_W = 64;
 
 interface Props {
   portal: any;
@@ -23,8 +37,18 @@ interface Props {
 export default function CodexPortalShell({ portal, onNavigateExternal }: Props) {
   const [activeView, setActiveView] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
   const [resumeConversationId, setResumeConversationId] = useState<string | null>(null);
   const [resumeGuideId, setResumeGuideId] = useState<string | null>(null);
+
+  const sidebarW = collapsed ? SIDEBAR_COLLAPSED_W : SIDEBAR_W;
+  const firstName = portal.user.name?.split(" ")[0] || "You";
+  const initials = (portal.user.name || "U")
+    .split(" ")
+    .map((n: string) => n[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   const handleNavigate = (view: string) => {
     if (view === "assessment") { onNavigateExternal("/account/codex/assessment"); return; }
@@ -32,6 +56,7 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
     if (view.startsWith("scroll/")) { onNavigateExternal(`/account/codex/${view}`); return; }
     if (view === "scroll") { setActiveView("codex"); return; }
     setActiveView(view);
+    setMobileOpen(false);
   };
 
   const renderView = () => {
@@ -47,78 +72,135 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
   };
 
   return (
-    <div className="codex-env" style={{ display: "flex", minHeight: "calc(100vh - 6rem)", overflow: "hidden", paddingTop: "6rem" }}>
+    <div className="codex-env cx-portal-layout" style={{ position: "fixed", inset: 0, zIndex: 50 }}>
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", zIndex: 45, backdropFilter: "blur(4px)" }}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside style={{
-        width: collapsed ? "4rem" : "13rem", flexShrink: 0,
-        background: "rgba(10,10,10,0.7)", borderRight: "1px solid rgba(61,34,51,0.15)",
-        display: "flex", flexDirection: "column", transition: "width 400ms ease",
-        position: "sticky", top: 0, height: "calc(100vh - 6rem)", overflowY: "auto", overflowX: "hidden",
-      }}>
-        {/* Logo */}
-        <div style={{
-          padding: collapsed ? "1.25rem 0.5rem" : "1.25rem 1rem",
-          borderBottom: "1px solid rgba(61,34,51,0.1)",
-          display: "flex", alignItems: "center", justifyContent: "space-between", minHeight: "3.5rem",
-        }}>
+      <aside
+        className={`cx-sidebar ${mobileOpen ? "open" : ""}`}
+        style={{ width: sidebarW }}
+      >
+        {/* Logo area */}
+        <div className="cx-sidebar-logo" style={{ padding: collapsed ? "1.25rem 0.75rem" : "1.25rem 1.25rem", justifyContent: collapsed ? "center" : "flex-start" }}>
           {!collapsed && (
-            <div style={{ overflow: "hidden", whiteSpace: "nowrap" }}>
-              <p className="cx-font-accent" style={{ fontSize: "0.5rem", letterSpacing: "0.25em", color: "var(--cx-gold-dim)", textTransform: "uppercase" }}>Living Codex</p>
-              <p style={{ fontSize: "0.6rem", color: "rgba(245,230,211,0.15)", marginTop: "0.1rem" }}>{portal.user.name?.split(" ")[0] || ""}</p>
+            <div style={{ overflow: "hidden", whiteSpace: "nowrap", flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <div style={{
+                  width: 8, height: 8, borderRadius: "50%",
+                  background: "linear-gradient(135deg, var(--cx-violet), var(--cx-cyan))",
+                  boxShadow: "0 0 8px rgba(139,92,246,0.4)",
+                }} />
+                <span style={{ fontSize: "0.8125rem", fontWeight: 700, letterSpacing: "-0.01em", color: "var(--cx-cream)" }}>
+                  Living Codex
+                </span>
+              </div>
             </div>
           )}
-          <button onClick={() => setCollapsed(!collapsed)} style={{
-            background: "none", border: "none", cursor: "pointer", color: "rgba(245,230,211,0.15)",
-            fontSize: "0.7rem", padding: "0.25rem", transition: "color 200ms", flexShrink: 0,
-          }}
-            onMouseEnter={e => (e.currentTarget.style.color = "var(--cx-gold)")}
-            onMouseLeave={e => (e.currentTarget.style.color = "rgba(245,230,211,0.15)")}
-          >{collapsed ? "\u25B6" : "\u25C0"}</button>
+          {collapsed && (
+            <div style={{
+              width: 28, height: 28, borderRadius: "0.5rem",
+              background: "linear-gradient(135deg, var(--cx-violet), var(--cx-blue))",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: "0.75rem", fontWeight: 800, color: "white",
+            }}>
+              LC
+            </div>
+          )}
         </div>
 
-        {/* Nav */}
-        <nav style={{ flex: 1, padding: "0.75rem 0.5rem", display: "flex", flexDirection: "column", gap: "0.2rem" }}>
-          {NAV_ITEMS.map(item => {
-            const isActive = activeView === item.id;
-            return (
-              <button key={item.id} onClick={() => setActiveView(item.id)} style={{
-                display: "flex", alignItems: "center", gap: "0.75rem",
-                padding: collapsed ? "0.65rem" : "0.65rem 0.85rem", borderRadius: "0.5rem",
-                background: isActive ? "rgba(201,168,76,0.08)" : "transparent",
-                border: isActive ? "1px solid rgba(201,168,76,0.15)" : "1px solid transparent",
-                cursor: "pointer", transition: "all 250ms", width: "100%",
-                justifyContent: collapsed ? "center" : "flex-start", textAlign: "left",
-              }}>
-                <span style={{ fontSize: "1rem", lineHeight: 1, flexShrink: 0 }}>{item.glyph}</span>
-                {!collapsed && (
-                  <span style={{
-                    fontSize: "0.8rem", color: isActive ? "var(--cx-gold)" : "rgba(245,230,211,0.4)",
-                    fontFamily: "'Cormorant Garamond', serif", fontWeight: isActive ? 400 : 300,
-                    overflow: "hidden", whiteSpace: "nowrap", textOverflow: "ellipsis",
-                  }}>{item.label}</span>
-                )}
-              </button>
-            );
-          })}
+        {/* Navigation sections */}
+        <nav className="cx-sidebar-nav">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.label}>
+              {!collapsed && (
+                <div className="cx-sidebar-section-label">{section.label}</div>
+              )}
+              {collapsed && <div style={{ height: "0.75rem" }} />}
+              {section.items.map((item) => {
+                const isActive = activeView === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavigate(item.id)}
+                    className={`cx-nav-item ${isActive ? "active" : ""}`}
+                    style={{ justifyContent: collapsed ? "center" : "flex-start", padding: collapsed ? "0.625rem" : undefined }}
+                    title={collapsed ? item.label : undefined}
+                  >
+                    <span className="cx-nav-icon">{item.icon}</span>
+                    {!collapsed && <span>{item.label}</span>}
+                  </button>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
-        {/* Bottom */}
-        <div style={{ padding: "0.75rem 0.5rem", borderTop: "1px solid rgba(61,34,51,0.1)" }}>
-          <button onClick={() => onNavigateExternal("/account")} style={{
-            display: "flex", alignItems: "center", gap: "0.75rem",
-            padding: collapsed ? "0.5rem" : "0.5rem 0.85rem", borderRadius: "0.5rem",
-            background: "transparent", border: "1px solid transparent",
-            cursor: "pointer", transition: "all 250ms", width: "100%",
-            justifyContent: collapsed ? "center" : "flex-start",
-          }}>
-            <span style={{ fontSize: "0.8rem", opacity: 0.3 }}>{"\u2190"}</span>
-            {!collapsed && <span style={{ fontSize: "0.7rem", color: "rgba(245,230,211,0.2)" }}>Account</span>}
+        {/* User section at bottom */}
+        <div className="cx-sidebar-user" style={{ justifyContent: collapsed ? "center" : "flex-start" }}>
+          <div className="cx-sidebar-user-avatar">{initials}</div>
+          {!collapsed && (
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontSize: "0.8125rem", fontWeight: 600, color: "var(--cx-cream)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                {firstName}
+              </p>
+              <p style={{ fontSize: "0.6875rem", color: "rgba(240,235,245,0.3)", textTransform: "capitalize" }}>
+                {(portal.user.tier || "explorer").replace(/_/g, " ")}
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Collapse toggle */}
+        <div className="cx-sidebar-collapse">
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="cx-btn-ghost"
+            style={{ width: "100%", justifyContent: "center", padding: "0.5rem", fontSize: "0.75rem" }}
+          >
+            {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          </button>
+        </div>
+
+        {/* Back to account */}
+        <div style={{ padding: "0 0.75rem 0.75rem" }}>
+          <button
+            onClick={() => onNavigateExternal("/account")}
+            className="cx-btn-ghost"
+            style={{ width: "100%", fontSize: "0.75rem", justifyContent: collapsed ? "center" : "flex-start" }}
+          >
+            <ArrowLeft size={14} />
+            {!collapsed && <span>Account</span>}
           </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main style={{ flex: 1, overflowY: "auto", height: "calc(100vh - 6rem)" }}>
+      {/* Main Content Area */}
+      <main className="cx-portal-main" style={{ marginLeft: sidebarW }}>
+        {/* Mobile header */}
+        <div
+          className="cx-mobile-header"
+          style={{
+            padding: "0.75rem 1rem", borderBottom: "1px solid var(--cx-border)",
+            alignItems: "center", gap: "0.75rem", background: "var(--cx-sidebar)",
+          }}
+        >
+          <button
+            onClick={() => setMobileOpen(true)}
+            className="cx-btn-ghost"
+            style={{ padding: "0.5rem", fontSize: "1.25rem" }}
+          >
+            <Menu size={20} />
+          </button>
+          <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--cx-cream)" }}>Living Codex</span>
+        </div>
+
+        {/* Page content */}
         {renderView()}
       </main>
     </div>

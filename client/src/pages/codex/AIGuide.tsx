@@ -19,6 +19,7 @@ import {
   Search,
   Filter,
   Archive,
+  BookOpen,
 } from 'lucide-react';
 
 // ============================================================================

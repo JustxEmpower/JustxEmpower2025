@@ -319,7 +319,7 @@ export const automationRouter = router({
 <body>
   <div class="container">
     <div class="alert">
-      <span class="alert-icon">⚠️</span>
+      <span class="alert-icon">[!]</span>
       <strong>Low Stock Alert</strong>
       <p style="margin: 8px 0 0 0; font-size: 14px;">${lowStockProducts.length} product(s) need restocking</p>
     </div>
@@ -347,7 +347,7 @@ export const automationRouter = router({
 
       const results = await Promise.allSettled(
         input.recipients.map(email => 
-          sendEmail([email], `⚠️ Low Stock Alert - ${lowStockProducts.length} items need restocking`, htmlContent)
+          sendEmail([email], `Low Stock Alert - ${lowStockProducts.length} items need restocking`, htmlContent)
         )
       );
 

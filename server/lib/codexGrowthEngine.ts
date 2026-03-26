@@ -1021,20 +1021,4 @@ function generateMirrorAddendum(phaseShift: PhaseShift, spectrumShift: SpectrumS
  * periodic reassessment for continuous evolution within LivingCodex
  */
 
-export {
-  // THRIVE exports
-  calculateProgress,
-  checkMilestones,
-  updateStreak,
-  generateGrowthInsight,
-  // BLOOM exports
-  getUnlockRules,
-  evaluateUnlocks,
-  generateUnlockNotification,
-  // RESTORE exports
-  checkReassessmentEligibility,
-  createAbbreviatedAssessment,
-  mergeReassessmentResults,
-  calculatePhaseShift,
-  generateReassessmentReport,
-};
+// All functions are exported at their declarations above.

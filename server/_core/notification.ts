@@ -242,10 +242,10 @@ export async function notifyOwner(
   const { title, content, type, priority } = validatePayload(payload);
   
   const priorityEmoji = {
-    low: "📝",
-    normal: "📬",
-    high: "⚠️",
-    urgent: "🚨",
+    low: "[note]",
+    normal: "[info]",
+    high: "[!]",
+    urgent: "[!!]",
   }[priority || "normal"];
 
   const typeColor = {

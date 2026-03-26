@@ -166,7 +166,7 @@ a:focus-visible {
   ],
   js: [
     { name: "Console Welcome", code: `// Console Welcome Message
-console.log('%c✨ Just Empower', 'font-size: 24px; font-weight: bold; color: #f59e0b;');
+console.log('%c Just Empower', 'font-size: 24px; font-weight: bold; color: #f59e0b;');
 console.log('%cCatalyzing The Rise of Her', 'font-size: 14px; color: #78716c;');` },
     { name: "Scroll to Top", code: `// Scroll to Top Button
 document.addEventListener('DOMContentLoaded', function() {

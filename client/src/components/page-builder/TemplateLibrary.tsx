@@ -1269,7 +1269,7 @@ export const PAGE_TEMPLATES: PageTemplate[] = [
       {
         type: 'je-hero',
         content: {
-          title: 'You Are In! 🎉',
+          title: 'You Are In!',
           subtitle: 'Welcome to the Sisterhood',
           variant: 'minimal',
           overlay: false,

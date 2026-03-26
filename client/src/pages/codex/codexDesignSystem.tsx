@@ -155,6 +155,7 @@ interface GlassCardProps {
   onClick?: React.MouseEventHandler<HTMLDivElement>;
   className?: string;
   children?: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
 export function GlassCard({
@@ -232,6 +233,7 @@ interface SacredTextProps {
   phase?: string;
   className?: string;
   children?: React.ReactNode;
+  style?: React.CSSProperties;
 }
 
 export function SacredText({
@@ -824,7 +826,7 @@ export function CodexButton({
       }}
       onMouseEnter={(e) => {
         if (!disabled && !loading) {
-          (e.currentTarget as HTMLButtonElement).transform = 'translateY(-2px)';
+          (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-2px)';
           (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.15)';
         }
       }}
@@ -983,7 +985,7 @@ export function Toast({
   const typeMap: Record<string, { bg: string; color: string; icon: string }> = {
     info: { bg: '#3C3489', color: 'white', icon: 'ℹ' },
     success: { bg: '#7A9E7E', color: 'white', icon: '✓' },
-    warning: { bg: '#C4A265', color: '#0A0A0F', icon: '⚠' },
+    warning: { bg: '#C4A265', color: '#0A0A0F', icon: '(!)' },
     sacred: { bg: '#8B2252', color: 'white', icon: '✦' },
   };
 
@@ -1116,6 +1118,7 @@ interface BadgeProps {
   variant?: 'default' | 'gold' | 'rose' | 'sage';
   count?: number;
   label?: string;
+  style?: React.CSSProperties;
 }
 
 export function Badge({
@@ -1658,7 +1661,7 @@ export function TopBar({
       <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <div style={{ position: 'relative' }}>
           <IconButton
-            icon="🔔"
+            icon="\u266A"
             variant="ghost"
             onClick={onNotifications}
             title="Notifications"

@@ -82,7 +82,7 @@ export default function CodexPortal() {
     return (
       <div className="codex-env">
         <div className="cx-gateway">
-          <div className="text-5xl cx-slow-pulse" style={{ lineHeight: 1 }}>{"\u{1F702}"}</div>
+          <div className="text-5xl cx-slow-pulse" style={{ lineHeight: 1 }}>{"\u25C8"}</div>
           {confirming && (
             <p className="cx-invitation mt-8" style={{ opacity: 0.6 }}>Activating your journey…</p>
           )}
@@ -101,7 +101,7 @@ export default function CodexPortal() {
         {/* ── Section 1: The Gate ── */}
         <section className="min-h-screen flex flex-col items-center justify-center text-center px-6 relative">
           <div style={{ opacity: gatePassed ? 0 : 1, transition: 'opacity 1.5s ease 2.8s', pointerEvents: gatePassed ? 'none' : 'auto', position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-            <div className="text-7xl" style={{ animation: 'cx-slow-pulse 3s ease-in-out', lineHeight: 1 }}>{"\u{1F702}"}</div>
+            <div className="text-7xl" style={{ animation: 'cx-slow-pulse 3s ease-in-out', lineHeight: 1 }}>{"\u25C8"}</div>
           </div>
           <div style={{ opacity: gatePassed ? 1 : 0, transform: gatePassed ? 'translateY(0)' : 'translateY(20px)', transition: 'all 2s ease 0.5s' }}>
             <p className="cx-font-accent text-xs tracking-[0.35em] uppercase mb-8" style={{ color: 'var(--cx-gold-dim)' }}>
@@ -158,8 +158,8 @@ export default function CodexPortal() {
             <div className="space-y-16">
               {[
                 { glyph: "◯", title: "The Assessment", desc: "16 sections of archetypal inquiry. Each question surfaces a pattern — shadow, threshold, or gift. The Codex listens without judgment." },
-                { glyph: "👁", title: "The Mirror Report", desc: "A personalized archetypal portrait generated from your responses. Your primary archetype, wound imprints, spectrum profile, and integration index — reviewed and released by April." },
-                { glyph: "\u{1F701}", title: "The Codex Scroll", desc: "A 9-module integration workbook. Somatic prompts, reflection rituals, and letters to the patterns you carry. This is where knowing becomes embodiment." },
+                { glyph: "\u25CE", title: "The Mirror Report", desc: "A personalized archetypal portrait generated from your responses. Your primary archetype, wound imprints, spectrum profile, and integration index — reviewed and released by April." },
+                { glyph: "\u221E", title: "The Codex Scroll", desc: "A 9-module integration workbook. Somatic prompts, reflection rituals, and letters to the patterns you carry. This is where knowing becomes embodiment." },
               ].map((item, i) => (
                 <RevealSection key={i} delay={i * 200}>
                   <div className="flex gap-8 items-start">

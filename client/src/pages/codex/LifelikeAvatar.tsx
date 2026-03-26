@@ -630,7 +630,7 @@ export default function LifelikeAvatar({
         const jawH = (vidY + vidH) - splitY;
         if (jawDrop > 0.5) {
           const srcVid = activeVideoRef.current === 'A' ? videoA : videoB;
-          if (srcVid.readyState >= 2) {
+          if (srcVid && srcVid.readyState >= 2) {
             const vw = srcVid.videoWidth, vh = srcVid.videoHeight;
             const sX = (jawX - vidX) / vidW * vw;
             const sY = (splitY - vidY) / vidH * vh;

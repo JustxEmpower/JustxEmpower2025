@@ -550,7 +550,7 @@ export default function AdminAITraining() {
                         <div key={index} className="p-4 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors">
                           <div className="flex items-start gap-3">
                             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${conv.role === 'user' ? 'bg-blue-100' : 'bg-emerald-100'}`}>
-                              {conv.role === 'user' ? '👤' : '🤖'}
+                              {conv.role === 'user' ? 'U' : 'AI'}
                             </div>
                             <div className="flex-1">
                               <div className="flex items-center gap-2 mb-1">

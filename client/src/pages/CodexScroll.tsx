@@ -71,7 +71,7 @@ export default function CodexScroll() {
     return (
       <div className="codex-env">
         <div className="cx-gateway">
-          <div className="text-5xl cx-slow-pulse" style={{ lineHeight: 1 }}>{"\u{1F701}"}</div>
+          <div className="text-5xl cx-slow-pulse" style={{ lineHeight: 1 }}>{"\u221E"}</div>
           <p className="cx-invitation mt-6" style={{ opacity: 0.6 }}>Loading the Scroll…</p>
         </div>
       </div>

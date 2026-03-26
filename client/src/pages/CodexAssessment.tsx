@@ -15,7 +15,7 @@ export default function CodexAssessment() {
   const [transitioning, setTransitioning] = useState(false);
   const [answeredCount, setAnsweredCount] = useState(0);
   const totalSections = 16;
-  const settleTimer = useRef<ReturnType<typeof setTimeout>>();
+  const settleTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const constantsQuery = trpc.codex.client.constants.useQuery();
   const sectionMeta = constantsQuery.data?.sectionMeta || {};
@@ -114,7 +114,7 @@ export default function CodexAssessment() {
     return (
       <div className="codex-env">
         <div className="cx-gateway">
-          <div className="text-5xl cx-slow-pulse" style={{ lineHeight: 1 }}>{"\u{1F702}"}</div>
+          <div className="text-5xl cx-slow-pulse" style={{ lineHeight: 1 }}>{"\u25C8"}</div>
           <p className="cx-invitation mt-6" style={{ opacity: 0.6 }}>Preparing your journey…</p>
         </div>
       </div>
@@ -167,7 +167,7 @@ export default function CodexAssessment() {
       <div className="codex-env">
         <ProgressBar pct={progressPct} />
         <div className="cx-gateway">
-          <div className="text-4xl cx-slow-pulse" style={{ lineHeight: 1 }}>{"\u{1F702}"}</div>
+          <div className="text-4xl cx-slow-pulse" style={{ lineHeight: 1 }}>{"\u25C8"}</div>
         </div>
       </div>
     );
@@ -279,7 +279,7 @@ function CompletionScreen({ assessmentId, completeMutation, onPortal }: {
     <div className="codex-env">
       <ProgressBar pct={100} />
       <div className="cx-gateway cx-fade-in">
-        <div className="text-6xl mb-8 cx-gold-glow" style={{ lineHeight: 1, borderRadius: '50%', padding: '1rem' }}>{"\u{1F702}"}</div>
+        <div className="text-6xl mb-8 cx-gold-glow" style={{ lineHeight: 1, borderRadius: '50%', padding: '1rem' }}>{"\u25C8"}</div>
 
         {scoring && (
           <>

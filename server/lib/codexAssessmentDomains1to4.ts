@@ -23,10 +23,10 @@ export interface AssessmentAnswer {
   code: 'A' | 'B' | 'C' | 'D' | 'E';
   text: string;
   spectrumDepth: 'shadow' | 'threshold' | 'gift' | 'ghost';
-  primaryArchetype: string;
-  secondaryArchetype: string;
-  woundImprint: string;
-  mirrorPattern: string;
+  primaryArchetype: string | null;
+  secondaryArchetype: string | null;
+  woundImprint: string | null;
+  mirrorPattern: string | null;
   siCode: string | null;
 }
 
@@ -57,7 +57,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'An urge to soften it, qualify it — make sure it won't land too hard.',
+        text: `An urge to soften it, qualify it — make sure it won't land too hard.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Burdened Flame',
@@ -87,7 +87,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Nothing, really. I've learned to say what's expected without feeling much either way.',
+        text: `Nothing, really. I've learned to say what's expected without feeling much either way.`,
         spectrumDepth: 'ghost',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Shape-Shifter',
@@ -110,7 +110,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'Terror, actually. Like I'd disappear if someone really saw me.',
+        text: `Terror, actually. Like I'd disappear if someone really saw me.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Silent Flame',
@@ -140,7 +140,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Skepticism mixed with frustration. People don't see the whole picture anyway.',
+        text: `Skepticism mixed with frustration. People don't see the whole picture anyway.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Cynic',
@@ -150,7 +150,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Flatness. The idea doesn't really move anything in me.',
+        text: `Flatness. The idea doesn't really move anything in me.`,
         spectrumDepth: 'ghost',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -173,7 +173,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'Guilt. Like wanting something for myself automatically means I'm selfish.',
+        text: `Guilt. Like wanting something for myself automatically means I'm selfish.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Burdened Flame',
@@ -183,7 +183,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Defiance mixed with fear. If I ask, I'll either be rejected or owe someone.',
+        text: `Defiance mixed with fear. If I ask, I'll either be rejected or owe someone.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Fault-Bearer',
@@ -203,7 +203,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Numbness. I've stopped checking in with what I actually need.',
+        text: `Numbness. I've stopped checking in with what I actually need.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -213,7 +213,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Confusion. I'm not sure what my needs are anymore.',
+        text: `Confusion. I'm not sure what my needs are anymore.`,
         spectrumDepth: 'threshold',
         primaryArchetype: 'The Shape-Shifter',
         secondaryArchetype: 'The Lost One',
@@ -230,13 +230,13 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
     section: 1,
     questionNumber: 4,
     invitationText:
-      'In moments when I'm excited or passionate about something, I find myself…',
+      `In moments when I'm excited or passionate about something, I find myself…`,
     guidanceNote:
       '✦ Not the conversation about it. What happens in your body and energy when the aliveness shows up.',
     answers: [
       {
         code: 'A',
-        text: 'Quickly dimming it down so I don't overwhelm people with my intensity.',
+        text: `Quickly dimming it down so I don't overwhelm people with my intensity.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Silent Flame',
@@ -246,7 +246,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Bracing for someone to diminish it or tell me I'm being unrealistic.',
+        text: `Bracing for someone to diminish it or tell me I'm being unrealistic.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Fault-Bearer',
@@ -361,7 +361,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: '"I could never be like that. It's not in me."',
+        text: `"I could never be like that. It's not in me."`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Silent Flame',
@@ -371,7 +371,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: '"There's probably a cost to that I don't see. Nobody's actually that okay."',
+        text: `"There's probably a cost to that I don't see. Nobody's actually that okay."`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Cynic',
         secondaryArchetype: 'The Shielded One',
@@ -391,7 +391,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: '"She's doing it wrong. That kind of confidence usually alienates people."',
+        text: `"She's doing it wrong. That kind of confidence usually alienates people."`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Fault-Bearer',
@@ -424,7 +424,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'That I'm too much in some way — too intense, too sensitive, too needy.',
+        text: `That I'm too much in some way — too intense, too sensitive, too needy.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Burdened Flame',
@@ -434,7 +434,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'That I need to stay vigilant or I'll be exposed for something.',
+        text: `That I need to stay vigilant or I'll be exposed for something.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Fault-Bearer',
@@ -444,7 +444,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'C',
-        text: 'That I'm genuinely me, and that's enough. The right people will meet me there.',
+        text: `That I'm genuinely me, and that's enough. The right people will meet me there.`,
         spectrumDepth: 'gift',
         primaryArchetype: 'The Sovereign',
         secondaryArchetype: 'The Rooted Flame',
@@ -464,7 +464,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'No real feeling about it. I'm kind of blank on how I'm perceived.',
+        text: `No real feeling about it. I'm kind of blank on how I'm perceived.`,
         spectrumDepth: 'ghost',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -483,11 +483,11 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
     invitationText:
       'If I were to claim something I really believe in — out loud, without hedging — I would worry that…',
     guidanceNote:
-      '✦ Let the worry surface without judging it. What's the core fear underneath?',
+      `✦ Let the worry surface without judging it. What's the core fear underneath?`,
     answers: [
       {
         code: 'A',
-        text: 'People would think I'm arrogant or that I'm claiming a certainty I can't prove.',
+        text: `People would think I'm arrogant or that I'm claiming a certainty I can't prove.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Silent Flame',
@@ -497,7 +497,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'I'd be proven wrong, and then I'd be vulnerable to attack.',
+        text: `I'd be proven wrong, and then I'd be vulnerable to attack.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Fault-Bearer',
@@ -517,7 +517,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'My voice doesn't matter enough for it to even matter what I claim.',
+        text: `My voice doesn't matter enough for it to even matter what I claim.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Silent Flame',
@@ -527,7 +527,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'I don't really know what I believe in anymore.',
+        text: `I don't really know what I believe in anymore.`,
         spectrumDepth: 'threshold',
         primaryArchetype: 'The Lost One',
         secondaryArchetype: 'The Shape-Shifter',
@@ -612,7 +612,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'A chasm. What I actually feel is so far from what I say that I'm not even sure who I am anymore.',
+        text: `A chasm. What I actually feel is so far from what I say that I'm not even sure who I am anymore.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Shape-Shifter',
@@ -632,7 +632,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'C',
-        text: 'An alignment. I speak what's true, and it lands as my authenticity.',
+        text: `An alignment. I speak what's true, and it lands as my authenticity.`,
         spectrumDepth: 'gift',
         primaryArchetype: 'The Sovereign',
         secondaryArchetype: 'The Truth-Keeper',
@@ -642,7 +642,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Exhausting. I have to be on guard constantly so the wrong truth doesn't slip out.',
+        text: `Exhausting. I have to be on guard constantly so the wrong truth doesn't slip out.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Fault-Bearer',
@@ -652,7 +652,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Vague. I can't really tell where the gap is or if it even matters.',
+        text: `Vague. I can't really tell where the gap is or if it even matters.`,
         spectrumDepth: 'ghost',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -671,11 +671,11 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
     invitationText:
       'When I imagine stepping fully into my own authority — speaking, deciding, leading from my own knowing — the first thing I feel is…',
     guidanceNote:
-      '✦ Not what's possible or what you "should" feel. What actually arises first?',
+      `✦ Not what's possible or what you "should" feel. What actually arises first?`,
     answers: [
       {
         code: 'A',
-        text: 'Fear so sharp it almost feels like pain. I don't belong in that space.',
+        text: `Fear so sharp it almost feels like pain. I don't belong in that space.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Silent Flame',
         secondaryArchetype: 'The Ghost',
@@ -705,7 +705,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Skepticism. I don't trust my own judgment. I'll probably get it wrong.',
+        text: `Skepticism. I don't trust my own judgment. I'll probably get it wrong.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Fault-Bearer',
@@ -715,7 +715,7 @@ export const DOMAIN_1_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Nothing. The image is too abstract. It doesn't connect to anything real in me.',
+        text: `Nothing. The image is too abstract. It doesn't connect to anything real in me.`,
         spectrumDepth: 'ghost',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Lost One',
@@ -739,7 +739,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
     section: 5,
     questionNumber: 1,
     invitationText:
-      'When something unexpected or threatening happens, my body's first move is to…',
+      `When something unexpected or threatening happens, my body's first move is to…`,
     guidanceNote:
       '✦ Watch what happens before your mind has time to respond. The automatic reflex.',
     answers: [
@@ -755,7 +755,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Heat up. Feel the surge to push back, defend, correct what's wrong.',
+        text: `Heat up. Feel the surge to push back, defend, correct what's wrong.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Fault-Bearer',
@@ -765,7 +765,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'C',
-        text: 'Check in with myself. Notice what's happening and choose my response.',
+        text: `Check in with myself. Notice what's happening and choose my response.`,
         spectrumDepth: 'gift',
         primaryArchetype: 'The Sovereign',
         secondaryArchetype: 'The Rooted Flame',
@@ -775,7 +775,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Go blank or numb. Like the lights go out and I'm not really here.',
+        text: `Go blank or numb. Like the lights go out and I'm not really here.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Numb One',
         secondaryArchetype: 'The Ghost',
@@ -785,7 +785,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Scan for danger. My attention goes everywhere looking for what's wrong.',
+        text: `Scan for danger. My attention goes everywhere looking for what's wrong.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Cynic',
         secondaryArchetype: 'The Shielded One',
@@ -871,7 +871,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'Held breath. Waiting. Like I'm perpetually tensing for the next thing to go wrong.',
+        text: `Held breath. Waiting. Like I'm perpetually tensing for the next thing to go wrong.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Cynic',
         secondaryArchetype: 'The Shielded One',
@@ -881,7 +881,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Low-grade frustration or irritability. Like I'm ready for a fight I haven't had yet.',
+        text: `Low-grade frustration or irritability. Like I'm ready for a fight I haven't had yet.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Fault-Bearer',
         secondaryArchetype: 'The Shielded One',
@@ -891,7 +891,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'C',
-        text: 'Flexible and present. I'm responsive to what's actually happening.',
+        text: `Flexible and present. I'm responsive to what's actually happening.`,
         spectrumDepth: 'gift',
         primaryArchetype: 'The Sovereign',
         secondaryArchetype: 'The Rooted Flame',
@@ -928,7 +928,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
     section: 5,
     questionNumber: 4,
     invitationText:
-      'When I feel someone's anger or disapproval directed at me, what happens in my body is…',
+      `When I feel someone's anger or disapproval directed at me, what happens in my body is…`,
     guidanceNote:
       '✦ Not what you think about it. The physical, immediate sensation.',
     answers: [
@@ -964,7 +964,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Shutdown. Like an internal switch flips and I'm just… blank.',
+        text: `Shutdown. Like an internal switch flips and I'm just… blank.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Numb One',
         secondaryArchetype: 'The Ghost',
@@ -974,7 +974,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Alert. Every sense sharpens. I'm trying to figure out what I did wrong.',
+        text: `Alert. Every sense sharpens. I'm trying to figure out what I did wrong.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Cynic',
         secondaryArchetype: 'The Shielded One',
@@ -1116,7 +1116,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
     section: 5,
     questionNumber: 7,
     invitationText:
-      'When I'm around people who are very calm and grounded, I tend to…',
+      `When I'm around people who are very calm and grounded, I tend to…`,
     guidanceNote:
       '✦ What actually happens to your nervous system in those moments?',
     answers: [
@@ -1142,7 +1142,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'C',
-        text: 'Disconnected. Their peace is so foreign it feels like it's not really available to me.',
+        text: `Disconnected. Their peace is so foreign it feels like it's not really available to me.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Silent Flame',
@@ -1152,7 +1152,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Suspicious. Like they're hiding something or not being fully honest.',
+        text: `Suspicious. Like they're hiding something or not being fully honest.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Cynic',
         secondaryArchetype: 'The Shielded One',
@@ -1162,7 +1162,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Empty. Their grounding doesn't reach me because I'm already checked out.',
+        text: `Empty. Their grounding doesn't reach me because I'm already checked out.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Numb One',
         secondaryArchetype: 'The Ghost',
@@ -1181,11 +1181,11 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
     invitationText:
       'My relationship to control is…',
     guidanceNote:
-      '✦ Not morally. Just what's true about how you move in the world.',
+      `✦ Not morally. Just what's true about how you move in the world.`,
     answers: [
       {
         code: 'A',
-        text: 'I need to let go. I can't control outcomes, and my body knows it's safer when I'm not trying.',
+        text: `I need to let go. I can't control outcomes, and my body knows it's safer when I'm not trying.`,
         spectrumDepth: 'gift',
         primaryArchetype: 'The Sovereign',
         secondaryArchetype: 'The Rooted Flame',
@@ -1195,7 +1195,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'I need a lot of it. Without knowing what's coming, my nervous system is in overdrive.',
+        text: `I need a lot of it. Without knowing what's coming, my nervous system is in overdrive.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Cynic',
         secondaryArchetype: 'The Shielded One',
@@ -1215,7 +1215,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'I've given up trying. There's no point — things happen to me regardless.',
+        text: `I've given up trying. There's no point — things happen to me regardless.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -1225,7 +1225,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'I retreat from situations where I can't control the outcome.',
+        text: `I retreat from situations where I can't control the outcome.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Silent Flame',
         secondaryArchetype: 'The Shielded One',
@@ -1310,7 +1310,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'Step back and breathe. Create space so I can see what's actually happening.',
+        text: `Step back and breathe. Create space so I can see what's actually happening.`,
         spectrumDepth: 'gift',
         primaryArchetype: 'The Sovereign',
         secondaryArchetype: 'The Rooted Flame',
@@ -1320,7 +1320,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Jump in and try to order things, fix what's wrong, restore control.',
+        text: `Jump in and try to order things, fix what's wrong, restore control.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Fault-Bearer',
@@ -1369,7 +1369,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
     invitationText:
       'The most natural pace for my nervous system feels like…',
     guidanceNote:
-      '✦ Not what you're forced to do. What feels homeostatic — like you can stay there.',
+      `✦ Not what you're forced to do. What feels homeostatic — like you can stay there.`,
     answers: [
       {
         code: 'A',
@@ -1393,7 +1393,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'C',
-        text: 'Responsive. I can shift pace based on what's needed, but I have a calm center.',
+        text: `Responsive. I can shift pace based on what's needed, but I have a calm center.`,
         spectrumDepth: 'gift',
         primaryArchetype: 'The Sovereign',
         secondaryArchetype: 'The Rooted Flame',
@@ -1403,7 +1403,7 @@ export const DOMAIN_2_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Checked out. Like I'm running at a distance from everything happening.',
+        text: `Checked out. Like I'm running at a distance from everything happening.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -1443,7 +1443,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'They'll leave me. That I'm not enough to keep them close.',
+        text: `They'll leave me. That I'm not enough to keep them close.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Burdened Flame',
@@ -1453,7 +1453,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'They'll consume me or I'll lose myself trying to meet their needs.',
+        text: `They'll consume me or I'll lose myself trying to meet their needs.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Silent Flame',
@@ -1473,7 +1473,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'That I'm manipulating them somehow without knowing it.',
+        text: `That I'm manipulating them somehow without knowing it.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Cynic',
         secondaryArchetype: 'The Fault-Bearer',
@@ -1483,7 +1483,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'I don't really form close connections. Relationships feel distant or obligatory.',
+        text: `I don't really form close connections. Relationships feel distant or obligatory.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Shape-Shifter',
@@ -1506,7 +1506,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'Fix it, soothe it, make sure they're okay. Their upset destabilizes me until they're better.',
+        text: `Fix it, soothe it, make sure they're okay. Their upset destabilizes me until they're better.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Burdened Flame',
@@ -1565,11 +1565,11 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
     invitationText:
       'My boundaries in relationships tend to look like…',
     guidanceNote:
-      '✦ Not what you want them to be. What's actually true in how you operate.',
+      `✦ Not what you want them to be. What's actually true in how you operate.`,
     answers: [
       {
         code: 'A',
-        text: 'Soft. I say yes when I mean no. I give more than I'm asked.',
+        text: `Soft. I say yes when I mean no. I give more than I'm asked.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Burdened Flame',
@@ -1599,7 +1599,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Confused. I don't really know where I end and others begin.',
+        text: `Confused. I don't really know where I end and others begin.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Shape-Shifter',
@@ -1626,7 +1626,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
     section: 2,
     questionNumber: 4,
     invitationText:
-      'When someone doesn't text me back quickly or seems distant, I…',
+      `When someone doesn't text me back quickly or seems distant, I…`,
     guidanceNote:
       '✦ Let yourself notice the actual sensation before the story kicks in.',
     answers: [
@@ -1642,7 +1642,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Don't really notice or care. I'm used to people not being consistently available.',
+        text: `Don't really notice or care. I'm used to people not being consistently available.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Ghost',
@@ -1652,7 +1652,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'C',
-        text: 'Check in with myself first. Maybe they're busy. I can handle the uncertainty.',
+        text: `Check in with myself first. Maybe they're busy. I can handle the uncertainty.`,
         spectrumDepth: 'gift',
         primaryArchetype: 'The Sovereign',
         secondaryArchetype: 'The Rooted Flame',
@@ -1672,7 +1672,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Feel nothing. Absence is just absence. It doesn't mean anything.',
+        text: `Feel nothing. Absence is just absence. It doesn't mean anything.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -1751,7 +1751,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
     section: 2,
     questionNumber: 6,
     invitationText:
-      'When I'm with someone who has a different need or boundary than me, I find myself…',
+      `When I'm with someone who has a different need or boundary than me, I find myself…`,
     guidanceNote:
       '✦ Not the ideal response. What actually happens in you?',
     answers: [
@@ -1767,7 +1767,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Withdrawing or finding reasons to leave. I can't adapt to anyone else's needs.',
+        text: `Withdrawing or finding reasons to leave. I can't adapt to anyone else's needs.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Silent Flame',
@@ -1787,7 +1787,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Confused. I don't know whose needs should come first.',
+        text: `Confused. I don't know whose needs should come first.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Shape-Shifter',
@@ -1797,7 +1797,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Believing mine are always wrong. If there's a difference, I'm probably the problem.',
+        text: `Believing mine are always wrong. If there's a difference, I'm probably the problem.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Fault-Bearer',
         secondaryArchetype: 'The Pleaser Flame',
@@ -1820,7 +1820,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'Scramble to explain myself or convince them they're wrong. I need them to understand.',
+        text: `Scramble to explain myself or convince them they're wrong. I need them to understand.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Cynic',
@@ -1840,7 +1840,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'C',
-        text: 'Stay curious. Their view adds information. We don't have to agree.',
+        text: `Stay curious. Their view adds information. We don't have to agree.`,
         spectrumDepth: 'gift',
         primaryArchetype: 'The Sovereign',
         secondaryArchetype: 'The Truth-Keeper',
@@ -1850,7 +1850,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Assume they're right and I'm wrong. Give up my position to keep peace.',
+        text: `Assume they're right and I'm wrong. Give up my position to keep peace.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Silent Flame',
@@ -1860,7 +1860,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Feel nothing. Disagreement doesn't reach me because I'm already disconnected.',
+        text: `Feel nothing. Disagreement doesn't reach me because I'm already disconnected.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -1923,7 +1923,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'I don't really struggle because I don't let relationships get deep enough.',
+        text: `I don't really struggle because I don't let relationships get deep enough.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Shape-Shifter',
@@ -2008,7 +2008,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'Terrified. They'll see the parts I hide and leave.',
+        text: `Terrified. They'll see the parts I hide and leave.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Ghost',
@@ -2018,7 +2018,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Impossible. I can't be fully myself with anyone. That would be too risky.',
+        text: `Impossible. I can't be fully myself with anyone. That would be too risky.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Silent Flame',
@@ -2038,7 +2038,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Like I'd disappear. I don't really know who I am anymore to show up as.',
+        text: `Like I'd disappear. I don't really know who I am anymore to show up as.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Shape-Shifter',
@@ -2048,7 +2048,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Like I should. But I'm not going to risk it. I've learned my lesson.',
+        text: `Like I should. But I'm not going to risk it. I've learned my lesson.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Cynic',
         secondaryArchetype: 'The Shielded One',
@@ -2065,13 +2065,13 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
     section: 2,
     questionNumber: 11,
     invitationText:
-      'The person I'm most afraid of disappointing is…',
+      `The person I'm most afraid of disappointing is…`,
     guidanceNote:
       '✦ Not who you know logically. Who lives in your body as the threat.',
     answers: [
       {
         code: 'A',
-        text: 'The person I'm trying to get close to. If I disappoint them, they might leave.',
+        text: `The person I'm trying to get close to. If I disappoint them, they might leave.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Burdened Flame',
@@ -2111,7 +2111,7 @@ export const DOMAIN_3_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'I'm not sure. Disappointment feels too abstract for me to connect with.',
+        text: `I'm not sure. Disappointment feels too abstract for me to connect with.`,
         spectrumDepth: 'ghost',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -2141,7 +2141,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'Shame. Like there's something fundamentally wrong with me.',
+        text: `Shame. Like there's something fundamentally wrong with me.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Silent Flame',
         secondaryArchetype: 'The Ghost',
@@ -2151,7 +2151,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Self-attack. I'm stupid, weak, or careless. I deserve the criticism.',
+        text: `Self-attack. I'm stupid, weak, or careless. I deserve the criticism.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Fault-Bearer',
         secondaryArchetype: 'The Cynic',
@@ -2181,7 +2181,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Nothing much. I don't really register mistakes in myself.',
+        text: `Nothing much. I don't really register mistakes in myself.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -2204,7 +2204,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'Doubtful. Like I can't be trusted with power or I'll misuse it.',
+        text: `Doubtful. Like I can't be trusted with power or I'll misuse it.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Cynic',
         secondaryArchetype: 'The Fault-Bearer',
@@ -2214,7 +2214,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Insufficient. Like I'm never enough, no matter how hard I try.',
+        text: `Insufficient. Like I'm never enough, no matter how hard I try.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Burdened Flame',
@@ -2234,7 +2234,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Afraid that if I showed my power, I'd be rejected or attacked.',
+        text: `Afraid that if I showed my power, I'd be rejected or attacked.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Silent Flame',
@@ -2244,7 +2244,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Absent. I'm not sure I have any real power.',
+        text: `Absent. I'm not sure I have any real power.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Lost One',
@@ -2267,7 +2267,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'I'll be used or hurt. My vulnerability would be weaponized.',
+        text: `I'll be used or hurt. My vulnerability would be weaponized.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Cynic',
         secondaryArchetype: 'The Shielded One',
@@ -2277,7 +2277,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'I'll disappear or lose myself. My needs would consume the relationship.',
+        text: `I'll disappear or lose myself. My needs would consume the relationship.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Shape-Shifter',
@@ -2297,7 +2297,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'They'll think less of me or see I'm too much to handle.',
+        text: `They'll think less of me or see I'm too much to handle.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Burdened Flame',
@@ -2307,7 +2307,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'I don't really feel vulnerable. It's hard to access that in me.',
+        text: `I don't really feel vulnerable. It's hard to access that in me.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Numb One',
         secondaryArchetype: 'The Ghost',
@@ -2326,11 +2326,11 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
     invitationText:
       'When I receive praise or recognition, I find myself…',
     guidanceNote:
-      '✦ What's the automatic impulse before your mind intercepts it?',
+      `✦ What's the automatic impulse before your mind intercepts it?`,
     answers: [
       {
         code: 'A',
-        text: 'Uncomfortable. Like they're wrong or I don't deserve it.',
+        text: `Uncomfortable. Like they're wrong or I don't deserve it.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Silent Flame',
         secondaryArchetype: 'The Pleaser Flame',
@@ -2340,7 +2340,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Anxious. Like I need to prove it again or they'll see through me.',
+        text: `Anxious. Like I need to prove it again or they'll see through me.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Fault-Bearer',
         secondaryArchetype: 'The Cynic',
@@ -2360,7 +2360,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Skeptical. People don't really see me, they see a performance.',
+        text: `Skeptical. People don't really see me, they see a performance.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Ghost',
@@ -2370,7 +2370,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'Blank. It doesn't really land in me as meaningful.',
+        text: `Blank. It doesn't really land in me as meaningful.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Numb One',
         secondaryArchetype: 'The Ghost',
@@ -2455,7 +2455,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'Disconnected or foreign. Like I'm living in it but not really in it.',
+        text: `Disconnected or foreign. Like I'm living in it but not really in it.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -2465,7 +2465,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Ashamed or judged. Like it's not right or acceptable as it is.',
+        text: `Ashamed or judged. Like it's not right or acceptable as it is.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Silent Flame',
@@ -2495,7 +2495,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'I don't really register my body. It's background noise.',
+        text: `I don't really register my body. It's background noise.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Lost One',
@@ -2518,7 +2518,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
     answers: [
       {
         code: 'A',
-        text: 'I sabotage myself. Like I don't believe I deserve it.',
+        text: `I sabotage myself. Like I don't believe I deserve it.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Fault-Bearer',
@@ -2538,7 +2538,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'C',
-        text: 'I move toward it steadily, but I'm not defined by it.',
+        text: `I move toward it steadily, but I'm not defined by it.`,
         spectrumDepth: 'gift',
         primaryArchetype: 'The Sovereign',
         secondaryArchetype: 'The Rooted Flame',
@@ -2548,7 +2548,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'I give up before I start. Like I can't win anyway.',
+        text: `I give up before I start. Like I can't win anyway.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Numb One',
@@ -2577,7 +2577,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
     invitationText:
       'When I encounter someone who seems to be thriving, I feel…',
     guidanceNote:
-      '✦ Not what's nice. What's actually true in your body.',
+      `✦ Not what's nice. What's actually true in your body.`,
     answers: [
       {
         code: 'A',
@@ -2591,7 +2591,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'Threatened. Like their success diminishes mine or proves I'm failing.',
+        text: `Threatened. Like their success diminishes mine or proves I'm failing.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Pleaser Flame',
@@ -2611,7 +2611,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Suspicious. They're probably hiding something or got lucky.',
+        text: `Suspicious. They're probably hiding something or got lucky.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Cynic',
         secondaryArchetype: 'The Ghost',
@@ -2702,11 +2702,11 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
     invitationText:
       'When I think about my own needs and desires, the feeling is…',
     guidanceNote:
-      '✦ Before you edit or judge them. What's the original texture of wanting?',
+      `✦ Before you edit or judge them. What's the original texture of wanting?`,
     answers: [
       {
         code: 'A',
-        text: 'Illegitimate. Like my desires are wrong or shouldn't matter.',
+        text: `Illegitimate. Like my desires are wrong or shouldn't matter.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Silent Flame',
@@ -2736,7 +2736,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Absent. I don't really know what I want anymore.',
+        text: `Absent. I don't really know what I want anymore.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Ghost',
         secondaryArchetype: 'The Shape-Shifter',
@@ -2779,7 +2779,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'B',
-        text: 'How I've been harmed or where I gave myself away.',
+        text: `How I've been harmed or where I gave myself away.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Pleaser Flame',
         secondaryArchetype: 'The Burdened Flame',
@@ -2799,7 +2799,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'D',
-        text: 'Whether I'm actually failing or if I just believe I am.',
+        text: `Whether I'm actually failing or if I just believe I am.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Fault-Bearer',
         secondaryArchetype: 'The Cynic',
@@ -2809,7 +2809,7 @@ export const DOMAIN_4_QUESTIONS: AssessmentQuestion[] = [
       },
       {
         code: 'E',
-        text: 'I don't really have those conversations. Introspection feels risky.',
+        text: `I don't really have those conversations. Introspection feels risky.`,
         spectrumDepth: 'shadow',
         primaryArchetype: 'The Shielded One',
         secondaryArchetype: 'The Silent Flame',

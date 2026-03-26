@@ -11,7 +11,7 @@ import { GUIDE_CHARACTERS, type GuideCharacter } from './GuideCharacters';
 // ============================================================================
 
 // Guides with completed Simli avatar faces — add IDs here as they become ready
-const SIMLI_READY_GUIDE_IDS = new Set(['kore', 'leda', 'zephyr']);
+const SIMLI_READY_GUIDE_IDS = new Set(['kore', 'leda', 'theia', 'zephyr']);
 
 interface GuideCharacterSelectorProps {
   /** Currently selected guide ID (kore, aoede, etc.) */

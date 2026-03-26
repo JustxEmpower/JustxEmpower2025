@@ -63,7 +63,7 @@ export default function AdminCodeEnhanced() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
             <Card className="bg-amber-50 border-amber-200">
               <CardContent className="p-4">
-                <p className="text-sm text-amber-800"><strong>⚠️ Warning:</strong> Custom code is injected directly into your site. Only add code from trusted sources.</p>
+                <p className="text-sm text-amber-800"><strong>Warning:</strong> Custom code is injected directly into your site. Only add code from trusted sources.</p>
               </CardContent>
             </Card>
           </motion.div>

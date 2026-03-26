@@ -2,31 +2,31 @@ import { useState, useEffect, useRef } from "react";
 import { trpc } from "@/lib/trpc";
 
 const WMO_CODES: Record<number, { label: string; icon: string }> = {
-  0: { label: "Clear", icon: "\u2600\uFE0F" },
-  1: { label: "Mostly Clear", icon: "\u{1F324}\uFE0F" },
+  0: { label: "Clear", icon: "\u2600" },
+  1: { label: "Mostly Clear", icon: "\u263C" },
   2: { label: "Partly Cloudy", icon: "\u26C5" },
-  3: { label: "Overcast", icon: "\u2601\uFE0F" },
-  45: { label: "Foggy", icon: "\u{1F32B}\uFE0F" },
-  48: { label: "Rime Fog", icon: "\u{1F32B}\uFE0F" },
-  51: { label: "Light Drizzle", icon: "\u{1F326}\uFE0F" },
-  53: { label: "Drizzle", icon: "\u{1F326}\uFE0F" },
-  55: { label: "Heavy Drizzle", icon: "\u{1F327}\uFE0F" },
-  61: { label: "Light Rain", icon: "\u{1F326}\uFE0F" },
-  63: { label: "Rain", icon: "\u{1F327}\uFE0F" },
-  65: { label: "Heavy Rain", icon: "\u{1F327}\uFE0F" },
-  71: { label: "Light Snow", icon: "\u{1F328}\uFE0F" },
-  73: { label: "Snow", icon: "\u{1F328}\uFE0F" },
-  75: { label: "Heavy Snow", icon: "\u2744\uFE0F" },
-  80: { label: "Rain Showers", icon: "\u{1F327}\uFE0F" },
-  81: { label: "Rain Showers", icon: "\u{1F327}\uFE0F" },
-  82: { label: "Heavy Showers", icon: "\u26C8\uFE0F" },
+  3: { label: "Overcast", icon: "\u2601" },
+  45: { label: "Foggy", icon: "\u2588" },
+  48: { label: "Rime Fog", icon: "\u2588" },
+  51: { label: "Light Drizzle", icon: "\u2602" },
+  53: { label: "Drizzle", icon: "\u2602" },
+  55: { label: "Heavy Drizzle", icon: "\u2602" },
+  61: { label: "Light Rain", icon: "\u2602" },
+  63: { label: "Rain", icon: "\u2602" },
+  65: { label: "Heavy Rain", icon: "\u2602" },
+  71: { label: "Light Snow", icon: "\u2744" },
+  73: { label: "Snow", icon: "\u2744" },
+  75: { label: "Heavy Snow", icon: "\u2744" },
+  80: { label: "Rain Showers", icon: "\u2602" },
+  81: { label: "Rain Showers", icon: "\u2602" },
+  82: { label: "Heavy Showers", icon: "\u2602" },
   95: { label: "Thunderstorm", icon: "\u26A1" },
   96: { label: "Thunderstorm", icon: "\u26A1" },
   99: { label: "Hail Storm", icon: "\u26A1" },
 };
 
 function getWeatherInfo(code: number) {
-  return WMO_CODES[code] || { label: "Unknown", icon: "\u2601\uFE0F" };
+  return WMO_CODES[code] || { label: "Unknown", icon: "\u2601" };
 }
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

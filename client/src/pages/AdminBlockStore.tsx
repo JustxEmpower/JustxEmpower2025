@@ -191,7 +191,7 @@ export default function AdminBlockStore() {
                             : `${colors.bg} ${colors.icon} hover:shadow-sm`
                         }`}
                       >
-                        {category === 'all' ? '✨ All Blocks' : category.charAt(0).toUpperCase() + category.slice(1)}
+                        {category === 'all' ? 'All Blocks' : category.charAt(0).toUpperCase() + category.slice(1)}
                       </button>
                     );
                   })}

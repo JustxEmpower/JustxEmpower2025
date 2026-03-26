@@ -788,7 +788,7 @@ export class SessionSafetyState {
     return (
       `Session escalation count: ${this.escalationCount}. ` +
       `Severity trend: [${this.severityHistory.join(' → ')}]. ` +
-      `Unique triggers: ${[...new Set(this.triggerHistory)].join(', ')}. ` +
+      `Unique triggers: ${Array.from(new Set(this.triggerHistory)).join(', ')}. ` +
       `Session paused: ${this.sessionPaused}.`
     );
   }

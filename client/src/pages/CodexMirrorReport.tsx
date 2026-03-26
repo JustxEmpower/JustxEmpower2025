@@ -10,7 +10,7 @@ export default function CodexMirrorReport() {
     return (
       <div className="codex-env">
         <div className="cx-gateway">
-          <div className="text-5xl cx-slow-pulse" style={{ lineHeight: 1 }}>👁</div>
+          <div className="text-5xl cx-slow-pulse" style={{ lineHeight: 1 }}>◎</div>
           <p className="cx-invitation mt-6" style={{ opacity: 0.6 }}>Preparing your Mirror…</p>
         </div>
       </div>
@@ -57,7 +57,7 @@ export default function CodexMirrorReport() {
         {/* ─── COVER ─── */}
         <section className="cx-fade-in" style={{ textAlign: 'center', padding: '5rem 0 3rem' }}>
           <p style={{ fontSize: '0.7rem', letterSpacing: '0.4em', textTransform: 'uppercase', color: 'rgba(245,230,211,0.2)', marginBottom: '1.5rem' }}>Just Empower®</p>
-          <div className="text-6xl mb-8" style={{ lineHeight: 1 }}>👁</div>
+          <div className="text-6xl mb-8" style={{ lineHeight: 1 }}>◎</div>
           <h1 className="cx-heading-xl mb-4">Your Archetypal Mirror</h1>
           <p className="cx-invitation mb-2">A Living Codex™ Journey Report</p>
           <div className="cx-divider" style={{ margin: '2rem auto' }} />
@@ -70,7 +70,7 @@ export default function CodexMirrorReport() {
         </section>
 
         {/* ─── 1: ARCHETYPE CONSTELLATION ─── */}
-        <ReportSection title="Your Archetypal Constellation" glyph={"\u{1F702}"} num={1}>
+        <ReportSection title="Your Archetypal Constellation" glyph={"\u25C8"} num={1}>
           <p className="cx-body mb-8">
             Your archetypal constellation is the unique combination of patterns that emerged from your assessment.
             These are not fixed identities — they are living expressions of who you are becoming.
@@ -194,7 +194,7 @@ export default function CodexMirrorReport() {
 
         {/* ─── 6: MASCULINE MIRROR ─── */}
         {masculineMirror.length > 0 && (
-          <ReportSection title="Your Masculine Mirror" glyph="👁" num={6}>
+          <ReportSection title="Your Masculine Mirror" glyph="◎" num={6}>
             <p className="cx-body mb-6">
               The Masculine Mirror reveals the patterns you have absorbed, internalized, or mirrored
               from masculine-coded relationships and systems.
@@ -227,7 +227,7 @@ export default function CodexMirrorReport() {
 
         {/* ─── 8: CONTRADICTIONS ─── */}
         {contradictions.length > 0 && (
-          <ReportSection title="Diagnostic Contradictions" glyph="⚠" num={8}>
+          <ReportSection title="Diagnostic Contradictions" glyph="(!)" num={8}>
             <p className="cx-body mb-6">
               Contradictions are not errors — they are diagnostic. They reveal where you are simultaneously
               integrated and wounded, a hallmark of active threshold work.
