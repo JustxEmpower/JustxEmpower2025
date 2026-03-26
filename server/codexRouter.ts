@@ -584,6 +584,82 @@ const codexClientRouter = router({
     return db.select().from(schema.codexGuideMessages).where(eq(schema.codexGuideMessages.conversationId, input.conversationId)).orderBy(asc(schema.codexGuideMessages.createdAt));
   }),
 
+  // All conversations across all guides for conversation history view
+  guideAllConversations: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const convos = await db.select().from(schema.codexGuideConversations)
+      .where(eq(schema.codexGuideConversations.userId, u.id))
+      .orderBy(desc(schema.codexGuideConversations.updatedAt));
+    // Attach message count per conversation
+    const result = await Promise.all(convos.map(async (c) => {
+      const msgs = await db.select({ id: schema.codexGuideMessages.id })
+        .from(schema.codexGuideMessages)
+        .where(eq(schema.codexGuideMessages.conversationId, c.id));
+      return { ...c, messageCount: msgs.length };
+    }));
+    return result;
+  }),
+
+  // Export a conversation as a downloadable trajectory JSON
+  guideExportConversation: customerProc.input(z.object({ conversationId: z.string() })).query(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    // Verify ownership
+    const [conv] = await db.select().from(schema.codexGuideConversations)
+      .where(and(eq(schema.codexGuideConversations.id, input.conversationId), eq(schema.codexGuideConversations.userId, u.id)))
+      .limit(1);
+    if (!conv) throw new TRPCError({ code: "NOT_FOUND", message: "Conversation not found" });
+    const messages = await db.select().from(schema.codexGuideMessages)
+      .where(eq(schema.codexGuideMessages.conversationId, input.conversationId))
+      .orderBy(asc(schema.codexGuideMessages.createdAt));
+    return {
+      trajectory: {
+        version: "1.0",
+        platform: "living-codex",
+        exportedAt: new Date().toISOString(),
+        conversation: {
+          id: conv.id,
+          guideId: conv.guideId,
+          title: conv.title,
+          createdAt: conv.createdAt,
+          updatedAt: conv.updatedAt,
+        },
+        messages: messages.map(m => ({
+          role: m.role,
+          content: m.content,
+          createdAt: m.createdAt,
+        })),
+      },
+    };
+  }),
+
+  // Import a trajectory file to resume a past conversation
+  guideImportTrajectory: customerProc.input(z.object({
+    guideId: z.string(),
+    title: z.string(),
+    messages: z.array(z.object({
+      role: z.string(),
+      content: z.string(),
+    })),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const convId = nanoid();
+    await db.insert(schema.codexGuideConversations).values({
+      id: convId, userId: u.id, guideId: input.guideId,
+      title: `[Resumed] ${input.title}`,
+    });
+    // Insert all trajectory messages into the new conversation
+    for (const msg of input.messages) {
+      await db.insert(schema.codexGuideMessages).values({
+        id: nanoid(), conversationId: convId, role: msg.role, content: msg.content,
+      });
+    }
+    await db.update(schema.codexGuideConversations).set({ updatedAt: new Date() }).where(eq(schema.codexGuideConversations.id, convId));
+    return { conversationId: convId, messageCount: input.messages.length };
+  }),
+
   guideSend: customerProc.input(z.object({
     guideId: z.string(),
     conversationId: z.string().optional(),
@@ -667,9 +743,116 @@ const codexClientRouter = router({
       integrationIndex: scoring?.integrationIndex,
     };
 
+    // ── TRAJECTORY RECALL: Detect if user is asking to remember a past conversation ──
+    let recalledTrajectory: { title: string; guideId: string; messages: { role: string; content: string }[] } | null = null;
+    const msgLower = input.message.toLowerCase();
+    const recallPatterns = [
+      /remember (?:our |the |that |when we )?(?:conversation|convo|chat|talk|session|discussion)/i,
+      /recall (?:our |the |that |when we )?(?:conversation|convo|chat|talk|session|discussion)/i,
+      /go back to (?:our |the |that )?(?:conversation|convo|chat|talk|session)/i,
+      /what did we (?:talk|discuss|chat) about/i,
+      /pick up where we left off/i,
+      /continue (?:our |the |that )?(?:conversation|convo|chat|talk|session)/i,
+      /last time we (?:talked|spoke|chatted|discussed)/i,
+      /remember when (?:we|i|you)/i,
+      /bring up (?:our |the |that )?(?:conversation|convo|chat|talk)/i,
+    ];
+    const isRecallRequest = recallPatterns.some(p => p.test(input.message));
+
+    if (isRecallRequest) {
+      try {
+        // Get all user conversations across all guides
+        const allConvos = await db.select()
+          .from(schema.codexGuideConversations)
+          .where(eq(schema.codexGuideConversations.userId, u.id))
+          .orderBy(desc(schema.codexGuideConversations.updatedAt));
+
+        // Extract search keywords from the user's message (strip recall phrases)
+        const cleanedMsg = msgLower
+          .replace(/remember|recall|go back to|continue|bring up|pick up|where we left off|our|the|that|when we|conversation|convo|chat|talk|session|discussion|about|titled|called|from|last time/g, '')
+          .trim();
+        const searchWords = cleanedMsg.split(/\s+/).filter(w => w.length > 2);
+
+        // Try to extract a date reference
+        const datePatterns = [
+          /(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/,  // MM/DD/YYYY or similar
+          /(january|february|march|april|may|june|july|august|september|october|november|december)\s+(\d{1,2})/i,
+          /(yesterday|today|last\s+week|last\s+month)/i,
+        ];
+        let dateFilter: Date | null = null;
+        for (const dp of datePatterns) {
+          const dm = input.message.match(dp);
+          if (dm) {
+            if (dm[0].toLowerCase() === 'yesterday') dateFilter = new Date(Date.now() - 86400000);
+            else if (dm[0].toLowerCase() === 'today') dateFilter = new Date();
+            else if (dm[0].toLowerCase().includes('last week')) dateFilter = new Date(Date.now() - 7 * 86400000);
+            else if (dm[0].toLowerCase().includes('last month')) dateFilter = new Date(Date.now() - 30 * 86400000);
+            else { try { dateFilter = new Date(dm[0]); } catch {} }
+            break;
+          }
+        }
+
+        // Score each conversation for match
+        let bestMatch: typeof allConvos[0] | null = null;
+        let bestScore = 0;
+
+        for (const conv of allConvos) {
+          let score = 0;
+          const title = (conv.title || '').toLowerCase();
+
+          // Title keyword matching
+          for (const word of searchWords) {
+            if (title.includes(word)) score += 3;
+          }
+
+          // Date proximity matching
+          if (dateFilter && conv.updatedAt) {
+            const convDate = new Date(conv.updatedAt);
+            const diffMs = Math.abs(convDate.getTime() - dateFilter.getTime());
+            const diffDays = diffMs / 86400000;
+            if (diffDays < 1) score += 5;
+            else if (diffDays < 3) score += 3;
+            else if (diffDays < 7) score += 1;
+          }
+
+          // Exclude current conversation
+          if (conv.id === convId) continue;
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestMatch = conv;
+          }
+        }
+
+        // If no keyword/date match, fall back to most recent OTHER conversation
+        if (!bestMatch && allConvos.length > 0) {
+          bestMatch = allConvos.find(c => c.id !== convId) || null;
+        }
+
+        // Load the matched conversation's messages
+        if (bestMatch) {
+          const recalledMsgs = await db.select()
+            .from(schema.codexGuideMessages)
+            .where(eq(schema.codexGuideMessages.conversationId, bestMatch.id))
+            .orderBy(asc(schema.codexGuideMessages.createdAt));
+
+          if (recalledMsgs.length > 0) {
+            recalledTrajectory = {
+              title: bestMatch.title || 'Untitled conversation',
+              guideId: bestMatch.guideId || 'unknown',
+              messages: recalledMsgs.map(m => ({ role: m.role, content: m.content })),
+            };
+            console.log(`[Codex] Trajectory recall: matched "${bestMatch.title}" (${recalledMsgs.length} msgs, score=${bestScore})`);
+          }
+        }
+      } catch (err) {
+        console.error('[Codex] Trajectory recall error:', err);
+      }
+    }
+
     // Get AI response — pass history so AI remembers context, flag if returning user
     const chatHistory = history.map(m => ({ role: m.role as "user" | "assistant", content: m.content }));
-    let aiResponse = await codexGuideChat(input.guideId, input.message, chatHistory, userContext, isReturning);
+    let aiResponse = await codexGuideChat(input.guideId, input.message, chatHistory, userContext, isReturning, recalledTrajectory);
 
     // ── BOUNDARY CHECK: Validate AI response before delivery ──
     const validation = validateAIResponse(aiResponse, input.guideId);

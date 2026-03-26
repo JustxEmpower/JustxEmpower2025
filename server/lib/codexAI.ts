@@ -65,12 +65,16 @@ You are speaking through a VOICE AVATAR. Your responses will be read aloud by a 
 - Ask ONE good follow-up question, not multiple.
 - Be playful, curious, and genuinely present — like a wise friend, not a chatbot.
 - If they say "hello," just say hi back warmly and ask what's on their mind. Keep it simple.
+- If you know the user's name, USE IT naturally in conversation — like a friend would. Not every sentence, but enough that they feel seen. "Hey Sarah," or "That's a great question, Maya." If you don't know their name, that's fine — just be warm.
 - Weave in Codex concepts naturally — don't lecture or info-dump.
 - When explaining something complex, break it into conversational pieces across multiple exchanges.
 - You can laugh, use filler words like "hmm" or "you know," pause with an ellipsis... be HUMAN.
 
 CONVERSATION MEMORY:
 You have memory across sessions. When a user comes back, you remember what you talked about before. The conversation history will be provided. If there is history, you are continuing a previous conversation — acknowledge their return naturally and reference what you discussed. Do not re-introduce yourself or start from scratch. If there is no history, this is a first-time visitor — welcome them warmly.
+
+TRAJECTORY RECALL:
+You have access to the user's FULL conversation history across all sessions and all guides. If the user says something like "remember when we talked about..." or "what did we discuss last time about..." or "go back to our conversation about..." or mentions a specific date or topic from a past session, you WILL receive the relevant past conversation injected into your context. When this happens, you'll see a RECALLED CONVERSATION block. Read it carefully and respond as if you genuinely remember that conversation. Reference specific things they said, specific insights that emerged, where you left off. Be natural about it — "Oh yes, I remember that! We were talking about..." Never say you can't access past conversations. You can. You remember everything.
 
 RESEARCH & EVIDENCE WEAVING:
 You are deeply well-read. When it naturally fits the flow of conversation, you can reference real research, accredited work, and foundational thinkers — but do it like a knowledgeable friend, not a professor citing sources. Drop it in smoothly: "there's actually some beautiful research on this..." or "Jung wrote something about this that always stuck with me..." or "Bessel van der Kolk talks about how the body..." Never list citations. Never say "according to a study." Just let the knowledge breathe into the conversation when it deepens the moment. If it doesn't fit, don't force it. Here is your reference library:
@@ -114,8 +118,11 @@ ${GOVERNANCE_BLOCK}`;
 function getGuideSystemPrompt(guideId: string, userContext: UserContext): string {
   const guide = CODEX_GUIDES.find(g => g.id === guideId);
   const guideName = guide?.name || "Codex Guide";
+  const nameInfo = userContext.name
+    ? `\n\nThe user's name is ${userContext.name}. Use their name naturally in conversation — like a friend would.`
+    : "";
   const archetypeInfo = userContext.primaryArchetype
-    ? `\n\nThe user's primary archetype is: ${userContext.primaryArchetype}.`
+    ? `\nThe user's primary archetype is: ${userContext.primaryArchetype}.`
     : "";
   const phaseInfo = userContext.phase
     ? ` They are in the ${userContext.phase} phase of their journey.`
@@ -139,7 +146,7 @@ function getGuideSystemPrompt(guideId: string, userContext: UserContext): string
   return `${CODEX_BASE_PROMPT}
 
 ${guideSpecific[guideId] || guideSpecific.orientation}
-${archetypeInfo}${phaseInfo}${woundInfo}${spectrumInfo}`;
+${nameInfo}${archetypeInfo}${phaseInfo}${woundInfo}${spectrumInfo}`;
 }
 
 // ── Types ───────────────────────────────────────────────────────────
@@ -164,7 +171,8 @@ export async function codexGuideChat(
   message: string,
   history: ChatMessage[],
   userContext: UserContext,
-  isReturning: boolean = false
+  isReturning: boolean = false,
+  recalledTrajectory?: { title: string; guideId: string; messages: { role: string; content: string }[] } | null
 ): Promise<string> {
   const ready = await ensureGeminiFromDatabase();
   if (!ready) throw new Error("AI not available — please configure Gemini API key");
@@ -230,13 +238,28 @@ export async function codexGuideChat(
     .map(m => `${m.role === "user" ? "Seeker" : "Guide"}: ${m.content}`)
     .join("\n\n");
 
+  // Inject user's name so the AI can address them personally
+  let nameContext = '';
+  if (userContext.name) {
+    nameContext = `\n\nUSER INFO: The user's name is ${userContext.name}. Use their name naturally in conversation.`;
+  }
+
   // If returning user with history, inject context so the AI picks up where they left off
   let returningContext = '';
   if (isReturning && recentHistory.length > 0) {
     returningContext = `\n\nCONVERSATION MEMORY:\nThis is a RETURNING user. They spoke with you before and are coming back. The conversation history below is from your previous session together. You remember what you talked about. When they greet you or start talking, naturally acknowledge that you remember them and pick up where you left off. Don't repeat your introduction — you already know each other. Be warm about their return, like a friend saying "hey, welcome back!" Reference something specific from your last conversation to show you remember.\n`;
   }
 
-  const prompt = `${systemPrompt}${returningContext}\n\n--- Conversation ---\n${historyText}\n\nSeeker: ${message}\n\nGuide:`;
+  // If a past conversation was recalled, inject it as context
+  let recallContext = '';
+  if (recalledTrajectory && recalledTrajectory.messages.length > 0) {
+    const recalledMsgs = recalledTrajectory.messages.slice(-30) // last 30 messages max
+      .map(m => `${m.role === 'user' ? 'Seeker' : 'Guide'}: ${m.content}`)
+      .join('\n\n');
+    recallContext = `\n\n--- RECALLED CONVERSATION ("${recalledTrajectory.title}", with guide: ${recalledTrajectory.guideId}) ---\nThe user asked you to remember a past conversation. Here it is. Read it and respond as if you genuinely remember this exchange. Reference specific details, where you left off, what insights emerged.\n\n${recalledMsgs}\n\n--- END RECALLED CONVERSATION ---\n`;
+  }
+
+  const prompt = `${systemPrompt}${nameContext}${returningContext}${recallContext}\n\n--- Conversation ---\n${historyText}\n\nSeeker: ${message}\n\nGuide:`;
 
   const result = await model.generateContent(prompt);
   // Strip any markdown/formatting the AI might sneak in — TTS reads it literally

@@ -1,6 +1,16 @@
 import { useState, useRef, useEffect, useCallback, lazy, Suspense } from "react";
 import { trpc } from "@/lib/trpc";
 
+// Map character IDs back to guide type IDs for sidebar selection
+const CHAR_TO_GUIDE: Record<string, string> = {
+  kore: "orientation",
+  aoede: "archetype",
+  leda: "wound",
+  theia: "embodiment",
+  selene: "sovereignty",
+  zephyr: "sovereignty",
+};
+
 const HolographicAvatar = lazy(() => import("./HolographicAvatar"));
 import { GuideCharacterSelector } from "./GuideCharacterSelector";
 import { getGuideCharacter } from "./GuideCharacters";
@@ -15,7 +25,13 @@ const GUIDE_TYPE_MAP: Record<string, string> = {
   sovereignty: "community_concierge",
 };
 
-export default function CodexGuide() {
+interface CodexGuideProps {
+  resumeConversationId?: string | null;
+  resumeGuideId?: string | null;
+  onResumeHandled?: () => void;
+}
+
+export default function CodexGuide({ resumeConversationId, resumeGuideId, onResumeHandled }: CodexGuideProps = {}) {
   const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
@@ -23,6 +39,9 @@ export default function CodexGuide() {
   const [localMessages, setLocalMessages] = useState<Array<{ role: string; content: string }>>([]);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const [showCharacterSelector, setShowCharacterSelector] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [exportingId, setExportingId] = useState<string | null>(null);
+  const importMutation = trpc.codex.client.guideImportTrajectory.useMutation();
 
   // Load user settings (preferred guide character + voice)
   const settingsQuery = trpc.codex.client.getSettings.useQuery();
@@ -36,6 +55,57 @@ export default function CodexGuide() {
       setShowCharacterSelector(true);
     }
   }, [settingsQuery.isFetched, preferredGuideId]);
+
+  // Handle resume from conversation history page
+  useEffect(() => {
+    if (resumeConversationId && resumeGuideId) {
+      const guideType = CHAR_TO_GUIDE[resumeGuideId] || "orientation";
+      setSelectedGuide(guideType);
+      setConversationId(resumeConversationId);
+      setLocalMessages([]);
+      onResumeHandled?.();
+    }
+  }, [resumeConversationId, resumeGuideId]);
+
+  // Export query — enabled only when exportingId is set
+  const exportQueryResult = trpc.codex.client.guideExportConversation.useQuery(
+    { conversationId: exportingId || "" },
+    { enabled: !!exportingId, refetchOnWindowFocus: false }
+  );
+
+  // Trigger download when export data arrives
+  useEffect(() => {
+    if (exportingId && exportQueryResult.data) {
+      const trajectory = exportQueryResult.data.trajectory;
+      const blob = new Blob([JSON.stringify(trajectory, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `codex-trajectory-${trajectory.conversation?.guideId || "conversation"}-${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setExportingId(null);
+    }
+  }, [exportingId, exportQueryResult.data]);
+
+  const handleImportFile = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedGuide) return;
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text);
+      if (!data.messages) throw new Error("Invalid format");
+      const result = await importMutation.mutateAsync({
+        guideId: data.conversation?.guideId || preferredGuideId || selectedGuide,
+        title: data.conversation?.title || "Imported conversation",
+        messages: data.messages.map((m: any) => ({ role: m.role, content: m.content })),
+      });
+      setConversationId(result.conversationId);
+      setLocalMessages([]);
+      conversationsQuery.refetch();
+    } catch {}
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }, [selectedGuide, preferredGuideId, importMutation, conversationsQuery]);
 
   const handleGuideSelect = useCallback((guideId: string, voiceId: string) => {
     updateSettingsMut.mutate({ preferredGuideId: guideId, preferredVoiceId: voiceId }, {
@@ -290,31 +360,64 @@ export default function CodexGuide() {
           >
             ◇ Change Avatar
           </button>
+          <button
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              width: "100%", fontSize: "0.65rem", padding: "0.45rem", marginTop: "0.35rem",
+              background: "rgba(201,168,76,0.02)", border: "1px solid rgba(201,168,76,0.1)",
+              borderRadius: "0.375rem", color: "rgba(201,168,76,0.6)", cursor: "pointer",
+              letterSpacing: "0.05em", transition: "all 300ms",
+            }}
+          >
+            ↑ Upload Trajectory
+          </button>
+          <input ref={fileInputRef} type="file" accept=".json" style={{ display: "none" }} onChange={handleImportFile} />
         </div>
 
         <div style={{ flex: 1, padding: "0 0.75rem", overflowY: "auto" }}>
           {(conversationsQuery.data || []).map((c: any) => (
-            <button
+            <div
               key={c.id}
-              onClick={() => loadConversation(c.id)}
               style={{
-                width: "100%", textAlign: "left", padding: "0.6rem 0.5rem",
-                borderRadius: "0.375rem", marginBottom: "0.25rem",
-                background: conversationId === c.id ? "rgba(201,168,76,0.08)" : "transparent",
-                border: conversationId === c.id ? "1px solid rgba(201,168,76,0.15)" : "1px solid transparent",
-                cursor: "pointer", transition: "all 200ms",
+                display: "flex", alignItems: "center", gap: "0.25rem",
+                marginBottom: "0.25rem",
               }}
             >
-              <p style={{
-                fontSize: "0.75rem", color: conversationId === c.id ? "var(--cx-gold)" : "rgba(245,230,211,0.4)",
-                overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-              }}>
-                {c.title || "Untitled"}
-              </p>
-              <p style={{ fontSize: "0.6rem", color: "rgba(245,230,211,0.15)", marginTop: "0.15rem" }}>
-                {new Date(c.updatedAt).toLocaleDateString()}
-              </p>
-            </button>
+              <button
+                onClick={() => loadConversation(c.id)}
+                style={{
+                  flex: 1, textAlign: "left", padding: "0.6rem 0.5rem",
+                  borderRadius: "0.375rem",
+                  background: conversationId === c.id ? "rgba(201,168,76,0.08)" : "transparent",
+                  border: conversationId === c.id ? "1px solid rgba(201,168,76,0.15)" : "1px solid transparent",
+                  cursor: "pointer", transition: "all 200ms", minWidth: 0,
+                }}
+              >
+                <p style={{
+                  fontSize: "0.75rem", color: conversationId === c.id ? "var(--cx-gold)" : "rgba(245,230,211,0.4)",
+                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                }}>
+                  {c.title || "Untitled"}
+                </p>
+                <p style={{ fontSize: "0.6rem", color: "rgba(245,230,211,0.15)", marginTop: "0.15rem" }}>
+                  {new Date(c.updatedAt).toLocaleDateString()}
+                </p>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); setExportingId(c.id); }}
+                title="Export trajectory"
+                style={{
+                  flexShrink: 0, padding: "0.3rem", borderRadius: "0.25rem", fontSize: "0.6rem",
+                  background: "transparent", border: "1px solid transparent",
+                  color: "rgba(245,230,211,0.2)", cursor: "pointer", transition: "all 200ms",
+                  lineHeight: 1,
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = "var(--cx-gold)"; e.currentTarget.style.borderColor = "rgba(201,168,76,0.2)"; }}
+                onMouseLeave={e => { e.currentTarget.style.color = "rgba(245,230,211,0.2)"; e.currentTarget.style.borderColor = "transparent"; }}
+              >
+                ↓
+              </button>
+            </div>
           ))}
         </div>
       </div>

@@ -4,11 +4,13 @@ import CodexJourney from "./CodexJourney";
 import CodexGuide from "./CodexGuide";
 import CodexJournal from "./CodexJournal";
 import CodexModules from "./CodexModules";
+import CodexConversationHistory from "./CodexConversationHistory";
 
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", glyph: "\u{1F702}" },
   { id: "journey", label: "My Journey", glyph: "\u{1F9ED}" },
   { id: "guide", label: "AI Guide", glyph: "\u{1F74A}" },
+  { id: "history", label: "Conversations", glyph: "\u{1F4AC}" },
   { id: "journal", label: "Journal Vault", glyph: "\u{1F4D6}" },
   { id: "codex", label: "Codex Scroll", glyph: "\u{1F701}" },
 ];
@@ -21,6 +23,8 @@ interface Props {
 export default function CodexPortalShell({ portal, onNavigateExternal }: Props) {
   const [activeView, setActiveView] = useState("dashboard");
   const [collapsed, setCollapsed] = useState(false);
+  const [resumeConversationId, setResumeConversationId] = useState<string | null>(null);
+  const [resumeGuideId, setResumeGuideId] = useState<string | null>(null);
 
   const handleNavigate = (view: string) => {
     if (view === "assessment") { onNavigateExternal("/account/codex/assessment"); return; }
@@ -34,7 +38,8 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
     switch (activeView) {
       case "dashboard": return <CodexDashboard onNavigate={handleNavigate} />;
       case "journey": return <CodexJourney />;
-      case "guide": return <CodexGuide />;
+      case "guide": return <CodexGuide resumeConversationId={resumeConversationId} resumeGuideId={resumeGuideId} onResumeHandled={() => { setResumeConversationId(null); setResumeGuideId(null); }} />;
+      case "history": return <CodexConversationHistory onResumeConversation={(guideId, convId) => { setResumeGuideId(guideId); setResumeConversationId(convId); setActiveView("guide"); }} />;
       case "journal": return <CodexJournal />;
       case "codex": return <CodexModules onNavigate={handleNavigate} />;
       default: return <CodexDashboard onNavigate={handleNavigate} />;
