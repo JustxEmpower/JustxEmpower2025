@@ -257,9 +257,6 @@ importers:
       recharts:
         specifier: ^2.15.2
         version: 2.15.4(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
-      replicate:
-        specifier: ^1.4.0
-        version: 1.4.0
       sass:
         specifier: ^1.94.2
         version: 1.97.1
@@ -363,6 +360,9 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.7.4
+      replicate:
+        specifier: ^1.4.0
+        version: 1.4.0
       tailwindcss:
         specifier: ^4.1.14
         version: 4.1.18

@@ -34,8 +34,8 @@ export const GUIDE_CHARACTERS: GuideCharacter[] = [
     particleColor: '#FFD700',
     defaultVoiceId: 'af_kore',
     voiceLabel: 'Kore (Gentle)',
-    idleVideoUrl: `${ATLAS_S3_BASE}/kore/idle-video.mp4`,
-    portraitUrl: `${PORTRAIT_S3_BASE}/portrait-kore.jpg`,
+    idleVideoUrl: '/assets/avatars/idle-videos/kore-idle.mp4',
+    portraitUrl: '/assets/avatars/faces/KORE.png',
   },
   {
     id: 'aoede',
@@ -62,8 +62,8 @@ export const GUIDE_CHARACTERS: GuideCharacter[] = [
     particleColor: '#F8BBD0',
     defaultVoiceId: 'af_heart',
     voiceLabel: 'Heart (Sweet)',
-    idleVideoUrl: `${ATLAS_S3_BASE}/leda/idle-video.mp4`,
-    portraitUrl: `${PORTRAIT_S3_BASE}/portrait-leda.jpg`,
+    idleVideoUrl: '/assets/avatars/idle-videos/leda-idle.mp4',
+    portraitUrl: '/assets/avatars/faces/LEDA.png',
   },
   {
     id: 'theia',
@@ -104,8 +104,8 @@ export const GUIDE_CHARACTERS: GuideCharacter[] = [
     particleColor: '#FFE0B2',
     defaultVoiceId: 'af_bella',
     voiceLabel: 'Bella (Confident)',
-    idleVideoUrl: `${ATLAS_S3_BASE}/zephyr/idle-video.mp4`,
-    portraitUrl: `${PORTRAIT_S3_BASE}/portrait-zephyr.jpg`,
+    idleVideoUrl: '/assets/avatars/idle-videos/zephyr-idle.mp4',
+    portraitUrl: '/assets/avatars/faces/ZEPHYR.png',
   },
 ];
 
