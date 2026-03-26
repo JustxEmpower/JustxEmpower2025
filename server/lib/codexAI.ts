@@ -167,6 +167,13 @@ export async function codexGuideChat(
     shadow: "archetype_reflection",
     embodiment: "ns_support",
     sovereignty: "community_concierge",
+    // Character IDs → guide types (used when holographic mode sends character name)
+    kore: "codex_orientation",
+    leda: "journal_companion",
+    zephyr: "community_concierge",
+    aoede: "archetype_reflection",
+    theia: "ns_support",
+    selene: "resource_librarian",
   };
   const guideType = (GUIDE_TYPE_MAP[guideId] || "codex_orientation") as import("./codexGuidePrompts").GuideType;
   const userProfile: import("./codexGuidePrompts").UserProfile = {

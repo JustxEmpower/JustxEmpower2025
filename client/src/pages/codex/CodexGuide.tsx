@@ -209,7 +209,11 @@ export default function CodexGuide() {
               guideType={(GUIDE_TYPE_MAP[selectedGuide] || "codex_orientation") as any}
               preferredGuideId={preferredGuideId || undefined}
               preferredVoiceId={preferredVoiceId || undefined}
-              onChangeGuide={(guideId, voiceId) => handleGuideSelect(guideId, voiceId)}
+              onChangeGuide={(guideId, voiceId) => {
+                handleGuideSelect(guideId, voiceId);
+                setConversationId(null);
+                setLocalMessages([]);
+              }}
               userProfile={{ userId: "", phase: 1, primaryArchetype: "", shadowArchetype: "", woundPrioritySet: [], nsDominant: "ventral", pathway: "discovery" }}
               systemPrompt=""
               onMessage={(msg: any) => {
@@ -220,7 +224,7 @@ export default function CodexGuide() {
               isActive={holographicMode}
               onSendMessage={async (text: string) => {
                 const result = await sendMutation.mutateAsync({
-                  guideId: selectedGuide,
+                  guideId: preferredGuideId || selectedGuide,
                   conversationId: conversationId || undefined,
                   message: text,
                 });
