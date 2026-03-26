@@ -72,6 +72,9 @@ import { type AvatarDisplayMode } from './KlingAvatarService';
 // Simli real-time lip-sync avatar
 import SimliAvatar from './SimliAvatar';
 
+// Ambient particle field for depth
+import ParticleField from './ParticleField';
+
 // Simli face IDs per guide — set VITE_SIMLI_FACE_ID in .env
 // For multiple guides, use VITE_SIMLI_FACE_ID_KORE, VITE_SIMLI_FACE_ID_AOEDE, etc.
 const SIMLI_FACE_IDS: Record<string, string> = (() => {
@@ -1288,10 +1291,13 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
     >
       <style>{iveKeyframes}</style>
 
+      {/* ── Ambient Particles — fills gaps around avatar for depth ── */}
+      <ParticleField color={config.primaryColor} particleCount={1200} speed={0.3} />
+
       {/* ── Avatar Display ── */}
       {avatarMode === 'lifelike' ? (
         /* ── LIFELIKE MODE — Simli real-time lip-sync or LifelikeAvatar fallback ── */
-        <div className="absolute inset-0">
+        <div className="absolute inset-0" style={{ zIndex: 1 }}>
           {SIMLI_FACE_IDS[activeGuideId] ? (
             <SimliAvatar
               guideId={activeGuideId}
@@ -1583,7 +1589,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
             </button>
           </form>
 
-          {/* ── Status & Controls — whisper-weight, tucked ── */}
+          {/* ── Status & Controls — minimal, clean ── */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -1591,35 +1597,20 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
             marginTop: 10,
             padding: '0 4px',
           }}>
-            {/* Connection status */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {/* Left: status dot + guide selector */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{
                 width: 5,
                 height: 5,
                 borderRadius: '50%',
-                background: gemini.isListening
+                background: gemini.isListening || gemini.isSpeaking
                   ? config.primaryColor
-                  : gemini.isSpeaking
-                    ? config.primaryColor
-                    : gemini.isConnected
-                      ? 'rgba(255,255,255,0.25)'
-                      : 'rgba(255,200,0,0.5)',
+                  : gemini.isConnected
+                    ? 'rgba(255,255,255,0.25)'
+                    : 'rgba(255,200,0,0.5)',
                 animation: gemini.isListening || gemini.isSpeaking ? 'status-dot 1.5s ease-in-out infinite' : 'none',
                 transition: 'background 0.4s ease',
               }} />
-              <span style={{
-                fontFamily: "'Inter', -apple-system, sans-serif",
-                fontSize: '0.6rem',
-                fontWeight: 350,
-                letterSpacing: '0.06em',
-                color: 'rgba(255,255,255,0.3)',
-              }}>
-                {gemini.isListening ? 'Listening' : gemini.isSpeaking ? 'Speaking' : gemini.isConnected ? 'Ready' : 'Connecting'}
-              </span>
-            </div>
-
-            {/* Minimal controls */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <button
                 onClick={() => setShowGuideSelector(true)}
                 style={{
@@ -1639,57 +1630,6 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; }}
                 title="Change guide"
               >Guide</button>
-
-              <button
-                onClick={() => setAvatarMode(prev => prev === 'lifelike' ? 'orb' : 'lifelike')}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: 8,
-                  border: '1px solid rgba(255,255,255,0.08)',
-                  background: 'transparent',
-                  color: 'rgba(255,255,255,0.3)',
-                  fontSize: '0.58rem',
-                  fontFamily: "'Inter', -apple-system, sans-serif",
-                  fontWeight: 400,
-                  letterSpacing: '0.06em',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; }}
-                title={avatarMode === 'lifelike' ? 'Switch to orb' : 'Switch to lifelike'}
-              >{avatarMode === 'orb' ? 'Lifelike' : 'Orb'}</button>
-
-              <VoiceSettingsButton
-                onClick={() => setShowVoiceSelector(true)}
-                currentVoiceName={currentVoiceName}
-                currentVoiceId={gemini.currentVoice}
-              />
-
-              {/* Speed — ultra-minimal slider */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.08)' }} title="Speech speed">
-                <input
-                  type="range"
-                  min={0.5}
-                  max={2.0}
-                  step={0.1}
-                  value={gemini.ttsSpeed}
-                  onChange={(e) => gemini.setTtsSpeed(parseFloat(e.target.value))}
-                  style={{
-                    width: 44,
-                    height: 2,
-                    WebkitAppearance: 'none',
-                    appearance: 'none' as any,
-                    background: 'rgba(255,255,255,0.12)',
-                    borderRadius: 1,
-                    outline: 'none',
-                    cursor: 'pointer',
-                    accentColor: config.primaryColor,
-                  }}
-                />
-                <span style={{ fontSize: '0.52rem', color: 'rgba(255,255,255,0.25)', fontFamily: "'Inter', sans-serif", fontWeight: 400, width: 22, textAlign: 'center' }}>{gemini.ttsSpeed.toFixed(1)}x</span>
-              </div>
-
               <button
                 onClick={() => { gemini.endSession(); onSessionEnd(); }}
                 style={{
@@ -1697,7 +1637,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                   borderRadius: 8,
                   border: 'none',
                   background: 'transparent',
-                  color: 'rgba(255,255,255,0.2)',
+                  color: 'rgba(255,255,255,0.15)',
                   fontSize: '0.58rem',
                   fontFamily: "'Inter', -apple-system, sans-serif",
                   fontWeight: 400,
@@ -1705,9 +1645,65 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                   cursor: 'pointer',
                   transition: 'color 0.3s ease',
                 }}
-                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,100,100,0.7)'}
-                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.2)'}
+                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,100,100,0.6)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.15)'}
               >End</button>
+            </div>
+
+            {/* Right: voice icon — name revealed on hover */}
+            <div
+              className="voice-reveal-group"
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                cursor: 'pointer',
+                padding: '4px 10px',
+                borderRadius: 8,
+                border: '1px solid rgba(255,255,255,0.06)',
+                transition: 'all 0.4s cubic-bezier(0.4,0,0.2,1)',
+              }}
+              onClick={() => setShowVoiceSelector(true)}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = `${config.primaryColor}30`;
+                e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                const label = e.currentTarget.querySelector('.voice-label') as HTMLElement;
+                if (label) { label.style.maxWidth = '120px'; label.style.opacity = '1'; label.style.marginLeft = '6px'; }
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+                e.currentTarget.style.background = 'transparent';
+                const label = e.currentTarget.querySelector('.voice-label') as HTMLElement;
+                if (label) { label.style.maxWidth = '0'; label.style.opacity = '0'; label.style.marginLeft = '0'; }
+              }}
+              title={`Voice: ${currentVoiceName}`}
+            >
+              {/* Waveform / voice icon */}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={config.primaryColor} strokeWidth="1.5" strokeLinecap="round" style={{ opacity: 0.6, flexShrink: 0 }}>
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+                <line x1="8" y1="23" x2="16" y2="23" />
+              </svg>
+              {/* Voice name — hidden, slides open on hover */}
+              <span
+                className="voice-label"
+                style={{
+                  fontFamily: "'Inter', -apple-system, sans-serif",
+                  fontSize: '0.6rem',
+                  fontWeight: 400,
+                  letterSpacing: '0.06em',
+                  color: `${config.primaryColor}aa`,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  maxWidth: 0,
+                  opacity: 0,
+                  marginLeft: 0,
+                  transition: 'all 0.4s cubic-bezier(0.4,0,0.2,1)',
+                }}
+              >
+                {currentVoiceName}
+              </span>
             </div>
           </div>
         </div>
