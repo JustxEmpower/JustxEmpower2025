@@ -57,17 +57,46 @@ const ParticleField: React.FC<ParticleFieldProps> = ({
       { r: 255, g: 223, b: 120 },  // light gold
     ];
 
+    // Face exclusion zone (center area where avatar face is)
+    // Particles fade out in the center to keep face clear
+    const FACE_CX = 0.5;  // center X ratio
+    const FACE_CY = 0.38; // center Y ratio (face is upper-center)
+    const FACE_RX = 0.18; // horizontal radius of exclusion
+    const FACE_RY = 0.22; // vertical radius of exclusion
+
+    const isInFaceZone = (px: number, py: number, cw: number, ch: number): number => {
+      const dx = (px / cw - FACE_CX) / FACE_RX;
+      const dy = (py / ch - FACE_CY) / FACE_RY;
+      const dist = dx * dx + dy * dy;
+      if (dist < 1) return 0; // fully inside exclusion
+      if (dist < 2.5) return (dist - 1) / 1.5; // fade zone
+      return 1; // fully outside
+    };
+
+    // Spawn particles biased toward left/right edges
+    const spawnX = (cw: number): number => {
+      // 60% chance to spawn in edge zones (left 20% or right 20%)
+      if (Math.random() < 0.6) {
+        return Math.random() < 0.5
+          ? Math.random() * cw * 0.2           // left edge
+          : cw * 0.8 + Math.random() * cw * 0.2; // right edge
+      }
+      return Math.random() * cw; // rest go anywhere
+    };
+
     // Create particles with varied properties
+    const cw = w || 800;
+    const ch = h || 600;
     const particles: Particle[] = [];
     for (let i = 0; i < particleCount; i++) {
-      const isBig = Math.random() < 0.08; // 8% are larger accent particles
-      const isTiny = Math.random() < 0.5; // 50% are dust-like
+      const isBig = Math.random() < 0.08;
+      const isTiny = Math.random() < 0.5;
       particles.push({
-        x: Math.random() * (w || 800),
-        y: Math.random() * (h || 600),
+        x: spawnX(cw),
+        y: Math.random() * ch,
         baseSize: isBig ? Math.random() * 3 + 2 : isTiny ? Math.random() * 0.8 + 0.3 : Math.random() * 1.5 + 0.5,
         speedX: (Math.random() - 0.5) * 0.15,
-        speedY: -Math.random() * 0.12 - 0.02, // gentle upward drift
+        speedY: -Math.random() * 0.12 - 0.02,
         opacity: 0,
         maxOpacity: isBig ? Math.random() * 0.6 + 0.3 : isTiny ? Math.random() * 0.3 + 0.05 : Math.random() * 0.5 + 0.1,
         opacitySpeed: Math.random() * 0.006 + 0.002,
@@ -91,9 +120,10 @@ const ParticleField: React.FC<ParticleFieldProps> = ({
         p.x += p.speedX + Math.sin(p.phase) * 0.15;
         p.y += p.speedY + Math.cos(p.phase * 0.7) * 0.08;
 
-        // Breathing opacity
+        // Breathing opacity with face exclusion
         const breathe = Math.sin(p.phase * 1.2) * 0.5 + 0.5;
-        p.opacity = p.maxOpacity * (0.4 + breathe * 0.6);
+        const faceMultiplier = isInFaceZone(p.x, p.y, w, h);
+        p.opacity = p.maxOpacity * (0.4 + breathe * 0.6) * faceMultiplier;
 
         // Wrap edges
         if (p.x < -10) p.x = w + 10;
