@@ -652,19 +652,29 @@ function useGeminiLive(
     kokoro.addEventListener('start', () => {
       setIsSpeaking(true);
       isSpeakingRef.current = true;
+      // Mute mic tracks to prevent picking up TTS/Simli audio output
+      if (micStreamRef.current) {
+        micStreamRef.current.getAudioTracks().forEach(t => { t.enabled = false; });
+      }
     });
 
     kokoro.addEventListener('end', () => {
       setIsSpeaking(false);
       isSpeakingRef.current = false;
       setCurrentGesture('idle');
-      // Resume listening if user had voice mode on — longer delay to avoid picking up tail-end audio
+      // Unmute mic tracks after a delay (Simli may still have tail-end audio)
+      setTimeout(() => {
+        if (micStreamRef.current) {
+          micStreamRef.current.getAudioTracks().forEach(t => { t.enabled = true; });
+        }
+      }, 800);
+      // Resume listening if user had voice mode on — delay to avoid picking up tail-end audio
       if (shouldKeepListeningRef.current && recognitionRef.current === null) {
         setTimeout(() => {
           if (shouldKeepListeningRef.current && !isSpeakingRef.current) {
             startListeningInternal();
           }
-        }, 1200);
+        }, 2000);
       }
     });
 
