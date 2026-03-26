@@ -117,6 +117,8 @@ temp/
 *.webm
 *.avi
 *.mkv
+# Exception: avatar idle videos (small, needed for guide selector)
+!public/assets/avatars/idle-videos/*.mp4
 
 # Large image files over 5MB
 client/public/assets/2025-6/11/Black-lava-stone*.png
