@@ -592,14 +592,33 @@ const codexClientRouter = router({
     const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
     const u = (ctx as any).codexUser as schema.CodexUser;
 
-    // Create or get conversation
+    // Resume recent conversation or create new one
     let convId = input.conversationId;
+    let isReturning = false;
     if (!convId) {
-      convId = nanoid();
-      await db.insert(schema.codexGuideConversations).values({
-        id: convId, userId: u.id, guideId: input.guideId,
-        title: input.message.substring(0, 100),
-      });
+      // Check for a recent conversation with this guide (within 24 hours)
+      const recentCutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
+      const [recent] = await db.select()
+        .from(schema.codexGuideConversations)
+        .where(and(
+          eq(schema.codexGuideConversations.userId, u.id),
+          eq(schema.codexGuideConversations.guideId, input.guideId),
+        ))
+        .orderBy(desc(schema.codexGuideConversations.updatedAt))
+        .limit(1);
+
+      if (recent && recent.updatedAt && new Date(recent.updatedAt) > recentCutoff) {
+        // Resume the recent conversation
+        convId = recent.id;
+        isReturning = true;
+        console.log(`[Codex] Resuming conversation ${convId} for guide ${input.guideId}`);
+      } else {
+        convId = nanoid();
+        await db.insert(schema.codexGuideConversations).values({
+          id: convId, userId: u.id, guideId: input.guideId,
+          title: input.message.substring(0, 100),
+        });
+      }
     }
 
     // Save user message
@@ -648,9 +667,9 @@ const codexClientRouter = router({
       integrationIndex: scoring?.integrationIndex,
     };
 
-    // Get AI response
+    // Get AI response — pass history so AI remembers context, flag if returning user
     const chatHistory = history.map(m => ({ role: m.role as "user" | "assistant", content: m.content }));
-    let aiResponse = await codexGuideChat(input.guideId, input.message, chatHistory, userContext);
+    let aiResponse = await codexGuideChat(input.guideId, input.message, chatHistory, userContext, isReturning);
 
     // ── BOUNDARY CHECK: Validate AI response before delivery ──
     const validation = validateAIResponse(aiResponse, input.guideId);

@@ -752,8 +752,22 @@ function useGeminiLive(
   const speakText = useCallback((text: string, voiceOverride?: string) => {
     const kokoro = kokoroRef.current;
     const voice = voiceOverride || currentVoice;
-    // Strip ™/®/© symbols so TTS doesn't say "trademark" / "registered" / "copyright"
-    const cleanText = text.replace(/[™®©]/g, '');
+    // Strip markdown + special symbols so TTS reads natural speech only
+    const cleanText = text
+      .replace(/[™®©]/g, '')           // trademark symbols
+      .replace(/```[\s\S]*?```/g, '')   // code blocks
+      .replace(/`([^`]+)`/g, '$1')      // inline code
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // [links](url) → link text
+      .replace(/^#{1,6}\s+/gm, '')      // headings
+      .replace(/^[-*+]\s+/gm, '')       // bullet points
+      .replace(/^\d+\.\s+/gm, '')       // numbered lists
+      .replace(/\*{1,3}([^*]+)\*{1,3}/g, '$1') // ***bold italic***, **bold**, *italic*
+      .replace(/_{1,3}([^_]+)_{1,3}/g, '$1')   // ___bold italic___, __bold__, _italic_
+      .replace(/~~([^~]+)~~/g, '$1')    // ~~strikethrough~~
+      .replace(/^>\s+/gm, '')           // blockquotes
+      .replace(/---+/g, '')             // horizontal rules
+      .replace(/\n{3,}/g, '\n\n')       // collapse excess newlines
+      .trim();
     console.log(`[speakText] voice=${voice}, kokoroReady=${kokoro?.getState().isReady}`);
     if (kokoro && kokoro.getState().isReady) {
       kokoro.resumeAudioContext().then(() => {
