@@ -321,12 +321,11 @@ export default function SimliAvatar({
     return () => { (window as any).__simliSendAudio = null; };
   }, [connected, sendAudioToSimli]);
 
-  // ── Clear buffer when not speaking ──
-  useEffect(() => {
-    if (!isSpeaking && simliRef.current) {
-      simliRef.current.ClearBuffer();
-    }
-  }, [isSpeaking]);
+  // NOTE: Do NOT ClearBuffer when isSpeaking goes false.
+  // TTS fires 'end' when it finishes SENDING data (~100ms per sentence),
+  // but Simli needs seconds to actually PLAY the buffered audio.
+  // ClearBuffer here was killing playback mid-sentence.
+  // Simli manages its own buffer internally.
 
   // ── Render ──
   return (
