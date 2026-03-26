@@ -1292,7 +1292,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
       <style>{iveKeyframes}</style>
 
       {/* ── Ambient Particles — fills gaps around avatar for depth ── */}
-      <ParticleField color={config.primaryColor} particleCount={1200} speed={0.3} />
+      <ParticleField particleCount={800} />
 
       {/* ── Avatar Display ── */}
       {avatarMode === 'lifelike' ? (
