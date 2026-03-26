@@ -114,8 +114,9 @@ export class KokoroTTSManager {
         const simliSend = (window as any).__simliSendAudio;
         if (typeof simliSend === 'function') {
           usedSimli = true;
-          // Estimate audio duration from WAV blob size (16kHz mono 16-bit = 32000 bytes/sec)
-          const durationMs = Math.max(0, (blob.size - 44) / 32) ; // bytes / 32 = ms
+          // Estimate audio duration from WAV blob size
+          // Kokoro outputs 24kHz mono 16-bit = 48000 bytes/sec = 48 bytes/ms
+          const durationMs = Math.max(0, (blob.size - 44) / 48) ;
           simliTotalDurationMs += durationMs;
           await this.sendToSimli(blob, simliSend, signal);
         } else {
@@ -127,7 +128,7 @@ export class KokoroTTSManager {
       // Simli buffers audio and plays it back — sending is near-instant but playback takes time
       if (usedSimli && !signal.aborted && simliTotalDurationMs > 0) {
         const elapsedMs = Date.now() - simliSendStartTime;
-        const remainingMs = Math.max(0, simliTotalDurationMs - elapsedMs + 1500); // +1.5s safety buffer
+        const remainingMs = Math.min(15000, Math.max(0, simliTotalDurationMs - elapsedMs + 1500)); // +1.5s buffer, cap at 15s
         console.log(`[Kokoro TTS] Simli playback wait: ${remainingMs}ms (total audio: ${Math.round(simliTotalDurationMs)}ms, elapsed: ${elapsedMs}ms)`);
         if (remainingMs > 0) {
           await new Promise<void>((resolve) => {

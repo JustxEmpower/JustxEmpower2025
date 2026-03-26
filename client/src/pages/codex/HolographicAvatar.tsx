@@ -640,6 +640,8 @@ function useGeminiLive(
   const lastSpeechTimeRef = useRef<number>(0);
   // Ref to track isSpeaking without stale closure issues in recognition callbacks
   const isSpeakingRef = useRef(false);
+  // Ref to always call the latest startListeningInternal from event handlers
+  const startListeningInternalRef = useRef<() => void>(() => {});
 
   // Initialize Kokoro TTS
   useEffect(() => {
@@ -669,10 +671,11 @@ function useGeminiLive(
         }
       }, 800);
       // Resume listening if user had voice mode on — delay to avoid picking up tail-end audio
+      // Use ref to always get the latest startListeningInternal (avoids stale closure)
       if (shouldKeepListeningRef.current && recognitionRef.current === null) {
         setTimeout(() => {
           if (shouldKeepListeningRef.current && !isSpeakingRef.current) {
-            startListeningInternal();
+            startListeningInternalRef.current();
           }
         }, 2000);
       }
@@ -1117,6 +1120,9 @@ function useGeminiLive(
       setIsListening(false);
     }
   }, [sendTextMessage]);
+
+  // Keep ref in sync so Kokoro event handlers always call the latest version
+  startListeningInternalRef.current = startListeningInternal;
 
   // Kill STT immediately whenever TTS starts — prevents mic from picking up guide audio
   useEffect(() => {
