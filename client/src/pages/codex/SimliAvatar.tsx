@@ -336,9 +336,7 @@ export default function SimliAvatar({
         height,
         overflow: 'hidden',
         borderRadius: 14,
-        background: '#0A0619',
-        border: `2px solid ${guideColor}40`,
-        boxShadow: `0 0 20px ${guideColor}15, 0 0 60px ${guideColor}08`,
+        background: 'transparent',
       }}
     >
       {/* Simli WebRTC video — the lip-synced avatar */}

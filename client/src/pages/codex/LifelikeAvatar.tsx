@@ -747,6 +747,20 @@ export default function LifelikeAvatar({
       ctx.fillRect(0, 0, displayW, displayH);
       ctx.restore();
 
+      // 3g. Alpha vignette — fade edges to transparent so BackgroundRenderer shows through
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-in';
+      const alphaGrad = ctx.createRadialGradient(
+        displayW / 2, displayH * 0.4, Math.min(displayW, displayH) * 0.25,
+        displayW / 2, displayH * 0.4, Math.max(displayW, displayH) * 0.65
+      );
+      alphaGrad.addColorStop(0, 'rgba(0,0,0,1)');
+      alphaGrad.addColorStop(0.7, 'rgba(0,0,0,0.9)');
+      alphaGrad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = alphaGrad;
+      ctx.fillRect(0, 0, displayW, displayH);
+      ctx.restore();
+
       rafRef.current = requestAnimationFrame(renderFrame);
     }
 
@@ -771,9 +785,7 @@ export default function LifelikeAvatar({
         height,
         overflow: 'hidden',
         borderRadius: 14,
-        background: '#0A0619',
-        border: `2px solid ${guideColor}40`,
-        boxShadow: `0 0 20px ${guideColor}15, 0 0 60px ${guideColor}08`,
+        background: 'transparent',
       }}
     >
 
@@ -830,7 +842,7 @@ export default function LifelikeAvatar({
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background: `radial-gradient(ellipse at center, ${guideColor}18 0%, #0A0A1A 70%)`,
+              background: `radial-gradient(ellipse at center, ${guideColor}18 0%, transparent 70%)`,
             }}
           >
             <div style={{ position: 'relative', width: '70%', maxWidth: 320, aspectRatio: '1' }}>

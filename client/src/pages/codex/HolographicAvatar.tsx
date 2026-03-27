@@ -643,6 +643,8 @@ function useGeminiLive(
   const lastSpeechTimeRef = useRef<number>(0);
   // Ref to track isSpeaking without stale closure issues in recognition callbacks
   const isSpeakingRef = useRef(false);
+  // Ref to prevent mic restart while AI is processing/responding
+  const isProcessingRef = useRef(false);
   // Ref to always call the latest startListeningInternal from event handlers
   const startListeningInternalRef = useRef<() => void>(() => {});
 
@@ -657,6 +659,7 @@ function useGeminiLive(
     kokoro.addEventListener('start', () => {
       setIsSpeaking(true);
       isSpeakingRef.current = true;
+      isProcessingRef.current = false;
       // Mute mic tracks to prevent picking up TTS/Simli audio output
       if (micStreamRef.current) {
         micStreamRef.current.getAudioTracks().forEach(t => { t.enabled = false; });
@@ -677,10 +680,10 @@ function useGeminiLive(
       // Use ref to always get the latest startListeningInternal (avoids stale closure)
       if (shouldKeepListeningRef.current && recognitionRef.current === null) {
         setTimeout(() => {
-          if (shouldKeepListeningRef.current && !isSpeakingRef.current) {
+          if (shouldKeepListeningRef.current && !isSpeakingRef.current && !isProcessingRef.current) {
             startListeningInternalRef.current();
           }
-        }, 2000);
+        }, 1200);
       }
     });
 
@@ -870,6 +873,9 @@ function useGeminiLive(
       // Check escalation before processing
       if (checkEscalation(text)) return;
 
+      // Mark as processing so mic doesn't restart during AI response
+      isProcessingRef.current = true;
+
       // Pause STT while processing so mic doesn't pick up guide's voice
       if (recognitionRef.current) {
         try { recognitionRef.current.stop(); } catch {}
@@ -937,6 +943,7 @@ function useGeminiLive(
         speakText(guideText);
       } catch (error) {
         console.error('[HolographicAvatar] Message send failed:', error);
+        isProcessingRef.current = false;
         setCurrentGesture('idle');
         setCurrentEmotion('concern');
       }
@@ -947,8 +954,8 @@ function useGeminiLive(
   // ── Mic Audio Monitoring (VAD) — Web Audio API ──
   // Provides real-time mic level + silence detection for fast end-of-speech
 
-  const SILENCE_THRESHOLD = 0.02;   // RMS below this = silence
-  const SILENCE_TIMEOUT_MS = 1200;  // Send after 1.2s silence with pending text
+  const SILENCE_THRESHOLD = 0.03;   // RMS below this = silence (tuned for real environments)
+  const SILENCE_TIMEOUT_MS = 1800;  // Send after 1.8s silence with pending text
 
   const startMicMonitoring = useCallback(async () => {
     try {
@@ -1029,9 +1036,9 @@ function useGeminiLive(
   // ── Speech Recognition — robust STT with auto-restart + VAD ──
 
   const startListeningInternal = useCallback(() => {
-    // Don't start if guide is currently speaking (mic would pick up TTS)
+    // Don't start if guide is currently speaking or AI is processing
     // Use ref to avoid stale closure — isSpeaking state may be outdated in callbacks
-    if (isSpeakingRef.current) return;
+    if (isSpeakingRef.current || isProcessingRef.current) return;
 
     if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
       console.warn('[HolographicAvatar] Speech recognition not supported in this browser');
@@ -1082,9 +1089,9 @@ function useGeminiLive(
 
     recognition.onend = () => {
       recognitionRef.current = null;
-      // Auto-restart if user still wants to listen and guide isn't speaking
+      // Auto-restart if user still wants to listen and guide isn't speaking/processing
       // Use ref to get real-time value (not stale closure)
-      if (shouldKeepListeningRef.current && !isSpeakingRef.current) {
+      if (shouldKeepListeningRef.current && !isSpeakingRef.current && !isProcessingRef.current) {
         // Send any pending interim text that didn't finalize
         if (pendingTranscriptRef.current.trim()) {
           const pending = pendingTranscriptRef.current.trim();
@@ -1095,14 +1102,14 @@ function useGeminiLive(
         } else {
           // Restart recognition for next utterance
           setTimeout(() => {
-            if (shouldKeepListeningRef.current) {
+            if (shouldKeepListeningRef.current && !isProcessingRef.current && !isSpeakingRef.current) {
               startListeningInternal();
-            } else {
+            } else if (!shouldKeepListeningRef.current) {
               setIsListening(false);
             }
-          }, 200);
+          }, 300);
         }
-      } else {
+      } else if (!shouldKeepListeningRef.current) {
         setIsListening(false);
       }
     };
@@ -1114,7 +1121,9 @@ function useGeminiLive(
       // 'no-speech' is normal — user just didn't say anything yet. Restart.
       if (event.error === 'no-speech' && shouldKeepListeningRef.current) {
         setTimeout(() => {
-          if (shouldKeepListeningRef.current) startListeningInternal();
+          if (shouldKeepListeningRef.current && !isProcessingRef.current && !isSpeakingRef.current) {
+            startListeningInternal();
+          }
         }, 300);
         return;
       }
@@ -1386,7 +1395,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
       ) : (
         /* ── ORB MODE — Refined, minimal ── */
         <div className="absolute inset-0 flex items-center justify-center" style={{
-          background: `radial-gradient(ellipse at 50% 45%, ${config.secondaryColor}40 0%, #000 75%)`,
+          background: `radial-gradient(ellipse at 50% 45%, ${config.secondaryColor}40 0%, transparent 75%)`,
         }}>
           <div style={{ textAlign: 'center', marginTop: '-2rem' }}>
             {/* Orbital rings */}
@@ -1815,6 +1824,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
         particleLevel={bgSettings.particleLevel}
         onAmbientChange={bgSettings.setAmbientLevel}
         onParticleChange={bgSettings.setParticleLevel}
+        unlockedBackgrounds={['eden', 'akashic', 'aurora', 'womb']}
       />
     </div>
     </BackgroundRenderer>
