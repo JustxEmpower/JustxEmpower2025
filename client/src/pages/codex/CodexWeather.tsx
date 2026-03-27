@@ -148,11 +148,11 @@ export default function CodexWeather() {
           onClick={() => setShowSettings(!showSettings)}
           style={{
             background: "none", border: "none", cursor: "pointer",
-            color: "rgba(245,230,211,0.25)", fontSize: "0.9rem", padding: "0.25rem",
+            color: "var(--cx-ink3)", fontSize: "0.9rem", padding: "0.25rem",
             transition: "color 300ms",
           }}
           onMouseEnter={e => (e.currentTarget.style.color = "var(--cx-gold)")}
-          onMouseLeave={e => (e.currentTarget.style.color = "rgba(245,230,211,0.25)")}
+          onMouseLeave={e => (e.currentTarget.style.color = "var(--cx-ink3)")}
         >
           {"\u2699\uFE0F"}
         </button>
@@ -162,9 +162,9 @@ export default function CodexWeather() {
       {showSettings && (
         <div style={{
           marginBottom: "1rem", padding: "0.75rem", borderRadius: "0.5rem",
-          background: "rgba(44,31,40,0.6)", border: "1px solid rgba(61,34,51,0.3)",
+          background: "rgba(255,255,255,0.35)", border: "1px solid rgba(255,255,255,0.5)",
         }}>
-          <p style={{ fontSize: "0.7rem", color: "rgba(245,230,211,0.4)", marginBottom: "0.5rem" }}>
+          <p style={{ fontSize: "0.7rem", color: "var(--cx-ink3)", marginBottom: "0.5rem" }}>
             Enter city or zip code
           </p>
           <div style={{ display: "flex", gap: "0.5rem" }}>
@@ -175,9 +175,9 @@ export default function CodexWeather() {
               placeholder="e.g. Miami or 33101"
               style={{
                 flex: 1, padding: "0.5rem 0.75rem", borderRadius: "0.375rem",
-                background: "rgba(44,31,40,0.4)", border: "1px solid rgba(61,34,51,0.3)",
-                color: "var(--cx-cream)", fontSize: "0.8rem", outline: "none",
-                fontFamily: "Inter, sans-serif",
+                background: "rgba(255,255,255,0.4)", border: "1px solid rgba(255,255,255,0.5)",
+                color: "var(--cx-ink)", fontSize: "0.8rem", outline: "none",
+                fontFamily: "'DM Sans', sans-serif",
               }}
             />
             <button
@@ -203,9 +203,9 @@ export default function CodexWeather() {
               <span className="cx-font-heading" style={{ fontSize: "2.5rem", fontWeight: 300, color: "var(--cx-gold)" }}>
                 {Math.round(current.temperature)}°
               </span>
-              <span style={{ fontSize: "0.75rem", color: "rgba(245,230,211,0.3)" }}>F</span>
+              <span style={{ fontSize: "0.75rem", color: "var(--cx-ink3)" }}>F</span>
             </div>
-            <p style={{ fontSize: "0.8rem", color: "rgba(245,230,211,0.5)", marginTop: "0.15rem" }}>
+            <p style={{ fontSize: "0.8rem", color: "var(--cx-ink2)", marginTop: "0.15rem" }}>
               {currentInfo.label}
             </p>
           </div>
@@ -222,18 +222,18 @@ export default function CodexWeather() {
             return (
               <div key={date} style={{
                 textAlign: "center", padding: "0.5rem 0.15rem", borderRadius: "0.5rem",
-                background: i === 0 ? "rgba(201,168,76,0.06)" : "transparent",
-                border: i === 0 ? "1px solid rgba(201,168,76,0.12)" : "1px solid transparent",
+                background: i === 0 ? "rgba(184,151,106,0.08)" : "transparent",
+                border: i === 0 ? "1px solid rgba(184,151,106,0.15)" : "1px solid transparent",
                 transition: "all 300ms",
               }}>
-                <p style={{ fontSize: "0.6rem", color: i === 0 ? "var(--cx-gold)" : "rgba(245,230,211,0.3)", fontWeight: i === 0 ? 600 : 400, marginBottom: "0.35rem" }}>
+                <p style={{ fontSize: "0.6rem", color: i === 0 ? "var(--cx-gold)" : "var(--cx-ink3)", fontWeight: i === 0 ? 600 : 400, marginBottom: "0.35rem" }}>
                   {dayName}
                 </p>
                 <div style={{ fontSize: "1.1rem", lineHeight: 1, marginBottom: "0.35rem" }}>{info.icon}</div>
-                <p style={{ fontSize: "0.7rem", color: "var(--cx-cream)", opacity: 0.7 }}>
+                <p style={{ fontSize: "0.7rem", color: "var(--cx-ink)", opacity: 0.7 }}>
                   {Math.round(daily.temperature_2m_max[i])}°
                 </p>
-                <p style={{ fontSize: "0.6rem", color: "rgba(245,230,211,0.25)" }}>
+                <p style={{ fontSize: "0.6rem", color: "var(--cx-ink3)" }}>
                   {Math.round(daily.temperature_2m_min[i])}°
                 </p>
               </div>

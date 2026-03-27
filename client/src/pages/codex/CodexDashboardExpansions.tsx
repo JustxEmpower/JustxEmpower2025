@@ -26,15 +26,15 @@ const PHASE_GLYPHS = [
 ];
 
 const PHASE_AMBIENTS = [
-  '#1A0A0A',
-  '#0A0A1A',
-  '#0A1A1A',
-  '#1A0A2A',
-  '#050510',
-  '#1A0D05',
-  '#0A1A0A',
-  '#1A1505',
-  '#1A1A05',
+  'rgba(184,123,101,0.12)',
+  'rgba(125,142,127,0.12)',
+  'rgba(184,151,106,0.12)',
+  'rgba(139,123,168,0.12)',
+  'rgba(200,188,174,0.12)',
+  'rgba(184,123,101,0.15)',
+  'rgba(125,142,127,0.15)',
+  'rgba(184,151,106,0.15)',
+  'rgba(139,123,168,0.15)',
 ];
 
 // ============================================================================
@@ -53,19 +53,22 @@ export const PhaseJourneyMap: React.FC<PhaseJourneyMapProps> = ({
 }) => {
   const containerStyle: React.CSSProperties = {
     padding: '2rem',
-    backgroundColor: 'var(--cx-moonlight)',
-    borderRadius: '0.5rem',
-    border: '1px solid rgba(212, 175, 55, 0.2)',
+    background: 'rgba(255,255,255,0.42)',
+    borderRadius: 'var(--cx-radius-lg)',
+    border: '1px solid rgba(255,255,255,0.62)',
+    backdropFilter: 'blur(24px) saturate(1.4)',
+    WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+    boxShadow: '0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(0,0,0,0.04)',
     marginBottom: '2rem',
   };
 
   const headerStyle: React.CSSProperties = {
     fontSize: '1.5rem',
     fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 600,
-    color: 'var(--cx-cream)',
+    fontWeight: 300,
+    color: 'var(--cx-ink)',
     marginBottom: '2rem',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.02em',
   };
 
   const pathContainerStyle: React.CSSProperties = {
@@ -83,7 +86,7 @@ export const PhaseJourneyMap: React.FC<PhaseJourneyMapProps> = ({
     left: '5%',
     right: '5%',
     height: '2px',
-    background: 'linear-gradient(to right, rgba(212, 175, 55, 0.3), transparent)',
+    background: 'linear-gradient(to right, rgba(184,151,106,0.3), transparent)',
     zIndex: 0,
     pointerEvents: 'none',
   };
@@ -110,9 +113,9 @@ export const PhaseJourneyMap: React.FC<PhaseJourneyMapProps> = ({
     const isFuture = phaseIndex > currentPhase;
 
     let backgroundColor = PHASE_AMBIENTS[phaseIndex];
-    let borderColor = 'rgba(212, 175, 55, 0.4)';
-    let boxShadow = 'inset 0 0 0 1px rgba(212, 175, 55, 0.4)';
-    let color = 'var(--cx-cream)';
+    let borderColor = 'rgba(184,151,106,0.35)';
+    let boxShadow = 'inset 0 0 0 1px rgba(184,151,106,0.35)';
+    let color = 'var(--cx-ink)';
 
     if (isCurrent) {
       borderColor = 'var(--cx-gold)';
@@ -122,9 +125,9 @@ export const PhaseJourneyMap: React.FC<PhaseJourneyMapProps> = ({
       borderColor = 'var(--cx-gold)';
       boxShadow = 'inset 0 0 0 1px var(--cx-gold)';
     } else if (isFuture) {
-      color = 'rgba(212, 175, 55, 0.5)';
-      borderColor = 'rgba(212, 175, 55, 0.2)';
-      boxShadow = 'inset 0 0 0 1px rgba(212, 175, 55, 0.2)';
+      color = 'var(--cx-clay)';
+      borderColor = 'rgba(184,151,106,0.15)';
+      boxShadow = 'inset 0 0 0 1px rgba(184,151,106,0.15)';
     }
 
     return {
@@ -146,7 +149,7 @@ export const PhaseJourneyMap: React.FC<PhaseJourneyMapProps> = ({
 
   const phaseNameStyle: React.CSSProperties = {
     fontSize: '0.75rem',
-    color: 'var(--cx-cream-dark)',
+    color: 'var(--cx-ink2)',
     textAlign: 'center',
     maxWidth: '4rem',
     fontFamily: 'Cormorant Garamond, serif',
@@ -162,7 +165,7 @@ export const PhaseJourneyMap: React.FC<PhaseJourneyMapProps> = ({
 
   const archetypeStyle: React.CSSProperties = {
     fontSize: '0.85rem',
-    color: 'var(--cx-cream-dark)',
+    color: 'var(--cx-ink3)',
     marginTop: '1.5rem',
     fontStyle: 'italic',
     textAlign: 'center',
@@ -215,35 +218,38 @@ export const ContradictionExplorer: React.FC<ContradictionExplorerProps> = ({
 
   const containerStyle: React.CSSProperties = {
     padding: '2rem',
-    backgroundColor: 'var(--cx-moonlight)',
-    borderRadius: '0.5rem',
-    border: '1px solid rgba(212, 175, 55, 0.2)',
+    background: 'rgba(255,255,255,0.42)',
+    borderRadius: 'var(--cx-radius-lg)',
+    border: '1px solid rgba(255,255,255,0.62)',
+    backdropFilter: 'blur(24px) saturate(1.4)',
+    WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+    boxShadow: '0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(0,0,0,0.04)',
     marginBottom: '2rem',
   };
 
   const headerStyle: React.CSSProperties = {
     fontSize: '1.5rem',
     fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 600,
-    color: 'var(--cx-cream)',
+    fontWeight: 300,
+    color: 'var(--cx-ink)',
     marginBottom: '1.5rem',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.02em',
   };
 
   const cardStyle: React.CSSProperties = {
     marginBottom: '1rem',
     padding: '1rem',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    border: '1px solid rgba(212, 175, 55, 0.2)',
-    borderRadius: '0.25rem',
+    background: 'rgba(255,255,255,0.3)',
+    border: '1px solid rgba(255,255,255,0.45)',
+    borderRadius: 'var(--cx-radius)',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
   };
 
   const cardHoverStyle: React.CSSProperties = {
     ...cardStyle,
-    backgroundColor: 'rgba(212, 175, 55, 0.05)',
-    borderColor: 'rgba(212, 175, 55, 0.4)',
+    background: 'rgba(255,255,255,0.5)',
+    borderColor: 'rgba(184,123,101,0.2)',
   };
 
   const cardHeaderStyle: React.CSSProperties = {
@@ -263,13 +269,13 @@ export const ContradictionExplorer: React.FC<ContradictionExplorerProps> = ({
 
   const percentageStyle: React.CSSProperties = {
     fontSize: '0.75rem',
-    color: 'var(--cx-cream-dark)',
+    color: 'var(--cx-ink3)',
     opacity: 0.7,
   };
 
   const interpretationStyle: React.CSSProperties = {
     fontSize: '0.9rem',
-    color: 'var(--cx-cream)',
+    color: 'var(--cx-ink2)',
     lineHeight: 1.6,
     marginTop: '0.75rem',
   };
@@ -284,7 +290,7 @@ export const ContradictionExplorer: React.FC<ContradictionExplorerProps> = ({
       <p
         style={{
           fontSize: '0.9rem',
-          color: 'var(--cx-cream-dark)',
+          color: 'var(--cx-ink2)',
           marginBottom: '1.5rem',
           lineHeight: 1.6,
         }}
@@ -345,19 +351,22 @@ export const WeeklyPracticeCard: React.FC<WeeklyPracticeCardProps> = ({
 }) => {
   const containerStyle: React.CSSProperties = {
     padding: '2rem',
-    backgroundColor: 'var(--cx-moonlight)',
-    borderRadius: '0.5rem',
-    border: '1px solid rgba(212, 175, 55, 0.2)',
+    background: 'rgba(255,255,255,0.42)',
+    borderRadius: 'var(--cx-radius-lg)',
+    border: '1px solid rgba(255,255,255,0.62)',
+    backdropFilter: 'blur(24px) saturate(1.4)',
+    WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+    boxShadow: '0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(0,0,0,0.04)',
     marginBottom: '2rem',
   };
 
   const headerStyle: React.CSSProperties = {
     fontSize: '1.5rem',
     fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 600,
-    color: 'var(--cx-cream)',
+    fontWeight: 300,
+    color: 'var(--cx-ink)',
     marginBottom: '1.5rem',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.02em',
   };
 
   const promptStyle: React.CSSProperties = {
@@ -368,7 +377,7 @@ export const WeeklyPracticeCard: React.FC<WeeklyPracticeCardProps> = ({
     lineHeight: 1.8,
     marginBottom: '2rem',
     padding: '1.5rem',
-    backgroundColor: 'rgba(212, 175, 55, 0.05)',
+    backgroundColor: 'rgba(184,151,106,0.06)',
     borderLeft: '3px solid var(--cx-gold)',
   };
 
@@ -376,7 +385,7 @@ export const WeeklyPracticeCard: React.FC<WeeklyPracticeCardProps> = ({
     fontSize: '0.95rem',
     fontFamily: 'Cormorant Garamond, serif',
     fontWeight: 600,
-    color: 'var(--cx-cream)',
+    color: 'var(--cx-ink)',
     marginBottom: '1rem',
     letterSpacing: '0.03em',
     textTransform: 'uppercase',
@@ -388,7 +397,7 @@ export const WeeklyPracticeCard: React.FC<WeeklyPracticeCardProps> = ({
 
   const practiceItemStyle: React.CSSProperties = {
     fontSize: '0.95rem',
-    color: 'var(--cx-cream)',
+    color: 'var(--cx-ink2)',
     marginBottom: '0.75rem',
     paddingLeft: '1.5rem',
     position: 'relative',
@@ -406,9 +415,9 @@ export const WeeklyPracticeCard: React.FC<WeeklyPracticeCardProps> = ({
     display: 'inline-block',
     padding: '0.75rem 1.5rem',
     backgroundColor: 'var(--cx-gold)',
-    color: 'var(--cx-moonlight)',
+    color: '#fff',
     border: 'none',
-    borderRadius: '0.25rem',
+    borderRadius: 'var(--cx-radius)',
     fontFamily: 'Cormorant Garamond, serif',
     fontSize: '1rem',
     fontWeight: 600,
@@ -419,7 +428,7 @@ export const WeeklyPracticeCard: React.FC<WeeklyPracticeCardProps> = ({
 
   const archetypeStyle: React.CSSProperties = {
     fontSize: '0.85rem',
-    color: 'var(--cx-cream-dark)',
+    color: 'var(--cx-ink3)',
     marginTop: '1.5rem',
     fontStyle: 'italic',
   };
@@ -484,19 +493,22 @@ export const PatternConnectionsPanel: React.FC<
 }) => {
   const containerStyle: React.CSSProperties = {
     padding: '2rem',
-    backgroundColor: 'var(--cx-moonlight)',
-    borderRadius: '0.5rem',
-    border: '1px solid rgba(212, 175, 55, 0.2)',
+    background: 'rgba(255,255,255,0.42)',
+    borderRadius: 'var(--cx-radius-lg)',
+    border: '1px solid rgba(255,255,255,0.62)',
+    backdropFilter: 'blur(24px) saturate(1.4)',
+    WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+    boxShadow: '0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(0,0,0,0.04)',
     marginBottom: '2rem',
   };
 
   const headerStyle: React.CSSProperties = {
     fontSize: '1.5rem',
     fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 600,
-    color: 'var(--cx-cream)',
+    fontWeight: 300,
+    color: 'var(--cx-ink)',
     marginBottom: '1.5rem',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.02em',
   };
 
   const sectionStyle: React.CSSProperties = {
@@ -516,10 +528,10 @@ export const PatternConnectionsPanel: React.FC<
   const tagStyle: React.CSSProperties = {
     display: 'inline-block',
     padding: '0.5rem 1rem',
-    backgroundColor: 'rgba(212, 175, 55, 0.1)',
-    border: '1px solid rgba(212, 175, 55, 0.3)',
-    borderRadius: '0.25rem',
-    color: 'var(--cx-cream)',
+    backgroundColor: 'rgba(184,151,106,0.08)',
+    border: '1px solid rgba(184,151,106,0.2)',
+    borderRadius: 'var(--cx-radius)',
+    color: 'var(--cx-ink)',
     fontSize: '0.9rem',
     marginRight: '0.75rem',
     marginBottom: '0.75rem',
@@ -527,17 +539,17 @@ export const PatternConnectionsPanel: React.FC<
 
   const connectionLineStyle: React.CSSProperties = {
     height: '2px',
-    background: 'linear-gradient(to right, rgba(212, 175, 55, 0.3), transparent)',
+    background: 'linear-gradient(to right, rgba(184,151,106,0.3), transparent)',
     margin: '1.5rem 0',
   };
 
   const archDescStyle: React.CSSProperties = {
     fontSize: '0.9rem',
-    color: 'var(--cx-cream)',
+    color: 'var(--cx-ink2)',
     lineHeight: 1.6,
     marginTop: '1rem',
     padding: '1rem',
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+    backgroundColor: 'rgba(255,255,255,0.3)',
     borderLeft: '2px solid var(--cx-gold)',
   };
 
@@ -614,26 +626,29 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
 }) => {
   const containerStyle: React.CSSProperties = {
     padding: '2rem',
-    backgroundColor: 'var(--cx-moonlight)',
-    borderRadius: '0.5rem',
-    border: '1px solid rgba(212, 175, 55, 0.2)',
+    background: 'rgba(255,255,255,0.42)',
+    borderRadius: 'var(--cx-radius-lg)',
+    border: '1px solid rgba(255,255,255,0.62)',
+    backdropFilter: 'blur(24px) saturate(1.4)',
+    WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
+    boxShadow: '0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(0,0,0,0.04)',
     marginBottom: '2rem',
   };
 
   const headerStyle: React.CSSProperties = {
     fontSize: '1.5rem',
     fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 600,
-    color: 'var(--cx-cream)',
+    fontWeight: 300,
+    color: 'var(--cx-ink)',
     marginBottom: '1.5rem',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.02em',
   };
 
   const tierBadgeStyle: React.CSSProperties = {
     display: 'inline-block',
     padding: '0.5rem 1rem',
     backgroundColor: 'var(--cx-gold)',
-    color: 'var(--cx-moonlight)',
+    color: '#fff',
     borderRadius: '0.25rem',
     fontFamily: 'Cormorant Garamond, serif',
     fontWeight: 600,
@@ -652,9 +667,9 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
 
   const circleCardStyle: React.CSSProperties = {
     padding: '1.25rem',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-    border: '1px solid rgba(212, 175, 55, 0.2)',
-    borderRadius: '0.25rem',
+    background: 'rgba(255,255,255,0.3)',
+    border: '1px solid rgba(255,255,255,0.45)',
+    borderRadius: 'var(--cx-radius)',
     textAlign: 'center',
     transition: 'all 0.3s ease',
     cursor: 'pointer',
@@ -662,8 +677,8 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
 
   const circleCardHoverStyle: React.CSSProperties = {
     ...circleCardStyle,
-    backgroundColor: 'rgba(212, 175, 55, 0.05)',
-    borderColor: 'rgba(212, 175, 55, 0.4)',
+    background: 'rgba(255,255,255,0.5)',
+    borderColor: 'rgba(184,123,101,0.2)',
     transform: 'translateY(-4px)',
   };
 
@@ -679,9 +694,9 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
     display: 'inline-block',
     padding: '0.75rem 1.5rem',
     backgroundColor: 'var(--cx-gold)',
-    color: 'var(--cx-moonlight)',
+    color: '#fff',
     border: 'none',
-    borderRadius: '0.25rem',
+    borderRadius: 'var(--cx-radius)',
     fontFamily: 'Cormorant Garamond, serif',
     fontSize: '1rem',
     fontWeight: 600,
@@ -692,7 +707,7 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
 
   const descriptionStyle: React.CSSProperties = {
     fontSize: '0.9rem',
-    color: 'var(--cx-cream)',
+    color: 'var(--cx-ink2)',
     lineHeight: 1.6,
     marginBottom: '1.5rem',
   };
@@ -748,7 +763,7 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
         <p
           style={{
             fontSize: '0.9rem',
-            color: 'var(--cx-cream-dark)',
+            color: 'var(--cx-ink3)',
             fontStyle: 'italic',
           }}
         >

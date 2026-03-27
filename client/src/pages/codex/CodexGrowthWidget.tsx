@@ -81,7 +81,7 @@ function StreakFlame({ streak }: { streak: StreakData }) {
           borderRadius: '50%',
           background: streak.currentStreak > 0
             ? `radial-gradient(circle at 50% 60%, ${flameColor}20 0%, transparent 70%)`
-            : 'rgba(255,255,255,0.03)',
+            : 'rgba(200,188,174,0.1)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -90,7 +90,7 @@ function StreakFlame({ streak }: { streak: StreakData }) {
           <Flame
             size={flameSize}
             style={{
-              color: streak.currentStreak > 0 ? flameColor : 'rgba(255,255,255,0.15)',
+              color: streak.currentStreak > 0 ? flameColor : 'var(--cx-clay)',
               filter: streak.currentStreak > 0 ? `drop-shadow(0 0 ${4 + intensity * 8}px ${flameColor}60)` : 'none',
               animation: streak.currentStreak > 0 ? 'cx-float 3s ease-in-out infinite' : 'none',
             }}
@@ -103,24 +103,24 @@ function StreakFlame({ streak }: { streak: StreakData }) {
               fontSize: '1.75rem',
               fontWeight: 700,
               letterSpacing: '-0.03em',
-              color: streak.currentStreak > 0 ? 'var(--cx-cream)' : 'rgba(255,255,255,0.3)',
+              color: streak.currentStreak > 0 ? 'var(--cx-ink)' : 'var(--cx-clay)',
             }}>
               {streak.currentStreak}
             </span>
-            <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', fontWeight: 500 }}>
+            <span style={{ fontSize: '0.75rem', color: 'var(--cx-ink3)', fontWeight: 500 }}>
               day{streak.currentStreak !== 1 ? 's' : ''}
             </span>
           </div>
-          <div style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>
+          <div style={{ fontSize: '0.6875rem', color: 'var(--cx-ink3)', marginTop: 2 }}>
             Best: {streak.longestStreak} days
           </div>
         </div>
 
         <div style={{ textAlign: 'right' }}>
-          <div style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.06em' }}>
+          <div style={{ fontSize: '0.6875rem', color: 'var(--cx-ink3)', letterSpacing: '0.06em' }}>
             TOTAL DAYS
           </div>
-          <div style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--cx-cream)' }}>
+          <div style={{ fontSize: '1.125rem', fontWeight: 600, color: 'var(--cx-ink)' }}>
             {streak.totalActiveDays}
           </div>
         </div>
@@ -175,7 +175,7 @@ function CompanionCard({ companion }: { companion: CompanionData }) {
     <div className="cx-card cx-entrance cx-delay-1" style={{ padding: '1.25rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
         <span className="cx-label">Inner Garden</span>
-        <span style={{ fontSize: '0.625rem', color: moodConfig.color, fontWeight: 600, letterSpacing: '0.06em' }}>
+        <span style={{ fontSize: '0.625rem', color: moodConfig.color, fontWeight: 500, letterSpacing: '0.06em' }}>
           {moodConfig.label}
         </span>
       </div>
@@ -218,8 +218,8 @@ function CompanionCard({ companion }: { companion: CompanionData }) {
           {/* Energy bar */}
           <div style={{ marginBottom: 6 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-              <span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.3)' }}>Energy</span>
-              <span style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.4)' }}>{energyPct}%</span>
+              <span style={{ fontSize: '0.625rem', color: 'var(--cx-ink3)' }}>Energy</span>
+              <span style={{ fontSize: '0.625rem', color: 'var(--cx-ink2)' }}>{energyPct}%</span>
             </div>
             <div className="cx-progress-track">
               <div
@@ -234,7 +234,7 @@ function CompanionCard({ companion }: { companion: CompanionData }) {
           </div>
 
           {/* Mood message */}
-          <p style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.4)', lineHeight: 1.4, margin: 0 }}>
+          <p style={{ fontSize: '0.6875rem', color: 'var(--cx-ink3)', lineHeight: 1.4, margin: 0 }}>
             {moodConfig.message}
           </p>
         </div>
@@ -251,13 +251,13 @@ function CompanionCard({ companion }: { companion: CompanionData }) {
               borderRadius: 2,
               background: level <= companion.gardenLevel
                 ? '#4ACD8D'
-                : 'rgba(255,255,255,0.06)',
+                : 'rgba(200,188,174,0.2)',
               transition: 'background 600ms ease',
             }}
           />
         ))}
       </div>
-      <div style={{ fontSize: '0.5625rem', color: 'rgba(255,255,255,0.25)', marginTop: 4, textAlign: 'center' }}>
+      <div style={{ fontSize: '0.5625rem', color: 'var(--cx-ink3)', marginTop: 4, textAlign: 'center' }}>
         Garden Level {companion.gardenLevel}/5
       </div>
     </div>
@@ -291,15 +291,15 @@ function MilestoneCelebration({
       <div
         onClick={e => e.stopPropagation()}
         style={{
-          background: 'rgba(28, 25, 48, 0.95)',
-          border: '1px solid rgba(255, 215, 0, 0.2)',
+          background: 'rgba(255,255,255,0.92)',
+          border: '1px solid rgba(184,151,106,0.25)',
           borderRadius: 20,
           padding: '2.5rem 2rem',
           maxWidth: 380,
           textAlign: 'center',
           animation: 'cx-scale-in 400ms cubic-bezier(0.4, 0, 0.2, 1) both',
           position: 'relative',
-          boxShadow: '0 0 60px rgba(255, 215, 0, 0.08)',
+          boxShadow: '0 0 60px rgba(184,151,106,0.12), 0 20px 60px rgba(0,0,0,0.08)',
         }}
       >
         <button
@@ -310,7 +310,7 @@ function MilestoneCelebration({
             right: 12,
             background: 'none',
             border: 'none',
-            color: 'rgba(255,255,255,0.3)',
+            color: 'var(--cx-ink3)',
             cursor: 'pointer',
             padding: 4,
           }}
@@ -336,7 +336,7 @@ function MilestoneCelebration({
           fontFamily: 'Cormorant Garamond, serif',
           fontSize: '1.5rem',
           fontWeight: 600,
-          color: '#FFD700',
+          color: 'var(--cx-gold)',
           marginBottom: '0.75rem',
           letterSpacing: '-0.01em',
         }}>
@@ -345,7 +345,7 @@ function MilestoneCelebration({
 
         <p style={{
           fontSize: '0.875rem',
-          color: 'rgba(255,255,255,0.6)',
+          color: 'var(--cx-ink2)',
           lineHeight: 1.6,
           marginBottom: '1.5rem',
         }}>
@@ -371,18 +371,18 @@ function ActivityStats({ stats }: { stats: { journalEntries: number; guideSessio
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
       <div className="cx-card cx-entrance cx-delay-2" style={{ padding: '1rem', textAlign: 'center' }}>
-        <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--cx-cream)', letterSpacing: '-0.02em' }}>
+        <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--cx-ink)', letterSpacing: '-0.02em' }}>
           {stats.journalEntries}
         </div>
-        <div style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', marginTop: 2 }}>
+        <div style={{ fontSize: '0.625rem', color: 'var(--cx-ink3)', letterSpacing: '0.08em', marginTop: 2 }}>
           JOURNAL ENTRIES
         </div>
       </div>
       <div className="cx-card cx-entrance cx-delay-3" style={{ padding: '1rem', textAlign: 'center' }}>
-        <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--cx-cream)', letterSpacing: '-0.02em' }}>
+        <div style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--cx-ink)', letterSpacing: '-0.02em' }}>
           {stats.guideSessions}
         </div>
-        <div style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.3)', letterSpacing: '0.08em', marginTop: 2 }}>
+        <div style={{ fontSize: '0.625rem', color: 'var(--cx-ink3)', letterSpacing: '0.08em', marginTop: 2 }}>
           GUIDE SESSIONS
         </div>
       </div>
@@ -395,7 +395,7 @@ function ActivityStats({ stats }: { stats: { journalEntries: number; guideSessio
 function MilestonesList({ milestones }: { milestones: MilestoneData[] }) {
   if (milestones.length === 0) {
     return (
-      <div style={{ padding: '1rem', textAlign: 'center', color: 'rgba(255,255,255,0.25)', fontSize: '0.8125rem' }}>
+      <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--cx-ink3)', fontSize: '0.8125rem' }}>
         Your first milestone awaits. Keep showing up.
       </div>
     );
@@ -412,16 +412,16 @@ function MilestonesList({ milestones }: { milestones: MilestoneData[] }) {
             gap: '0.75rem',
             padding: '0.625rem 0.75rem',
             borderRadius: 10,
-            background: 'rgba(255,255,255,0.02)',
-            border: '1px solid rgba(255,255,255,0.04)',
+            background: 'rgba(255,255,255,0.3)',
+            border: '1px solid rgba(255,255,255,0.4)',
           }}
         >
-          <Trophy size={14} style={{ color: '#FFD700', flexShrink: 0, opacity: 0.7 }} />
+          <Trophy size={14} style={{ color: 'var(--cx-gold)', flexShrink: 0, opacity: 0.7 }} />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--cx-cream)' }}>
+            <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--cx-ink)' }}>
               {m.displayName}
             </div>
-            <div style={{ fontSize: '0.625rem', color: 'rgba(255,255,255,0.25)', marginTop: 1 }}>
+            <div style={{ fontSize: '0.625rem', color: 'var(--cx-ink3)', marginTop: 1 }}>
               {new Date(m.earnedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
             </div>
           </div>
@@ -475,7 +475,7 @@ export default function CodexGrowthWidget({
       <div className="cx-widget cx-entrance cx-delay-4">
         <div className="cx-widget-header">
           <h3>Milestones</h3>
-          <span style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.3)' }}>
+          <span style={{ fontSize: '0.6875rem', color: 'var(--cx-ink3)' }}>
             {milestones.length} earned
           </span>
         </div>
