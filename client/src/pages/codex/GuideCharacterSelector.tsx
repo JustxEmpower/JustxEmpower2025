@@ -10,8 +10,8 @@ import { GUIDE_CHARACTERS, type GuideCharacter } from './GuideCharacters';
 // Others will appear as "Coming Soon" once their 24hr Simli conversion completes.
 // ============================================================================
 
-// Guides with completed Simli avatar faces — add IDs here as they become ready
-const SIMLI_READY_GUIDE_IDS = new Set(['kore', 'leda', 'theia', 'zephyr']);
+// Guides with completed avatar faces — all 6 now have idle videos + portraits
+const SIMLI_READY_GUIDE_IDS = new Set(['kore', 'aoede', 'leda', 'theia', 'selene', 'zephyr']);
 
 interface GuideCharacterSelectorProps {
   /** Currently selected guide ID (kore, aoede, etc.) */

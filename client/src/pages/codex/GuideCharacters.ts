@@ -35,7 +35,7 @@ export const GUIDE_CHARACTERS: GuideCharacter[] = [
     defaultVoiceId: 'af_kore',
     voiceLabel: 'Kore (Gentle)',
     idleVideoUrl: '/assets/avatars/idle-videos/kore-idle.mp4',
-    portraitUrl: '/assets/avatars/faces/KORE.png',
+    portraitUrl: '/assets/avatars/faces-smiling/KORE-smile.png',
   },
   {
     id: 'aoede',
@@ -63,7 +63,7 @@ export const GUIDE_CHARACTERS: GuideCharacter[] = [
     defaultVoiceId: 'af_heart',
     voiceLabel: 'Heart (Sweet)',
     idleVideoUrl: '/assets/avatars/idle-videos/leda-idle.mp4',
-    portraitUrl: '/assets/avatars/faces/LEDA.png',
+    portraitUrl: '/assets/avatars/faces-smiling/LEDA-smile.png',
   },
   {
     id: 'theia',
@@ -76,8 +76,8 @@ export const GUIDE_CHARACTERS: GuideCharacter[] = [
     particleColor: '#A5D6A7',
     defaultVoiceId: 'af_nova',
     voiceLabel: 'Nova (Calm)',
-    idleVideoUrl: `${ATLAS_S3_BASE}/theia/idle-video.mp4`,
-    portraitUrl: `${PORTRAIT_S3_BASE}/portrait-theia.jpg`,
+    idleVideoUrl: '/assets/avatars/idle-videos/theia-idle.mp4',
+    portraitUrl: '/assets/avatars/faces-smiling/THEIA-smile.png',
   },
   {
     id: 'selene',
@@ -90,8 +90,8 @@ export const GUIDE_CHARACTERS: GuideCharacter[] = [
     particleColor: '#90CAF9',
     defaultVoiceId: 'bf_emma',
     voiceLabel: 'Emma (Intellectual)',
-    idleVideoUrl: `${ATLAS_S3_BASE}/selene/idle-video.mp4`,
-    portraitUrl: `${PORTRAIT_S3_BASE}/portrait-selene.jpg`,
+    idleVideoUrl: '/assets/avatars/idle-videos/selene-idle.mp4',
+    portraitUrl: '/assets/avatars/faces-smiling/SELENE-smile.png',
   },
   {
     id: 'zephyr',
@@ -105,7 +105,7 @@ export const GUIDE_CHARACTERS: GuideCharacter[] = [
     defaultVoiceId: 'af_bella',
     voiceLabel: 'Bella (Confident)',
     idleVideoUrl: '/assets/avatars/idle-videos/zephyr-idle.mp4',
-    portraitUrl: '/assets/avatars/faces/ZEPHYR.png',
+    portraitUrl: '/assets/avatars/faces-smiling/ZEPHYR-smile.png',
   },
 ];
 

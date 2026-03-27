@@ -49,12 +49,8 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
   const preferredGuideId = settingsQuery.data?.preferredGuideId || null;
   const preferredVoiceId = settingsQuery.data?.preferredVoiceId || null;
 
-  // Show character selector on first visit if no guide chosen yet
-  useEffect(() => {
-    if (settingsQuery.isFetched && !preferredGuideId) {
-      setShowCharacterSelector(true);
-    }
-  }, [settingsQuery.isFetched, preferredGuideId]);
+  // Avatar selection is handled during the onboarding ceremony (Doc 05).
+  // The character selector is only shown when user explicitly clicks "Change".
 
   // Handle resume from conversation history page
   useEffect(() => {

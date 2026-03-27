@@ -586,8 +586,11 @@ export default function CodexJournalBridge({ onClose }: Props) {
                 <BookHeart size={10} style={{ color: 'rgba(255,255,255,0.2)' }} />
               )}
             </div>
-            <div style={{ fontSize: '0.625rem', color: ownedBooks.has(book.id) ? book.color : 'rgba(255,255,255,0.3)', fontWeight: 600 }}>
+            <div style={{ fontSize: '0.625rem', color: ownedBooks.has(book.id) ? book.color : 'rgba(255,255,255,0.3)', fontWeight: 600, marginBottom: 2 }}>
               {book.id.toUpperCase()}
+            </div>
+            <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.25)', lineHeight: 1.3 }}>
+              {book.title}
             </div>
           </div>
         ))}

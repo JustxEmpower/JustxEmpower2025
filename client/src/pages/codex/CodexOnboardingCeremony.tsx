@@ -8,6 +8,8 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Sparkles, ArrowRight, Heart, BookHeart, Orbit } from 'lucide-react';
+import { GuideCharacterSelector } from './GuideCharacterSelector';
+import { trpc } from '@/lib/trpc';
 
 const STORAGE_KEY = 'codex-onboarding-complete';
 
@@ -18,9 +20,9 @@ interface OnboardingCeremonyProps {
   onNavigateToJournal: () => void;
 }
 
-type CeremonyStep = 'welcome' | 'intention' | 'paths' | 'begin';
+type CeremonyStep = 'welcome' | 'intention' | 'avatar' | 'paths' | 'begin';
 
-const STEP_ORDER: CeremonyStep[] = ['welcome', 'intention', 'paths', 'begin'];
+const STEP_ORDER: CeremonyStep[] = ['welcome', 'intention', 'avatar', 'paths', 'begin'];
 
 export function useOnboardingState() {
   const [complete, setComplete] = useState(() => {
@@ -42,6 +44,8 @@ export default function CodexOnboardingCeremony({
   const [step, setStep] = useState<CeremonyStep>('welcome');
   const [intention, setIntention] = useState('');
   const [fadeState, setFadeState] = useState<'in' | 'out'>('in');
+  const [avatarSelected, setAvatarSelected] = useState(false);
+  const updateSettingsMut = trpc.codex.client.updateSettings.useMutation();
   const stepIndex = STEP_ORDER.indexOf(step);
 
   const transitionTo = (next: CeremonyStep) => {
@@ -241,7 +245,23 @@ export default function CodexOnboardingCeremony({
           </>
         )}
 
-        {/* ── Step 3: Paths Overview ── */}
+        {/* ── Step 3: Choose Your Avatar ── */}
+        {step === 'avatar' && (
+          <div style={{ width: '100vw', maxWidth: '100vw', position: 'fixed', inset: 0, zIndex: 310 }}>
+            <GuideCharacterSelector
+              currentGuideId={null}
+              isFirstTime={true}
+              onSelect={(guideId, voiceId) => {
+                updateSettingsMut.mutate({ preferredGuideId: guideId, preferredVoiceId: voiceId });
+                setAvatarSelected(true);
+                transitionTo('paths');
+              }}
+              onClose={() => transitionTo('paths')}
+            />
+          </div>
+        )}
+
+        {/* ── Step 4: Paths Overview ── */}
         {step === 'paths' && (
           <>
             <h2 style={{
