@@ -26,15 +26,15 @@ const PHASE_GLYPHS = [
 ];
 
 const PHASE_AMBIENTS = [
-  'rgba(184,123,101,0.12)',
-  'rgba(125,142,127,0.12)',
-  'rgba(184,151,106,0.12)',
-  'rgba(139,123,168,0.12)',
-  'rgba(200,188,174,0.12)',
-  'rgba(184,123,101,0.15)',
-  'rgba(125,142,127,0.15)',
-  'rgba(184,151,106,0.15)',
-  'rgba(139,123,168,0.15)',
+  'rgba(184,123,101,0.06)',
+  'rgba(125,142,127,0.06)',
+  'rgba(184,151,106,0.06)',
+  'rgba(139,123,168,0.06)',
+  'rgba(200,188,174,0.06)',
+  'rgba(184,123,101,0.08)',
+  'rgba(125,142,127,0.08)',
+  'rgba(184,151,106,0.08)',
+  'rgba(139,123,168,0.08)',
 ];
 
 // ============================================================================
@@ -53,12 +53,12 @@ export const PhaseJourneyMap: React.FC<PhaseJourneyMapProps> = ({
 }) => {
   const containerStyle: React.CSSProperties = {
     padding: '2rem',
-    background: 'rgba(255,255,255,0.42)',
+    background: 'rgba(255,255,255,0.15)',
     borderRadius: 'var(--cx-radius-lg)',
-    border: '1px solid rgba(255,255,255,0.62)',
-    backdropFilter: 'blur(24px) saturate(1.4)',
-    WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
-    boxShadow: '0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(0,0,0,0.04)',
+    border: '1px solid rgba(255,255,255,0.25)',
+    backdropFilter: 'blur(40px) saturate(1.3)',
+    WebkitBackdropFilter: 'blur(40px) saturate(1.3)',
+    boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 32px rgba(0,0,0,0.03)',
     marginBottom: '2rem',
   };
 
@@ -113,30 +113,36 @@ export const PhaseJourneyMap: React.FC<PhaseJourneyMapProps> = ({
     const isFuture = phaseIndex > currentPhase;
 
     let backgroundColor = PHASE_AMBIENTS[phaseIndex];
-    let borderColor = 'rgba(184,151,106,0.35)';
-    let boxShadow = 'inset 0 0 0 1px rgba(184,151,106,0.35)';
+    let borderColor = 'rgba(184,151,106,0.18)';
+    let shadow = '0 0 0 1px rgba(184,151,106,0.18) inset';
     let color = 'var(--cx-ink)';
+    let backdropFilter = 'blur(20px)';
 
     if (isCurrent) {
-      borderColor = 'var(--cx-gold)';
-      boxShadow = `0 0 1rem var(--cx-gold), inset 0 0 0 1px var(--cx-gold)`;
+      backgroundColor = 'rgba(184,151,106,0.10)';
+      borderColor = 'rgba(184,151,106,0.35)';
+      shadow = `0 0 12px rgba(184,151,106,0.25), 0 0 0 1px rgba(184,151,106,0.35) inset`;
       color = 'var(--cx-gold)';
     } else if (isCompleted) {
-      borderColor = 'var(--cx-gold)';
-      boxShadow = 'inset 0 0 0 1px var(--cx-gold)';
+      backgroundColor = 'rgba(184,151,106,0.08)';
+      borderColor = 'rgba(184,151,106,0.28)';
+      shadow = '0 0 0 1px rgba(184,151,106,0.28) inset';
     } else if (isFuture) {
       color = 'var(--cx-clay)';
-      borderColor = 'rgba(184,151,106,0.15)';
-      boxShadow = 'inset 0 0 0 1px rgba(184,151,106,0.15)';
+      backgroundColor = 'rgba(255,255,255,0.06)';
+      borderColor = 'rgba(184,151,106,0.08)';
+      shadow = '0 0 0 1px rgba(184,151,106,0.08) inset';
     }
 
     return {
       width: '3rem',
       height: '3rem',
       borderRadius: '50%',
-      backgroundColor,
-      border: `2px solid ${borderColor}`,
-      boxShadow,
+      background: backgroundColor,
+      border: `1.5px solid ${borderColor}`,
+      boxShadow: shadow,
+      backdropFilter,
+      WebkitBackdropFilter: backdropFilter,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -218,12 +224,12 @@ export const ContradictionExplorer: React.FC<ContradictionExplorerProps> = ({
 
   const containerStyle: React.CSSProperties = {
     padding: '2rem',
-    background: 'rgba(255,255,255,0.42)',
+    background: 'rgba(255,255,255,0.15)',
     borderRadius: 'var(--cx-radius-lg)',
-    border: '1px solid rgba(255,255,255,0.62)',
-    backdropFilter: 'blur(24px) saturate(1.4)',
-    WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
-    boxShadow: '0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(0,0,0,0.04)',
+    border: '1px solid rgba(255,255,255,0.25)',
+    backdropFilter: 'blur(40px) saturate(1.3)',
+    WebkitBackdropFilter: 'blur(40px) saturate(1.3)',
+    boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 32px rgba(0,0,0,0.03)',
     marginBottom: '2rem',
   };
 
@@ -239,8 +245,8 @@ export const ContradictionExplorer: React.FC<ContradictionExplorerProps> = ({
   const cardStyle: React.CSSProperties = {
     marginBottom: '1rem',
     padding: '1rem',
-    background: 'rgba(255,255,255,0.3)',
-    border: '1px solid rgba(255,255,255,0.45)',
+    background: 'rgba(255,255,255,0.10)',
+    border: '1px solid rgba(255,255,255,0.20)',
     borderRadius: 'var(--cx-radius)',
     cursor: 'pointer',
     transition: 'all 0.3s ease',
@@ -248,8 +254,8 @@ export const ContradictionExplorer: React.FC<ContradictionExplorerProps> = ({
 
   const cardHoverStyle: React.CSSProperties = {
     ...cardStyle,
-    background: 'rgba(255,255,255,0.5)',
-    borderColor: 'rgba(184,123,101,0.2)',
+    background: 'rgba(255,255,255,0.18)',
+    borderColor: 'rgba(184,123,101,0.18)',
   };
 
   const cardHeaderStyle: React.CSSProperties = {
@@ -351,12 +357,12 @@ export const WeeklyPracticeCard: React.FC<WeeklyPracticeCardProps> = ({
 }) => {
   const containerStyle: React.CSSProperties = {
     padding: '2rem',
-    background: 'rgba(255,255,255,0.42)',
+    background: 'rgba(255,255,255,0.15)',
     borderRadius: 'var(--cx-radius-lg)',
-    border: '1px solid rgba(255,255,255,0.62)',
-    backdropFilter: 'blur(24px) saturate(1.4)',
-    WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
-    boxShadow: '0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(0,0,0,0.04)',
+    border: '1px solid rgba(255,255,255,0.25)',
+    backdropFilter: 'blur(40px) saturate(1.3)',
+    WebkitBackdropFilter: 'blur(40px) saturate(1.3)',
+    boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 32px rgba(0,0,0,0.03)',
     marginBottom: '2rem',
   };
 
@@ -377,8 +383,10 @@ export const WeeklyPracticeCard: React.FC<WeeklyPracticeCardProps> = ({
     lineHeight: 1.8,
     marginBottom: '2rem',
     padding: '1.5rem',
-    backgroundColor: 'rgba(184,151,106,0.06)',
-    borderLeft: '3px solid var(--cx-gold)',
+    background: 'rgba(184,151,106,0.04)',
+    borderLeft: '2px solid rgba(184,151,106,0.25)',
+    borderRadius: '0 var(--cx-radius) var(--cx-radius) 0',
+    backdropFilter: 'blur(20px)',
   };
 
   const practiceHeaderStyle: React.CSSProperties = {
@@ -414,16 +422,17 @@ export const WeeklyPracticeCard: React.FC<WeeklyPracticeCardProps> = ({
   const ctaButtonStyle: React.CSSProperties = {
     display: 'inline-block',
     padding: '0.75rem 1.5rem',
-    backgroundColor: 'var(--cx-gold)',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 'var(--cx-radius)',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontSize: '1rem',
-    fontWeight: 600,
+    background: 'rgba(184,151,106,0.10)',
+    color: 'var(--cx-gold)',
+    border: '1px solid rgba(184,151,106,0.22)',
+    borderRadius: '50px',
+    fontFamily: 'var(--cx-sans)',
+    fontSize: '0.8rem',
+    fontWeight: 500,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.03em',
+    backdropFilter: 'blur(20px)',
   };
 
   const archetypeStyle: React.CSSProperties = {
@@ -493,12 +502,12 @@ export const PatternConnectionsPanel: React.FC<
 }) => {
   const containerStyle: React.CSSProperties = {
     padding: '2rem',
-    background: 'rgba(255,255,255,0.42)',
+    background: 'rgba(255,255,255,0.15)',
     borderRadius: 'var(--cx-radius-lg)',
-    border: '1px solid rgba(255,255,255,0.62)',
-    backdropFilter: 'blur(24px) saturate(1.4)',
-    WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
-    boxShadow: '0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(0,0,0,0.04)',
+    border: '1px solid rgba(255,255,255,0.25)',
+    backdropFilter: 'blur(40px) saturate(1.3)',
+    WebkitBackdropFilter: 'blur(40px) saturate(1.3)',
+    boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 32px rgba(0,0,0,0.03)',
     marginBottom: '2rem',
   };
 
@@ -549,8 +558,8 @@ export const PatternConnectionsPanel: React.FC<
     lineHeight: 1.6,
     marginTop: '1rem',
     padding: '1rem',
-    backgroundColor: 'rgba(255,255,255,0.3)',
-    borderLeft: '2px solid var(--cx-gold)',
+    background: 'rgba(255,255,255,0.08)',
+    borderLeft: '2px solid rgba(184,151,106,0.20)',
   };
 
   return (
@@ -626,12 +635,12 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
 }) => {
   const containerStyle: React.CSSProperties = {
     padding: '2rem',
-    background: 'rgba(255,255,255,0.42)',
+    background: 'rgba(255,255,255,0.15)',
     borderRadius: 'var(--cx-radius-lg)',
-    border: '1px solid rgba(255,255,255,0.62)',
-    backdropFilter: 'blur(24px) saturate(1.4)',
-    WebkitBackdropFilter: 'blur(24px) saturate(1.4)',
-    boxShadow: '0 1px 0 rgba(255,255,255,0.95) inset, 0 8px 32px rgba(0,0,0,0.04)',
+    border: '1px solid rgba(255,255,255,0.25)',
+    backdropFilter: 'blur(40px) saturate(1.3)',
+    WebkitBackdropFilter: 'blur(40px) saturate(1.3)',
+    boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 32px rgba(0,0,0,0.03)',
     marginBottom: '2rem',
   };
 
@@ -646,15 +655,17 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
 
   const tierBadgeStyle: React.CSSProperties = {
     display: 'inline-block',
-    padding: '0.5rem 1rem',
-    backgroundColor: 'var(--cx-gold)',
-    color: '#fff',
-    borderRadius: '0.25rem',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 600,
-    fontSize: '0.85rem',
+    padding: '0.4rem 1rem',
+    background: 'rgba(184,151,106,0.10)',
+    color: 'var(--cx-gold)',
+    border: '1px solid rgba(184,151,106,0.22)',
+    borderRadius: '50px',
+    fontFamily: 'var(--cx-sans)',
+    fontWeight: 500,
+    fontSize: '0.75rem',
     marginBottom: '1.5rem',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.06em',
+    backdropFilter: 'blur(20px)',
   };
 
   const circlesGridStyle: React.CSSProperties = {
@@ -667,8 +678,8 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
 
   const circleCardStyle: React.CSSProperties = {
     padding: '1.25rem',
-    background: 'rgba(255,255,255,0.3)',
-    border: '1px solid rgba(255,255,255,0.45)',
+    background: 'rgba(255,255,255,0.10)',
+    border: '1px solid rgba(255,255,255,0.20)',
     borderRadius: 'var(--cx-radius)',
     textAlign: 'center',
     transition: 'all 0.3s ease',
@@ -677,8 +688,8 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
 
   const circleCardHoverStyle: React.CSSProperties = {
     ...circleCardStyle,
-    background: 'rgba(255,255,255,0.5)',
-    borderColor: 'rgba(184,123,101,0.2)',
+    background: 'rgba(255,255,255,0.18)',
+    borderColor: 'rgba(184,123,101,0.18)',
     transform: 'translateY(-4px)',
   };
 
@@ -693,16 +704,17 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
   const ctaButtonStyle: React.CSSProperties = {
     display: 'inline-block',
     padding: '0.75rem 1.5rem',
-    backgroundColor: 'var(--cx-gold)',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 'var(--cx-radius)',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontSize: '1rem',
-    fontWeight: 600,
+    background: 'rgba(184,151,106,0.10)',
+    color: 'var(--cx-gold)',
+    border: '1px solid rgba(184,151,106,0.22)',
+    borderRadius: '50px',
+    fontFamily: 'var(--cx-sans)',
+    fontSize: '0.8rem',
+    fontWeight: 500,
     cursor: 'pointer',
     transition: 'all 0.3s ease',
-    letterSpacing: '0.05em',
+    letterSpacing: '0.03em',
+    backdropFilter: 'blur(20px)',
   };
 
   const descriptionStyle: React.CSSProperties = {
