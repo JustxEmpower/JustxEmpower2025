@@ -1759,3 +1759,58 @@ export const codexCompanionState = mysqlTable("codex_companion_state", {
 });
 export type CodexCompanionState = typeof codexCompanionState.$inferSelect;
 export type InsertCodexCompanionState = typeof codexCompanionState.$inferInsert;
+
+/**
+ * Codex journal ownership — ISBN verification, self-declaration, bundled purchase (Doc 07)
+ */
+export const codexJournalOwnership = mysqlTable("codex_journal_ownership", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  bookId: varchar("bookId", { length: 10 }).notNull(), // 1a | 1b | 1c
+  verificationType: varchar("verificationType", { length: 30 }).notNull(), // isbn | self_declaration | bundled_purchase
+  isbn: varchar("isbn", { length: 30 }),
+  stripeSessionId: varchar("stripeSessionId", { length: 255 }),
+  verified: int("verified").default(1).notNull(),
+  verifiedAt: timestamp("verifiedAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CodexJournalOwnership = typeof codexJournalOwnership.$inferSelect;
+export type InsertCodexJournalOwnership = typeof codexJournalOwnership.$inferInsert;
+
+/**
+ * Bridge entries — user reflections linking a physical journal section to a Codex assessment section (Doc 07)
+ */
+export const codexBridgeEntries = mysqlTable("codex_bridge_entries", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  bookId: varchar("bookId", { length: 10 }).notNull(), // 1a | 1b | 1c
+  journalSection: varchar("journalSection", { length: 60 }).notNull(), // e.g. "1a_ch3_naming"
+  codexSection: int("codexSection"), // maps to assessment section 1–16
+  entryText: text("entryText").notNull(), // user's bridge reflection
+  aiReflection: text("aiReflection"), // AI-generated bridge insight
+  themes: text("themes"), // JSON array of detected themes
+  maternalPattern: varchar("maternalPattern", { length: 60 }), // present_mother | lost_mother | absent_mother
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CodexBridgeEntry = typeof codexBridgeEntries.$inferSelect;
+export type InsertCodexBridgeEntry = typeof codexBridgeEntries.$inferInsert;
+
+/**
+ * Maternal resonance — AI analysis of echoes between journal entries and Codex assessment data (Doc 07)
+ */
+export const codexMaternalResonance = mysqlTable("codex_maternal_resonance", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  bookId: varchar("bookId", { length: 10 }).notNull(),
+  resonanceType: varchar("resonanceType", { length: 30 }).notNull(), // echo | mirror | wound_source | gift | unresolved
+  sourceJournalRef: varchar("sourceJournalRef", { length: 60 }), // journal section reference
+  sourceCodexRef: varchar("sourceCodexRef", { length: 60 }), // codex section/archetype reference
+  pattern: text("pattern").notNull(), // description of the detected resonance
+  strength: int("strength").default(50).notNull(), // 0-100 resonance strength
+  aiInsight: text("aiInsight"), // AI-generated insight about this resonance
+  acknowledged: int("acknowledged").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CodexMaternalResonance = typeof codexMaternalResonance.$inferSelect;
+export type InsertCodexMaternalResonance = typeof codexMaternalResonance.$inferInsert;

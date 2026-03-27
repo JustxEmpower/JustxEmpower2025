@@ -6,7 +6,9 @@ import CodexGuide from "./CodexGuide";
 import CodexJournal from "./CodexJournal";
 import CodexModules from "./CodexModules";
 import CodexConversationHistory from "./CodexConversationHistory";
+import CodexJournalBridge from "./CodexJournalBridge";
 import CodexOnboardingCeremony, { useOnboardingState } from "./CodexOnboardingCeremony";
+import { Link } from "lucide-react";
 
 const NAV_SECTIONS = [
   {
@@ -23,6 +25,7 @@ const NAV_SECTIONS = [
       { id: "journey", label: "My Journey", icon: <Compass size={16} /> },
       { id: "codex", label: "Codex Scroll", icon: <ScrollText size={16} /> },
       { id: "journal", label: "Journal Vault", icon: <BookHeart size={16} /> },
+      { id: "bridge", label: "Journal Bridge", icon: <Link size={16} /> },
     ],
   },
 ];
@@ -118,6 +121,7 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
       case "history": return <CodexConversationHistory onResumeConversation={(guideId, convId) => { setResumeGuideId(guideId); setResumeConversationId(convId); setActiveView("guide"); }} />;
       case "journal": return <CodexJournal />;
       case "codex": return <CodexModules onNavigate={handleNavigate} />;
+      case "bridge": return <CodexJournalBridge />;
       default: return <CodexDashboard onNavigate={handleNavigate} />;
     }
   };

@@ -16,6 +16,7 @@ import { CODEX_GUIDES, codexGuideChat, generateJournalPrompt, reflectOnJournalEn
 import { interceptUserMessage, validateAIResponse } from "./lib/codexEscalationEngine";
 import { generateMirrorReport } from "./lib/codexMirrorReport";
 import { routePortalContent } from "./lib/codexRoutingEngine";
+import { BOOK_CATALOG, BOOK_TO_CODEX_MAP, LINEAGE_LAYER_PROMPTS, GUIDE_MATERNAL_DNA, buildMaternalContextBlock, buildResonanceAnalysisPrompt, buildBridgeReflectionPrompt, type MaternalPattern } from "./lib/codexBridgePrompts";
 import Stripe from "stripe";
 
 let _stripe: Stripe | null = null;
@@ -954,6 +955,29 @@ const codexClientRouter = router({
       console.error('[Codex] Cross-guide awareness fetch error:', err);
     }
 
+    // ── MATERNAL CONTEXT INJECTION (Doc 07): If user has journal ownership, inject maternal awareness ──
+    let maternalContextBlock: string | null = null;
+    try {
+      const journalOwned = await db.select().from(schema.codexJournalOwnership).where(eq(schema.codexJournalOwnership.userId, u.id));
+      if (journalOwned.length > 0) {
+        const ownedIds = journalOwned.map(o => o.bookId);
+        const [bridgeCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.codexBridgeEntries).where(eq(schema.codexBridgeEntries.userId, u.id));
+        const patterns = ownedIds.map(id => BOOK_CATALOG[id]?.maternalLens).filter(Boolean);
+        const dominantPattern = (patterns[0] || "present_mother") as MaternalPattern;
+        maternalContextBlock = buildMaternalContextBlock(dominantPattern, ownedIds, bridgeCount?.count || 0);
+        // Add per-guide maternal DNA
+        const guideDNA = GUIDE_MATERNAL_DNA[input.guideId];
+        if (guideDNA) maternalContextBlock += "\n\n" + guideDNA;
+      }
+    } catch (err) {
+      console.error('[Codex] Maternal context fetch error:', err);
+    }
+
+    // Append maternal context to userContext name field (cleanest injection point)
+    if (maternalContextBlock) {
+      userContext.maternalContext = maternalContextBlock;
+    }
+
     // Get AI response — pass history so AI remembers context, flag if returning user
     const chatHistory = history.map(m => ({ role: m.role as "user" | "assistant", content: m.content }));
     let aiResponse = await codexGuideChat(input.guideId, input.message, chatHistory, userContext, isReturning, recalledTrajectory, crossSessionMemory, crossGuideContext);
@@ -1230,6 +1254,324 @@ const codexClientRouter = router({
     const u = (ctx as any).codexUser as schema.CodexUser;
     await db.update(schema.codexMilestones).set({ celebrated: 1 }).where(and(eq(schema.codexMilestones.id, input.milestoneId), eq(schema.codexMilestones.userId, u.id)));
     return { success: true };
+  }),
+
+  // ── Journal Ownership Verification (Doc 07) ─────────────────────────
+  getJournalOwnership: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const owned = await db.select().from(schema.codexJournalOwnership).where(eq(schema.codexJournalOwnership.userId, u.id));
+    return owned;
+  }),
+
+  verifyJournalISBN: customerProc.input(z.object({
+    isbn: z.string().min(10),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Valid ISBNs — normalize by stripping spaces/hyphens
+    const VALID_ISBNS: Record<string, string> = {
+      "9798999333407": "1a", // Book 1A
+      "9798999333414": "1b", // Book 1B
+      "9798999333421": "1c", // Book 1C
+    };
+    const normalized = input.isbn.replace(/[-\s]/g, "");
+    const bookId = VALID_ISBNS[normalized];
+
+    if (!bookId) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "ISBN not recognized. Please check and try again." });
+    }
+
+    // Check if already verified
+    const [existing] = await db.select().from(schema.codexJournalOwnership)
+      .where(and(eq(schema.codexJournalOwnership.userId, u.id), eq(schema.codexJournalOwnership.bookId, bookId)))
+      .limit(1);
+    if (existing) return { success: true, bookId, alreadyOwned: true };
+
+    await db.insert(schema.codexJournalOwnership).values({
+      id: nanoid(), userId: u.id, bookId, verificationType: "isbn", isbn: normalized,
+    });
+    return { success: true, bookId, alreadyOwned: false };
+  }),
+
+  declareJournalOwnership: customerProc.input(z.object({
+    bookId: z.enum(["1a", "1b", "1c"]),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    const [existing] = await db.select().from(schema.codexJournalOwnership)
+      .where(and(eq(schema.codexJournalOwnership.userId, u.id), eq(schema.codexJournalOwnership.bookId, input.bookId)))
+      .limit(1);
+    if (existing) return { success: true, alreadyOwned: true };
+
+    await db.insert(schema.codexJournalOwnership).values({
+      id: nanoid(), userId: u.id, bookId: input.bookId, verificationType: "self_declaration",
+    });
+    return { success: true, alreadyOwned: false };
+  }),
+
+  purchaseJournalBundle: customerProc.input(z.object({
+    bookIds: z.array(z.enum(["1a", "1b", "1c"])).min(1),
+  })).mutation(async ({ ctx, input }) => {
+    const stripe = getStripe();
+    if (!stripe) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Payment processing not configured" });
+    const customer = (ctx as any).customer as schema.Customer;
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const baseUrl = process.env.APP_URL || `${ctx.req.protocol}://${ctx.req.get('host')}`;
+
+    const BOOK_CATALOG: Record<string, { name: string; price: number }> = {
+      "1a": { name: "Her Mother's Wounds — Book 1A", price: 2497 },
+      "1b": { name: "Her Mother's Wounds — Book 1B", price: 2497 },
+      "1c": { name: "Her Mother's Wounds — Book 1C", price: 2497 },
+    };
+
+    // Bundle discount: 3 books = $59.97 instead of $74.91
+    const isFull = input.bookIds.length === 3;
+    const lineItems = input.bookIds.map(id => ({
+      price_data: {
+        currency: "usd",
+        product_data: { name: BOOK_CATALOG[id].name, description: "Physical journal + digital Codex companion access" },
+        unit_amount: isFull ? 1999 : BOOK_CATALOG[id].price,
+      },
+      quantity: 1,
+    }));
+
+    const session = await stripe.checkout.sessions.create({
+      mode: "payment",
+      customer_email: customer.email,
+      line_items: lineItems,
+      success_url: `${baseUrl}/account/codex?journal_purchase=success&books=${input.bookIds.join(",")}`,
+      cancel_url: `${baseUrl}/account/codex`,
+      metadata: { customerId: String(customer.id), codexUserId: u.id, type: "journal_bundle", bookIds: input.bookIds.join(",") },
+      allow_promotion_codes: true,
+      shipping_address_collection: { allowed_countries: ["US", "CA", "GB", "AU"] },
+    });
+    return { checkoutUrl: session.url };
+  }),
+
+  confirmJournalPurchase: customerProc.input(z.object({
+    bookIds: z.string(), // comma-separated
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const books = input.bookIds.split(",").filter(b => ["1a", "1b", "1c"].includes(b));
+
+    for (const bookId of books) {
+      const [existing] = await db.select().from(schema.codexJournalOwnership)
+        .where(and(eq(schema.codexJournalOwnership.userId, u.id), eq(schema.codexJournalOwnership.bookId, bookId)))
+        .limit(1);
+      if (!existing) {
+        await db.insert(schema.codexJournalOwnership).values({
+          id: nanoid(), userId: u.id, bookId, verificationType: "bundled_purchase",
+        });
+      }
+    }
+    return { success: true, books };
+  }),
+
+  // ── Journal-Codex Bridge System (Doc 07) ─────────────────────────────
+
+  getBridgeCatalog: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const owned = await db.select().from(schema.codexJournalOwnership).where(eq(schema.codexJournalOwnership.userId, u.id));
+    const ownedIds = owned.map(o => o.bookId);
+    const catalog = Object.values(BOOK_CATALOG).map(book => ({
+      ...book,
+      owned: ownedIds.includes(book.id),
+      sectionMap: BOOK_TO_CODEX_MAP[book.id] || {},
+    }));
+    return catalog;
+  }),
+
+  getBridgeEntries: customerProc.input(z.object({
+    bookId: z.string().optional(),
+  }).optional()).query(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    let query = db.select().from(schema.codexBridgeEntries).where(eq(schema.codexBridgeEntries.userId, u.id));
+    if (input?.bookId) {
+      query = db.select().from(schema.codexBridgeEntries).where(and(eq(schema.codexBridgeEntries.userId, u.id), eq(schema.codexBridgeEntries.bookId, input.bookId)));
+    }
+    return query.orderBy(desc(schema.codexBridgeEntries.createdAt));
+  }),
+
+  submitBridgeEntry: customerProc.input(z.object({
+    bookId: z.enum(["1a", "1b", "1c"]),
+    chapterNum: z.number().min(1).max(6),
+    entryText: z.string().min(10),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Verify ownership
+    const [ownership] = await db.select().from(schema.codexJournalOwnership)
+      .where(and(eq(schema.codexJournalOwnership.userId, u.id), eq(schema.codexJournalOwnership.bookId, input.bookId)))
+      .limit(1);
+    if (!ownership) throw new TRPCError({ code: "FORBIDDEN", message: "You haven't verified ownership of this journal." });
+
+    const book = BOOK_CATALOG[input.bookId];
+    const maternalPattern = (book?.maternalLens || "present_mother") as MaternalPattern;
+    const codexSections = BOOK_TO_CODEX_MAP[input.bookId]?.[input.chapterNum] || [];
+    const journalSection = `${input.bookId}_ch${input.chapterNum}`;
+
+    // Get user archetype for richer reflection
+    let userArchetype: string | undefined;
+    try {
+      const [assessment] = await db.select().from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+      if (assessment) {
+        const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+        if (s) {
+          const scoring = JSON.parse(s.resultJson);
+          userArchetype = scoring?.archetypeConstellation?.[0]?.archetype;
+        }
+      }
+    } catch {}
+
+    // Generate AI bridge reflection
+    let aiReflection = '';
+    let themes: string[] = [];
+    try {
+      const { ensureGeminiFromDatabase, getGeminiClient } = await import("./lib/codexAI");
+      const ready = await ensureGeminiFromDatabase();
+      if (ready) {
+        const genAI = getGeminiClient();
+        if (genAI) {
+          const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+          const prompt = buildBridgeReflectionPrompt(input.entryText, input.bookId, input.chapterNum, maternalPattern, userArchetype);
+          const result = await model.generateContent(prompt);
+          const text = result.response.text().trim().replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+          const parsed = JSON.parse(text);
+          aiReflection = parsed.reflection || '';
+          themes = parsed.themes || [];
+        }
+      }
+    } catch (err) {
+      console.error('[Codex] Bridge reflection AI error:', err);
+    }
+
+    const entryId = nanoid();
+    await db.insert(schema.codexBridgeEntries).values({
+      id: entryId,
+      userId: u.id,
+      bookId: input.bookId,
+      journalSection,
+      codexSection: codexSections[0] || null,
+      entryText: input.entryText,
+      aiReflection: aiReflection || null,
+      themes: themes.length > 0 ? JSON.stringify(themes) : null,
+      maternalPattern,
+    });
+
+    return { id: entryId, aiReflection, themes, codexSections };
+  }),
+
+  getResonanceAnalysis: customerProc.input(z.object({
+    bookId: z.enum(["1a", "1b", "1c"]),
+  })).query(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Get existing resonances
+    const resonances = await db.select().from(schema.codexMaternalResonance)
+      .where(and(eq(schema.codexMaternalResonance.userId, u.id), eq(schema.codexMaternalResonance.bookId, input.bookId)))
+      .orderBy(desc(schema.codexMaternalResonance.strength));
+
+    // Get bridge entries for this book
+    const entries = await db.select().from(schema.codexBridgeEntries)
+      .where(and(eq(schema.codexBridgeEntries.userId, u.id), eq(schema.codexBridgeEntries.bookId, input.bookId)));
+
+    // If no resonances exist but we have entries, generate them
+    if (resonances.length === 0 && entries.length >= 2) {
+      try {
+        const [assessment] = await db.select().from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+        let scoring = null;
+        if (assessment) {
+          const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+          scoring = s ? JSON.parse(s.resultJson) : null;
+        }
+
+        const book = BOOK_CATALOG[input.bookId];
+        const maternalPattern = (book?.maternalLens || "present_mother") as MaternalPattern;
+        const combinedText = entries.map(e => e.entryText).join("\n\n---\n\n");
+
+        const { ensureGeminiFromDatabase, getGeminiClient } = await import("./lib/codexAI");
+        const ready = await ensureGeminiFromDatabase();
+        if (ready) {
+          const genAI = getGeminiClient();
+          if (genAI) {
+            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+            const prompt = buildResonanceAnalysisPrompt(combinedText, {
+              primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype,
+              activeWounds: scoring?.activeWounds?.slice(0, 3).map((w: any) => w.wound),
+              phase: scoring?.spectrumProfile?.thresholdPct > 40 ? "threshold" : "discovery",
+              spectrumProfile: scoring?.spectrumProfile,
+            }, input.bookId, maternalPattern);
+            const result = await model.generateContent(prompt);
+            const text = result.response.text().trim().replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+            const parsed = JSON.parse(text);
+
+            // Save resonances to DB
+            const newResonances = [];
+            for (const r of (parsed.resonances || []).slice(0, 5)) {
+              const rid = nanoid();
+              await db.insert(schema.codexMaternalResonance).values({
+                id: rid,
+                userId: u.id,
+                bookId: input.bookId,
+                resonanceType: r.type,
+                pattern: r.pattern,
+                strength: r.strength,
+                aiInsight: r.insight,
+              });
+              newResonances.push({ id: rid, ...r });
+            }
+            return { resonances: newResonances, maternalSummary: parsed.maternalSummary || null, entryCount: entries.length };
+          }
+        }
+      } catch (err) {
+        console.error('[Codex] Resonance analysis error:', err);
+      }
+    }
+
+    return { resonances, maternalSummary: null, entryCount: entries.length };
+  }),
+
+  getMaternalContext: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    const owned = await db.select().from(schema.codexJournalOwnership).where(eq(schema.codexJournalOwnership.userId, u.id));
+    if (owned.length === 0) return null;
+
+    const ownedBookIds = owned.map(o => o.bookId);
+    const [entryCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.codexBridgeEntries).where(eq(schema.codexBridgeEntries.userId, u.id));
+
+    // Determine dominant maternal pattern from owned books
+    const patterns = ownedBookIds.map(id => BOOK_CATALOG[id]?.maternalLens).filter(Boolean);
+    const dominantPattern = (patterns[0] || "present_mother") as MaternalPattern;
+
+    return {
+      pattern: dominantPattern,
+      ownedBooks: ownedBookIds,
+      bridgeEntryCount: entryCount?.count || 0,
+      contextBlock: buildMaternalContextBlock(dominantPattern, ownedBookIds, entryCount?.count || 0),
+      guideDNA: GUIDE_MATERNAL_DNA,
+    };
+  }),
+
+  getLineagePrompts: customerProc.input(z.object({
+    bookId: z.enum(["1a", "1b", "1c"]),
+    moduleNum: z.number().min(1).max(9),
+  })).query(async ({ ctx, input }) => {
+    const prompt = LINEAGE_LAYER_PROMPTS[input.bookId]?.[input.moduleNum];
+    return {
+      prompt: prompt || null,
+      bookId: input.bookId,
+      moduleNum: input.moduleNum,
+    };
   }),
 
   // Get constants (archetypes, tiers, scroll modules) for frontend

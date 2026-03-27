@@ -59,11 +59,24 @@ export default function CodexPortal() {
     },
   });
 
+  const confirmJournalMutation = trpc.codex.client.confirmJournalPurchase.useMutation({
+    onSuccess: () => {
+      window.history.replaceState({}, '', window.location.pathname);
+      portalQuery.refetch();
+    },
+    onError: () => {
+      window.history.replaceState({}, '', window.location.pathname);
+    },
+  });
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('purchase') === 'success' && params.get('tier')) {
       setConfirming(true);
       confirmMutation.mutate({ tierId: params.get('tier')! });
+    }
+    if (params.get('journal_purchase') === 'success' && params.get('books')) {
+      confirmJournalMutation.mutate({ bookIds: params.get('books')! });
     }
   }, []);
 

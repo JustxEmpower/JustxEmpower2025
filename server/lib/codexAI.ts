@@ -158,6 +158,7 @@ export interface UserContext {
   spectrumProfile?: { shadowPct: number; thresholdPct: number; giftPct: number };
   integrationIndex?: number;
   tier?: string;
+  maternalContext?: string; // Doc 07: maternal lineage context block
 }
 
 export interface ChatMessage {
@@ -279,7 +280,13 @@ export async function codexGuideChat(
     crossGuideAwareness = `\n\nCROSS-GUIDE AWARENESS (what other guides have explored with her — use subtly, never repeat verbatim):\n${guideLines}\n\nYou may reference themes from other guides naturally, e.g. "I sense you've been exploring [theme] elsewhere in your journey." Never name the other guide directly unless she brings them up.`;
   }
 
-  const prompt = `${systemPrompt}${nameContext}${returningContext}${recallContext}${crossSessionContext}${crossGuideAwareness}\n\n--- Conversation ---\n${historyText}\n\nSeeker: ${message}\n\nGuide:`;
+  // Doc 07: Maternal lineage context injection
+  let maternalBlock = '';
+  if (userContext.maternalContext) {
+    maternalBlock = `\n\n${userContext.maternalContext}`;
+  }
+
+  const prompt = `${systemPrompt}${nameContext}${returningContext}${recallContext}${crossSessionContext}${crossGuideAwareness}${maternalBlock}\n\n--- Conversation ---\n${historyText}\n\nSeeker: ${message}\n\nGuide:`;
 
   const result = await model.generateContent(prompt);
   // Strip any markdown/formatting the AI might sneak in — TTS reads it literally
