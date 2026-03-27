@@ -1706,3 +1706,56 @@ export const codexEscalationLog = mysqlTable("codex_escalation_log", {
   createdAt: timestamp("createdAt").defaultNow().notNull(),
 });
 export type CodexEscalationLogEntry = typeof codexEscalationLog.$inferSelect;
+
+/**
+ * Codex user streaks — daily engagement tracking (Doc 02)
+ */
+export const codexUserStreaks = mysqlTable("codex_user_streaks", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  currentStreak: int("currentStreak").default(0).notNull(),
+  longestStreak: int("longestStreak").default(0).notNull(),
+  lastActivityDate: varchar("lastActivityDate", { length: 10 }), // YYYY-MM-DD
+  lastActivityType: varchar("lastActivityType", { length: 50 }),
+  gracePeriodUsed: int("gracePeriodUsed").default(0).notNull(), // 0 or 1
+  totalActiveDays: int("totalActiveDays").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CodexUserStreak = typeof codexUserStreaks.$inferSelect;
+export type InsertCodexUserStreak = typeof codexUserStreaks.$inferInsert;
+
+/**
+ * Codex milestones — achievement tracking (Doc 02)
+ */
+export const codexMilestones = mysqlTable("codex_milestones", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  milestoneType: varchar("milestoneType", { length: 60 }).notNull(),
+  displayName: varchar("displayName", { length: 255 }).notNull(),
+  narrative: text("narrative"),
+  value: text("value"), // JSON for extra data
+  celebrated: int("celebrated").default(0).notNull(), // 0 or 1 — has user seen celebration?
+  earnedAt: timestamp("earnedAt").defaultNow().notNull(),
+});
+export type CodexMilestone = typeof codexMilestones.$inferSelect;
+export type InsertCodexMilestone = typeof codexMilestones.$inferInsert;
+
+/**
+ * Codex companion state — Tamagotchi-style AI companion (Doc 02)
+ */
+export const codexCompanionState = mysqlTable("codex_companion_state", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  mood: varchar("mood", { length: 30 }).default("calm").notNull(), // radiant | content | calm | restless | dormant
+  energy: int("energy").default(50).notNull(), // 0-100
+  lastInteractionAt: timestamp("lastInteractionAt"),
+  daysWithoutInteraction: int("daysWithoutInteraction").default(0).notNull(),
+  totalInteractions: int("totalInteractions").default(0).notNull(),
+  gardenLevel: int("gardenLevel").default(1).notNull(), // 1-5 visual evolution
+  gardenElements: text("gardenElements"), // JSON — unlocked garden decorations
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CodexCompanionState = typeof codexCompanionState.$inferSelect;
+export type InsertCodexCompanionState = typeof codexCompanionState.$inferInsert;

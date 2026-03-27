@@ -172,7 +172,9 @@ export async function codexGuideChat(
   history: ChatMessage[],
   userContext: UserContext,
   isReturning: boolean = false,
-  recalledTrajectory?: { title: string; guideId: string; messages: { role: string; content: string }[] } | null
+  recalledTrajectory?: { title: string; guideId: string; messages: { role: string; content: string }[] } | null,
+  crossSessionMemory?: { role: string; content: string }[] | null,
+  crossGuideContext?: { guideId: string; summary: string }[] | null
 ): Promise<string> {
   const ready = await ensureGeminiFromDatabase();
   if (!ready) throw new Error("AI not available — please configure Gemini API key");
@@ -259,7 +261,25 @@ export async function codexGuideChat(
     recallContext = `\n\n--- RECALLED CONVERSATION ("${recalledTrajectory.title}", with guide: ${recalledTrajectory.guideId}) ---\nThe user asked you to remember a past conversation. Here it is. Read it and respond as if you genuinely remember this exchange. Reference specific details, where you left off, what insights emerged.\n\n${recalledMsgs}\n\n--- END RECALLED CONVERSATION ---\n`;
   }
 
-  const prompt = `${systemPrompt}${nameContext}${returningContext}${recallContext}\n\n--- Conversation ---\n${historyText}\n\nSeeker: ${message}\n\nGuide:`;
+  // Cross-session memory: recent messages from previous conversations with this guide
+  let crossSessionContext = '';
+  if (crossSessionMemory && crossSessionMemory.length > 0) {
+    const memoryLines = crossSessionMemory.map(m =>
+      `[${m.role === 'user' ? 'Seeker' : 'Guide'}]: ${m.content.substring(0, 120)}...`
+    ).join('\n');
+    crossSessionContext = `\n\nCROSS-SESSION MEMORY (your recent exchanges with her from previous sessions):\n${memoryLines}\n\nUse this memory naturally. Reference past topics, track evolving themes. Never say "as I mentioned before" \u2014 just know it.`;
+  }
+
+  // Cross-guide awareness: what other guides have discussed with this user (Doc 05)
+  let crossGuideAwareness = '';
+  if (crossGuideContext && crossGuideContext.length > 0) {
+    const guideLines = crossGuideContext.map(g =>
+      `• ${g.guideId}: ${g.summary}`
+    ).join('\n');
+    crossGuideAwareness = `\n\nCROSS-GUIDE AWARENESS (what other guides have explored with her — use subtly, never repeat verbatim):\n${guideLines}\n\nYou may reference themes from other guides naturally, e.g. "I sense you've been exploring [theme] elsewhere in your journey." Never name the other guide directly unless she brings them up.`;
+  }
+
+  const prompt = `${systemPrompt}${nameContext}${returningContext}${recallContext}${crossSessionContext}${crossGuideAwareness}\n\n--- Conversation ---\n${historyText}\n\nSeeker: ${message}\n\nGuide:`;
 
   const result = await model.generateContent(prompt);
   // Strip any markdown/formatting the AI might sneak in — TTS reads it literally
@@ -276,7 +296,10 @@ export async function codexGuideChat(
 }
 
 // ── Journal Prompt Generation ───────────────────────────────────────
-export async function generateJournalPrompt(userContext: UserContext): Promise<string> {
+export async function generateJournalPrompt(
+  userContext: UserContext,
+  recentGuideThemes?: string[] | null
+): Promise<string> {
   const ready = await ensureGeminiFromDatabase();
   if (!ready) return "What is stirring in your soul right now?";
 
@@ -290,10 +313,16 @@ export async function generateJournalPrompt(userContext: UserContext): Promise<s
   if (userContext.phase) contextParts.push(`Current phase: ${userContext.phase}`);
   if (userContext.activeWounds?.length) contextParts.push(`Active wounds: ${userContext.activeWounds.join(", ")}`);
 
+  // Doc 05 Journal Intelligence: weave in themes from recent guide conversations
+  let guideThemeContext = '';
+  if (recentGuideThemes && recentGuideThemes.length > 0) {
+    guideThemeContext = `\n\nRecent themes from her AI guide conversations (weave ONE of these into the prompt naturally — don't reference the guide directly):\n- ${recentGuideThemes.join('\n- ')}`;
+  }
+
   const prompt = `${CODEX_BASE_PROMPT}
 
 Generate a single poetic journal prompt for a woman on her Living Codex journey. The prompt should be 1-2 sentences, deeply reflective, and invite authentic self-exploration.
-${contextParts.length ? "\nHer context:\n" + contextParts.join("\n") : ""}
+${contextParts.length ? "\nHer context:\n" + contextParts.join("\n") : ""}${guideThemeContext}
 
 Respond with ONLY the prompt text, nothing else.`;
 

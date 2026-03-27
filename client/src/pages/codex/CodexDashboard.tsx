@@ -1,6 +1,7 @@
 import { trpc } from "@/lib/trpc";
-import { Bot, Sparkles } from "lucide-react";
+import { Orbit, Sparkles } from "lucide-react";
 import CodexWeather from "./CodexWeather";
+import CodexGrowthWidget from "./CodexGrowthWidget";
 import {
   PhaseJourneyMap,
   ContradictionExplorer,
@@ -21,6 +22,10 @@ const STAT_GRADIENTS = [
 
 export default function CodexDashboard({ onNavigate }: Props) {
   const dashQuery = trpc.codex.client.dashboardData.useQuery();
+  const growthQuery = trpc.codex.client.getGrowthDashboard.useQuery();
+  const celebrateMut = trpc.codex.client.celebrateMilestone.useMutation({
+    onSuccess: () => growthQuery.refetch(),
+  });
   const d = dashQuery.data;
 
   if (dashQuery.isLoading || !d) {
@@ -75,7 +80,7 @@ export default function CodexDashboard({ onNavigate }: Props) {
             </div>
           </div>
           <button className="cx-btn-secondary" onClick={() => onNavigate("guide")} style={{ gap: "0.375rem" }}>
-            <Bot size={14} /> Talk to AI Guide
+            <Orbit size={14} /> Talk to AI Guide
           </button>
         </div>
       </div>
@@ -198,6 +203,20 @@ export default function CodexDashboard({ onNavigate }: Props) {
 
         {/* Right Column */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          {/* Growth Tracking Widget (Doc 02) */}
+          {growthQuery.data && (
+            <div className="cx-fade-up cx-delay-2">
+              <CodexGrowthWidget
+                streak={growthQuery.data.streak}
+                companion={growthQuery.data.companion}
+                milestones={growthQuery.data.milestones}
+                uncelebrated={growthQuery.data.uncelebrated}
+                stats={growthQuery.data.stats}
+                onCelebrate={(id) => celebrateMut.mutate({ milestoneId: id })}
+              />
+            </div>
+          )}
+
           {/* Weather Widget */}
           <div className="cx-fade-up cx-delay-2">
             <CodexWeather />

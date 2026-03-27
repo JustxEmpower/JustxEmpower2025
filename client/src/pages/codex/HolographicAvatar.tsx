@@ -75,6 +75,9 @@ import SimliAvatar from './SimliAvatar';
 // Ambient particle field for depth
 import ParticleField from './ParticleField';
 
+// Holographic background selector system (Doc 04)
+import { BackgroundRenderer, BackgroundSelectorFAB, useBackgroundSettings } from './HolographicBackgrounds';
+
 // Simli face IDs per guide — set VITE_SIMLI_FACE_ID in .env
 // For multiple guides, use VITE_SIMLI_FACE_ID_KORE, VITE_SIMLI_FACE_ID_AOEDE, etc.
 const SIMLI_FACE_IDS: Record<string, string> = (() => {
@@ -1252,6 +1255,9 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
   const [customAppearance, setCustomAppearance] = useState<Partial<AvatarCustomization> | undefined>();
   const [avatarMode, setAvatarMode] = useState<'orb' | 'lifelike'>('lifelike');
 
+  // Background selector settings (Doc 04)
+  const bgSettings = useBackgroundSettings('void');
+
   // Check for reduced motion preference
   const prefersReducedMotion =
     typeof window !== 'undefined' &&
@@ -1311,18 +1317,25 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
   `;
 
   return (
-    <div
-      className="relative w-full h-full min-h-[600px] overflow-hidden"
+    <BackgroundRenderer
+      backgroundId={bgSettings.backgroundId}
+      ambientLevel={bgSettings.ambientLevel}
+      particleLevel={bgSettings.particleLevel}
+      guideColor={config.primaryColor}
       style={{
-        background: '#000',
         borderRadius: 20,
         boxShadow: 'inset 0 0 80px rgba(0,0,0,0.6)',
+        minHeight: 600,
       }}
     >
+      <div
+        className="relative w-full h-full min-h-[600px] overflow-hidden"
+        style={{ background: 'transparent' }}
+      >
       <style>{iveKeyframes}</style>
 
       {/* ── Ambient Particles — fills gaps around avatar for depth ── */}
-      <ParticleField particleCount={800} />
+      <ParticleField particleCount={Math.round(800 * (bgSettings.particleLevel / 3))} />
 
       {/* ── Avatar Display ── */}
       {avatarMode === 'lifelike' ? (
@@ -1792,7 +1805,19 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
           onClose={() => setShowGuideSelector(false)}
         />
       )}
+
+      {/* ── Background Selector FAB (Doc 04) ── */}
+      <BackgroundSelectorFAB
+        guideColor={config.primaryColor}
+        currentBackgroundId={bgSettings.backgroundId}
+        onBackgroundChange={bgSettings.setBackgroundId}
+        ambientLevel={bgSettings.ambientLevel}
+        particleLevel={bgSettings.particleLevel}
+        onAmbientChange={bgSettings.setAmbientLevel}
+        onParticleChange={bgSettings.setParticleLevel}
+      />
     </div>
+    </BackgroundRenderer>
   );
 };
 

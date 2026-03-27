@@ -571,7 +571,31 @@ const codexClientRouter = router({
       phase: scoring?.spectrumProfile?.thresholdPct > 40 ? "threshold" : "discovery",
       activeWounds: scoring?.activeWounds?.slice(0, 2).map((w: any) => w.wound),
     };
-    const prompt = await generateJournalPrompt(userContext);
+
+    // Doc 05 Journal Intelligence: extract themes from recent guide conversations
+    let recentGuideThemes: string[] | null = null;
+    try {
+      const recentConvos = await db.select({ id: schema.codexGuideConversations.id })
+        .from(schema.codexGuideConversations)
+        .where(eq(schema.codexGuideConversations.userId, u.id))
+        .orderBy(desc(schema.codexGuideConversations.updatedAt))
+        .limit(3);
+      if (recentConvos.length > 0) {
+        const convIds = recentConvos.map(c => c.id);
+        const recentUserMsgs = await db.select({ content: schema.codexGuideMessages.content })
+          .from(schema.codexGuideMessages)
+          .where(sql`${schema.codexGuideMessages.conversationId} IN (${sql.join(convIds.map(id => sql`${id}`), sql`, `)}) AND ${schema.codexGuideMessages.role} = 'user'`)
+          .orderBy(desc(schema.codexGuideMessages.createdAt))
+          .limit(5);
+        if (recentUserMsgs.length > 0) {
+          recentGuideThemes = recentUserMsgs.map(m => m.content.substring(0, 100));
+        }
+      }
+    } catch (err) {
+      console.error('[Codex] Journal intelligence theme fetch error:', err);
+    }
+
+    const prompt = await generateJournalPrompt(userContext, recentGuideThemes);
     return { prompt };
   }),
 
@@ -751,11 +775,40 @@ const codexClientRouter = router({
     const userContext: UserContext = {
       name: u.name || undefined,
       primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype,
-      phase: scoring?.spectrumProfile?.thresholdPct > 40 ? "threshold" : "discovery",
+      phase: String(scoring?.phase || scoring?.spectrumProfile?.thresholdPct > 40 ? "4" : "1"),
       activeWounds: scoring?.activeWounds?.slice(0, 3).map((w: any) => w.wound),
       spectrumProfile: scoring?.spectrumProfile,
       integrationIndex: scoring?.integrationIndex,
     };
+
+    // ── CROSS-SESSION MEMORY: Fetch recent messages from previous conversations with this guide ──
+    let crossSessionMemory: { role: string; content: string }[] | null = null;
+    try {
+      const prevConvos = await db.select({ id: schema.codexGuideConversations.id })
+        .from(schema.codexGuideConversations)
+        .where(and(
+          eq(schema.codexGuideConversations.userId, u.id),
+          eq(schema.codexGuideConversations.guideId, input.guideId),
+        ))
+        .orderBy(desc(schema.codexGuideConversations.updatedAt))
+        .limit(5);
+      const prevIds = prevConvos.map(c => c.id).filter(id => id !== convId);
+      if (prevIds.length > 0) {
+        const prevMsgs = await db.select({
+          role: schema.codexGuideMessages.role,
+          content: schema.codexGuideMessages.content,
+        })
+        .from(schema.codexGuideMessages)
+        .where(sql`${schema.codexGuideMessages.conversationId} IN (${sql.join(prevIds.map(id => sql`${id}`), sql`, `)})`)
+        .orderBy(desc(schema.codexGuideMessages.createdAt))
+        .limit(10);
+        if (prevMsgs.length > 0) {
+          crossSessionMemory = prevMsgs.reverse();
+        }
+      }
+    } catch (err) {
+      console.error('[Codex] Cross-session memory fetch error:', err);
+    }
 
     // ── TRAJECTORY RECALL: Detect if user is asking to remember a past conversation ──
     let recalledTrajectory: { title: string; guideId: string; messages: { role: string; content: string }[] } | null = null;
@@ -864,9 +917,46 @@ const codexClientRouter = router({
       }
     }
 
+    // ── CROSS-GUIDE AWARENESS (Doc 05): Fetch recent themes from OTHER guides ──
+    let crossGuideContext: { guideId: string; summary: string }[] | null = null;
+    try {
+      const otherGuideConvos = await db.select({
+        guideId: schema.codexGuideConversations.guideId,
+        convId: schema.codexGuideConversations.id,
+      })
+      .from(schema.codexGuideConversations)
+      .where(and(
+        eq(schema.codexGuideConversations.userId, u.id),
+        sql`${schema.codexGuideConversations.guideId} != ${input.guideId}`,
+      ))
+      .orderBy(desc(schema.codexGuideConversations.updatedAt))
+      .limit(4);
+
+      if (otherGuideConvos.length > 0) {
+        crossGuideContext = [];
+        for (const oc of otherGuideConvos) {
+          const recentMsgs = await db.select({ content: schema.codexGuideMessages.content })
+            .from(schema.codexGuideMessages)
+            .where(and(
+              eq(schema.codexGuideMessages.conversationId, oc.convId),
+              eq(schema.codexGuideMessages.role, 'user'),
+            ))
+            .orderBy(desc(schema.codexGuideMessages.createdAt))
+            .limit(3);
+          if (recentMsgs.length > 0) {
+            const themes = recentMsgs.map(m => m.content.substring(0, 80)).join('; ');
+            crossGuideContext.push({ guideId: oc.guideId, summary: themes });
+          }
+        }
+        if (crossGuideContext.length === 0) crossGuideContext = null;
+      }
+    } catch (err) {
+      console.error('[Codex] Cross-guide awareness fetch error:', err);
+    }
+
     // Get AI response — pass history so AI remembers context, flag if returning user
     const chatHistory = history.map(m => ({ role: m.role as "user" | "assistant", content: m.content }));
-    let aiResponse = await codexGuideChat(input.guideId, input.message, chatHistory, userContext, isReturning, recalledTrajectory);
+    let aiResponse = await codexGuideChat(input.guideId, input.message, chatHistory, userContext, isReturning, recalledTrajectory, crossSessionMemory, crossGuideContext);
 
     // ── BOUNDARY CHECK: Validate AI response before delivery ──
     const validation = validateAIResponse(aiResponse, input.guideId);
@@ -1003,6 +1093,143 @@ const codexClientRouter = router({
       console.warn("[Codex] Routing engine error:", e);
       return null;
     }
+  }),
+
+  // ── Growth Tracking (Doc 02) ─────────────────────────────────────
+  getGrowthDashboard: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Streak
+    const [streak] = await db.select().from(schema.codexUserStreaks).where(eq(schema.codexUserStreaks.userId, u.id)).limit(1);
+
+    // Milestones (most recent 20)
+    const milestones = await db.select().from(schema.codexMilestones).where(eq(schema.codexMilestones.userId, u.id)).orderBy(desc(schema.codexMilestones.earnedAt)).limit(20);
+
+    // Uncelebrated milestones
+    const uncelebrated = milestones.filter(m => m.celebrated === 0);
+
+    // Companion state
+    let [companion] = await db.select().from(schema.codexCompanionState).where(eq(schema.codexCompanionState.userId, u.id)).limit(1);
+    if (!companion) {
+      // Auto-create companion on first visit
+      const compId = nanoid();
+      await db.insert(schema.codexCompanionState).values({ id: compId, userId: u.id, mood: "calm", energy: 50, gardenLevel: 1 });
+      [companion] = await db.select().from(schema.codexCompanionState).where(eq(schema.codexCompanionState.id, compId)).limit(1);
+    }
+
+    // Activity counts
+    const [journalCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.codexJournalEntries).where(eq(schema.codexJournalEntries.userId, u.id));
+    const [convCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.codexGuideConversations).where(eq(schema.codexGuideConversations.userId, u.id));
+
+    return {
+      streak: streak || { currentStreak: 0, longestStreak: 0, totalActiveDays: 0, lastActivityDate: null },
+      milestones,
+      uncelebrated,
+      companion,
+      stats: {
+        journalEntries: journalCount?.count || 0,
+        guideSessions: convCount?.count || 0,
+      },
+    };
+  }),
+
+  recordActivity: customerProc.input(z.object({
+    activityType: z.enum(["journal_entry", "module_progress", "guide_session", "event_attendance", "reflection_complete"]),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+    // Get or create streak record
+    let [streak] = await db.select().from(schema.codexUserStreaks).where(eq(schema.codexUserStreaks.userId, u.id)).limit(1);
+    if (!streak) {
+      const sid = nanoid();
+      await db.insert(schema.codexUserStreaks).values({ id: sid, userId: u.id, currentStreak: 0, longestStreak: 0, totalActiveDays: 0 });
+      [streak] = await db.select().from(schema.codexUserStreaks).where(eq(schema.codexUserStreaks.id, sid)).limit(1);
+    }
+
+    // Calculate streak
+    const lastDate = streak!.lastActivityDate;
+    let newStreak = streak!.currentStreak;
+    let newLongest = streak!.longestStreak;
+    let newTotalDays = streak!.totalActiveDays;
+    const newMilestones: { type: string; name: string; narrative: string }[] = [];
+
+    if (lastDate === today) {
+      // Already active today — no streak change
+    } else {
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+      const twoDaysAgo = new Date(Date.now() - 2 * 86400000).toISOString().slice(0, 10);
+
+      if (lastDate === yesterday) {
+        newStreak += 1;
+        newTotalDays += 1;
+      } else if (lastDate === twoDaysAgo && streak!.gracePeriodUsed === 0) {
+        // Grace period — missed yesterday but came back
+        newStreak += 1;
+        newTotalDays += 1;
+        await db.update(schema.codexUserStreaks).set({ gracePeriodUsed: 1 }).where(eq(schema.codexUserStreaks.id, streak!.id));
+      } else {
+        // Streak broken — start fresh
+        newStreak = 1;
+        newTotalDays += 1;
+      }
+
+      if (newStreak > newLongest) newLongest = newStreak;
+
+      // Check streak milestones
+      const streakThresholds = [7, 14, 30, 60, 90];
+      for (const threshold of streakThresholds) {
+        if (newStreak === threshold) {
+          const [exists] = await db.select({ id: schema.codexMilestones.id }).from(schema.codexMilestones).where(and(eq(schema.codexMilestones.userId, u.id), eq(schema.codexMilestones.milestoneType, `${threshold}_day_streak`))).limit(1);
+          if (!exists) {
+            const mId = nanoid();
+            const name = `${threshold}-Day Flame`;
+            const narrative = threshold >= 60
+              ? `${threshold} days of showing up for yourself. This is sovereignty in action.`
+              : `${threshold} consecutive days of inner work. Your dedication is becoming embodied.`;
+            await db.insert(schema.codexMilestones).values({ id: mId, userId: u.id, milestoneType: `${threshold}_day_streak`, displayName: name, narrative });
+            newMilestones.push({ type: `${threshold}_day_streak`, name, narrative });
+          }
+        }
+      }
+    }
+
+    // Update streak record
+    await db.update(schema.codexUserStreaks).set({
+      currentStreak: newStreak,
+      longestStreak: newLongest,
+      lastActivityDate: today,
+      lastActivityType: input.activityType,
+      totalActiveDays: newTotalDays,
+    }).where(eq(schema.codexUserStreaks.id, streak!.id));
+
+    // Update companion energy
+    const [companion] = await db.select().from(schema.codexCompanionState).where(eq(schema.codexCompanionState.userId, u.id)).limit(1);
+    if (companion) {
+      const newEnergy = Math.min(100, companion.energy + 10);
+      const newMood = newEnergy >= 80 ? "radiant" : newEnergy >= 60 ? "content" : newEnergy >= 40 ? "calm" : newEnergy >= 20 ? "restless" : "dormant";
+      await db.update(schema.codexCompanionState).set({
+        energy: newEnergy,
+        mood: newMood,
+        lastInteractionAt: new Date(),
+        totalInteractions: companion.totalInteractions + 1,
+        daysWithoutInteraction: 0,
+        gardenLevel: Math.min(5, Math.floor(companion.totalInteractions / 20) + 1),
+      }).where(eq(schema.codexCompanionState.id, companion.id));
+    }
+
+    return { streak: { currentStreak: newStreak, longestStreak: newLongest, totalActiveDays: newTotalDays }, newMilestones };
+  }),
+
+  celebrateMilestone: customerProc.input(z.object({
+    milestoneId: z.string(),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    await db.update(schema.codexMilestones).set({ celebrated: 1 }).where(and(eq(schema.codexMilestones.id, input.milestoneId), eq(schema.codexMilestones.userId, u.id)));
+    return { success: true };
   }),
 
   // Get constants (archetypes, tiers, scroll modules) for frontend
