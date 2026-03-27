@@ -296,15 +296,16 @@ export function BackgroundSelectorFAB({
         title="Change background"
         style={{
           position: 'absolute',
-          bottom: 24,
-          right: 24,
+          top: 16,
+          left: 16,
           width: 44,
           height: 44,
           borderRadius: '50%',
           background: open ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          border: `1px solid ${guideColor}30`,
+          border: 'none',
+          boxShadow: `0 0 0 1px ${guideColor}30`,
           cursor: 'pointer',
           zIndex: 60,
           animation: open ? 'none' : 'bg-breathe 4s ease-in-out infinite',
@@ -316,11 +317,11 @@ export function BackgroundSelectorFAB({
         }}
         onMouseEnter={e => {
           e.currentTarget.style.background = 'rgba(255,255,255,0.12)';
-          e.currentTarget.style.borderColor = `${guideColor}60`;
+          e.currentTarget.style.boxShadow = `0 0 0 1px ${guideColor}60`;
         }}
         onMouseLeave={e => {
           e.currentTarget.style.background = open ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.06)';
-          e.currentTarget.style.borderColor = `${guideColor}30`;
+          e.currentTarget.style.boxShadow = `0 0 0 1px ${guideColor}30`;
         }}
       >
         {/* Layered diamond icon */}
@@ -336,8 +337,8 @@ export function BackgroundSelectorFAB({
         <div
           style={{
             position: 'absolute',
-            bottom: 78,
-            right: 16,
+            top: 70,
+            left: 16,
             width: 320,
             maxHeight: 420,
             background: 'rgba(10,10,15,0.92)',

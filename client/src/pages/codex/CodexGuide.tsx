@@ -258,16 +258,21 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
         }}>
           <button
             onClick={() => setHolographicMode(false)}
-            className="cx-btn-ghost"
             style={{
               position: "absolute", top: "1.5rem", right: "1.5rem", zIndex: 70,
-              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "50px", padding: "0.5rem 1rem",
-              color: "rgba(200,185,165,0.8)", backdropFilter: "blur(12px)",
-              fontSize: "10.5px", letterSpacing: "0.05em", fontFamily: "'DM Sans', sans-serif",
+              background: "rgba(255,255,255,0.10)", border: "none",
+              borderRadius: "50px", padding: "0.5rem 1.25rem",
+              color: "rgba(220,205,185,0.85)", backdropFilter: "blur(16px)",
+              WebkitBackdropFilter: "blur(16px)",
+              fontSize: "11px", letterSpacing: "0.06em", fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 500, cursor: "pointer",
+              boxShadow: "0 0 0 1px rgba(255,255,255,0.12) inset",
+              transition: "all 0.3s ease",
             }}
+            onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.16)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.10)"; }}
           >
-            Exit Holographic
+            ✕ Exit
           </button>
           <div className="cx-avatar-module cx-holo-breathe" style={{ maxWidth: 520 }}>
             <div className="cx-avatar-ring" />
