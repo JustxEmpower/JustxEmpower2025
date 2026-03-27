@@ -93,21 +93,21 @@ export default function AdminUsersEnhanced() {
   const getRoleColor = (role: string) => ROLES.find(r => r.value === role)?.color || "bg-stone-100 text-stone-700";
 
   if (isChecking) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" /></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" /></div>;
   }
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
       <main className="flex-1 overflow-auto">
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <div><h1 className="text-2xl font-bold text-stone-900">Users</h1><p className="text-stone-500 text-sm">Manage admin users and permissions</p></div>
+              <div><h1 className="text-2xl font-bold text-[#2D2420]">Users</h1><p className="text-[#8A7E76] text-sm">Manage admin users and permissions</p></div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => usersQuery.refetch()}><RefreshCw className="w-4 h-4 mr-2" />Refresh</Button>
-                <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-amber-600 hover:bg-amber-700"><UserPlus className="w-4 h-4 mr-2" />Add User</Button>
+                <Button onClick={() => setIsCreateDialogOpen(true)} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"><UserPlus className="w-4 h-4 mr-2" />Add User</Button>
               </div>
             </div>
           </div>
@@ -164,7 +164,7 @@ export default function AdminUsersEnhanced() {
               <div className="space-y-2"><Label>{selectedUser ? "New Password (leave blank to keep)" : "Password"}</Label><Input type="password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} /></div>
               <div className="space-y-2"><Label>Role</Label><Select value={formData.role} onValueChange={(v) => setFormData({ ...formData, role: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{ROLES.map(r => <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>)}</SelectContent></Select></div>
             </div>
-            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateDialogOpen(false); setSelectedUser(null); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending} className="bg-amber-600 hover:bg-amber-700">{selectedUser ? "Update" : "Create"}</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateDialogOpen(false); setSelectedUser(null); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">{selectedUser ? "Update" : "Create"}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </main>

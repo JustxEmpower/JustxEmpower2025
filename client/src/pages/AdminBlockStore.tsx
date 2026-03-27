@@ -87,7 +87,7 @@ export default function AdminBlockStore() {
   const totalUsage = blocks?.reduce((sum, b) => sum + (b.usageCount || 0), 0) || 0;
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-100">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#EDE5DD]">
       <AdminSidebar />
       
       <main className="flex-1 lg:pl-64 overflow-auto">

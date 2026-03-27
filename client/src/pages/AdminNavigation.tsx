@@ -273,7 +273,7 @@ export default function AdminNavigation() {
                     </div>
                     <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button className="bg-amber-600 hover:bg-amber-700">
+                        <Button className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                           <Plus className="w-4 h-4 mr-2" />
                           Add Item
                         </Button>
@@ -325,7 +325,7 @@ export default function AdminNavigation() {
                           <Button
                             onClick={handleAdd}
                             disabled={createMutation.isPending}
-                            className="w-full bg-amber-600 hover:bg-amber-700"
+                            className="w-full bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                           >
                             {createMutation.isPending ? (
                               <>
@@ -430,7 +430,7 @@ export default function AdminNavigation() {
                 <Button
                   onClick={handleUpdate}
                   disabled={updateMutation.isPending}
-                  className="w-full bg-amber-600 hover:bg-amber-700"
+                  className="w-full bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                 >
                   {updateMutation.isPending ? (
                     <>

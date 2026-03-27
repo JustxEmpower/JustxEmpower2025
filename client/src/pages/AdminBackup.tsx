@@ -166,7 +166,7 @@ export default function AdminBackup() {
                 </div>
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button className="bg-amber-600 hover:bg-amber-700">
+                    <Button className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                       <Database className="w-4 h-4 mr-2" />
                       Create Backup
                     </Button>
@@ -190,7 +190,7 @@ export default function AdminBackup() {
                       <Button
                         onClick={handleCreateBackup}
                         disabled={createMutation.isPending}
-                        className="w-full bg-amber-600 hover:bg-amber-700"
+                        className="w-full bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                       >
                         {createMutation.isPending ? (
                           <>

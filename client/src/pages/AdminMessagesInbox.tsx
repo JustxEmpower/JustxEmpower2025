@@ -207,8 +207,8 @@ export default function AdminMessagesInbox() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
       </div>
     );
   }
@@ -216,12 +216,12 @@ export default function AdminMessagesInbox() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
 
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -229,8 +229,8 @@ export default function AdminMessagesInbox() {
                   <Inbox className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h1 className="text-2xl font-bold text-stone-900">Messages Inbox</h1>
-                  <p className="text-stone-500 text-sm">Manage contact form submissions & inquiries</p>
+                  <h1 className="text-2xl font-bold text-[#2D2420]">Messages Inbox</h1>
+                  <p className="text-[#8A7E76] text-sm">Manage contact form submissions & inquiries</p>
                 </div>
               </div>
               <Button variant="outline" size="sm" onClick={() => { submissionsQuery.refetch(); statsQuery.refetch(); }}>
@@ -259,7 +259,7 @@ export default function AdminMessagesInbox() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs font-medium text-stone-500">{stat.label}</p>
-                        <p className="text-2xl font-bold text-stone-900"><AnimatedCounter value={stat.value} /></p>
+                        <p className="text-2xl font-bold text-[#2D2420]"><AnimatedCounter value={stat.value} /></p>
                       </div>
                       <stat.icon className={`w-8 h-8 text-${stat.color}-500 opacity-50`} />
                     </div>
@@ -469,7 +469,7 @@ export default function AdminMessagesInbox() {
               <Button variant="outline" onClick={() => window.open(`mailto:${selectedMessage?.email}?subject=Re: ${selectedMessage?.subject}`, "_blank")}>
                 <ExternalLink className="w-4 h-4 mr-2" />Open in Mail App
               </Button>
-              <Button onClick={() => { setIsViewOpen(false); handleReply(selectedMessage); }} className="bg-amber-600 hover:bg-amber-700">
+              <Button onClick={() => { setIsViewOpen(false); handleReply(selectedMessage); }} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                 <Reply className="w-4 h-4 mr-2" />Reply
               </Button>
             </DialogFooter>
@@ -537,7 +537,7 @@ export default function AdminMessagesInbox() {
             
             <DialogFooter className="mt-6">
               <Button variant="outline" onClick={() => setIsReplyOpen(false)}>Cancel</Button>
-              <Button onClick={handleSendReply} disabled={isSending || !replySubject || !replyMessage} className="bg-amber-600 hover:bg-amber-700">
+              <Button onClick={handleSendReply} disabled={isSending || !replySubject || !replyMessage} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                 {isSending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Send className="w-4 h-4 mr-2" />}
                 {isSending ? "Sending..." : "Send Reply"}
               </Button>

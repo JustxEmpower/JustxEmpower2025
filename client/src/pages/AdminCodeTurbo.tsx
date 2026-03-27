@@ -413,27 +413,27 @@ export default function AdminCodeTurbo() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
       </div>
     );
   }
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-stone-900 flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-[#2D2420] flex items-center gap-2">
                   <Sparkles className="w-6 h-6 text-amber-500" />
                   Custom Code
                 </h1>
-                <p className="text-stone-500 text-sm">Add tracking, analytics, custom styles, and scripts</p>
+                <p className="text-[#8A7E76] text-sm">Add tracking, analytics, custom styles, and scripts</p>
               </div>
               <div className="flex items-center gap-3">
                 {hasChanges && (
@@ -458,7 +458,7 @@ export default function AdminCodeTurbo() {
                 <Button
                   onClick={handleSave}
                   disabled={isSaving || !hasChanges}
-                  className="bg-amber-600 hover:bg-amber-700"
+                  className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                   Save All
@@ -558,7 +558,7 @@ export default function AdminCodeTurbo() {
                         </DropdownMenuItem>
                       ))
                     ) : (
-                      <div className="px-2 py-4 text-center text-stone-500 text-sm">
+                      <div className="px-2 py-4 text-center text-[#8A7E76] text-sm">
                         No snippets for this tab
                       </div>
                     )}

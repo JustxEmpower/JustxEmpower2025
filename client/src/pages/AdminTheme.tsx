@@ -25,18 +25,18 @@ export default function AdminTheme() {
   const suggestFontsMutation = trpc.admin.theme.suggestFonts.useMutation();
 
   const [formData, setFormData] = useState({
-    primaryColor: "#000000",
-    secondaryColor: "#ffffff",
-    accentColor: "#1a1a1a",
-    backgroundColor: "#ffffff",
-    textColor: "#000000",
-    headingFont: "Playfair Display",
+    primaryColor: "#5C3D4E",
+    secondaryColor: "#EDE5DD",
+    accentColor: "#C9A96E",
+    backgroundColor: "#FAF7F4",
+    textColor: "#2D2420",
+    headingFont: "Cormorant Garamond",
     bodyFont: "Inter",
     headingFontUrl: "",
     bodyFontUrl: "",
-    containerMaxWidth: "1280px",
+    containerMaxWidth: "1400px",
     sectionSpacing: "120px",
-    borderRadius: "8px",
+    borderRadius: "1.5rem",
     enableAnimations: 1,
     heroBackgroundImage: "",
     heroBackgroundVideo: "",
@@ -48,18 +48,18 @@ export default function AdminTheme() {
   useEffect(() => {
     if (themeQuery.data) {
       setFormData({
-        primaryColor: themeQuery.data.primaryColor || "#000000",
-        secondaryColor: themeQuery.data.secondaryColor || "#ffffff",
-        accentColor: themeQuery.data.accentColor || "#1a1a1a",
-        backgroundColor: themeQuery.data.backgroundColor || "#ffffff",
-        textColor: themeQuery.data.textColor || "#000000",
-        headingFont: themeQuery.data.headingFont || "Playfair Display",
+        primaryColor: themeQuery.data.primaryColor || "#5C3D4E",
+        secondaryColor: themeQuery.data.secondaryColor || "#EDE5DD",
+        accentColor: themeQuery.data.accentColor || "#C9A96E",
+        backgroundColor: themeQuery.data.backgroundColor || "#FAF7F4",
+        textColor: themeQuery.data.textColor || "#2D2420",
+        headingFont: themeQuery.data.headingFont || "Cormorant Garamond",
         bodyFont: themeQuery.data.bodyFont || "Inter",
         headingFontUrl: themeQuery.data.headingFontUrl || "",
         bodyFontUrl: themeQuery.data.bodyFontUrl || "",
-        containerMaxWidth: themeQuery.data.containerMaxWidth || "1280px",
+        containerMaxWidth: themeQuery.data.containerMaxWidth || "1400px",
         sectionSpacing: themeQuery.data.sectionSpacing || "120px",
-        borderRadius: themeQuery.data.borderRadius || "8px",
+        borderRadius: themeQuery.data.borderRadius || "1.5rem",
         enableAnimations: themeQuery.data.enableAnimations || 1,
         heroBackgroundImage: themeQuery.data.heroBackgroundImage || "",
         heroBackgroundVideo: themeQuery.data.heroBackgroundVideo || "",
@@ -141,7 +141,7 @@ export default function AdminTheme() {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]">
       {/* Sidebar */}
       <AdminSidebar variant="light" />
 
@@ -149,8 +149,8 @@ export default function AdminTheme() {
       <div className="flex-1 p-8 overflow-auto">
         <div className="max-w-4xl">
           <div className="mb-8">
-            <h1 className="text-3xl font-serif mb-2">Theme & Design System</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl font-serif mb-2 text-[#2D2420]">Theme & Design System</h1>
+            <p className="text-[#8A7E76]">
               Control your site's visual identity with AI-powered design assistance
             </p>
           </div>
@@ -353,7 +353,7 @@ export default function AdminTheme() {
                   </div>
                 </div>
 
-                <p className="text-sm text-gray-500 mt-3">
+                <p className="text-sm text-[#8A7E76] mt-3">
                   Using Google Fonts. Changes will apply after saving.
                 </p>
               </CardContent>
@@ -381,7 +381,7 @@ export default function AdminTheme() {
                       }
                       placeholder="https://example.com/hero-bg.jpg"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Leave empty to use default video background</p>
+                    <p className="text-xs text-[#8A7E76] mt-1">Leave empty to use default video background</p>
                   </div>
 
                   <div>
@@ -393,7 +393,7 @@ export default function AdminTheme() {
                       }
                       placeholder="/home-slide-1.mp4 or https://example.com/video.mp4"
                     />
-                    <p className="text-xs text-gray-500 mt-1">Video will be used if no image is set</p>
+                    <p className="text-xs text-[#8A7E76] mt-1">Video will be used if no image is set</p>
                   </div>
 
                   <div>

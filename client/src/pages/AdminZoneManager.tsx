@@ -148,7 +148,7 @@ export default function AdminZoneManager() {
   }, 0) || 0;
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-100">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#EDE5DD]">
       <AdminSidebar />
       
       <main className="flex-1 lg:pl-64 overflow-auto">
@@ -378,7 +378,7 @@ export default function AdminZoneManager() {
                     </div>
                   </div>
                 </div>
-                <div className="mt-4 p-3 rounded-xl bg-gradient-to-r from-stone-50 to-stone-100 border border-stone-200">
+                <div className="mt-4 p-3 rounded-xl bg-gradient-to-r from-[#FAF7F4] to-[#EDE5DD] border border-stone-200">
                   <p className="text-xs flex items-center gap-2">
                     <MousePointer className="w-4 h-4 text-violet-500" />
                     <span><strong>Pro tip:</strong> When logged in as admin, hover over zone areas on the live page to see an "Edit Zone" button.</span>

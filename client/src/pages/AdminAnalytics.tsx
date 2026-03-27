@@ -46,18 +46,18 @@ export default function AdminAnalytics() {
   const cls = ['bg-blue-500','bg-purple-500','bg-cyan-500','bg-emerald-500','bg-amber-500','bg-rose-500','bg-indigo-500','bg-teal-500'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
       <main className="flex-1 overflow-auto">
         {/* HEADER */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-stone-900 flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-[#2D2420] flex items-center gap-3">
                 <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/20"><BarChart3 className="w-5 h-5 text-white" /></div>
                 Analytics
               </h1>
-              <p className="text-stone-500 text-sm mt-1">Site performance and visitor insights</p>
+              <p className="text-[#8A7E76] text-sm mt-1">Site performance and visitor insights</p>
             </div>
             <div className="flex items-center gap-3">
               <Badge variant="outline" className="text-xs gap-1 py-1"><div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />Live</Badge>

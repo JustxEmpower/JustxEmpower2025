@@ -47,21 +47,21 @@ export default function AdminRedirectsEnhanced() {
   const filteredRedirects = useMemo(() => redirects.filter((r: any) => searchQuery === "" || r.source?.includes(searchQuery) || r.destination?.includes(searchQuery)), [redirects, searchQuery]);
 
   if (isChecking) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" /></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" /></div>;
   }
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
       <main className="flex-1 overflow-auto">
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <div><h1 className="text-2xl font-bold text-stone-900">Redirects</h1><p className="text-stone-500 text-sm">Manage URL redirects</p></div>
+              <div><h1 className="text-2xl font-bold text-[#2D2420]">Redirects</h1><p className="text-[#8A7E76] text-sm">Manage URL redirects</p></div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => redirectsQuery.refetch?.()}><RefreshCw className="w-4 h-4 mr-2" />Refresh</Button>
-                <Button onClick={() => setIsCreateOpen(true)} className="bg-amber-600 hover:bg-amber-700"><Plus className="w-4 h-4 mr-2" />Add Redirect</Button>
+                <Button onClick={() => setIsCreateOpen(true)} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"><Plus className="w-4 h-4 mr-2" />Add Redirect</Button>
               </div>
             </div>
           </div>
@@ -116,7 +116,7 @@ export default function AdminRedirectsEnhanced() {
               <div className="space-y-2"><Label>Destination URL</Label><Input value={formData.destination} onChange={(e) => setFormData({ ...formData, destination: e.target.value })} placeholder="/new-page" /></div>
               <div className="space-y-2"><Label>Redirect Type</Label><Select value={formData.type} onValueChange={(v) => setFormData({ ...formData, type: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="301">301 (Permanent)</SelectItem><SelectItem value="302">302 (Temporary)</SelectItem></SelectContent></Select></div>
             </div>
-            <DialogFooter><Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button><Button className="bg-amber-600 hover:bg-amber-700">Add Redirect</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={() => setIsCreateOpen(false)}>Cancel</Button><Button className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">Add Redirect</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </main>

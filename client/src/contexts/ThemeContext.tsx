@@ -26,16 +26,16 @@ interface ThemeContextType {
 }
 
 const defaultThemeSettings: ThemeSettings = {
-  primaryColor: "#000000",
-  secondaryColor: "#ffffff",
-  accentColor: "#1a1a1a",
-  backgroundColor: "#ffffff",
-  textColor: "#000000",
-  headingFont: "Playfair Display",
+  primaryColor: "#5C3D4E",
+  secondaryColor: "#EDE5DD",
+  accentColor: "#C9A96E",
+  backgroundColor: "#FAF7F4",
+  textColor: "#2D2420",
+  headingFont: "Cormorant Garamond",
   bodyFont: "Inter",
-  containerMaxWidth: "1280px",
+  containerMaxWidth: "1400px",
   sectionSpacing: "120px",
-  borderRadius: "8px",
+  borderRadius: "1.5rem",
   enableAnimations: 1,
 };
 

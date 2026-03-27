@@ -266,27 +266,27 @@ export default function AdminFormsTurbo() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
       </div>
     );
   }
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-stone-900 flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-[#2D2420] flex items-center gap-2">
                   <Sparkles className="w-6 h-6 text-amber-500" />
                   Forms & Submissions
                 </h1>
-                <p className="text-stone-500 text-sm">Manage contact forms, fields, and submissions</p>
+                <p className="text-[#8A7E76] text-sm">Manage contact forms, fields, and submissions</p>
               </div>
               <div className="flex items-center gap-3">
                 <Button
@@ -406,7 +406,7 @@ export default function AdminFormsTurbo() {
               {/* Submissions List */}
               {submissionsQuery.isLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
                 </div>
               ) : filteredSubmissions.length === 0 ? (
                 <Card>
@@ -541,7 +541,7 @@ export default function AdminFormsTurbo() {
             <TabsContent value="fields" className="space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-stone-600">Configure the fields displayed on your contact form</p>
-                <Button onClick={handleCreateField} className="bg-amber-600 hover:bg-amber-700">
+                <Button onClick={handleCreateField} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Field
                 </Button>
@@ -549,7 +549,7 @@ export default function AdminFormsTurbo() {
 
               {fieldsQuery.isLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
                 </div>
               ) : fields.length === 0 ? (
                 <Card>
@@ -557,7 +557,7 @@ export default function AdminFormsTurbo() {
                     <FormInput className="w-12 h-12 mx-auto text-stone-400 mb-4" />
                     <h3 className="text-lg font-medium mb-2">No Form Fields</h3>
                     <p className="text-stone-500 mb-4">Create fields to customize your contact form</p>
-                    <Button onClick={handleCreateField} className="bg-amber-600 hover:bg-amber-700">
+                    <Button onClick={handleCreateField} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                       <Plus className="w-4 h-4 mr-2" />
                       Create First Field
                     </Button>
@@ -776,7 +776,7 @@ export default function AdminFormsTurbo() {
               </Button>
               {viewingSubmission?.email && (
                 <Button
-                  className="bg-amber-600 hover:bg-amber-700"
+                  className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                   onClick={() => window.location.href = `mailto:${viewingSubmission.email}`}
                 >
                   <Reply className="w-4 h-4 mr-2" />
@@ -872,7 +872,7 @@ export default function AdminFormsTurbo() {
                 Cancel
               </Button>
               <Button
-                className="bg-amber-600 hover:bg-amber-700"
+                className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                 onClick={handleSaveField}
                 disabled={createFieldMutation.isPending || updateFieldMutation.isPending}
               >

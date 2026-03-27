@@ -83,21 +83,21 @@ export default function AdminCarouselEnhanced() {
   const handleEdit = (item: any) => { setEditingItem(item); setFormData({ title: item.title || "", subtitle: item.subtitle || "", imageUrl: item.imageUrl || "", linkUrl: item.linkUrl || "", isActive: item.isActive ?? true, order: item.order || 0 }); };
 
   if (isChecking || carouselQuery.isLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" /></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" /></div>;
   }
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
       <main className="flex-1 overflow-auto">
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <div><h1 className="text-2xl font-bold text-stone-900">Featured Offerings</h1><p className="text-stone-500 text-sm">Manage homepage carousel slides</p></div>
+              <div><h1 className="text-2xl font-bold text-[#2D2420]">Featured Offerings</h1><p className="text-[#8A7E76] text-sm">Manage homepage carousel slides</p></div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => carouselQuery.refetch?.()}><RefreshCw className="w-4 h-4 mr-2" />Refresh</Button>
-                <Button onClick={() => setIsCreateOpen(true)} className="bg-amber-600 hover:bg-amber-700"><Plus className="w-4 h-4 mr-2" />Add Slide</Button>
+                <Button onClick={() => setIsCreateOpen(true)} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"><Plus className="w-4 h-4 mr-2" />Add Slide</Button>
               </div>
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function AdminCarouselEnhanced() {
               <div className="space-y-2"><Label>Link URL</Label><Input value={formData.linkUrl} onChange={(e) => setFormData({ ...formData, linkUrl: e.target.value })} placeholder="/page or https://..." /></div>
               <div className="flex items-center gap-2"><Switch checked={formData.isActive} onCheckedChange={(v) => setFormData({ ...formData, isActive: v })} /><Label>Active</Label></div>
             </div>
-            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingItem(null); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending} className="bg-amber-600 hover:bg-amber-700">{editingItem ? "Update" : "Add"} Slide</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingItem(null); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">{editingItem ? "Update" : "Add"} Slide</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </main>

@@ -324,7 +324,7 @@ export default function AdminSEO() {
               onClick={handleSave}
               disabled={updateMutation.isPending}
               size="lg"
-              className="bg-amber-600 hover:bg-amber-700"
+              className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
             >
               {updateMutation.isPending ? (
                 <>

@@ -214,7 +214,7 @@ export default function AdminForms() {
                     </div>
                     <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button className="bg-amber-600 hover:bg-amber-700">
+                        <Button className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                           <Plus className="w-4 h-4 mr-2" />
                           Add Field
                         </Button>
@@ -296,7 +296,7 @@ export default function AdminForms() {
                           <Button
                             onClick={handleAdd}
                             disabled={createFieldMutation.isPending}
-                            className="w-full bg-amber-600 hover:bg-amber-700"
+                            className="w-full bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                           >
                             {createFieldMutation.isPending ? (
                               <>
@@ -498,7 +498,7 @@ export default function AdminForms() {
                 <Button
                   onClick={handleUpdate}
                   disabled={updateFieldMutation.isPending}
-                  className="w-full bg-amber-600 hover:bg-amber-700"
+                  className="w-full bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                 >
                   {updateFieldMutation.isPending ? (
                     <>

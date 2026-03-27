@@ -152,7 +152,7 @@ export default function AdminBrand() {
                         htmlFor={`upload-${asset.type}`}
                         className="flex-1 cursor-pointer"
                       >
-                        <div className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors">
+                        <div className="flex items-center justify-center gap-2 px-4 py-2 bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white text-white rounded-lg transition-colors">
                           {isUploadingThis ? (
                             <>
                               <Loader2 className="w-4 h-4 animate-spin" />

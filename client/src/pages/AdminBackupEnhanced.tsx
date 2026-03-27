@@ -48,21 +48,21 @@ export default function AdminBackupEnhanced() {
   const formatSize = (bytes: number) => bytes < 1024 * 1024 ? `${(bytes / 1024).toFixed(1)} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 
   if (isChecking) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" /></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" /></div>;
   }
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
       <main className="flex-1 overflow-auto">
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <div><h1 className="text-2xl font-bold text-stone-900">Backup</h1><p className="text-stone-500 text-sm">Manage site backups and restore points</p></div>
+              <div><h1 className="text-2xl font-bold text-[#2D2420]">Backup</h1><p className="text-[#8A7E76] text-sm">Manage site backups and restore points</p></div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => backupsQuery.refetch?.()}><RefreshCw className="w-4 h-4 mr-2" />Refresh</Button>
-                <Button onClick={handleCreateBackup} disabled={isCreatingBackup} className="bg-amber-600 hover:bg-amber-700">
+                <Button onClick={handleCreateBackup} disabled={isCreatingBackup} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                   {isCreatingBackup ? <RefreshCw className="w-4 h-4 mr-2 animate-spin" /> : <Database className="w-4 h-4 mr-2" />}Create Backup
                 </Button>
               </div>

@@ -390,8 +390,8 @@ export default function AdminSourceEditor() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
       </div>
     );
   }
@@ -447,7 +447,7 @@ export default function AdminSourceEditor() {
                 <Button
                   onClick={handleSave}
                   disabled={isSaving || !hasUnsavedChanges || !selectedFile}
-                  className="bg-amber-600 hover:bg-amber-700 text-white"
+                  className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white text-white"
                   size="sm"
                 >
                   {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
@@ -756,7 +756,7 @@ export default function AdminSourceEditor() {
                     value={aiPrompt}
                     onChange={(e) => setAiPrompt(e.target.value)}
                     placeholder="Ask about this code..."
-                    className="flex-1 bg-stone-900 border-stone-600 text-white placeholder:text-stone-500 text-sm min-h-[60px] resize-none"
+                    className="flex-1 bg-stone-900 border-stone-600 text-white placeholder:text-[#8A7E76] text-sm min-h-[60px] resize-none"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
                         e.preventDefault();
@@ -803,7 +803,7 @@ export default function AdminSourceEditor() {
                   await handleSave();
                   discardAndSwitch();
                 }}
-                className="bg-amber-600 hover:bg-amber-700"
+                className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
               >
                 Save & Switch
               </Button>

@@ -276,8 +276,8 @@ export default function AdminArticlesEnhanced() {
 
   if (isChecking || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
       </div>
     );
   }
@@ -285,23 +285,23 @@ export default function AdminArticlesEnhanced() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
 
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-stone-900">Articles</h1>
-                <p className="text-stone-500 text-sm">Create and manage journal articles</p>
+                <h1 className="text-2xl font-bold text-[#2D2420]">Articles</h1>
+                <p className="text-[#8A7E76] text-sm">Create and manage journal articles</p>
               </div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => refetch()}>
                   <RefreshCw className="w-4 h-4 mr-2" />Refresh
                 </Button>
-                <Button onClick={() => setIsEditing(true)} className="bg-amber-600 hover:bg-amber-700">
+                <Button onClick={() => setIsEditing(true)} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                   <Plus className="w-4 h-4 mr-2" />New Article
                 </Button>
               </div>
@@ -693,7 +693,7 @@ export default function AdminArticlesEnhanced() {
                 </div>
                 <DialogFooter>
                   <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
-                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-amber-600 hover:bg-amber-700">
+                  <Button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                     {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                     {editingId ? 'Update' : 'Create'} Article
                   </Button>
@@ -709,7 +709,7 @@ export default function AdminArticlesEnhanced() {
                 <FileText className="w-12 h-12 text-stone-400 mb-4" />
                 <h3 className="text-lg font-medium mb-2">No articles found</h3>
                 <p className="text-stone-500 mb-4">{searchQuery || statusFilter !== 'all' ? 'Try adjusting your filters' : 'Create your first article'}</p>
-                <Button onClick={() => setIsEditing(true)} className="bg-amber-600 hover:bg-amber-700">
+                <Button onClick={() => setIsEditing(true)} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                   <Plus className="w-4 h-4 mr-2" />New Article
                 </Button>
               </CardContent>

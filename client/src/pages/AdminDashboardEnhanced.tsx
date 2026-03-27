@@ -294,28 +294,28 @@ function StatCard({
       <Card className={`relative overflow-hidden group cursor-pointer hover:shadow-lg transition-all duration-300 ${href ? 'hover:border-primary' : ''}`}>
         <div className={`absolute top-0 right-0 w-32 h-32 ${colors.bg} rounded-full -translate-y-1/2 translate-x-1/2 opacity-50 group-hover:scale-150 transition-transform duration-500`} />
         <CardHeader className="flex flex-row items-center justify-between pb-2 relative">
-          <CardTitle className="text-sm font-medium text-stone-600">{title}</CardTitle>
+          <CardTitle className="text-sm font-medium text-[#8A7E76]">{title}</CardTitle>
           <div className={`p-2 rounded-lg ${colors.bg}`}>
             <Icon className={`w-4 h-4 ${colors.icon}`} />
           </div>
         </CardHeader>
         <CardContent className="relative">
-          <div className="text-3xl font-bold text-stone-900">
+          <div className="text-3xl font-bold text-[#2D2420]">
             {typeof value === 'number' ? <AnimatedCounter value={value} /> : value}
           </div>
           <div className="flex items-center gap-2 mt-2">
             {trend && trendValue && (
-              <Badge variant="secondary" className={`${trend === 'up' ? 'bg-green-100 text-green-700' : trend === 'down' ? 'bg-red-100 text-red-700' : 'bg-stone-100 text-stone-700'}`}>
+              <Badge variant="secondary" className={`${trend === 'up' ? 'bg-green-100 text-green-700' : trend === 'down' ? 'bg-red-100 text-red-700' : 'bg-[#EDE5DD] text-[#2D2420]'}`}>
                 {trend === 'up' ? <TrendingUp className="w-3 h-3 mr-1" /> : trend === 'down' ? <TrendingDown className="w-3 h-3 mr-1" /> : null}
                 {trendValue}
               </Badge>
             )}
-            <p className="text-xs text-stone-500">{subtitle}</p>
+            <p className="text-xs text-[#8A7E76]">{subtitle}</p>
           </div>
         </CardContent>
         {href && (
           <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-            <ArrowUpRight className="w-4 h-4 text-stone-400" />
+            <ArrowUpRight className="w-4 h-4 text-[#D4C4BC]" />
           </div>
         )}
       </Card>
@@ -348,12 +348,12 @@ function QuickAction({ icon: Icon, label, href, color, badge }: { icon: any; lab
 // System status indicator
 function SystemStatus({ name, status, icon: Icon }: { name: string; status: boolean; icon: any }) {
   return (
-    <div className="flex items-center gap-3 p-3 rounded-lg bg-stone-50 hover:bg-stone-100 transition-colors">
+    <div className="flex items-center gap-3 p-3 rounded-lg bg-[#EDE5DD]/50 hover:bg-[#EDE5DD] transition-colors">
       <div className={`p-2 rounded-full ${status ? 'bg-green-100' : 'bg-red-100'}`}>
         <Icon className={`w-4 h-4 ${status ? 'text-green-600' : 'text-red-600'}`} />
       </div>
       <div className="flex-1">
-        <p className="text-sm font-medium text-stone-900">{name}</p>
+        <p className="text-sm font-medium text-[#2D2420]">{name}</p>
         <p className={`text-xs ${status ? 'text-green-600' : 'text-red-600'}`}>
           {status ? 'Operational' : 'Issues Detected'}
         </p>
@@ -418,14 +418,14 @@ export default function AdminDashboardEnhanced() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 to-stone-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] to-[#EDE5DD]">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           className="flex flex-col items-center gap-4"
         >
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-stone-500 font-medium">Loading Dashboard...</p>
+          <div className="w-12 h-12 border-4 border-[#5C3D4E] border-t-transparent rounded-full animate-spin" />
+          <p className="text-[#8A7E76] font-medium">Loading Dashboard...</p>
         </motion.div>
       </div>
     );
@@ -446,17 +446,17 @@ export default function AdminDashboardEnhanced() {
   const greeting = currentHour < 12 ? "Good morning" : currentHour < 18 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50">
+    <div className="flex min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]">
       <AdminSidebar variant="dark" />
 
       <main className="flex-1 overflow-auto">
         {/* Top Bar */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-stone-900">{greeting}, {username}!</h1>
-                <p className="text-stone-500 text-sm">Here's what's happening with your site today</p>
+                <h1 className="text-2xl font-bold text-[#2D2420]">{greeting}, {username}!</h1>
+                <p className="text-[#8A7E76] text-sm">Here's what's happening with your site today</p>
               </div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" className="gap-2" onClick={handleRefresh}>
@@ -525,8 +525,8 @@ export default function AdminDashboardEnhanced() {
           {/* Quick Actions Grid */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-stone-900">Quick Actions</h2>
-              <Button variant="ghost" size="sm" className="text-stone-500" onClick={() => setLocation('/admin/settings')}>
+              <h2 className="text-lg font-semibold text-[#2D2420]">Quick Actions</h2>
+              <Button variant="ghost" size="sm" className="text-[#8A7E76]" onClick={() => setLocation('/admin/settings')}>
                 Customize <ChevronRight className="w-4 h-4 ml-1" />
               </Button>
             </div>
@@ -544,7 +544,7 @@ export default function AdminDashboardEnhanced() {
 
           {/* Stats Grid */}
           <div className="mb-8">
-            <h2 className="text-lg font-semibold text-stone-900 mb-4">Overview</h2>
+            <h2 className="text-lg font-semibold text-[#2D2420] mb-4">Overview</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
                 title="Total Pages"

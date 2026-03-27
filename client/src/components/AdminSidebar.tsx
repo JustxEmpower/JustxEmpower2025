@@ -116,21 +116,21 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
           showExpanded ? 'w-64' : 'w-16'
         } ${
           isDark 
-            ? 'bg-stone-900 text-stone-100' 
-            : 'bg-white dark:bg-neutral-900 border-r border-neutral-200 dark:border-neutral-800'
+            ? 'bg-[#1A1412] text-[#F0EBE3]' 
+            : 'bg-[#FAF7F4] dark:bg-[#1A1412] border-r border-[#D4C4BC] dark:border-[#2D2622]'
         }`}
         onMouseEnter={() => setIsExpanded(true)}
         onMouseLeave={() => setIsExpanded(false)}
       >
         {/* Header */}
-        <div className={`p-4 ${isDark ? 'mb-2' : 'border-b border-neutral-200 dark:border-neutral-800'} flex items-center justify-between`}>
+        <div className={`p-4 ${isDark ? 'mb-2' : 'border-b border-[#D4C4BC] dark:border-[#2D2622]'} flex items-center justify-between`}>
           {showExpanded ? (
             <div className="flex items-center justify-between w-full">
               <div>
                 {isDark ? (
                   <>
                     <h1 className="text-xl font-serif whitespace-nowrap">Just Empower</h1>
-                    <p className="text-xs text-stone-400">Admin Portal</p>
+                    <p className="text-xs text-[#9B8E82]">Admin Portal</p>
                   </>
                 ) : (
                   <>
@@ -139,7 +139,7 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
                       alt="Just Empower"
                       className="h-8 opacity-90"
                     />
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 font-light">
+                    <p className="text-xs text-[#8A7E76] dark:text-[#9B8E82] mt-1 font-light">
                       Admin Portal
                     </p>
                   </>
@@ -149,7 +149,7 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
                 variant="ghost"
                 size="icon"
                 onClick={() => setIsPinned(!isPinned)}
-                className={`${isDark ? 'text-stone-400 hover:text-white hover:bg-stone-800' : 'text-neutral-500 hover:text-neutral-900'}`}
+                className={`${isDark ? 'text-[#9B8E82] hover:text-[#F0EBE3] hover:bg-[#2D2420]' : 'text-[#8A7E76] hover:text-[#2D2420]'}`}
                 title={isPinned ? 'Unpin sidebar' : 'Pin sidebar'}
               >
                 {isPinned ? <PanelLeftClose className="w-4 h-4" /> : <PanelLeft className="w-4 h-4" />}
@@ -157,7 +157,7 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
             </div>
           ) : (
             <div className="w-full flex justify-center">
-              <div className={`p-2 rounded-lg ${isDark ? 'bg-stone-800' : 'bg-neutral-100'}`}>
+              <div className={`p-2 rounded-lg ${isDark ? 'bg-[#2D2420]' : 'bg-[#EDE5DD]'}`}>
                 <Menu className="w-5 h-5" />
               </div>
             </div>
@@ -165,7 +165,7 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
         </div>
 
         {/* Navigation */}
-        <nav className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden ${showExpanded ? (isDark ? 'space-y-1 px-3' : 'p-3 space-y-1') : 'px-2 space-y-1'}`}>
+        <nav className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden ${showExpanded ? (isDark ? 'space-y-0.5 px-3' : 'p-3 space-y-0.5') : 'px-2 space-y-0.5'}`}>
           {/* Back to Dashboard button - show on all pages except dashboard */}
           {location !== '/admin' && location !== '/admin/dashboard' && (
             <button
@@ -174,8 +174,8 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
                 showExpanded ? '' : 'justify-center'
               } ${
                 isDark
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700 shadow-lg shadow-purple-500/25'
-                  : 'bg-gradient-to-r from-purple-500 to-pink-500 text-white hover:from-purple-600 hover:to-pink-600 shadow-md'
+                  ? 'bg-gradient-to-r from-[#5C3D4E] to-[#8B6F5E] text-white hover:from-[#6E4D5E] hover:to-[#9B7F6E] shadow-lg shadow-[#5C3D4E]/25'
+                  : 'bg-gradient-to-r from-[#5C3D4E] to-[#8B6F5E] text-white hover:from-[#6E4D5E] hover:to-[#9B7F6E] shadow-md'
               }`}
               title={showExpanded ? '' : 'Back to Dashboard'}
             >
@@ -198,11 +198,11 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
                 } ${
                   isDark
                     ? isActive
-                      ? 'bg-amber-600 text-white'
-                      : 'text-stone-300 hover:bg-stone-800 hover:text-white'
+                      ? 'bg-[#5C3D4E] text-white'
+                      : 'text-[#C8C0B4] hover:bg-[#2D2420] hover:text-[#F0EBE3]'
                     : isActive
-                      ? 'bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100'
-                      : 'text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800/50'
+                      ? 'bg-[#EDE5DD] dark:bg-[#2D2420] text-[#2D2420] dark:text-[#F0EBE3]'
+                      : 'text-[#8A7E76] dark:text-[#9B8E82] hover:bg-[#EDE5DD]/50 dark:hover:bg-[#2D2420]/50'
                 }`}
                 title={showExpanded ? '' : item.label}
               >
@@ -214,18 +214,18 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
         </nav>
 
         {/* Footer */}
-        <div className={`p-3 ${isDark ? 'mt-auto pt-3 border-t border-stone-800' : 'border-t border-neutral-200 dark:border-neutral-800'}`}>
+        <div className={`p-3 ${isDark ? 'mt-auto pt-3 border-t border-[#2D2420]' : 'border-t border-[#D4C4BC] dark:border-[#2D2622]'}`}>
           {showExpanded ? (
             isDark ? (
               <>
-                <div className="px-3 py-2 text-xs text-stone-400">
-                  Logged in as <span className="text-stone-200 font-medium">{username}</span>
+                <div className="px-3 py-2 text-xs text-[#9B8E82]">
+                  Logged in as <span className="text-[#F0EBE3] font-medium">{username}</span>
                 </div>
                 <Button
                   onClick={logout}
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-start text-stone-300 hover:text-white hover:bg-stone-800"
+                  className="w-full justify-start text-[#C8C0B4] hover:text-[#F0EBE3] hover:bg-[#2D2420]"
                 >
                   <LogOut className="w-4 h-4 mr-2" />
                   Logout
@@ -235,10 +235,10 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
               <>
                 <div className="flex items-center justify-between mb-2">
                   <div>
-                    <p className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
+                    <p className="text-sm font-medium text-[#2D2420] dark:text-[#F0EBE3]">
                       {username}
                     </p>
-                    <p className="text-xs text-neutral-500 dark:text-neutral-400">
+                    <p className="text-xs text-[#8A7E76] dark:text-[#9B8E82]">
                       Administrator
                     </p>
                   </div>
@@ -259,8 +259,8 @@ export default function AdminSidebar({ variant = 'dark' }: AdminSidebarProps) {
               onClick={logout}
               className={`w-full flex justify-center p-2.5 rounded-lg transition-colors ${
                 isDark
-                  ? 'text-stone-400 hover:bg-stone-800 hover:text-white'
-                  : 'text-neutral-500 hover:bg-neutral-100'
+                  ? 'text-[#9B8E82] hover:bg-[#2D2420] hover:text-[#F0EBE3]'
+                  : 'text-[#8A7E76] hover:bg-[#EDE5DD]'
               }`}
               title="Logout"
             >

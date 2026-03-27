@@ -282,20 +282,20 @@ export default function AdminCarouselManagerEnhanced() {
   };
 
   if (isChecking || homepageCarouselQuery.isLoading) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" /></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" /></div>;
   }
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
       <main className="flex-1 overflow-auto">
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-stone-900">Carousel Manager</h1>
-                <p className="text-stone-500 text-sm">Manage all carousels across your site</p>
+                <h1 className="text-2xl font-bold text-[#2D2420]">Carousel Manager</h1>
+                <p className="text-[#8A7E76] text-sm">Manage all carousels across your site</p>
               </div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => homepageCarouselQuery.refetch()}>
@@ -315,12 +315,12 @@ export default function AdminCarouselManagerEnhanced() {
               { label: "Page Carousels", value: stats.pageBuilderCarousels, icon: Layers, color: "blue" },
             ].map((stat, i) => (
               <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
-                <Card className="bg-gradient-to-br from-stone-50 to-stone-100/50 border-stone-200">
+                <Card className="bg-gradient-to-br from-[#FAF7F4] to-[#EDE5DD]/50 border-stone-200">
                   <CardContent className="p-5">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-xs font-medium text-stone-600">{stat.label}</p>
-                        <p className="text-2xl font-bold text-stone-900"><AnimatedCounter value={stat.value} /></p>
+                        <p className="text-2xl font-bold text-[#2D2420]"><AnimatedCounter value={stat.value} /></p>
                       </div>
                       <stat.icon className="w-8 h-8 text-stone-500" />
                     </div>
@@ -346,7 +346,7 @@ export default function AdminCarouselManagerEnhanced() {
               <AccordionContent className="px-6 pb-6">
                 <div className="space-y-4">
                   <div className="flex justify-end">
-                    <Button onClick={() => { resetSlideForm(); setEditingSlide(null); setIsSlideDialogOpen(true); }} className="bg-amber-600 hover:bg-amber-700">
+                    <Button onClick={() => { resetSlideForm(); setEditingSlide(null); setIsSlideDialogOpen(true); }} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                       <Plus className="w-4 h-4 mr-2" />Add Slide
                     </Button>
                   </div>
@@ -511,7 +511,7 @@ export default function AdminCarouselManagerEnhanced() {
                 Cancel
               </Button>
               <Button 
-                className="bg-amber-600 hover:bg-amber-700" 
+                className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white" 
                 onClick={handleSaveSlide}
                 disabled={createSlideMutation.isPending || updateSlideMutation.isPending}
               >

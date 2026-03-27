@@ -429,8 +429,8 @@ export default function AdminMediaEnhanced() {
 
   if (isChecking || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
       </div>
     );
   }
@@ -438,17 +438,17 @@ export default function AdminMediaEnhanced() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
 
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-stone-900">Media Library</h1>
-                <p className="text-stone-500 text-sm">Upload and manage images, videos, and audio</p>
+                <h1 className="text-2xl font-bold text-[#2D2420]">Media Library</h1>
+                <p className="text-[#8A7E76] text-sm">Upload and manage images, videos, and audio</p>
               </div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => refetch()}>
@@ -460,7 +460,7 @@ export default function AdminMediaEnhanced() {
                 >
                   <Film className="w-4 h-4 mr-2" />AI Video
                 </Button>
-                <Button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="bg-amber-600 hover:bg-amber-700">
+                <Button onClick={() => fileInputRef.current?.click()} disabled={uploading} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                   <Upload className="w-4 h-4 mr-2" />{uploading ? 'Uploading...' : 'Upload'}
                 </Button>
               </div>
@@ -552,7 +552,7 @@ export default function AdminMediaEnhanced() {
                 <ImageIcon className="w-12 h-12 text-stone-400 mb-4" />
                 <h3 className="text-lg font-medium mb-2">No media found</h3>
                 <p className="text-stone-500 mb-4">{searchQuery || typeFilter !== 'all' ? 'Try adjusting filters' : 'Upload your first file'}</p>
-                <Button onClick={() => fileInputRef.current?.click()} className="bg-amber-600 hover:bg-amber-700">
+                <Button onClick={() => fileInputRef.current?.click()} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                   <Upload className="w-4 h-4 mr-2" />Upload
                 </Button>
               </CardContent>
@@ -710,7 +710,7 @@ export default function AdminMediaEnhanced() {
                   <Button 
                     onClick={handleConvert} 
                     disabled={!selectedFormat || convertMediaMutation.isPending}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                   >
                     {convertMediaMutation.isPending ? (
                       <>

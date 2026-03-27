@@ -74,21 +74,21 @@ export default function AdminNavigationEnhanced() {
   const handleEdit = (item: any) => { setEditingItem(item); setFormData({ label: item.label, url: item.url, order: item.order || 0, isExternal: item.isExternal || false }); };
 
   if (isChecking) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" /></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" /></div>;
   }
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
       <main className="flex-1 overflow-auto">
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <div><h1 className="text-2xl font-bold text-stone-900">Navigation</h1><p className="text-stone-500 text-sm">Manage site navigation menus</p></div>
+              <div><h1 className="text-2xl font-bold text-[#2D2420]">Navigation</h1><p className="text-[#8A7E76] text-sm">Manage site navigation menus</p></div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => navQuery.refetch?.()}><RefreshCw className="w-4 h-4 mr-2" />Refresh</Button>
-                <Button onClick={() => setIsCreateOpen(true)} className="bg-amber-600 hover:bg-amber-700"><Plus className="w-4 h-4 mr-2" />Add Item</Button>
+                <Button onClick={() => setIsCreateOpen(true)} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"><Plus className="w-4 h-4 mr-2" />Add Item</Button>
               </div>
             </div>
           </div>
@@ -139,7 +139,7 @@ export default function AdminNavigationEnhanced() {
               <div className="space-y-2"><Label>URL</Label><Input value={formData.url} onChange={(e) => setFormData({ ...formData, url: e.target.value })} placeholder="/page-slug or https://..." /></div>
               <div className="flex items-center gap-2"><input type="checkbox" checked={formData.isExternal} onChange={(e) => setFormData({ ...formData, isExternal: e.target.checked })} className="rounded" /><Label>External link (opens in new tab)</Label></div>
             </div>
-            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingItem(null); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending} className="bg-amber-600 hover:bg-amber-700">{editingItem ? "Update" : "Add"}</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingItem(null); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending || updateMutation.isPending} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">{editingItem ? "Update" : "Add"}</Button></DialogFooter>
           </DialogContent>
         </Dialog>
       </main>

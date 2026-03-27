@@ -123,7 +123,7 @@ export default function AdminCode() {
                   <Button
                     onClick={handleSaveCSS}
                     disabled={updateMutation.isPending}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                   >
                     {updateMutation.isPending ? (
                       <>
@@ -170,7 +170,7 @@ export default function AdminCode() {
                   <Button
                     onClick={handleSaveJS}
                     disabled={updateMutation.isPending}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                   >
                     {updateMutation.isPending ? (
                       <>
@@ -217,7 +217,7 @@ export default function AdminCode() {
                   <Button
                     onClick={handleSaveHeader}
                     disabled={updateMutation.isPending}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                   >
                     {updateMutation.isPending ? (
                       <>
@@ -264,7 +264,7 @@ export default function AdminCode() {
                   <Button
                     onClick={handleSaveFooter}
                     disabled={updateMutation.isPending}
-                    className="bg-amber-600 hover:bg-amber-700"
+                    className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                   >
                     {updateMutation.isPending ? (
                       <>

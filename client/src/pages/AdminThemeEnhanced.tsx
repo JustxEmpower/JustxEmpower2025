@@ -24,8 +24,8 @@ export default function AdminThemeEnhanced() {
   const generatePaletteMutation = trpc.admin.theme.generatePalette.useMutation();
 
   const [formData, setFormData] = useState({
-    primaryColor: "#000000", secondaryColor: "#ffffff", accentColor: "#1a1a1a", backgroundColor: "#ffffff", textColor: "#000000",
-    headingFont: "Playfair Display", bodyFont: "Inter", containerMaxWidth: "1280px", sectionSpacing: "120px", borderRadius: "8px",
+    primaryColor: "#5C3D4E", secondaryColor: "#EDE5DD", accentColor: "#C9A96E", backgroundColor: "#FAF7F4", textColor: "#2D2420",
+    headingFont: "Cormorant Garamond", bodyFont: "Inter", containerMaxWidth: "1400px", sectionSpacing: "120px", borderRadius: "1.5rem",
     heroBackgroundImage: "", heroBackgroundVideo: "",
   });
 
@@ -56,21 +56,21 @@ export default function AdminThemeEnhanced() {
   };
 
   if (isChecking) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" /></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] to-[#EDE5DD]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" /></div>;
   }
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
       <main className="flex-1 overflow-auto">
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <div><h1 className="text-2xl font-bold text-stone-900">Theme</h1><p className="text-stone-500 text-sm">Customize colors, fonts, and styling</p></div>
+              <div><h1 className="text-2xl font-bold text-[#2D2420]">Theme</h1><p className="text-[#8A7E76] text-sm">Customize colors, fonts, and styling</p></div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => themeQuery.refetch()}><RefreshCw className="w-4 h-4 mr-2" />Refresh</Button>
-                <Button onClick={handleSave} disabled={isSaving} className="bg-amber-600 hover:bg-amber-700">
+                <Button onClick={handleSave} disabled={isSaving} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                   {isSaving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}Save Theme
                 </Button>
               </div>
@@ -128,7 +128,7 @@ export default function AdminThemeEnhanced() {
                   <CardContent className="space-y-4">
                     <div className="space-y-2"><Label>Heading Font</Label><Input value={formData.headingFont} onChange={(e) => setFormData({ ...formData, headingFont: e.target.value })} /></div>
                     <div className="space-y-2"><Label>Body Font</Label><Input value={formData.bodyFont} onChange={(e) => setFormData({ ...formData, bodyFont: e.target.value })} /></div>
-                    <div className="p-4 bg-stone-50 rounded-lg">
+                    <div className="p-4 bg-[#EDE5DD]/50 rounded-lg">
                       <h3 style={{ fontFamily: formData.headingFont }} className="text-2xl mb-2">Heading Preview</h3>
                       <p style={{ fontFamily: formData.bodyFont }}>Body text preview. The quick brown fox jumps over the lazy dog.</p>
                     </div>

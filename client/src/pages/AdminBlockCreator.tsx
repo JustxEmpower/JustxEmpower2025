@@ -208,7 +208,7 @@ export default function AdminBlockCreator() {
     content: blockContent,
   };
 
-  const getCategoryColor = (category: string) => categoryColors[category] || { bg: 'bg-gradient-to-br from-stone-50 to-stone-100', border: 'border-stone-200', text: 'text-stone-700', icon: 'text-stone-500', gradient: 'from-stone-500 to-stone-600' };
+  const getCategoryColor = (category: string) => categoryColors[category] || { bg: 'bg-gradient-to-br from-[#FAF7F4] to-[#EDE5DD]', border: 'border-stone-200', text: 'text-stone-700', icon: 'text-stone-500', gradient: 'from-stone-500 to-stone-600' };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-violet-50 via-white to-fuchsia-50">

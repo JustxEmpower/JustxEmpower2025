@@ -54,8 +54,8 @@ export default function AdminReviewsEnhanced() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
       </div>
     );
   }
@@ -73,16 +73,16 @@ export default function AdminReviewsEnhanced() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
 
       <main className="flex-1 overflow-auto">
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-stone-900">Reviews</h1>
-                <p className="text-stone-500 text-sm">Manage product and event reviews</p>
+                <h1 className="text-2xl font-bold text-[#2D2420]">Reviews</h1>
+                <p className="text-[#8A7E76] text-sm">Manage product and event reviews</p>
               </div>
               <Button variant="outline" size="sm" onClick={() => reviewsQuery?.refetch?.()}>
                 <RefreshCw className="w-4 h-4 mr-2" />Refresh

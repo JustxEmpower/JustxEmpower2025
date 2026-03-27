@@ -234,17 +234,17 @@ export default function AdminProducts() {
   const totalValue = allProducts.reduce((sum: number, p: any) => sum + (p.price * p.stock), 0);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
 
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-stone-900">Products</h1>
-                <p className="text-stone-500 text-sm">Manage your shop inventory</p>
+                <h1 className="text-2xl font-bold text-[#2D2420]">Products</h1>
+                <p className="text-[#8A7E76] text-sm">Manage your shop inventory</p>
               </div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => productsQuery.refetch()}>
@@ -444,7 +444,7 @@ export default function AdminProducts() {
             </motion.div>
             
             <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 300 }}>
-              <Card className={`bg-gradient-to-br ${lowStockProducts > 0 ? 'from-amber-50 to-orange-50 border-amber-200' : 'from-stone-50 to-stone-100 border-stone-200'}`}>
+              <Card className={`bg-gradient-to-br ${lowStockProducts > 0 ? 'from-amber-50 to-orange-50 border-amber-200' : 'from-[#FAF7F4] to-[#EDE5DD] border-stone-200'}`}>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>

@@ -442,7 +442,7 @@ export default function AdminSourceEditorTurbo() {
               <Button
                 onClick={handleSave}
                 disabled={isSaving || !hasUnsavedChanges}
-                className="bg-amber-600 hover:bg-amber-700"
+                className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                 size="sm"
               >
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4 mr-1" />}
@@ -492,7 +492,7 @@ export default function AdminSourceEditorTurbo() {
                     </Button>
                   </div>
                 ) : filteredTree.length === 0 ? (
-                  <div className="text-center py-8 text-stone-500 text-sm">
+                  <div className="text-center py-8 text-[#8A7E76] text-sm">
                     No files found
                   </div>
                 ) : (

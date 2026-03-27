@@ -347,7 +347,7 @@ export default function AdminContactMessages() {
                   href={`mailto:${selectedMessage.email}?subject=Re: ${selectedMessage.subject}`}
                   className="ml-auto"
                 >
-                  <Button className="bg-amber-600 hover:bg-amber-700">
+                  <Button className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                     <Mail className="w-4 h-4 mr-2" />
                     Reply via Email
                   </Button>

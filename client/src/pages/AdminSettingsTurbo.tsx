@@ -210,12 +210,12 @@ export default function AdminSettingsTurbo() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar />
 
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-40 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="px-6 py-4">
             <Button 
               variant="ghost" 
@@ -231,7 +231,7 @@ export default function AdminSettingsTurbo() {
                 <Settings className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-stone-900">Settings</h1>
+                <h1 className="text-2xl font-bold text-[#2D2420]">Settings</h1>
                 <p className="text-sm text-stone-500">Manage API connections, integrations, and account security</p>
               </div>
             </div>

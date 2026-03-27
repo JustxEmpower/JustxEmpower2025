@@ -443,8 +443,8 @@ export default function AdminNavigationManager() {
 
   if (isChecking || pagesQuery.isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
       </div>
     );
   }
@@ -452,17 +452,17 @@ export default function AdminNavigationManager() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
 
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-5xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-stone-900">Navigation Manager</h1>
-                <p className="text-stone-500 text-sm">Organize your site navigation and dropdown menus</p>
+                <h1 className="text-2xl font-bold text-[#2D2420]">Navigation Manager</h1>
+                <p className="text-[#8A7E76] text-sm">Organize your site navigation and dropdown menus</p>
               </div>
               <Button variant="outline" size="sm" onClick={() => pagesQuery.refetch()}>
                 <RefreshCw className="w-4 h-4 mr-2" />Refresh
@@ -632,7 +632,7 @@ export default function AdminNavigationManager() {
               <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleUpdateNavSettings} className="bg-amber-600 hover:bg-amber-700">
+              <Button onClick={handleUpdateNavSettings} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                 Save Changes
               </Button>
             </div>

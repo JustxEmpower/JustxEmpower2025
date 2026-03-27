@@ -269,8 +269,8 @@ export default function AdminEventsEnhanced() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
       </div>
     );
   }
@@ -281,17 +281,17 @@ export default function AdminEventsEnhanced() {
   const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
 
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-stone-900">Events</h1>
-                <p className="text-stone-500 text-sm">Manage workshops, retreats, and gatherings</p>
+                <h1 className="text-2xl font-bold text-[#2D2420]">Events</h1>
+                <p className="text-[#8A7E76] text-sm">Manage workshops, retreats, and gatherings</p>
               </div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => eventsQuery.refetch()}>
@@ -302,7 +302,7 @@ export default function AdminEventsEnhanced() {
                   if (!open) { setIsCreateOpen(false); setEditingEvent(null); resetForm(); }
                 }}>
                   <DialogTrigger asChild>
-                    <Button onClick={() => setIsCreateOpen(true)} className="bg-amber-600 hover:bg-amber-700">
+                    <Button onClick={() => setIsCreateOpen(true)} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                       <Plus className="w-4 h-4 mr-2" />
                       Add Event
                     </Button>
@@ -456,7 +456,7 @@ export default function AdminEventsEnhanced() {
                     </Tabs>
                     <DialogFooter className="mt-6">
                       <Button variant="outline" onClick={() => { setIsCreateOpen(false); setEditingEvent(null); resetForm(); }}>Cancel</Button>
-                      <Button onClick={handleSubmit} disabled={createEvent.isPending || updateEvent.isPending} className="bg-amber-600 hover:bg-amber-700">
+                      <Button onClick={handleSubmit} disabled={createEvent.isPending || updateEvent.isPending} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                         {editingEvent ? "Update" : "Create"} Event
                       </Button>
                     </DialogFooter>
@@ -573,7 +573,7 @@ export default function AdminEventsEnhanced() {
           {/* Content */}
           {eventsQuery.isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" />
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" />
             </div>
           ) : viewMode === "calendar" ? (
             /* Calendar View */
@@ -624,7 +624,7 @@ export default function AdminEventsEnhanced() {
                 <CalendarDays className="w-12 h-12 text-stone-400 mb-4" />
                 <h3 className="text-lg font-medium mb-2">No events found</h3>
                 <p className="text-stone-500 mb-4">{searchQuery || statusFilter !== "all" ? "Try adjusting your filters" : "Create your first event to get started"}</p>
-                <Button onClick={() => setIsCreateOpen(true)} className="bg-amber-600 hover:bg-amber-700">
+                <Button onClick={() => setIsCreateOpen(true)} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                   <Plus className="w-4 h-4 mr-2" />
                   Add Event
                 </Button>

@@ -74,7 +74,7 @@ export default function AdminShop() {
               <p className="text-stone-600">Manage your products, orders, and shop settings</p>
             </div>
             <Link href="/admin/products">
-              <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+              <Button className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white text-white">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Product
               </Button>
@@ -196,7 +196,7 @@ export default function AdminShop() {
                   <Package className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p>No products yet. Add your first product!</p>
                   <Link href="/admin/products">
-                    <Button className="mt-4 bg-amber-600 hover:bg-amber-700 text-white">
+                    <Button className="mt-4 bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white text-white">
                       <Plus className="w-4 h-4 mr-2" />
                       Add Product
                     </Button>

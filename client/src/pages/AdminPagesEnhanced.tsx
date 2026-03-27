@@ -121,21 +121,21 @@ export default function AdminPagesEnhanced() {
   };
 
   if (isChecking) {
-    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 via-white to-stone-50"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-600" /></div>;
+    return <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4]"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#5C3D4E]" /></div>;
   }
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
       <main className="flex-1 overflow-auto">
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <div><h1 className="text-2xl font-bold text-stone-900">Pages</h1><p className="text-stone-500 text-sm">Manage site pages and content</p></div>
+              <div><h1 className="text-2xl font-bold text-[#2D2420]">Pages</h1><p className="text-[#8A7E76] text-sm">Manage site pages and content</p></div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => pagesQuery.refetch()}><RefreshCw className="w-4 h-4 mr-2" />Refresh</Button>
-                <Button onClick={() => setIsCreateOpen(true)} className="bg-amber-600 hover:bg-amber-700"><Plus className="w-4 h-4 mr-2" />New Page</Button>
+                <Button onClick={() => setIsCreateOpen(true)} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"><Plus className="w-4 h-4 mr-2" />New Page</Button>
               </div>
             </div>
           </div>
@@ -192,7 +192,7 @@ export default function AdminPagesEnhanced() {
               <div className="space-y-2"><Label>Slug (optional)</Label><Input value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} placeholder="auto-generated-from-title" /><p className="text-xs text-stone-500">Leave empty to auto-generate from title</p></div>
               <div className="space-y-2"><Label>Status</Label><Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="published">Published (visible on site)</SelectItem><SelectItem value="draft">Draft (edit before publishing)</SelectItem></SelectContent></Select></div>
             </div>
-            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending} className="bg-amber-600 hover:bg-amber-700">Create & Edit in Page Builder</Button></DialogFooter>
+            <DialogFooter><Button variant="outline" onClick={() => { setIsCreateOpen(false); resetForm(); }}>Cancel</Button><Button onClick={handleSubmit} disabled={createMutation.isPending} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">Create & Edit in Page Builder</Button></DialogFooter>
           </DialogContent>
         </Dialog>
         <Dialog open={isDuplicateOpen} onOpenChange={(open) => { if (!open) { setIsDuplicateOpen(false); setDuplicatingPage(null); } }}>
@@ -222,7 +222,7 @@ export default function AdminPagesEnhanced() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => { setIsDuplicateOpen(false); setDuplicatingPage(null); }}>Cancel</Button>
-              <Button onClick={confirmDuplicate} disabled={duplicateMutation.isPending || !dupFormData.title || !dupFormData.slug} className="bg-amber-600 hover:bg-amber-700">
+              <Button onClick={confirmDuplicate} disabled={duplicateMutation.isPending || !dupFormData.title || !dupFormData.slug} className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                 <Copy className="w-4 h-4 mr-2" />Duplicate Page
               </Button>
             </DialogFooter>

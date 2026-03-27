@@ -198,7 +198,7 @@ export default function AdminDashboard() {
                 <Files className="w-4 h-4 text-blue-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-stone-900">{stats.totalPages}</div>
+                <div className="text-2xl font-bold text-[#2D2420]">{stats.totalPages}</div>
                 <p className="text-xs text-stone-500 mt-1">
                   <span className="text-green-600">{stats.publishedPages}</span> published
                 </p>
@@ -211,7 +211,7 @@ export default function AdminDashboard() {
                 <FileText className="w-4 h-4 text-purple-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-stone-900">{stats.totalArticles}</div>
+                <div className="text-2xl font-bold text-[#2D2420]">{stats.totalArticles}</div>
                 <p className="text-xs text-stone-500 mt-1">
                   <span className="text-green-600">{stats.publishedArticles}</span> published
                 </p>
@@ -224,7 +224,7 @@ export default function AdminDashboard() {
                 <Image className="w-4 h-4 text-pink-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-stone-900">{stats.totalMedia}</div>
+                <div className="text-2xl font-bold text-[#2D2420]">{stats.totalMedia}</div>
                 <p className="text-xs text-stone-500 mt-1">Images & files</p>
               </CardContent>
             </Card>
@@ -235,7 +235,7 @@ export default function AdminDashboard() {
                 <Package className="w-4 h-4 text-cyan-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-stone-900">{stats.totalResources}</div>
+                <div className="text-2xl font-bold text-[#2D2420]">{stats.totalResources}</div>
                 <p className="text-xs text-stone-500 mt-1">Documents & files</p>
               </CardContent>
             </Card>
@@ -247,7 +247,7 @@ export default function AdminDashboard() {
                 <ShoppingCart className="w-4 h-4 text-orange-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-stone-900">{stats.totalProducts}</div>
+                <div className="text-2xl font-bold text-[#2D2420]">{stats.totalProducts}</div>
                 <p className="text-xs text-stone-500 mt-1">In catalog</p>
               </CardContent>
             </Card>
@@ -258,7 +258,7 @@ export default function AdminDashboard() {
                 <Calendar className="w-4 h-4 text-indigo-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-stone-900">{stats.totalEvents}</div>
+                <div className="text-2xl font-bold text-[#2D2420]">{stats.totalEvents}</div>
                 <p className="text-xs text-stone-500 mt-1">Scheduled</p>
               </CardContent>
             </Card>
@@ -269,7 +269,7 @@ export default function AdminDashboard() {
                 <TrendingUp className="w-4 h-4 text-emerald-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-stone-900">{stats.totalOrders}</div>
+                <div className="text-2xl font-bold text-[#2D2420]">{stats.totalOrders}</div>
                 <p className="text-xs text-stone-500 mt-1">
                   <span className="text-emerald-600">+{stats.recentOrders}</span> this week
                 </p>
@@ -296,7 +296,7 @@ export default function AdminDashboard() {
                 <FormInput className="w-4 h-4 text-rose-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-stone-900">{stats.totalFormSubmissions}</div>
+                <div className="text-2xl font-bold text-[#2D2420]">{stats.totalFormSubmissions}</div>
                 <p className="text-xs text-stone-500 mt-1">
                   {stats.unreadSubmissions > 0 ? (
                     <span className="text-amber-600 font-medium">{stats.unreadSubmissions} unread</span>
@@ -313,7 +313,7 @@ export default function AdminDashboard() {
                 <Mail className="w-4 h-4 text-sky-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-stone-900">{stats.totalSubscribers}</div>
+                <div className="text-2xl font-bold text-[#2D2420]">{stats.totalSubscribers}</div>
                 <p className="text-xs text-stone-500 mt-1">Newsletter</p>
               </CardContent>
             </Card>
@@ -324,7 +324,7 @@ export default function AdminDashboard() {
                 <Users className="w-4 h-4 text-violet-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-stone-900">{stats.totalUsers}</div>
+                <div className="text-2xl font-bold text-[#2D2420]">{stats.totalUsers}</div>
                 <p className="text-xs text-stone-500 mt-1">Administrators</p>
               </CardContent>
             </Card>

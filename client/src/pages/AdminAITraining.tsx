@@ -188,7 +188,7 @@ export default function AdminAITraining() {
 
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-stone-50 to-stone-100">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#FAF7F4] to-[#EDE5DD]">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -214,20 +214,20 @@ export default function AdminAITraining() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-stone-50 via-white to-stone-50 flex">
+    <div className="min-h-screen bg-gradient-to-br from-[#FAF7F4] via-[#FDFCFA] to-[#FAF7F4] flex">
       <AdminSidebar variant="dark" />
 
       <main className="flex-1 overflow-auto">
         {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-lg border-b border-stone-200">
+        <div className="sticky top-0 z-10 bg-[#FAF7F4]/80 backdrop-blur-lg border-b border-[#D4C4BC]">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-stone-900 flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-[#2D2420] flex items-center gap-2">
                   <Brain className="w-7 h-7 text-primary" />
                   AI Training Center
                 </h1>
-                <p className="text-stone-500 text-sm">Teach your AI assistant to be a better guide</p>
+                <p className="text-[#8A7E76] text-sm">Teach your AI assistant to be a better guide</p>
               </div>
               <div className="flex items-center gap-3">
                 <Button variant="outline" size="sm" onClick={() => knowledgeQuery.refetch()}>

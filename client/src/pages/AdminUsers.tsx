@@ -172,7 +172,7 @@ export default function AdminUsers() {
                 </div>
                 <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
                   <DialogTrigger asChild>
-                    <Button className="bg-amber-600 hover:bg-amber-700">
+                    <Button className="bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white">
                       <UserPlus className="w-4 h-4 mr-2" />
                       Add User
                     </Button>
@@ -233,7 +233,7 @@ export default function AdminUsers() {
                       <Button
                         onClick={handleCreate}
                         disabled={createMutation.isPending}
-                        className="w-full bg-amber-600 hover:bg-amber-700"
+                        className="w-full bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                       >
                         {createMutation.isPending ? (
                           <>
@@ -375,7 +375,7 @@ export default function AdminUsers() {
                   <Button
                     onClick={handleUpdate}
                     disabled={updateMutation.isPending}
-                    className="flex-1 bg-amber-600 hover:bg-amber-700"
+                    className="flex-1 bg-[#5C3D4E] hover:bg-[#6E4D5E] text-white"
                   >
                     {updateMutation.isPending ? (
                       <>
