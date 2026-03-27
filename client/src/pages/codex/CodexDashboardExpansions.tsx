@@ -1,44 +1,8 @@
 import React, { useState } from 'react';
-
-// Phase journey constants
-const PHASE_NAMES = [
-  'Threshold',
-  'Descent',
-  'Naming',
-  'Mirror',
-  'Void',
-  'Ember',
-  'Integration',
-  'Embodiment',
-  'Offering',
-];
-
-const PHASE_GLYPHS = [
-  '⟡',
-  '↓',
-  '◈',
-  '⟐',
-  '∅',
-  '◆',
-  '∆',
-  '●',
-  '✦',
-];
-
-const PHASE_AMBIENTS = [
-  'rgba(184,123,101,0.06)',
-  'rgba(125,142,127,0.06)',
-  'rgba(184,151,106,0.06)',
-  'rgba(139,123,168,0.06)',
-  'rgba(200,188,174,0.06)',
-  'rgba(184,123,101,0.08)',
-  'rgba(125,142,127,0.08)',
-  'rgba(184,151,106,0.08)',
-  'rgba(139,123,168,0.08)',
-];
+import NinePhaseIcons from './NinePhaseIcons';
 
 // ============================================================================
-// PhaseJourneyMap Component
+// PhaseJourneyMap Component — delegates to animated NinePhaseIcons
 // ============================================================================
 interface PhaseJourneyMapProps {
   currentPhase: number;
@@ -51,158 +15,12 @@ export const PhaseJourneyMap: React.FC<PhaseJourneyMapProps> = ({
   completedPhases,
   primaryArchetype,
 }) => {
-  const containerStyle: React.CSSProperties = {
-    padding: '2rem',
-    background: 'rgba(255,255,255,0.15)',
-    borderRadius: 'var(--cx-radius-lg)',
-    border: '1px solid rgba(255,255,255,0.25)',
-    backdropFilter: 'blur(40px) saturate(1.3)',
-    WebkitBackdropFilter: 'blur(40px) saturate(1.3)',
-    boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 32px rgba(0,0,0,0.03)',
-    marginBottom: '2rem',
-  };
-
-  const headerStyle: React.CSSProperties = {
-    fontSize: '1.5rem',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 300,
-    color: 'var(--cx-ink)',
-    marginBottom: '2rem',
-    letterSpacing: '0.02em',
-  };
-
-  const pathContainerStyle: React.CSSProperties = {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: '1rem',
-    marginBottom: '2rem',
-  };
-
-  const lineStyle: React.CSSProperties = {
-    position: 'absolute',
-    top: '50%',
-    left: '5%',
-    right: '5%',
-    height: '2px',
-    background: 'linear-gradient(to right, rgba(184,151,106,0.3), transparent)',
-    zIndex: 0,
-    pointerEvents: 'none',
-  };
-
-  const phaseNodeStyle = (phaseIndex: number): React.CSSProperties => {
-    const isCompleted = completedPhases.includes(phaseIndex);
-    const isCurrent = currentPhase === phaseIndex;
-    const isFuture = phaseIndex > currentPhase;
-
-    return {
-      position: 'relative',
-      zIndex: 1,
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      gap: '0.5rem',
-    };
-  };
-
-  const phaseCircleStyle = (phaseIndex: number): React.CSSProperties => {
-    const isCompleted = completedPhases.includes(phaseIndex);
-    const isCurrent = currentPhase === phaseIndex;
-    const isFuture = phaseIndex > currentPhase;
-
-    let backgroundColor = PHASE_AMBIENTS[phaseIndex];
-    let borderColor = 'rgba(184,151,106,0.18)';
-    let shadow = '0 0 0 1px rgba(184,151,106,0.18) inset';
-    let color = 'var(--cx-ink)';
-    let backdropFilter = 'blur(20px)';
-
-    if (isCurrent) {
-      backgroundColor = 'rgba(184,151,106,0.10)';
-      borderColor = 'rgba(184,151,106,0.35)';
-      shadow = `0 0 12px rgba(184,151,106,0.25), 0 0 0 1px rgba(184,151,106,0.35) inset`;
-      color = 'var(--cx-gold)';
-    } else if (isCompleted) {
-      backgroundColor = 'rgba(184,151,106,0.08)';
-      borderColor = 'rgba(184,151,106,0.28)';
-      shadow = '0 0 0 1px rgba(184,151,106,0.28) inset';
-    } else if (isFuture) {
-      color = 'var(--cx-clay)';
-      backgroundColor = 'rgba(255,255,255,0.06)';
-      borderColor = 'rgba(184,151,106,0.08)';
-      shadow = '0 0 0 1px rgba(184,151,106,0.08) inset';
-    }
-
-    return {
-      width: '3rem',
-      height: '3rem',
-      borderRadius: '50%',
-      background: backgroundColor,
-      border: `1.5px solid ${borderColor}`,
-      boxShadow: shadow,
-      backdropFilter,
-      WebkitBackdropFilter: backdropFilter,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '1.5rem',
-      color,
-      fontWeight: 600,
-      transition: 'all 0.3s ease',
-    };
-  };
-
-  const phaseNameStyle: React.CSSProperties = {
-    fontSize: '0.75rem',
-    color: 'var(--cx-ink2)',
-    textAlign: 'center',
-    maxWidth: '4rem',
-    fontFamily: 'Cormorant Garamond, serif',
-    letterSpacing: '0.03em',
-    marginTop: '0.5rem',
-  };
-
-  const currentPhaseNameStyle: React.CSSProperties = {
-    ...phaseNameStyle,
-    color: 'var(--cx-gold)',
-    fontWeight: 600,
-  };
-
-  const archetypeStyle: React.CSSProperties = {
-    fontSize: '0.85rem',
-    color: 'var(--cx-ink3)',
-    marginTop: '1.5rem',
-    fontStyle: 'italic',
-    textAlign: 'center',
-  };
-
   return (
-    <div style={containerStyle} className="cx-fade-in">
-      <h3 style={headerStyle}>Your Journey Through the Nine Phases</h3>
-      <div style={pathContainerStyle}>
-        <div style={lineStyle} />
-        {PHASE_NAMES.map((phaseName, index) => (
-          <div key={index} style={phaseNodeStyle(index)}>
-            <div style={phaseCircleStyle(index)}>
-              {completedPhases.includes(index) ? '✓' : PHASE_GLYPHS[index]}
-            </div>
-            <div
-              style={
-                currentPhase === index
-                  ? currentPhaseNameStyle
-                  : phaseNameStyle
-              }
-            >
-              {index + 1}. {phaseName}
-            </div>
-          </div>
-        ))}
-      </div>
-      <div style={archetypeStyle}>
-        Current path: {primaryArchetype}
-      </div>
-    </div>
+    <NinePhaseIcons
+      currentPhase={currentPhase}
+      completedPhases={completedPhases}
+      pathway={primaryArchetype}
+    />
   );
 };
 
