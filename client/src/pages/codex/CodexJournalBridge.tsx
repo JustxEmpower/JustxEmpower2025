@@ -156,14 +156,15 @@ export default function CodexJournalBridge({ onClose }: Props) {
   // ══════════════════════════════════════════════════════════════════
   if (mainView === 'bridge') {
     return (
-      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+      <div style={{ maxWidth: 600, margin: '0 auto', padding: '36px 40px' }}>
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
           <div>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.5rem', fontWeight: 500, color: 'var(--cx-cream)', margin: 0 }}>
+            <p style={{ fontSize: '9.5px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--cx-ink3)', marginBottom: '4px' }}>JOURNAL BRIDGE</p>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.5rem', fontWeight: 300, color: 'var(--cx-ink)', margin: 0 }}>
               Journal Bridge
             </h2>
-            <p style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.3)', margin: '2px 0 0', fontStyle: 'italic' }}>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '12px', color: 'var(--cx-ink3)', margin: '4px 0 0', fontStyle: 'italic' }}>
               How does knowing her change how I carry what she gave me?
             </p>
           </div>
@@ -198,9 +199,9 @@ export default function CodexJournalBridge({ onClose }: Props) {
 
         {/* No book selected */}
         {!selectedBook && (
-          <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'rgba(255,255,255,0.3)' }}>
-            <BookHeart size={32} style={{ opacity: 0.3, marginBottom: '0.75rem' }} />
-            <p style={{ fontSize: '0.875rem' }}>Select a journal above to begin bridging</p>
+          <div style={{ textAlign: 'center', padding: '3rem 1rem', color: 'var(--cx-ink3)' }}>
+            <BookHeart size={28} style={{ opacity: 0.35, color: 'var(--cx-rose)', marginBottom: '0.75rem' }} />
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: '13px' }}>Select a journal above to begin bridging</p>
           </div>
         )}
 
@@ -210,7 +211,7 @@ export default function CodexJournalBridge({ onClose }: Props) {
             {/* Chapter list */}
             {!selectedChapter && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.375rem', marginBottom: '1rem' }}>
-                <h3 style={{ fontSize: '0.6875rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)', marginBottom: '0.25rem' }}>
+                <h3 style={{ fontSize: '9px', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--cx-ink3)', marginBottom: '6px' }}>
                   {activeBook.subtitle} — Chapters
                 </h3>
                 {activeBook.chapters.map(ch => {
@@ -225,8 +226,11 @@ export default function CodexJournalBridge({ onClose }: Props) {
                         gap: '0.75rem',
                         padding: '0.75rem 1rem',
                         borderRadius: 10,
-                        background: 'rgba(255,255,255,0.02)',
-                        border: `1px solid ${hasEntry ? `${activeBook.color}20` : 'rgba(255,255,255,0.06)'}`,
+                        background: 'rgba(255,255,255,0.26)',
+                        border: `1px solid ${hasEntry ? `${activeBook.color}30` : 'rgba(255,255,255,0.52)'}`,
+                        backdropFilter: 'blur(12px)',
+                        WebkitBackdropFilter: 'blur(12px)',
+                        boxShadow: '0 1px 0 rgba(255,255,255,0.9) inset, 0 2px 8px rgba(0,0,0,0.02)',
                         cursor: 'pointer',
                         textAlign: 'left',
                         color: 'inherit',
@@ -238,21 +242,21 @@ export default function CodexJournalBridge({ onClose }: Props) {
                         width: 28,
                         height: 28,
                         borderRadius: '50%',
-                        background: hasEntry ? `${activeBook.color}15` : 'rgba(255,255,255,0.04)',
+                        background: hasEntry ? `${activeBook.color}15` : 'rgba(184,123,101,0.06)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         fontSize: '0.6875rem',
                         fontWeight: 700,
-                        color: hasEntry ? activeBook.color : 'rgba(255,255,255,0.25)',
+                        color: hasEntry ? activeBook.color : 'var(--cx-ink3)',
                         flexShrink: 0,
                       }}>
                         {hasEntry ? <Check size={12} /> : ch.num}
                       </div>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--cx-cream)' }}>{ch.title}</div>
+                        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '14px', fontWeight: 300, color: 'var(--cx-ink)' }}>{ch.title}</div>
                       </div>
-                      <PenLine size={14} style={{ color: 'rgba(255,255,255,0.15)' }} />
+                      <PenLine size={12} style={{ color: 'var(--cx-clay)' }} />
                     </button>
                   );
                 })}
@@ -267,8 +271,8 @@ export default function CodexJournalBridge({ onClose }: Props) {
                       gap: '0.75rem',
                       padding: '0.875rem 1rem',
                       borderRadius: 12,
-                      background: 'rgba(139,92,246,0.06)',
-                      border: '1px solid rgba(139,92,246,0.2)',
+                      background: 'rgba(184,123,101,0.04)',
+                      border: '1px solid rgba(184,123,101,0.12)',
                       cursor: 'pointer',
                       textAlign: 'left',
                       color: 'inherit',
@@ -276,10 +280,10 @@ export default function CodexJournalBridge({ onClose }: Props) {
                       marginTop: '0.5rem',
                     }}
                   >
-                    <Waves size={18} style={{ color: '#8B5CF6' }} />
+                    <Waves size={16} style={{ color: 'var(--cx-rose)' }} />
                     <div>
-                      <div style={{ fontSize: '0.8125rem', fontWeight: 600, color: '#A78BFA' }}>Maternal Resonance</div>
-                      <div style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.3)' }}>
+                      <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '14px', fontWeight: 300, color: 'var(--cx-ink)' }}>Maternal Resonance</div>
+                      <div style={{ fontSize: '10px', color: 'var(--cx-ink3)' }}>
                         See the echoes between your journal and your Codex journey
                       </div>
                     </div>
@@ -293,15 +297,15 @@ export default function CodexJournalBridge({ onClose }: Props) {
               <div className="cx-card" style={{ padding: '1.25rem' }}>
                 <button
                   onClick={() => { setSelectedChapter(null); setLastReflection(null); }}
-                  style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', cursor: 'pointer', padding: 0, marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem' }}
+                  style={{ background: 'none', border: 'none', color: 'var(--cx-ink3)', cursor: 'pointer', padding: 0, marginBottom: '10px', display: 'flex', alignItems: 'center', gap: 4, fontSize: '10px' }}
                 >
-                  <ArrowLeft size={14} /> Back to chapters
+                  <ArrowLeft size={12} /> Back to chapters
                 </button>
 
-                <h3 style={{ fontSize: '1rem', fontWeight: 600, color: activeBook.color, marginBottom: '0.25rem' }}>
+                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '16px', fontWeight: 300, color: 'var(--cx-ink)', marginBottom: '4px' }}>
                   Ch. {selectedChapter}: {activeBook.chapters.find(c => c.num === selectedChapter)?.title}
                 </h3>
-                <p style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.3)', marginBottom: '1rem', fontStyle: 'italic' }}>
+                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '11px', color: 'var(--cx-ink3)', marginBottom: '1rem', fontStyle: 'italic' }}>
                   {activeBook.subtitle}
                 </p>
 
@@ -341,7 +345,7 @@ export default function CodexJournalBridge({ onClose }: Props) {
                     <div style={{ fontSize: '0.625rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: activeBook.color, marginBottom: '0.5rem', opacity: 0.6 }}>
                       Bridge Reflection
                     </div>
-                    <p style={{ fontSize: '0.8125rem', color: 'var(--cx-cream)', lineHeight: 1.7, margin: '0 0 0.75rem', fontStyle: 'italic' }}>
+                    <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '13px', color: 'var(--cx-ink2)', lineHeight: 1.7, margin: '0 0 0.75rem', fontStyle: 'italic' }}>
                       "{lastReflection.reflection}"
                     </p>
                     {lastReflection.themes.length > 0 && (
@@ -367,12 +371,12 @@ export default function CodexJournalBridge({ onClose }: Props) {
                 {(bridgeEntriesQuery.data || []).filter(e => e.journalSection === `${selectedBook}_ch${selectedChapter}`).map(entry => (
                   <div key={entry.id} style={{
                     marginTop: '0.75rem',
-                    padding: '0.75rem',
-                    borderRadius: 8,
-                    background: 'rgba(255,255,255,0.02)',
-                    border: '1px solid rgba(255,255,255,0.06)',
+                    padding: '10px',
+                    borderRadius: 10,
+                    background: 'rgba(255,255,255,0.2)',
+                    border: '1px solid rgba(255,255,255,0.44)',
                   }}>
-                    <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, margin: '0 0 0.5rem' }}>
+                    <p style={{ fontSize: '12px', color: 'var(--cx-ink2)', lineHeight: 1.6, margin: '0 0 0.5rem' }}>
                       {entry.entryText.substring(0, 200)}{entry.entryText.length > 200 ? '...' : ''}
                     </p>
                     {entry.aiReflection && (
@@ -380,7 +384,7 @@ export default function CodexJournalBridge({ onClose }: Props) {
                         "{entry.aiReflection}"
                       </p>
                     )}
-                    <div style={{ fontSize: '0.5625rem', color: 'rgba(255,255,255,0.2)', marginTop: '0.375rem' }}>
+                    <div style={{ fontSize: '9px', color: 'var(--cx-clay)', marginTop: '0.375rem' }}>
                       {new Date(entry.createdAt).toLocaleDateString()}
                     </div>
                   </div>
@@ -395,30 +399,30 @@ export default function CodexJournalBridge({ onClose }: Props) {
           <div>
             <button
               onClick={() => setShowResonance(false)}
-              style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.35)', cursor: 'pointer', padding: 0, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.75rem' }}
+              style={{ background: 'none', border: 'none', color: 'var(--cx-ink3)', cursor: 'pointer', padding: 0, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: 4, fontSize: '10px' }}
             >
-              <ArrowLeft size={14} /> Back to chapters
+              <ArrowLeft size={12} /> Back to chapters
             </button>
 
             <div style={{
               textAlign: 'center',
               padding: '1.25rem',
               borderRadius: 12,
-              background: 'rgba(139,92,246,0.04)',
-              border: '1px solid rgba(139,92,246,0.12)',
+              background: 'rgba(184,123,101,0.04)',
+              border: '1px solid rgba(184,123,101,0.1)',
               marginBottom: '1rem',
             }}>
-              <Waves size={24} style={{ color: '#8B5CF6', marginBottom: '0.5rem' }} />
-              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.25rem', color: 'var(--cx-cream)', margin: '0 0 0.25rem' }}>
+              <Waves size={22} style={{ color: 'var(--cx-rose)', marginBottom: '0.5rem' }} />
+              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '18px', fontWeight: 300, color: 'var(--cx-ink)', margin: '0 0 4px' }}>
                 Maternal Resonance
               </h3>
-              <p style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.35)', margin: 0 }}>
+              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '11px', fontStyle: 'italic', color: 'var(--cx-ink3)', margin: 0 }}>
                 Echoes between your journal work and your Codex journey
               </p>
             </div>
 
             {resonanceQuery.isLoading && (
-              <div style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.3)', fontSize: '0.8125rem' }}>
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--cx-ink3)', fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: '12px' }}>
                 Analyzing resonance patterns...
               </div>
             )}
@@ -431,7 +435,7 @@ export default function CodexJournalBridge({ onClose }: Props) {
                 border: '1px solid rgba(201,168,76,0.12)',
                 marginBottom: '1rem',
               }}>
-                <p style={{ fontSize: '0.8125rem', color: 'var(--cx-cream)', lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>
+                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '13px', color: 'var(--cx-ink2)', lineHeight: 1.7, margin: 0, fontStyle: 'italic' }}>
                   "{resonanceQuery.data.maternalSummary}"
                 </p>
               </div>
@@ -468,13 +472,13 @@ export default function CodexJournalBridge({ onClose }: Props) {
                       width: 40,
                       height: 4,
                       borderRadius: 2,
-                      background: 'rgba(255,255,255,0.06)',
+                      background: 'rgba(200,188,174,0.18)',
                       overflow: 'hidden',
                     }}>
                       <div style={{ width: `${r.strength}%`, height: '100%', borderRadius: 2, background: color }} />
                     </div>
                   </div>
-                  <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.5, margin: '0 0 0.25rem' }}>
+                  <p style={{ fontSize: '12px', color: 'var(--cx-ink2)', lineHeight: 1.5, margin: '0 0 0.25rem' }}>
                     {r.pattern}
                   </p>
                   {(r.aiInsight || r.insight) && (
@@ -487,7 +491,7 @@ export default function CodexJournalBridge({ onClose }: Props) {
             })}
 
             {resonanceQuery.data && (resonanceQuery.data.resonances || []).length === 0 && !resonanceQuery.isLoading && (
-              <div style={{ textAlign: 'center', padding: '2rem', color: 'rgba(255,255,255,0.3)', fontSize: '0.8125rem' }}>
+              <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--cx-ink3)', fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: '12px' }}>
                 Write at least 2 bridge reflections to unlock resonance analysis.
               </div>
             )}
@@ -501,35 +505,35 @@ export default function CodexJournalBridge({ onClose }: Props) {
   // OWNERSHIP VERIFICATION VIEW
   // ══════════════════════════════════════════════════════════════════
   return (
-    <div style={{ maxWidth: 560, margin: '0 auto' }}>
+    <div style={{ maxWidth: 560, margin: '0 auto', padding: '36px 40px' }}>
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
         {mode !== 'select' ? (
           <button
             onClick={() => setMode('select')}
-            style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', padding: 4 }}
+            style={{ background: 'none', border: 'none', color: 'var(--cx-ink3)', cursor: 'pointer', padding: 4 }}
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} />
           </button>
         ) : hasAnyOwned ? (
           <button
             onClick={() => setMainView('bridge')}
-            style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)', cursor: 'pointer', padding: 4 }}
+            style={{ background: 'none', border: 'none', color: 'var(--cx-ink3)', cursor: 'pointer', padding: 4 }}
           >
-            <ArrowLeft size={18} />
+            <ArrowLeft size={16} />
           </button>
         ) : null}
         <div>
           <h2 style={{
             fontFamily: "'Cormorant Garamond', serif",
             fontSize: '1.5rem',
-            fontWeight: 500,
-            color: 'var(--cx-cream)',
+            fontWeight: 300,
+            color: 'var(--cx-ink)',
             margin: 0,
           }}>
             Journal Bridge
           </h2>
-          <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', margin: '2px 0 0' }}>
+          <p style={{ fontSize: '11px', color: 'var(--cx-ink3)', margin: '2px 0 0' }}>
             Link your physical journals to unlock the digital companion
           </p>
         </div>
@@ -564,8 +568,10 @@ export default function CodexJournalBridge({ onClose }: Props) {
               flex: 1,
               padding: '0.625rem',
               borderRadius: 10,
-              background: ownedBooks.has(book.id) ? `${book.color}10` : 'rgba(255,255,255,0.02)',
-              border: `1px solid ${ownedBooks.has(book.id) ? `${book.color}30` : 'rgba(255,255,255,0.06)'}`,
+              background: ownedBooks.has(book.id) ? `${book.color}10` : 'rgba(255,255,255,0.26)',
+              border: `1px solid ${ownedBooks.has(book.id) ? `${book.color}30` : 'rgba(255,255,255,0.52)'}`,
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
               textAlign: 'center',
               transition: 'all 300ms ease',
             }}
@@ -581,15 +587,15 @@ export default function CodexJournalBridge({ onClose }: Props) {
               justifyContent: 'center',
             }}>
               {ownedBooks.has(book.id) ? (
-                <Check size={12} style={{ color: '#000' }} />
+                <Check size={12} style={{ color: '#fff' }} />
               ) : (
-                <BookHeart size={10} style={{ color: 'rgba(255,255,255,0.2)' }} />
+                <BookHeart size={10} style={{ color: 'var(--cx-clay)' }} />
               )}
             </div>
-            <div style={{ fontSize: '0.625rem', color: ownedBooks.has(book.id) ? book.color : 'rgba(255,255,255,0.3)', fontWeight: 600, marginBottom: 2 }}>
+            <div style={{ fontSize: '9px', color: ownedBooks.has(book.id) ? book.color : 'var(--cx-ink3)', fontWeight: 600, marginBottom: 2 }}>
               {book.id.toUpperCase()}
             </div>
-            <div style={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.25)', lineHeight: 1.3 }}>
+            <div style={{ fontSize: '8px', color: 'var(--cx-clay)', lineHeight: 1.3 }}>
               {book.title}
             </div>
           </div>
@@ -598,18 +604,18 @@ export default function CodexJournalBridge({ onClose }: Props) {
 
       {allOwned && (
         <div style={{
-          padding: '1rem',
-          borderRadius: 12,
-          background: 'rgba(201,168,76,0.06)',
-          border: '1px solid rgba(201,168,76,0.15)',
+          padding: '16px',
+          borderRadius: 14,
+          background: 'rgba(184,151,106,0.06)',
+          border: '1px solid rgba(184,151,106,0.15)',
           textAlign: 'center',
           marginBottom: '1rem',
         }}>
-          <Sparkles size={20} style={{ color: '#C9A84C', marginBottom: 6 }} />
-          <p style={{ fontSize: '0.875rem', color: 'var(--cx-cream)', fontWeight: 500, margin: '0 0 4px' }}>
+          <Sparkles size={18} style={{ color: 'var(--cx-gold)', marginBottom: 6 }} />
+          <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '14px', color: 'var(--cx-ink)', fontWeight: 300, margin: '0 0 4px' }}>
             All Journals Linked
           </p>
-          <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+          <p style={{ fontSize: '11px', color: 'var(--cx-ink3)', margin: 0 }}>
             The full bridge system is active. Your guides now carry your maternal lineage.
           </p>
         </div>
@@ -645,10 +651,10 @@ export default function CodexJournalBridge({ onClose }: Props) {
       {/* ── Mode: ISBN entry ── */}
       {mode === 'isbn' && (
         <div className="cx-card" style={{ padding: '1.25rem' }}>
-          <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--cx-cream)', marginBottom: '0.5rem' }}>
+          <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '16px', fontWeight: 300, color: 'var(--cx-ink)', marginBottom: '6px' }}>
             Enter Your ISBN
           </h3>
-          <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', marginBottom: '1rem', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '11px', color: 'var(--cx-ink3)', marginBottom: '1rem', lineHeight: 1.5 }}>
             Find the ISBN on the back cover or copyright page of your journal.
           </p>
           <input
@@ -660,9 +666,9 @@ export default function CodexJournalBridge({ onClose }: Props) {
               width: '100%',
               padding: '0.625rem 0.75rem',
               borderRadius: 8,
-              border: `1px solid ${isbnError ? 'rgba(224,96,96,0.4)' : 'rgba(255,255,255,0.1)'}`,
-              background: 'rgba(255,255,255,0.03)',
-              color: 'var(--cx-cream)',
+              border: `1px solid ${isbnError ? 'rgba(184,123,101,0.4)' : 'rgba(255,255,255,0.52)'}`,
+              background: 'rgba(255,255,255,0.4)',
+              color: 'var(--cx-ink)',
               fontSize: '0.9375rem',
               fontFamily: "'JetBrains Mono', monospace",
               letterSpacing: '0.05em',
@@ -672,14 +678,14 @@ export default function CodexJournalBridge({ onClose }: Props) {
             }}
           />
           {isbnError && (
-            <p style={{ fontSize: '0.75rem', color: '#E06060', marginBottom: '0.75rem' }}>{isbnError}</p>
+            <p style={{ fontSize: '11px', color: 'var(--cx-rose)', marginBottom: '0.75rem' }}>{isbnError}</p>
           )}
-          <div style={{ display: 'flex', gap: 6, fontSize: '0.625rem', color: 'rgba(255,255,255,0.25)', marginBottom: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: 6, fontSize: '9px', color: 'var(--cx-clay)', marginBottom: '1rem', flexWrap: 'wrap' }}>
             {BOOKS.map(b => (
               <span key={b.id} style={{
                 padding: '2px 6px',
                 borderRadius: 4,
-                background: 'rgba(255,255,255,0.04)',
+                background: 'rgba(255,255,255,0.3)',
                 textDecoration: ownedBooks.has(b.id) ? 'line-through' : 'none',
                 opacity: ownedBooks.has(b.id) ? 0.4 : 1,
               }}>
@@ -701,10 +707,10 @@ export default function CodexJournalBridge({ onClose }: Props) {
       {/* ── Mode: Self-declaration ── */}
       {mode === 'declare' && (
         <div className="cx-card" style={{ padding: '1.25rem' }}>
-          <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--cx-cream)', marginBottom: '0.5rem' }}>
+          <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '16px', fontWeight: 300, color: 'var(--cx-ink)', marginBottom: '6px' }}>
             Which journal do you own?
           </h3>
-          <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', marginBottom: '1rem', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '11px', color: 'var(--cx-ink3)', marginBottom: '1rem', lineHeight: 1.5 }}>
             Select the book you have. This is honor-based — we trust you.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -721,8 +727,10 @@ export default function CodexJournalBridge({ onClose }: Props) {
                     gap: '0.75rem',
                     padding: '0.75rem 1rem',
                     borderRadius: 10,
-                    background: declareBook === book.id ? `${book.color}10` : 'rgba(255,255,255,0.02)',
-                    border: `1px solid ${declareBook === book.id ? `${book.color}40` : owned ? 'rgba(74,205,141,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                    background: declareBook === book.id ? `${book.color}10` : 'rgba(255,255,255,0.26)',
+                    border: `1px solid ${declareBook === book.id ? `${book.color}40` : owned ? 'rgba(125,142,127,0.2)' : 'rgba(255,255,255,0.52)'}`,
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
                     cursor: owned ? 'default' : 'pointer',
                     opacity: owned ? 0.5 : 1,
                     textAlign: 'left',
@@ -741,11 +749,11 @@ export default function CodexJournalBridge({ onClose }: Props) {
                     justifyContent: 'center',
                     flexShrink: 0,
                   }}>
-                    {owned ? <Check size={14} style={{ color: '#4ACD8D' }} /> : <BookHeart size={14} style={{ color: book.color }} />}
+                    {owned ? <Check size={14} style={{ color: 'var(--cx-sage)' }} /> : <BookHeart size={14} style={{ color: book.color }} />}
                   </div>
                   <div>
-                    <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--cx-cream)' }}>{book.subtitle}</div>
-                    <div style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.3)' }}>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '13px', fontWeight: 300, color: 'var(--cx-ink)' }}>{book.subtitle}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--cx-ink3)' }}>
                       {owned ? 'Already linked' : book.description}
                     </div>
                   </div>
@@ -769,10 +777,10 @@ export default function CodexJournalBridge({ onClose }: Props) {
       {/* ── Mode: Purchase bundle ── */}
       {mode === 'purchase' && (
         <div className="cx-card" style={{ padding: '1.25rem' }}>
-          <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--cx-cream)', marginBottom: '0.5rem' }}>
+          <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '16px', fontWeight: 300, color: 'var(--cx-ink)', marginBottom: '6px' }}>
             Purchase Journals
           </h3>
-          <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.35)', marginBottom: '1rem', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '11px', color: 'var(--cx-ink3)', marginBottom: '1rem', lineHeight: 1.5 }}>
             Physical journal ships to your door. Digital companion access unlocks immediately.
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
@@ -795,8 +803,10 @@ export default function CodexJournalBridge({ onClose }: Props) {
                     gap: '0.75rem',
                     padding: '0.75rem 1rem',
                     borderRadius: 10,
-                    background: selected ? `${book.color}10` : 'rgba(255,255,255,0.02)',
-                    border: `1px solid ${selected ? `${book.color}40` : owned ? 'rgba(74,205,141,0.2)' : 'rgba(255,255,255,0.06)'}`,
+                    background: selected ? `${book.color}10` : 'rgba(255,255,255,0.26)',
+                    border: `1px solid ${selected ? `${book.color}40` : owned ? 'rgba(125,142,127,0.2)' : 'rgba(255,255,255,0.52)'}`,
+                    backdropFilter: 'blur(12px)',
+                    WebkitBackdropFilter: 'blur(12px)',
                     cursor: owned ? 'default' : 'pointer',
                     opacity: owned ? 0.5 : 1,
                     textAlign: 'left',
@@ -809,7 +819,7 @@ export default function CodexJournalBridge({ onClose }: Props) {
                     width: 20,
                     height: 20,
                     borderRadius: 4,
-                    border: `2px solid ${selected ? book.color : 'rgba(255,255,255,0.15)'}`,
+                    border: `2px solid ${selected ? book.color : 'rgba(200,188,174,0.3)'}`,
                     background: selected ? book.color : 'transparent',
                     display: 'flex',
                     alignItems: 'center',
@@ -817,11 +827,11 @@ export default function CodexJournalBridge({ onClose }: Props) {
                     flexShrink: 0,
                     transition: 'all 200ms ease',
                   }}>
-                    {(selected || owned) && <Check size={12} style={{ color: owned ? '#4ACD8D' : '#000' }} />}
+                    {(selected || owned) && <Check size={12} style={{ color: owned ? 'var(--cx-sage)' : '#000' }} />}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '0.8125rem', fontWeight: 500, color: 'var(--cx-cream)' }}>{book.subtitle}</div>
-                    <div style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.3)' }}>
+                    <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '13px', fontWeight: 300, color: 'var(--cx-ink)' }}>{book.subtitle}</div>
+                    <div style={{ fontSize: '10px', color: 'var(--cx-ink3)' }}>
                       {owned ? 'Already owned' : book.description}
                     </div>
                   </div>
@@ -845,7 +855,7 @@ export default function CodexJournalBridge({ onClose }: Props) {
               marginBottom: '1rem',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)' }}>
+                <span style={{ fontSize: '10px', color: 'var(--cx-ink3)' }}>
                   {purchaseBooks.size} book{purchaseBooks.size !== 1 ? 's' : ''}
                   {purchaseBooks.size === 3 && ' (bundle discount!)'}
                 </span>
@@ -891,8 +901,11 @@ function MethodCard({ icon, title, desc, color, onClick }: {
         gap: '1rem',
         padding: '1rem 1.25rem',
         borderRadius: 12,
-        background: 'rgba(255,255,255,0.02)',
-        border: '1px solid rgba(255,255,255,0.06)',
+        background: 'rgba(255,255,255,0.26)',
+        border: '1px solid rgba(255,255,255,0.52)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        boxShadow: '0 1px 0 rgba(255,255,255,0.9) inset, 0 4px 16px rgba(0,0,0,0.03)',
         cursor: 'pointer',
         textAlign: 'left',
         color: 'inherit',
@@ -904,8 +917,8 @@ function MethodCard({ icon, title, desc, color, onClick }: {
         e.currentTarget.style.borderColor = `${color}25`;
       }}
       onMouseLeave={e => {
-        e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.06)';
+        e.currentTarget.style.background = 'rgba(255,255,255,0.26)';
+        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.52)';
       }}
     >
       <div style={{
@@ -923,10 +936,10 @@ function MethodCard({ icon, title, desc, color, onClick }: {
         {icon}
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--cx-cream)' }}>{title}</div>
-        <div style={{ fontSize: '0.6875rem', color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>{desc}</div>
+        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '14px', fontWeight: 300, color: 'var(--cx-ink)' }}>{title}</div>
+        <div style={{ fontSize: '10px', color: 'var(--cx-ink3)', marginTop: 1 }}>{desc}</div>
       </div>
-      <ChevronRight size={16} style={{ color: 'rgba(255,255,255,0.15)', flexShrink: 0 }} />
+      <ChevronRight size={14} style={{ color: 'var(--cx-clay)', flexShrink: 0 }} />
     </button>
   );
 }

@@ -161,29 +161,21 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
         style={{ width: sidebarW }}
       >
         {/* Logo area */}
-        <div className="cx-sidebar-logo" style={{ padding: collapsed ? "1.25rem 0.75rem" : "1.25rem 1.25rem", justifyContent: collapsed ? "center" : "flex-start" }}>
+        <div className="cx-sidebar-logo" style={{ padding: collapsed ? "24px 12px 18px" : "28px 18px 20px", justifyContent: collapsed ? "center" : "flex-start" }}>
+          {/* Gem logo */}
+          <div style={{
+            width: 26, height: 26, borderRadius: "7px",
+            background: "linear-gradient(135deg, rgba(184,123,101,0.6), rgba(184,151,106,0.5))",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0, transform: "rotate(45deg)",
+          }}>
+            <span style={{ transform: "rotate(-45deg)", fontSize: "11px", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>◇</span>
+          </div>
           {!collapsed && (
             <div style={{ overflow: "hidden", whiteSpace: "nowrap", flex: 1 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <div style={{
-                  width: 8, height: 8, borderRadius: "50%",
-                  background: "linear-gradient(135deg, var(--cx-violet), var(--cx-cyan))",
-                  boxShadow: "0 0 8px rgba(139,92,246,0.4)",
-                }} />
-                <span style={{ fontSize: "0.8125rem", fontWeight: 700, letterSpacing: "-0.01em", color: "var(--cx-cream)" }}>
-                  Living Codex
-                </span>
-              </div>
-            </div>
-          )}
-          {collapsed && (
-            <div style={{
-              width: 28, height: 28, borderRadius: "0.5rem",
-              background: "linear-gradient(135deg, var(--cx-violet), var(--cx-blue))",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "0.75rem", fontWeight: 800, color: "white",
-            }}>
-              LC
+              <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "16px", fontWeight: 300, color: "var(--cx-ink)" }}>
+                Living Codex
+              </span>
             </div>
           )}
         </div>
@@ -220,10 +212,10 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
           <div className="cx-sidebar-user-avatar">{initials}</div>
           {!collapsed && (
             <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontSize: "0.8125rem", fontWeight: 600, color: "var(--cx-cream)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <p style={{ fontSize: "12px", fontWeight: 500, color: "var(--cx-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {firstName}
               </p>
-              <p style={{ fontSize: "0.6875rem", color: "rgba(240,235,245,0.3)", textTransform: "capitalize" }}>
+              <p style={{ fontSize: "9.5px", color: "var(--cx-ink3)", textTransform: "capitalize", letterSpacing: "0.05em" }}>
                 {(portal.user.tier || "explorer").replace(/_/g, " ")}
               </p>
             </div>
@@ -242,13 +234,13 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
         </div>
 
         {/* Back to account */}
-        <div style={{ padding: "0 0.75rem 0.75rem" }}>
+        <div style={{ padding: "0 18px 14px" }}>
           <button
             onClick={() => onNavigateExternal("/account")}
             className="cx-btn-ghost"
-            style={{ width: "100%", fontSize: "0.75rem", justifyContent: collapsed ? "center" : "flex-start" }}
+            style={{ width: "100%", fontSize: "11px", justifyContent: collapsed ? "center" : "flex-start" }}
           >
-            <ArrowLeft size={14} />
+            <ArrowLeft size={12} />
             {!collapsed && <span>Account</span>}
           </button>
         </div>
@@ -271,7 +263,7 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
           >
             <Menu size={20} />
           </button>
-          <span style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--cx-cream)" }}>Living Codex</span>
+          <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "15px", fontWeight: 300, color: "var(--cx-ink)" }}>Living Codex</span>
         </div>
 
         {/* Page content with transition */}

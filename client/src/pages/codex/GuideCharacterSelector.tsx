@@ -11,7 +11,7 @@ import { GUIDE_CHARACTERS, type GuideCharacter } from './GuideCharacters';
 // ============================================================================
 
 // Guides with Simli face IDs — others show as "Coming Soon"
-const SIMLI_READY_GUIDE_IDS = new Set(['leda', 'zephyr']);
+const SIMLI_READY_GUIDE_IDS = new Set(['leda', 'theia', 'zephyr']);
 
 interface GuideCharacterSelectorProps {
   /** Currently selected guide ID (kore, aoede, etc.) */

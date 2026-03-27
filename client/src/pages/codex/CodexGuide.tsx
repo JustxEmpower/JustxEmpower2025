@@ -186,19 +186,20 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
   // ── Guide Selection ──
   if (!selectedGuide) {
     return (
-      <div style={{ padding: "2rem 2.5rem", maxWidth: "64rem", margin: "0 auto" }}>
-        <div className="cx-fade-in" style={{ marginBottom: "2.5rem" }}>
-          <h1 style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", fontWeight: 700, letterSpacing: "-0.03em", color: "var(--cx-cream)", marginBottom: "0.375rem" }}>
+      <div style={{ padding: "36px 40px", maxWidth: "64rem", margin: "0 auto" }}>
+        <div className="cx-fade-in" style={{ marginBottom: "32px" }}>
+          <p style={{ fontSize: "9.5px", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--cx-ink3)", marginBottom: "6px" }}>YOUR GUIDES</p>
+          <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.75rem, 3.5vw, 2.4rem)", fontWeight: 300, color: "var(--cx-ink)", marginBottom: "6px" }}>
             AI Guide
           </h1>
-          <p style={{ fontSize: "0.9375rem", color: "rgba(240,235,245,0.4)", maxWidth: "32rem" }}>
+          <p style={{ fontSize: "12px", color: "var(--cx-ink3)", maxWidth: "32rem" }}>
             Each guide holds a different mirror. Choose the one that calls to you.
           </p>
           {preferredChar && (
-            <div style={{ marginTop: "1rem", display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <div style={{ width: 8, height: 8, borderRadius: "50%", background: preferredChar.primaryColor, boxShadow: `0 0 8px ${preferredChar.primaryColor}` }} />
-              <span style={{ fontSize: "0.8125rem", color: "rgba(240,235,245,0.5)" }}>Active: <strong style={{ color: preferredChar.primaryColor }}>{preferredChar.name}</strong></span>
-              <button onClick={() => setShowCharacterSelector(true)} className="cx-btn-ghost" style={{ fontSize: "0.75rem" }}>
+            <div style={{ marginTop: "12px", display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{ width: 6, height: 6, borderRadius: "50%", background: preferredChar.primaryColor }} />
+              <span style={{ fontSize: "11px", color: "var(--cx-ink3)" }}>Active: <strong style={{ color: "var(--cx-ink)" }}>{preferredChar.name}</strong></span>
+              <button onClick={() => setShowCharacterSelector(true)} className="cx-btn-ghost" style={{ fontSize: "10px" }}>
                 Change
               </button>
             </div>
@@ -217,27 +218,25 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
                 border: "1px solid var(--cx-border)",
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.borderColor = "var(--cx-border-bright)";
-                e.currentTarget.style.transform = "translateY(-2px)";
-                e.currentTarget.style.boxShadow = "0 8px 30px rgba(139,92,246,0.1)";
+                e.currentTarget.style.borderColor = "rgba(184,123,101,0.2)";
+                e.currentTarget.style.transform = "translateY(-1px)";
               }}
               onMouseLeave={e => {
                 e.currentTarget.style.borderColor = "var(--cx-border)";
                 e.currentTarget.style.transform = "translateY(0)";
-                e.currentTarget.style.boxShadow = "none";
               }}
             >
               <div style={{
-                width: 40, height: 40, borderRadius: "0.75rem", marginBottom: "1rem",
-                background: "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(34,211,238,0.08))",
-                border: "1px solid rgba(139,92,246,0.12)",
+                width: 34, height: 34, borderRadius: "10px", marginBottom: "12px",
+                background: "rgba(184,123,101,0.06)",
+                border: "1px solid rgba(184,123,101,0.1)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "1.125rem",
+                fontSize: "1rem",
               }}>{g.icon}</div>
-              <h3 style={{ fontSize: "1rem", fontWeight: 600, color: "var(--cx-cream)", letterSpacing: "-0.01em", marginBottom: "0.375rem" }}>
+              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "15px", fontWeight: 300, color: "var(--cx-ink)", marginBottom: "4px" }}>
                 {g.name}
               </h3>
-              <p style={{ fontSize: "0.8125rem", color: "rgba(240,235,245,0.4)", lineHeight: 1.55 }}>
+              <p style={{ fontSize: "11px", color: "var(--cx-ink3)", lineHeight: 1.55 }}>
                 {g.description}
               </p>
             </button>
@@ -313,24 +312,25 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
 
       {/* Conversation Sidebar */}
       <div style={{
-        width: "15rem", flexShrink: 0, borderRight: "1px solid var(--cx-border)",
-        display: "flex", flexDirection: "column", background: "var(--cx-sidebar)",
+        width: "15rem", flexShrink: 0, borderRight: "1px solid rgba(255,255,255,0.44)",
+        display: "flex", flexDirection: "column", background: "rgba(236,228,218,0.35)",
+        backdropFilter: "blur(28px)", WebkitBackdropFilter: "blur(28px)",
         overflowY: "auto",
       }}>
-        <div style={{ padding: "1rem" }}>
-          <button onClick={() => setSelectedGuide(null)} className="cx-btn-ghost" style={{ width: "100%", justifyContent: "flex-start", fontSize: "0.75rem", marginBottom: "0.75rem", padding: "0.375rem 0.5rem" }}>
+        <div style={{ padding: "14px" }}>
+          <button onClick={() => setSelectedGuide(null)} className="cx-btn-ghost" style={{ width: "100%", justifyContent: "flex-start", fontSize: "10px", marginBottom: "10px", padding: "5px 8px" }}>
             {"\u2190"} All Guides
           </button>
-          <div style={{ display: "flex", alignItems: "center", gap: "0.625rem", marginBottom: "1rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
             <div style={{
-              width: 32, height: 32, borderRadius: "0.625rem",
-              background: "linear-gradient(135deg, rgba(139,92,246,0.2), rgba(34,211,238,0.1))",
-              border: "1px solid rgba(139,92,246,0.15)",
+              width: 28, height: 28, borderRadius: "8px",
+              background: "rgba(184,123,101,0.08)",
+              border: "1px solid rgba(184,123,101,0.12)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "0.875rem", flexShrink: 0,
+              fontSize: "0.8rem", flexShrink: 0,
             }}>{activeGuide?.icon}</div>
             <div style={{ minWidth: 0 }}>
-              <p style={{ fontSize: "0.875rem", fontWeight: 600, color: "var(--cx-cream)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              <p style={{ fontSize: "12px", fontWeight: 500, color: "var(--cx-ink)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {activeGuide?.name?.split(" ").slice(0, -1).join(" ") || activeGuide?.name}
               </p>
             </div>
@@ -364,7 +364,7 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
                 <span style={{ fontSize: "0.8125rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: "100%", display: "block" }}>
                   {c.title || "Untitled"}
                 </span>
-                <span style={{ fontSize: "0.6875rem", color: "rgba(240,235,245,0.2)" }}>
+                <span style={{ fontSize: "10px", color: "var(--cx-ink3)" }}>
                   {new Date(c.updatedAt).toLocaleDateString()}
                 </span>
               </button>
@@ -382,22 +382,22 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
       </div>
 
       {/* Chat Area */}
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "var(--cx-deep)" }}>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
         {/* Messages */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "1.5rem 2rem" }}>
+        <div style={{ flex: 1, overflowY: "auto", padding: "24px 32px" }}>
           {localMessages.length === 0 && (
             <div className="cx-fade-in" style={{ textAlign: "center", paddingTop: "8rem" }}>
               <div style={{
-                width: 64, height: 64, borderRadius: "1.25rem", margin: "0 auto 1.25rem",
-                background: "linear-gradient(135deg, rgba(139,92,246,0.12), rgba(34,211,238,0.06))",
-                border: "1px solid rgba(139,92,246,0.12)",
+                width: 52, height: 52, borderRadius: "14px", margin: "0 auto 16px",
+                background: "rgba(184,123,101,0.06)",
+                border: "1px solid rgba(184,123,101,0.1)",
                 display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "1.5rem",
+                fontSize: "1.25rem",
               }}>{activeGuide?.icon}</div>
-              <h2 style={{ fontSize: "1.375rem", fontWeight: 700, color: "var(--cx-cream)", letterSpacing: "-0.02em", marginBottom: "0.5rem" }}>
+              <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 300, color: "var(--cx-ink)", marginBottom: "6px" }}>
                 {activeGuide?.name}
               </h2>
-              <p style={{ fontSize: "0.9375rem", color: "rgba(240,235,245,0.35)", maxWidth: "28rem", margin: "0 auto", lineHeight: 1.65 }}>
+              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", fontSize: "13px", fontWeight: 300, color: "var(--cx-ink3)", maxWidth: "28rem", margin: "0 auto", lineHeight: 1.65 }}>
                 {activeGuide?.description}. Begin by sharing what is present for you.
               </p>
             </div>
@@ -416,7 +416,7 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
           {sending && (
             <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "1rem" }}>
               <div className="cx-chat-bubble assistant">
-                <div className="cx-slow-pulse" style={{ color: "var(--cx-moonlight)", fontSize: "0.875rem" }}>
+                <div className="cx-slow-pulse" style={{ color: "var(--cx-ink3)", fontSize: "12px", fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic" }}>
                   The guide is reflecting...
                 </div>
               </div>
@@ -427,8 +427,8 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
 
         {/* Input */}
         <div style={{
-          padding: "1rem 2rem 1.25rem", borderTop: "1px solid var(--cx-border)",
-          background: "rgba(11,11,20,0.5)", backdropFilter: "blur(12px)",
+          padding: "14px 32px 18px", borderTop: "1px solid rgba(255,255,255,0.44)",
+          background: "rgba(236,228,218,0.3)", backdropFilter: "blur(16px)",
         }}>
           <div style={{ display: "flex", gap: "0.75rem", alignItems: "flex-end" }}>
             <textarea
@@ -450,7 +450,7 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
               Send
             </button>
           </div>
-          <p style={{ fontSize: "0.6875rem", color: "rgba(240,235,245,0.15)", marginTop: "0.625rem", textAlign: "center" }}>
+          <p style={{ fontSize: "9.5px", color: "var(--cx-clay)", marginTop: "8px", textAlign: "center" }}>
             This guide mirrors your patterns. It is not therapy. For crisis support, contact a professional.
           </p>
         </div>

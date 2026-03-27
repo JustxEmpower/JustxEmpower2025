@@ -13,11 +13,12 @@ interface Props {
   onNavigate: (view: string) => void;
 }
 
+// Stat cards now use glassmorphic style from CSS, no gradient backgrounds needed
 const STAT_GRADIENTS = [
-  "linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)",
-  "linear-gradient(135deg, #22D3EE 0%, #6366F1 100%)",
-  "linear-gradient(135deg, #4ACD8D 0%, #22D3EE 100%)",
-  "linear-gradient(135deg, #F472B6 0%, #8B5CF6 100%)",
+  "transparent",
+  "transparent",
+  "transparent",
+  "transparent",
 ];
 
 export default function CodexDashboard({ onNavigate }: Props) {
@@ -33,11 +34,11 @@ export default function CodexDashboard({ onNavigate }: Props) {
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
         <div style={{ textAlign: "center" }}>
           <div className="cx-slow-pulse" style={{
-            width: 48, height: 48, borderRadius: "50%", margin: "0 auto 1rem",
-            background: "linear-gradient(135deg, var(--cx-violet), var(--cx-blue))",
-            opacity: 0.5,
+            width: 44, height: 44, borderRadius: "11px", margin: "0 auto 1rem",
+            background: "rgba(184,123,101,0.12)",
+            transform: "rotate(45deg)",
           }} />
-          <p style={{ fontSize: "0.8125rem", color: "rgba(240,235,245,0.3)" }}>Loading your Codex...</p>
+          <p style={{ fontSize: "12px", color: "var(--cx-ink3)", fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic" }}>Loading your Codex...</p>
         </div>
       </div>
     );
@@ -58,51 +59,55 @@ export default function CodexDashboard({ onNavigate }: Props) {
   ];
 
   return (
-    <div style={{ padding: "2rem 2.5rem", maxWidth: "72rem", margin: "0 auto" }}>
+    <div style={{ padding: "36px 40px", maxWidth: "72rem", margin: "0 auto" }}>
 
       {/* ── Welcome Header ── */}
-      <div className="cx-fade-in" style={{ marginBottom: "2rem" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
+      <div className="cx-fade-in" style={{ marginBottom: "28px" }}>
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
           <div>
-            <h1 style={{ fontSize: "clamp(1.5rem, 3vw, 2rem)", fontWeight: 700, letterSpacing: "-0.03em", color: "var(--cx-cream)", marginBottom: "0.375rem" }}>
+            <p style={{ fontSize: "9.5px", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--cx-ink3)", marginBottom: "6px" }}>
+              YOUR JOURNEY
+            </p>
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.75rem, 3.5vw, 2.4rem)", fontWeight: 300, color: "var(--cx-ink)", marginBottom: "6px", lineHeight: 1.15 }}>
               Welcome back, {d.user.name?.split(" ")[0] || "Explorer"}
             </h1>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.625rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
               <span style={{
-                display: "inline-block", padding: "0.2rem 0.625rem", borderRadius: "0.375rem", fontSize: "0.6875rem", fontWeight: 600,
-                background: "linear-gradient(135deg, var(--cx-violet), var(--cx-blue))", color: "white", textTransform: "capitalize",
+                display: "inline-block", padding: "3px 10px", borderRadius: "50px", fontSize: "9.5px", fontWeight: 400,
+                background: "rgba(184,123,101,0.1)", border: "1px solid rgba(184,123,101,0.2)", color: "var(--cx-rose)", textTransform: "capitalize",
+                letterSpacing: "0.06em",
               }}>
                 {tierLabel}
               </span>
-              <span style={{ fontSize: "0.8125rem", color: "rgba(240,235,245,0.35)" }}>
+              <span style={{ fontSize: "11px", color: "var(--cx-ink3)" }}>
                 {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
               </span>
             </div>
           </div>
-          <button className="cx-btn-secondary" onClick={() => onNavigate("guide")} style={{ gap: "0.375rem" }}>
-            <Orbit size={14} /> Talk to AI Guide
+          <button className="cx-btn-primary" onClick={() => onNavigate("guide")} style={{ gap: "6px" }}>
+            <Orbit size={12} /> Talk to Guide
           </button>
         </div>
       </div>
 
       {/* ── AI Growth Insight ── */}
       {d.growthInsight && (
-        <div className="cx-fade-up cx-widget" style={{ marginBottom: "1.5rem" }}>
-          <div style={{ padding: "1.25rem 1.5rem", display: "flex", alignItems: "flex-start", gap: "1rem" }}>
+        <div className="cx-fade-up cx-widget" style={{ marginBottom: "20px" }}>
+          <div style={{ padding: "16px 20px", display: "flex", alignItems: "flex-start", gap: "12px" }}>
             <div style={{
-              width: 36, height: 36, borderRadius: "0.75rem", flexShrink: 0,
-              background: "linear-gradient(135deg, rgba(139,92,246,0.15), rgba(34,211,238,0.1))",
-              border: "1px solid rgba(139,92,246,0.15)",
+              width: 32, height: 32, borderRadius: "9px", flexShrink: 0,
+              background: "rgba(184,123,101,0.08)",
+              border: "1px solid rgba(184,123,101,0.12)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: "0.875rem",
+              color: "var(--cx-rose)",
             }}>
-              <Sparkles size={16} />
+              <Sparkles size={14} />
             </div>
             <div style={{ flex: 1 }}>
-              <p style={{ fontSize: "0.6875rem", fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--cx-moonlight)", marginBottom: "0.375rem" }}>
-                AI Insight
+              <p style={{ fontSize: "9.5px", fontWeight: 400, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--cx-ink3)", marginBottom: "5px" }}>
+                Today’s Mirror
               </p>
-              <p style={{ fontSize: "0.9375rem", color: "rgba(240,235,245,0.7)", lineHeight: 1.65 }}>
+              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "14px", fontWeight: 300, fontStyle: "italic", color: "var(--cx-ink2)", lineHeight: 1.65 }}>
                 {d.growthInsight}
               </p>
             </div>
@@ -111,9 +116,9 @@ export default function CodexDashboard({ onNavigate }: Props) {
       )}
 
       {/* ── Stat Cards Row ── */}
-      <div className="cx-fade-up cx-delay-1" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "1rem", marginBottom: "1.5rem" }}>
-        {stats.map((stat, i) => (
-          <div key={stat.label} className="cx-stat-card" style={{ background: STAT_GRADIENTS[i] }}>
+      <div className="cx-fade-up cx-delay-1" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "20px" }}>
+        {stats.map((stat) => (
+          <div key={stat.label} className="cx-stat-card">
             <div className="cx-stat-value">{stat.value}</div>
             <div className="cx-stat-label">{stat.label}</div>
           </div>
@@ -133,23 +138,23 @@ export default function CodexDashboard({ onNavigate }: Props) {
                 <span style={{ fontSize: "0.75rem", color: "var(--cx-moonlight)" }}>{phase} Phase</span>
               </div>
               <div className="cx-widget-body">
-                <h2 style={{ fontSize: "1.5rem", fontWeight: 700, letterSpacing: "-0.02em", color: "var(--cx-cream)", marginBottom: "0.25rem" }}>
+                <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 300, color: "var(--cx-ink)", marginBottom: "4px" }}>
                   {primary.archetype.replace(/-/g, " ").replace(/\b\w/g, (l: string) => l.toUpperCase())}
                 </h2>
-                <p style={{ fontSize: "0.8125rem", color: "rgba(240,235,245,0.4)", marginBottom: "1.25rem" }}>
+                <p style={{ fontSize: "11px", color: "var(--cx-ink3)", marginBottom: "16px" }}>
                   Primary archetype identity
                 </p>
                 {spectrum && (
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
                     {[
-                      { label: "Shadow", pct: spectrum.shadowPct, color: "var(--cx-ember)" },
-                      { label: "Threshold", pct: spectrum.thresholdPct, color: "var(--cx-violet)" },
+                      { label: "Shadow", pct: spectrum.shadowPct, color: "var(--cx-rose)" },
+                      { label: "Threshold", pct: spectrum.thresholdPct, color: "var(--cx-gold)" },
                       { label: "Gift", pct: spectrum.giftPct, color: "var(--cx-sage)" },
                     ].map(s => (
                       <div key={s.label}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.375rem" }}>
-                          <span style={{ fontSize: "0.75rem", fontWeight: 500, color: "rgba(240,235,245,0.5)" }}>{s.label}</span>
-                          <span style={{ fontSize: "0.75rem", fontWeight: 600, color: s.color }}>{s.pct}%</span>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+                          <span style={{ fontSize: "10px", fontWeight: 400, color: "var(--cx-ink3)" }}>{s.label}</span>
+                          <span style={{ fontSize: "10px", fontWeight: 400, color: s.color }}>{s.pct}%</span>
                         </div>
                         <div className="cx-progress-track">
                           <div className="cx-progress" style={{ width: `${s.pct}%`, background: s.color }} />
@@ -227,13 +232,12 @@ export default function CodexDashboard({ onNavigate }: Props) {
             <div className="cx-widget-header">
               <h3>Mirror Report</h3>
               <div style={{
-                width: 8, height: 8, borderRadius: "50%",
-                background: d.reportStatus === "released" ? "var(--cx-sage)" : d.reportStatus === "ready_for_review" ? "var(--cx-gold)" : "rgba(240,235,245,0.15)",
-                boxShadow: d.reportStatus === "released" ? "0 0 8px var(--cx-sage)" : d.reportStatus === "ready_for_review" ? "0 0 8px var(--cx-gold)" : "none",
+                width: 6, height: 6, borderRadius: "50%",
+                background: d.reportStatus === "released" ? "var(--cx-sage)" : d.reportStatus === "ready_for_review" ? "var(--cx-gold)" : "var(--cx-clay)",
               }} />
             </div>
             <div className="cx-widget-body">
-              <p style={{ fontSize: "0.9375rem", color: "rgba(240,235,245,0.6)", lineHeight: 1.6, marginBottom: "1rem" }}>
+              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "13px", fontWeight: 300, fontStyle: "italic", color: "var(--cx-ink2)", lineHeight: 1.6, marginBottom: "14px" }}>
                 {d.reportStatus === "released" ? "Your archetypal portrait has been revealed. The mirror awaits." :
                   d.reportStatus === "ready_for_review" ? "April is reviewing your archetypal portrait." :
                     assessmentStatus === "complete" ? "Assessment complete. Report is being prepared." : "Complete the assessment to unlock your Mirror Report."}
@@ -248,23 +252,23 @@ export default function CodexDashboard({ onNavigate }: Props) {
 
           {/* Integration Index Ring */}
           {scoring?.integrationIndex != null && (
-            <div className="cx-widget cx-fade-up cx-delay-4 cx-holo-breathe">
-              <div className="cx-widget-body" style={{ textAlign: "center", padding: "2rem 1.5rem" }}>
-                <div style={{ position: "relative", width: 120, height: 120, margin: "0 auto 1rem" }}>
-                  <svg viewBox="0 0 120 120" width="120" height="120">
-                    <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(139,92,246,0.1)" strokeWidth="6" />
+            <div className="cx-widget cx-fade-up cx-delay-4">
+              <div className="cx-widget-body" style={{ textAlign: "center", padding: "24px 20px" }}>
+                <div style={{ position: "relative", width: 100, height: 100, margin: "0 auto 12px" }}>
+                  <svg viewBox="0 0 100 100" width="100" height="100">
+                    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(200,188,174,0.22)" strokeWidth="3" />
                     <circle
-                      cx="60" cy="60" r="52" fill="none"
-                      stroke="url(#ixGrad)" strokeWidth="6"
+                      cx="50" cy="50" r="42" fill="none"
+                      stroke="url(#ixGrad)" strokeWidth="3"
                       strokeLinecap="round"
-                      strokeDasharray={`${scoring.integrationIndex * 327} 327`}
-                      transform="rotate(-90 60 60)"
+                      strokeDasharray={`${scoring.integrationIndex * 264} 264`}
+                      transform="rotate(-90 50 50)"
                       style={{ transition: "stroke-dasharray 1.5s cubic-bezier(0.4,0,0.2,1)" }}
                     />
                     <defs>
                       <linearGradient id="ixGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#8B5CF6" />
-                        <stop offset="100%" stopColor="#22D3EE" />
+                        <stop offset="0%" stopColor="#B87B65" />
+                        <stop offset="100%" stopColor="#B8976A" />
                       </linearGradient>
                     </defs>
                   </svg>
@@ -272,14 +276,14 @@ export default function CodexDashboard({ onNavigate }: Props) {
                     position: "absolute", inset: 0, display: "flex", flexDirection: "column",
                     alignItems: "center", justifyContent: "center",
                   }}>
-                    <span style={{ fontSize: "1.75rem", fontWeight: 700, letterSpacing: "-0.03em", color: "var(--cx-cream)" }}>
+                    <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "var(--cx-ink)" }}>
                       {(scoring.integrationIndex * 100).toFixed(0)}
                     </span>
-                    <span style={{ fontSize: "0.6875rem", color: "rgba(240,235,245,0.35)", fontWeight: 500 }}>INDEX</span>
+                    <span style={{ fontSize: "8px", color: "var(--cx-ink3)", letterSpacing: "0.15em" }}>INDEX</span>
                   </div>
                 </div>
-                <p className="cx-label" style={{ marginBottom: "0.375rem" }}>Integration Index</p>
-                <p style={{ fontSize: "0.8125rem", color: "rgba(240,235,245,0.4)" }}>
+                <p className="cx-label" style={{ marginBottom: "4px" }}>Integration Index</p>
+                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "12px", fontStyle: "italic", color: "var(--cx-ink3)" }}>
                   {scoring.integrationIndex > 0.6 ? "Deep integration emerging" :
                     scoring.integrationIndex > 0.3 ? "Threshold patterns activating" :
                       "Shadow patterns surfacing"}

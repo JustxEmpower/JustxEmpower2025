@@ -6,33 +6,33 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 
 export const designTokens = `
 :root {
-  /* Colors - Warm, Sacred Palette */
-  --lc-rose: #8B2252;
-  --lc-rose-light: #A83B6B;
-  --lc-gold: #C4A265;
-  --lc-gold-light: #D4B275;
-  --lc-ivory: #FDFBF7;
-  --lc-cream: #F5F0E8;
-  --lc-charcoal: #1A1A1A;
-  --lc-warm-gray: #6B6560;
-  --lc-sage: #7A9E7E;
+  /* Colors - Warm Earth Palette (aligned with --cx-* tokens) */
+  --lc-rose: #B87B65;
+  --lc-rose-light: #C99080;
+  --lc-gold: #B8976A;
+  --lc-gold-light: #CAAA7E;
+  --lc-ivory: #F6F1EB;
+  --lc-cream: #ECE4DA;
+  --lc-charcoal: #221E1A;
+  --lc-warm-gray: #9C8E80;
+  --lc-sage: #7D8E7F;
   --lc-indigo: #3C3489;
-  --lc-void: #0A0A0F;
+  --lc-void: #221E1A;
 
   /* Glass - Glassmorphism Effects */
-  --lc-glass-bg: rgba(255, 255, 255, 0.72);
-  --lc-glass-border: rgba(255, 255, 255, 0.18);
-  --lc-glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-  --lc-glass-blur: blur(20px);
+  --lc-glass-bg: rgba(255, 255, 255, 0.28);
+  --lc-glass-border: rgba(255, 255, 255, 0.52);
+  --lc-glass-shadow: 0 1px 0 rgba(255,255,255,0.9) inset, 0 4px 16px rgba(0,0,0,0.03);
+  --lc-glass-blur: blur(18px);
 
-  /* Glass Void - Dark glassmorphism */
-  --lc-glass-void-bg: rgba(10, 10, 15, 0.85);
-  --lc-glass-void-border: rgba(196, 162, 107, 0.12);
-  --lc-glass-void-shadow: 0 8px 32px rgba(196, 162, 107, 0.12);
+  /* Glass Void - Deeper glassmorphism */
+  --lc-glass-void-bg: rgba(236, 228, 218, 0.45);
+  --lc-glass-void-border: rgba(184, 123, 101, 0.1);
+  --lc-glass-void-shadow: 0 4px 16px rgba(0,0,0,0.03);
 
   /* Typography */
   --lc-font-display: 'Cormorant Garamond', Georgia, serif;
-  --lc-font-body: 'Inter', system-ui, sans-serif;
+  --lc-font-body: 'DM Sans', system-ui, sans-serif;
   --lc-font-mono: 'JetBrains Mono', monospace;
 
   /* Spacing - 4px base unit */
@@ -67,7 +67,7 @@ export const designTokens = `
 html, body {
   font-family: var(--lc-font-body);
   color: var(--lc-charcoal);
-  background-color: var(--lc-ivory);
+  background-color: #F6F1EB;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -80,7 +80,7 @@ html {
 /* Selection styling */
 ::selection {
   background-color: var(--lc-rose);
-  color: var(--lc-ivory);
+  color: #fff;
 }
 
 /* Focus styles */
@@ -135,11 +135,11 @@ const cn = (...classes: (string | undefined | null | boolean)[]): string => {
 };
 
 const phaseColors: Record<string, string> = {
-  shadow: '#1A1A1A',
-  threshold: '#7A9E7E',
-  gift: '#C4A265',
-  void: '#0A0A0F',
-  genesis: '#8B2252',
+  shadow: '#221E1A',
+  threshold: '#7D8E7F',
+  gift: '#B8976A',
+  void: '#221E1A',
+  genesis: '#B87B65',
   crystallization: '#3C3489',
 };
 
@@ -477,21 +477,21 @@ export function SpectrumBar({
       <div
         style={{
           width: `${shadowPercent}%`,
-          backgroundColor: '#1A1A1A',
+          backgroundColor: '#221E1A',
           transition: 'width var(--lc-transition-normal)',
         }}
       />
       <div
         style={{
           width: `${thresholdPercent}%`,
-          backgroundColor: '#7A9E7E',
+          backgroundColor: '#7D8E7F',
           transition: 'width var(--lc-transition-normal)',
         }}
       />
       <div
         style={{
           width: `${giftPercent}%`,
-          backgroundColor: '#C4A265',
+          backgroundColor: '#B8976A',
           transition: 'width var(--lc-transition-normal)',
         }}
       />
@@ -759,9 +759,9 @@ export function CodexButton({
 
   const styles: Record<string, React.CSSProperties> = {
     primary: {
-      background: 'linear-gradient(135deg, #8B2252 0%, #A83B6B 100%)',
+      background: 'linear-gradient(135deg, #B87B65 0%, #B8976A 100%)',
       border: 'none',
-      color: 'var(--lc-ivory)',
+      color: '#fff',
     },
     secondary: {
       background: 'transparent',
@@ -774,9 +774,9 @@ export function CodexButton({
       color: 'var(--lc-charcoal)',
     },
     sacred: {
-      background: 'linear-gradient(135deg, #C4A265 0%, #D4B275 100%)',
+      background: 'linear-gradient(135deg, #B8976A 0%, #CAAA7E 100%)',
       border: 'none',
-      color: 'var(--lc-void)',
+      color: '#fff',
       position: 'relative',
       overflow: 'hidden',
     },
@@ -984,9 +984,9 @@ export function Toast({
 
   const typeMap: Record<string, { bg: string; color: string; icon: string }> = {
     info: { bg: '#3C3489', color: 'white', icon: 'ℹ' },
-    success: { bg: '#7A9E7E', color: 'white', icon: '✓' },
-    warning: { bg: '#C4A265', color: '#0A0A0F', icon: '(!)' },
-    sacred: { bg: '#8B2252', color: 'white', icon: '✦' },
+    success: { bg: '#7D8E7F', color: 'white', icon: '✓' },
+    warning: { bg: '#B8976A', color: '#221E1A', icon: '(!)' },
+    sacred: { bg: '#B87B65', color: 'white', icon: '✦' },
   };
 
   useEffect(() => {
@@ -1534,9 +1534,9 @@ export function Sidebar({
             style={{
               width: '100%',
               padding: '12px 16px',
-              background: currentView === item.id ? 'var(--lc-glass-bg)' : 'transparent',
+              background: currentView === item.id ? 'rgba(184,123,101,0.08)' : 'transparent',
               border: 'none',
-              borderLeft: currentView === item.id ? '3px solid var(--lc-gold)' : 'none',
+              borderLeft: currentView === item.id ? '3px solid var(--lc-rose)' : 'none',
               color: currentView === item.id ? 'var(--lc-charcoal)' : 'var(--lc-warm-gray)',
               cursor: 'pointer',
               display: 'flex',
@@ -1548,7 +1548,7 @@ export function Sidebar({
               marginBottom: '4px',
             }}
             onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'var(--lc-glass-bg)';
+              (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(184,123,101,0.06)';
               (e.currentTarget as HTMLButtonElement).style.color = 'var(--lc-charcoal)';
             }}
             onMouseLeave={(e) => {

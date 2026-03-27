@@ -140,11 +140,11 @@ const PROMPT_LIBRARY: Record<CodexPhase, string[]> = {
 // ============================================================================
 
 const MOOD_STYLES: Record<MoodState, { bg: string; border: string; dot: string; label: string }> = {
-  raw: { bg: 'bg-red-50', border: 'border-red-200', dot: 'bg-red-500', label: 'Raw' },
-  tender: { bg: 'bg-pink-50', border: 'border-pink-200', dot: 'bg-pink-500', label: 'Tender' },
-  grounded: { bg: 'bg-amber-50', border: 'border-amber-200', dot: 'bg-amber-600', label: 'Grounded' },
-  activated: { bg: 'bg-orange-50', border: 'border-orange-200', dot: 'bg-orange-500', label: 'Activated' },
-  expansive: { bg: 'bg-violet-50', border: 'border-violet-200', dot: 'bg-violet-500', label: 'Expansive' },
+  raw: { bg: 'bg-red-50/60', border: 'border-red-200/40', dot: 'bg-[#B87B65]', label: 'Raw' },
+  tender: { bg: 'bg-pink-50/60', border: 'border-pink-200/40', dot: 'bg-[#C99080]', label: 'Tender' },
+  grounded: { bg: 'bg-amber-50/60', border: 'border-amber-200/40', dot: 'bg-[#B8976A]', label: 'Grounded' },
+  activated: { bg: 'bg-orange-50/60', border: 'border-orange-200/40', dot: 'bg-[#B87B65]', label: 'Activated' },
+  expansive: { bg: 'bg-violet-50/60', border: 'border-violet-200/40', dot: 'bg-[#8B7BA8]', label: 'Expansive' },
 };
 
 // ============================================================================
@@ -192,11 +192,11 @@ function NewEntry({
       >
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <h3 className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-              <Heart className="w-4 h-4 text-rose-500" />
+            <h3 className="text-sm font-medium flex items-center gap-2" style={{ color: 'var(--cx-ink)', fontFamily: "'Cormorant Garamond', serif" }}>
+              <Heart className="w-4 h-4" style={{ color: 'var(--cx-rose)' }} />
               {routing.currentPhase}
             </h3>
-            <p className="text-xs text-slate-600 italic">{routing.prompt}</p>
+            <p className="text-xs italic" style={{ color: 'var(--cx-ink3)', fontFamily: "'Cormorant Garamond', serif" }}>{routing.prompt}</p>
           </div>
           <ChevronDown
             className={`w-5 h-5 text-slate-400 transition-transform ${isOpen ? 'rotate-180' : ''}`}
@@ -207,8 +207,8 @@ function NewEntry({
       {isOpen && (
         <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
           {/* Prompt Display */}
-          <div className="backdrop-blur-md bg-slate-900/10 border border-white/20 rounded-xl p-4">
-            <p className="text-sm text-slate-700 italic leading-relaxed">{routing.prompt}</p>
+          <div className="backdrop-blur-md border rounded-xl p-4" style={{ background: 'rgba(184,123,101,0.04)', borderColor: 'rgba(184,123,101,0.1)' }}>
+            <p className="text-sm italic leading-relaxed" style={{ color: 'var(--cx-ink2)', fontFamily: "'Cormorant Garamond', serif" }}>{routing.prompt}</p>
           </div>
 
           {/* Text Editor */}
@@ -216,7 +216,8 @@ function NewEntry({
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="Write your reflection here. There are no rules—only authenticity."
-            className="w-full min-h-[200px] p-4 rounded-xl border border-white/40 bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-rose-300/50 focus:border-transparent resize-none text-slate-700 placeholder-slate-500 shadow-sm"
+            className="w-full min-h-[200px] p-4 rounded-xl border bg-white/50 backdrop-blur-sm focus:outline-none focus:ring-2 focus:border-transparent resize-none shadow-sm"
+            style={{ borderColor: 'rgba(255,255,255,0.52)', color: 'var(--cx-ink2)', fontFamily: "'DM Sans', system-ui, sans-serif", fontSize: '13px' }}
           />
 
           {/* Mood Selector */}
@@ -246,7 +247,7 @@ function NewEntry({
           <div className="flex gap-3">
             <button
               onClick={handleSave}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-400 to-pink-400 text-white font-medium rounded-lg hover:shadow-lg hover:from-rose-500 hover:to-pink-500 transition-all"
+              className="cx-btn-primary flex-1 flex items-center justify-center gap-2"
             >
               <Save className="w-4 h-4" />
               Save Entry
@@ -257,7 +258,7 @@ function NewEntry({
                 setMood('tender');
                 setIsOpen(false);
               }}
-              className="flex-1 px-4 py-2 bg-white/30 backdrop-blur-sm text-slate-700 font-medium rounded-lg border border-white/40 hover:bg-white/50 transition-all"
+              className="cx-btn-secondary flex-1"
             >
               Discard
             </button>
@@ -495,15 +496,15 @@ function MonthlySummary({ summaries }: { summaries: JournalSummary[] }) {
   }
 
   return (
-    <div className="backdrop-blur-md bg-gradient-to-br from-white/60 to-rose-50/40 border border-white/60 rounded-2xl p-8 shadow-lg">
+    <div className="backdrop-blur-md border rounded-2xl p-8" style={{ background: 'rgba(255,255,255,0.28)', borderColor: 'rgba(255,255,255,0.52)', boxShadow: '0 1px 0 rgba(255,255,255,0.9) inset, 0 4px 16px rgba(0,0,0,0.03)' }}>
       <div className="mb-6">
-        <h3 className="text-2xl font-bold text-slate-800 mb-1">
+        <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '22px', fontWeight: 300, color: 'var(--cx-ink)' }}>
           {latest.month} {latest.year}
         </h3>
-        <p className="text-sm text-slate-500">Monthly Reflection</p>
+        <p style={{ fontSize: '10px', color: 'var(--cx-ink3)', letterSpacing: '0.06em' }}>Monthly Reflection</p>
       </div>
 
-      <p className="text-slate-700 leading-relaxed mb-6">{latest.summary}</p>
+      <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: '14px', fontWeight: 300, color: 'var(--cx-ink2)', lineHeight: 1.65, marginBottom: '20px' }}>{latest.summary}</p>
 
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="backdrop-blur-sm bg-white/50 rounded-lg p-3">
@@ -645,29 +646,30 @@ export function JournalVault({
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-rose-50/30 to-slate-50 p-6">
+    <div style={{ padding: '36px 40px', maxWidth: '72rem', margin: '0 auto' }}>
       {/* Header */}
-      <div className="max-w-6xl mx-auto mb-8">
+      <div style={{ marginBottom: '28px' }}>
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-4xl font-bold text-slate-900 flex items-center gap-3 mb-2">
-              <Heart className="w-8 h-8 text-rose-500" />
+            <p style={{ fontSize: '9.5px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--cx-ink3)', marginBottom: '6px' }}>VOICE VAULT</p>
+            <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: 'clamp(1.75rem, 3.5vw, 2.4rem)', fontWeight: 300, color: 'var(--cx-ink)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Heart style={{ width: 22, height: 22, color: 'var(--cx-rose)' }} />
               Journal Vault
             </h1>
-            <p className="text-slate-600">A private sanctum for your reflection and becoming</p>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontStyle: 'italic', fontSize: '13px', color: 'var(--cx-ink3)', marginTop: '4px' }}>A private sanctum for your reflection and becoming</p>
           </div>
           {profile.primaryArchetype && (
             <div className="text-right">
-              <p className="text-xs text-slate-600 uppercase tracking-wide">Your Archetype</p>
-              <p className="text-lg font-semibold text-slate-800">{profile.primaryArchetype}</p>
+              <p style={{ fontSize: '9px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--cx-ink3)' }}>Your Archetype</p>
+              <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '16px', fontWeight: 300, color: 'var(--cx-ink)' }}>{profile.primaryArchetype}</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Tab Navigation */}
-      <div className="max-w-6xl mx-auto mb-6">
-        <div className="flex gap-2 backdrop-blur-md bg-white/30 border border-white/40 rounded-xl p-1">
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.28)', backdropFilter: 'blur(12px)', border: '1px solid rgba(255,255,255,0.52)', borderRadius: '14px', padding: '4px' }}>
           {(
             [
               { id: 'write', label: 'Write', icon: Heart },
@@ -680,13 +682,15 @@ export function JournalVault({
             <button
               key={id}
               onClick={() => setActiveTab(id)}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all ${
-                activeTab === id
-                  ? 'bg-gradient-to-r from-rose-400/80 to-pink-400/80 text-white shadow-md'
-                  : 'text-slate-700 hover:bg-white/30'
-              }`}
+              style={{
+                flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                padding: '8px 12px', borderRadius: '11px', fontSize: '11px', fontWeight: 400,
+                fontFamily: "'DM Sans', system-ui, sans-serif", transition: 'all 200ms', border: 'none', cursor: 'pointer',
+                background: activeTab === id ? 'rgba(184,123,101,0.09)' : 'transparent',
+                color: activeTab === id ? 'var(--cx-rose)' : 'var(--cx-ink2)',
+              }}
             >
-              <Icon className="w-4 h-4" />
+              <Icon style={{ width: 13, height: 13 }} />
               <span className="hidden sm:inline">{label}</span>
             </button>
           ))}
@@ -694,7 +698,7 @@ export function JournalVault({
       </div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto">
+      <div>
         {activeTab === 'write' && (
           <div>
             <NewEntry profile={profile} routing={routing} onSave={onSave} />
