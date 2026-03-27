@@ -73,15 +73,15 @@ const CharacterCard: React.FC<{
         borderRadius: 16,
         overflow: 'hidden',
         border: active
-          ? `3px solid ${character.primaryColor}`
-          : '3px solid rgba(255,255,255,0.08)',
-        background: `linear-gradient(180deg, ${character.secondaryColor} 0%, #0A0A0A 100%)`,
+          ? `1.5px solid rgba(184,123,101,0.7)`
+          : '1.5px solid transparent',
+        background: 'rgba(255,255,255,0.04)',
         cursor: 'pointer',
         transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
         transform: active ? 'scale(1.04)' : 'scale(1)',
         boxShadow: active
-          ? `0 0 40px ${character.primaryColor}60, 0 0 80px ${character.primaryColor}20, inset 0 0 30px ${character.primaryColor}10`
-          : '0 4px 20px rgba(0,0,0,0.4)',
+          ? '0 0 24px rgba(184,123,101,0.15)'
+          : '0 4px 20px rgba(0,0,0,0.3)',
         outline: 'none',
         padding: 0,
         display: 'block',
@@ -170,15 +170,15 @@ const CharacterCard: React.FC<{
             width: 28,
             height: 28,
             borderRadius: '50%',
-            background: character.primaryColor,
+            background: 'rgba(184,123,101,0.9)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: `0 0 12px ${character.primaryColor}`,
+            boxShadow: 'none',
             zIndex: 3,
           }}
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
@@ -200,8 +200,9 @@ const CharacterCard: React.FC<{
           style={{
             fontFamily: "'Cormorant Garamond', serif",
             fontSize: 'clamp(1.1rem, 2vw, 1.4rem)',
-            fontWeight: 600,
-            color: active ? character.primaryColor : 'rgba(255,255,255,0.85)',
+            fontWeight: 300,
+            fontStyle: 'italic' as const,
+            color: active ? 'rgba(220,205,185,0.95)' : 'rgba(220,205,185,0.9)',
             margin: 0,
             transition: 'color 0.3s ease',
             letterSpacing: '0.03em',
@@ -211,9 +212,9 @@ const CharacterCard: React.FC<{
         </h3>
         <p
           style={{
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'DM Sans', sans-serif",
             fontSize: '0.65rem',
-            color: active ? `${character.primaryColor}cc` : 'rgba(255,255,255,0.35)',
+            color: active ? 'rgba(184,123,101,0.9)' : 'rgba(154,148,141,0.7)',
             margin: '3px 0 0',
             letterSpacing: '0.08em',
             textTransform: 'uppercase',
@@ -231,7 +232,7 @@ const CharacterCard: React.FC<{
             position: 'absolute',
             inset: -1,
             borderRadius: 16,
-            border: `2px solid ${character.primaryColor}40`,
+            border: '2px solid rgba(184,123,101,0.25)',
             animation: 'glow-pulse 2s ease-in-out infinite',
             pointerEvents: 'none',
           }}
@@ -269,8 +270,7 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
         position: 'fixed',
         inset: 0,
         zIndex: 1000,
-        background: 'rgba(0, 0, 0, 0.85)',
-        backdropFilter: 'blur(12px)',
+        background: 'linear-gradient(170deg, #1A1510 0%, #1C1814 40%, #18140F 100%)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -298,11 +298,11 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
       >
         <p
           style={{
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'DM Sans', sans-serif",
             fontSize: '0.6rem',
             letterSpacing: '0.35em',
             textTransform: 'uppercase',
-            color: 'rgba(201,168,76,0.5)',
+            color: 'rgba(184,123,101,0.7)',
             marginBottom: '0.5rem',
           }}
         >
@@ -313,7 +313,7 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
             fontFamily: "'Cormorant Garamond', serif",
             fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
             fontWeight: 300,
-            color: '#C9A96E',
+            color: 'rgba(230,215,195,0.95)',
             margin: 0,
             letterSpacing: '0.05em',
           }}
@@ -322,11 +322,12 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
         </h1>
         <p
           style={{
-            fontFamily: "'Inter', sans-serif",
+            fontFamily: "'DM Sans', sans-serif",
             fontSize: '0.8rem',
-            color: 'rgba(255,255,255,0.35)',
+            color: 'rgba(154,148,141,0.8)',
             marginTop: '0.5rem',
             maxWidth: '32rem',
+            lineHeight: 1.7,
           }}
         >
           Each guide carries a different energy. Choose the one that resonates with you.
@@ -364,7 +365,7 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
                     position: 'absolute',
                     inset: 0,
                     borderRadius: 16,
-                    background: 'rgba(0,0,0,0.7)',
+                    background: 'rgba(20,16,12,0.7)',
                     backdropFilter: 'blur(2px)',
                     display: 'flex',
                     flexDirection: 'column',
@@ -375,7 +376,7 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
                   }}
                 >
                   <span style={{
-                    fontFamily: "'Inter', sans-serif",
+                    fontFamily: "'DM Sans', sans-serif",
                     fontSize: '0.65rem',
                     letterSpacing: '0.15em',
                     textTransform: 'uppercase',
@@ -406,9 +407,9 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
               fontFamily: "'Cormorant Garamond', serif",
               fontSize: '1.4rem',
               fontWeight: 500,
-              color: activeCharacter.primaryColor,
+              color: 'rgba(220,205,185,0.95)',
               margin: '0 0 0.35rem',
-              animation: 'char-title-glow 3s ease-in-out infinite',
+              fontStyle: 'italic' as const,
               // @ts-ignore
               '--glow-color': activeCharacter.primaryColor,
             } as React.CSSProperties}
@@ -417,10 +418,10 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
           </h2>
           <p
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'DM Sans', sans-serif",
               fontSize: '0.8rem',
-              color: 'rgba(255,255,255,0.5)',
-              lineHeight: 1.6,
+              color: 'rgba(154,148,141,0.8)',
+              lineHeight: 1.7,
               margin: '0 0 0.5rem',
             }}
           >
@@ -428,9 +429,9 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
           </p>
           <p
             style={{
-              fontFamily: "'Inter', sans-serif",
+              fontFamily: "'DM Sans', sans-serif",
               fontSize: '0.65rem',
-              color: 'rgba(255,255,255,0.25)',
+              color: 'rgba(184,123,101,0.7)',
               letterSpacing: '0.08em',
             }}
           >
@@ -452,22 +453,22 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
             onClick={onClose}
             style={{
               padding: '0.75rem 2rem',
-              borderRadius: '0.5rem',
-              border: '1px solid rgba(255,255,255,0.15)',
+              borderRadius: '50px',
+              border: '1px solid rgba(255,255,255,0.12)',
               background: 'transparent',
-              color: 'rgba(255,255,255,0.5)',
-              fontFamily: "'Inter', sans-serif",
+              color: 'rgba(154,148,141,0.8)',
+              fontFamily: "'DM Sans', sans-serif",
               fontSize: '0.85rem',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)';
-              e.currentTarget.style.color = 'rgba(255,255,255,0.8)';
+              e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+              e.currentTarget.style.color = 'rgba(200,185,165,0.9)';
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)';
-              e.currentTarget.style.color = 'rgba(255,255,255,0.5)';
+              e.currentTarget.style.background = 'transparent';
+              e.currentTarget.style.color = 'rgba(154,148,141,0.8)';
             }}
           >
             Cancel
@@ -477,33 +478,31 @@ export const GuideCharacterSelector: React.FC<GuideCharacterSelectorProps> = ({
           onClick={handleConfirm}
           disabled={!selectedId}
           style={{
-            padding: '0.75rem 2.5rem',
-            borderRadius: '0.5rem',
-            border: 'none',
+            padding: '0.75rem 2rem',
+            borderRadius: '50px',
+            border: '1px solid rgba(184,123,101,0.38)',
             background: selectedId
-              ? `linear-gradient(135deg, ${activeCharacter?.primaryColor || '#C9A96E'}, ${activeCharacter?.emissiveColor || '#C9A96E'})`
-              : 'rgba(255,255,255,0.1)',
-            color: selectedId ? '#000' : 'rgba(255,255,255,0.3)',
-            fontFamily: "'Cormorant Garamond', serif",
-            fontSize: '1.05rem',
-            fontWeight: 600,
-            letterSpacing: '0.1em',
+              ? 'rgba(184,123,101,0.18)'
+              : 'rgba(255,255,255,0.05)',
+            color: selectedId ? 'rgba(220,185,155,0.95)' : 'rgba(255,255,255,0.3)',
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: '0.85rem',
+            fontWeight: 500,
+            letterSpacing: '0.02em',
             cursor: selectedId ? 'pointer' : 'not-allowed',
-            transition: 'all 0.4s ease',
-            boxShadow: selectedId
-              ? `0 0 20px ${activeCharacter?.primaryColor || '#C9A96E'}40`
-              : 'none',
+            transition: 'all 0.3s ease',
+            boxShadow: 'none',
           }}
           onMouseEnter={e => {
             if (selectedId) {
-              e.currentTarget.style.boxShadow = `0 0 30px ${activeCharacter?.primaryColor || '#C9A96E'}60`;
-              e.currentTarget.style.transform = 'scale(1.03)';
+              e.currentTarget.style.background = 'rgba(184,123,101,0.28)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
             }
           }}
           onMouseLeave={e => {
             if (selectedId) {
-              e.currentTarget.style.boxShadow = `0 0 20px ${activeCharacter?.primaryColor || '#C9A96E'}40`;
-              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.background = 'rgba(184,123,101,0.18)';
+              e.currentTarget.style.transform = 'translateY(0)';
             }
           }}
         >

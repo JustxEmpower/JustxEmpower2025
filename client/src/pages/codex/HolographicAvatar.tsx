@@ -1421,20 +1421,20 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
             </div>
             {/* Name — light, spaced */}
             <p style={{
-              fontFamily: "'Inter', -apple-system, sans-serif",
+              fontFamily: "'DM Sans', sans-serif",
               fontSize: '0.95rem',
               fontWeight: 400,
-              color: `${config.primaryColor}cc`,
+              color: 'rgba(184,123,101,0.8)',
               letterSpacing: '0.2em',
               marginTop: '1.2rem',
               textTransform: 'uppercase',
             }}>{currentVoiceName}</p>
             {/* Status — whisper-weight */}
             <p style={{
-              fontFamily: "'Inter', -apple-system, sans-serif",
+              fontFamily: "'DM Sans', sans-serif",
               fontSize: '0.6rem',
               fontWeight: 300,
-              color: 'rgba(255,255,255,0.25)',
+              color: 'rgba(154,148,141,0.5)',
               letterSpacing: '0.12em',
               marginTop: '0.4rem',
             }}>
@@ -1448,7 +1448,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
 
       {/* ── Conversation & Controls Overlay ── */}
       <div className="absolute bottom-0 left-0 right-0" style={{
-        background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, transparent 100%)',
+        background: 'linear-gradient(to top, rgba(22,18,14,0.95) 0%, rgba(22,18,14,0.7) 50%, transparent 100%)',
         paddingTop: '5rem',
         zIndex: 10,
       }}>
@@ -1466,25 +1466,25 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
                 fontSize: '0.82rem',
                 lineHeight: 1.55,
-                fontFamily: "'Inter', -apple-system, sans-serif",
+                fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 350,
                 letterSpacing: '0.01em',
-                color: msg.role === 'user' ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.9)',
+                color: msg.role === 'user' ? 'rgba(230,215,195,0.85)' : 'rgba(230,215,195,0.9)',
                 background: msg.role === 'user'
-                  ? 'rgba(255,255,255,0.07)'
-                  : `linear-gradient(135deg, ${config.primaryColor}12, ${config.primaryColor}08)`,
+                  ? 'rgba(255,255,255,0.06)'
+                  : 'rgba(184,123,101,0.06)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
                 border: msg.role === 'user'
                   ? '1px solid rgba(255,255,255,0.06)'
-                  : `1px solid ${config.primaryColor}15`,
+                  : '1px solid rgba(184,123,101,0.12)',
               }}>
                 {msg.role === 'guide' && (
                   <span style={{
                     display: 'block',
                     fontSize: '0.6rem',
                     fontWeight: 500,
-                    color: `${config.primaryColor}99`,
+                    color: 'rgba(184,123,101,0.7)',
                     letterSpacing: '0.1em',
                     textTransform: 'uppercase',
                     marginBottom: 4,
@@ -1513,7 +1513,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
               color: 'rgba(255,255,255,0.6)',
               background: 'rgba(255,255,255,0.04)',
               backdropFilter: 'blur(12px)',
-              border: `1px solid ${config.primaryColor}18`,
+              border: '1px solid rgba(184,123,101,0.15)',
               animation: 'fade-in 0.2s ease-out',
             }}>
               {gemini.transcript}
@@ -1530,19 +1530,19 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 width: 52,
                 height: 52,
                 borderRadius: '50%',
-                border: 'none',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
                 background: gemini.isListening
-                  ? `radial-gradient(circle, ${config.primaryColor}40 0%, ${config.primaryColor}15 100%)`
+                  ? 'radial-gradient(circle, rgba(184,123,101,0.25) 0%, rgba(184,123,101,0.08) 100%)'
                   : 'rgba(255,255,255,0.06)',
-                color: gemini.isListening ? config.primaryColor : 'rgba(255,255,255,0.5)',
+                border: '1px solid rgba(255,255,255,0.1)',
+                color: gemini.isListening ? 'rgba(230,215,195,0.7)' : 'rgba(230,215,195,0.5)',
                 transition: 'all 0.4s cubic-bezier(0.4,0,0.2,1)',
                 boxShadow: gemini.isListening
-                  ? `0 0 ${20 + gemini.micLevel * 30}px ${config.primaryColor}${Math.min(99, Math.round(20 + gemini.micLevel * 50)).toString()}`
+                  ? `0 0 ${20 + gemini.micLevel * 30}px rgba(184,123,101,${(0.15 + gemini.micLevel * 0.3).toFixed(2)})`
                   : 'none',
               }}
               aria-label={gemini.isListening ? 'Stop listening' : 'Start voice input'}
@@ -1553,7 +1553,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                   position: 'absolute',
                   inset: -2,
                   borderRadius: '50%',
-                  border: `1.5px solid ${config.primaryColor}50`,
+                  border: '1.5px solid rgba(184,123,101,0.3)',
                   animation: 'mic-breathe 2s ease-out infinite',
                   pointerEvents: 'none',
                 }} />
@@ -1564,7 +1564,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                   position: 'absolute',
                   inset: `${-3 - gemini.micLevel * 10}px`,
                   borderRadius: '50%',
-                  border: `1.5px solid ${config.primaryColor}`,
+                  border: '1.5px solid rgba(184,123,101,0.5)',
                   opacity: Math.min(0.8, 0.15 + gemini.micLevel),
                   transition: 'all 0.06s ease-out',
                   pointerEvents: 'none',
@@ -1596,16 +1596,16 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 background: 'rgba(255,255,255,0.04)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
-                color: 'rgba(255,255,255,0.9)',
+                color: 'rgba(180,168,152,0.7)',
                 fontSize: '0.82rem',
-                fontFamily: "'Inter', -apple-system, sans-serif",
+                fontFamily: "'DM Sans', sans-serif",
                 fontWeight: 350,
                 letterSpacing: '0.01em',
                 outline: 'none',
                 transition: 'border-color 0.3s ease, background 0.3s ease',
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = `${config.primaryColor}40`;
+                e.currentTarget.style.borderColor = 'rgba(184,123,101,0.3)';
                 e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
               }}
               onBlur={(e) => {
@@ -1622,14 +1622,14 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 width: 44,
                 height: 44,
                 borderRadius: '50%',
-                border: 'none',
                 cursor: textInput.trim() ? 'pointer' : 'default',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                background: textInput.trim() ? config.primaryColor : 'rgba(255,255,255,0.04)',
-                color: textInput.trim() ? '#000' : 'rgba(255,255,255,0.15)',
+                background: textInput.trim() ? 'rgba(184,123,101,0.2)' : 'rgba(255,255,255,0.04)',
+                border: textInput.trim() ? '1px solid rgba(184,123,101,0.35)' : '1px solid transparent',
+                color: textInput.trim() ? 'rgba(184,123,101,0.9)' : 'rgba(255,255,255,0.15)',
                 opacity: textInput.trim() ? 1 : 0.5,
                 transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
                 transform: textInput.trim() ? 'scale(1)' : 'scale(0.92)',
@@ -1657,7 +1657,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                 height: 5,
                 borderRadius: '50%',
                 background: gemini.isListening || gemini.isSpeaking
-                  ? config.primaryColor
+                  ? 'rgba(184,123,101,0.8)'
                   : gemini.isConnected
                     ? 'rgba(255,255,255,0.25)'
                     : 'rgba(255,200,0,0.5)',
@@ -1673,14 +1673,14 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                   background: 'transparent',
                   color: 'rgba(255,255,255,0.3)',
                   fontSize: '0.58rem',
-                  fontFamily: "'Inter', -apple-system, sans-serif",
+                  fontFamily: "'DM Sans', sans-serif",
                   fontWeight: 400,
                   letterSpacing: '0.06em',
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; e.currentTarget.style.color = 'rgba(255,255,255,0.6)'; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(255,255,255,0.3)'; }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(184,123,101,0.2)'; e.currentTarget.style.color = 'rgba(200,185,165,0.6)'; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(200,185,165,0.3)'; }}
                 title="Change guide"
               >Guide</button>
               <button
@@ -1692,14 +1692,14 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
                   background: 'transparent',
                   color: 'rgba(255,255,255,0.15)',
                   fontSize: '0.58rem',
-                  fontFamily: "'Inter', -apple-system, sans-serif",
+                  fontFamily: "'DM Sans', sans-serif",
                   fontWeight: 400,
                   letterSpacing: '0.06em',
                   cursor: 'pointer',
                   transition: 'color 0.3s ease',
                 }}
-                onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,100,100,0.6)'}
-                onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,0.15)'}
+                onMouseEnter={e => e.currentTarget.style.color = 'rgba(184,123,101,0.6)'}
+                onMouseLeave={e => e.currentTarget.style.color = 'rgba(200,185,165,0.15)'}
               >End</button>
             </div>
 
@@ -1732,7 +1732,7 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
               title={`Voice: ${currentVoiceName}`}
             >
               {/* Waveform / voice icon */}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke={config.primaryColor} strokeWidth="1.5" strokeLinecap="round" style={{ opacity: 0.6, flexShrink: 0 }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(184,123,101,0.7)" strokeWidth="1.5" strokeLinecap="round" style={{ opacity: 0.6, flexShrink: 0 }}>
                 <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z" />
                 <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
                 <line x1="12" y1="19" x2="12" y2="23" />
@@ -1742,11 +1742,11 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
               <span
                 className="voice-label"
                 style={{
-                  fontFamily: "'Inter', -apple-system, sans-serif",
+                  fontFamily: "'DM Sans', sans-serif",
                   fontSize: '0.6rem',
                   fontWeight: 400,
                   letterSpacing: '0.06em',
-                  color: `${config.primaryColor}aa`,
+                  color: 'rgba(184,123,101,0.65)',
                   whiteSpace: 'nowrap',
                   overflow: 'hidden',
                   maxWidth: 0,

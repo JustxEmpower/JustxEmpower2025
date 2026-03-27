@@ -367,7 +367,7 @@ export default function SimliAvatar({
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'radial-gradient(ellipse at center, rgba(15,10,25,0.95) 0%, rgba(5,0,15,0.98) 100%)',
+            background: 'linear-gradient(170deg, rgba(26,21,16,0.97) 0%, rgba(30,26,20,0.98) 40%, rgba(22,18,14,0.99) 100%)',
             zIndex: 10,
           }}
         >
@@ -376,18 +376,18 @@ export default function SimliAvatar({
               width: 80,
               height: 80,
               borderRadius: '50%',
-              background: `radial-gradient(circle, ${guideColor}44 0%, ${guideColor}11 60%, transparent 70%)`,
-              boxShadow: `0 0 40px ${guideColor}33, 0 0 80px ${guideColor}11`,
+              background: 'radial-gradient(circle, rgba(184,123,101,0.25) 0%, rgba(184,151,106,0.08) 60%, transparent 70%)',
+              boxShadow: '0 0 40px rgba(184,123,101,0.2), 0 0 80px rgba(184,151,106,0.08)',
               animation: 'simli-pulse 2s ease-in-out infinite',
             }}
           />
           <p
             style={{
               marginTop: 16,
-              color: `${guideColor}cc`,
-              fontSize: 13,
-              fontFamily: "'Inter', sans-serif",
-              letterSpacing: '0.05em',
+              color: 'rgba(184,123,101,0.7)',
+              fontSize: 11,
+              fontFamily: "'DM Sans', sans-serif",
+              letterSpacing: '0.14em',
               textTransform: 'uppercase',
             }}
           >
@@ -411,7 +411,7 @@ export default function SimliAvatar({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            background: 'rgba(10,6,25,0.9)',
+            background: 'rgba(26,21,16,0.92)',
             zIndex: 10,
           }}
         >
@@ -441,7 +441,7 @@ export default function SimliAvatar({
                 width: 3,
                 height: 16,
                 borderRadius: 2,
-                background: guideColor,
+                background: 'rgba(184,123,101,0.8)',
                 animation: `simli-eq ${0.3 + i * 0.1}s ease-in-out infinite alternate`,
               }}
             />

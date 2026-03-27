@@ -253,7 +253,7 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
       {holographicMode && selectedGuide && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 60,
-          background: "radial-gradient(ellipse at center, rgba(11,11,20,0.97) 0%, rgba(6,6,12,0.99) 100%)",
+          background: "linear-gradient(170deg, #1A1510 0%, #1E1A14 40%, #16120E 100%)",
           display: "flex", alignItems: "center", justifyContent: "center",
         }}>
           <button
@@ -261,9 +261,10 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
             className="cx-btn-ghost"
             style={{
               position: "absolute", top: "1.5rem", right: "1.5rem", zIndex: 70,
-              background: "rgba(28,25,48,0.6)", border: "1px solid var(--cx-border)",
-              borderRadius: "0.75rem", padding: "0.625rem 1.25rem",
-              color: "var(--cx-cream)", backdropFilter: "blur(12px)",
+              background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)",
+              borderRadius: "50px", padding: "0.5rem 1rem",
+              color: "rgba(200,185,165,0.8)", backdropFilter: "blur(12px)",
+              fontSize: "10.5px", letterSpacing: "0.05em", fontFamily: "'DM Sans', sans-serif",
             }}
           >
             Exit Holographic
@@ -274,7 +275,7 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", aspectRatio: "1" }}>
                 <div className="cx-slow-pulse" style={{
                   width: 48, height: 48, borderRadius: "50%",
-                  background: "linear-gradient(135deg, var(--cx-violet), var(--cx-blue))", opacity: 0.5,
+                  background: "radial-gradient(circle, rgba(184,123,101,0.3), rgba(184,151,106,0.1))", opacity: 0.6,
                 }} />
               </div>
             }>
