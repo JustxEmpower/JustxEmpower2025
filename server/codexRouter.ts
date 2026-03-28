@@ -729,7 +729,7 @@ const codexClientRouter = router({
     return { conversationId: convId, guideId: input.guideId, response: aiResponse };
   }),
 
-  // Generate an AI-crafted shareable snippet from a journal entry for social media
+  // Generate an AI-crafted shareable snippet, persist it, and return public share URL
   generateShareSnippet: customerProc.input(z.object({ entryId: z.string() })).mutation(async ({ ctx, input }) => {
     const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
     const u = (ctx as any).codexUser as schema.CodexUser;
@@ -739,27 +739,44 @@ const codexClientRouter = router({
       .limit(1);
     if (!entry) throw new TRPCError({ code: "NOT_FOUND", message: "Journal entry not found" });
 
+    // Check for existing snippet for this entry
+    const [existing] = await db.select().from(schema.codexShareSnippets)
+      .where(and(eq(schema.codexShareSnippets.journalEntryId, input.entryId), eq(schema.codexShareSnippets.userId, u.id)))
+      .limit(1);
+    if (existing) {
+      const hashtags = existing.hashtags ? JSON.parse(existing.hashtags) : ["#LivingCodex"];
+      return {
+        snippet: existing.snippet,
+        hashtags,
+        publicId: existing.publicId,
+        shareUrl: `/share/${existing.publicId}`,
+        imageUrl: existing.imageUrl || `/api/share-image/${existing.publicId}`,
+      };
+    }
+
     const themes = entry.themes ? JSON.parse(entry.themes) : [];
 
+    // Get user's archetype context for the share
+    const [assessment] = await db.select().from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    let scoring = null;
+    if (assessment) {
+      const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+      scoring = s ? JSON.parse(s.resultJson) : null;
+    }
+    const archetype = scoring?.archetypeConstellation?.[0]?.archetype || null;
+    const phase = entry.phase || (scoring?.phase ? String(scoring.phase) : null);
+
     // Use Gemini to distill the entry into a shareable poetic snippet
+    let snippetText = `"${entry.title}" — a reflection from my Living Codex journey.`;
+    let hashtagList = ["#LivingCodex", "#InnerWork", "#SelfDiscovery"];
+
     const { ensureGeminiFromDatabase, getGeminiClient } = await import("./aiService");
     const ready = await ensureGeminiFromDatabase();
-    if (!ready) {
-      return {
-        snippet: `"${entry.title}" — a reflection from my Living Codex journey.`,
-        hashtags: ["#LivingCodex", "#InnerWork", "#SelfDiscovery"],
-      };
-    }
-    const genAI = getGeminiClient();
-    if (!genAI) {
-      return {
-        snippet: `"${entry.title}" — a reflection from my Living Codex journey.`,
-        hashtags: ["#LivingCodex", "#InnerWork", "#SelfDiscovery"],
-      };
-    }
-
-    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
-    const prompt = `You are a poetic distiller for The Living Codex, a self-discovery platform for women.
+    if (ready) {
+      const genAI = getGeminiClient();
+      if (genAI) {
+        const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+        const prompt = `You are a poetic distiller for The Living Codex, a self-discovery platform for women.
 
 A woman wrote a private journal entry. Your job is to create a SHAREABLE SNIPPET — a beautiful, poetic, 1-2 sentence distillation that captures the ESSENCE of her reflection without exposing private details.
 
@@ -784,21 +801,41 @@ Respond in JSON ONLY (no markdown, no code blocks):
   "hashtags": ["#LivingCodex", "#tag2", "#tag3"]
 }`;
 
-    try {
-      const result = await model.generateContent(prompt);
-      const text = result.response.text().trim();
-      const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-      const parsed = JSON.parse(cleaned);
-      return {
-        snippet: parsed.snippet || `"${entry.title}" — a reflection from my Living Codex journey.`,
-        hashtags: parsed.hashtags || ["#LivingCodex", "#InnerWork", "#SelfDiscovery"],
-      };
-    } catch {
-      return {
-        snippet: `"${entry.title}" — a reflection from my Living Codex journey.`,
-        hashtags: ["#LivingCodex", "#InnerWork", "#SelfDiscovery"],
-      };
+        try {
+          const result = await model.generateContent(prompt);
+          const text = result.response.text().trim();
+          const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+          const parsed = JSON.parse(cleaned);
+          if (parsed.snippet) snippetText = parsed.snippet;
+          if (parsed.hashtags?.length) hashtagList = parsed.hashtags;
+        } catch {}
+      }
     }
+
+    // Generate a short public ID (URL-safe, 8 chars)
+    const publicId = nanoid(8);
+    const snippetId = nanoid();
+
+    // Persist the snippet
+    await db.insert(schema.codexShareSnippets).values({
+      id: snippetId,
+      publicId,
+      userId: u.id,
+      journalEntryId: input.entryId,
+      snippet: snippetText,
+      hashtags: JSON.stringify(hashtagList),
+      phase,
+      archetype,
+      mood: entry.mood || null,
+    });
+
+    return {
+      snippet: snippetText,
+      hashtags: hashtagList,
+      publicId,
+      shareUrl: `/share/${publicId}`,
+      imageUrl: `/api/share-image/${publicId}`,
+    };
   }),
 
   // ── AI Guide Endpoints ─────────────────────────────────────────────
@@ -1816,7 +1853,36 @@ Respond in JSON ONLY (no markdown, no code blocks):
 // ══════════════════════════════════════════════════════════════════════
 // COMBINED ROUTER
 // ══════════════════════════════════════════════════════════════════════
+// ── Public endpoints (no auth required) ─────────────────────────────
+const codexPublicRouter = router({
+  // Fetch a share snippet by its public ID — for the share landing page
+  getShareSnippet: publicProcedure.input(z.object({ publicId: z.string() })).query(async ({ input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const [snippet] = await db.select().from(schema.codexShareSnippets)
+      .where(eq(schema.codexShareSnippets.publicId, input.publicId))
+      .limit(1);
+    if (!snippet) throw new TRPCError({ code: "NOT_FOUND", message: "Share not found" });
+
+    // Increment view count
+    await db.update(schema.codexShareSnippets)
+      .set({ viewCount: sql`${schema.codexShareSnippets.viewCount} + 1` })
+      .where(eq(schema.codexShareSnippets.id, snippet.id));
+
+    const hashtags = snippet.hashtags ? JSON.parse(snippet.hashtags) : ["#LivingCodex"];
+    return {
+      snippet: snippet.snippet,
+      hashtags,
+      phase: snippet.phase,
+      archetype: snippet.archetype,
+      mood: snippet.mood,
+      imageUrl: snippet.imageUrl || `/api/share-image/${snippet.publicId}`,
+      createdAt: snippet.createdAt,
+    };
+  }),
+});
+
 export const codexRouter = router({
   admin: codexAdminRouter,
   client: codexClientRouter,
+  public: codexPublicRouter,
 });

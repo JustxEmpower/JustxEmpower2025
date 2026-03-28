@@ -1814,3 +1814,24 @@ export const codexMaternalResonance = mysqlTable("codex_maternal_resonance", {
 });
 export type CodexMaternalResonance = typeof codexMaternalResonance.$inferSelect;
 export type InsertCodexMaternalResonance = typeof codexMaternalResonance.$inferInsert;
+
+/**
+ * Social share snippets — AI-generated poetic quotes from journal entries with public share URLs
+ */
+export const codexShareSnippets = mysqlTable("codex_share_snippets", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  publicId: varchar("publicId", { length: 12 }).notNull().unique(), // short public URL slug
+  userId: varchar("userId", { length: 30 }).notNull(),
+  journalEntryId: varchar("journalEntryId", { length: 30 }).notNull(),
+  snippet: text("snippet").notNull(), // AI-generated poetic shareable text
+  hashtags: text("hashtags"), // JSON array of hashtag strings
+  imageUrl: text("imageUrl"), // URL to the generated share image
+  phase: varchar("phase", { length: 50 }), // user's codex phase at time of share
+  archetype: varchar("archetype", { length: 100 }), // user's primary archetype at time of share
+  mood: varchar("mood", { length: 50 }), // mood of the original journal entry
+  viewCount: int("viewCount").default(0).notNull(),
+  shareCount: int("shareCount").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CodexShareSnippet = typeof codexShareSnippets.$inferSelect;
+export type InsertCodexShareSnippet = typeof codexShareSnippets.$inferInsert;
