@@ -295,9 +295,9 @@ export function BackgroundSelectorFAB({
         onClick={() => setOpen(!open)}
         title="Change background"
         style={{
-          position: 'absolute',
-          top: 16,
-          left: 16,
+          position: 'fixed',
+          top: '1.5rem',
+          right: '7rem',
           width: 44,
           height: 44,
           borderRadius: '50%',
@@ -307,7 +307,7 @@ export function BackgroundSelectorFAB({
           border: 'none',
           boxShadow: `0 0 0 1px ${guideColor}30`,
           cursor: 'pointer',
-          zIndex: 60,
+          zIndex: 70,
           animation: open ? 'none' : 'bg-breathe 4s ease-in-out infinite',
           transition: 'all 0.3s ease',
           display: 'flex',
@@ -336,9 +336,9 @@ export function BackgroundSelectorFAB({
       {open && (
         <div
           style={{
-            position: 'absolute',
-            top: 70,
-            left: 16,
+            position: 'fixed',
+            top: 'calc(1.5rem + 54px)',
+            right: '5.5rem',
             width: 320,
             maxHeight: 420,
             background: 'rgba(10,10,15,0.92)',
@@ -347,7 +347,7 @@ export function BackgroundSelectorFAB({
             border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: 16,
             padding: 16,
-            zIndex: 59,
+            zIndex: 71,
             overflowY: 'auto',
             animation: 'bg-fade-in 0.3s ease',
           }}
