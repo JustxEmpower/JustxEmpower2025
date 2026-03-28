@@ -1401,15 +1401,14 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
       particleLevel={bgSettings.particleLevel}
       guideColor={config.primaryColor}
       style={{
-        borderRadius: 20,
-        boxShadow: 'inset 0 0 80px rgba(0,0,0,0.6)',
-        aspectRatio: '1 / 1',
-        width: '100%',
+        position: 'fixed',
+        inset: 0,
+        borderRadius: 0,
       }}
     >
       <div
         className="relative w-full h-full overflow-hidden"
-        style={{ aspectRatio: '1 / 1' }}
+        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         style={{ background: 'transparent' }}
       >
       <style>{iveKeyframes}</style>
