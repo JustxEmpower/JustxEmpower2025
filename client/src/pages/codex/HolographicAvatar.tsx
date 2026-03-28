@@ -678,24 +678,24 @@ function useGeminiLive(
       setIsSpeaking(false);
       isSpeakingRef.current = false;
       setCurrentGesture('idle');
-      // Unmute mic tracks after a brief delay (Simli may still have tail-end audio)
-      setTimeout(() => {
+
+      // ── INSTANT AUTO-RESUME: Switch to listening immediately when avatar finishes speaking ──
+      if (shouldKeepListeningRef.current) {
+        // Unmute mic tracks immediately
         if (micStreamRef.current) {
           micStreamRef.current.getAudioTracks().forEach(t => { t.enabled = true; });
         }
-      }, 400);
-      // ── SMART CONVERSATION MODE: Auto-resume listening after AI finishes speaking ──
-      // No click needed — the conversation flows naturally
-      if (shouldKeepListeningRef.current && recognitionRef.current === null) {
         setConversationState('listening');
-        hasSpokenRef.current = false; // Reset speech detection for next turn
+        hasSpokenRef.current = false;
+
+        // Start listening with minimal delay (just enough to avoid catching the final audio frame)
         setTimeout(() => {
           if (shouldKeepListeningRef.current && !isSpeakingRef.current && !isProcessingRef.current) {
             startListeningInternalRef.current();
-            // Reset idle timer for the new listening session
+            console.log('[Conversation] Auto-resumed listening after avatar finished speaking');
+            // Reset idle timer for the new listening turn
             if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
             idleTimerRef.current = setTimeout(() => {
-              // 7s of silence after AI spoke — user may be done, auto-exit conversation mode
               if (shouldKeepListeningRef.current && !hasSpokenRef.current && !isProcessingRef.current && !isSpeakingRef.current) {
                 console.log('[Conversation] 7s idle after AI response — auto-exiting conversation mode');
                 shouldKeepListeningRef.current = false;
@@ -705,8 +705,12 @@ function useGeminiLive(
               }
             }, 7000);
           }
-        }, 800);
+        }, 150); // 150ms — just enough to clear the audio buffer, not perceptible to the user
       } else {
+        // Unmute mic tracks even when not in conversation mode
+        if (micStreamRef.current) {
+          micStreamRef.current.getAudioTracks().forEach(t => { t.enabled = true; });
+        }
         setConversationState('idle');
       }
     });
