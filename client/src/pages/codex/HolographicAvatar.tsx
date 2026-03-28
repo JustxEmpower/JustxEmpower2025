@@ -642,6 +642,9 @@ function useGeminiLive(
   const micFrameRef = useRef<number | null>(null);
   const silenceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSpeechTimeRef = useRef<number>(0);
+  // Ref to track current voice — avoids stale closure in speakText callbacks
+  const currentVoiceRef = useRef(currentVoice);
+  currentVoiceRef.current = currentVoice;
   // Ref to track isSpeaking without stale closure issues in recognition callbacks
   const isSpeakingRef = useRef(false);
   // Ref to prevent mic restart while AI is processing/responding
@@ -785,7 +788,7 @@ function useGeminiLive(
   // ── Text-to-Speech: Kokoro TTS only (server-side) ──
   const speakText = useCallback((text: string, voiceOverride?: string) => {
     const kokoro = kokoroRef.current;
-    const voice = voiceOverride || currentVoice;
+    const voice = voiceOverride || currentVoiceRef.current;
     // Strip markdown + special symbols so TTS reads natural speech only
     const cleanText = text
       .replace(/[™®©]/g, '')           // trademark symbols
@@ -821,7 +824,7 @@ function useGeminiLive(
         }
       }, 2000);
     }
-  }, [currentVoice]);
+  }, []);
 
   // Browser SpeechSynthesis DELETED — Kokoro server TTS only
 
