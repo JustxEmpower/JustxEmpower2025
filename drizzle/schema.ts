@@ -1835,3 +1835,19 @@ export const codexShareSnippets = mysqlTable("codex_share_snippets", {
 });
 export type CodexShareSnippet = typeof codexShareSnippets.$inferSelect;
 export type InsertCodexShareSnippet = typeof codexShareSnippets.$inferInsert;
+
+/**
+ * Custom holographic backgrounds — user-uploaded high-res images
+ */
+export const codexCustomBackgrounds = mysqlTable("codex_custom_backgrounds", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  name: varchar("name", { length: 100 }).notNull(),
+  imageUrl: text("imageUrl").notNull(), // stored image URL (S3 or base64 data URL)
+  width: int("width").notNull(),
+  height: int("height").notNull(),
+  fileSizeKb: int("fileSizeKb"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CodexCustomBackground = typeof codexCustomBackgrounds.$inferSelect;
+export type InsertCodexCustomBackground = typeof codexCustomBackgrounds.$inferInsert;

@@ -6,7 +6,8 @@
  * FAB button + selector panel + crossfade transitions.
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { trpc } from '@/lib/trpc';
 
 // ── Background Configuration Types ─────────────────────────────────
 
@@ -239,6 +240,13 @@ export function BackgroundRenderer({
     </>
   );
 
+  // Check if this is a custom user-uploaded background
+  const isCustomBg = backgroundId.startsWith('custom_');
+  const customBgQuery = trpc.codex.client.listCustomBackgrounds.useQuery(undefined, { enabled: isCustomBg });
+  const customBgUrl = isCustomBg
+    ? (customBgQuery.data || []).find(bg => `custom_${bg.id}` === backgroundId)?.imageUrl
+    : null;
+
   return (
     <div
       style={{
@@ -251,8 +259,20 @@ export function BackgroundRenderer({
       }}
     >
       <style>{bgKeyframes}</style>
-      {transitioning && renderLayers(prevConfig, 1)}
-      {renderLayers(config, transitioning ? 0 : 1)}
+      {/* Custom uploaded background */}
+      {isCustomBg && customBgUrl && (
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: `url(${customBgUrl})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          opacity: opacity,
+          transition: 'opacity 800ms ease-in-out',
+        }} />
+      )}
+      {/* Standard CSS backgrounds */}
+      {!isCustomBg && transitioning && renderLayers(prevConfig, 1)}
+      {!isCustomBg && renderLayers(config, transitioning ? 0 : 1)}
       {children}
     </div>
   );
@@ -282,11 +302,78 @@ export function BackgroundSelectorFAB({
   unlockedBackgrounds = [],
 }: BackgroundSelectorFABProps) {
   const [open, setOpen] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const customBgQuery = trpc.codex.client.listCustomBackgrounds.useQuery(undefined, { enabled: open });
+  const uploadMutation = trpc.codex.client.uploadCustomBackground.useMutation();
+  const deleteMutation = trpc.codex.client.deleteCustomBackground.useMutation();
 
   const isUnlocked = useCallback((bg: BackgroundConfig) => {
     if (!bg.locked) return true;
     return unlockedBackgrounds.includes(bg.id);
   }, [unlockedBackgrounds]);
+
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadError(null);
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please select an image file');
+      return;
+    }
+
+    // Validate file size (10MB max)
+    if (file.size > 10 * 1024 * 1024) {
+      setUploadError('Image must be under 10MB');
+      return;
+    }
+
+    // Read and validate resolution
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const dataUrl = ev.target?.result as string;
+      const img = new Image();
+      img.onload = async () => {
+        if (img.width < 1920 || img.height < 1080) {
+          setUploadError(`Image is ${img.width}x${img.height}. Minimum 1920x1080 required.`);
+          return;
+        }
+
+        setUploading(true);
+        try {
+          const name = file.name.replace(/\.[^.]+$/, '').replace(/[_-]/g, ' ').slice(0, 50);
+          await uploadMutation.mutateAsync({
+            name: name || 'Custom Background',
+            imageDataUrl: dataUrl,
+            width: img.width,
+            height: img.height,
+          });
+          customBgQuery.refetch();
+          setUploadError(null);
+        } catch (err: any) {
+          setUploadError(err.message || 'Upload failed');
+        }
+        setUploading(false);
+      };
+      img.onerror = () => setUploadError('Could not read image');
+      img.src = dataUrl;
+    };
+    reader.readAsDataURL(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  }, [uploadMutation, customBgQuery]);
+
+  const handleDeleteCustomBg = useCallback(async (id: string) => {
+    await deleteMutation.mutateAsync({ id });
+    customBgQuery.refetch();
+    // If the deleted bg was selected, switch to void
+    if (currentBackgroundId === `custom_${id}`) {
+      onBackgroundChange('void');
+    }
+  }, [deleteMutation, customBgQuery, currentBackgroundId, onBackgroundChange]);
 
   return (
     <>
@@ -396,6 +483,106 @@ export function BackgroundSelectorFAB({
                 />
               ))}
             </div>
+          </div>
+
+          {/* Custom Backgrounds Section */}
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 10, marginBottom: 12 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.55rem', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+                Your Uploads
+              </span>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                style={{
+                  padding: '3px 10px', borderRadius: 20, fontSize: '0.55rem',
+                  background: 'rgba(184,123,101,0.15)', border: '1px solid rgba(184,123,101,0.25)',
+                  color: '#B87B65', cursor: uploading ? 'not-allowed' : 'pointer',
+                  fontFamily: "'DM Sans', sans-serif", fontWeight: 500,
+                  transition: 'all 0.2s', opacity: uploading ? 0.5 : 1,
+                }}
+              >
+                {uploading ? 'Uploading...' : '+ Upload'}
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                style={{ display: 'none' }}
+                onChange={handleFileSelect}
+              />
+            </div>
+
+            {uploadError && (
+              <div style={{
+                fontSize: '0.55rem', color: '#E88B8B', marginBottom: 8,
+                padding: '4px 8px', borderRadius: 6,
+                background: 'rgba(232,139,139,0.1)', border: '1px solid rgba(232,139,139,0.15)',
+              }}>
+                {uploadError}
+              </div>
+            )}
+
+            {(customBgQuery.data || []).length > 0 && (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                {(customBgQuery.data || []).map(bg => {
+                  const customId = `custom_${bg.id}`;
+                  const isSelected = currentBackgroundId === customId;
+                  return (
+                    <div key={bg.id} style={{ position: 'relative' }}>
+                      <button
+                        onClick={() => onBackgroundChange(customId)}
+                        style={{
+                          width: '100%', aspectRatio: '1', borderRadius: 8,
+                          border: `2px solid ${isSelected ? guideColor : 'rgba(255,255,255,0.08)'}`,
+                          cursor: 'pointer', overflow: 'hidden',
+                          transition: 'all 0.2s', padding: 0,
+                          boxShadow: isSelected ? `0 0 12px ${guideColor}40` : 'none',
+                        }}
+                      >
+                        <img
+                          src={bg.imageUrl}
+                          alt={bg.name}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 6 }}
+                        />
+                      </button>
+                      {/* Delete button */}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDeleteCustomBg(bg.id); }}
+                        style={{
+                          position: 'absolute', top: -4, right: -4,
+                          width: 16, height: 16, borderRadius: '50%',
+                          background: 'rgba(232,139,139,0.8)', border: 'none',
+                          color: '#fff', fontSize: '8px', fontWeight: 700,
+                          cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          opacity: 0.7, transition: 'opacity 0.2s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.opacity = '1'; }}
+                        onMouseLeave={e => { e.currentTarget.style.opacity = '0.7'; }}
+                      >
+                        ✕
+                      </button>
+                      <div style={{
+                        fontSize: '0.45rem', color: 'rgba(255,255,255,0.4)',
+                        textAlign: 'center', marginTop: 3, overflow: 'hidden',
+                        textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                      }}>
+                        {bg.name}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {(customBgQuery.data || []).length === 0 && !uploading && (
+              <div style={{
+                textAlign: 'center', padding: '12px 0', fontSize: '0.55rem',
+                color: 'rgba(255,255,255,0.25)', fontStyle: 'italic',
+              }}>
+                Upload a high-res image (1920x1080+)
+              </div>
+            )}
           </div>
 
           {/* Ambient / Particle Controls */}

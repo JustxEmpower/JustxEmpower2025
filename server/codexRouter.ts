@@ -1327,6 +1327,73 @@ Respond in JSON ONLY (no markdown, no code blocks):
     return { success: true };
   }),
 
+  // ── Custom Background Upload ───────────────────────────────────────
+  listCustomBackgrounds: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    return db.select().from(schema.codexCustomBackgrounds)
+      .where(eq(schema.codexCustomBackgrounds.userId, u.id))
+      .orderBy(desc(schema.codexCustomBackgrounds.createdAt));
+  }),
+
+  uploadCustomBackground: customerProc.input(z.object({
+    name: z.string().min(1).max(100),
+    imageDataUrl: z.string(), // base64 data URL
+    width: z.number().min(1920),
+    height: z.number().min(1080),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Validate minimum resolution
+    if (input.width < 1920 || input.height < 1080) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "Image must be at least 1920x1080 pixels (high resolution only)" });
+    }
+
+    // Validate data URL format
+    if (!input.imageDataUrl.startsWith('data:image/')) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "Invalid image format" });
+    }
+
+    // Estimate file size from base64 (rough: base64 is ~33% larger than binary)
+    const base64Part = input.imageDataUrl.split(',')[1] || '';
+    const fileSizeKb = Math.round((base64Part.length * 0.75) / 1024);
+
+    // Limit: 10MB max
+    if (fileSizeKb > 10240) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "Image must be under 10MB" });
+    }
+
+    // Limit: max 5 custom backgrounds per user
+    const existing = await db.select({ id: schema.codexCustomBackgrounds.id })
+      .from(schema.codexCustomBackgrounds)
+      .where(eq(schema.codexCustomBackgrounds.userId, u.id));
+    if (existing.length >= 5) {
+      throw new TRPCError({ code: "BAD_REQUEST", message: "Maximum 5 custom backgrounds. Delete one to upload a new one." });
+    }
+
+    const id = nanoid();
+    await db.insert(schema.codexCustomBackgrounds).values({
+      id,
+      userId: u.id,
+      name: input.name,
+      imageUrl: input.imageDataUrl,
+      width: input.width,
+      height: input.height,
+      fileSizeKb,
+    });
+
+    return { id, name: input.name, width: input.width, height: input.height };
+  }),
+
+  deleteCustomBackground: customerProc.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    await db.delete(schema.codexCustomBackgrounds)
+      .where(and(eq(schema.codexCustomBackgrounds.id, input.id), eq(schema.codexCustomBackgrounds.userId, u.id)));
+    return { success: true };
+  }),
+
   // ── Weather Proxy (Open-Meteo — free, no API key) ─────────────────
   weather: customerProc.input(z.object({
     lat: z.string(),
