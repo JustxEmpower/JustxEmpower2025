@@ -1515,406 +1515,253 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
         </div>
       )}
 
-      {/* ── Conversation & Controls Overlay ── */}
-      <div className="absolute bottom-0 left-0 right-0" style={{
-        background: 'linear-gradient(to top, rgba(22,18,14,0.95) 0%, rgba(22,18,14,0.8) 40%, rgba(22,18,14,0.3) 70%, transparent 100%)',
-        paddingTop: '2.5rem',
-        zIndex: 10,
-      }}>
-        {/* Message stream — compact, below face */}
-        <div className="max-h-32 overflow-y-auto px-6 space-y-2 mb-3" style={{ scrollbarWidth: 'none' }}>
-          {messages.slice(-5).map((msg, i) => (
-            <div
-              key={i}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-              style={{ animation: 'fade-in 0.3s ease-out both', animationDelay: `${i * 0.05}s` }}
-            >
-              <div style={{
-                maxWidth: '78%',
-                padding: '10px 16px',
-                borderRadius: msg.role === 'user' ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
-                fontSize: '0.82rem',
-                lineHeight: 1.55,
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 350,
-                letterSpacing: '0.01em',
-                color: msg.role === 'user' ? 'rgba(230,215,195,0.85)' : 'rgba(230,215,195,0.9)',
-                background: msg.role === 'user'
-                  ? 'rgba(255,255,255,0.06)'
-                  : 'rgba(184,123,101,0.06)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                border: msg.role === 'user'
-                  ? '1px solid rgba(255,255,255,0.06)'
-                  : '1px solid rgba(184,123,101,0.12)',
-              }}>
-                {msg.role === 'guide' && (
-                  <span style={{
-                    display: 'block',
-                    fontSize: '0.6rem',
-                    fontWeight: 500,
-                    color: 'rgba(184,123,101,0.7)',
-                    letterSpacing: '0.1em',
-                    textTransform: 'uppercase',
-                    marginBottom: 4,
-                  }}>
-                    {config.name}
-                  </span>
-                )}
-                {msg.content}
-              </div>
-            </div>
-          ))}
-          <div ref={chatEndRef} />
-        </div>
-
-        {/* ── Input Bar — Frosted glass ── */}
-        <div style={{ padding: '0 1.25rem 1rem' }}>
-          {/* Live transcript — subtle, breathing */}
-          {gemini.isListening && gemini.transcript && (
+      {/* ── Caption Bar — AI speech as movie subtitles, just above the bottom edge ── */}
+      <div className="absolute bottom-0 left-0 right-0" style={{ zIndex: 10, pointerEvents: 'none' }}>
+        {/* Last guide message as caption */}
+        {messages.length > 0 && (() => {
+          const lastGuideMsg = [...messages].reverse().find(m => m.role === 'guide');
+          return lastGuideMsg ? (
             <div style={{
-              margin: '0 0 10px',
-              padding: '8px 16px',
-              borderRadius: 12,
-              fontSize: '0.8rem',
+              padding: '12px 24px 16px',
+              background: 'linear-gradient(to top, rgba(22,18,14,0.85) 0%, rgba(22,18,14,0.4) 70%, transparent 100%)',
+            }}>
+              <p style={{
+                textAlign: 'center',
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: '0.85rem',
+                fontWeight: 350,
+                lineHeight: 1.6,
+                color: 'rgba(230,215,195,0.9)',
+                maxWidth: '90%',
+                margin: '0 auto',
+                textShadow: '0 1px 4px rgba(0,0,0,0.6)',
+                animation: 'fade-in 0.3s ease-out',
+              }}>
+                {lastGuideMsg.content}
+              </p>
+            </div>
+          ) : null;
+        })()}
+        {/* Live transcript — shows what mic is hearing */}
+        {gemini.isListening && gemini.transcript && (
+          <div style={{
+            textAlign: 'center',
+            padding: '4px 24px 8px',
+            background: 'rgba(22,18,14,0.6)',
+          }}>
+            <p style={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: '0.78rem',
               fontStyle: 'italic',
               fontWeight: 300,
-              color: 'rgba(255,255,255,0.6)',
-              background: 'rgba(255,255,255,0.04)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(184,123,101,0.15)',
+              color: 'rgba(184,123,101,0.7)',
               animation: 'fade-in 0.2s ease-out',
             }}>
               {gemini.transcript}
-            </div>
-          )}
+            </p>
+          </div>
+        )}
+        <div ref={chatEndRef} />
+      </div>
 
-          <form onSubmit={handleTextSubmit} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            {/* ── Smart Conversation Mic Button ── */}
-            {/* Single click to enter conversation mode. Click again to exit. */}
-            {/* States: idle → listening → heard_speech → sending → ai_speaking → listening (auto-resume) */}
-            <button
-              type="button"
-              onClick={gemini.isListening ? gemini.stopListening : gemini.startListening}
-              style={{
-                position: 'relative',
-                width: 56,
-                height: 56,
-                borderRadius: '50%',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                background: gemini.conversationState === 'idle'
-                  ? 'rgba(255,255,255,0.08)'
-                  : gemini.conversationState === 'listening'
-                    ? 'radial-gradient(circle, rgba(184,123,101,0.2) 0%, rgba(184,123,101,0.06) 100%)'
-                    : gemini.conversationState === 'heard_speech'
-                      ? 'radial-gradient(circle, rgba(184,123,101,0.35) 0%, rgba(184,123,101,0.12) 100%)'
-                      : gemini.conversationState === 'sending'
-                        ? 'radial-gradient(circle, rgba(201,168,76,0.25) 0%, rgba(201,168,76,0.06) 100%)'
-                        : 'radial-gradient(circle, rgba(125,142,127,0.2) 0%, rgba(125,142,127,0.06) 100%)',
-                border: 'none',
-                outline: 'none',
-                boxSizing: 'border-box' as const,
-                WebkitAppearance: 'none' as const,
-                color: gemini.conversationState === 'idle'
-                  ? 'rgba(220,205,185,0.6)'
-                  : gemini.conversationState === 'heard_speech'
-                    ? 'rgba(240,220,195,0.95)'
-                    : gemini.conversationState === 'sending'
-                      ? 'rgba(201,168,76,0.8)'
-                      : gemini.conversationState === 'ai_speaking'
-                        ? 'rgba(125,142,127,0.7)'
-                        : 'rgba(230,215,195,0.85)',
-                transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
-                boxShadow: gemini.conversationState === 'heard_speech'
-                  ? `0 0 ${20 + gemini.micLevel * 40}px rgba(184,123,101,${(0.2 + gemini.micLevel * 0.4).toFixed(2)})`
-                  : gemini.conversationState === 'listening'
-                    ? `0 0 ${12 + gemini.micLevel * 20}px rgba(184,123,101,${(0.1 + gemini.micLevel * 0.2).toFixed(2)})`
-                    : gemini.conversationState === 'sending'
-                      ? '0 0 20px rgba(201,168,76,0.2)'
-                      : 'none',
-              }}
-              aria-label={
-                gemini.conversationState === 'idle' ? 'Start conversation' :
-                gemini.conversationState === 'listening' ? 'Listening... (click to stop)' :
-                gemini.conversationState === 'heard_speech' ? 'Hearing you... (pause to send)' :
-                gemini.conversationState === 'sending' ? 'Processing...' :
-                'Guide is speaking...'
-              }
-            >
-              {/* Outer breathing ring — always visible when in conversation mode */}
-              {gemini.conversationState !== 'idle' && (
-                <span style={{
-                  position: 'absolute',
-                  inset: -3,
-                  borderRadius: '50%',
-                  border: `1.5px solid ${
-                    gemini.conversationState === 'heard_speech' ? 'rgba(184,123,101,0.5)' :
-                    gemini.conversationState === 'sending' ? 'rgba(201,168,76,0.4)' :
-                    gemini.conversationState === 'ai_speaking' ? 'rgba(125,142,127,0.3)' :
-                    'rgba(184,123,101,0.2)'
-                  }`,
-                  animation: gemini.conversationState === 'listening' ? 'mic-breathe 2.5s ease-in-out infinite' :
-                             gemini.conversationState === 'sending' ? 'mic-breathe 1s ease-in-out infinite' :
-                             'none',
-                  pointerEvents: 'none',
-                }} />
-              )}
-              {/* Live audio level ring — pulses with voice */}
-              {(gemini.conversationState === 'listening' || gemini.conversationState === 'heard_speech') && gemini.micLevel > 0.01 && (
-                <span style={{
-                  position: 'absolute',
-                  inset: `${-4 - gemini.micLevel * 14}px`,
-                  borderRadius: '50%',
-                  border: `2px solid rgba(184,123,101,${Math.min(0.7, 0.15 + gemini.micLevel * 1.5).toFixed(2)})`,
-                  transition: 'all 0.05s ease-out',
-                  pointerEvents: 'none',
-                }} />
-              )}
-              {/* Icon changes by state */}
-              {gemini.conversationState === 'idle' ? (
-                // Mic icon — tap to start conversation
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 1.93c-3.94-.49-7-3.85-7-7.93h2c0 3.31 2.69 6 6 6s6-2.69 6-6h2c0 4.08-3.06 7.44-7 7.93V20h4v2H8v-2h4v-4.07z" />
-                </svg>
-              ) : gemini.conversationState === 'sending' ? (
-                // Sending dots
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ animation: 'mic-breathe 1s ease-in-out infinite' }}>
-                  <circle cx="6" cy="12" r="2" />
-                  <circle cx="12" cy="12" r="2" />
-                  <circle cx="18" cy="12" r="2" />
-                </svg>
-              ) : gemini.conversationState === 'ai_speaking' ? (
-                // Sound wave icon — guide is speaking
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                  <path d="M2 12h2m4-6v12m4-8v4m4-10v16m4-6v-4" style={{ animation: 'mic-breathe 1.5s ease-in-out infinite' }} />
-                </svg>
-              ) : (
-                // Stop square — tap to exit conversation mode
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ position: 'relative', zIndex: 1 }}>
-                  <rect x="6" y="6" width="12" height="12" rx="3" />
-                </svg>
-              )}
-            </button>
+      {/* ══════════════════════════════════════════════════════════════════ */}
+      {/* ── FLOATING CONTROLS — Below the avatar box, outside it ── */}
+      {/* ══════════════════════════════════════════════════════════════════ */}
+      <div style={{
+        position: 'absolute',
+        bottom: -90,
+        left: 0,
+        right: 0,
+        zIndex: 20,
+        pointerEvents: 'auto',
+      }}>
+        {/* Text input row */}
+        <form onSubmit={handleTextSubmit} style={{
+          display: 'flex',
+          gap: 10,
+          alignItems: 'center',
+          padding: '0 8px',
+          marginBottom: 12,
+        }}>
+          <input
+            type="text"
+            value={textInput}
+            onChange={(e) => setTextInput(e.target.value)}
+            placeholder={
+              gemini.conversationState === 'idle' ? `Message ${config.name}...` :
+              gemini.conversationState === 'listening' ? 'Listening... just speak naturally' :
+              gemini.conversationState === 'heard_speech' ? 'Pause when done...' :
+              gemini.conversationState === 'sending' ? 'Thinking...' :
+              `${config.name} is speaking...`
+            }
+            style={{
+              flex: 1,
+              height: 44,
+              padding: '0 20px',
+              borderRadius: 22,
+              border: '1px solid rgba(255,255,255,0.1)',
+              background: 'rgba(255,255,255,0.05)',
+              backdropFilter: 'blur(20px)',
+              WebkitBackdropFilter: 'blur(20px)',
+              color: 'rgba(220,205,185,0.8)',
+              fontSize: '0.8rem',
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 350,
+              outline: 'none',
+              transition: 'border-color 0.3s ease',
+            }}
+            onFocus={(e) => { e.currentTarget.style.borderColor = 'rgba(184,123,101,0.3)'; }}
+            onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+          />
+        </form>
 
-            {/* ── Conversation state label ── */}
+        {/* Floating action buttons row: Guide | Mic | Send | Voice */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 16,
+          padding: '0 8px',
+        }}>
+          {/* #4 — Change Guide (far left) */}
+          <button
+            onClick={() => setShowGuideSelector(true)}
+            style={{
+              width: 42, height: 42, borderRadius: '50%',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(16px)',
+              color: 'rgba(220,205,185,0.5)',
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(220,205,185,0.8)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(220,205,185,0.5)'; }}
+            title="Change guide"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <circle cx="12" cy="8" r="4" /><path d="M20 21a8 8 0 0 0-16 0" />
+            </svg>
+          </button>
+
+          {/* #3 — Mic Button (center) */}
+          <button
+            type="button"
+            onClick={gemini.isListening ? gemini.stopListening : gemini.startListening}
+            style={{
+              position: 'relative',
+              width: 54, height: 54, borderRadius: '50%',
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: gemini.conversationState === 'idle'
+                ? 'rgba(255,255,255,0.08)'
+                : gemini.conversationState === 'heard_speech'
+                  ? 'radial-gradient(circle, rgba(184,123,101,0.35) 0%, rgba(184,123,101,0.1) 100%)'
+                  : gemini.conversationState === 'sending'
+                    ? 'radial-gradient(circle, rgba(201,168,76,0.25) 0%, rgba(201,168,76,0.06) 100%)'
+                    : gemini.conversationState === 'ai_speaking'
+                      ? 'radial-gradient(circle, rgba(125,142,127,0.2) 0%, rgba(125,142,127,0.06) 100%)'
+                      : 'radial-gradient(circle, rgba(184,123,101,0.2) 0%, rgba(184,123,101,0.06) 100%)',
+              border: 'none', outline: 'none',
+              color: gemini.conversationState === 'idle' ? 'rgba(220,205,185,0.6)' : 'rgba(230,215,195,0.85)',
+              transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
+              boxShadow: gemini.conversationState === 'heard_speech'
+                ? `0 0 ${20 + gemini.micLevel * 30}px rgba(184,123,101,0.3)`
+                : gemini.conversationState === 'listening'
+                  ? `0 0 ${10 + gemini.micLevel * 15}px rgba(184,123,101,0.15)`
+                  : 'none',
+            }}
+            aria-label={gemini.conversationState === 'idle' ? 'Start conversation' : 'Stop conversation'}
+          >
             {gemini.conversationState !== 'idle' && (
               <span style={{
-                position: 'absolute',
-                bottom: -20,
-                left: '50%',
-                transform: 'translateX(-50%)',
-                fontSize: '9px',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color: gemini.conversationState === 'heard_speech' ? 'rgba(184,123,101,0.7)' :
-                       gemini.conversationState === 'sending' ? 'rgba(201,168,76,0.6)' :
-                       gemini.conversationState === 'ai_speaking' ? 'rgba(125,142,127,0.5)' :
-                       'rgba(220,205,185,0.4)',
-                whiteSpace: 'nowrap',
+                position: 'absolute', inset: -3, borderRadius: '50%',
+                border: '1.5px solid rgba(184,123,101,0.3)',
+                animation: gemini.conversationState === 'listening' ? 'mic-breathe 2.5s ease-in-out infinite' : 'none',
                 pointerEvents: 'none',
-                fontFamily: "'DM Sans', sans-serif",
-              }}>
-                {gemini.conversationState === 'listening' ? 'listening...' :
-                 gemini.conversationState === 'heard_speech' ? 'hearing you...' :
-                 gemini.conversationState === 'sending' ? 'thinking...' :
-                 'speaking...'}
-              </span>
-            )}
-
-            {/* ── Text Input — frosted glass pill ── */}
-            <input
-              type="text"
-              value={textInput}
-              onChange={(e) => setTextInput(e.target.value)}
-              placeholder={
-                gemini.conversationState === 'idle' ? `Message ${config.name}...` :
-                gemini.conversationState === 'listening' ? 'Listening... just speak naturally' :
-                gemini.conversationState === 'heard_speech' ? 'Pause when done, I\'ll respond...' :
-                gemini.conversationState === 'sending' ? 'Processing...' :
-                `${config.name} is speaking...`
-              }
-              style={{
-                flex: 1,
-                height: 48,
-                padding: '0 20px',
-                borderRadius: 24,
-                border: '1px solid rgba(255,255,255,0.12)',
-                borderStyle: 'solid',
-                background: 'rgba(255,255,255,0.06)',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                color: 'rgba(220,205,185,0.8)',
-                fontSize: '0.82rem',
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 350,
-                letterSpacing: '0.01em',
-                outline: 'none',
-                transition: 'border-color 0.3s ease, background 0.3s ease',
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(184,123,101,0.3)';
-                e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)';
-                e.currentTarget.style.background = 'rgba(255,255,255,0.04)';
-              }}
-            />
-
-            {/* ── Send Button — subtle arrow ── */}
-            <button
-              type="submit"
-              disabled={!textInput.trim()}
-              style={{
-                width: 44,
-                height: 44,
-                borderRadius: '50%',
-                cursor: textInput.trim() ? 'pointer' : 'default',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0,
-                background: textInput.trim() ? 'rgba(184,123,101,0.2)' : 'rgba(255,255,255,0.08)',
-                border: 'none',
-                outline: 'none',
-                WebkitAppearance: 'none' as const,
-                color: textInput.trim() ? 'rgba(220,185,155,0.95)' : 'rgba(220,205,185,0.4)',
-                opacity: textInput.trim() ? 1 : 0.5,
-                transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
-                transform: textInput.trim() ? 'scale(1)' : 'scale(0.92)',
-              }}
-              aria-label="Send message"
-            >
-              <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a.993.993 0 00-1.39.91L2 9.12c0 .5.37.93.87.99L15 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z" />
-              </svg>
-            </button>
-          </form>
-
-          {/* ── Status & Controls — minimal, clean ── */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            marginTop: 10,
-            padding: '0 4px',
-          }}>
-            {/* Left: status dot + guide selector */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{
-                width: 5,
-                height: 5,
-                borderRadius: '50%',
-                background: gemini.isListening || gemini.isSpeaking
-                  ? 'rgba(184,123,101,0.8)'
-                  : gemini.isConnected
-                    ? 'rgba(255,255,255,0.25)'
-                    : 'rgba(255,200,0,0.5)',
-                animation: gemini.isListening || gemini.isSpeaking ? 'status-dot 1.5s ease-in-out infinite' : 'none',
-                transition: 'background 0.4s ease',
               }} />
-              <button
-                onClick={() => setShowGuideSelector(true)}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: 'transparent',
-                  boxShadow: '0 0 0 1px rgba(255,255,255,0.08)',
-                  color: 'rgba(255,255,255,0.3)',
-                  fontSize: '0.58rem',
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 400,
-                  letterSpacing: '0.06em',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                }}
-                onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 0 0 1px rgba(184,123,101,0.2)'; e.currentTarget.style.color = 'rgba(200,185,165,0.6)'; }}
-                onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 0 0 1px rgba(255,255,255,0.08)'; e.currentTarget.style.color = 'rgba(200,185,165,0.3)'; }}
-                title="Change guide"
-              >Guide</button>
-              <button
-                onClick={() => { gemini.endSession(); onSessionEnd(); }}
-                style={{
-                  padding: '4px 10px',
-                  borderRadius: 8,
-                  border: 'none',
-                  background: 'transparent',
-                  color: 'rgba(255,255,255,0.15)',
-                  fontSize: '0.58rem',
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 400,
-                  letterSpacing: '0.06em',
-                  cursor: 'pointer',
-                  transition: 'color 0.3s ease',
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = 'rgba(184,123,101,0.6)'}
-                onMouseLeave={e => e.currentTarget.style.color = 'rgba(200,185,165,0.15)'}
-              >End</button>
-            </div>
-
-            {/* Right: voice icon — name revealed on hover */}
-            <div
-              className="voice-reveal-group"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-                cursor: 'pointer',
-                padding: '4px 10px',
-                borderRadius: 8,
-                border: 'none',
-                boxShadow: '0 0 0 1px rgba(255,255,255,0.06)',
-                transition: 'all 0.4s cubic-bezier(0.4,0,0.2,1)',
-              }}
-              onClick={() => setShowVoiceSelector(true)}
-              onMouseEnter={e => {
-                e.currentTarget.style.boxShadow = `0 0 0 1px ${config.primaryColor}30`;
-                e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-                const label = e.currentTarget.querySelector('.voice-label') as HTMLElement;
-                if (label) { label.style.maxWidth = '120px'; label.style.opacity = '1'; label.style.marginLeft = '6px'; }
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.boxShadow = '0 0 0 1px rgba(255,255,255,0.06)';
-                e.currentTarget.style.background = 'transparent';
-                const label = e.currentTarget.querySelector('.voice-label') as HTMLElement;
-                if (label) { label.style.maxWidth = '0'; label.style.opacity = '0'; label.style.marginLeft = '0'; }
-              }}
-              title={`Voice: ${currentVoiceName}`}
-            >
-              {/* Waveform / voice icon */}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(184,123,101,0.7)" strokeWidth="1.5" strokeLinecap="round" style={{ opacity: 0.6, flexShrink: 0 }}>
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z" />
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                <line x1="12" y1="19" x2="12" y2="23" />
-                <line x1="8" y1="23" x2="16" y2="23" />
+            )}
+            {gemini.conversationState === 'idle' ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 1.93c-3.94-.49-7-3.85-7-7.93h2c0 3.31 2.69 6 6 6s6-2.69 6-6h2c0 4.08-3.06 7.44-7 7.93V20h4v2H8v-2h4v-4.07z" />
               </svg>
-              {/* Voice name — hidden, slides open on hover */}
-              <span
-                className="voice-label"
-                style={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: '0.6rem',
-                  fontWeight: 400,
-                  letterSpacing: '0.06em',
-                  color: 'rgba(184,123,101,0.65)',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  maxWidth: 0,
-                  opacity: 0,
-                  marginLeft: 0,
-                  transition: 'all 0.4s cubic-bezier(0.4,0,0.2,1)',
-                }}
-              >
-                {currentVoiceName}
-              </span>
-            </div>
-          </div>
+            ) : gemini.conversationState === 'sending' ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ animation: 'mic-breathe 1s ease-in-out infinite' }}>
+                <circle cx="6" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="18" cy="12" r="2" />
+              </svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <rect x="6" y="6" width="12" height="12" rx="3" />
+              </svg>
+            )}
+          </button>
+
+          {/* #1 — Send Message (right of mic) */}
+          <button
+            type="button"
+            onClick={() => { if (textInput.trim()) handleTextSubmit({ preventDefault: () => {} } as any); }}
+            disabled={!textInput.trim()}
+            style={{
+              width: 42, height: 42, borderRadius: '50%',
+              background: textInput.trim() ? 'rgba(184,123,101,0.2)' : 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(16px)',
+              color: textInput.trim() ? 'rgba(220,185,155,0.95)' : 'rgba(220,205,185,0.3)',
+              cursor: textInput.trim() ? 'pointer' : 'default',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.3s ease',
+              opacity: textInput.trim() ? 1 : 0.5,
+            }}
+            title="Send message"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3.4 20.4l17.45-7.48a1 1 0 000-1.84L3.4 3.6a.993.993 0 00-1.39.91L2 9.12c0 .5.37.93.87.99L15 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z" />
+            </svg>
+          </button>
+
+          {/* #2 — Change Voice (far right) */}
+          <button
+            onClick={() => setShowVoiceSelector(true)}
+            style={{
+              width: 42, height: 42, borderRadius: '50%',
+              background: 'rgba(255,255,255,0.06)',
+              border: '1px solid rgba(255,255,255,0.08)',
+              backdropFilter: 'blur(16px)',
+              color: 'rgba(184,123,101,0.6)',
+              cursor: 'pointer',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              transition: 'all 0.3s ease',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.1)'; e.currentTarget.style.color = 'rgba(184,123,101,0.9)'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; e.currentTarget.style.color = 'rgba(184,123,101,0.6)'; }}
+            title={`Voice: ${currentVoiceName}`}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+              <line x1="12" y1="19" x2="12" y2="23" /><line x1="8" y1="23" x2="16" y2="23" />
+            </svg>
+          </button>
         </div>
+
+        {/* Conversation state label */}
+        {gemini.conversationState !== 'idle' && (
+          <div style={{
+            textAlign: 'center', marginTop: 8,
+            fontSize: '8px', letterSpacing: '0.15em', textTransform: 'uppercase',
+            color: gemini.conversationState === 'heard_speech' ? 'rgba(184,123,101,0.6)' :
+                   gemini.conversationState === 'sending' ? 'rgba(201,168,76,0.5)' :
+                   gemini.conversationState === 'ai_speaking' ? 'rgba(125,142,127,0.4)' :
+                   'rgba(220,205,185,0.3)',
+            fontFamily: "'DM Sans', sans-serif",
+          }}>
+            {gemini.conversationState === 'listening' ? 'listening...' :
+             gemini.conversationState === 'heard_speech' ? 'hearing you...' :
+             gemini.conversationState === 'sending' ? 'thinking...' :
+             'speaking...'}
+          </div>
+        )}
       </div>
 
       {/* Voice Selector Modal */}
