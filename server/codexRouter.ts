@@ -1244,6 +1244,42 @@ Respond in JSON ONLY (no markdown, no code blocks):
       console.error('[Codex] Journal awareness fetch error:', err);
     }
 
+    // ── STOCHASTIC VOICE SYSTEM: Non-deterministic register selection + semantic pre-linearization ──
+    try {
+      const { assembleStochasticBlock } = await import("./lib/codexStochasticVoice");
+      const chatHistoryForAnalysis = history.slice(-10).map(m => ({ role: m.role, content: m.content }));
+
+      // Get latest journal mood for context
+      let latestJournalMood: string | null = null;
+      try {
+        const [latestJournal] = await db.select({ mood: schema.codexJournalEntries.mood })
+          .from(schema.codexJournalEntries)
+          .where(eq(schema.codexJournalEntries.userId, u.id))
+          .orderBy(desc(schema.codexJournalEntries.createdAt))
+          .limit(1);
+        latestJournalMood = latestJournal?.mood || null;
+      } catch {}
+
+      const stochastic = assembleStochasticBlock(
+        input.message,
+        chatHistoryForAnalysis,
+        input.guideId,
+        {
+          phase: userContext.phase,
+          mood: latestJournalMood,
+          primaryArchetype: userContext.primaryArchetype,
+          activeWounds: userContext.activeWounds,
+          isReturning,
+          sessionDepth: history.length,
+        }
+      );
+
+      userContext.stochasticBlock = stochastic.promptBlock;
+      userContext.stochasticTemperatureDelta = stochastic.temperatureDelta;
+    } catch (err) {
+      console.error('[Codex] Stochastic voice system error (non-fatal):', err);
+    }
+
     // Get AI response — pass history so AI remembers context, flag if returning user
     const chatHistory = history.map(m => ({ role: m.role as "user" | "assistant", content: m.content }));
     let aiResponse = await codexGuideChat(input.guideId, input.message, chatHistory, userContext, isReturning, recalledTrajectory, crossSessionMemory, crossGuideContext);

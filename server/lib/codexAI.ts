@@ -160,6 +160,8 @@ export interface UserContext {
   tier?: string;
   maternalContext?: string; // Doc 07: maternal lineage context block
   journalContext?: string; // Journal awareness: recent journal entries injected into guide context
+  stochasticBlock?: string; // Stochastic voice system: register + semantic field + expression seeds
+  stochasticTemperatureDelta?: number; // Temperature modifier from selected voice register
 }
 
 export interface ChatMessage {
@@ -184,11 +186,16 @@ export async function codexGuideChat(
   const genAI = getGeminiClient();
   if (!genAI) throw new Error("AI not available");
 
+  // Apply stochastic temperature delta from voice register selection
+  const baseTemperature = 0.9;
+  const temperatureDelta = userContext.stochasticTemperatureDelta || 0;
+  const dynamicTemperature = Math.max(0.5, Math.min(1.2, baseTemperature + temperatureDelta));
+
   const model = genAI.getGenerativeModel({
     model: "gemini-2.0-flash",
     generationConfig: {
       maxOutputTokens: 350,  // Allow natural conversational pacing
-      temperature: 0.9,      // More natural, human-like variation
+      temperature: dynamicTemperature, // Stochastic: varies per register selection
     },
   });
 
@@ -293,7 +300,13 @@ export async function codexGuideChat(
     journalBlock = `\n\n${userContext.journalContext}\n\nUse this awareness subtly. If the user brings up something that connects to a journal theme, gently mirror it back. Never say "I read your journal." Instead, show attunement: "It sounds like you've been sitting with this..." or "There seems to be a thread here around [theme]..."`;
   }
 
-  const prompt = `${systemPrompt}${nameContext}${returningContext}${recallContext}${crossSessionContext}${crossGuideAwareness}${maternalBlock}${journalBlock}\n\n--- Conversation ---\n${historyText}\n\nSeeker: ${message}\n\nGuide:`;
+  // Stochastic Voice System: non-deterministic register selection + semantic field + expression seeds
+  let stochasticBlock = '';
+  if (userContext.stochasticBlock) {
+    stochasticBlock = userContext.stochasticBlock;
+  }
+
+  const prompt = `${systemPrompt}${nameContext}${returningContext}${recallContext}${crossSessionContext}${crossGuideAwareness}${maternalBlock}${journalBlock}${stochasticBlock}\n\n--- Conversation ---\n${historyText}\n\nSeeker: ${message}\n\nGuide:`;
 
   const result = await model.generateContent(prompt);
   // Strip any markdown/formatting the AI might sneak in — TTS reads it literally
