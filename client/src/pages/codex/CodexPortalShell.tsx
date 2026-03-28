@@ -174,16 +174,55 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
         className={`cx-sidebar ${mobileOpen ? "open" : ""}`}
         style={{ width: sidebarW }}
       >
-        {/* Logo area */}
+        {/* Logo area — Vesica Piscis emblem */}
         <div className="cx-sidebar-logo" style={{ padding: collapsed ? "24px 12px 18px" : "28px 18px 20px", justifyContent: collapsed ? "center" : "flex-start" }}>
-          {/* Gem logo */}
-          <div style={{
-            width: 26, height: 26, borderRadius: "7px",
-            background: "linear-gradient(135deg, rgba(184,123,101,0.6), rgba(184,151,106,0.5))",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            flexShrink: 0, transform: "rotate(45deg)",
-          }}>
-            <span style={{ transform: "rotate(-45deg)", fontSize: "11px", color: "rgba(255,255,255,0.9)", fontWeight: 400 }}>◇</span>
+          <div style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            {/* Glow halo behind emblem */}
+            <div style={{
+              position: "absolute",
+              width: collapsed ? 34 : 38,
+              height: collapsed ? 34 : 38,
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(184,151,106,0.1), transparent 70%)",
+              animation: "cx-fade-in 2s ease-in-out infinite alternate",
+              pointerEvents: "none",
+            }} />
+            {/* Vesica Piscis SVG */}
+            <svg
+              width={collapsed ? 26 : 28}
+              height={collapsed ? 26 : 28}
+              viewBox="0 0 40 40"
+              fill="none"
+              style={{
+                filter: "drop-shadow(0 0 6px rgba(184,151,106,0.12))",
+                animation: "cx-fade-in 6s ease-in-out infinite alternate",
+              }}
+            >
+              {/* Left circle */}
+              <circle cx="15" cy="20" r="11" stroke="#B8976A" strokeWidth="0.7" fill="none" opacity="0.55" />
+              {/* Right circle */}
+              <circle cx="25" cy="20" r="11" stroke="#B8976A" strokeWidth="0.7" fill="none" opacity="0.55" />
+              {/* Vesica intersection fill */}
+              <defs>
+                <clipPath id="vesica-clip">
+                  <circle cx="15" cy="20" r="11" />
+                </clipPath>
+              </defs>
+              <circle cx="25" cy="20" r="11" fill="rgba(184,123,101,0.05)" clipPath="url(#vesica-clip)" />
+              {/* Threshold line */}
+              {!collapsed && (
+                <line x1="20" y1="11" x2="20" y2="29" stroke="#B8976A" strokeWidth="0.3" opacity="0.2" strokeDasharray="1 2" />
+              )}
+              {/* Diamond — the self */}
+              <path d="M20 17.5 L21.5 20 L20 22.5 L18.5 20 Z" fill="#B8976A" opacity="0.55" />
+              {/* Light points at circle intersections */}
+              {!collapsed && (
+                <>
+                  <circle cx="20" cy="12.2" r="0.5" fill="#B8976A" opacity="0.3" />
+                  <circle cx="20" cy="27.8" r="0.5" fill="#B8976A" opacity="0.3" />
+                </>
+              )}
+            </svg>
           </div>
           {!collapsed && (
             <div style={{ overflow: "hidden", whiteSpace: "nowrap", flex: 1 }}>
