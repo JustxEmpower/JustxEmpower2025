@@ -1403,11 +1403,11 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
       style={{
         borderRadius: 20,
         boxShadow: 'inset 0 0 80px rgba(0,0,0,0.6)',
-        minHeight: 600,
+        minHeight: 720,
       }}
     >
       <div
-        className="relative w-full h-full min-h-[600px] overflow-hidden"
+        className="relative w-full h-full min-h-[720px] overflow-hidden"
         style={{ background: 'transparent' }}
       >
       <style>{iveKeyframes}</style>
@@ -1517,12 +1517,12 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
 
       {/* ── Conversation & Controls Overlay ── */}
       <div className="absolute bottom-0 left-0 right-0" style={{
-        background: 'linear-gradient(to top, rgba(22,18,14,0.95) 0%, rgba(22,18,14,0.7) 50%, transparent 100%)',
-        paddingTop: '5rem',
+        background: 'linear-gradient(to top, rgba(22,18,14,0.95) 0%, rgba(22,18,14,0.8) 40%, rgba(22,18,14,0.3) 70%, transparent 100%)',
+        paddingTop: '2.5rem',
         zIndex: 10,
       }}>
-        {/* Message stream — minimal, floating */}
-        <div className="max-h-40 overflow-y-auto px-6 space-y-2.5 mb-4" style={{ scrollbarWidth: 'none' }}>
+        {/* Message stream — compact, below face */}
+        <div className="max-h-32 overflow-y-auto px-6 space-y-2 mb-3" style={{ scrollbarWidth: 'none' }}>
           {messages.slice(-5).map((msg, i) => (
             <div
               key={i}

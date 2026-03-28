@@ -274,7 +274,7 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
           >
             ✕ Exit
           </button>
-          <div className="cx-avatar-module cx-holo-breathe" style={{ maxWidth: 520 }}>
+          <div className="cx-avatar-module cx-holo-breathe" style={{ maxWidth: 680, width: '90%' }}>
             <div className="cx-avatar-ring" />
             <Suspense fallback={
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", aspectRatio: "1" }}>
