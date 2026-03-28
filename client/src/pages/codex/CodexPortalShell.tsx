@@ -285,17 +285,6 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
           </button>
         </div>
 
-        {/* Back to account */}
-        <div style={{ padding: "0 18px 14px" }}>
-          <button
-            onClick={() => onNavigateExternal("/account")}
-            className="cx-btn-ghost"
-            style={{ width: "100%", fontSize: "11px", justifyContent: collapsed ? "center" : "flex-start" }}
-          >
-            <ArrowLeft size={12} />
-            {!collapsed && <span>Account</span>}
-          </button>
-        </div>
       </aside>
 
       {/* Main Content Area */}
