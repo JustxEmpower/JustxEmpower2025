@@ -169,3 +169,329 @@ model Answer {
   @@index([questionId])
   @@map("codex_answers")
 }
+
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 2: SEALED SCROLL MECHANISM
+// ══════════════════════════════════════════════════════════════════════
+
+model ScrollLayer {
+  id              String    @id @db.VarChar(30)
+  userId          String    @db.VarChar(30)
+  layer           Int       // 1-5
+  sealed          Boolean   @default(true)
+  unlockProgress  String?   @db.Text // JSON: progress toward unlock criteria
+  unlockedAt      DateTime?
+  contentData     String?   @db.LongText // Generated content on unlock
+  viewedAt        DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("codex_scroll_layers")
+}
+
+model ScrollInteraction {
+  id              String   @id @db.VarChar(30)
+  userId          String   @db.VarChar(30)
+  layerId         String   @db.VarChar(30)
+  sectionId       String?  @db.VarChar(60)
+  interactionType String   @db.VarChar(30)
+  responseText    String?  @db.Text
+  reflectionDepth String?  @db.VarChar(10)
+  createdAt       DateTime @default(now())
+
+  @@index([userId])
+  @@map("codex_scroll_interactions")
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 3: GUIDED REFLECTION DIALOGUE
+// ══════════════════════════════════════════════════════════════════════
+
+model DialogueSession {
+  id              String    @id @db.VarChar(30)
+  userId          String    @db.VarChar(30)
+  type            String    @db.VarChar(40) // discovery | integration | threshold
+  guideId         String?   @db.VarChar(30)
+  exchangeCount   Int       @default(0)
+  maxDepthReached String    @default("0") @db.VarChar(10)
+  challengeId     String?   @db.VarChar(30)
+  status          String    @default("active") @db.VarChar(20)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  exchanges       DialogueExchange[]
+
+  @@index([userId])
+  @@map("codex_dialogue_sessions")
+}
+
+model DialogueExchange {
+  id              String   @id @db.VarChar(30)
+  sessionId       String   @db.VarChar(30)
+  exchangeIndex   Int
+  guidePrompt     String   @db.Text
+  userResponse    String?  @db.Text
+  guideReflection String?  @db.Text
+  depthScore      String?  @db.VarChar(10)
+  patternDetected String?  @db.Text
+  createdAt       DateTime @default(now())
+
+  session DialogueSession @relation(fields: [sessionId], references: [id])
+
+  @@index([sessionId])
+  @@map("codex_dialogue_exchanges")
+}
+
+model MicroRevelation {
+  id                String   @id @db.VarChar(30)
+  userId            String   @db.VarChar(30)
+  sessionId         String   @db.VarChar(30)
+  content           String   @db.Text
+  type              String   @db.VarChar(40)
+  archetypeRelevance String? @db.Text
+  viewed            Boolean  @default(false)
+  createdAt         DateTime @default(now())
+
+  @@index([userId])
+  @@map("codex_micro_revelations")
+}
+
+model RealWorldChallenge {
+  id                String    @id @db.VarChar(30)
+  userId            String    @db.VarChar(30)
+  sessionId         String?   @db.VarChar(30)
+  challengeText     String    @db.Text
+  difficulty        String    @db.VarChar(20)
+  timeframe         String    @db.VarChar(255)
+  archetypeTarget   String    @db.VarChar(100)
+  intentDescription String?   @db.Text
+  reportBackText    String?   @db.Text
+  guideResponse     String?   @db.Text
+  reportDepth       String?   @db.VarChar(10)
+  completedAt       DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([userId])
+  @@map("codex_real_world_challenges")
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 4: LIVING MIRROR REPORT
+// ══════════════════════════════════════════════════════════════════════
+
+model MirrorSnapshot {
+  id               String   @id @db.VarChar(30)
+  userId           String   @db.VarChar(30)
+  sourceType       String   @db.VarChar(30)
+  sourceId         String   @db.VarChar(30)
+  dominantThemes   String?  @db.Text
+  emotionalTone    String?  @db.Text
+  avoidancePatterns String? @db.Text
+  growthIndicators String?  @db.Text
+  userLanguage     String?  @db.Text
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+  @@map("codex_mirror_snapshots")
+}
+
+model MirrorAddendum {
+  id               String    @id @db.VarChar(30)
+  userId           String    @db.VarChar(30)
+  reportId         String?   @db.VarChar(30)
+  type             String    @db.VarChar(40)
+  content          String    @db.Text
+  patternShiftData String?   @db.Text
+  viewedAt         DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@index([userId])
+  @@map("codex_mirror_addendums")
+}
+
+model PatternShift {
+  id              String   @id @db.VarChar(30)
+  userId          String   @db.VarChar(30)
+  pattern         String   @db.Text
+  direction       String   @db.VarChar(20) // strengthening | weakening | emerging | dissolving
+  evidenceBefore  String   @db.Text
+  evidenceAfter   String   @db.Text
+  narrative       String   @db.Text
+  confidenceScore String   @default("0.5") @db.VarChar(10)
+  detectedAt      DateTime @default(now())
+
+  @@index([userId])
+  @@map("codex_pattern_shifts")
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 5: CHECK-IN RITUAL SYSTEM
+// ══════════════════════════════════════════════════════════════════════
+
+model CheckIn {
+  id                String    @id @db.VarChar(30)
+  userId            String    @db.VarChar(30)
+  type              String    @db.VarChar(20) // daily | weekly
+  questionsData     String    @db.Text // JSON array of prompt questions
+  responsesData     String?   @db.Text // JSON array of user responses
+  patternsExtracted String?   @db.Text // JSON patterns found
+  completedAt       DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([userId])
+  @@map("codex_check_ins")
+}
+
+model CheckInPattern {
+  id               String   @id @db.VarChar(30)
+  userId           String   @db.VarChar(30)
+  pattern          String   @db.VarChar(300)
+  frequency        Int      @default(1)
+  trend            String   @default("stable") @db.VarChar(20) // rising | stable | fading
+  relatedArchetype String?  @db.VarChar(100)
+  firstDetectedAt  DateTime @default(now())
+  lastDetectedAt   DateTime @default(now())
+
+  @@index([userId])
+  @@map("codex_check_in_patterns")
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 6: GUIDE MEMORY SYSTEM
+// ══════════════════════════════════════════════════════════════════════
+
+model GuideMemory {
+  id               String    @id @db.VarChar(30)
+  userId           String    @db.VarChar(30)
+  guideId          String    @db.VarChar(30)
+  intimacyLevel    Int       @default(0) // 0-10
+  totalSessions    Int       @default(0)
+  totalExchanges   Int       @default(0)
+  recurringThemes  String?   @db.Text // JSON
+  userLanguage     String?   @db.Text // JSON: user's phrases/patterns
+  lastInteractionAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@unique([userId, guideId])
+  @@index([userId])
+  @@map("codex_guide_memory")
+}
+
+model GuideKeyMoment {
+  id                String    @id @db.VarChar(30)
+  userId            String    @db.VarChar(30)
+  guideId           String    @db.VarChar(30)
+  content           String    @db.Text
+  context           String    @db.Text
+  emotionalIntensity String   @default("moderate") @db.VarChar(20)
+  referenced        Int       @default(0) // times this moment was referenced
+  lastReferencedAt  DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([userId])
+  @@map("codex_guide_key_moments")
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 7: PREDICTIVE INTELLIGENCE
+// ══════════════════════════════════════════════════════════════════════
+
+model Prediction {
+  id                      String    @id @db.VarChar(30)
+  userId                  String    @db.VarChar(30)
+  predictionData          String?   @db.Text // JSON
+  selfSabotageScore       String    @default("0") @db.VarChar(10)
+  phaseReadinessScore     String    @default("0") @db.VarChar(10)
+  retentionRiskScore      String    @default("0") @db.VarChar(10)
+  interventionRecommended String?   @db.VarChar(50)
+  validUntil              DateTime?
+  createdAt               DateTime  @default(now())
+
+  outcomes PredictionOutcome[]
+
+  @@index([userId])
+  @@map("codex_predictions")
+}
+
+model PredictionOutcome {
+  id              String    @id @db.VarChar(30)
+  predictionId    String    @db.VarChar(30)
+  predictedEvent  String    @db.VarChar(100)
+  actualOutcome   String?   @db.VarChar(100)
+  accuracy        String?   @db.VarChar(10)
+  resolvedAt      DateTime?
+  createdAt       DateTime  @default(now())
+
+  prediction Prediction @relation(fields: [predictionId], references: [id])
+
+  @@index([predictionId])
+  @@map("codex_prediction_outcomes")
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 8: EVENT BUS
+// ══════════════════════════════════════════════════════════════════════
+
+model CodexEvent {
+  id                String   @id @db.VarChar(30)
+  userId            String   @db.VarChar(30)
+  eventType         String   @db.VarChar(60)
+  eventData         String?  @db.Text // JSON
+  reactionsTriggered String? @db.Text // JSON array of reaction names
+  errors            String?  @db.Text // JSON array of {reaction, error}
+  emittedAt         DateTime @default(now())
+
+  @@index([userId])
+  @@map("codex_events")
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// SUPPORTING: STREAKS, MILESTONES, COMPANION
+// ══════════════════════════════════════════════════════════════════════
+
+model UserStreak {
+  id                String   @id @db.VarChar(30)
+  userId            String   @unique @db.VarChar(30)
+  currentStreak     Int      @default(0)
+  longestStreak     Int      @default(0)
+  lastActivityDate  String?  @db.VarChar(10) // YYYY-MM-DD
+  lastActivityType  String?  @db.VarChar(50)
+  gracePeriodUsed   Int      @default(0)
+  totalActiveDays   Int      @default(0)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("codex_user_streaks")
+}
+
+model Milestone {
+  id            String   @id @db.VarChar(30)
+  userId        String   @db.VarChar(30)
+  milestoneType String   @db.VarChar(60)
+  displayName   String   @db.VarChar(255)
+  narrative     String?  @db.Text
+  value         String?  @db.Text
+  celebrated    Boolean  @default(false)
+  earnedAt      DateTime @default(now())
+
+  @@index([userId])
+  @@map("codex_milestones")
+}
+
+model CompanionState {
+  id                    String    @id @db.VarChar(30)
+  userId                String    @unique @db.VarChar(30)
+  mood                  String    @default("calm") @db.VarChar(30)
+  energy                Int       @default(50)
+  lastInteractionAt     DateTime?
+  daysWithoutInteraction Int      @default(0)
+  totalInteractions     Int       @default(0)
+  gardenLevel           Int       @default(1)
+  gardenElements        String?   @db.Text
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@map("codex_companion_state")
+}

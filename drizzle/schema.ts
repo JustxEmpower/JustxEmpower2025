@@ -1851,3 +1851,375 @@ export const codexCustomBackgrounds = mysqlTable("codex_custom_backgrounds", {
 });
 export type CodexCustomBackground = typeof codexCustomBackgrounds.$inferSelect;
 export type InsertCodexCustomBackground = typeof codexCustomBackgrounds.$inferInsert;
+
+// ── PHASE 2: SEALED SCROLL MECHANISM ──────────────────────────────────
+
+/**
+ * Sealed scroll layers — one row per user per layer (1-5)
+ * Tracks seal state, unlock progress, generated content, and view timestamps.
+ */
+export const codexScrollLayers = mysqlTable("codex_scroll_layers", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  layer: int("layer").notNull(), // 1-5
+  sealed: int("sealed").default(1).notNull(), // 1 = sealed, 0 = unsealed
+  unlockProgress: text("unlockProgress"), // JSON: ScrollUnlockCondition[]
+  unlockedAt: timestamp("unlockedAt"),
+  contentData: longtext("contentData"), // JSON: ScrollLayerContent
+  viewedAt: timestamp("viewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexScrollLayer = typeof codexScrollLayers.$inferSelect;
+export type InsertCodexScrollLayer = typeof codexScrollLayers.$inferInsert;
+
+/**
+ * Records interactions with individual scroll layer sections.
+ * Used for tracking check-ins (interactionType = "check_in") and reflections.
+ */
+export const codexScrollInteractions = mysqlTable("codex_scroll_interactions", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  layerId: varchar("layerId", { length: 30 }).notNull(), // FK → codex_scroll_layers.id
+  sectionId: varchar("sectionId", { length: 60 }), // e.g. "layer_2_body", "layer_3_revelation"
+  interactionType: varchar("interactionType", { length: 30 }).notNull(), // "check_in" | "reflection" | "viewed"
+  responseText: text("responseText"),
+  reflectionDepth: varchar("reflectionDepth", { length: 10 }), // 0.0-1.0 stored as string
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexScrollInteraction = typeof codexScrollInteractions.$inferSelect;
+export type InsertCodexScrollInteraction = typeof codexScrollInteractions.$inferInsert;
+
+// ── PHASE 3: GUIDED REFLECTION DIALOGUE ───────────────────────────────
+
+/**
+ * Dialogue sessions — each guided reflection conversation.
+ */
+export const codexDialogueSessions = mysqlTable("codex_dialogue_sessions", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  type: varchar("type", { length: 40 }).notNull(), // DialogueType enum values
+  guideId: varchar("guideId", { length: 30 }), // optional: which guide character
+  exchangeCount: int("exchangeCount").default(0).notNull(),
+  maxDepthReached: varchar("maxDepthReached", { length: 10 }).default("0").notNull(), // 0.0-1.0
+  challengeId: varchar("challengeId", { length: 30 }), // FK → codex_real_world_challenges.id
+  status: varchar("status", { length: 20 }).default("active").notNull(), // active | completed | challenge_pending
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexDialogueSession = typeof codexDialogueSessions.$inferSelect;
+export type InsertCodexDialogueSession = typeof codexDialogueSessions.$inferInsert;
+
+/**
+ * Individual exchanges within a dialogue session.
+ */
+export const codexDialogueExchanges = mysqlTable("codex_dialogue_exchanges", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  sessionId: varchar("sessionId", { length: 30 }).notNull(), // FK → codex_dialogue_sessions.id
+  exchangeIndex: int("exchangeIndex").notNull(), // 0-based position in session
+  guidePrompt: text("guidePrompt").notNull(),
+  userResponse: text("userResponse"),
+  guideReflection: text("guideReflection"),
+  depthScore: varchar("depthScore", { length: 10 }), // 0.0-1.0 as string
+  patternDetected: text("patternDetected"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexDialogueExchange = typeof codexDialogueExchanges.$inferSelect;
+export type InsertCodexDialogueExchange = typeof codexDialogueExchanges.$inferInsert;
+
+/**
+ * Real-world challenges issued after dialogue sessions.
+ */
+export const codexRealWorldChallenges = mysqlTable("codex_real_world_challenges", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  sessionId: varchar("sessionId", { length: 30 }), // FK → codex_dialogue_sessions.id
+  challengeText: text("challengeText").notNull(),
+  difficulty: varchar("difficulty", { length: 20 }).notNull(), // gentle | moderate | confronting
+  timeframe: varchar("timeframe", { length: 255 }).notNull(),
+  archetypeTarget: varchar("archetypeTarget", { length: 100 }).notNull(),
+  intentDescription: text("intentDescription"),
+  reportBackText: text("reportBackText"),
+  guideResponse: text("guideResponse"),
+  reportDepth: varchar("reportDepth", { length: 10 }), // 0.0-1.0 as string
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexRealWorldChallenge = typeof codexRealWorldChallenges.$inferSelect;
+export type InsertCodexRealWorldChallenge = typeof codexRealWorldChallenges.$inferInsert;
+
+/**
+ * Micro-revelations — "aha moments" detected or generated during dialogue.
+ */
+export const codexMicroRevelations = mysqlTable("codex_micro_revelations", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  sessionId: varchar("sessionId", { length: 30 }).notNull(), // FK → codex_dialogue_sessions.id
+  content: text("content").notNull(),
+  type: varchar("type", { length: 40 }).notNull(), // pattern_named | wound_connection | archetype_activation | shadow_glimpse | gift_emerging
+  archetypeRelevance: text("archetypeRelevance"),
+  viewed: int("viewed").default(0).notNull(), // 1 = user has seen it
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexMicroRevelation = typeof codexMicroRevelations.$inferSelect;
+export type InsertCodexMicroRevelation = typeof codexMicroRevelations.$inferInsert;
+
+// ── PHASE 4: LIVING MIRROR REPORT ─────────────────────────────────────
+
+/**
+ * Mirror snapshots — extracted themes/tone from any content source (journal, check-in, dialogue).
+ */
+export const codexMirrorSnapshots = mysqlTable("codex_mirror_snapshots", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  sourceType: varchar("sourceType", { length: 30 }).notNull(), // journal | check_in | dialogue | assessment
+  sourceId: varchar("sourceId", { length: 30 }).notNull(),
+  dominantThemes: text("dominantThemes"), // JSON: string[]
+  emotionalTone: text("emotionalTone"), // JSON: { primary, secondary, valence }
+  avoidancePatterns: text("avoidancePatterns"), // plain text description
+  growthIndicators: text("growthIndicators"), // plain text description
+  userLanguage: text("userLanguage"), // JSON: string[] — actual phrases the user used
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CodexMirrorSnapshot = typeof codexMirrorSnapshots.$inferSelect;
+export type InsertCodexMirrorSnapshot = typeof codexMirrorSnapshots.$inferInsert;
+
+/**
+ * Mirror addendums — dynamic additions to the living mirror report.
+ */
+export const codexMirrorAddendums = mysqlTable("codex_mirror_addendums", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  reportId: varchar("reportId", { length: 30 }), // FK → codex_mirror_reports.id (optional)
+  type: varchar("type", { length: 40 }).notNull(), // pattern_shift | growth_recognition | new_insight | temporal_reflection
+  content: text("content").notNull(),
+  patternShiftData: text("patternShiftData"), // JSON: PatternShift (if type=pattern_shift)
+  viewedAt: timestamp("viewedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CodexMirrorAddendum = typeof codexMirrorAddendums.$inferSelect;
+export type InsertCodexMirrorAddendum = typeof codexMirrorAddendums.$inferInsert;
+
+/**
+ * Pattern shifts — detected before/after changes in user's patterns over time.
+ */
+export const codexPatternShifts = mysqlTable("codex_pattern_shifts", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  pattern: text("pattern").notNull(), // the pattern being tracked
+  direction: varchar("direction", { length: 20 }).notNull(), // emerging | resolving | deepening | shifting
+  evidenceBefore: text("evidenceBefore").notNull(),
+  evidenceAfter: text("evidenceAfter").notNull(),
+  narrative: text("narrative").notNull(), // human-readable shift description
+  confidenceScore: varchar("confidenceScore", { length: 10 }).default("0.5").notNull(), // 0.0-1.0 as string
+  detectedAt: timestamp("detectedAt").defaultNow().notNull(),
+});
+export type CodexPatternShift = typeof codexPatternShifts.$inferSelect;
+export type InsertCodexPatternShift = typeof codexPatternShifts.$inferInsert;
+
+// ── PHASE 5: CHECK-IN RITUAL SYSTEM ───────────────────────────────────
+
+/**
+ * Check-in sessions — daily or weekly ritual responses.
+ */
+export const codexCheckIns = mysqlTable("codex_check_ins", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  type: varchar("type", { length: 20 }).notNull(), // daily | weekly
+  questionsData: text("questionsData").notNull(), // JSON: CheckInQuestion[]
+  responsesData: text("responsesData"), // JSON: { questionId, response }[]
+  patternsExtracted: text("patternsExtracted"), // JSON: string[]
+  completedAt: timestamp("completedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CodexCheckIn = typeof codexCheckIns.$inferSelect;
+export type InsertCodexCheckIn = typeof codexCheckIns.$inferInsert;
+
+/**
+ * Check-in patterns — aggregated recurring patterns from check-in history.
+ */
+export const codexCheckInPatterns = mysqlTable("codex_check_in_patterns", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  pattern: varchar("pattern", { length: 300 }).notNull(),
+  frequency: int("frequency").default(1).notNull(),
+  trend: varchar("trend", { length: 20 }).default("stable").notNull(), // rising | falling | stable | new
+  relatedArchetype: varchar("relatedArchetype", { length: 100 }),
+  firstDetectedAt: timestamp("firstDetectedAt").defaultNow().notNull(),
+  lastDetectedAt: timestamp("lastDetectedAt").defaultNow().notNull(),
+});
+export type CodexCheckInPattern = typeof codexCheckInPatterns.$inferSelect;
+export type InsertCodexCheckInPattern = typeof codexCheckInPatterns.$inferInsert;
+
+// ── PHASE 6: GUIDE MEMORY ─────────────────────────────────────────────
+
+/**
+ * Guide memory — per-user per-guide relationship tracking.
+ */
+export const codexGuideMemory = mysqlTable("codex_guide_memory", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  guideId: varchar("guideId", { length: 30 }).notNull(),
+  intimacyLevel: int("intimacyLevel").default(0).notNull(), // 0-10
+  totalSessions: int("totalSessions").default(0).notNull(),
+  totalExchanges: int("totalExchanges").default(0).notNull(),
+  recurringThemes: text("recurringThemes"), // JSON: string[]
+  userLanguage: text("userLanguage"), // JSON: string[] — characteristic phrases
+  lastInteractionAt: timestamp("lastInteractionAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+export type CodexGuideMemoryRecord = typeof codexGuideMemory.$inferSelect;
+export type InsertCodexGuideMemoryRecord = typeof codexGuideMemory.$inferInsert;
+
+/**
+ * Guide key moments — significant exchanges worth referencing in future sessions.
+ */
+export const codexGuideKeyMoments = mysqlTable("codex_guide_key_moments", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  guideId: varchar("guideId", { length: 30 }).notNull(),
+  content: text("content").notNull(), // the key moment text
+  context: text("context").notNull(), // surrounding context
+  emotionalIntensity: varchar("emotionalIntensity", { length: 20 }).default("moderate").notNull(), // low | moderate | high | peak
+  referenced: int("referenced").default(0).notNull(), // 0=never referenced, count of references
+  lastReferencedAt: timestamp("lastReferencedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CodexGuideKeyMoment = typeof codexGuideKeyMoments.$inferSelect;
+export type InsertCodexGuideKeyMoment = typeof codexGuideKeyMoments.$inferInsert;
+
+// ── PHASE 7: PREDICTIVE ENGINE ────────────────────────────────────────
+
+/**
+ * Predictions — computed scores and intervention recommendations per user.
+ */
+export const codexPredictions = mysqlTable("codex_predictions", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  predictionData: text("predictionData"), // JSON: full prediction detail object
+  selfSabotageScore: varchar("selfSabotageScore", { length: 10 }).default("0").notNull(), // 0.0-1.0 as string
+  phaseReadinessScore: varchar("phaseReadinessScore", { length: 10 }).default("0").notNull(), // 0.0-1.0 as string
+  retentionRiskScore: varchar("retentionRiskScore", { length: 10 }).default("0").notNull(), // 0.0-1.0 as string
+  interventionRecommended: varchar("interventionRecommended", { length: 50 }), // mirror_nudge | guide_prompt | challenge_reissue | streak_recovery
+  validUntil: timestamp("validUntil"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CodexPrediction = typeof codexPredictions.$inferSelect;
+export type InsertCodexPrediction = typeof codexPredictions.$inferInsert;
+
+/**
+ * Prediction outcomes — tracks accuracy of past predictions.
+ */
+export const codexPredictionOutcomes = mysqlTable("codex_prediction_outcomes", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  predictionId: varchar("predictionId", { length: 30 }).notNull(), // FK → codex_predictions.id
+  predictedEvent: varchar("predictedEvent", { length: 100 }).notNull(),
+  actualOutcome: varchar("actualOutcome", { length: 100 }),
+  accuracy: varchar("accuracy", { length: 10 }), // 0.0-1.0 as string
+  resolvedAt: timestamp("resolvedAt"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+export type CodexPredictionOutcome = typeof codexPredictionOutcomes.$inferSelect;
+export type InsertCodexPredictionOutcome = typeof codexPredictionOutcomes.$inferInsert;
+
+// ── PHASE 8: EVENT BUS ────────────────────────────────────────────────
+
+/**
+ * Codex events — typed event log with reaction tracking.
+ */
+export const codexEvents = mysqlTable("codex_events", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  eventType: varchar("eventType", { length: 60 }).notNull(), // assessment_completed | journal_created | check_in_completed | dialogue_completed | challenge_reported_back | scroll_layer_unlocked | pattern_shift_detected | milestone_earned | phase_transition
+  eventData: text("eventData"), // JSON: event payload
+  reactionsTriggered: text("reactionsTriggered"), // JSON: string[] — names of reactions that ran
+  errors: text("errors"), // JSON: { reaction, error }[] — reactions that failed
+  emittedAt: timestamp("emittedAt").defaultNow().notNull(),
+});
+export type CodexEvent = typeof codexEvents.$inferSelect;
+export type InsertCodexEvent = typeof codexEvents.$inferInsert;
+
+// ── PHASE 1: ADAPTIVE ASSESSMENT ENGINE ──────────────────────────────
+
+/**
+ * Adaptive assessment sessions — stores the full Bayesian state per user session.
+ */
+export const codexAdaptiveSessions = mysqlTable("codex_adaptive_sessions", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  assessmentId: varchar("assessmentId", { length: 30 }).notNull(),
+  /** Full AdaptiveState as JSON. */
+  state: text("state").notNull(),
+  /** AdaptiveConfig as JSON (only non-default values recorded). */
+  config: text("config"),
+  phase: varchar("phase", { length: 30 }).notNull().default("broad_signal"),
+  questionsAsked: int("questionsAsked").default(0).notNull(),
+  topArchetype: varchar("topArchetype", { length: 100 }),
+  /** Top posterior probability stored as string (e.g. "0.82"). */
+  topConfidence: varchar("topConfidence", { length: 10 }),
+  /** Current Shannon entropy stored as string (e.g. "1.45"). */
+  entropy: varchar("entropy", { length: 10 }),
+  /** 0 = active, 1 = terminated. */
+  terminated: int("terminated").default(0).notNull(),
+  terminationReason: varchar("terminationReason", { length: 60 }),
+  startedAt: timestamp("startedAt").defaultNow().notNull(),
+  completedAt: timestamp("completedAt"),
+});
+
+export type CodexAdaptiveSession = typeof codexAdaptiveSessions.$inferSelect;
+export type InsertCodexAdaptiveSession = typeof codexAdaptiveSessions.$inferInsert;
+
+/**
+ * Question signal profiles — precomputed discrimination weights per question.
+ * Seeded by scripts/initializeQuestionSignals.ts.
+ */
+export const codexQuestionSignals = mysqlTable("codex_question_signals", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  questionId: varchar("questionId", { length: 30 }).notNull().unique(),
+  sectionNum: int("sectionNum").notNull(),
+  /** JSON: Record<archetype, weight 0-1> */
+  archetypeWeights: text("archetypeWeights").notNull(),
+  /** JSON: Record<woundCode, weight 0-1> */
+  woundWeights: text("woundWeights").notNull(),
+  /** Expected information gain stored as string (e.g. "0.347"). */
+  informationGain: varchar("informationGain", { length: 10 }),
+  /** Discriminative power (variance of archetype weights) stored as string. */
+  discriminativePower: varchar("discriminativePower", { length: 10 }),
+  /** How many adaptive sessions have asked this question. */
+  timesAsked: int("timesAsked").default(0).notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexQuestionSignal = typeof codexQuestionSignals.$inferSelect;
+export type InsertCodexQuestionSignal = typeof codexQuestionSignals.$inferInsert;
+
+/**
+ * Adaptive assessment responses — individual answers with posterior snapshots.
+ */
+export const codexAdaptiveResponses = mysqlTable("codex_adaptive_responses", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  sessionId: varchar("sessionId", { length: 30 }).notNull(),
+  questionId: varchar("questionId", { length: 30 }).notNull(),
+  /** Zero-based position in this session's question sequence. */
+  questionIndex: int("questionIndex").notNull(),
+  answerCode: varchar("answerCode", { length: 10 }),
+  openText: text("openText"),
+  /** JSON: top-5 ArchetypePrior[] snapshot after this answer. */
+  posteriorsSnapshot: text("posteriorsSnapshot"),
+  /** Entropy immediately after this answer stored as string (e.g. "2.14"). */
+  entropyAtAnswer: varchar("entropyAtAnswer", { length: 10 }),
+  phaseAtAnswer: varchar("phaseAtAnswer", { length: 30 }),
+  /** Client-reported time to answer in milliseconds. */
+  responseTimeMs: int("responseTimeMs"),
+  answeredAt: timestamp("answeredAt").defaultNow().notNull(),
+});
+
+export type CodexAdaptiveResponse = typeof codexAdaptiveResponses.$inferSelect;
+export type InsertCodexAdaptiveResponse = typeof codexAdaptiveResponses.$inferInsert;

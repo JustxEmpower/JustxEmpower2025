@@ -43,6 +43,13 @@
       "when": 1768170462168,
       "tag": "0005_petite_satana",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1774715102069,
+      "tag": "0006_glamorous_snowbird",
+      "breakpoints": true
     }
   ]
 }

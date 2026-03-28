@@ -17,6 +17,29 @@ import { interceptUserMessage, validateAIResponse } from "./lib/codexEscalationE
 import { generateMirrorReport } from "./lib/codexMirrorReport";
 import { routePortalContent } from "./lib/codexRoutingEngine";
 import { BOOK_CATALOG, BOOK_TO_CODEX_MAP, LINEAGE_LAYER_PROMPTS, GUIDE_MATERNAL_DNA, buildMaternalContextBlock, buildResonanceAnalysisPrompt, buildBridgeReflectionPrompt, type MaternalPattern } from "./lib/codexBridgePrompts";
+import {
+  evaluateScrollUnlock, generateLayerContent, SCROLL_LAYER_META,
+  type ScrollLayerNumber, type UserActivitySnapshot, type CodexSignature,
+} from "./lib/codexSealedScroll";
+import {
+  initiateDialogue, processUserResponse, generateMicroRevelation, issueRealWorldChallenge, processReportBack,
+  type DialogueType, type ArchetypeContext, type DialogueExchange,
+} from "./lib/codexDialogueEngine";
+import {
+  createMirrorSnapshot, detectPatternShift, generateMirrorAddendum, generateTemporalReflection,
+  type MirrorAddendumType, type Timeframe,
+} from "./lib/codexLivingMirror";
+import {
+  generateCheckInPrompts, processCheckIn, getCheckInPatterns,
+  type CheckInResponse,
+} from "./lib/codexCheckInEngine";
+import {
+  initializeAdaptiveState, updatePosteriors, shouldTerminate,
+  evaluatePhaseTransition, eliminateLowProbability, selectNextQuestion,
+  convertToScoringResponses, buildSignalFromAnswers, posteriorsSummary,
+  computeEntropy, DEFAULT_ADAPTIVE_CONFIG,
+  type AdaptiveState, type AdaptiveConfig, type QuestionSignal,
+} from "./lib/codexAdaptiveEngine";
 import Stripe from "stripe";
 
 let _stripe: Stripe | null = null;
@@ -1803,7 +1826,7 @@ Respond in JSON ONLY (no markdown, no code blocks):
     let aiReflection = '';
     let themes: string[] = [];
     try {
-      const { ensureGeminiFromDatabase, getGeminiClient } = await import("./lib/codexAI");
+      const { ensureGeminiFromDatabase, getGeminiClient } = await import("./aiService");
       const ready = await ensureGeminiFromDatabase();
       if (ready) {
         const genAI = getGeminiClient();
@@ -1866,7 +1889,7 @@ Respond in JSON ONLY (no markdown, no code blocks):
         const maternalPattern = (book?.maternalLens || "present_mother") as MaternalPattern;
         const combinedText = entries.map(e => e.entryText).join("\n\n---\n\n");
 
-        const { ensureGeminiFromDatabase, getGeminiClient } = await import("./lib/codexAI");
+        const { ensureGeminiFromDatabase, getGeminiClient } = await import("./aiService");
         const ready = await ensureGeminiFromDatabase();
         if (ready) {
           const genAI = getGeminiClient();
@@ -1984,8 +2007,1202 @@ const codexPublicRouter = router({
   }),
 });
 
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 2: SEALED SCROLL ROUTER
+// ══════════════════════════════════════════════════════════════════════
+const codexScrollRouter = router({
+
+  // Returns all 5 scroll layers with sealed/unsealed status and unlock progress
+  getScrollState: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Gather activity snapshot
+    const [journalCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.codexJournalEntries).where(eq(schema.codexJournalEntries.userId, u.id));
+    const [guideSessionCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.codexGuideConversations).where(eq(schema.codexGuideConversations.userId, u.id));
+
+    // Check-ins = scroll interactions of type "check_in"
+    const [checkInCount] = await db.select({ count: sql<number>`count(*)` })
+      .from(schema.codexScrollInteractions)
+      .where(and(eq(schema.codexScrollInteractions.userId, u.id), eq(schema.codexScrollInteractions.interactionType, "check_in")));
+
+    // Completed challenges
+    const [challengeCount] = await db.select({ count: sql<number>`count(*)` })
+      .from(schema.codexRealWorldChallenges)
+      .where(and(eq(schema.codexRealWorldChallenges.userId, u.id), sql`${schema.codexRealWorldChallenges.completedAt} IS NOT NULL`));
+
+    // Days since first activity (assessment creation)
+    const [firstAssessment] = await db.select({ createdAt: schema.codexAssessments.createdAt })
+      .from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id))
+      .orderBy(asc(schema.codexAssessments.createdAt)).limit(1);
+    const daysSinceFirst = firstAssessment
+      ? Math.floor((Date.now() - new Date(firstAssessment.createdAt).getTime()) / 86400000)
+      : 0;
+
+    // Existing unlocked layers
+    const existingLayers = await db.select().from(schema.codexScrollLayers).where(eq(schema.codexScrollLayers.userId, u.id));
+    const unlockedLayerNums = existingLayers.filter(l => l.sealed === 0).map(l => l.layer as ScrollLayerNumber);
+
+    const activity: UserActivitySnapshot = {
+      journalCount: journalCount?.count || 0,
+      guideSessionCount: guideSessionCount?.count || 0,
+      checkInCount: checkInCount?.count || 0,
+      completedChallengeCount: challengeCount?.count || 0,
+      daysSinceFirstActivity: daysSinceFirst,
+      layer2Unlocked: unlockedLayerNums.includes(2),
+      layer3Unlocked: unlockedLayerNums.includes(3),
+      layer4Unlocked: unlockedLayerNums.includes(4),
+    };
+
+    // Build state for all 5 layers
+    const layers = ([1, 2, 3, 4, 5] as ScrollLayerNumber[]).map(layer => {
+      const meta = SCROLL_LAYER_META[layer];
+      const existing = existingLayers.find(l => l.layer === layer);
+      const { unlocked, conditions } = evaluateScrollUnlock(layer, activity, unlockedLayerNums);
+
+      return {
+        layer,
+        title: meta.title,
+        invocation: meta.invocation,
+        unlockDescription: meta.unlockDescription,
+        sealed: existing ? existing.sealed === 1 : !unlocked,
+        unlockedAt: existing?.unlockedAt?.toISOString() || null,
+        viewedAt: existing?.viewedAt?.toISOString() || null,
+        unlockProgress: conditions,
+        contentData: existing?.contentData ? JSON.parse(existing.contentData) : null,
+        justUnlocked: unlocked && (!existing || existing.sealed === 1),
+      };
+    });
+
+    return { layers, activity };
+  }),
+
+  // Records a scroll interaction (check-in or reflection), checks if new layer unlock triggered
+  interactWithScrollLayer: customerProc.input(z.object({
+    layer: z.number().min(1).max(5),
+    sectionId: z.string().optional(),
+    interactionType: z.enum(["check_in", "reflection", "viewed"]),
+    responseText: z.string().optional(),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Find the layer row (or create it for layer 1 if first visit)
+    let [layerRow] = await db.select().from(schema.codexScrollLayers)
+      .where(and(eq(schema.codexScrollLayers.userId, u.id), eq(schema.codexScrollLayers.layer, input.layer)))
+      .limit(1);
+
+    if (!layerRow) {
+      const newId = nanoid();
+      await db.insert(schema.codexScrollLayers).values({
+        id: newId, userId: u.id, layer: input.layer,
+        sealed: input.layer === 1 ? 0 : 1, // Layer 1 always open
+        unlockedAt: input.layer === 1 ? new Date() : null,
+      });
+      [layerRow] = await db.select().from(schema.codexScrollLayers)
+        .where(eq(schema.codexScrollLayers.id, newId)).limit(1);
+    }
+
+    if (!layerRow) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+    // Record the interaction
+    await db.insert(schema.codexScrollInteractions).values({
+      id: nanoid(),
+      userId: u.id,
+      layerId: layerRow.id,
+      sectionId: input.sectionId || null,
+      interactionType: input.interactionType,
+      responseText: input.responseText || null,
+    });
+
+    // Mark viewed if not already
+    if (input.interactionType === "viewed" && !layerRow.viewedAt) {
+      await db.update(schema.codexScrollLayers).set({ viewedAt: new Date() }).where(eq(schema.codexScrollLayers.id, layerRow.id));
+    }
+
+    return { success: true };
+  }),
+
+  // Evaluates unlock conditions and unseals layers that are newly eligible
+  checkScrollUnlock: customerProc.mutation(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Build activity snapshot (same as getScrollState)
+    const [journalCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.codexJournalEntries).where(eq(schema.codexJournalEntries.userId, u.id));
+    const [guideSessionCount] = await db.select({ count: sql<number>`count(*)` }).from(schema.codexGuideConversations).where(eq(schema.codexGuideConversations.userId, u.id));
+    const [checkInCount] = await db.select({ count: sql<number>`count(*)` })
+      .from(schema.codexScrollInteractions)
+      .where(and(eq(schema.codexScrollInteractions.userId, u.id), eq(schema.codexScrollInteractions.interactionType, "check_in")));
+    const [challengeCount] = await db.select({ count: sql<number>`count(*)` })
+      .from(schema.codexRealWorldChallenges)
+      .where(and(eq(schema.codexRealWorldChallenges.userId, u.id), sql`${schema.codexRealWorldChallenges.completedAt} IS NOT NULL`));
+    const [firstAssessment] = await db.select({ createdAt: schema.codexAssessments.createdAt })
+      .from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id))
+      .orderBy(asc(schema.codexAssessments.createdAt)).limit(1);
+    const daysSinceFirst = firstAssessment
+      ? Math.floor((Date.now() - new Date(firstAssessment.createdAt).getTime()) / 86400000)
+      : 0;
+
+    const existingLayers = await db.select().from(schema.codexScrollLayers).where(eq(schema.codexScrollLayers.userId, u.id));
+    const unlockedLayerNums = existingLayers.filter(l => l.sealed === 0).map(l => l.layer as ScrollLayerNumber);
+
+    const activity: UserActivitySnapshot = {
+      journalCount: journalCount?.count || 0,
+      guideSessionCount: guideSessionCount?.count || 0,
+      checkInCount: checkInCount?.count || 0,
+      completedChallengeCount: challengeCount?.count || 0,
+      daysSinceFirstActivity: daysSinceFirst,
+      layer2Unlocked: unlockedLayerNums.includes(2),
+      layer3Unlocked: unlockedLayerNums.includes(3),
+      layer4Unlocked: unlockedLayerNums.includes(4),
+    };
+
+    // Get user's codex signature for content generation
+    const [assessment] = await db.select().from(schema.codexAssessments)
+      .where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    let scoring: any = null;
+    if (assessment) {
+      const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+      if (s) scoring = JSON.parse(s.resultJson);
+    }
+
+    const codexSignature: CodexSignature = {
+      primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype || "The Silent Flame",
+      shadowArchetype: scoring?.archetypeConstellation?.[1]?.archetype,
+      activeWounds: (scoring?.activeWounds || []).slice(0, 3).map((w: any) => w.wound || w),
+      spectrumProfile: scoring?.spectrumProfile || { shadowPct: 33, thresholdPct: 34, giftPct: 33 },
+      phase: String(scoring?.phase || "1"),
+      name: u.name || undefined,
+    };
+
+    const newlyUnlocked: number[] = [];
+
+    for (const layer of [1, 2, 3, 4, 5] as ScrollLayerNumber[]) {
+      const { unlocked } = evaluateScrollUnlock(layer, activity, unlockedLayerNums);
+      if (!unlocked) continue;
+
+      const existing = existingLayers.find(l => l.layer === layer);
+
+      if (!existing) {
+        // Create row and generate content
+        const content = await generateLayerContent(layer, codexSignature);
+        const newId = nanoid();
+        await db.insert(schema.codexScrollLayers).values({
+          id: newId, userId: u.id, layer,
+          sealed: 0,
+          unlockedAt: new Date(),
+          unlockProgress: JSON.stringify(evaluateScrollUnlock(layer, activity, unlockedLayerNums).conditions),
+          contentData: content ? JSON.stringify(content) : null,
+        });
+        newlyUnlocked.push(layer);
+        unlockedLayerNums.push(layer);
+      } else if (existing.sealed === 1) {
+        // Unseal existing row and generate content
+        const content = await generateLayerContent(layer, codexSignature);
+        await db.update(schema.codexScrollLayers).set({
+          sealed: 0,
+          unlockedAt: new Date(),
+          contentData: content ? JSON.stringify(content) : null,
+        }).where(eq(schema.codexScrollLayers.id, existing.id));
+        newlyUnlocked.push(layer);
+        unlockedLayerNums.push(layer);
+      }
+    }
+
+    return { newlyUnlocked, totalUnlocked: unlockedLayerNums.length };
+  }),
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// PHASE 3: GUIDED REFLECTION DIALOGUE ROUTER
+// ══════════════════════════════════════════════════════════════════════
+const codexDialogueRouter = router({
+
+  // Creates a new dialogue session and returns the first guide prompt
+  startDialogue: customerProc.input(z.object({
+    type: z.enum(["archetype_exploration", "wound_inquiry", "shadow_work", "pattern_recognition", "embodiment_check_in", "integration_review"]),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Get archetype context
+    const [assessment] = await db.select().from(schema.codexAssessments)
+      .where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    let scoring: any = null;
+    if (assessment) {
+      const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+      if (s) scoring = JSON.parse(s.resultJson);
+    }
+
+    const archetypeContext: ArchetypeContext = {
+      primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype || "The Silent Flame",
+      shadowArchetype: scoring?.archetypeConstellation?.[1]?.archetype,
+      activeWounds: (scoring?.activeWounds || []).slice(0, 3).map((w: any) => w.wound || w),
+      spectrumProfile: scoring?.spectrumProfile || { shadowPct: 33, thresholdPct: 34, giftPct: 33 },
+      phase: String(scoring?.phase || "1"),
+      name: u.name || undefined,
+    };
+
+    const { firstPrompt } = await initiateDialogue(u.id, input.type as DialogueType, archetypeContext);
+
+    // Create session
+    const sessionId = nanoid();
+    await db.insert(schema.codexDialogueSessions).values({
+      id: sessionId, userId: u.id, type: input.type, exchangeCount: 0, status: "active",
+    });
+
+    // Store first exchange (guide prompt only, no user response yet)
+    await db.insert(schema.codexDialogueExchanges).values({
+      id: nanoid(), sessionId, exchangeIndex: 0, guidePrompt: firstPrompt,
+    });
+
+    return { sessionId, firstPrompt, archetypeContext: { primaryArchetype: archetypeContext.primaryArchetype, phase: archetypeContext.phase } };
+  }),
+
+  // Processes a user response, returns guide reflection + possible revelation/challenge
+  submitDialogueResponse: customerProc.input(z.object({
+    sessionId: z.string(),
+    userResponse: z.string().min(1).max(3000),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Verify session belongs to user
+    const [session] = await db.select().from(schema.codexDialogueSessions)
+      .where(and(eq(schema.codexDialogueSessions.id, input.sessionId), eq(schema.codexDialogueSessions.userId, u.id)))
+      .limit(1);
+    if (!session) throw new TRPCError({ code: "NOT_FOUND", message: "Session not found" });
+    if (session.status === "completed") throw new TRPCError({ code: "BAD_REQUEST", message: "Session already completed" });
+
+    // Load all exchanges for this session
+    const allExchanges = await db.select().from(schema.codexDialogueExchanges)
+      .where(eq(schema.codexDialogueExchanges.sessionId, input.sessionId))
+      .orderBy(asc(schema.codexDialogueExchanges.exchangeIndex));
+
+    // The most recent exchange is the one awaiting user response
+    const currentExchange = allExchanges[allExchanges.length - 1];
+    if (!currentExchange) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+    // Get archetype context
+    const [assessment] = await db.select().from(schema.codexAssessments)
+      .where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    let scoring: any = null;
+    if (assessment) {
+      const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+      if (s) scoring = JSON.parse(s.resultJson);
+    }
+    const archetypeContext: ArchetypeContext = {
+      primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype || "The Silent Flame",
+      shadowArchetype: scoring?.archetypeConstellation?.[1]?.archetype,
+      activeWounds: (scoring?.activeWounds || []).slice(0, 3).map((w: any) => w.wound || w),
+      spectrumProfile: scoring?.spectrumProfile || { shadowPct: 33, thresholdPct: 34, giftPct: 33 },
+      phase: String(scoring?.phase || "1"),
+      name: u.name || undefined,
+    };
+
+    // Build previous exchanges for context
+    const previousExchanges: DialogueExchange[] = allExchanges.map(e => ({
+      guidePrompt: e.guidePrompt,
+      userResponse: e.userResponse || undefined,
+      guideReflection: e.guideReflection || undefined,
+      depthScore: e.depthScore ? parseFloat(e.depthScore) : undefined,
+      patternDetected: e.patternDetected || undefined,
+    }));
+
+    const processed = await processUserResponse(
+      input.sessionId,
+      currentExchange.exchangeIndex,
+      currentExchange.guidePrompt,
+      input.userResponse,
+      previousExchanges.slice(0, -1), // exclude current (unanswered) exchange
+      archetypeContext,
+      5 // max exchanges
+    );
+
+    // Update current exchange with user response and guide reflection
+    await db.update(schema.codexDialogueExchanges).set({
+      userResponse: input.userResponse,
+      guideReflection: processed.guideReflection,
+      depthScore: String(processed.depthScore.toFixed(2)),
+      patternDetected: processed.patternDetected || null,
+    }).where(eq(schema.codexDialogueExchanges.id, currentExchange.id));
+
+    // Track max depth
+    const currentMaxDepth = parseFloat(session.maxDepthReached || "0");
+    const newMaxDepth = Math.max(currentMaxDepth, processed.depthScore);
+
+    // Save micro-revelation if present
+    let revelationId: string | null = null;
+    if (processed.microRevelation) {
+      revelationId = nanoid();
+      await db.insert(schema.codexMicroRevelations).values({
+        id: revelationId,
+        userId: u.id,
+        sessionId: input.sessionId,
+        content: processed.microRevelation.content,
+        type: processed.microRevelation.type,
+        archetypeRelevance: processed.microRevelation.archetypeRelevance || null,
+      });
+    }
+
+    let challenge: { id: string; text: string; difficulty: string; timeframe: string; intentDescription: string } | null = null;
+
+    if (processed.shouldIssueChallenge) {
+      const issued = issueRealWorldChallenge(archetypeContext, newMaxDepth);
+      const challengeId = nanoid();
+      await db.insert(schema.codexRealWorldChallenges).values({
+        id: challengeId,
+        userId: u.id,
+        sessionId: input.sessionId,
+        challengeText: issued.challengeText,
+        difficulty: issued.difficulty,
+        timeframe: issued.timeframe,
+        archetypeTarget: issued.archetypeTarget,
+        intentDescription: issued.intentDescription,
+      });
+
+      // Link challenge to session
+      await db.update(schema.codexDialogueSessions).set({
+        challengeId, status: "challenge_pending", exchangeCount: currentExchange.exchangeIndex + 1,
+        maxDepthReached: String(newMaxDepth.toFixed(2)),
+      }).where(eq(schema.codexDialogueSessions.id, input.sessionId));
+
+      challenge = {
+        id: challengeId,
+        text: issued.challengeText,
+        difficulty: issued.difficulty,
+        timeframe: issued.timeframe,
+        intentDescription: issued.intentDescription || "",
+      };
+    } else {
+      // Create the next exchange row (guide prompt = reflection becomes next guide prompt if session continues)
+      const nextExchangeIndex = currentExchange.exchangeIndex + 1;
+      if (!processed.sessionComplete) {
+        await db.insert(schema.codexDialogueExchanges).values({
+          id: nanoid(), sessionId: input.sessionId, exchangeIndex: nextExchangeIndex,
+          guidePrompt: processed.guideReflection,
+        });
+      }
+
+      await db.update(schema.codexDialogueSessions).set({
+        exchangeCount: nextExchangeIndex,
+        maxDepthReached: String(newMaxDepth.toFixed(2)),
+        status: processed.sessionComplete ? "completed" : "active",
+      }).where(eq(schema.codexDialogueSessions.id, input.sessionId));
+    }
+
+    return {
+      guideReflection: processed.guideReflection,
+      depthScore: processed.depthScore,
+      patternDetected: processed.patternDetected,
+      microRevelation: processed.microRevelation,
+      challenge,
+      sessionComplete: processed.sessionComplete || processed.shouldIssueChallenge,
+    };
+  }),
+
+  // Returns the active real-world challenge for a user (most recent unresolved)
+  getActiveChallenge: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    const [challenge] = await db.select().from(schema.codexRealWorldChallenges)
+      .where(and(
+        eq(schema.codexRealWorldChallenges.userId, u.id),
+        sql`${schema.codexRealWorldChallenges.completedAt} IS NULL`
+      ))
+      .orderBy(desc(schema.codexRealWorldChallenges.createdAt))
+      .limit(1);
+
+    if (!challenge) return null;
+
+    return {
+      id: challenge.id,
+      challengeText: challenge.challengeText,
+      difficulty: challenge.difficulty,
+      timeframe: challenge.timeframe,
+      archetypeTarget: challenge.archetypeTarget,
+      intentDescription: challenge.intentDescription,
+      createdAt: challenge.createdAt.toISOString(),
+    };
+  }),
+
+  // Processes user's report back on a challenge
+  submitChallengeReport: customerProc.input(z.object({
+    challengeId: z.string(),
+    report: z.string().min(1).max(5000),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    const [challenge] = await db.select().from(schema.codexRealWorldChallenges)
+      .where(and(eq(schema.codexRealWorldChallenges.id, input.challengeId), eq(schema.codexRealWorldChallenges.userId, u.id)))
+      .limit(1);
+    if (!challenge) throw new TRPCError({ code: "NOT_FOUND", message: "Challenge not found" });
+
+    // Get archetype context
+    const [assessment] = await db.select().from(schema.codexAssessments)
+      .where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    let scoring: any = null;
+    if (assessment) {
+      const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+      if (s) scoring = JSON.parse(s.resultJson);
+    }
+    const archetypeContext: ArchetypeContext = {
+      primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype || challenge.archetypeTarget,
+      shadowArchetype: scoring?.archetypeConstellation?.[1]?.archetype,
+      activeWounds: (scoring?.activeWounds || []).slice(0, 3).map((w: any) => w.wound || w),
+      spectrumProfile: scoring?.spectrumProfile || { shadowPct: 33, thresholdPct: 34, giftPct: 33 },
+      phase: String(scoring?.phase || "1"),
+      name: u.name || undefined,
+    };
+
+    const { guideResponse, depth } = await processReportBack(
+      challenge.challengeText, input.report, archetypeContext
+    );
+
+    await db.update(schema.codexRealWorldChallenges).set({
+      reportBackText: input.report,
+      guideResponse,
+      reportDepth: String(depth.toFixed(2)),
+      completedAt: new Date(),
+    }).where(eq(schema.codexRealWorldChallenges.id, input.challengeId));
+
+    // Update linked session to completed
+    if (challenge.sessionId) {
+      await db.update(schema.codexDialogueSessions).set({ status: "completed" })
+        .where(eq(schema.codexDialogueSessions.id, challenge.sessionId));
+    }
+
+    return { guideResponse, depth };
+  }),
+
+  // Returns all micro-revelations for the user (unviewed ones first)
+  getMicroRevelations: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const revelations = await db.select().from(schema.codexMicroRevelations)
+      .where(eq(schema.codexMicroRevelations.userId, u.id))
+      .orderBy(asc(schema.codexMicroRevelations.viewed), desc(schema.codexMicroRevelations.createdAt));
+    return revelations.map(r => ({
+      id: r.id, content: r.content, type: r.type,
+      archetypeRelevance: r.archetypeRelevance, viewed: r.viewed === 1,
+      createdAt: r.createdAt.toISOString(),
+    }));
+  }),
+
+  // Marks a micro-revelation as viewed
+  markRevelationViewed: customerProc.input(z.object({ revelationId: z.string() })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    await db.update(schema.codexMicroRevelations).set({ viewed: 1 })
+      .where(and(eq(schema.codexMicroRevelations.id, input.revelationId), eq(schema.codexMicroRevelations.userId, u.id)));
+    return { success: true };
+  }),
+});
+
+// ── PHASE 4: LIVING MIRROR SUB-ROUTER ────────────────────────────────
+
+const codexMirrorRouter = router({
+  // Returns all addendums for the current user (unviewed first)
+  getAddendums: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const addendums = await db.select().from(schema.codexMirrorAddendums)
+      .where(eq(schema.codexMirrorAddendums.userId, u.id))
+      .orderBy(asc(schema.codexMirrorAddendums.viewedAt), desc(schema.codexMirrorAddendums.createdAt));
+    return addendums.map(a => ({
+      id: a.id,
+      type: a.type,
+      content: a.content,
+      patternShiftData: a.patternShiftData ? JSON.parse(a.patternShiftData) : null,
+      viewed: !!a.viewedAt,
+      createdAt: a.createdAt.toISOString(),
+    }));
+  }),
+
+  // Returns mirror snapshots over time (the user's pattern timeline)
+  getTimeline: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const snapshots = await db.select().from(schema.codexMirrorSnapshots)
+      .where(eq(schema.codexMirrorSnapshots.userId, u.id))
+      .orderBy(desc(schema.codexMirrorSnapshots.createdAt))
+      .limit(50);
+    return snapshots.map(s => ({
+      id: s.id,
+      sourceType: s.sourceType,
+      sourceId: s.sourceId,
+      dominantThemes: s.dominantThemes ? JSON.parse(s.dominantThemes) : [],
+      emotionalTone: s.emotionalTone ? JSON.parse(s.emotionalTone) : null,
+      avoidancePatterns: s.avoidancePatterns,
+      growthIndicators: s.growthIndicators,
+      userLanguage: s.userLanguage ? JSON.parse(s.userLanguage) : [],
+      createdAt: s.createdAt.toISOString(),
+    }));
+  }),
+
+  // Triggers a temporal reflection and returns the generated content
+  generateTemporalReflection: customerProc
+    .input(z.object({ timeframe: z.enum(["7_days", "14_days", "30_days"]) }))
+    .mutation(async ({ ctx, input }) => {
+      const u = (ctx as any).codexUser as schema.CodexUser;
+      const content = await generateTemporalReflection(u.id, input.timeframe as Timeframe);
+      if (!content) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Not enough data for reflection" });
+      return { content };
+    }),
+
+  // Marks an addendum as viewed
+  markAddendumViewed: customerProc
+    .input(z.object({ addendumId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+      await db.update(schema.codexMirrorAddendums).set({ viewedAt: new Date() })
+        .where(and(eq(schema.codexMirrorAddendums.id, input.addendumId), eq(schema.codexMirrorAddendums.userId, u.id)));
+      return { success: true };
+    }),
+});
+
+// ── PHASE 5: CHECK-IN SUB-ROUTER ──────────────────────────────────────
+
+const codexCheckInRouter = router({
+  // Generates personalized check-in questions for the current user
+  start: customerProc
+    .input(z.object({ type: z.enum(["daily", "weekly"]).default("daily") }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      // Get archetype from latest scoring
+      const [scoring] = await db.select().from(schema.codexScorings)
+        .where(eq(schema.codexScorings.userId, u.id))
+        .orderBy(desc(schema.codexScorings.createdAt)).limit(1);
+      const scoreData = scoring?.resultJson ? JSON.parse(scoring.resultJson) : {};
+      const archetype: string = scoreData?.archetypeConstellation?.primary?.name || "The Silent Flame";
+
+      // Get recent patterns for dynamic question
+      const recentPatterns = await db.select().from(schema.codexCheckInPatterns)
+        .where(eq(schema.codexCheckInPatterns.userId, u.id))
+        .orderBy(desc(schema.codexCheckInPatterns.frequency)).limit(3);
+      const patternTexts = recentPatterns.map(p => p.pattern);
+
+      const questions = await generateCheckInPrompts(u.id, archetype, patternTexts);
+
+      // Create check-in record
+      const checkInId = nanoid();
+      await db.insert(schema.codexCheckIns).values({
+        id: checkInId,
+        userId: u.id,
+        type: input.type,
+        questionsData: JSON.stringify(questions),
+      });
+
+      return { checkInId, questions };
+    }),
+
+  // Processes submitted check-in responses
+  submit: customerProc
+    .input(z.object({
+      checkInId: z.string(),
+      responses: z.array(z.object({ questionId: z.string(), response: z.string() })),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const u = (ctx as any).codexUser as schema.CodexUser;
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      // Verify check-in belongs to user
+      const [checkIn] = await db.select().from(schema.codexCheckIns)
+        .where(and(eq(schema.codexCheckIns.id, input.checkInId), eq(schema.codexCheckIns.userId, u.id))).limit(1);
+      if (!checkIn) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const { patternsExtracted, scrollUnlockTriggered } = await processCheckIn(
+        u.id, input.checkInId, input.responses as CheckInResponse[]
+      );
+
+      return { patternsExtracted, scrollUnlockTriggered };
+    }),
+
+  // Returns paginated check-in history
+  getHistory: customerProc
+    .input(z.object({ limit: z.number().min(1).max(50).default(20) }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+      const checkIns = await db.select().from(schema.codexCheckIns)
+        .where(eq(schema.codexCheckIns.userId, u.id))
+        .orderBy(desc(schema.codexCheckIns.createdAt))
+        .limit(input.limit);
+      return checkIns.map(c => ({
+        id: c.id,
+        type: c.type,
+        questions: c.questionsData ? JSON.parse(c.questionsData) : [],
+        responses: c.responsesData ? JSON.parse(c.responsesData) : null,
+        patternsExtracted: c.patternsExtracted ? JSON.parse(c.patternsExtracted) : [],
+        completed: !!c.completedAt,
+        completedAt: c.completedAt?.toISOString() || null,
+        createdAt: c.createdAt.toISOString(),
+      }));
+    }),
+
+  // Returns aggregated pattern trends for the user
+  getPatterns: customerProc.query(async ({ ctx }) => {
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    const patterns = await getCheckInPatterns(u.id);
+    return patterns.map(p => ({
+      id: p.id,
+      pattern: p.pattern,
+      frequency: p.frequency,
+      trend: p.trend,
+      relatedArchetype: p.relatedArchetype,
+      firstDetectedAt: p.firstDetectedAt.toISOString(),
+      lastDetectedAt: p.lastDetectedAt.toISOString(),
+    }));
+  }),
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// ADAPTIVE ASSESSMENT ROUTER  (Phase 1)
+// ══════════════════════════════════════════════════════════════════════
+
+/** Loads question signals from DB; falls back to computing from codexAnswers. */
+async function loadQuestionSignals(db: Awaited<ReturnType<typeof getDb>>): Promise<QuestionSignal[]> {
+  if (!db) return [];
+
+  const dbSignals = await db.select().from(schema.codexQuestionSignals);
+  if (dbSignals.length > 0) {
+    return dbSignals.map(s => ({
+      questionId: s.questionId,
+      sectionNum: s.sectionNum,
+      archetypeWeights: JSON.parse(s.archetypeWeights),
+      woundWeights: JSON.parse(s.woundWeights),
+      informationGain: parseFloat(s.informationGain ?? "0"),
+      asked: false,
+    }));
+  }
+
+  // Fallback: compute from raw answers grouped by question
+  const allQuestions = await db.select().from(schema.codexQuestions);
+  const allAnswers = await db.select().from(schema.codexAnswers);
+
+  const answersByQuestion = new Map<string, typeof allAnswers>();
+  for (const ans of allAnswers) {
+    const arr = answersByQuestion.get(ans.questionId) ?? [];
+    arr.push(ans);
+    answersByQuestion.set(ans.questionId, arr);
+  }
+
+  const signals: QuestionSignal[] = [];
+  for (const q of allQuestions) {
+    if (q.isGhost || q.isOpenEnded) continue;
+    const answers = answersByQuestion.get(q.id) ?? [];
+    signals.push(buildSignalFromAnswers(q.id, q.sectionNum, answers));
+  }
+  return signals;
+}
+
+const codexAdaptiveRouter = router({
+  /**
+   * Starts a new adaptive session.
+   * Creates a codex_assessment record + a codex_adaptive_sessions record,
+   * then returns the first 5 broad-signal questions.
+   */
+  start: customerProc
+    .input(z.object({
+      config: z.object({
+        broadSignalCount: z.number().default(5),
+        confidenceThreshold: z.number().default(0.75),
+        entropyThreshold: z.number().default(1.2),
+        minQuestions: z.number().default(25),
+        maxQuestions: z.number().default(75),
+        eliminationThreshold: z.number().default(0.05),
+      }).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      const cfg: Partial<AdaptiveConfig> = input.config ?? {};
+
+      // Create parent assessment record
+      const assessmentId = nanoid();
+      await db.insert(schema.codexAssessments).values({
+        id: assessmentId,
+        userId: u.id,
+        status: "in_progress",
+        startedAt: new Date(),
+      });
+
+      // Initialize Bayesian state
+      const state = initializeAdaptiveState(u.id, cfg);
+
+      // Load question pool
+      const questionPool = await loadQuestionSignals(db);
+
+      // Select first broadSignalCount questions
+      const broadCount = cfg.broadSignalCount ?? DEFAULT_ADAPTIVE_CONFIG.broadSignalCount;
+      const firstQuestions: QuestionSignal[] = [];
+      let tempState = { ...state };
+      for (let i = 0; i < broadCount && firstQuestions.length < broadCount; i++) {
+        const next = selectNextQuestion(tempState, questionPool, cfg);
+        if (!next) break;
+        firstQuestions.push(next);
+        // Mark as asked so next selection skips it
+        tempState = { ...tempState, askedQuestions: [...tempState.askedQuestions, next.questionId] };
+      }
+
+      // Create adaptive session
+      await db.insert(schema.codexAdaptiveSessions).values({
+        id: state.sessionId,
+        userId: u.id,
+        assessmentId,
+        state: JSON.stringify(state),
+        config: input.config ? JSON.stringify(input.config) : null,
+        phase: "broad_signal",
+        questionsAsked: 0,
+        terminated: 0,
+        startedAt: new Date(),
+      });
+
+      // Fetch full question detail for first batch
+      const questionIds = firstQuestions.map(q => q.questionId);
+      const questionDetails = await db.select().from(schema.codexQuestions)
+        .where(sql`${schema.codexQuestions.id} IN (${sql.join(questionIds.map(id => sql`${id}`), sql`, `)})`);
+      const answerDetails = await db.select().from(schema.codexAnswers)
+        .where(sql`${schema.codexAnswers.questionId} IN (${sql.join(questionIds.map(id => sql`${id}`), sql`, `)})`);
+
+      const answersMap = new Map<string, typeof answerDetails>();
+      for (const a of answerDetails) {
+        const arr = answersMap.get(a.questionId) ?? [];
+        arr.push(a);
+        answersMap.set(a.questionId, arr);
+      }
+
+      const enriched = questionDetails.map(q => ({
+        id: q.id,
+        sectionNum: q.sectionNum,
+        questionNum: q.questionNum,
+        questionText: q.questionText,
+        invitation: q.invitation,
+        answers: (answersMap.get(q.id) ?? []).map(a => ({
+          code: a.code,
+          text: a.answerText,
+          spectrumDepth: a.spectrumDepth,
+        })),
+      }));
+
+      return {
+        sessionId: state.sessionId,
+        assessmentId,
+        questions: enriched,
+        phase: "broad_signal",
+        totalQuestions: questionPool.length,
+      };
+    }),
+
+  /**
+   * Submits a single answer, updates posteriors, and returns the next question.
+   * Returns { nextQuestion, posteriorsSummary, progress, phase, terminated }.
+   */
+  submitAnswer: customerProc
+    .input(z.object({
+      sessionId: z.string(),
+      questionId: z.string(),
+      answerCode: z.string(),
+      responseTimeMs: z.number().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      // Load session
+      const [session] = await db.select().from(schema.codexAdaptiveSessions)
+        .where(and(
+          eq(schema.codexAdaptiveSessions.id, input.sessionId),
+          eq(schema.codexAdaptiveSessions.userId, u.id),
+        )).limit(1);
+      if (!session) throw new TRPCError({ code: "NOT_FOUND", message: "Adaptive session not found" });
+      if (session.terminated === 1) throw new TRPCError({ code: "BAD_REQUEST", message: "Session already terminated" });
+
+      let state: AdaptiveState = JSON.parse(session.state);
+      const cfg: Partial<AdaptiveConfig> = session.config ? JSON.parse(session.config) : {};
+
+      // Fetch answer metadata for Bayesian update
+      const [answerRow] = await db.select().from(schema.codexAnswers)
+        .where(and(
+          eq(schema.codexAnswers.questionId, input.questionId),
+          eq(schema.codexAnswers.code, input.answerCode),
+        )).limit(1);
+      if (!answerRow) throw new TRPCError({ code: "NOT_FOUND", message: "Answer not found" });
+
+      const answerMeta = {
+        code: answerRow.code,
+        spectrumDepth: answerRow.spectrumDepth,
+        arPrimary: answerRow.arPrimary,
+        arSecondary: answerRow.arSecondary,
+        wi: answerRow.wi,
+        mp: answerRow.mp,
+        mmi: answerRow.mmi ?? null,
+        abi: answerRow.abi ?? null,
+        epcl: answerRow.epcl ?? null,
+        wombField: answerRow.wombField ?? null,
+      };
+
+      // Load signal for this question (or build on the fly)
+      const [signalRow] = await db.select().from(schema.codexQuestionSignals)
+        .where(eq(schema.codexQuestionSignals.questionId, input.questionId)).limit(1);
+
+      const [questionRow] = await db.select().from(schema.codexQuestions)
+        .where(eq(schema.codexQuestions.id, input.questionId)).limit(1);
+
+      let signal: QuestionSignal;
+      if (signalRow) {
+        signal = {
+          questionId: signalRow.questionId,
+          sectionNum: signalRow.sectionNum,
+          archetypeWeights: JSON.parse(signalRow.archetypeWeights),
+          woundWeights: JSON.parse(signalRow.woundWeights),
+          informationGain: parseFloat(signalRow.informationGain ?? "0"),
+          asked: true,
+        };
+        // Increment timesAsked
+        await db.update(schema.codexQuestionSignals)
+          .set({ timesAsked: (signalRow.timesAsked ?? 0) + 1 })
+          .where(eq(schema.codexQuestionSignals.questionId, input.questionId));
+      } else {
+        const answers = await db.select().from(schema.codexAnswers)
+          .where(eq(schema.codexAnswers.questionId, input.questionId));
+        signal = buildSignalFromAnswers(
+          input.questionId,
+          questionRow?.sectionNum ?? 1,
+          answers,
+        );
+      }
+
+      // Bayesian update
+      state = updatePosteriors(state, signal, answerMeta);
+      state = eliminateLowProbability(state, cfg);
+
+      // Record response with posterior snapshot
+      const entropy = computeEntropy(state.posteriors);
+      await db.insert(schema.codexAdaptiveResponses).values({
+        id: nanoid(),
+        sessionId: input.sessionId,
+        questionId: input.questionId,
+        questionIndex: state.questionIndex - 1,
+        answerCode: input.answerCode,
+        posteriorsSnapshot: JSON.stringify(posteriorsSummary(state.posteriors)),
+        entropyAtAnswer: String(Math.round(entropy * 1000) / 1000),
+        phaseAtAnswer: state.currentPhase,
+        responseTimeMs: input.responseTimeMs ?? null,
+        answeredAt: new Date(),
+      });
+
+      // Check termination
+      const { terminate, reason } = shouldTerminate(state, cfg);
+      state.terminationReady = terminate;
+      state.terminationReason = reason;
+
+      const sorted = [...state.posteriors].sort((a, b) => b.probability - a.probability);
+      const topArchetype = sorted[0]?.archetype ?? null;
+      const topConfidence = sorted[0]?.probability ?? 0;
+
+      // Persist updated state
+      await db.update(schema.codexAdaptiveSessions)
+        .set({
+          state: JSON.stringify(state),
+          phase: state.currentPhase,
+          questionsAsked: state.questionIndex,
+          topArchetype,
+          topConfidence: String(Math.round(topConfidence * 1000) / 1000),
+          entropy: String(Math.round(entropy * 1000) / 1000),
+          terminated: terminate ? 1 : 0,
+          terminationReason: reason,
+        })
+        .where(eq(schema.codexAdaptiveSessions.id, input.sessionId));
+
+      if (terminate) {
+        return {
+          nextQuestion: null,
+          posteriorsSummary: posteriorsSummary(state.posteriors),
+          progress: { answered: state.questionIndex, phase: state.currentPhase },
+          phase: state.currentPhase,
+          terminated: true,
+          terminationReason: reason,
+        };
+      }
+
+      // Select next question
+      const questionPool = await loadQuestionSignals(db);
+      const nextSignal = selectNextQuestion(state, questionPool, cfg);
+      if (!nextSignal) {
+        return {
+          nextQuestion: null,
+          posteriorsSummary: posteriorsSummary(state.posteriors),
+          progress: { answered: state.questionIndex, phase: state.currentPhase },
+          phase: state.currentPhase,
+          terminated: true,
+          terminationReason: "question_pool_exhausted",
+        };
+      }
+
+      const [nextQ] = await db.select().from(schema.codexQuestions)
+        .where(eq(schema.codexQuestions.id, nextSignal.questionId)).limit(1);
+      const nextAnswers = await db.select().from(schema.codexAnswers)
+        .where(eq(schema.codexAnswers.questionId, nextSignal.questionId));
+
+      return {
+        nextQuestion: nextQ ? {
+          id: nextQ.id,
+          sectionNum: nextQ.sectionNum,
+          questionNum: nextQ.questionNum,
+          questionText: nextQ.questionText,
+          invitation: nextQ.invitation,
+          answers: nextAnswers.map(a => ({
+            code: a.code,
+            text: a.answerText,
+            spectrumDepth: a.spectrumDepth,
+          })),
+        } : null,
+        posteriorsSummary: posteriorsSummary(state.posteriors),
+        progress: {
+          answered: state.questionIndex,
+          phase: state.currentPhase,
+          entropy: Math.round(entropy * 1000) / 1000,
+          topConfidence: Math.round(topConfidence * 1000) / 1000,
+        },
+        phase: state.currentPhase,
+        terminated: false,
+        terminationReason: null,
+      };
+    }),
+
+  /**
+   * Returns the current adaptive session state for resuming a paused assessment.
+   */
+  getState: customerProc
+    .input(z.object({ sessionId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      const [session] = await db.select().from(schema.codexAdaptiveSessions)
+        .where(and(
+          eq(schema.codexAdaptiveSessions.id, input.sessionId),
+          eq(schema.codexAdaptiveSessions.userId, u.id),
+        )).limit(1);
+      if (!session) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const state: AdaptiveState = JSON.parse(session.state);
+      return {
+        sessionId: session.id,
+        assessmentId: session.assessmentId,
+        phase: session.phase,
+        questionsAsked: session.questionsAsked,
+        topArchetype: session.topArchetype,
+        topConfidence: session.topConfidence ? parseFloat(session.topConfidence) : null,
+        entropy: session.entropy ? parseFloat(session.entropy) : null,
+        terminated: session.terminated === 1,
+        terminationReason: session.terminationReason,
+        posteriorsSummary: posteriorsSummary(state.posteriors),
+        startedAt: session.startedAt.toISOString(),
+        completedAt: session.completedAt?.toISOString() ?? null,
+      };
+    }),
+
+  /**
+   * Finalizes an adaptive session: converts adaptive responses to scoring format,
+   * runs the scoring engine, and generates a Codex Signature (mirror report).
+   */
+  complete: customerProc
+    .input(z.object({ sessionId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      const [session] = await db.select().from(schema.codexAdaptiveSessions)
+        .where(and(
+          eq(schema.codexAdaptiveSessions.id, input.sessionId),
+          eq(schema.codexAdaptiveSessions.userId, u.id),
+        )).limit(1);
+      if (!session) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const state: AdaptiveState = JSON.parse(session.state);
+
+      // Pull all scoreable questions from DB
+      const allQuestions = await db.select().from(schema.codexQuestions);
+      const allAnswers = await db.select().from(schema.codexAnswers);
+
+      const answerLookup = new Map<string, AnswerMetadata>();
+      const qMap = new Map(allQuestions.map(q => [q.id, q]));
+      for (const a of allAnswers) {
+        const q = qMap.get(a.questionId);
+        if (!q) continue;
+        const key = `${q.sectionNum}-${a.questionId}-${a.code}`;
+        answerLookup.set(key, {
+          code: a.code,
+          spectrumDepth: a.spectrumDepth,
+          arPrimary: a.arPrimary,
+          arSecondary: a.arSecondary,
+          wi: a.wi,
+          mp: a.mp,
+          mmi: a.mmi ?? null,
+          abi: a.abi ?? null,
+          epcl: a.epcl ?? null,
+          wombField: a.wombField ?? null,
+        });
+      }
+
+      // Convert adaptive state to ResponseRecord[] (ghost = unanswered)
+      const records = convertToScoringResponses(
+        state,
+        allQuestions.map(q => ({ id: q.id, sectionNum: q.sectionNum }))
+      );
+
+      const scoringResult = runScoringEngine(records, answerLookup);
+
+      // Persist scoring
+      const scoringId = nanoid();
+      await db.insert(schema.codexScorings).values({
+        id: scoringId,
+        assessmentId: session.assessmentId,
+        resultJson: JSON.stringify(scoringResult),
+      });
+
+      // Mark assessment and session complete
+      await db.update(schema.codexAssessments)
+        .set({ status: "complete", completedAt: new Date() })
+        .where(eq(schema.codexAssessments.id, session.assessmentId));
+
+      await db.update(schema.codexAdaptiveSessions)
+        .set({ terminated: 1, completedAt: new Date() })
+        .where(eq(schema.codexAdaptiveSessions.id, input.sessionId));
+
+      // Generate Codex Signature (mirror report)
+      const reportId = nanoid();
+      const reportContent = {
+        archetypeConstellation: scoringResult.archetypeConstellation,
+        activeWounds: scoringResult.activeWounds,
+        activeMirrors: scoringResult.activeMirrors,
+        spectrumProfile: scoringResult.spectrumProfile,
+        integrationIndex: scoringResult.integrationIndex,
+        contradictionFlags: scoringResult.contradictionFlags,
+        adaptiveMeta: {
+          questionsAsked: state.questionIndex,
+          terminationReason: state.terminationReason,
+          finalEntropy: Math.round(computeEntropy(state.posteriors) * 1000) / 1000,
+          topPosteriors: posteriorsSummary(state.posteriors),
+        },
+      };
+
+      await db.insert(schema.codexMirrorReports).values({
+        id: reportId,
+        userId: u.id,
+        assessmentId: session.assessmentId,
+        scoringId,
+        status: "ready_for_review",
+        contentJson: JSON.stringify(reportContent),
+      });
+
+      return {
+        success: true,
+        scoringId,
+        reportId,
+        topArchetype: scoringResult.archetypeConstellation[0]?.archetype ?? null,
+        questionsAsked: state.questionIndex,
+      };
+    }),
+});
+
+// ══════════════════════════════════════════════════════════════════════
+// EVENT BUS ROUTES (Phase 8)
+// ══════════════════════════════════════════════════════════════════════
+const codexEventBusRouter = router({
+  // Get recent events for the current user
+  getRecentEvents: customerProc
+    .input(z.object({
+      limit: z.number().min(1).max(100).default(20),
+      eventType: z.string().optional(),
+    }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb();
+      if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = ctx.codexUser;
+
+      const conditions = [eq(schema.codexEvents.userId, u.id)];
+      if (input.eventType) {
+        conditions.push(eq(schema.codexEvents.eventType, input.eventType));
+      }
+
+      const events = await db
+        .select()
+        .from(schema.codexEvents)
+        .where(and(...conditions))
+        .orderBy(desc(schema.codexEvents.emittedAt))
+        .limit(input.limit);
+
+      return events.map((e) => ({
+        ...e,
+        eventData: e.eventData ? JSON.parse(e.eventData) : null,
+        reactionsTriggered: e.reactionsTriggered ? JSON.parse(e.reactionsTriggered) : [],
+        errors: e.errors ? JSON.parse(e.errors) : null,
+      }));
+    }),
+
+  // Get event counts grouped by type (for dashboard)
+  getEventSummary: customerProc.query(async ({ ctx }) => {
+    const db = await getDb();
+    if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = ctx.codexUser;
+
+    const counts = await db
+      .select({
+        eventType: schema.codexEvents.eventType,
+        count: sql<number>`count(*)`,
+        latest: sql<string>`max(${schema.codexEvents.emittedAt})`,
+      })
+      .from(schema.codexEvents)
+      .where(eq(schema.codexEvents.userId, u.id))
+      .groupBy(schema.codexEvents.eventType);
+
+    return counts;
+  }),
+
+  // Manually emit an event (for client-driven events like milestone celebrations)
+  emit: customerProc
+    .input(z.object({
+      eventType: z.enum([
+        "assessment_completed", "journal_created", "check_in_completed",
+        "dialogue_completed", "challenge_reported_back", "scroll_layer_unlocked",
+        "pattern_shift_detected", "milestone_earned", "phase_transition",
+      ]),
+      data: z.record(z.unknown()).optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const u = ctx.codexUser;
+      const { emitCodexEvent } = await import("./lib/codexEventBus");
+      await emitCodexEvent({
+        type: input.eventType,
+        userId: u.id,
+        data: input.data,
+      });
+      return { success: true };
+    }),
+});
+
 export const codexRouter = router({
   admin: codexAdminRouter,
   client: codexClientRouter,
   public: codexPublicRouter,
+  scroll: codexScrollRouter,
+  dialogue: codexDialogueRouter,
+  mirror: codexMirrorRouter,
+  checkIn: codexCheckInRouter,
+  adaptive: codexAdaptiveRouter,
+  events: codexEventBusRouter,
 });

@@ -7,6 +7,9 @@ const NAV_ITEMS = [
   { href: "/codex/portal", label: "Portal", icon: "\u{1F702}" },
   { href: "/codex/assessment", label: "Assessment", icon: "\u2727" },
   { href: "/codex/scroll", label: "Scroll", icon: "\u{1F701}" },
+  { href: "/codex/sealed-scroll", label: "Sealed Scroll", icon: "\u{1F701}" },
+  { href: "/codex/check-in", label: "Rituals", icon: "\u263D" },
+  { href: "/codex/dialogue", label: "Dialogue", icon: "\u25C7" },
   { href: "/codex/mirror-report", label: "Mirror Report", icon: "\uD83D\uDC41" },
   { href: "/codex/booking", label: "Book Session", icon: "\u25CB" },
 ];
