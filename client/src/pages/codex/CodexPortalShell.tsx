@@ -194,32 +194,31 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
               viewBox="0 0 40 40"
               fill="none"
               style={{
-                filter: "drop-shadow(0 0 6px rgba(184,151,106,0.12))",
-                animation: "cx-fade-in 6s ease-in-out infinite alternate",
+                filter: "drop-shadow(0 0 4px rgba(184,123,101,0.2))",
               }}
             >
               {/* Left circle */}
-              <circle cx="15" cy="20" r="11" stroke="#B8976A" strokeWidth="0.7" fill="none" opacity="0.55" />
+              <circle cx="15" cy="20" r="11" stroke="#B87B65" strokeWidth="1.2" fill="none" opacity="0.85" />
               {/* Right circle */}
-              <circle cx="25" cy="20" r="11" stroke="#B8976A" strokeWidth="0.7" fill="none" opacity="0.55" />
+              <circle cx="25" cy="20" r="11" stroke="#B87B65" strokeWidth="1.2" fill="none" opacity="0.85" />
               {/* Vesica intersection fill */}
               <defs>
                 <clipPath id="vesica-clip">
                   <circle cx="15" cy="20" r="11" />
                 </clipPath>
               </defs>
-              <circle cx="25" cy="20" r="11" fill="rgba(184,123,101,0.05)" clipPath="url(#vesica-clip)" />
+              <circle cx="25" cy="20" r="11" fill="rgba(184,123,101,0.12)" clipPath="url(#vesica-clip)" />
               {/* Threshold line */}
               {!collapsed && (
-                <line x1="20" y1="11" x2="20" y2="29" stroke="#B8976A" strokeWidth="0.3" opacity="0.2" strokeDasharray="1 2" />
+                <line x1="20" y1="11" x2="20" y2="29" stroke="#B87B65" strokeWidth="0.5" opacity="0.35" strokeDasharray="1 2" />
               )}
               {/* Diamond — the self */}
-              <path d="M20 17.5 L21.5 20 L20 22.5 L18.5 20 Z" fill="#B8976A" opacity="0.55" />
+              <path d="M20 17.5 L21.5 20 L20 22.5 L18.5 20 Z" fill="#B87B65" opacity="0.9" />
               {/* Light points at circle intersections */}
               {!collapsed && (
                 <>
-                  <circle cx="20" cy="12.2" r="0.5" fill="#B8976A" opacity="0.3" />
-                  <circle cx="20" cy="27.8" r="0.5" fill="#B8976A" opacity="0.3" />
+                  <circle cx="20" cy="12.2" r="0.7" fill="#B87B65" opacity="0.5" />
+                  <circle cx="20" cy="27.8" r="0.7" fill="#B87B65" opacity="0.5" />
                 </>
               )}
             </svg>
