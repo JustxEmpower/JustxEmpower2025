@@ -1,6 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { trpc } from "@/lib/trpc";
-import { BookHeart } from "lucide-react";
+import { BookHeart, MessageSquare, Download, Share2 } from "lucide-react";
+
+const CodexShareModal = lazy(() => import("./CodexShareModal"));
+
+interface CodexJournalProps {
+  onNavigate?: (view: string, params?: any) => void;
+}
 
 const MOODS = [
   { id: "contemplative", label: "Contemplative", color: "var(--cx-moonlight)" },
@@ -11,7 +17,7 @@ const MOODS = [
   { id: "uncertain", label: "Uncertain", color: "var(--cx-cream-dark)" },
 ];
 
-export default function CodexJournal() {
+export default function CodexJournal({ onNavigate }: CodexJournalProps = {}) {
   const [view, setView] = useState<"list" | "write">("list");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -19,10 +25,48 @@ export default function CodexJournal() {
   const [saving, setSaving] = useState(false);
   const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
   const [filterMood, setFilterMood] = useState<string | null>(null);
+  const [exportingId, setExportingId] = useState<string | null>(null);
+  const [discussingId, setDiscussingId] = useState<string | null>(null);
+  const [shareEntryId, setShareEntryId] = useState<string | null>(null);
 
   const journalQuery = trpc.codex.client.journalList.useQuery();
   const promptQuery = trpc.codex.client.journalPrompt.useQuery(undefined, { enabled: view === "write" });
   const createMutation = trpc.codex.client.journalCreate.useMutation();
+  const discussMutation = trpc.codex.client.journalDiscussWithGuide.useMutation();
+
+  // Trajectory export query
+  const exportQuery = trpc.codex.client.journalExportTrajectory.useQuery(
+    { entryId: exportingId || "" },
+    { enabled: !!exportingId, refetchOnWindowFocus: false }
+  );
+
+  // Download trajectory when data arrives
+  useEffect(() => {
+    if (exportingId && exportQuery.data) {
+      const trajectory = exportQuery.data.trajectory;
+      const blob = new Blob([JSON.stringify(trajectory, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `codex-journal-trajectory-${trajectory.entry?.title?.replace(/\s+/g, "-").toLowerCase() || "entry"}-${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      setExportingId(null);
+    }
+  }, [exportingId, exportQuery.data]);
+
+  // Discuss with guide handler
+  const handleDiscuss = async (entryId: string) => {
+    setDiscussingId(entryId);
+    try {
+      const result = await discussMutation.mutateAsync({ entryId, guideId: "orientation" });
+      // Navigate to guide view with the new conversation
+      if (onNavigate) {
+        onNavigate("guide-journal", { conversationId: result.conversationId, guideId: result.guideId });
+      }
+    } catch {}
+    setDiscussingId(null);
+  };
 
   const handleSave = async () => {
     if (!title.trim() || !content.trim() || saving) return;
@@ -292,6 +336,70 @@ export default function CodexJournal() {
                           Prompted by: {entry.aiPrompt}
                         </p>
                       )}
+
+                      {/* ── Action Buttons: Discuss / Download / Share ── */}
+                      <div style={{
+                        display: "flex", gap: "0.5rem", marginTop: "1.25rem",
+                        paddingTop: "1rem", borderTop: "1px solid rgba(61,34,51,0.08)",
+                      }}>
+                        {/* Discuss with Guide */}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleDiscuss(entry.id); }}
+                          disabled={discussingId === entry.id}
+                          style={{
+                            flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem",
+                            padding: "0.55rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.7rem",
+                            background: "rgba(184,123,101,0.06)", border: "1px solid rgba(184,123,101,0.12)",
+                            color: "var(--cx-rose)", cursor: "pointer", fontWeight: 500,
+                            fontFamily: "'DM Sans', system-ui, sans-serif",
+                            transition: "all 200ms ease",
+                            opacity: discussingId === entry.id ? 0.5 : 1,
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "rgba(184,123,101,0.1)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "rgba(184,123,101,0.06)"; }}
+                        >
+                          <MessageSquare size={13} />
+                          {discussingId === entry.id ? "Opening..." : "Discuss with Guide"}
+                        </button>
+
+                        {/* Download Trajectory */}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setExportingId(entry.id); }}
+                          disabled={exportingId === entry.id}
+                          style={{
+                            flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem",
+                            padding: "0.55rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.7rem",
+                            background: "rgba(184,151,106,0.06)", border: "1px solid rgba(184,151,106,0.12)",
+                            color: "var(--cx-gold)", cursor: "pointer", fontWeight: 500,
+                            fontFamily: "'DM Sans', system-ui, sans-serif",
+                            transition: "all 200ms ease",
+                            opacity: exportingId === entry.id ? 0.5 : 1,
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "rgba(184,151,106,0.1)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "rgba(184,151,106,0.06)"; }}
+                        >
+                          <Download size={13} />
+                          {exportingId === entry.id ? "Exporting..." : "Download Trajectory"}
+                        </button>
+
+                        {/* Share to Social */}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setShareEntryId(entry.id); }}
+                          style={{
+                            flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: "0.4rem",
+                            padding: "0.55rem 0.75rem", borderRadius: "0.5rem", fontSize: "0.7rem",
+                            background: "rgba(125,142,127,0.06)", border: "1px solid rgba(125,142,127,0.12)",
+                            color: "var(--cx-sage)", cursor: "pointer", fontWeight: 500,
+                            fontFamily: "'DM Sans', system-ui, sans-serif",
+                            transition: "all 200ms ease",
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "rgba(125,142,127,0.1)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "rgba(125,142,127,0.06)"; }}
+                        >
+                          <Share2 size={13} />
+                          Share
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -299,6 +407,17 @@ export default function CodexJournal() {
             );
           })}
         </div>
+      )}
+
+      {/* Share Modal */}
+      {shareEntryId && (
+        <Suspense fallback={null}>
+          <CodexShareModal
+            entryId={shareEntryId}
+            entryTitle={entries.find((e: any) => e.id === shareEntryId)?.title || "Reflection"}
+            onClose={() => setShareEntryId(null)}
+          />
+        </Suspense>
       )}
     </div>
   );

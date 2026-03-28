@@ -159,6 +159,7 @@ export interface UserContext {
   integrationIndex?: number;
   tier?: string;
   maternalContext?: string; // Doc 07: maternal lineage context block
+  journalContext?: string; // Journal awareness: recent journal entries injected into guide context
 }
 
 export interface ChatMessage {
@@ -286,7 +287,13 @@ export async function codexGuideChat(
     maternalBlock = `\n\n${userContext.maternalContext}`;
   }
 
-  const prompt = `${systemPrompt}${nameContext}${returningContext}${recallContext}${crossSessionContext}${crossGuideAwareness}${maternalBlock}\n\n--- Conversation ---\n${historyText}\n\nSeeker: ${message}\n\nGuide:`;
+  // Journal Awareness: inject recent journal themes so guides are in tune with what user is processing
+  let journalBlock = '';
+  if (userContext.journalContext) {
+    journalBlock = `\n\n${userContext.journalContext}\n\nUse this awareness subtly. If the user brings up something that connects to a journal theme, gently mirror it back. Never say "I read your journal." Instead, show attunement: "It sounds like you've been sitting with this..." or "There seems to be a thread here around [theme]..."`;
+  }
+
+  const prompt = `${systemPrompt}${nameContext}${returningContext}${recallContext}${crossSessionContext}${crossGuideAwareness}${maternalBlock}${journalBlock}\n\n--- Conversation ---\n${historyText}\n\nSeeker: ${message}\n\nGuide:`;
 
   const result = await model.generateContent(prompt);
   // Strip any markdown/formatting the AI might sneak in — TTS reads it literally

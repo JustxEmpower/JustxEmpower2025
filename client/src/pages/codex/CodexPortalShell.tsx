@@ -97,7 +97,7 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
     .slice(0, 2)
     .toUpperCase();
 
-  const handleNavigate = (view: string) => {
+  const handleNavigate = (view: string, params?: any) => {
     if (view === "assessment") { onNavigateExternal("/account/codex/assessment"); return; }
     if (view === "mirror-report") { onNavigateExternal("/account/codex/mirror-report"); return; }
     if (view.startsWith("scroll/")) { onNavigateExternal(`/account/codex/${view}`); return; }
@@ -105,6 +105,16 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
       setPrevView(activeView);
       setActiveView("codex");
       setPageKey(k => k + 1);
+      return;
+    }
+    // Journal → Guide discussion: pre-load conversation
+    if (view === "guide-journal" && params?.conversationId && params?.guideId) {
+      setResumeGuideId(params.guideId);
+      setResumeConversationId(params.conversationId);
+      setPrevView(activeView);
+      setActiveView("guide");
+      setPageKey(k => k + 1);
+      setMobileOpen(false);
       return;
     }
     if (view !== activeView) {
@@ -121,7 +131,7 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
       case "journey": return <CodexJourney />;
       case "guide": return <CodexGuide resumeConversationId={resumeConversationId} resumeGuideId={resumeGuideId} onResumeHandled={() => { setResumeConversationId(null); setResumeGuideId(null); }} />;
       case "history": return <CodexConversationHistory onResumeConversation={(guideId, convId) => { setResumeGuideId(guideId); setResumeConversationId(convId); setActiveView("guide"); }} />;
-      case "journal": return <CodexJournal />;
+      case "journal": return <CodexJournal onNavigate={handleNavigate} />;
       case "codex": return <CodexModules onNavigate={handleNavigate} />;
       case "bridge": return <CodexJournalBridge />;
       default: return <CodexDashboard onNavigate={handleNavigate} />;

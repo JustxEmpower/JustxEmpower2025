@@ -600,6 +600,207 @@ const codexClientRouter = router({
     return { prompt };
   }),
 
+  // Export a journal entry as a trajectory JSON file for avatar upload
+  journalExportTrajectory: customerProc.input(z.object({ entryId: z.string() })).query(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    // Verify ownership
+    const [entry] = await db.select().from(schema.codexJournalEntries)
+      .where(and(eq(schema.codexJournalEntries.id, input.entryId), eq(schema.codexJournalEntries.userId, u.id)))
+      .limit(1);
+    if (!entry) throw new TRPCError({ code: "NOT_FOUND", message: "Journal entry not found" });
+
+    // Fetch user scoring context for richer trajectory
+    const [assessment] = await db.select().from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    let scoring = null;
+    if (assessment) {
+      const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+      scoring = s ? JSON.parse(s.resultJson) : null;
+    }
+
+    const themes = entry.themes ? JSON.parse(entry.themes) : [];
+    return {
+      trajectory: {
+        version: "1.0",
+        platform: "living-codex",
+        type: "journal_entry",
+        exportedAt: new Date().toISOString(),
+        entry: {
+          id: entry.id,
+          title: entry.title,
+          content: entry.content,
+          mood: entry.mood,
+          themes,
+          phase: entry.phase,
+          archetypeContext: entry.archetypeContext,
+          aiReflection: entry.aiSummary,
+          aiPrompt: entry.aiPrompt,
+          createdAt: entry.createdAt,
+        },
+        userContext: {
+          primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype || null,
+          phase: scoring?.phase || null,
+          spectrumProfile: scoring?.spectrumProfile || null,
+          activeWounds: scoring?.activeWounds?.slice(0, 3).map((w: any) => w.wound) || [],
+        },
+        // Structured for avatar trajectory reader ingestion
+        messages: [
+          { role: "system", content: `Journal entry titled "${entry.title}" — mood: ${entry.mood || "unspecified"}, themes: ${themes.join(", ") || "none"}, phase: ${entry.phase || "discovery"}` },
+          { role: "user", content: entry.content },
+          ...(entry.aiSummary ? [{ role: "assistant", content: entry.aiSummary }] : []),
+        ],
+      },
+    };
+  }),
+
+  // Create a guide conversation pre-loaded with journal entry context
+  journalDiscussWithGuide: customerProc.input(z.object({
+    entryId: z.string(),
+    guideId: z.string(),
+  })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Fetch the journal entry
+    const [entry] = await db.select().from(schema.codexJournalEntries)
+      .where(and(eq(schema.codexJournalEntries.id, input.entryId), eq(schema.codexJournalEntries.userId, u.id)))
+      .limit(1);
+    if (!entry) throw new TRPCError({ code: "NOT_FOUND", message: "Journal entry not found" });
+
+    const themes = entry.themes ? JSON.parse(entry.themes) : [];
+
+    // Create new conversation titled after the journal entry
+    const convId = nanoid();
+    await db.insert(schema.codexGuideConversations).values({
+      id: convId,
+      userId: u.id,
+      guideId: input.guideId,
+      title: `Journal: ${entry.title}`,
+    });
+
+    // Seed the conversation with a context message from the user
+    const contextMessage = [
+      `I want to discuss my journal entry titled "${entry.title}".`,
+      entry.mood ? `I was feeling ${entry.mood} when I wrote it.` : '',
+      themes.length > 0 ? `The themes that emerged were: ${themes.join(", ")}.` : '',
+      `\n\nHere is what I wrote:\n\n${entry.content}`,
+      entry.aiSummary ? `\n\nThe AI reflection on this entry was: "${entry.aiSummary}"` : '',
+    ].filter(Boolean).join(' ');
+
+    await db.insert(schema.codexGuideMessages).values({
+      id: nanoid(),
+      conversationId: convId,
+      role: "user",
+      content: contextMessage,
+    });
+
+    // Get user context for AI response
+    const [assessment] = await db.select().from(schema.codexAssessments).where(eq(schema.codexAssessments.userId, u.id)).orderBy(desc(schema.codexAssessments.createdAt)).limit(1);
+    let scoring = null;
+    if (assessment) {
+      const [s] = await db.select().from(schema.codexScorings).where(eq(schema.codexScorings.assessmentId, assessment.id)).limit(1);
+      scoring = s ? JSON.parse(s.resultJson) : null;
+    }
+    const userContext: UserContext = {
+      name: u.name || undefined,
+      primaryArchetype: scoring?.archetypeConstellation?.[0]?.archetype,
+      phase: String(scoring?.phase || scoring?.spectrumProfile?.thresholdPct > 40 ? "4" : "1"),
+      activeWounds: scoring?.activeWounds?.slice(0, 3).map((w: any) => w.wound),
+    };
+
+    // Generate the guide's initial response to the journal entry
+    const chatHistory = [{ role: "user" as const, content: contextMessage }];
+    let aiResponse: string;
+    try {
+      aiResponse = await codexGuideChat(input.guideId, contextMessage, [], userContext, false);
+    } catch {
+      aiResponse = "I've read your journal entry. I can feel the weight and beauty of what you've shared. What part of this feels most alive for you right now?";
+    }
+
+    // Save AI response
+    await db.insert(schema.codexGuideMessages).values({
+      id: nanoid(),
+      conversationId: convId,
+      role: "assistant",
+      content: aiResponse,
+    });
+    await db.update(schema.codexGuideConversations).set({ updatedAt: new Date() }).where(eq(schema.codexGuideConversations.id, convId));
+
+    return { conversationId: convId, guideId: input.guideId, response: aiResponse };
+  }),
+
+  // Generate an AI-crafted shareable snippet from a journal entry for social media
+  generateShareSnippet: customerProc.input(z.object({ entryId: z.string() })).mutation(async ({ ctx, input }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    const [entry] = await db.select().from(schema.codexJournalEntries)
+      .where(and(eq(schema.codexJournalEntries.id, input.entryId), eq(schema.codexJournalEntries.userId, u.id)))
+      .limit(1);
+    if (!entry) throw new TRPCError({ code: "NOT_FOUND", message: "Journal entry not found" });
+
+    const themes = entry.themes ? JSON.parse(entry.themes) : [];
+
+    // Use Gemini to distill the entry into a shareable poetic snippet
+    const { ensureGeminiFromDatabase, getGeminiClient } = await import("./aiService");
+    const ready = await ensureGeminiFromDatabase();
+    if (!ready) {
+      return {
+        snippet: `"${entry.title}" — a reflection from my Living Codex journey.`,
+        hashtags: ["#LivingCodex", "#InnerWork", "#SelfDiscovery"],
+      };
+    }
+    const genAI = getGeminiClient();
+    if (!genAI) {
+      return {
+        snippet: `"${entry.title}" — a reflection from my Living Codex journey.`,
+        hashtags: ["#LivingCodex", "#InnerWork", "#SelfDiscovery"],
+      };
+    }
+
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const prompt = `You are a poetic distiller for The Living Codex, a self-discovery platform for women.
+
+A woman wrote a private journal entry. Your job is to create a SHAREABLE SNIPPET — a beautiful, poetic, 1-2 sentence distillation that captures the ESSENCE of her reflection without exposing private details.
+
+The snippet should:
+- Feel like a powerful quote or affirmation
+- Be universally resonant (others should feel it too)
+- NOT contain any specific personal details, names, or private information
+- Be 15-40 words max
+- Feel like something you'd want to share on Instagram or X
+
+Also generate 3-5 relevant hashtags that blend inner-work themes with the Codex brand.
+
+Journal entry title: "${entry.title}"
+Mood: ${entry.mood || "unspecified"}
+Themes: ${themes.join(", ") || "self-reflection"}
+Content excerpt: ${entry.content.substring(0, 500)}
+${entry.aiSummary ? `AI reflection: ${entry.aiSummary}` : ""}
+
+Respond in JSON ONLY (no markdown, no code blocks):
+{
+  "snippet": "the shareable poetic snippet",
+  "hashtags": ["#LivingCodex", "#tag2", "#tag3"]
+}`;
+
+    try {
+      const result = await model.generateContent(prompt);
+      const text = result.response.text().trim();
+      const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+      const parsed = JSON.parse(cleaned);
+      return {
+        snippet: parsed.snippet || `"${entry.title}" — a reflection from my Living Codex journey.`,
+        hashtags: parsed.hashtags || ["#LivingCodex", "#InnerWork", "#SelfDiscovery"],
+      };
+    } catch {
+      return {
+        snippet: `"${entry.title}" — a reflection from my Living Codex journey.`,
+        hashtags: ["#LivingCodex", "#InnerWork", "#SelfDiscovery"],
+      };
+    }
+  }),
+
   // ── AI Guide Endpoints ─────────────────────────────────────────────
   guideList: customerProc.query(() => CODEX_GUIDES),
 
@@ -973,9 +1174,37 @@ const codexClientRouter = router({
       console.error('[Codex] Maternal context fetch error:', err);
     }
 
-    // Append maternal context to userContext name field (cleanest injection point)
+    // Append maternal context to userContext
     if (maternalContextBlock) {
       userContext.maternalContext = maternalContextBlock;
+    }
+
+    // ── JOURNAL AWARENESS: Inject recent journal entries so guides know what user has been reflecting on ──
+    try {
+      const recentJournals = await db.select({
+        title: schema.codexJournalEntries.title,
+        content: schema.codexJournalEntries.content,
+        mood: schema.codexJournalEntries.mood,
+        themes: schema.codexJournalEntries.themes,
+        aiSummary: schema.codexJournalEntries.aiSummary,
+        createdAt: schema.codexJournalEntries.createdAt,
+      })
+      .from(schema.codexJournalEntries)
+      .where(eq(schema.codexJournalEntries.userId, u.id))
+      .orderBy(desc(schema.codexJournalEntries.createdAt))
+      .limit(3);
+
+      if (recentJournals.length > 0) {
+        const journalLines = recentJournals.map(j => {
+          const themes = j.themes ? JSON.parse(j.themes) : [];
+          const dateStr = j.createdAt ? new Date(j.createdAt).toLocaleDateString() : 'recent';
+          return `[${dateStr}] "${j.title}" (mood: ${j.mood || 'unspecified'}, themes: ${themes.slice(0, 3).join(', ') || 'none'})\nExcerpt: ${j.content.substring(0, 150)}...${j.aiSummary ? `\nReflection: ${j.aiSummary.substring(0, 100)}...` : ''}`;
+        }).join('\n\n');
+
+        userContext.journalContext = `JOURNAL AWARENESS (her recent private journal entries — reference themes subtly, never quote directly):\n${journalLines}`;
+      }
+    } catch (err) {
+      console.error('[Codex] Journal awareness fetch error:', err);
     }
 
     // Get AI response — pass history so AI remembers context, flag if returning user
