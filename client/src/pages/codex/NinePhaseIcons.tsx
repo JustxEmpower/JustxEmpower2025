@@ -497,16 +497,23 @@ function PhaseCell({ phase, index, status, onClick }: PhaseCellProps) {
         flex: 1, position: "relative",
       }}
     >
-      {/* Tooltip */}
+      {/* Tooltip — positioned below the phase cell */}
       <div style={{
-        position: "absolute", bottom: "calc(100% + 14px)", left: "50%",
-        transform: `translateX(-50%) translateY(${hovered ? 0 : 8}px)`,
+        position: "absolute", top: "calc(100% + 8px)", left: "50%",
+        transform: `translateX(-50%) translateY(${hovered ? 0 : -8}px)`,
         background: "rgba(34,30,26,0.90)", backdropFilter: "blur(16px)",
         border: "1px solid rgba(255,255,255,0.08)", borderRadius: 14,
         padding: "12px 16px", minWidth: 170, maxWidth: 210,
         pointerEvents: "none", opacity: hovered ? 1 : 0,
         transition: "all 0.35s cubic-bezier(0.4,0,0.2,1)", zIndex: 100,
       }}>
+        {/* Arrow pointing up */}
+        <div style={{
+          position: "absolute", bottom: "100%", left: "50%", transform: "translateX(-50%)",
+          width: 0, height: 0,
+          borderLeft: "6px solid transparent", borderRight: "6px solid transparent",
+          borderBottom: "6px solid rgba(34,30,26,0.90)",
+        }} />
         <div style={{ fontSize: 9, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(184,123,101,0.8)", marginBottom: 5 }}>
           Phase {phase.num}
         </div>
@@ -516,12 +523,6 @@ function PhaseCell({ phase, index, status, onClick }: PhaseCellProps) {
         <div style={{ fontSize: 11, color: "rgba(154,148,141,0.9)", lineHeight: 1.55 }}>
           {phase.desc}
         </div>
-        <div style={{
-          position: "absolute", top: "100%", left: "50%", transform: "translateX(-50%)",
-          width: 0, height: 0,
-          borderLeft: "6px solid transparent", borderRight: "6px solid transparent",
-          borderTop: "6px solid rgba(34,30,26,0.90)",
-        }} />
       </div>
 
       {/* Orb */}
@@ -588,7 +589,7 @@ export default function NinePhaseIcons({
       WebkitBackdropFilter: "blur(40px) saturate(1.3)",
       border: "1px solid rgba(255,255,255,0.25)",
       boxShadow: "0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 32px rgba(0,0,0,0.03)",
-      padding: "44px 40px 48px", position: "relative", overflow: "hidden",
+      padding: "44px 40px 48px", position: "relative", overflow: "visible",
       borderRadius: "var(--cx-radius-lg, 20px)",
       marginBottom: "2rem",
     }}>

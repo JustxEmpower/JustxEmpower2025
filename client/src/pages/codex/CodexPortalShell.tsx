@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { LayoutDashboard, Orbit, MessageSquare, Compass, ScrollText, BookHeart, ChevronLeft, ChevronRight, ArrowLeft, Menu } from "lucide-react";
+import { AnimationProvider } from './animation/01_AnimationEngine';
+import { GlimmerLayer } from './animation/02_AnimatedComponents';
 import CodexDashboard from "./CodexDashboard";
 import CodexJourney from "./CodexJourney";
 import CodexGuide from "./CodexGuide";
@@ -139,13 +141,15 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
   }
 
   return (
+    <AnimationProvider>
     <div className={`codex-env cx-portal-layout ${phaseClass}`} style={{ position: "fixed", inset: 0, zIndex: 50 }}>
-      {/* Ambient Environment Engine (Doc 01) */}
+      {/* Ambient Environment Engine (Doc 01) — GlimmerLayer replaces old motes */}
       <div className="cx-ambient-layer">
         <div className="cx-ambient-orb cx-ambient-orb-1" />
         <div className="cx-ambient-orb cx-ambient-orb-2" />
         <div className="cx-ambient-orb cx-ambient-orb-3" />
       </div>
+      <GlimmerLayer />
       <AmbientMotes count={14} />
       {/* Mobile overlay */}
       {mobileOpen && (
@@ -272,5 +276,6 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
         </div>
       </main>
     </div>
+    </AnimationProvider>
   );
 }

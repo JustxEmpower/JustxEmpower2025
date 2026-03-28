@@ -156,37 +156,37 @@ export default function CodexJournalBridge({ onClose }: Props) {
   // ══════════════════════════════════════════════════════════════════
   if (mainView === 'bridge') {
     return (
-      <div style={{ maxWidth: 600, margin: '0 auto', padding: '36px 40px' }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '36px 40px' }}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
           <div>
-            <p style={{ fontSize: '9.5px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--cx-ink3)', marginBottom: '4px' }}>JOURNAL BRIDGE</p>
-            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '1.5rem', fontWeight: 300, color: 'var(--cx-ink)', margin: 0 }}>
+            <p style={{ fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--cx-ink3)', marginBottom: '6px' }}>JOURNAL BRIDGE</p>
+            <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2rem', fontWeight: 300, color: 'var(--cx-ink)', margin: 0 }}>
               Journal Bridge
             </h2>
-            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '12px', color: 'var(--cx-ink3)', margin: '4px 0 0', fontStyle: 'italic' }}>
+            <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '15px', color: 'var(--cx-ink3)', margin: '6px 0 0', fontStyle: 'italic' }}>
               How does knowing her change how I carry what she gave me?
             </p>
           </div>
-          <button onClick={() => setMainView('ownership')} className="cx-btn-ghost" style={{ fontSize: '0.6875rem', padding: '0.375rem 0.75rem' }}>
+          <button onClick={() => setMainView('ownership')} className="cx-btn-ghost" style={{ fontSize: '0.8125rem', padding: '0.5rem 1rem' }}>
             Manage Books
           </button>
         </div>
 
         {/* Book selector tabs */}
-        <div style={{ display: 'flex', gap: '0.375rem', marginBottom: '1.25rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
           {BOOKS.filter(b => ownedBooks.has(b.id)).map(book => (
             <button
               key={book.id}
               onClick={() => { setSelectedBook(book.id); setSelectedChapter(null); setLastReflection(null); setShowResonance(false); }}
               style={{
                 flex: 1,
-                padding: '0.5rem',
-                borderRadius: 8,
+                padding: '0.75rem',
+                borderRadius: 10,
                 background: selectedBook === book.id ? `${book.color}15` : 'rgba(255,255,255,0.02)',
                 border: `1px solid ${selectedBook === book.id ? `${book.color}40` : 'rgba(255,255,255,0.06)'}`,
                 color: selectedBook === book.id ? book.color : 'rgba(255,255,255,0.4)',
-                fontSize: '0.6875rem',
+                fontSize: '0.875rem',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 200ms ease',
@@ -505,7 +505,7 @@ export default function CodexJournalBridge({ onClose }: Props) {
   // OWNERSHIP VERIFICATION VIEW
   // ══════════════════════════════════════════════════════════════════
   return (
-    <div style={{ maxWidth: 560, margin: '0 auto', padding: '36px 40px' }}>
+    <div style={{ maxWidth: 900, margin: '0 auto', padding: '36px 40px' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
         {mode !== 'select' ? (
@@ -526,14 +526,14 @@ export default function CodexJournalBridge({ onClose }: Props) {
         <div>
           <h2 style={{
             fontFamily: "'Cormorant Garamond', serif",
-            fontSize: '1.5rem',
+            fontSize: '2rem',
             fontWeight: 300,
             color: 'var(--cx-ink)',
             margin: 0,
           }}>
             Journal Bridge
           </h2>
-          <p style={{ fontSize: '11px', color: 'var(--cx-ink3)', margin: '2px 0 0' }}>
+          <p style={{ fontSize: '14px', color: 'var(--cx-ink3)', margin: '4px 0 0' }}>
             Link your physical journals to unlock the digital companion
           </p>
         </div>
@@ -560,14 +560,14 @@ export default function CodexJournalBridge({ onClose }: Props) {
       )}
 
       {/* Ownership status */}
-      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem' }}>
+      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
         {BOOKS.map(book => (
           <div
             key={book.id}
             style={{
               flex: 1,
-              padding: '0.625rem',
-              borderRadius: 10,
+              padding: '1rem 0.875rem',
+              borderRadius: 14,
               background: ownedBooks.has(book.id) ? `${book.color}10` : 'rgba(255,255,255,0.26)',
               border: `1px solid ${ownedBooks.has(book.id) ? `${book.color}30` : 'rgba(255,255,255,0.52)'}`,
               backdropFilter: 'blur(12px)',
@@ -577,25 +577,25 @@ export default function CodexJournalBridge({ onClose }: Props) {
             }}
           >
             <div style={{
-              width: 24,
-              height: 24,
+              width: 36,
+              height: 36,
               borderRadius: '50%',
-              margin: '0 auto 0.375rem',
+              margin: '0 auto 0.5rem',
               background: ownedBooks.has(book.id) ? book.color : 'rgba(255,255,255,0.06)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
             }}>
               {ownedBooks.has(book.id) ? (
-                <Check size={12} style={{ color: '#fff' }} />
+                <Check size={16} style={{ color: '#fff' }} />
               ) : (
-                <BookHeart size={10} style={{ color: 'var(--cx-clay)' }} />
+                <BookHeart size={14} style={{ color: 'var(--cx-clay)' }} />
               )}
             </div>
-            <div style={{ fontSize: '9px', color: ownedBooks.has(book.id) ? book.color : 'var(--cx-ink3)', fontWeight: 600, marginBottom: 2 }}>
+            <div style={{ fontSize: '12px', color: ownedBooks.has(book.id) ? book.color : 'var(--cx-ink3)', fontWeight: 600, marginBottom: 3 }}>
               {book.id.toUpperCase()}
             </div>
-            <div style={{ fontSize: '8px', color: 'var(--cx-clay)', lineHeight: 1.3 }}>
+            <div style={{ fontSize: '11px', color: 'var(--cx-clay)', lineHeight: 1.4 }}>
               {book.title}
             </div>
           </div>
@@ -899,8 +899,8 @@ function MethodCard({ icon, title, desc, color, onClick }: {
         display: 'flex',
         alignItems: 'center',
         gap: '1rem',
-        padding: '1rem 1.25rem',
-        borderRadius: 12,
+        padding: '1.25rem 1.5rem',
+        borderRadius: 14,
         background: 'rgba(255,255,255,0.26)',
         border: '1px solid rgba(255,255,255,0.52)',
         backdropFilter: 'blur(12px)',
@@ -922,9 +922,9 @@ function MethodCard({ icon, title, desc, color, onClick }: {
       }}
     >
       <div style={{
-        width: 40,
-        height: 40,
-        borderRadius: 10,
+        width: 48,
+        height: 48,
+        borderRadius: 12,
         background: `${color}10`,
         border: `1px solid ${color}20`,
         display: 'flex',
@@ -936,10 +936,10 @@ function MethodCard({ icon, title, desc, color, onClick }: {
         {icon}
       </div>
       <div style={{ flex: 1 }}>
-        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '14px', fontWeight: 300, color: 'var(--cx-ink)' }}>{title}</div>
-        <div style={{ fontSize: '10px', color: 'var(--cx-ink3)', marginTop: 1 }}>{desc}</div>
+        <div style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '17px', fontWeight: 300, color: 'var(--cx-ink)' }}>{title}</div>
+        <div style={{ fontSize: '12px', color: 'var(--cx-ink3)', marginTop: 2 }}>{desc}</div>
       </div>
-      <ChevronRight size={14} style={{ color: 'var(--cx-clay)', flexShrink: 0 }} />
+      <ChevronRight size={16} style={{ color: 'var(--cx-clay)', flexShrink: 0 }} />
     </button>
   );
 }
