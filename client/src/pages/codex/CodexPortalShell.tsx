@@ -260,7 +260,7 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
         </nav>
 
         {/* User section at bottom */}
-        <div className="cx-sidebar-user" style={{ justifyContent: collapsed ? "center" : "flex-start" }}>
+        <div className="cx-sidebar-user" onClick={() => onNavigateExternal("/account")} style={{ justifyContent: collapsed ? "center" : "flex-start", cursor: "pointer" }}>
           <div className="cx-sidebar-user-avatar">{initials}</div>
           {!collapsed && (
             <div style={{ flex: 1, minWidth: 0 }}>
