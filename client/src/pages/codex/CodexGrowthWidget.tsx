@@ -49,7 +49,7 @@ function StreakFlame({ streak }: { streak: StreakData }) {
   const intensity = Math.min(streak.currentStreak / 30, 1);
   const flameSize = 28 + intensity * 16;
   const flameColor = streak.currentStreak >= 30
-    ? '#FFD700'
+    ? '#B8976A'
     : streak.currentStreak >= 14
     ? '#FF8C00'
     : streak.currentStreak >= 7
@@ -135,7 +135,7 @@ const MOOD_CONFIG: Record<string, { icon: React.ReactNode; label: string; color:
   radiant: {
     icon: <Sun size={20} />,
     label: 'Radiant',
-    color: '#FFD700',
+    color: '#B8976A',
     message: 'Your inner garden is thriving. She glows with your dedication.',
   },
   content: {
@@ -322,14 +322,14 @@ function MilestoneCelebration({
           width: 64,
           height: 64,
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(255,215,0,0.12) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(184,151,106,0.12) 0%, transparent 70%)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           margin: '0 auto 1rem',
           animation: 'cx-float 3s ease-in-out infinite',
         }}>
-          <Trophy size={28} style={{ color: '#FFD700', filter: 'drop-shadow(0 0 8px rgba(255,215,0,0.4))' }} />
+          <Trophy size={28} style={{ color: '#B8976A', filter: 'drop-shadow(0 0 8px rgba(184,151,106,0.4))' }} />
         </div>
 
         <h3 style={{

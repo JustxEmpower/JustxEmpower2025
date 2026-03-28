@@ -139,7 +139,7 @@ export const Events: React.FC<EventsProps> = ({
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8 bg-gradient-to-br from-slate-50 to-slate-100">
+    <div className="w-full max-w-7xl mx-auto px-4 py-8" style={{ background: 'transparent' }}>
       {/* Seasonal Theme Banner */}
       <SeasonalThemeBanner theme={seasonalTheme} />
 

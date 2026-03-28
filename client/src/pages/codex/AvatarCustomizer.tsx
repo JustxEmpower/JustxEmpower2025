@@ -87,11 +87,11 @@ const FACE_GEOMETRY_SLIDERS = [
   { key: 'chinShape' as const, label: 'Chin Shape', min: 'Pointed', max: 'Round' },
 ] as const;
 
-const GOLD = '#D4AF37';
-const CREAM = '#F5F1E6';
-const DARK_BG = '#0a0a0a';
-const DARK_PANEL = '#1a1a1a';
-const BORDER_DARK = '#2a2a2a';
+const GOLD = '#B8976A';
+const CREAM = '#EDE5D8';
+const DARK_BG = 'rgba(237,229,216,0.95)';
+const DARK_PANEL = 'rgba(255,255,255,0.3)';
+const BORDER_DARK = 'rgba(200,188,174,0.35)';
 
 // Keyframe animations
 const globalStyles = `

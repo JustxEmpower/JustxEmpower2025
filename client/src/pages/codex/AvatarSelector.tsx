@@ -59,7 +59,7 @@ const DiversityFilter: React.FC<{
     filterLabel: {
       fontFamily: 'Cormorant Garamond, serif',
       fontSize: '14px',
-      color: '#D4AF37',
+      color: '#B8976A',
       minWidth: '90px',
       fontWeight: 600
     } as React.CSSProperties,
@@ -70,9 +70,9 @@ const DiversityFilter: React.FC<{
     } as React.CSSProperties,
     chip: (isActive: boolean) => ({
       padding: '6px 12px',
-      border: `1px solid #D4AF37`,
-      backgroundColor: isActive ? '#D4AF37' : 'transparent',
-      color: isActive ? '#0A0A0A' : '#D4AF37',
+      border: `1px solid #B8976A`,
+      backgroundColor: isActive ? '#B8976A' : 'transparent',
+      color: isActive ? '#221E1A' : '#B8976A',
       cursor: 'pointer',
       fontFamily: 'Inter, sans-serif',
       fontSize: '12px',
@@ -194,7 +194,7 @@ const AvatarPlaceholder: React.FC<{ preset: AvatarPreset }> = ({ preset }) => {
       height: '32px',
       borderRadius: '50%',
       background: skinToneColor,
-      border: '2px solid #D4AF37',
+      border: '2px solid #B8976A',
       boxShadow: `0 2px 8px rgba(0,0,0,0.4)`
     },
     metadataOverlay: {
@@ -242,14 +242,14 @@ const AvatarPresetCard: React.FC<{
     card: {
       width: '280px',
       background: 'rgba(15, 15, 15, 0.8)',
-      border: isSelected ? `2px solid #D4AF37` : `1px solid #D4AF37`,
+      border: isSelected ? `2px solid #B8976A` : `1px solid #B8976A`,
       borderRadius: '8px',
       overflow: 'hidden',
       cursor: 'pointer',
       transition: 'all 0.3s ease',
       transform: isSelected ? 'translateY(-4px)' : 'translateY(0)',
       boxShadow: isSelected
-        ? `0 0 24px #D4AF3744, 0 8px 24px rgba(0,0,0,0.6)`
+        ? `0 0 24px #B8976A44, 0 8px 24px rgba(0,0,0,0.6)`
         : `0 4px 12px rgba(0,0,0,0.4)`
     } as React.CSSProperties,
     portraitArea: {
@@ -263,12 +263,12 @@ const AvatarPresetCard: React.FC<{
       right: '8px',
       width: '24px',
       height: '24px',
-      background: '#D4AF37',
+      background: '#B8976A',
       borderRadius: '50%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      color: '#0A0A0A',
+      color: '#221E1A',
       fontWeight: 'bold',
       fontSize: '14px',
       opacity: isSelected ? 1 : 0,
@@ -276,7 +276,7 @@ const AvatarPresetCard: React.FC<{
     } as React.CSSProperties,
     contentArea: {
       padding: '16px',
-      borderTop: `1px solid #D4AF3722`
+      borderTop: `1px solid #B8976A22`
     },
     name: {
       fontFamily: 'Cormorant Garamond, serif',
@@ -296,7 +296,7 @@ const AvatarPresetCard: React.FC<{
       alignItems: 'center',
       gap: '8px',
       fontSize: '12px',
-      color: '#D4AF37',
+      color: '#B8976A',
       fontFamily: 'Inter, sans-serif'
     } as React.CSSProperties,
     badgeCircle: (color: string) => ({
@@ -304,7 +304,7 @@ const AvatarPresetCard: React.FC<{
       height: '12px',
       borderRadius: '50%',
       background: color,
-      border: '1px solid #D4AF37'
+      border: '1px solid #B8976A'
     } as React.CSSProperties),
     buttonContainer: {
       display: 'flex',
@@ -313,9 +313,9 @@ const AvatarPresetCard: React.FC<{
     button: (isPrimary: boolean) => ({
       flex: 1,
       padding: '10px 12px',
-      border: `1px solid #D4AF37`,
-      backgroundColor: isPrimary ? '#D4AF37' : 'transparent',
-      color: isPrimary ? '#0A0A0A' : '#D4AF37',
+      border: `1px solid #B8976A`,
+      backgroundColor: isPrimary ? '#B8976A' : 'transparent',
+      color: isPrimary ? '#221E1A' : '#B8976A',
       fontFamily: 'Inter, sans-serif',
       fontSize: '12px',
       fontWeight: 600,
@@ -453,7 +453,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
     },
     panel: {
       background: 'rgba(10, 10, 10, 0.95)',
-      border: '1px solid #D4AF37',
+      border: '1px solid #B8976A',
       borderRadius: '8px',
       maxWidth: '1000px',
       maxHeight: '85vh',
@@ -464,7 +464,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
     },
     header: {
       padding: '32px',
-      borderBottom: '1px solid #D4AF3722',
+      borderBottom: '1px solid #B8976A22',
       position: 'sticky' as const,
       top: 0,
       background: 'rgba(10, 10, 10, 0.95)',
@@ -481,7 +481,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
     headerSubtitle: {
       fontFamily: 'Inter, sans-serif',
       fontSize: '14px',
-      color: '#D4AF37',
+      color: '#B8976A',
       marginBottom: '16px'
     } as React.CSSProperties,
     closeButton: {
@@ -491,8 +491,8 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
       width: '32px',
       height: '32px',
       background: 'transparent',
-      border: '1px solid #D4AF37',
-      color: '#D4AF37',
+      border: '1px solid #B8976A',
+      color: '#B8976A',
       cursor: 'pointer',
       fontSize: '18px',
       display: 'flex',
@@ -520,16 +520,16 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
       display: 'flex',
       gap: '16px',
       marginBottom: '24px',
-      borderBottom: '1px solid #D4AF3722',
+      borderBottom: '1px solid #B8976A22',
       paddingBottom: '12px'
     } as React.CSSProperties,
     tab: (isActive: boolean) => ({
       fontFamily: 'Inter, sans-serif',
       fontSize: '13px',
-      color: isActive ? '#D4AF37' : '#A08959',
+      color: isActive ? '#B8976A' : '#A08959',
       cursor: 'pointer',
       padding: '8px 0',
-      borderBottom: isActive ? '2px solid #D4AF37' : 'none',
+      borderBottom: isActive ? '2px solid #B8976A' : 'none',
       background: 'transparent',
       border: 'none',
       fontWeight: 600,
@@ -543,7 +543,7 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
     } as React.CSSProperties,
     footer: {
       padding: '32px',
-      borderTop: '1px solid #D4AF3722',
+      borderTop: '1px solid #B8976A22',
       background: 'rgba(10, 10, 10, 0.95)',
       display: 'flex',
       gap: '16px',
@@ -551,9 +551,9 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
     },
     customButton: {
       padding: '14px 32px',
-      border: '2px solid #D4AF37',
+      border: '2px solid #B8976A',
       backgroundColor: 'transparent',
-      color: '#D4AF37',
+      color: '#B8976A',
       fontFamily: 'Cormorant Garamond, serif',
       fontSize: '16px',
       fontWeight: 600,
@@ -661,8 +661,8 @@ const AvatarSelector: React.FC<AvatarSelectorProps> = ({
           <button
             style={{
               ...styles.customButton,
-              backgroundColor: '#D4AF37',
-              color: '#0A0A0A'
+              backgroundColor: '#B8976A',
+              color: '#221E1A'
             }}
             onClick={onOpenCustomizer}
           >
@@ -690,13 +690,13 @@ const AvatarSettingsButton: React.FC<AvatarSettingsButtonProps> = ({
       gap: '8px',
       padding: '6px 12px',
       background: 'transparent',
-      border: '1px solid #D4AF37',
+      border: '1px solid #B8976A',
       borderRadius: '4px',
       cursor: 'pointer',
       transition: 'all 0.2s ease',
       fontFamily: 'Inter, sans-serif',
       fontSize: '12px',
-      color: '#D4AF37',
+      color: '#B8976A',
       fontWeight: 500
     } as React.CSSProperties,
     miniPortrait: {
@@ -704,7 +704,7 @@ const AvatarSettingsButton: React.FC<AvatarSettingsButtonProps> = ({
       height: '16px',
       borderRadius: '50%',
       background: `linear-gradient(135deg, ${skinToneColor} 0%, ${skinToneColor}88 100%)`,
-      border: '1px solid #D4AF37',
+      border: '1px solid #B8976A',
       flexShrink: 0
     } as React.CSSProperties,
     label: {
@@ -723,7 +723,7 @@ const AvatarSettingsButton: React.FC<AvatarSettingsButtonProps> = ({
       }}
       onMouseLeave={(e) => {
         const target = e.currentTarget as HTMLButtonElement;
-        target.style.borderColor = '#D4AF37';
+        target.style.borderColor = '#B8976A';
         target.style.boxShadow = 'none';
       }}
     >

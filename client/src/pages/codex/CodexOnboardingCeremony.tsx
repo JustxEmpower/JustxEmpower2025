@@ -80,7 +80,7 @@ export default function CodexOnboardingCeremony({
       position: 'fixed',
       inset: 0,
       zIndex: 300,
-      background: 'var(--cx-deep, #0B0B14)',
+      background: 'var(--cx-deep, #EDE5D8)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',

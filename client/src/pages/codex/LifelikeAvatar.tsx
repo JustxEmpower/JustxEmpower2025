@@ -92,7 +92,7 @@ interface LifelikeAvatarProps {
 // ============================================================================
 
 const GUIDE_COLORS: Record<string, string> = {
-  kore: '#D4AF37',
+  kore: '#B8976A',
   aoede: '#9B59B6',
   leda: '#FFB6C1',
   theia: '#2ECC71',
@@ -237,7 +237,7 @@ const EMOTION_PROFILES: Record<AvatarEmotion, EmotionProfile> = {
 // ============================================================================
 
 function LoadingOverlay({ guideId, message }: { guideId: string; message: string }) {
-  const color = GUIDE_COLORS[guideId] || '#D4AF37';
+  const color = GUIDE_COLORS[guideId] || '#B8976A';
 
   return (
     <div
@@ -359,7 +359,7 @@ export default function LifelikeAvatar({
   const [videoReady, setVideoReady] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const guideColor = GUIDE_COLORS[guideId] || '#D4AF37';
+  const guideColor = GUIDE_COLORS[guideId] || '#B8976A';
   const visemeEngine = useMemo(() => getVisemeEngine(), []);
 
   // Asset URLs
