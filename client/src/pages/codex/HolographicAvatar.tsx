@@ -582,6 +582,7 @@ interface UseGeminiLiveReturn {
   isSpeaking: boolean;
   audioLevel: number;
   micLevel: number;
+  conversationState: 'idle' | 'listening' | 'heard_speech' | 'sending' | 'ai_speaking';
   currentEmotion: AvatarEmotion;
   currentGesture: AvatarGesture;
   transcript: string;
@@ -647,6 +648,12 @@ function useGeminiLive(
   const isProcessingRef = useRef(false);
   // Ref to always call the latest startListeningInternal from event handlers
   const startListeningInternalRef = useRef<() => void>(() => {});
+  // Conversation mode: idle timeout — exits conversation mode after sustained silence
+  const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // Track whether user has spoken at all in the current listening session
+  const hasSpokenRef = useRef(false);
+  // Conversation state for UI: idle | listening | heard_speech | sending | ai_speaking
+  const [conversationState, setConversationState] = useState<'idle' | 'listening' | 'heard_speech' | 'sending' | 'ai_speaking'>('idle');
 
   // Initialize Kokoro TTS
   useEffect(() => {
@@ -660,6 +667,7 @@ function useGeminiLive(
       setIsSpeaking(true);
       isSpeakingRef.current = true;
       isProcessingRef.current = false;
+      setConversationState('ai_speaking');
       // Mute mic tracks to prevent picking up TTS/Simli audio output
       if (micStreamRef.current) {
         micStreamRef.current.getAudioTracks().forEach(t => { t.enabled = false; });
@@ -670,20 +678,36 @@ function useGeminiLive(
       setIsSpeaking(false);
       isSpeakingRef.current = false;
       setCurrentGesture('idle');
-      // Unmute mic tracks after a delay (Simli may still have tail-end audio)
+      // Unmute mic tracks after a brief delay (Simli may still have tail-end audio)
       setTimeout(() => {
         if (micStreamRef.current) {
           micStreamRef.current.getAudioTracks().forEach(t => { t.enabled = true; });
         }
-      }, 800);
-      // Resume listening if user had voice mode on — delay to avoid picking up tail-end audio
-      // Use ref to always get the latest startListeningInternal (avoids stale closure)
+      }, 400);
+      // ── SMART CONVERSATION MODE: Auto-resume listening after AI finishes speaking ──
+      // No click needed — the conversation flows naturally
       if (shouldKeepListeningRef.current && recognitionRef.current === null) {
+        setConversationState('listening');
+        hasSpokenRef.current = false; // Reset speech detection for next turn
         setTimeout(() => {
           if (shouldKeepListeningRef.current && !isSpeakingRef.current && !isProcessingRef.current) {
             startListeningInternalRef.current();
+            // Reset idle timer for the new listening session
+            if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+            idleTimerRef.current = setTimeout(() => {
+              // 7s of silence after AI spoke — user may be done, auto-exit conversation mode
+              if (shouldKeepListeningRef.current && !hasSpokenRef.current && !isProcessingRef.current && !isSpeakingRef.current) {
+                console.log('[Conversation] 7s idle after AI response — auto-exiting conversation mode');
+                shouldKeepListeningRef.current = false;
+                if (recognitionRef.current) { try { recognitionRef.current.stop(); } catch {} recognitionRef.current = null; }
+                setIsListening(false);
+                setConversationState('idle');
+              }
+            }, 7000);
           }
-        }, 1200);
+        }, 800);
+      } else {
+        setConversationState('idle');
       }
     });
 
@@ -875,6 +899,7 @@ function useGeminiLive(
 
       // Mark as processing so mic doesn't restart during AI response
       isProcessingRef.current = true;
+      setConversationState('sending');
 
       // Pause STT while processing so mic doesn't pick up guide's voice
       if (recognitionRef.current) {
@@ -954,8 +979,13 @@ function useGeminiLive(
   // ── Mic Audio Monitoring (VAD) — Web Audio API ──
   // Provides real-time mic level + silence detection for fast end-of-speech
 
-  const SILENCE_THRESHOLD = 0.03;   // RMS below this = silence (tuned for real environments)
-  const SILENCE_TIMEOUT_MS = 1800;  // Send after 1.8s silence with pending text
+  // ── SMART CONVERSATION MODE CONSTANTS ──
+  const SILENCE_THRESHOLD = 0.025;       // RMS below this = silence (slightly more sensitive)
+  const SPEECH_THRESHOLD = 0.04;         // RMS above this = definite speech activity
+  const SILENCE_TIMEOUT_MS = 3000;       // Send after 3s silence with pending text (natural pause)
+  const IDLE_TIMEOUT_MS = 7000;          // Exit conversation mode after 7s of total silence (no speech at all)
+  const POST_TTS_RESUME_DELAY = 800;     // Resume listening 800ms after AI finishes speaking
+  const POST_SEND_COOLDOWN = 500;        // Brief cooldown after sending before re-listening
 
   const startMicMonitoring = useCallback(async () => {
     try {
@@ -982,23 +1012,35 @@ function useGeminiLive(
         const rms = Math.sqrt(sum / data.length);
         setMicLevel(rms);
 
-        // Track last time we heard speech
-        if (rms > SILENCE_THRESHOLD) {
+        // Track speech activity for conversation mode
+        if (rms > SPEECH_THRESHOLD) {
           lastSpeechTimeRef.current = Date.now();
-          // Clear any pending silence timer
+          // User is actively speaking
+          if (!hasSpokenRef.current) {
+            hasSpokenRef.current = true;
+            setConversationState('heard_speech');
+            // Clear idle timer — user is engaged
+            if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; }
+          }
+          // Clear any pending silence timer — user is still talking
           if (silenceTimerRef.current) {
             clearTimeout(silenceTimerRef.current);
             silenceTimerRef.current = null;
           }
+        } else if (rms > SILENCE_THRESHOLD) {
+          // Soft sound detected (breathing, ambient) — still counts as activity
+          lastSpeechTimeRef.current = Date.now();
+          if (silenceTimerRef.current) { clearTimeout(silenceTimerRef.current); silenceTimerRef.current = null; }
         } else if (pendingTranscriptRef.current.trim() && !silenceTimerRef.current) {
-          // Silence detected and we have pending text — start silence timer
+          // True silence with pending text — start the 3-second silence countdown
           silenceTimerRef.current = setTimeout(() => {
             silenceTimerRef.current = null;
             const pending = pendingTranscriptRef.current.trim();
             if (pending && shouldKeepListeningRef.current) {
-              console.log(`[VAD] Silence detected, auto-sending: "${pending}"`);
+              console.log(`[VAD] 3s silence detected, auto-sending: "${pending}"`);
               pendingTranscriptRef.current = '';
               setTranscript(pending);
+              setConversationState('sending');
               // Stop recognition to force finalize, then send
               if (recognitionRef.current) {
                 try { recognitionRef.current.stop(); } catch {}
@@ -1006,6 +1048,9 @@ function useGeminiLive(
               sendTextMessage(pending);
             }
           }, SILENCE_TIMEOUT_MS);
+        } else if (!pendingTranscriptRef.current.trim() && hasSpokenRef.current) {
+          // User spoke before but now is silent with no pending text
+          // This is normal between turns — do nothing, idle timer handles exit
         }
 
         micFrameRef.current = requestAnimationFrame(monitorLoop);
@@ -1161,23 +1206,42 @@ function useGeminiLive(
 
   const startListening = useCallback(() => {
     shouldKeepListeningRef.current = true;
+    hasSpokenRef.current = false;
     // Stop Kokoro TTS if guide is speaking — user wants to talk
     if (kokoroRef.current) {
       kokoroRef.current.stop();
     }
     setIsSpeaking(false);
+    isSpeakingRef.current = false;
+    setConversationState('listening');
     startListeningInternal();
     // Start mic audio monitoring for VAD + visual feedback
     startMicMonitoring();
-  }, [startListeningInternal, startMicMonitoring]);
+    // Start idle timer — if user doesn't speak for 7s after pressing mic, auto-exit
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = setTimeout(() => {
+      if (shouldKeepListeningRef.current && !hasSpokenRef.current && !isProcessingRef.current && !isSpeakingRef.current) {
+        console.log('[Conversation] 7s idle — no speech detected, auto-exiting conversation mode');
+        shouldKeepListeningRef.current = false;
+        if (recognitionRef.current) { try { recognitionRef.current.stop(); } catch {} recognitionRef.current = null; }
+        setIsListening(false);
+        setConversationState('idle');
+        stopMicMonitoring();
+      }
+    }, IDLE_TIMEOUT_MS);
+  }, [startListeningInternal, startMicMonitoring, stopMicMonitoring]);
 
   const stopListening = useCallback(() => {
     shouldKeepListeningRef.current = false;
+    hasSpokenRef.current = false;
     if (recognitionRef.current) {
       try { recognitionRef.current.stop(); } catch {}
       recognitionRef.current = null;
     }
     setIsListening(false);
+    setConversationState('idle');
+    // Clear idle timer
+    if (idleTimerRef.current) { clearTimeout(idleTimerRef.current); idleTimerRef.current = null; }
     // Stop mic monitoring
     stopMicMonitoring();
     // Send any accumulated interim transcript
@@ -1206,6 +1270,7 @@ function useGeminiLive(
     isSpeaking,
     audioLevel,
     micLevel,
+    conversationState,
     currentEmotion,
     currentGesture,
     transcript,
@@ -1521,75 +1586,153 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
           )}
 
           <form onSubmit={handleTextSubmit} style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            {/* ── Mic Button — the hero interaction ── */}
+            {/* ── Smart Conversation Mic Button ── */}
+            {/* Single click to enter conversation mode. Click again to exit. */}
+            {/* States: idle → listening → heard_speech → sending → ai_speaking → listening (auto-resume) */}
             <button
               type="button"
               onClick={gemini.isListening ? gemini.stopListening : gemini.startListening}
               style={{
                 position: 'relative',
-                width: 52,
-                height: 52,
+                width: 56,
+                height: 56,
                 borderRadius: '50%',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0,
-                background: gemini.isListening
-                  ? 'radial-gradient(circle, rgba(184,123,101,0.25) 0%, rgba(184,123,101,0.08) 100%)'
-                  : 'rgba(255,255,255,0.08)',
+                background: gemini.conversationState === 'idle'
+                  ? 'rgba(255,255,255,0.08)'
+                  : gemini.conversationState === 'listening'
+                    ? 'radial-gradient(circle, rgba(184,123,101,0.2) 0%, rgba(184,123,101,0.06) 100%)'
+                    : gemini.conversationState === 'heard_speech'
+                      ? 'radial-gradient(circle, rgba(184,123,101,0.35) 0%, rgba(184,123,101,0.12) 100%)'
+                      : gemini.conversationState === 'sending'
+                        ? 'radial-gradient(circle, rgba(201,168,76,0.25) 0%, rgba(201,168,76,0.06) 100%)'
+                        : 'radial-gradient(circle, rgba(125,142,127,0.2) 0%, rgba(125,142,127,0.06) 100%)',
                 border: 'none',
                 outline: 'none',
                 boxSizing: 'border-box' as const,
                 WebkitAppearance: 'none' as const,
-                color: gemini.isListening ? 'rgba(230,215,195,0.9)' : 'rgba(220,205,185,0.6)',
-                transition: 'all 0.4s cubic-bezier(0.4,0,0.2,1)',
-                boxShadow: gemini.isListening
-                  ? `0 0 ${20 + gemini.micLevel * 30}px rgba(184,123,101,${(0.15 + gemini.micLevel * 0.3).toFixed(2)})`
-                  : 'none',
+                color: gemini.conversationState === 'idle'
+                  ? 'rgba(220,205,185,0.6)'
+                  : gemini.conversationState === 'heard_speech'
+                    ? 'rgba(240,220,195,0.95)'
+                    : gemini.conversationState === 'sending'
+                      ? 'rgba(201,168,76,0.8)'
+                      : gemini.conversationState === 'ai_speaking'
+                        ? 'rgba(125,142,127,0.7)'
+                        : 'rgba(230,215,195,0.85)',
+                transition: 'all 0.3s cubic-bezier(0.4,0,0.2,1)',
+                boxShadow: gemini.conversationState === 'heard_speech'
+                  ? `0 0 ${20 + gemini.micLevel * 40}px rgba(184,123,101,${(0.2 + gemini.micLevel * 0.4).toFixed(2)})`
+                  : gemini.conversationState === 'listening'
+                    ? `0 0 ${12 + gemini.micLevel * 20}px rgba(184,123,101,${(0.1 + gemini.micLevel * 0.2).toFixed(2)})`
+                    : gemini.conversationState === 'sending'
+                      ? '0 0 20px rgba(201,168,76,0.2)'
+                      : 'none',
               }}
-              aria-label={gemini.isListening ? 'Stop listening' : 'Start voice input'}
+              aria-label={
+                gemini.conversationState === 'idle' ? 'Start conversation' :
+                gemini.conversationState === 'listening' ? 'Listening... (click to stop)' :
+                gemini.conversationState === 'heard_speech' ? 'Hearing you... (pause to send)' :
+                gemini.conversationState === 'sending' ? 'Processing...' :
+                'Guide is speaking...'
+              }
             >
-              {/* Breathing ring when listening */}
-              {gemini.isListening && (
+              {/* Outer breathing ring — always visible when in conversation mode */}
+              {gemini.conversationState !== 'idle' && (
                 <span style={{
                   position: 'absolute',
-                  inset: -2,
+                  inset: -3,
                   borderRadius: '50%',
-                  border: '1.5px solid rgba(184,123,101,0.3)',
-                  animation: 'mic-breathe 2s ease-out infinite',
+                  border: `1.5px solid ${
+                    gemini.conversationState === 'heard_speech' ? 'rgba(184,123,101,0.5)' :
+                    gemini.conversationState === 'sending' ? 'rgba(201,168,76,0.4)' :
+                    gemini.conversationState === 'ai_speaking' ? 'rgba(125,142,127,0.3)' :
+                    'rgba(184,123,101,0.2)'
+                  }`,
+                  animation: gemini.conversationState === 'listening' ? 'mic-breathe 2.5s ease-in-out infinite' :
+                             gemini.conversationState === 'sending' ? 'mic-breathe 1s ease-in-out infinite' :
+                             'none',
                   pointerEvents: 'none',
                 }} />
               )}
-              {/* Live audio level ring */}
-              {gemini.isListening && gemini.micLevel > 0.01 && (
+              {/* Live audio level ring — pulses with voice */}
+              {(gemini.conversationState === 'listening' || gemini.conversationState === 'heard_speech') && gemini.micLevel > 0.01 && (
                 <span style={{
                   position: 'absolute',
-                  inset: `${-3 - gemini.micLevel * 10}px`,
+                  inset: `${-4 - gemini.micLevel * 14}px`,
                   borderRadius: '50%',
-                  border: '1.5px solid rgba(184,123,101,0.5)',
-                  opacity: Math.min(0.8, 0.15 + gemini.micLevel),
-                  transition: 'all 0.06s ease-out',
+                  border: `2px solid rgba(184,123,101,${Math.min(0.7, 0.15 + gemini.micLevel * 1.5).toFixed(2)})`,
+                  transition: 'all 0.05s ease-out',
                   pointerEvents: 'none',
                 }} />
               )}
-              {gemini.isListening ? (
+              {/* Icon changes by state */}
+              {gemini.conversationState === 'idle' ? (
+                // Mic icon — tap to start conversation
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 1.93c-3.94-.49-7-3.85-7-7.93h2c0 3.31 2.69 6 6 6s6-2.69 6-6h2c0 4.08-3.06 7.44-7 7.93V20h4v2H8v-2h4v-4.07z" />
+                </svg>
+              ) : gemini.conversationState === 'sending' ? (
+                // Sending dots
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style={{ animation: 'mic-breathe 1s ease-in-out infinite' }}>
+                  <circle cx="6" cy="12" r="2" />
+                  <circle cx="12" cy="12" r="2" />
+                  <circle cx="18" cy="12" r="2" />
+                </svg>
+              ) : gemini.conversationState === 'ai_speaking' ? (
+                // Sound wave icon — guide is speaking
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                  <path d="M2 12h2m4-6v12m4-8v4m4-10v16m4-6v-4" style={{ animation: 'mic-breathe 1.5s ease-in-out infinite' }} />
+                </svg>
+              ) : (
+                // Stop square — tap to exit conversation mode
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" style={{ position: 'relative', zIndex: 1 }}>
                   <rect x="6" y="6" width="12" height="12" rx="3" />
                 </svg>
-              ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1 1.93c-3.94-.49-7-3.85-7-7.93h2c0 3.31 2.69 6 6 6s6-2.69 6-6h2c0 4.08-3.06 7.44-7 7.93V20h4v2H8v-2h4v-4.07z" />
-                </svg>
               )}
             </button>
+
+            {/* ── Conversation state label ── */}
+            {gemini.conversationState !== 'idle' && (
+              <span style={{
+                position: 'absolute',
+                bottom: -20,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                fontSize: '9px',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                color: gemini.conversationState === 'heard_speech' ? 'rgba(184,123,101,0.7)' :
+                       gemini.conversationState === 'sending' ? 'rgba(201,168,76,0.6)' :
+                       gemini.conversationState === 'ai_speaking' ? 'rgba(125,142,127,0.5)' :
+                       'rgba(220,205,185,0.4)',
+                whiteSpace: 'nowrap',
+                pointerEvents: 'none',
+                fontFamily: "'DM Sans', sans-serif",
+              }}>
+                {gemini.conversationState === 'listening' ? 'listening...' :
+                 gemini.conversationState === 'heard_speech' ? 'hearing you...' :
+                 gemini.conversationState === 'sending' ? 'thinking...' :
+                 'speaking...'}
+              </span>
+            )}
 
             {/* ── Text Input — frosted glass pill ── */}
             <input
               type="text"
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
-              placeholder={gemini.isListening ? 'Listening...' : `Message ${config.name}...`}
+              placeholder={
+                gemini.conversationState === 'idle' ? `Message ${config.name}...` :
+                gemini.conversationState === 'listening' ? 'Listening... just speak naturally' :
+                gemini.conversationState === 'heard_speech' ? 'Pause when done, I\'ll respond...' :
+                gemini.conversationState === 'sending' ? 'Processing...' :
+                `${config.name} is speaking...`
+              }
               style={{
                 flex: 1,
                 height: 48,
