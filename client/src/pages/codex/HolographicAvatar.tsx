@@ -1403,11 +1403,13 @@ export const HolographicAvatar: React.FC<HolographicAvatarProps> = ({
       style={{
         borderRadius: 20,
         boxShadow: 'inset 0 0 80px rgba(0,0,0,0.6)',
-        minHeight: 720,
+        aspectRatio: '1 / 1',
+        width: '100%',
       }}
     >
       <div
-        className="relative w-full h-full min-h-[720px] overflow-hidden"
+        className="relative w-full h-full overflow-hidden"
+        style={{ aspectRatio: '1 / 1' }}
         style={{ background: 'transparent' }}
       >
       <style>{iveKeyframes}</style>
