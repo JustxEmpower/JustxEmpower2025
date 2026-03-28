@@ -55,7 +55,7 @@ export default function CodexJournal() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "2rem" }}>
           <button
             onClick={() => setView("list")}
-            style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(245,230,211,0.3)", fontSize: "0.8rem" }}
+            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--cx-ink3)", fontSize: "0.8rem" }}
           >
             {"<"} Back to Vault
           </button>
@@ -90,8 +90,8 @@ export default function CodexJournal() {
           placeholder="Title your reflection..."
           style={{
             width: "100%", padding: "0.75rem 0", marginBottom: "1.5rem",
-            background: "transparent", border: "none", borderBottom: "1px solid rgba(61,34,51,0.2)",
-            color: "var(--cx-gold)", fontSize: "1.25rem", outline: "none",
+            background: "transparent", border: "none", borderBottom: "1px solid rgba(61,34,51,0.35)",
+            color: "var(--cx-ink)", fontSize: "1.25rem", outline: "none",
             fontFamily: "'Cormorant Garamond', serif", fontWeight: 300,
           }}
         />
@@ -107,7 +107,7 @@ export default function CodexJournal() {
 
         {/* Mood */}
         <div style={{ marginBottom: "1.5rem" }}>
-          <p style={{ fontSize: "0.65rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "rgba(245,230,211,0.25)", marginBottom: "0.75rem" }}>
+          <p style={{ fontSize: "0.7rem", letterSpacing: "0.15em", textTransform: "uppercase", color: "var(--cx-ink2)", marginBottom: "0.75rem" }}>
             What is the mood of this entry?
           </p>
           <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
@@ -118,8 +118,8 @@ export default function CodexJournal() {
                 style={{
                   padding: "0.4rem 0.85rem", borderRadius: "2rem", fontSize: "0.75rem",
                   background: mood === m.id ? "rgba(201,168,76,0.08)" : "transparent",
-                  border: `1px solid ${mood === m.id ? m.color : "rgba(61,34,51,0.2)"}`,
-                  color: mood === m.id ? m.color : "rgba(245,230,211,0.4)",
+                  border: `1px solid ${mood === m.id ? m.color : "rgba(61,34,51,0.35)"}`,
+                  color: mood === m.id ? m.color : "var(--cx-ink2)",
                   cursor: "pointer", transition: "all 300ms",
                 }}
               >
@@ -169,8 +169,8 @@ export default function CodexJournal() {
           style={{
             padding: "0.3rem 0.7rem", borderRadius: "2rem", fontSize: "0.65rem",
             background: !filterMood ? "rgba(201,168,76,0.08)" : "transparent",
-            border: `1px solid ${!filterMood ? "rgba(201,168,76,0.2)" : "rgba(61,34,51,0.15)"}`,
-            color: !filterMood ? "var(--cx-gold)" : "rgba(245,230,211,0.3)",
+            border: `1px solid ${!filterMood ? "rgba(201,168,76,0.2)" : "rgba(61,34,51,0.3)"}`,
+            color: !filterMood ? "var(--cx-gold)" : "var(--cx-ink2)",
             cursor: "pointer", transition: "all 200ms",
           }}
         >
@@ -183,8 +183,8 @@ export default function CodexJournal() {
             style={{
               padding: "0.3rem 0.7rem", borderRadius: "2rem", fontSize: "0.65rem",
               background: filterMood === m.id ? "rgba(201,168,76,0.08)" : "transparent",
-              border: `1px solid ${filterMood === m.id ? m.color : "rgba(61,34,51,0.15)"}`,
-              color: filterMood === m.id ? m.color : "rgba(245,230,211,0.3)",
+              border: `1px solid ${filterMood === m.id ? m.color : "rgba(61,34,51,0.3)"}`,
+              color: filterMood === m.id ? m.color : "var(--cx-ink2)",
               cursor: "pointer", transition: "all 200ms",
             }}
           >
@@ -213,8 +213,8 @@ export default function CodexJournal() {
                 className={`cx-fade-up cx-delay-${Math.min(i + 1, 5)}`}
                 style={{
                   borderRadius: "0.75rem",
-                  background: isOpen ? "rgba(44,31,40,0.6)" : "rgba(44,31,40,0.3)",
-                  border: `1px solid ${isOpen ? "rgba(201,168,76,0.15)" : "rgba(61,34,51,0.15)"}`,
+                  background: isOpen ? "rgba(255,255,255,0.45)" : "rgba(255,255,255,0.28)",
+                  border: `1px solid ${isOpen ? "rgba(184,151,106,0.3)" : "rgba(255,255,255,0.52)"}`,
                   transition: "all 400ms",
                   cursor: "pointer",
                   overflow: "hidden",
@@ -232,12 +232,12 @@ export default function CodexJournal() {
                         {entry.title}
                       </h3>
                     </div>
-                    <span style={{ fontSize: "0.65rem", color: "rgba(245,230,211,0.2)", flexShrink: 0 }}>
+                    <span style={{ fontSize: "0.65rem", color: "var(--cx-ink3)", flexShrink: 0 }}>
                       {new Date(entry.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
                     </span>
                   </div>
                   {!isOpen && (
-                    <p style={{ fontSize: "0.8rem", color: "rgba(245,230,211,0.3)", marginTop: "0.35rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "36rem" }}>
+                    <p style={{ fontSize: "0.8rem", color: "var(--cx-ink3)", marginTop: "0.35rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "36rem" }}>
                       {entry.content.substring(0, 120)}...
                     </p>
                   )}
@@ -252,7 +252,7 @@ export default function CodexJournal() {
                 }}>
                   <div style={{ padding: "0 1.5rem 1.5rem" }}>
                     <div style={{ borderTop: "1px solid rgba(61,34,51,0.15)", paddingTop: "1rem" }}>
-                      <p style={{ fontSize: "0.9rem", color: "rgba(245,230,211,0.7)", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
+                      <p style={{ fontSize: "0.9rem", color: "var(--cx-ink)", lineHeight: 1.8, whiteSpace: "pre-wrap" }}>
                         {entry.content}
                       </p>
 
@@ -288,7 +288,7 @@ export default function CodexJournal() {
 
                       {/* Prompt used */}
                       {entry.aiPrompt && (
-                        <p style={{ fontSize: "0.65rem", color: "rgba(245,230,211,0.15)", marginTop: "0.75rem", fontStyle: "italic" }}>
+                        <p style={{ fontSize: "0.65rem", color: "var(--cx-clay)", marginTop: "0.75rem", fontStyle: "italic" }}>
                           Prompted by: {entry.aiPrompt}
                         </p>
                       )}
