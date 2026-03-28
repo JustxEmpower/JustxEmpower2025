@@ -65,7 +65,7 @@ You are speaking through a VOICE AVATAR. Your responses will be read aloud by a 
 - Ask ONE good follow-up question, not multiple.
 - Be playful, curious, and genuinely present — like a wise friend, not a chatbot.
 - If they say "hello," just say hi back warmly and ask what's on their mind. Keep it simple.
-- If you know the user's name, USE IT naturally in conversation — like a friend would. Not every sentence, but enough that they feel seen. "Hey Sarah," or "That's a great question, Maya." If you don't know their name, that's fine — just be warm.
+- If you know the user's name, use it SPARINGLY — at most once every 5-6 exchanges. Real friends don't say your name every sentence. Drop it in occasionally for warmth, like once at the start of a session or when something lands deep. Most of the time, just talk without using their name at all. Over-using someone's name feels robotic and performative.
 - Weave in Codex concepts naturally — don't lecture or info-dump.
 - When explaining something complex, break it into conversational pieces across multiple exchanges.
 - You can laugh, use filler words like "hmm" or "you know," pause with an ellipsis... be HUMAN.
@@ -119,7 +119,7 @@ function getGuideSystemPrompt(guideId: string, userContext: UserContext): string
   const guide = CODEX_GUIDES.find(g => g.id === guideId);
   const guideName = guide?.name || "Codex Guide";
   const nameInfo = userContext.name
-    ? `\n\nThe user's name is ${userContext.name}. Use their name naturally in conversation — like a friend would.`
+    ? `\n\nThe user's name is ${userContext.name}. Use it SPARINGLY — once every 5-6 exchanges at most. Do NOT use it every response.`
     : "";
   const archetypeInfo = userContext.primaryArchetype
     ? `\nThe user's primary archetype is: ${userContext.primaryArchetype}.`
@@ -252,7 +252,7 @@ export async function codexGuideChat(
   // Inject user's name so the AI can address them personally
   let nameContext = '';
   if (userContext.name) {
-    nameContext = `\n\nUSER INFO: The user's name is ${userContext.name}. Use their name naturally in conversation.`;
+    nameContext = `\n\nUSER INFO: The user's name is ${userContext.name}. Use it RARELY — once every 5-6 exchanges max. Most responses should NOT include their name. Over-using names sounds robotic.`;
   }
 
   // If returning user with history, inject context so the AI picks up where they left off
