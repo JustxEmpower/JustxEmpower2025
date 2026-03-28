@@ -253,7 +253,8 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
       {holographicMode && selectedGuide && (
         <div style={{
           position: "fixed", inset: 0, zIndex: 60,
-          background: "transparent",
+          background: "linear-gradient(170deg, #1A1510 0%, #1E1A14 40%, #16120E 100%)",
+          display: "flex", alignItems: "center", justifyContent: "center",
         }}>
           <button
             onClick={() => setHolographicMode(false)}
@@ -273,8 +274,8 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
           >
             ✕ Exit
           </button>
-          <div style={{ width: '100%', height: '100%' }}>
-            <div style={{ display: 'none' }} />
+          <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="cx-avatar-module cx-holo-breathe" style={{ maxWidth: 754 }}>
             <Suspense fallback={
               <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", aspectRatio: "1" }}>
                 <div className="cx-slow-pulse" style={{
@@ -311,6 +312,7 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
                 }}
               />
             </Suspense>
+            </div>
           </div>
         </div>
       )}
