@@ -1,5 +1,6 @@
 import { trpc } from "@/lib/trpc";
-import { Orbit, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { Orbit, Sparkles, ArrowRight, ChevronRight } from "lucide-react";
 import CodexWeather from "./CodexWeather";
 import CodexGrowthWidget from "./CodexGrowthWidget";
 import {
@@ -13,13 +14,181 @@ interface Props {
   onNavigate: (view: string) => void;
 }
 
-// Stat cards now use glassmorphic style from CSS, no gradient backgrounds needed
-const STAT_GRADIENTS = [
-  "transparent",
-  "transparent",
-  "transparent",
-  "transparent",
-];
+// ── Animated Counter Hook ──────────────────────────────────────────
+function useAnimatedCounter(target: number, duration = 1200) {
+  const [count, setCount] = useState(0);
+  const rafRef = useRef<number>();
+
+  useEffect(() => {
+    if (target === 0) { setCount(0); return; }
+    const start = performance.now();
+    const animate = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * target));
+      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
+  }, [target, duration]);
+
+  return count;
+}
+
+// ── Intersection Observer Hook ─────────────────────────────────────
+function useInView(threshold = 0.15) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, [threshold]);
+
+  return { ref, inView };
+}
+
+// ── Animated Stat Card ─────────────────────────────────────────────
+function AnimatedStat({ label, value, tooltip, delay }: { label: string; value: string | number; tooltip?: string; delay: number }) {
+  const { ref, inView } = useInView();
+  const numericValue = typeof value === "number" ? value : parseInt(value, 10);
+  const isNumeric = !isNaN(numericValue) && typeof value === "number";
+  const animatedNum = useAnimatedCounter(inView && isNumeric ? numericValue : 0);
+
+  return (
+    <div
+      ref={ref}
+      className="cx-stat-card cx-fade-up"
+      data-tooltip={tooltip}
+      style={{ animationDelay: `${delay}ms` }}
+    >
+      <div className={`cx-stat-value ${inView ? "cx-count-animate" : ""}`}>
+        {isNumeric ? animatedNum : value}
+      </div>
+      <div className="cx-stat-label">{label}</div>
+    </div>
+  );
+}
+
+// ── Journey Action Card ────────────────────────────────────────────
+function JourneyActionCard({
+  label,
+  subtitle,
+  primary,
+  onClick,
+  delay,
+}: {
+  label: string;
+  subtitle?: string;
+  primary?: boolean;
+  onClick: () => void;
+  delay: number;
+}) {
+  const [hover, setHover] = useState(false);
+
+  return (
+    <button
+      className={primary ? "cx-btn-primary" : "cx-btn-secondary"}
+      onClick={onClick}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        width: "100%",
+        justifyContent: "space-between",
+        padding: "14px 20px",
+        animationDelay: `${delay}ms`,
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <span style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 2 }}>
+        <span>{label}</span>
+        {subtitle && (
+          <span style={{ fontSize: "9px", opacity: 0.6, letterSpacing: "0.08em" }}>{subtitle}</span>
+        )}
+      </span>
+      <ChevronRight
+        size={14}
+        style={{
+          transition: "transform 300ms cubic-bezier(0.4,0,0.2,1), opacity 200ms",
+          transform: hover ? "translateX(3px)" : "translateX(0)",
+          opacity: hover ? 1 : 0.5,
+        }}
+      />
+    </button>
+  );
+}
+
+// ── Integration Ring with Animation ────────────────────────────────
+function IntegrationRing({ value }: { value: number }) {
+  const { ref, inView } = useInView();
+  const [animated, setAnimated] = useState(false);
+
+  useEffect(() => {
+    if (inView && !animated) {
+      const t = setTimeout(() => setAnimated(true), 200);
+      return () => clearTimeout(t);
+    }
+  }, [inView]);
+
+  const circumference = 2 * Math.PI * 42;
+  const dashArray = animated ? value * circumference : 0;
+
+  return (
+    <div ref={ref} className="cx-widget cx-fade-up cx-delay-4">
+      <div className="cx-widget-body" style={{ textAlign: "center", padding: "28px 20px" }}>
+        <div
+          className="cx-ring-glow"
+          style={{ position: "relative", width: 110, height: 110, margin: "0 auto 14px" }}
+        >
+          <svg viewBox="0 0 100 100" width="110" height="110">
+            {/* Track */}
+            <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(200,188,174,0.18)" strokeWidth="2.5" />
+            {/* Progress */}
+            <circle
+              cx="50" cy="50" r="42" fill="none"
+              stroke="url(#ixGrad)" strokeWidth="3"
+              strokeLinecap="round"
+              strokeDasharray={`${dashArray} ${circumference}`}
+              transform="rotate(-90 50 50)"
+              style={{ transition: "stroke-dasharray 2s cubic-bezier(0.4,0,0.2,1)" }}
+            />
+            {/* Glow dot at end of arc */}
+            <defs>
+              <linearGradient id="ixGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#B87B65" />
+                <stop offset="100%" stopColor="#B8976A" />
+              </linearGradient>
+            </defs>
+          </svg>
+          <div style={{
+            position: "absolute", inset: 0, display: "flex", flexDirection: "column",
+            alignItems: "center", justifyContent: "center",
+          }}>
+            <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "30px", fontWeight: 300, color: "var(--cx-ink)" }}>
+              {(value * 100).toFixed(0)}
+            </span>
+            <span style={{ fontSize: "8px", color: "var(--cx-ink3)", letterSpacing: "0.15em" }}>INDEX</span>
+          </div>
+        </div>
+        <p className="cx-label" style={{ marginBottom: "4px" }}>Integration Index</p>
+        <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "12px", fontStyle: "italic", color: "var(--cx-ink3)" }}>
+          {value > 0.6 ? "Deep integration emerging" :
+            value > 0.3 ? "Threshold patterns activating" :
+              "Shadow patterns surfacing"}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MAIN DASHBOARD COMPONENT
+// ════════════════════════════════════════════════════════════════════
 
 export default function CodexDashboard({ onNavigate }: Props) {
   const dashQuery = trpc.codex.client.dashboardData.useQuery();
@@ -29,6 +198,7 @@ export default function CodexDashboard({ onNavigate }: Props) {
   });
   const d = dashQuery.data;
 
+  // ── Loading State ──
   if (dashQuery.isLoading || !d) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
@@ -38,7 +208,9 @@ export default function CodexDashboard({ onNavigate }: Props) {
             background: "rgba(184,123,101,0.12)",
             transform: "rotate(45deg)",
           }} />
-          <p style={{ fontSize: "12px", color: "var(--cx-ink3)", fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic" }}>Loading your Codex...</p>
+          <p style={{ fontSize: "12px", color: "var(--cx-ink3)", fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic" }}>
+            Loading your Codex...
+          </p>
         </div>
       </div>
     );
@@ -52,17 +224,17 @@ export default function CodexDashboard({ onNavigate }: Props) {
   const tierLabel = (d.user.tier || "explorer").replace(/_/g, " ");
 
   const stats = [
-    { label: "Days Active", value: d.daysActive },
-    { label: "Journal Entries", value: d.journalCount },
-    { label: "Scroll Modules", value: `${d.completedModules.length}/9` },
-    { label: "Integration", value: scoring?.integrationIndex != null ? (scoring.integrationIndex * 100).toFixed(0) + "%" : "--" },
+    { label: "Days Active", value: d.daysActive as number, tooltip: "Total days you've engaged with your Codex" },
+    { label: "Journal Entries", value: d.journalCount as number, tooltip: "Reflections captured in your vault" },
+    { label: "Scroll Modules", value: `${d.completedModules.length}/9`, tooltip: "Integration workbook modules completed" },
+    { label: "Integration", value: scoring?.integrationIndex != null ? (scoring.integrationIndex * 100).toFixed(0) + "%" : "--", tooltip: "Shadow-gift integration balance" },
   ];
 
   return (
-    <div style={{ padding: "36px 40px", maxWidth: "72rem", margin: "0 auto" }}>
+    <div className="cx-page-enter" style={{ padding: "36px 40px", maxWidth: "72rem", margin: "0 auto" }}>
 
       {/* ── Welcome Header ── */}
-      <div className="cx-fade-in" style={{ marginBottom: "28px" }}>
+      <div className="cx-fade-up" style={{ marginBottom: "28px" }}>
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <p style={{ fontSize: "9.5px", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--cx-ink3)", marginBottom: "6px" }}>
@@ -76,6 +248,7 @@ export default function CodexDashboard({ onNavigate }: Props) {
                 display: "inline-block", padding: "3px 10px", borderRadius: "50px", fontSize: "9.5px", fontWeight: 400,
                 background: "rgba(184,123,101,0.1)", border: "1px solid rgba(184,123,101,0.2)", color: "var(--cx-rose)", textTransform: "capitalize",
                 letterSpacing: "0.06em",
+                transition: "all 300ms ease",
               }}>
                 {tierLabel}
               </span>
@@ -84,15 +257,16 @@ export default function CodexDashboard({ onNavigate }: Props) {
               </span>
             </div>
           </div>
-          <button className="cx-btn-primary" onClick={() => onNavigate("guide")} style={{ gap: "6px" }}>
-            <Orbit size={12} /> Talk to Guide
+          <button className="cx-btn-primary" onClick={() => onNavigate("guide")} style={{ gap: "8px" }}>
+            <Orbit size={13} /> Talk to Guide
+            <ArrowRight size={12} style={{ marginLeft: 2, opacity: 0.6 }} />
           </button>
         </div>
       </div>
 
       {/* ── AI Growth Insight ── */}
       {d.growthInsight && (
-        <div className="cx-fade-up cx-widget" style={{ marginBottom: "20px" }}>
+        <div className="cx-fade-up cx-widget cx-interactive cx-delay-1" style={{ marginBottom: "20px", cursor: "pointer" }} onClick={() => onNavigate("guide")}>
           <div style={{ padding: "16px 20px", display: "flex", alignItems: "flex-start", gap: "12px" }}>
             <div style={{
               width: 32, height: 32, borderRadius: "9px", flexShrink: 0,
@@ -105,23 +279,21 @@ export default function CodexDashboard({ onNavigate }: Props) {
             </div>
             <div style={{ flex: 1 }}>
               <p style={{ fontSize: "9.5px", fontWeight: 400, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--cx-ink3)", marginBottom: "5px" }}>
-                Today’s Mirror
+                Today's Mirror
               </p>
               <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "14px", fontWeight: 300, fontStyle: "italic", color: "var(--cx-ink2)", lineHeight: 1.65 }}>
                 {d.growthInsight}
               </p>
             </div>
+            <ChevronRight size={14} style={{ color: "var(--cx-ink3)", flexShrink: 0, marginTop: 10, opacity: 0.4 }} />
           </div>
         </div>
       )}
 
-      {/* ── Stat Cards Row ── */}
-      <div className="cx-fade-up cx-delay-1" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "20px" }}>
-        {stats.map((stat) => (
-          <div key={stat.label} className="cx-stat-card">
-            <div className="cx-stat-value">{stat.value}</div>
-            <div className="cx-stat-label">{stat.label}</div>
-          </div>
+      {/* ── Stat Cards Row (animated counters) ── */}
+      <div className="cx-stagger" style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "20px" }}>
+        {stats.map((stat, i) => (
+          <AnimatedStat key={stat.label} label={stat.label} value={stat.value} tooltip={stat.tooltip} delay={i * 80} />
         ))}
       </div>
 
@@ -132,10 +304,22 @@ export default function CodexDashboard({ onNavigate }: Props) {
 
           {/* Archetype Constellation Card */}
           {primary && (
-            <div className="cx-widget cx-fade-up cx-delay-2" style={{ cursor: "pointer" }} onClick={() => onNavigate("journey")}>
+            <div
+              className="cx-widget cx-interactive cx-fade-up cx-delay-2"
+              onClick={() => onNavigate("journey")}
+            >
               <div className="cx-widget-header">
                 <h3>Archetype Constellation</h3>
-                <span style={{ fontSize: "0.75rem", color: "var(--cx-moonlight)" }}>{phase} Phase</span>
+                <span style={{
+                  fontSize: "0.7rem",
+                  color: "var(--cx-moonlight)",
+                  padding: "2px 8px",
+                  borderRadius: "50px",
+                  background: "rgba(184,151,106,0.08)",
+                  border: "1px solid rgba(184,151,106,0.15)",
+                }}>
+                  {phase} Phase
+                </span>
               </div>
               <div className="cx-widget-body">
                 <h2 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "22px", fontWeight: 300, color: "var(--cx-ink)", marginBottom: "4px" }}>
@@ -145,7 +329,7 @@ export default function CodexDashboard({ onNavigate }: Props) {
                   Primary archetype identity
                 </p>
                 {spectrum && (
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
                     {[
                       { label: "Shadow", pct: spectrum.shadowPct, color: "var(--cx-rose)" },
                       { label: "Threshold", pct: spectrum.thresholdPct, color: "var(--cx-gold)" },
@@ -154,7 +338,7 @@ export default function CodexDashboard({ onNavigate }: Props) {
                       <div key={s.label}>
                         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
                           <span style={{ fontSize: "10px", fontWeight: 400, color: "var(--cx-ink3)" }}>{s.label}</span>
-                          <span style={{ fontSize: "10px", fontWeight: 400, color: s.color }}>{s.pct}%</span>
+                          <span style={{ fontSize: "10px", fontWeight: 500, color: s.color }}>{s.pct}%</span>
                         </div>
                         <div className="cx-progress-track">
                           <div className="cx-progress" style={{ width: `${s.pct}%`, background: s.color }} />
@@ -174,23 +358,35 @@ export default function CodexDashboard({ onNavigate }: Props) {
             </div>
             <div className="cx-widget-body" style={{ display: "flex", flexDirection: "column", gap: "0.625rem" }}>
               {assessmentStatus !== "complete" && (
-                <button className="cx-btn-primary" style={{ width: "100%" }} onClick={() => onNavigate("assessment")}>
-                  {assessmentStatus === "not_started" ? "Begin Assessment" : `Continue Assessment -- Section ${d.assessment?.currentSection || 1}/16`}
-                </button>
+                <JourneyActionCard
+                  label={assessmentStatus === "not_started" ? "Begin Assessment" : "Continue Assessment"}
+                  subtitle={assessmentStatus !== "not_started" ? `Section ${d.assessment?.currentSection || 1}/16` : undefined}
+                  primary
+                  onClick={() => onNavigate("assessment")}
+                  delay={0}
+                />
               )}
               {assessmentStatus === "complete" && (
                 <>
-                  <button className="cx-btn-primary" style={{ width: "100%" }} onClick={() => onNavigate("scroll")}>
-                    Codex Scroll -- {d.completedModules.length}/9 modules
-                  </button>
-                  <button className="cx-btn-secondary" style={{ width: "100%" }} onClick={() => onNavigate("guide")}>
-                    Open AI Guide
-                  </button>
+                  <JourneyActionCard
+                    label="Codex Scroll"
+                    subtitle={`${d.completedModules.length}/9 modules`}
+                    primary
+                    onClick={() => onNavigate("scroll")}
+                    delay={0}
+                  />
+                  <JourneyActionCard
+                    label="Open AI Guide"
+                    onClick={() => onNavigate("guide")}
+                    delay={60}
+                  />
                 </>
               )}
-              <button className="cx-btn-secondary" style={{ width: "100%" }} onClick={() => onNavigate("journal")}>
-                Journal Vault
-              </button>
+              <JourneyActionCard
+                label="Journal Vault"
+                onClick={() => onNavigate("journal")}
+                delay={120}
+              />
             </div>
           </div>
 
@@ -208,7 +404,7 @@ export default function CodexDashboard({ onNavigate }: Props) {
 
         {/* Right Column */}
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-          {/* Growth Tracking Widget (Doc 02) */}
+          {/* Growth Tracking Widget */}
           {growthQuery.data && (
             <div className="cx-fade-up cx-delay-2">
               <CodexGrowthWidget
@@ -228,12 +424,21 @@ export default function CodexDashboard({ onNavigate }: Props) {
           </div>
 
           {/* Mirror Report Status */}
-          <div className="cx-widget cx-fade-up cx-delay-3">
+          <div
+            className={`cx-widget cx-fade-up cx-delay-3 ${d.reportStatus === "released" ? "cx-interactive" : ""}`}
+            onClick={() => d.reportStatus === "released" && onNavigate("mirror-report")}
+          >
             <div className="cx-widget-header">
               <h3>Mirror Report</h3>
               <div style={{
-                width: 6, height: 6, borderRadius: "50%",
+                width: 7, height: 7, borderRadius: "50%",
                 background: d.reportStatus === "released" ? "var(--cx-sage)" : d.reportStatus === "ready_for_review" ? "var(--cx-gold)" : "var(--cx-clay)",
+                boxShadow: d.reportStatus === "released"
+                  ? "0 0 8px rgba(125,142,127,0.5)"
+                  : d.reportStatus === "ready_for_review"
+                    ? "0 0 8px rgba(184,151,106,0.5)"
+                    : "none",
+                transition: "box-shadow 600ms ease",
               }} />
             </div>
             <div className="cx-widget-body">
@@ -243,8 +448,8 @@ export default function CodexDashboard({ onNavigate }: Props) {
                     assessmentStatus === "complete" ? "Assessment complete. Report is being prepared." : "Complete the assessment to unlock your Mirror Report."}
               </p>
               {d.reportStatus === "released" && (
-                <button className="cx-btn-primary" onClick={() => onNavigate("mirror-report")}>
-                  View Report
+                <button className="cx-btn-primary" onClick={() => onNavigate("mirror-report")} style={{ gap: "6px" }}>
+                  View Report <ArrowRight size={12} />
                 </button>
               )}
             </div>
@@ -252,44 +457,7 @@ export default function CodexDashboard({ onNavigate }: Props) {
 
           {/* Integration Index Ring */}
           {scoring?.integrationIndex != null && (
-            <div className="cx-widget cx-fade-up cx-delay-4">
-              <div className="cx-widget-body" style={{ textAlign: "center", padding: "24px 20px" }}>
-                <div style={{ position: "relative", width: 100, height: 100, margin: "0 auto 12px" }}>
-                  <svg viewBox="0 0 100 100" width="100" height="100">
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(200,188,174,0.22)" strokeWidth="3" />
-                    <circle
-                      cx="50" cy="50" r="42" fill="none"
-                      stroke="url(#ixGrad)" strokeWidth="3"
-                      strokeLinecap="round"
-                      strokeDasharray={`${scoring.integrationIndex * 264} 264`}
-                      transform="rotate(-90 50 50)"
-                      style={{ transition: "stroke-dasharray 1.5s cubic-bezier(0.4,0,0.2,1)" }}
-                    />
-                    <defs>
-                      <linearGradient id="ixGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#B87B65" />
-                        <stop offset="100%" stopColor="#B8976A" />
-                      </linearGradient>
-                    </defs>
-                  </svg>
-                  <div style={{
-                    position: "absolute", inset: 0, display: "flex", flexDirection: "column",
-                    alignItems: "center", justifyContent: "center",
-                  }}>
-                    <span style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "28px", fontWeight: 300, color: "var(--cx-ink)" }}>
-                      {(scoring.integrationIndex * 100).toFixed(0)}
-                    </span>
-                    <span style={{ fontSize: "8px", color: "var(--cx-ink3)", letterSpacing: "0.15em" }}>INDEX</span>
-                  </div>
-                </div>
-                <p className="cx-label" style={{ marginBottom: "4px" }}>Integration Index</p>
-                <p style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "12px", fontStyle: "italic", color: "var(--cx-ink3)" }}>
-                  {scoring.integrationIndex > 0.6 ? "Deep integration emerging" :
-                    scoring.integrationIndex > 0.3 ? "Threshold patterns activating" :
-                      "Shadow patterns surfacing"}
-                </p>
-              </div>
-            </div>
+            <IntegrationRing value={scoring.integrationIndex} />
           )}
 
           {/* Weekly Practice */}

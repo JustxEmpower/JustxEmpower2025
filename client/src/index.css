@@ -1090,6 +1090,199 @@ video::-webkit-media-controls-overlay-play-button {
   100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+/* ══════════════════════════════════════════════════════════════
+   PREMIUM DASHBOARD INTERACTION SYSTEM
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Stat Card Premium Hover ── */
+.cx-stat-card {
+  cursor: default;
+  position: relative;
+}
+.cx-stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(ellipse at 50% 0%, rgba(184,151,106,0.08) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 400ms ease;
+  pointer-events: none;
+}
+.cx-stat-card:hover::before { opacity: 1; }
+.cx-stat-card:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.5) inset,
+    0 12px 40px rgba(0,0,0,0.06),
+    0 0 0 1px rgba(184,151,106,0.12);
+  border-color: rgba(184,151,106,0.22);
+}
+.cx-stat-card:hover .cx-stat-value {
+  color: var(--cx-rose);
+  transition: color 300ms ease;
+}
+.cx-stat-card .cx-stat-value {
+  transition: color 300ms ease, transform 300ms cubic-bezier(0.4,0,0.2,1);
+}
+.cx-stat-card:hover .cx-stat-value {
+  transform: scale(1.05);
+}
+
+/* ── Widget Premium Hover ── */
+.cx-widget {
+  position: relative;
+  cursor: default;
+}
+.cx-widget.cx-interactive { cursor: pointer; }
+.cx-widget::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(184,151,106,0.15) 0%, rgba(184,123,101,0.08) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity 500ms ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.cx-widget:hover::before { opacity: 1; }
+.cx-widget:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.55) inset,
+    0 16px 48px rgba(0,0,0,0.06),
+    0 0 0 1px rgba(184,151,106,0.1);
+  border-color: rgba(184,151,106,0.2);
+}
+.cx-widget > * { position: relative; z-index: 1; }
+
+/* ── Card Shine Effect (on hover) ── */
+@keyframes cx-shine-sweep {
+  0% { transform: translateX(-100%) rotate(12deg); }
+  100% { transform: translateX(200%) rotate(12deg); }
+}
+.cx-widget.cx-interactive:hover::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  animation: cx-shine-sweep 800ms ease forwards;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Button Magnetic Hover ── */
+.cx-btn-primary {
+  transition: all 300ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.cx-btn-primary:hover {
+  transform: translateY(-2px);
+  background: rgba(184,123,101,0.18);
+  box-shadow: 0 4px 16px rgba(184,123,101,0.15), 0 0 0 1px rgba(184,123,101,0.2);
+}
+.cx-btn-secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+
+/* ── Progress Bar Glow ── */
+.cx-progress-track {
+  position: relative;
+  overflow: hidden;
+}
+.cx-progress {
+  position: relative;
+  transition: width 800ms cubic-bezier(0.4,0,0.2,1);
+}
+.cx-progress::after {
+  content: '';
+  position: absolute;
+  top: -2px; right: 0;
+  width: 6px; height: calc(100% + 4px);
+  border-radius: 3px;
+  background: inherit;
+  filter: blur(3px);
+  opacity: 0.6;
+}
+
+/* ── Animated Counter Digits ── */
+@keyframes cx-count-in {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.cx-count-animate {
+  animation: cx-count-in 600ms cubic-bezier(0.4,0,0.2,1) both;
+}
+
+/* ── Staggered Grid Children ── */
+.cx-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.cx-stagger > *:nth-child(2) { animation-delay: 80ms; }
+.cx-stagger > *:nth-child(3) { animation-delay: 160ms; }
+.cx-stagger > *:nth-child(4) { animation-delay: 240ms; }
+.cx-stagger > *:nth-child(5) { animation-delay: 320ms; }
+.cx-stagger > *:nth-child(6) { animation-delay: 400ms; }
+
+/* ── Glow Ring (for Integration Index) ── */
+@keyframes cx-ring-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px rgba(184,151,106,0.2)); }
+  50% { filter: drop-shadow(0 0 12px rgba(184,151,106,0.35)); }
+}
+.cx-ring-glow {
+  animation: cx-ring-pulse 3s ease-in-out infinite;
+}
+
+/* ── Companion Breathing Animation ── */
+@keyframes cx-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.06); }
+}
+.cx-companion-breathe {
+  animation: cx-breathe 4s ease-in-out infinite;
+}
+
+/* ── Milestone Celebration Particles ── */
+@keyframes cx-particle-rise {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-40px) scale(0.5); }
+}
+
+/* ── Phase Dot Pulse ── */
+@keyframes cx-phase-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(184,123,101,0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(184,123,101,0); }
+}
+.cx-phase-active {
+  animation: cx-phase-pulse 2s ease-in-out infinite;
+}
+
+/* ── Interactive Card Press State ── */
+.cx-widget.cx-interactive:active {
+  transform: translateY(0) scale(0.985);
+  transition-duration: 80ms;
+}
+
+/* ── Tooltip for stat cards ── */
+.cx-stat-card[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  background: rgba(40,35,30,0.9);
+  color: rgba(255,255,255,0.9);
+  font-size: 10px;
+  font-family: var(--cx-sans);
+  border-radius: 6px;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: cx-fade-in 150ms ease both;
+  z-index: 10;
+}
+
 .cx-btn-primary::after,
 .cx-btn-secondary::after {
   content: '';

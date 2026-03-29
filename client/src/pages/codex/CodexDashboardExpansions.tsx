@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
+import { ChevronDown, ChevronRight, ArrowRight, Users, BookOpen, Compass } from 'lucide-react';
 import NinePhaseIcons from './NinePhaseIcons';
 
 // ============================================================================
-// PhaseJourneyMap Component — delegates to animated NinePhaseIcons
+// PhaseJourneyMap — delegates to animated NinePhaseIcons
 // ============================================================================
 interface PhaseJourneyMapProps {
   currentPhase: number;
@@ -14,151 +15,103 @@ export const PhaseJourneyMap: React.FC<PhaseJourneyMapProps> = ({
   currentPhase,
   completedPhases,
   primaryArchetype,
-}) => {
-  return (
-    <NinePhaseIcons
-      currentPhase={currentPhase}
-      completedPhases={completedPhases}
-      pathway={primaryArchetype}
-    />
-  );
-};
+}) => (
+  <NinePhaseIcons
+    currentPhase={currentPhase}
+    completedPhases={completedPhases}
+    pathway={primaryArchetype}
+  />
+);
 
 // ============================================================================
-// ContradictionExplorer Component
+// ContradictionExplorer — Premium expandable pattern cards
 // ============================================================================
 interface ContradictionExplorerProps {
-  contradictions: Array<{
-    pattern: string;
-    interpretation: string;
-    index: number;
-  }>;
+  contradictions: Array<{ pattern: string; interpretation: string; index: number }>;
 }
 
-export const ContradictionExplorer: React.FC<ContradictionExplorerProps> = ({
-  contradictions,
-}) => {
+export const ContradictionExplorer: React.FC<ContradictionExplorerProps> = ({ contradictions }) => {
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
-  const containerStyle: React.CSSProperties = {
-    padding: '2rem',
-    background: 'rgba(255,255,255,0.15)',
-    borderRadius: 'var(--cx-radius-lg)',
-    border: '1px solid rgba(255,255,255,0.25)',
-    backdropFilter: 'blur(40px) saturate(1.3)',
-    WebkitBackdropFilter: 'blur(40px) saturate(1.3)',
-    boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 32px rgba(0,0,0,0.03)',
-    marginBottom: '2rem',
-  };
-
-  const headerStyle: React.CSSProperties = {
-    fontSize: '1.5rem',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 300,
-    color: 'var(--cx-ink)',
-    marginBottom: '1.5rem',
-    letterSpacing: '0.02em',
-  };
-
-  const cardStyle: React.CSSProperties = {
-    marginBottom: '1rem',
-    padding: '1rem',
-    background: 'rgba(255,255,255,0.10)',
-    border: '1px solid rgba(255,255,255,0.20)',
-    borderRadius: 'var(--cx-radius)',
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-  };
-
-  const cardHoverStyle: React.CSSProperties = {
-    ...cardStyle,
-    background: 'rgba(255,255,255,0.18)',
-    borderColor: 'rgba(184,123,101,0.18)',
-  };
-
-  const cardHeaderStyle: React.CSSProperties = {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '0.5rem',
-  };
-
-  const patternNameStyle: React.CSSProperties = {
-    fontSize: '1rem',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 600,
-    color: 'var(--cx-gold)',
-    letterSpacing: '0.03em',
-  };
-
-  const percentageStyle: React.CSSProperties = {
-    fontSize: '0.75rem',
-    color: 'var(--cx-ink3)',
-    opacity: 0.7,
-  };
-
-  const interpretationStyle: React.CSSProperties = {
-    fontSize: '0.9rem',
-    color: 'var(--cx-ink2)',
-    lineHeight: 1.6,
-    marginTop: '0.75rem',
-  };
-
-  if (contradictions.length === 0) {
-    return null;
-  }
+  if (contradictions.length === 0) return null;
 
   return (
-    <div style={containerStyle} className="cx-fade-in">
-      <h3 style={headerStyle}>Patterns to Explore</h3>
-      <p
-        style={{
-          fontSize: '0.9rem',
-          color: 'var(--cx-ink2)',
-          marginBottom: '1.5rem',
-          lineHeight: 1.6,
-        }}
-      >
-        These areas show interesting contrasts in your responses. Rather than
-        contradictions, they may be invitations to deeper understanding.
-      </p>
-      {contradictions.map((contradiction, idx) => (
-        <div
-          key={idx}
-          style={
-            expandedIndex === idx ? cardHoverStyle : cardStyle
-          }
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = cardHoverStyle.backgroundColor as string;
-            e.currentTarget.style.borderColor = cardHoverStyle.borderColor as string;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = cardStyle.backgroundColor as string;
-            e.currentTarget.style.borderColor = cardStyle.borderColor as string;
-          }}
-          onClick={() =>
-            setExpandedIndex(expandedIndex === idx ? null : idx)
-          }
-        >
-          <div style={cardHeaderStyle}>
-            <span style={patternNameStyle}>{contradiction.pattern}</span>
-            <span style={percentageStyle}>
-              {Math.round(contradiction.index * 100)}%
-            </span>
-          </div>
-          {expandedIndex === idx && (
-            <div style={interpretationStyle}>
-              {contradiction.interpretation}
-            </div>
-          )}
+    <div className="cx-widget cx-fade-in">
+      <div className="cx-widget-header">
+        <h3>Patterns to Explore</h3>
+        <span style={{ fontSize: '0.6875rem', color: 'var(--cx-ink3)' }}>
+          {contradictions.length} found
+        </span>
+      </div>
+      <div className="cx-widget-body">
+        <p style={{ fontSize: '0.8rem', color: 'var(--cx-ink3)', marginBottom: '1rem', lineHeight: 1.6 }}>
+          Interesting contrasts in your responses — invitations to deeper understanding.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+          {contradictions.map((c, idx) => {
+            const isExpanded = expandedIndex === idx;
+            const isHovered = hoveredIndex === idx;
+
+            return (
+              <div
+                key={idx}
+                onClick={() => setExpandedIndex(isExpanded ? null : idx)}
+                onMouseEnter={() => setHoveredIndex(idx)}
+                onMouseLeave={() => setHoveredIndex(null)}
+                style={{
+                  padding: '0.875rem 1rem',
+                  background: isExpanded ? 'rgba(184,151,106,0.06)' : isHovered ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.12)',
+                  border: `1px solid ${isExpanded ? 'rgba(184,151,106,0.2)' : isHovered ? 'rgba(184,123,101,0.15)' : 'rgba(255,255,255,0.2)'}`,
+                  borderRadius: 'var(--cx-radius)',
+                  cursor: 'pointer',
+                  transition: 'all 350ms cubic-bezier(0.4,0,0.2,1)',
+                  transform: isHovered && !isExpanded ? 'translateX(3px)' : 'none',
+                }}
+              >
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{
+                    fontSize: '0.875rem', fontFamily: 'Cormorant Garamond, serif', fontWeight: 600,
+                    color: isExpanded ? 'var(--cx-gold)' : 'var(--cx-ink)',
+                    transition: 'color 300ms',
+                  }}>
+                    {c.pattern}
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--cx-ink3)', opacity: 0.7 }}>
+                      {Math.round(c.index * 100)}%
+                    </span>
+                    {isExpanded
+                      ? <ChevronDown size={14} style={{ color: 'var(--cx-gold)', transition: 'transform 300ms' }} />
+                      : <ChevronRight size={14} style={{ color: 'var(--cx-ink3)', transition: 'transform 300ms' }} />
+                    }
+                  </div>
+                </div>
+                <div style={{
+                  maxHeight: isExpanded ? '200px' : '0',
+                  overflow: 'hidden',
+                  transition: 'max-height 400ms cubic-bezier(0.4,0,0.2,1), opacity 300ms ease',
+                  opacity: isExpanded ? 1 : 0,
+                }}>
+                  <p style={{
+                    fontSize: '0.8rem', color: 'var(--cx-ink2)', lineHeight: 1.6,
+                    marginTop: '0.75rem', paddingTop: '0.75rem',
+                    borderTop: '1px solid rgba(200,188,174,0.15)',
+                  }}>
+                    {c.interpretation}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
-      ))}
+      </div>
     </div>
   );
 };
 
 // ============================================================================
-// WeeklyPracticeCard Component
+// WeeklyPracticeCard — Premium with hover interactions
 // ============================================================================
 interface WeeklyPracticeCardProps {
   weeklyPrompt: string;
@@ -173,135 +126,84 @@ export const WeeklyPracticeCard: React.FC<WeeklyPracticeCardProps> = ({
   nextRecommendedStep,
   primaryArchetype,
 }) => {
-  const containerStyle: React.CSSProperties = {
-    padding: '2rem',
-    background: 'rgba(255,255,255,0.15)',
-    borderRadius: 'var(--cx-radius-lg)',
-    border: '1px solid rgba(255,255,255,0.25)',
-    backdropFilter: 'blur(40px) saturate(1.3)',
-    WebkitBackdropFilter: 'blur(40px) saturate(1.3)',
-    boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 32px rgba(0,0,0,0.03)',
-    marginBottom: '2rem',
-  };
+  const [hoveredRec, setHoveredRec] = useState<number | null>(null);
 
-  const headerStyle: React.CSSProperties = {
-    fontSize: '1.5rem',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 300,
-    color: 'var(--cx-ink)',
-    marginBottom: '1.5rem',
-    letterSpacing: '0.02em',
-  };
-
-  const promptStyle: React.CSSProperties = {
-    fontSize: '1.1rem',
-    fontStyle: 'italic',
-    fontFamily: 'Cormorant Garamond, serif',
-    color: 'var(--cx-gold)',
-    lineHeight: 1.8,
-    marginBottom: '2rem',
-    padding: '1.5rem',
-    background: 'rgba(184,151,106,0.04)',
-    borderLeft: '2px solid rgba(184,151,106,0.25)',
-    borderRadius: '0 var(--cx-radius) var(--cx-radius) 0',
-    backdropFilter: 'blur(20px)',
-  };
-
-  const practiceHeaderStyle: React.CSSProperties = {
-    fontSize: '0.95rem',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 600,
-    color: 'var(--cx-ink)',
-    marginBottom: '1rem',
-    letterSpacing: '0.03em',
-    textTransform: 'uppercase',
-  };
-
-  const practiceListStyle: React.CSSProperties = {
-    marginBottom: '2rem',
-  };
-
-  const practiceItemStyle: React.CSSProperties = {
-    fontSize: '0.95rem',
-    color: 'var(--cx-ink2)',
-    marginBottom: '0.75rem',
-    paddingLeft: '1.5rem',
-    position: 'relative',
-    lineHeight: 1.6,
-  };
-
-  const bulletStyle: React.CSSProperties = {
-    position: 'absolute',
-    left: '0',
-    color: 'var(--cx-gold)',
-    fontWeight: 600,
-  };
-
-  const ctaButtonStyle: React.CSSProperties = {
-    display: 'inline-block',
-    padding: '0.75rem 1.5rem',
-    background: 'rgba(184,151,106,0.10)',
-    color: 'var(--cx-gold)',
-    border: '1px solid rgba(184,151,106,0.22)',
-    borderRadius: '50px',
-    fontFamily: 'var(--cx-sans)',
-    fontSize: '0.8rem',
-    fontWeight: 500,
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    letterSpacing: '0.03em',
-    backdropFilter: 'blur(20px)',
-  };
-
-  const archetypeStyle: React.CSSProperties = {
-    fontSize: '0.85rem',
-    color: 'var(--cx-ink3)',
-    marginTop: '1.5rem',
-    fontStyle: 'italic',
-  };
+  const archetypeName = primaryArchetype
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase());
 
   return (
-    <div style={containerStyle} className="cx-fade-in">
-      <h3 style={headerStyle}>This Week's Practice</h3>
-      <div style={promptStyle}>{weeklyPrompt}</div>
-
-      {practiceRecommendations.length > 0 && (
-        <div>
-          <h4 style={practiceHeaderStyle}>Gentle Recommendations</h4>
-          <ul style={practiceListStyle}>
-            {practiceRecommendations.map((rec, idx) => (
-              <li key={idx} style={practiceItemStyle}>
-                <span style={bulletStyle}>•</span>
-                {rec}
-              </li>
-            ))}
-          </ul>
+    <div className="cx-widget cx-fade-in">
+      <div className="cx-widget-header">
+        <h3>This Week's Practice</h3>
+        <BookOpen size={14} style={{ color: 'var(--cx-ink3)', opacity: 0.5 }} />
+      </div>
+      <div className="cx-widget-body">
+        {/* Weekly prompt */}
+        <div style={{
+          padding: '1.25rem',
+          background: 'rgba(184,151,106,0.04)',
+          borderLeft: '2px solid rgba(184,151,106,0.25)',
+          borderRadius: '0 var(--cx-radius) var(--cx-radius) 0',
+          marginBottom: '1.25rem',
+        }}>
+          <p style={{
+            fontFamily: "'Cormorant Garamond', serif", fontSize: '1rem',
+            fontStyle: 'italic', color: 'var(--cx-gold)', lineHeight: 1.7,
+          }}>
+            {weeklyPrompt}
+          </p>
         </div>
-      )}
 
-      <button
-        style={ctaButtonStyle}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.opacity = '0.85';
-          e.currentTarget.style.transform = 'translateY(-2px)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.opacity = '1';
-          e.currentTarget.style.transform = 'translateY(0)';
-        }}
-      >
-        {nextRecommendedStep}
-      </button>
+        {/* Recommendations */}
+        {practiceRecommendations.length > 0 && (
+          <div style={{ marginBottom: '1.25rem' }}>
+            <p className="cx-label" style={{ marginBottom: '0.75rem' }}>Gentle Recommendations</p>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              {practiceRecommendations.map((rec, idx) => (
+                <li
+                  key={idx}
+                  onMouseEnter={() => setHoveredRec(idx)}
+                  onMouseLeave={() => setHoveredRec(null)}
+                  style={{
+                    padding: '0.625rem 0.875rem',
+                    fontSize: '0.85rem', color: 'var(--cx-ink2)', lineHeight: 1.5,
+                    borderRadius: 'var(--cx-radius)',
+                    background: hoveredRec === idx ? 'rgba(255,255,255,0.25)' : 'transparent',
+                    border: `1px solid ${hoveredRec === idx ? 'rgba(184,151,106,0.12)' : 'transparent'}`,
+                    transition: 'all 300ms ease',
+                    transform: hoveredRec === idx ? 'translateX(4px)' : 'none',
+                    display: 'flex', alignItems: 'flex-start', gap: '0.5rem',
+                  }}
+                >
+                  <span style={{ color: 'var(--cx-gold)', fontWeight: 600, flexShrink: 0, marginTop: 1 }}>•</span>
+                  <span>{rec}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
-      <div style={archetypeStyle}>
-        Tailored for: {primaryArchetype}
+        {/* CTA */}
+        <button
+          className="cx-btn-primary"
+          style={{ gap: '6px', marginBottom: '0.75rem' }}
+        >
+          {nextRecommendedStep}
+          <ArrowRight size={12} />
+        </button>
+
+        {/* Archetype tag */}
+        <p style={{ fontSize: '0.75rem', color: 'var(--cx-ink3)', fontStyle: 'italic' }}>
+          Tailored for: {archetypeName}
+        </p>
       </div>
     </div>
   );
 };
 
 // ============================================================================
-// PatternConnectionsPanel Component
+// PatternConnectionsPanel
 // ============================================================================
 interface PatternConnectionsPanelProps {
   themes: string[];
@@ -310,135 +212,94 @@ interface PatternConnectionsPanelProps {
   mirrorPatterns: string[];
 }
 
-export const PatternConnectionsPanel: React.FC<
-  PatternConnectionsPanelProps
-> = ({
-  themes,
-  primaryArchetype,
-  activeWounds,
-  mirrorPatterns,
+export const PatternConnectionsPanel: React.FC<PatternConnectionsPanelProps> = ({
+  themes, primaryArchetype, activeWounds, mirrorPatterns,
 }) => {
-  const containerStyle: React.CSSProperties = {
-    padding: '2rem',
-    background: 'rgba(255,255,255,0.15)',
-    borderRadius: 'var(--cx-radius-lg)',
-    border: '1px solid rgba(255,255,255,0.25)',
-    backdropFilter: 'blur(40px) saturate(1.3)',
-    WebkitBackdropFilter: 'blur(40px) saturate(1.3)',
-    boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 32px rgba(0,0,0,0.03)',
-    marginBottom: '2rem',
-  };
-
-  const headerStyle: React.CSSProperties = {
-    fontSize: '1.5rem',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 300,
-    color: 'var(--cx-ink)',
-    marginBottom: '1.5rem',
-    letterSpacing: '0.02em',
-  };
-
-  const sectionStyle: React.CSSProperties = {
-    marginBottom: '2rem',
-  };
-
-  const sectionTitleStyle: React.CSSProperties = {
-    fontSize: '0.95rem',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 600,
-    color: 'var(--cx-gold)',
-    marginBottom: '1rem',
-    letterSpacing: '0.03em',
-    textTransform: 'uppercase',
-  };
-
-  const tagStyle: React.CSSProperties = {
-    display: 'inline-block',
-    padding: '0.5rem 1rem',
-    backgroundColor: 'rgba(184,151,106,0.08)',
-    border: '1px solid rgba(184,151,106,0.2)',
-    borderRadius: 'var(--cx-radius)',
-    color: 'var(--cx-ink)',
-    fontSize: '0.9rem',
-    marginRight: '0.75rem',
-    marginBottom: '0.75rem',
-  };
-
-  const connectionLineStyle: React.CSSProperties = {
-    height: '2px',
-    background: 'linear-gradient(to right, rgba(184,151,106,0.3), transparent)',
-    margin: '1.5rem 0',
-  };
-
-  const archDescStyle: React.CSSProperties = {
-    fontSize: '0.9rem',
-    color: 'var(--cx-ink2)',
-    lineHeight: 1.6,
-    marginTop: '1rem',
-    padding: '1rem',
-    background: 'rgba(255,255,255,0.08)',
-    borderLeft: '2px solid rgba(184,151,106,0.20)',
-  };
-
   return (
-    <div style={containerStyle} className="cx-fade-in">
-      <h3 style={headerStyle}>Pattern Connections</h3>
-
-      {themes.length > 0 && (
-        <div style={sectionStyle}>
-          <h4 style={sectionTitleStyle}>Detected Themes</h4>
-          <div>
-            {themes.map((theme, idx) => (
-              <span key={idx} style={tagStyle}>
-                {theme}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      <div style={connectionLineStyle} />
-
-      <div style={sectionStyle}>
-        <h4 style={sectionTitleStyle}>Archetype: {primaryArchetype}</h4>
-        <div style={archDescStyle}>
-          Your responses align with patterns characteristic of this archetype.
-          The themes above suggest where this archetype activates most strongly
-          in your experience.
-        </div>
+    <div className="cx-widget cx-fade-in">
+      <div className="cx-widget-header">
+        <h3>Pattern Connections</h3>
       </div>
+      <div className="cx-widget-body">
+        {themes.length > 0 && (
+          <div style={{ marginBottom: '1.25rem' }}>
+            <p className="cx-label" style={{ marginBottom: '0.625rem' }}>Detected Themes</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+              {themes.map((theme, idx) => (
+                <span key={idx} style={{
+                  padding: '0.375rem 0.75rem', borderRadius: 'var(--cx-radius)',
+                  background: 'rgba(184,151,106,0.06)', border: '1px solid rgba(184,151,106,0.15)',
+                  fontSize: '0.8rem', color: 'var(--cx-ink)',
+                  transition: 'all 300ms ease', cursor: 'default',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(184,151,106,0.12)';
+                  e.currentTarget.style.transform = 'translateY(-1px)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = 'rgba(184,151,106,0.06)';
+                  e.currentTarget.style.transform = 'none';
+                }}
+                >
+                  {theme}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
 
-      {activeWounds.length > 0 && (
-        <div style={sectionStyle}>
-          <h4 style={sectionTitleStyle}>Wound Patterns to Notice</h4>
-          <div>
-            {activeWounds.map((wound, idx) => (
-              <span key={idx} style={tagStyle}>
-                {wound}
-              </span>
-            ))}
+        <div className="cx-divider" />
+
+        <div style={{ marginBottom: '1.25rem' }}>
+          <p className="cx-label" style={{ marginBottom: '0.5rem' }}>Archetype: {primaryArchetype}</p>
+          <div style={{
+            fontSize: '0.8rem', color: 'var(--cx-ink2)', lineHeight: 1.6, padding: '0.75rem',
+            background: 'rgba(255,255,255,0.08)', borderLeft: '2px solid rgba(184,151,106,0.2)', borderRadius: '0 8px 8px 0',
+          }}>
+            Your responses align with patterns characteristic of this archetype.
           </div>
         </div>
-      )}
 
-      {mirrorPatterns.length > 0 && (
-        <div style={sectionStyle}>
-          <h4 style={sectionTitleStyle}>Mirror Patterns</h4>
-          <div>
-            {mirrorPatterns.map((pattern, idx) => (
-              <span key={idx} style={tagStyle}>
-                {pattern}
-              </span>
-            ))}
+        {activeWounds.length > 0 && (
+          <div style={{ marginBottom: '1rem' }}>
+            <p className="cx-label" style={{ marginBottom: '0.625rem' }}>Wound Patterns</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+              {activeWounds.map((wound, idx) => (
+                <span key={idx} style={{
+                  padding: '0.375rem 0.75rem', borderRadius: 'var(--cx-radius)',
+                  background: 'rgba(184,123,101,0.06)', border: '1px solid rgba(184,123,101,0.15)',
+                  fontSize: '0.8rem', color: 'var(--cx-ink)',
+                }}>
+                  {wound}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+
+        {mirrorPatterns.length > 0 && (
+          <div>
+            <p className="cx-label" style={{ marginBottom: '0.625rem' }}>Mirror Patterns</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.375rem' }}>
+              {mirrorPatterns.map((p, idx) => (
+                <span key={idx} style={{
+                  padding: '0.375rem 0.75rem', borderRadius: 'var(--cx-radius)',
+                  background: 'rgba(125,142,127,0.06)', border: '1px solid rgba(125,142,127,0.15)',
+                  fontSize: '0.8rem', color: 'var(--cx-ink)',
+                }}>
+                  {p}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
 // ============================================================================
-// CommunityCircleCard Component
+// CommunityCircleCard — Premium with interactive hover
 // ============================================================================
 interface CommunityCircleCardProps {
   recommendedCircles: string[];
@@ -451,155 +312,69 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
   communityTier,
   primaryArchetype,
 }) => {
-  const containerStyle: React.CSSProperties = {
-    padding: '2rem',
-    background: 'rgba(255,255,255,0.15)',
-    borderRadius: 'var(--cx-radius-lg)',
-    border: '1px solid rgba(255,255,255,0.25)',
-    backdropFilter: 'blur(40px) saturate(1.3)',
-    WebkitBackdropFilter: 'blur(40px) saturate(1.3)',
-    boxShadow: '0 1px 0 rgba(255,255,255,0.4) inset, 0 8px 32px rgba(0,0,0,0.03)',
-    marginBottom: '2rem',
-  };
-
-  const headerStyle: React.CSSProperties = {
-    fontSize: '1.5rem',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 300,
-    color: 'var(--cx-ink)',
-    marginBottom: '1.5rem',
-    letterSpacing: '0.02em',
-  };
-
-  const tierBadgeStyle: React.CSSProperties = {
-    display: 'inline-block',
-    padding: '0.4rem 1rem',
-    background: 'rgba(184,151,106,0.10)',
-    color: 'var(--cx-gold)',
-    border: '1px solid rgba(184,151,106,0.22)',
-    borderRadius: '50px',
-    fontFamily: 'var(--cx-sans)',
-    fontWeight: 500,
-    fontSize: '0.75rem',
-    marginBottom: '1.5rem',
-    letterSpacing: '0.06em',
-    backdropFilter: 'blur(20px)',
-  };
-
-  const circlesGridStyle: React.CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns:
-      recommendedCircles.length > 1 ? 'repeat(auto-fit, minmax(150px, 1fr))' : '1fr',
-    gap: '1rem',
-    marginBottom: '2rem',
-  };
-
-  const circleCardStyle: React.CSSProperties = {
-    padding: '1.25rem',
-    background: 'rgba(255,255,255,0.10)',
-    border: '1px solid rgba(255,255,255,0.20)',
-    borderRadius: 'var(--cx-radius)',
-    textAlign: 'center',
-    transition: 'all 0.3s ease',
-    cursor: 'pointer',
-  };
-
-  const circleCardHoverStyle: React.CSSProperties = {
-    ...circleCardStyle,
-    background: 'rgba(255,255,255,0.18)',
-    borderColor: 'rgba(184,123,101,0.18)',
-    transform: 'translateY(-4px)',
-  };
-
-  const circleNameStyle: React.CSSProperties = {
-    fontSize: '1rem',
-    fontFamily: 'Cormorant Garamond, serif',
-    fontWeight: 600,
-    color: 'var(--cx-gold)',
-    letterSpacing: '0.03em',
-  };
-
-  const ctaButtonStyle: React.CSSProperties = {
-    display: 'inline-block',
-    padding: '0.75rem 1.5rem',
-    background: 'rgba(184,151,106,0.10)',
-    color: 'var(--cx-gold)',
-    border: '1px solid rgba(184,151,106,0.22)',
-    borderRadius: '50px',
-    fontFamily: 'var(--cx-sans)',
-    fontSize: '0.8rem',
-    fontWeight: 500,
-    cursor: 'pointer',
-    transition: 'all 0.3s ease',
-    letterSpacing: '0.03em',
-    backdropFilter: 'blur(20px)',
-  };
-
-  const descriptionStyle: React.CSSProperties = {
-    fontSize: '0.9rem',
-    color: 'var(--cx-ink2)',
-    lineHeight: 1.6,
-    marginBottom: '1.5rem',
-  };
+  const [hoveredCircle, setHoveredCircle] = useState<number | null>(null);
+  const archetypeName = primaryArchetype
+    .replace(/-/g, ' ')
+    .replace(/\b\w/g, l => l.toUpperCase());
 
   return (
-    <div style={containerStyle} className="cx-fade-in">
-      <h3 style={headerStyle}>Your Community</h3>
-      <div style={tierBadgeStyle}>{communityTier}</div>
+    <div className="cx-widget cx-fade-in">
+      <div className="cx-widget-header">
+        <h3>Your Community</h3>
+        <Users size={14} style={{ color: 'var(--cx-ink3)', opacity: 0.5 }} />
+      </div>
+      <div className="cx-widget-body">
+        <span style={{
+          display: 'inline-block', padding: '3px 10px', borderRadius: '50px',
+          fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.06em',
+          background: 'rgba(184,151,106,0.08)', border: '1px solid rgba(184,151,106,0.18)',
+          color: 'var(--cx-gold)', marginBottom: '0.875rem', textTransform: 'capitalize',
+        }}>
+          {communityTier}
+        </span>
 
-      <p style={descriptionStyle}>
-        Connect with others on a similar path. Your archetype ({primaryArchetype}
-        ) resonates with these circles.
-      </p>
-
-      {recommendedCircles.length > 0 ? (
-        <div>
-          <div style={circlesGridStyle}>
-            {recommendedCircles.map((circle, idx) => (
-              <div
-                key={idx}
-                style={circleCardStyle}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = circleCardHoverStyle.backgroundColor as string;
-                  e.currentTarget.style.borderColor = circleCardHoverStyle.borderColor as string;
-                  e.currentTarget.style.transform = circleCardHoverStyle.transform as string;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = circleCardStyle.backgroundColor as string;
-                  e.currentTarget.style.borderColor = circleCardStyle.borderColor as string;
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
-              >
-                <div style={circleNameStyle}>{circle}</div>
-              </div>
-            ))}
-          </div>
-
-          <button
-            style={ctaButtonStyle}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.opacity = '0.85';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.opacity = '1';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
-          >
-            Find Your Circle
-          </button>
-        </div>
-      ) : (
-        <p
-          style={{
-            fontSize: '0.9rem',
-            color: 'var(--cx-ink3)',
-            fontStyle: 'italic',
-          }}
-        >
-          Community circles will appear as you progress through your journey.
+        <p style={{ fontSize: '0.85rem', color: 'var(--cx-ink2)', lineHeight: 1.6, marginBottom: '1rem' }}>
+          Connect with others on a similar path. Your archetype ({archetypeName}) resonates with these circles.
         </p>
-      )}
+
+        {recommendedCircles.length > 0 ? (
+          <>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
+              {recommendedCircles.map((circle, idx) => (
+                <div
+                  key={idx}
+                  onMouseEnter={() => setHoveredCircle(idx)}
+                  onMouseLeave={() => setHoveredCircle(null)}
+                  style={{
+                    padding: '0.875rem 1rem',
+                    background: hoveredCircle === idx ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.12)',
+                    border: `1px solid ${hoveredCircle === idx ? 'rgba(184,151,106,0.18)' : 'rgba(255,255,255,0.2)'}`,
+                    borderRadius: 'var(--cx-radius)',
+                    textAlign: 'center', cursor: 'pointer',
+                    transition: 'all 350ms cubic-bezier(0.4,0,0.2,1)',
+                    transform: hoveredCircle === idx ? 'translateY(-2px)' : 'none',
+                    boxShadow: hoveredCircle === idx ? '0 6px 20px rgba(0,0,0,0.04)' : 'none',
+                  }}
+                >
+                  <span style={{
+                    fontFamily: 'Cormorant Garamond, serif', fontSize: '0.95rem',
+                    fontWeight: 600, color: 'var(--cx-gold)',
+                  }}>
+                    {circle}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <button className="cx-btn-primary" style={{ gap: '6px' }}>
+              <Compass size={13} /> Find Your Circle
+            </button>
+          </>
+        ) : (
+          <p style={{ fontSize: '0.8rem', color: 'var(--cx-ink3)', fontStyle: 'italic' }}>
+            Community circles will appear as you progress through your journey.
+          </p>
+        )}
+      </div>
     </div>
   );
 };
