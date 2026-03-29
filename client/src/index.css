@@ -899,6 +899,28 @@ video::-webkit-media-controls-overlay-play-button {
   0%, 100% { opacity: 0.5; }
   50% { opacity: 1; }
 }
+
+/* Living Codex logo loader */
+@keyframes cx-logo-breathe {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.06); opacity: 1; }
+}
+@keyframes cx-logo-rotate-cw {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes cx-logo-rotate-ccw {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+@keyframes cx-logo-leaf-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(0.92); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+@keyframes cx-logo-glow {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(184,151,106,0.15)); }
+  50% { filter: drop-shadow(0 0 18px rgba(184,151,106,0.35)); }
+}
 @keyframes cx-gold-glow {
   0% { box-shadow: 0 0 8px rgba(201, 169, 110, 0.1); }
   100% { box-shadow: 0 0 24px rgba(201, 169, 110, 0.25); }

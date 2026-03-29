@@ -2223,3 +2223,308 @@ export const codexAdaptiveResponses = mysqlTable("codex_adaptive_responses", {
 
 export type CodexAdaptiveResponse = typeof codexAdaptiveResponses.$inferSelect;
 export type InsertCodexAdaptiveResponse = typeof codexAdaptiveResponses.$inferInsert;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// COMMUNITY SYSTEM — Circles, Threading, Reactions, Moderation, Resonance
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Circles — the containers for community groups.
+ * Types: general, archetype, phase, resonance_pod, mirror_pair,
+ *        wound_kinship, complement, offering, reflection
+ */
+export const codexCircles = mysqlTable("codex_circles", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  circleType: varchar("circleType", { length: 30 }).notNull(), // general | archetype | phase | resonance_pod | mirror_pair | wound_kinship | complement | offering | reflection
+  name: varchar("name", { length: 255 }).notNull(),
+  slug: varchar("slug", { length: 100 }).notNull().unique(),
+  description: text("description"),
+  /** For archetype circles — the archetype key (e.g. "silent-flame") */
+  archetypeFilter: varchar("archetypeFilter", { length: 100 }),
+  /** For phase circles — the phase number */
+  phaseFilter: int("phaseFilter"),
+  /** For wound kinship circles — the wound code */
+  woundFilter: varchar("woundFilter", { length: 100 }),
+  maxMembers: int("maxMembers").default(0).notNull(), // 0 = unlimited
+  isActive: int("isActive").default(1).notNull(),
+  visibility: varchar("visibility", { length: 20 }).default("public").notNull(), // public | private | hidden
+  facilitatorType: varchar("facilitatorType", { length: 20 }).default("ai").notNull(), // ai | elder | admin | none
+  /** JSON: AI guide config for weekly prompts */
+  aiPromptConfig: text("aiPromptConfig"),
+  /** JSON: flexible circle metadata */
+  metadata: text("metadata"),
+  createdBy: varchar("createdBy", { length: 30 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexCircle = typeof codexCircles.$inferSelect;
+export type InsertCodexCircle = typeof codexCircles.$inferInsert;
+
+/**
+ * Circle memberships — tracks who belongs to which circle.
+ */
+export const codexCircleMembers = mysqlTable("codex_circle_members", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  circleId: varchar("circleId", { length: 30 }).notNull(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  role: varchar("role", { length: 20 }).default("member").notNull(), // member | facilitator | elder | observer
+  status: varchar("status", { length: 20 }).default("active").notNull(), // active | invited | pending | exited | graduated
+  trustScore: int("trustScore").default(50).notNull(), // 0-100
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+  exitedAt: timestamp("exitedAt"),
+  exitReason: varchar("exitReason", { length: 100 }),
+  lastActiveAt: timestamp("lastActiveAt"),
+  notificationPref: varchar("notificationPref", { length: 20 }).default("digest").notNull(), // all | digest | mentions | none
+});
+
+export type CodexCircleMember = typeof codexCircleMembers.$inferSelect;
+export type InsertCodexCircleMember = typeof codexCircleMembers.$inferInsert;
+
+/**
+ * Community threads — discussion topics within circles.
+ */
+export const codexCommunityThreads = mysqlTable("codex_community_threads", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  circleId: varchar("circleId", { length: 30 }).notNull(),
+  authorId: varchar("authorId", { length: 30 }).notNull(),
+  threadType: varchar("threadType", { length: 30 }).default("discussion").notNull(), // discussion | ceremony | prompt | milestone | offering | reflection | introduction
+  title: varchar("title", { length: 500 }).notNull(),
+  isPinned: int("isPinned").default(0).notNull(),
+  isLocked: int("isLocked").default(0).notNull(),
+  isAnonymous: int("isAnonymous").default(0).notNull(), // Veil Mode
+  replyCount: int("replyCount").default(0).notNull(),
+  aiGenerated: int("aiGenerated").default(0).notNull(),
+  status: varchar("status", { length: 20 }).default("active").notNull(), // active | closed | moderated | archived
+  lastActivityAt: timestamp("lastActivityAt").defaultNow().notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexCommunityThread = typeof codexCommunityThreads.$inferSelect;
+export type InsertCodexCommunityThread = typeof codexCommunityThreads.$inferInsert;
+
+/**
+ * Community messages — individual posts within threads.
+ */
+export const codexCommunityMessages = mysqlTable("codex_community_messages", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  threadId: varchar("threadId", { length: 30 }).notNull(),
+  authorId: varchar("authorId", { length: 30 }).notNull(),
+  parentMessageId: varchar("parentMessageId", { length: 30 }), // for nested replies
+  content: text("content").notNull(),
+  contentType: varchar("contentType", { length: 30 }).default("text").notNull(), // text | voice | journal_excerpt | prompt_response | ai_reflection | ceremony_step
+  isAnonymous: int("isAnonymous").default(0).notNull(), // Veil Mode
+  isAI: int("isAI").default(0).notNull(),
+  moderationStatus: varchar("moderationStatus", { length: 20 }).default("approved").notNull(), // pending | approved | flagged | removed
+  moderationNote: text("moderationNote"),
+  /** JSON cache: { witnessed: 3, resonates: 5, holding_space: 2, flame: 1, mirror: 0, offering: 0 } */
+  reactionSummary: text("reactionSummary"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexCommunityMessage = typeof codexCommunityMessages.$inferSelect;
+export type InsertCodexCommunityMessage = typeof codexCommunityMessages.$inferInsert;
+
+/**
+ * Reactions — meaningful community reactions (not likes/hearts).
+ * witnessed | resonates | holding_space | flame | mirror | offering
+ */
+export const codexReactions = mysqlTable("codex_reactions", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  messageId: varchar("messageId", { length: 30 }).notNull(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  reactionType: varchar("reactionType", { length: 20 }).notNull(), // witnessed | resonates | holding_space | flame | mirror | offering
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexReaction = typeof codexReactions.$inferSelect;
+export type InsertCodexReaction = typeof codexReactions.$inferInsert;
+
+/**
+ * Trust events — delta tracking for community trust scores.
+ */
+export const codexTrustEvents = mysqlTable("codex_trust_events", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  circleId: varchar("circleId", { length: 30 }),
+  eventType: varchar("eventType", { length: 40 }).notNull(), // positive_contribution | consistent_presence | ceremony_participation | offering_given | flag_received | warning_issued | boundary_violation | moderation_action
+  delta: int("delta").notNull(), // positive or negative
+  reason: varchar("reason", { length: 255 }),
+  issuedBy: varchar("issuedBy", { length: 20 }).notNull(), // system | ai | moderator | admin
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexTrustEvent = typeof codexTrustEvents.$inferSelect;
+export type InsertCodexTrustEvent = typeof codexTrustEvents.$inferInsert;
+
+/**
+ * Moderation log — audit trail for all community moderation actions.
+ */
+export const codexModerationLog = mysqlTable("codex_moderation_log", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  messageId: varchar("messageId", { length: 30 }),
+  userId: varchar("userId", { length: 30 }).notNull(), // subject of moderation
+  moderatorType: varchar("moderatorType", { length: 20 }).notNull(), // ai | elder | admin
+  moderatorId: varchar("moderatorId", { length: 30 }), // userId if human moderator
+  action: varchar("action", { length: 20 }).notNull(), // approve | flag | remove | restore | escalate | warn | mute
+  reason: text("reason"),
+  aiConfidence: varchar("aiConfidence", { length: 10 }), // e.g. "0.92"
+  previousStatus: varchar("previousStatus", { length: 20 }),
+  newStatus: varchar("newStatus", { length: 20 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexModerationLogEntry = typeof codexModerationLog.$inferSelect;
+export type InsertCodexModerationLogEntry = typeof codexModerationLog.$inferInsert;
+
+/**
+ * Ceremonies — AI-facilitated group sessions within circles.
+ */
+export const codexCeremonies = mysqlTable("codex_ceremonies", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  circleId: varchar("circleId", { length: 30 }).notNull(),
+  hostId: varchar("hostId", { length: 30 }), // userId or null for AI-hosted
+  ceremonyType: varchar("ceremonyType", { length: 40 }).notNull(), // weekly_reflection | phase_entry | phase_exit | wound_exploration | moon_cycle | seasonal | pod_introduction | mirror_reveal | offering_match | collective_mirror | milestone_celebration
+  title: varchar("title", { length: 255 }).notNull(),
+  description: text("description"),
+  /** JSON: ordered list of prompt steps for the ceremony */
+  promptSequenceJson: longtext("promptSequenceJson"),
+  status: varchar("status", { length: 20 }).default("scheduled").notNull(), // scheduled | active | completed | cancelled
+  scheduledAt: timestamp("scheduledAt"),
+  startedAt: timestamp("startedAt"),
+  completedAt: timestamp("completedAt"),
+  maxParticipants: int("maxParticipants").default(12).notNull(),
+  /** JSON: array of participating userIds */
+  participantIds: text("participantIds"),
+  /** JSON: AI-generated collective reflection after completion */
+  synthesisJson: longtext("synthesisJson"),
+  metadata: text("metadata"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexCeremony = typeof codexCeremonies.$inferSelect;
+export type InsertCodexCeremony = typeof codexCeremonies.$inferInsert;
+
+/**
+ * Collective mirrors — AI synthesis of circle patterns over time.
+ */
+export const codexCollectiveMirrors = mysqlTable("codex_collective_mirrors", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  circleId: varchar("circleId", { length: 30 }).notNull(),
+  periodStart: timestamp("periodStart").notNull(),
+  periodEnd: timestamp("periodEnd").notNull(),
+  /** JSON: full synthesis report — themes, patterns, movements, edges, invitations */
+  reportJson: longtext("reportJson"),
+  memberCount: int("memberCount").notNull(),
+  activeCount: int("activeCount").notNull(),
+  /** JSON: string[] top themes */
+  dominantThemes: text("dominantThemes"),
+  /** JSON: { shadow, threshold, gift, movement } */
+  spectrumShift: text("spectrumShift"),
+  generatedAt: timestamp("generatedAt").defaultNow().notNull(),
+});
+
+export type CodexCollectiveMirror = typeof codexCollectiveMirrors.$inferSelect;
+export type InsertCodexCollectiveMirror = typeof codexCollectiveMirrors.$inferInsert;
+
+/**
+ * Resonance matches — pairwise matching scores between users.
+ * Stores sub-scores for transparency on WHY two users match.
+ */
+export const codexResonanceMatches = mysqlTable("codex_resonance_matches", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userIdA: varchar("userIdA", { length: 30 }).notNull(),
+  userIdB: varchar("userIdB", { length: 30 }).notNull(),
+  matchMode: varchar("matchMode", { length: 20 }).notNull(), // resonance | complement | kinship
+  /** Overall resonance score 0-1000 (stored as int, divide by 1000 for 0.000-1.000) */
+  overallScore: int("overallScore").notNull(),
+  /** JSON: { archetypeOverlap, woundKinship, spectrumCorrelation, mirrorAlignment, phaseProximity, contradictionResonance, integrationParity } */
+  subscoreJson: text("subscoreJson"),
+  /** JSON: string[] shared archetype names */
+  sharedArchetypes: text("sharedArchetypes"),
+  /** JSON: string[] shared wound codes */
+  sharedWounds: text("sharedWounds"),
+  /** JSON: string[] shared mirror pattern codes */
+  sharedMirrors: text("sharedMirrors"),
+  computedAt: timestamp("computedAt").defaultNow().notNull(),
+  expiresAt: timestamp("expiresAt"),
+});
+
+export type CodexResonanceMatch = typeof codexResonanceMatches.$inferSelect;
+export type InsertCodexResonanceMatch = typeof codexResonanceMatches.$inferInsert;
+
+/**
+ * Offering holders — Phase 8-9 women who mentor earlier-phase women.
+ */
+export const codexOfferingHolders = mysqlTable("codex_offering_holders", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  status: varchar("status", { length: 20 }).default("applied").notNull(), // applied | approved | active | paused | retired | declined
+  /** JSON: application text and readiness data */
+  applicationJson: text("applicationJson"),
+  /** AI-computed readiness score 0-100 */
+  aiReadinessScore: int("aiReadinessScore"),
+  approvedBy: varchar("approvedBy", { length: 30 }),
+  /** JSON: string[] wound codes and archetype keys this holder specializes in */
+  specializations: text("specializations"),
+  maxSeekers: int("maxSeekers").default(3).notNull(),
+  currentSeekerCount: int("currentSeekerCount").default(0).notNull(),
+  appliedAt: timestamp("appliedAt").defaultNow().notNull(),
+  approvedAt: timestamp("approvedAt"),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexOfferingHolder = typeof codexOfferingHolders.$inferSelect;
+export type InsertCodexOfferingHolder = typeof codexOfferingHolders.$inferInsert;
+
+/**
+ * Offering matches — elder-seeker pairings within Offering Circles.
+ */
+export const codexOfferingMatches = mysqlTable("codex_offering_matches", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  holderId: varchar("holderId", { length: 30 }).notNull(), // FK -> codex_offering_holders.id
+  seekerUserId: varchar("seekerUserId", { length: 30 }).notNull(), // FK -> codex_users.id
+  circleId: varchar("circleId", { length: 30 }), // FK -> codex_circles.id (the offering circle)
+  matchScore: int("matchScore"), // 0-1000
+  /** JSON: reasons for the match */
+  matchReason: text("matchReason"),
+  status: varchar("status", { length: 20 }).default("proposed").notNull(), // proposed | accepted | active | completed | ended
+  startedAt: timestamp("startedAt"),
+  completedAt: timestamp("completedAt"),
+  /** JSON: feedback from both parties */
+  feedbackJson: text("feedbackJson"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexOfferingMatch = typeof codexOfferingMatches.$inferSelect;
+export type InsertCodexOfferingMatch = typeof codexOfferingMatches.$inferInsert;
+
+/**
+ * Genome vectors — normalized numeric embeddings of each user's psychic genome
+ * for fast approximate nearest-neighbor matching.
+ */
+export const codexGenomeVectors = mysqlTable("codex_genome_vectors", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull().unique(),
+  /** JSON: number[] — normalized archetype scores (15-dimensional) */
+  archetypeVector: text("archetypeVector"),
+  /** JSON: number[] — normalized wound scores */
+  woundVector: text("woundVector"),
+  /** JSON: number[] — [shadowPct, thresholdPct, giftPct] */
+  spectrumVector: text("spectrumVector"),
+  /** JSON: number[] — normalized mirror pattern scores */
+  mirrorVector: text("mirrorVector"),
+  /** JSON: number[] — one-hot phase encoding */
+  phaseVector: text("phaseVector"),
+  /** JSON: number[] — full concatenated + weighted composite */
+  compositeVector: text("compositeVector"),
+  /** Which scoring generated this vector */
+  scoringId: varchar("scoringId", { length: 30 }),
+  computedAt: timestamp("computedAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexGenomeVector = typeof codexGenomeVectors.$inferSelect;
+export type InsertCodexGenomeVector = typeof codexGenomeVectors.$inferInsert;

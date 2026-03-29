@@ -27,7 +27,11 @@ export type CodexEventType =
   | "scroll_layer_unlocked"
   | "pattern_shift_detected"
   | "milestone_earned"
-  | "phase_transition";
+  | "phase_transition"
+  | "community_circle_joined"
+  | "community_thread_created"
+  | "community_message_posted"
+  | "community_reaction_given";
 
 export interface CodexEventPayload {
   type: CodexEventType;
@@ -124,6 +128,17 @@ const REACTION_MAP: Record<CodexEventType, Reaction[]> = {
     { name: "refreshPredictions", handler: refreshPredictions },
     { name: "logMilestone", handler: logMilestone },
   ],
+  community_circle_joined: [
+    { name: "logMilestone", handler: logMilestone },
+  ],
+  community_thread_created: [
+    { name: "updateStreak", handler: updateStreak },
+  ],
+  community_message_posted: [
+    { name: "updateStreak", handler: updateStreak },
+    { name: "updateMirrorSnapshot", handler: updateMirrorSnapshot },
+  ],
+  community_reaction_given: [],
 };
 
 // ── Core: emit an event ────────────────────────────────────────────────
@@ -194,4 +209,20 @@ export function emitScrollLayerUnlocked(userId: string, layer: number) {
 
 export function emitPhaseTransition(userId: string, fromPhase: string, toPhase: string) {
   return emitCodexEvent({ type: "phase_transition", userId, data: { fromPhase, toPhase } });
+}
+
+export function emitCommunityCircleJoined(userId: string, circleId: string, circleName: string) {
+  return emitCodexEvent({ type: "community_circle_joined", userId, data: { circleId, circleName } });
+}
+
+export function emitCommunityThreadCreated(userId: string, threadId: string, circleId: string) {
+  return emitCodexEvent({ type: "community_thread_created", userId, data: { threadId, circleId } });
+}
+
+export function emitCommunityMessagePosted(userId: string, messageId: string, content: string) {
+  return emitCodexEvent({ type: "community_message_posted", userId, data: { messageId, sourceId: messageId, content } });
+}
+
+export function emitCommunityReactionGiven(userId: string, recipientId: string, reactionType: string) {
+  return emitCodexEvent({ type: "community_reaction_given", userId, data: { recipientId, reactionType } });
 }

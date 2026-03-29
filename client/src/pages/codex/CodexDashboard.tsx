@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { Orbit, Sparkles, ArrowRight, ChevronRight } from "lucide-react";
 import CodexWeather from "./CodexWeather";
 import CodexGrowthWidget from "./CodexGrowthWidget";
+import CodexLogoLoader from "./CodexLogoLoader";
 import {
   PhaseJourneyMap,
   ContradictionExplorer,
@@ -203,11 +204,9 @@ export default function CodexDashboard({ onNavigate }: Props) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "80vh" }}>
         <div style={{ textAlign: "center" }}>
-          <div className="cx-slow-pulse" style={{
-            width: 44, height: 44, borderRadius: "11px", margin: "0 auto 1rem",
-            background: "rgba(184,123,101,0.12)",
-            transform: "rotate(45deg)",
-          }} />
+          <div style={{ margin: "0 auto 1rem" }}>
+            <CodexLogoLoader size={64} />
+          </div>
           <p style={{ fontSize: "12px", color: "var(--cx-ink3)", fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic" }}>
             Loading your Codex...
           </p>
@@ -486,6 +485,7 @@ export default function CodexDashboard({ onNavigate }: Props) {
                 recommendedCircles={(d as any).routing.recommendedCircles}
                 communityTier={(d as any).routing.communityTier || "peer"}
                 primaryArchetype={primary?.archetype || ""}
+                onNavigate={onNavigate}
               />
             </div>
           )}

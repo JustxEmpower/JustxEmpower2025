@@ -2,6 +2,7 @@ import { useLocation } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { useState, useEffect, useRef, useCallback } from "react";
 import CodexPortalShell from "./codex/CodexPortalShell";
+import CodexLogoLoader from "./codex/CodexLogoLoader";
 
 /* ─────────────────────────────────────────────────────────────────────
    Scroll-reveal hook — elements fade in as they enter the viewport
@@ -95,7 +96,7 @@ export default function CodexPortal() {
     return (
       <div className="codex-env">
         <div className="cx-gateway">
-          <div className="text-5xl cx-slow-pulse" style={{ lineHeight: 1 }}>{"\u25C8"}</div>
+          <CodexLogoLoader size={90} />
           {confirming && (
             <p className="cx-invitation mt-8" style={{ opacity: 0.6 }}>Activating your journey…</p>
           )}
@@ -114,7 +115,7 @@ export default function CodexPortal() {
         {/* ── Section 1: The Gate ── */}
         <section className="min-h-screen flex flex-col items-center justify-center text-center px-6 relative">
           <div style={{ opacity: gatePassed ? 0 : 1, transition: 'opacity 1.5s ease 2.8s', pointerEvents: gatePassed ? 'none' : 'auto', position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-            <div className="text-7xl" style={{ animation: 'cx-slow-pulse 3s ease-in-out', lineHeight: 1 }}>{"\u25C8"}</div>
+            <CodexLogoLoader size={120} />
           </div>
           <div style={{ opacity: gatePassed ? 1 : 0, transform: gatePassed ? 'translateY(0)' : 'translateY(20px)', transition: 'all 2s ease 0.5s' }}>
             <p className="cx-font-accent text-xs tracking-[0.35em] uppercase mb-8" style={{ color: 'var(--cx-gold-dim)' }}>

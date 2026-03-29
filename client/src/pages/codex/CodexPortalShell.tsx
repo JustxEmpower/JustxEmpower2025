@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { LayoutDashboard, Orbit, MessageSquare, Compass, ScrollText, BookHeart, ChevronLeft, ChevronRight, ArrowLeft, Menu } from "lucide-react";
+import { LayoutDashboard, Orbit, MessageSquare, Compass, ScrollText, BookHeart, ChevronLeft, ChevronRight, ArrowLeft, Menu, Users } from "lucide-react";
 import { AnimationProvider } from './animation/01_AnimationEngine';
 import { GlimmerLayer } from './animation/02_AnimatedComponents';
 import CodexDashboard from "./CodexDashboard";
@@ -9,6 +9,7 @@ import CodexJournal from "./CodexJournal";
 import CodexModules from "./CodexModules";
 import CodexConversationHistory from "./CodexConversationHistory";
 import CodexJournalBridge from "./CodexJournalBridge";
+import CodexCommunity from "./CodexCommunity";
 import CodexOnboardingCeremony, { useOnboardingState } from "./CodexOnboardingCeremony";
 import { Link } from "lucide-react";
 
@@ -28,6 +29,12 @@ const NAV_SECTIONS = [
       { id: "codex", label: "Codex Scroll", icon: <ScrollText size={16} /> },
       { id: "journal", label: "Journal Vault", icon: <BookHeart size={16} /> },
       { id: "bridge", label: "Journal Bridge", icon: <Link size={16} /> },
+    ],
+  },
+  {
+    label: "COMMUNITY",
+    items: [
+      { id: "community", label: "Circles", icon: <Users size={16} /> },
     ],
   },
 ];
@@ -134,6 +141,7 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
       case "journal": return <CodexJournal onNavigate={handleNavigate} />;
       case "codex": return <CodexModules onNavigate={handleNavigate} />;
       case "bridge": return <CodexJournalBridge />;
+      case "community": return <CodexCommunity onNavigate={handleNavigate} />;
       default: return <CodexDashboard onNavigate={handleNavigate} />;
     }
   };

@@ -14,6 +14,9 @@ import { runScoringEngine, type ResponseRecord, type AnswerMetadata } from "./li
 import { SECTION_META, ARCHETYPES, JOURNEY_TIERS, SCROLL_MODULES } from "./lib/codexConstants";
 import { CODEX_GUIDES, codexGuideChat, generateJournalPrompt, reflectOnJournalEntry, generateGrowthInsight, type UserContext } from "./lib/codexAI";
 import { interceptUserMessage, validateAIResponse } from "./lib/codexEscalationEngine";
+import { classifyCommunityContent, updateTrustScore, recordModerationAction } from "./lib/codexCommunityModeration";
+import { rankCircleCandidates } from "./lib/codexResonanceEngine";
+import { generateWeeklyCirclePrompt, type CircleContext } from "./lib/codexCeremonyEngine";
 import { generateMirrorReport } from "./lib/codexMirrorReport";
 import { routePortalContent } from "./lib/codexRoutingEngine";
 import { BOOK_CATALOG, BOOK_TO_CODEX_MAP, LINEAGE_LAYER_PROMPTS, GUIDE_MATERNAL_DNA, buildMaternalContextBlock, buildResonanceAnalysisPrompt, buildBridgeReflectionPrompt, type MaternalPattern } from "./lib/codexBridgePrompts";
@@ -391,6 +394,72 @@ const codexClientRouter = router({
       status: "ready_for_review",
       contentJson: JSON.stringify(reportContent),
     });
+
+    // ── Community auto-join: General Circle + primary archetype circle ──
+    try {
+      const { computeGenomeVector } = await import("./lib/codexResonanceEngine");
+
+      // Compute and store genome vector
+      const vector = computeGenomeVector(u.id, result, 1);
+      const [existingVector] = await db.select().from(schema.codexGenomeVectors).where(eq(schema.codexGenomeVectors.userId, u.id)).limit(1);
+      if (existingVector) {
+        await db.update(schema.codexGenomeVectors).set({
+          archetypeVector: JSON.stringify(vector.archetype),
+          woundVector: JSON.stringify(vector.wound),
+          spectrumVector: JSON.stringify(vector.spectrum),
+          mirrorVector: JSON.stringify(vector.mirror),
+          phaseVector: JSON.stringify(vector.phase),
+          compositeVector: JSON.stringify(vector.composite),
+          scoringId,
+        }).where(eq(schema.codexGenomeVectors.userId, u.id));
+      } else {
+        await db.insert(schema.codexGenomeVectors).values({
+          id: nanoid(), userId: u.id,
+          archetypeVector: JSON.stringify(vector.archetype),
+          woundVector: JSON.stringify(vector.wound),
+          spectrumVector: JSON.stringify(vector.spectrum),
+          mirrorVector: JSON.stringify(vector.mirror),
+          phaseVector: JSON.stringify(vector.phase),
+          compositeVector: JSON.stringify(vector.composite),
+          scoringId,
+        });
+      }
+
+      // Auto-join General Circle
+      const [generalCircle] = await db.select().from(schema.codexCircles)
+        .where(and(eq(schema.codexCircles.circleType, "general"), eq(schema.codexCircles.isActive, 1))).limit(1);
+      if (generalCircle) {
+        const [existingMember] = await db.select().from(schema.codexCircleMembers)
+          .where(and(eq(schema.codexCircleMembers.circleId, generalCircle.id), eq(schema.codexCircleMembers.userId, u.id))).limit(1);
+        if (!existingMember) {
+          await db.insert(schema.codexCircleMembers).values({
+            id: nanoid(), circleId: generalCircle.id, userId: u.id,
+            role: "member", status: "active", trustScore: 50,
+          });
+        }
+      }
+
+      // Auto-join primary archetype circle
+      const primaryArch = result.archetypeConstellation[0];
+      if (primaryArch) {
+        const archKey = primaryArch.arName.replace(/^The\s+/, "").toLowerCase().replace(/\s+/g, "-");
+        const [archCircle] = await db.select().from(schema.codexCircles)
+          .where(and(eq(schema.codexCircles.circleType, "archetype"), eq(schema.codexCircles.archetypeFilter, archKey), eq(schema.codexCircles.isActive, 1))).limit(1);
+        if (archCircle) {
+          const [existingMember] = await db.select().from(schema.codexCircleMembers)
+            .where(and(eq(schema.codexCircleMembers.circleId, archCircle.id), eq(schema.codexCircleMembers.userId, u.id))).limit(1);
+          if (!existingMember) {
+            await db.insert(schema.codexCircleMembers).values({
+              id: nanoid(), circleId: archCircle.id, userId: u.id,
+              role: "member", status: "active", trustScore: 50,
+            });
+          }
+        }
+      }
+    } catch (communityErr) {
+      // Community auto-join is non-fatal — assessment still succeeds
+      console.warn("[Codex] Community auto-join failed:", communityErr);
+    }
 
     return { success: true, scoringId, reportId };
   }),
@@ -3195,6 +3264,681 @@ const codexEventBusRouter = router({
     }),
 });
 
+// ══════════════════════════════════════════════════════════════════════
+// COMMUNITY ROUTER — Circles, Threads, Messages, Reactions, Resonance
+// ══════════════════════════════════════════════════════════════════════
+
+const codexCommunityRouter = router({
+
+  // ── My Circles ──────────────────────────────────────────────────────
+  getMyCircles: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    const memberships = await db.select({
+      membership: schema.codexCircleMembers,
+      circle: schema.codexCircles,
+    })
+      .from(schema.codexCircleMembers)
+      .innerJoin(schema.codexCircles, eq(schema.codexCircleMembers.circleId, schema.codexCircles.id))
+      .where(and(eq(schema.codexCircleMembers.userId, u.id), eq(schema.codexCircleMembers.status, "active")));
+
+    const results = [];
+    for (const row of memberships) {
+      // Count members in circle
+      const [mc] = await db.select({ count: sql<number>`count(*)` })
+        .from(schema.codexCircleMembers)
+        .where(and(eq(schema.codexCircleMembers.circleId, row.circle.id), eq(schema.codexCircleMembers.status, "active")));
+
+      // Get latest thread activity
+      const [latestThread] = await db.select({ lastActivityAt: schema.codexCommunityThreads.lastActivityAt })
+        .from(schema.codexCommunityThreads)
+        .where(eq(schema.codexCommunityThreads.circleId, row.circle.id))
+        .orderBy(desc(schema.codexCommunityThreads.lastActivityAt))
+        .limit(1);
+
+      results.push({
+        id: row.circle.id,
+        name: row.circle.name,
+        slug: row.circle.slug,
+        circleType: row.circle.circleType,
+        description: row.circle.description,
+        memberCount: mc?.count || 0,
+        lastActivity: latestThread?.lastActivityAt?.toISOString() || null,
+        role: row.membership.role,
+        trustScore: row.membership.trustScore,
+        joinedAt: row.membership.joinedAt.toISOString(),
+      });
+    }
+
+    return results;
+  }),
+
+  // ── Recommended Circles ─────────────────────────────────────────────
+  getRecommendedCircles: customerProc.query(async ({ ctx }) => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    const u = (ctx as any).codexUser as schema.CodexUser;
+
+    // Get user's latest scoring
+    const [scoring] = await db.select()
+      .from(schema.codexScorings)
+      .where(eq(schema.codexScorings.userId, u.id))
+      .orderBy(desc(schema.codexScorings.createdAt))
+      .limit(1);
+
+    // Get all active circles
+    const allCircles = await db.select()
+      .from(schema.codexCircles)
+      .where(eq(schema.codexCircles.isActive, 1));
+
+    // Get user's current memberships
+    const myMemberships = await db.select({ circleId: schema.codexCircleMembers.circleId })
+      .from(schema.codexCircleMembers)
+      .where(and(eq(schema.codexCircleMembers.userId, u.id), eq(schema.codexCircleMembers.status, "active")));
+    const joinedIds = new Set(myMemberships.map(m => m.circleId));
+
+    // Filter to circles user hasn't joined
+    const unjoinedCircles = allCircles.filter(c => !joinedIds.has(c.id));
+
+    if (!scoring?.resultJson) {
+      // No scoring yet — return circles with basic ranking
+      return unjoinedCircles.map(c => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        circleType: c.circleType,
+        description: c.description,
+        score: c.circleType === "general" ? 100 : 50,
+        reason: c.circleType === "general" ? "Open to all women." : "Complete your assessment for personalized recommendations.",
+      }));
+    }
+
+    // Use resonance engine for ranked recommendations
+    let parsed;
+    try { parsed = JSON.parse(scoring.resultJson); } catch { parsed = null; }
+    if (!parsed) {
+      return unjoinedCircles.map(c => ({
+        id: c.id, name: c.name, slug: c.slug, circleType: c.circleType,
+        description: c.description, score: 50, reason: "A circle you may explore.",
+      }));
+    }
+
+    const ranked = rankCircleCandidates(parsed, unjoinedCircles);
+    return ranked.map(r => {
+      const circle = unjoinedCircles.find(c => c.id === r.circleId)!;
+      return {
+        id: circle.id,
+        name: circle.name,
+        slug: circle.slug,
+        circleType: circle.circleType,
+        description: circle.description,
+        score: r.score,
+        reason: r.reason,
+      };
+    });
+  }),
+
+  // ── Circle Detail ───────────────────────────────────────────────────
+  getCircleDetail: customerProc
+    .input(z.object({ circleId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      const [circle] = await db.select().from(schema.codexCircles)
+        .where(eq(schema.codexCircles.id, input.circleId)).limit(1);
+      if (!circle) throw new TRPCError({ code: "NOT_FOUND", message: "Circle not found" });
+
+      const [mc] = await db.select({ count: sql<number>`count(*)` })
+        .from(schema.codexCircleMembers)
+        .where(and(eq(schema.codexCircleMembers.circleId, circle.id), eq(schema.codexCircleMembers.status, "active")));
+
+      // Check if user is a member
+      const [membership] = await db.select().from(schema.codexCircleMembers)
+        .where(and(
+          eq(schema.codexCircleMembers.circleId, circle.id),
+          eq(schema.codexCircleMembers.userId, u.id),
+          eq(schema.codexCircleMembers.status, "active")
+        )).limit(1);
+
+      return {
+        ...circle,
+        aiPromptConfig: circle.aiPromptConfig ? JSON.parse(circle.aiPromptConfig) : null,
+        metadata: circle.metadata ? JSON.parse(circle.metadata) : null,
+        memberCount: mc?.count || 0,
+        isMember: !!membership,
+        memberRole: membership?.role || null,
+        memberTrustScore: membership?.trustScore || null,
+      };
+    }),
+
+  // ── Join Circle ─────────────────────────────────────────────────────
+  joinCircle: customerProc
+    .input(z.object({ circleId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      // Check circle exists and is active
+      const [circle] = await db.select().from(schema.codexCircles)
+        .where(and(eq(schema.codexCircles.id, input.circleId), eq(schema.codexCircles.isActive, 1))).limit(1);
+      if (!circle) throw new TRPCError({ code: "NOT_FOUND", message: "Circle not found or inactive" });
+
+      // Check not already a member
+      const [existing] = await db.select().from(schema.codexCircleMembers)
+        .where(and(
+          eq(schema.codexCircleMembers.circleId, input.circleId),
+          eq(schema.codexCircleMembers.userId, u.id),
+          eq(schema.codexCircleMembers.status, "active")
+        )).limit(1);
+      if (existing) throw new TRPCError({ code: "CONFLICT", message: "Already a member" });
+
+      // Check capacity
+      if (circle.maxMembers > 0) {
+        const [mc] = await db.select({ count: sql<number>`count(*)` })
+          .from(schema.codexCircleMembers)
+          .where(and(eq(schema.codexCircleMembers.circleId, input.circleId), eq(schema.codexCircleMembers.status, "active")));
+        if ((mc?.count || 0) >= circle.maxMembers) {
+          throw new TRPCError({ code: "PRECONDITION_FAILED", message: "Circle is full" });
+        }
+      }
+
+      const membershipId = nanoid();
+      await db.insert(schema.codexCircleMembers).values({
+        id: membershipId,
+        circleId: input.circleId,
+        userId: u.id,
+        role: "member",
+        status: "active",
+        trustScore: 50,
+      });
+
+      // Trust event for joining
+      await updateTrustScore(db, u.id, input.circleId, "thread_created", "Joined circle");
+
+      return { success: true, membershipId };
+    }),
+
+  // ── Leave Circle ────────────────────────────────────────────────────
+  leaveCircle: customerProc
+    .input(z.object({ circleId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      await db.update(schema.codexCircleMembers)
+        .set({ status: "exited", exitedAt: new Date(), exitReason: "voluntary" })
+        .where(and(
+          eq(schema.codexCircleMembers.circleId, input.circleId),
+          eq(schema.codexCircleMembers.userId, u.id),
+          eq(schema.codexCircleMembers.status, "active")
+        ));
+
+      return { success: true };
+    }),
+
+  // ── Threads (paginated) ─────────────────────────────────────────────
+  getThreads: customerProc
+    .input(z.object({ circleId: z.string(), limit: z.number().min(1).max(50).default(20), offset: z.number().min(0).default(0) }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      const threads = await db.select({
+        thread: schema.codexCommunityThreads,
+      })
+        .from(schema.codexCommunityThreads)
+        .where(and(
+          eq(schema.codexCommunityThreads.circleId, input.circleId),
+          eq(schema.codexCommunityThreads.status, "active")
+        ))
+        .orderBy(desc(schema.codexCommunityThreads.isPinned), desc(schema.codexCommunityThreads.lastActivityAt))
+        .limit(input.limit)
+        .offset(input.offset);
+
+      // Fetch author names
+      const results = [];
+      for (const row of threads) {
+        const [author] = await db.select({ name: schema.codexUsers.name })
+          .from(schema.codexUsers)
+          .where(eq(schema.codexUsers.id, row.thread.authorId))
+          .limit(1);
+
+        results.push({
+          ...row.thread,
+          lastActivityAt: row.thread.lastActivityAt.toISOString(),
+          createdAt: row.thread.createdAt.toISOString(),
+          authorName: row.thread.isAnonymous ? "A woman in the circle" : (author?.name || "Unknown"),
+        });
+      }
+
+      return results;
+    }),
+
+  // ── Thread Detail with Messages ─────────────────────────────────────
+  getThread: customerProc
+    .input(z.object({ threadId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      const [thread] = await db.select().from(schema.codexCommunityThreads)
+        .where(eq(schema.codexCommunityThreads.id, input.threadId)).limit(1);
+      if (!thread) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const messages = await db.select()
+        .from(schema.codexCommunityMessages)
+        .where(and(
+          eq(schema.codexCommunityMessages.threadId, input.threadId),
+          sql`${schema.codexCommunityMessages.moderationStatus} != 'removed'`
+        ))
+        .orderBy(asc(schema.codexCommunityMessages.createdAt));
+
+      // Fetch author names and reactions
+      const enriched = [];
+      for (const msg of messages) {
+        const [author] = await db.select({ name: schema.codexUsers.name })
+          .from(schema.codexUsers)
+          .where(eq(schema.codexUsers.id, msg.authorId))
+          .limit(1);
+
+        // Get reaction counts
+        const reactions = await db.select({
+          reactionType: schema.codexReactions.reactionType,
+          count: sql<number>`count(*)`,
+        })
+          .from(schema.codexReactions)
+          .where(eq(schema.codexReactions.messageId, msg.id))
+          .groupBy(schema.codexReactions.reactionType);
+
+        const reactionMap: Record<string, number> = {};
+        for (const r of reactions) reactionMap[r.reactionType] = r.count;
+
+        // Check if current user has reacted
+        const u = (ctx as any).codexUser as schema.CodexUser;
+        const userReactions = await db.select({ reactionType: schema.codexReactions.reactionType })
+          .from(schema.codexReactions)
+          .where(and(eq(schema.codexReactions.messageId, msg.id), eq(schema.codexReactions.userId, u.id)));
+        const myReactions = userReactions.map(r => r.reactionType);
+
+        enriched.push({
+          id: msg.id,
+          content: msg.moderationStatus === "flagged" ? "[This message is under review]" : msg.content,
+          contentType: msg.contentType,
+          authorId: msg.authorId,
+          authorName: msg.isAnonymous ? "A woman in the circle" : (author?.name || "Unknown"),
+          isAnonymous: msg.isAnonymous === 1,
+          isAI: msg.isAI === 1,
+          moderationStatus: msg.moderationStatus,
+          parentMessageId: msg.parentMessageId,
+          reactions: reactionMap,
+          myReactions,
+          createdAt: msg.createdAt.toISOString(),
+        });
+      }
+
+      return {
+        thread: {
+          ...thread,
+          lastActivityAt: thread.lastActivityAt.toISOString(),
+          createdAt: thread.createdAt.toISOString(),
+        },
+        messages: enriched,
+      };
+    }),
+
+  // ── Create Thread ───────────────────────────────────────────────────
+  createThread: customerProc
+    .input(z.object({
+      circleId: z.string(),
+      title: z.string().min(1).max(500),
+      content: z.string().min(1).max(5000),
+      threadType: z.enum(["discussion", "reflection", "offering"]).default("discussion"),
+      isAnonymous: z.boolean().default(false),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      // Verify membership
+      const [membership] = await db.select().from(schema.codexCircleMembers)
+        .where(and(
+          eq(schema.codexCircleMembers.circleId, input.circleId),
+          eq(schema.codexCircleMembers.userId, u.id),
+          eq(schema.codexCircleMembers.status, "active")
+        )).limit(1);
+      if (!membership) throw new TRPCError({ code: "FORBIDDEN", message: "Must be a circle member" });
+
+      // Moderate content
+      const modResult = classifyCommunityContent(input.content, {
+        userId: u.id,
+        trustScore: membership.trustScore,
+        circleId: input.circleId,
+      });
+
+      const threadId = nanoid();
+      const messageId = nanoid();
+
+      // Create thread
+      await db.insert(schema.codexCommunityThreads).values({
+        id: threadId,
+        circleId: input.circleId,
+        authorId: u.id,
+        title: input.title,
+        threadType: input.threadType,
+        isAnonymous: input.isAnonymous ? 1 : 0,
+        replyCount: 0,
+        status: "active",
+      });
+
+      // Create first message
+      await db.insert(schema.codexCommunityMessages).values({
+        id: messageId,
+        threadId,
+        authorId: u.id,
+        content: input.content,
+        contentType: "text",
+        isAnonymous: input.isAnonymous ? 1 : 0,
+        moderationStatus: modResult.status === "approved" ? "approved" : "flagged",
+        moderationNote: modResult.reasons.length > 0 ? JSON.stringify(modResult.reasons) : null,
+      });
+
+      // Log moderation if flagged
+      if (modResult.status === "flagged") {
+        await recordModerationAction(db, {
+          messageId,
+          userId: u.id,
+          moderatorType: "ai",
+          action: "flag",
+          reason: modResult.reasons.join("; "),
+          aiConfidence: modResult.confidence,
+          previousStatus: "pending",
+          newStatus: "flagged",
+        });
+        await updateTrustScore(db, u.id, input.circleId, "message_flagged", modResult.reasons.join("; "));
+      } else {
+        await updateTrustScore(db, u.id, input.circleId, "thread_created");
+      }
+
+      // Update member last active
+      await db.update(schema.codexCircleMembers)
+        .set({ lastActiveAt: new Date() })
+        .where(eq(schema.codexCircleMembers.id, membership.id));
+
+      return { threadId, messageId, moderation: modResult.status };
+    }),
+
+  // ── Post Message ────────────────────────────────────────────────────
+  postMessage: customerProc
+    .input(z.object({
+      threadId: z.string(),
+      content: z.string().min(1).max(5000),
+      parentMessageId: z.string().optional(),
+      isAnonymous: z.boolean().default(false),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      // Get thread and verify membership
+      const [thread] = await db.select().from(schema.codexCommunityThreads)
+        .where(eq(schema.codexCommunityThreads.id, input.threadId)).limit(1);
+      if (!thread) throw new TRPCError({ code: "NOT_FOUND" });
+      if (thread.isLocked) throw new TRPCError({ code: "FORBIDDEN", message: "Thread is locked" });
+
+      const [membership] = await db.select().from(schema.codexCircleMembers)
+        .where(and(
+          eq(schema.codexCircleMembers.circleId, thread.circleId),
+          eq(schema.codexCircleMembers.userId, u.id),
+          eq(schema.codexCircleMembers.status, "active")
+        )).limit(1);
+      if (!membership) throw new TRPCError({ code: "FORBIDDEN", message: "Must be a circle member" });
+
+      // Moderate
+      const modResult = classifyCommunityContent(input.content, {
+        userId: u.id,
+        trustScore: membership.trustScore,
+        circleId: thread.circleId,
+      });
+
+      const messageId = nanoid();
+      await db.insert(schema.codexCommunityMessages).values({
+        id: messageId,
+        threadId: input.threadId,
+        authorId: u.id,
+        content: input.content,
+        contentType: "text",
+        parentMessageId: input.parentMessageId || null,
+        isAnonymous: input.isAnonymous ? 1 : 0,
+        moderationStatus: modResult.status === "approved" ? "approved" : "flagged",
+        moderationNote: modResult.reasons.length > 0 ? JSON.stringify(modResult.reasons) : null,
+      });
+
+      // Update thread reply count and activity
+      await db.update(schema.codexCommunityThreads)
+        .set({
+          replyCount: sql`${schema.codexCommunityThreads.replyCount} + 1`,
+          lastActivityAt: new Date(),
+        })
+        .where(eq(schema.codexCommunityThreads.id, input.threadId));
+
+      // Trust + moderation logging
+      if (modResult.status === "flagged") {
+        await recordModerationAction(db, {
+          messageId, userId: u.id, moderatorType: "ai", action: "flag",
+          reason: modResult.reasons.join("; "), aiConfidence: modResult.confidence,
+          previousStatus: "pending", newStatus: "flagged",
+        });
+        await updateTrustScore(db, u.id, thread.circleId, "message_flagged");
+      } else {
+        await updateTrustScore(db, u.id, thread.circleId, "message_approved");
+      }
+
+      // Update member last active
+      await db.update(schema.codexCircleMembers)
+        .set({ lastActiveAt: new Date() })
+        .where(eq(schema.codexCircleMembers.id, membership.id));
+
+      return { messageId, moderation: modResult.status };
+    }),
+
+  // ── Delete Message (soft) ───────────────────────────────────────────
+  deleteMessage: customerProc
+    .input(z.object({ messageId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      const [msg] = await db.select().from(schema.codexCommunityMessages)
+        .where(eq(schema.codexCommunityMessages.id, input.messageId)).limit(1);
+      if (!msg) throw new TRPCError({ code: "NOT_FOUND" });
+      if (msg.authorId !== u.id) throw new TRPCError({ code: "FORBIDDEN", message: "Can only delete your own messages" });
+
+      await db.update(schema.codexCommunityMessages)
+        .set({ moderationStatus: "removed", moderationNote: "Deleted by author" })
+        .where(eq(schema.codexCommunityMessages.id, input.messageId));
+
+      return { success: true };
+    }),
+
+  // ── Add Reaction ────────────────────────────────────────────────────
+  addReaction: customerProc
+    .input(z.object({
+      messageId: z.string(),
+      reactionType: z.enum(["witnessed", "resonates", "holding_space", "flame", "mirror", "offering"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      // Check message exists
+      const [msg] = await db.select().from(schema.codexCommunityMessages)
+        .where(eq(schema.codexCommunityMessages.id, input.messageId)).limit(1);
+      if (!msg) throw new TRPCError({ code: "NOT_FOUND" });
+
+      // Check not already reacted with this type
+      const [existing] = await db.select().from(schema.codexReactions)
+        .where(and(
+          eq(schema.codexReactions.messageId, input.messageId),
+          eq(schema.codexReactions.userId, u.id),
+          eq(schema.codexReactions.reactionType, input.reactionType)
+        )).limit(1);
+      if (existing) throw new TRPCError({ code: "CONFLICT", message: "Already reacted" });
+
+      await db.insert(schema.codexReactions).values({
+        id: nanoid(),
+        messageId: input.messageId,
+        userId: u.id,
+        reactionType: input.reactionType,
+      });
+
+      // Trust bonus for the message author (not self)
+      if (msg.authorId !== u.id) {
+        // Get author's circle membership from the thread
+        const [thread] = await db.select({ circleId: schema.codexCommunityThreads.circleId })
+          .from(schema.codexCommunityThreads)
+          .where(eq(schema.codexCommunityThreads.id, msg.threadId)).limit(1);
+        if (thread) {
+          await updateTrustScore(db, msg.authorId, thread.circleId, "reaction_received", `${input.reactionType} from peer`);
+        }
+      }
+
+      return { success: true };
+    }),
+
+  // ── Remove Reaction ─────────────────────────────────────────────────
+  removeReaction: customerProc
+    .input(z.object({
+      messageId: z.string(),
+      reactionType: z.enum(["witnessed", "resonates", "holding_space", "flame", "mirror", "offering"]),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
+
+      await db.delete(schema.codexReactions)
+        .where(and(
+          eq(schema.codexReactions.messageId, input.messageId),
+          eq(schema.codexReactions.userId, u.id),
+          eq(schema.codexReactions.reactionType, input.reactionType)
+        ));
+
+      return { success: true };
+    }),
+
+  // ── Weekly AI Prompt ────────────────────────────────────────────────
+  getWeeklyPrompt: customerProc
+    .input(z.object({ circleId: z.string() }))
+    .query(async ({ input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      const [circle] = await db.select().from(schema.codexCircles)
+        .where(eq(schema.codexCircles.id, input.circleId)).limit(1);
+      if (!circle) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const [mc] = await db.select({ count: sql<number>`count(*)` })
+        .from(schema.codexCircleMembers)
+        .where(and(eq(schema.codexCircleMembers.circleId, circle.id), eq(schema.codexCircleMembers.status, "active")));
+
+      // Get recent thread titles as themes
+      const recentThreads = await db.select({ title: schema.codexCommunityThreads.title })
+        .from(schema.codexCommunityThreads)
+        .where(eq(schema.codexCommunityThreads.circleId, circle.id))
+        .orderBy(desc(schema.codexCommunityThreads.createdAt))
+        .limit(5);
+
+      const context: CircleContext = {
+        circleId: circle.id,
+        circleType: circle.circleType,
+        name: circle.name,
+        archetypeFilter: circle.archetypeFilter,
+        woundFilter: circle.woundFilter,
+        phaseFilter: circle.phaseFilter,
+        memberCount: mc?.count || 0,
+        recentThemes: recentThreads.map(t => t.title),
+      };
+
+      const prompt = await generateWeeklyCirclePrompt(context);
+      return { prompt, circleName: circle.name };
+    }),
+
+  // ── Resonance Map (stub for Q1) ────────────────────────────────────
+  getResonanceMap: customerProc.query(async ({ ctx }) => {
+    const u = (ctx as any).codexUser as schema.CodexUser;
+    // Q1 stub — resonance matching UI will come in Q2
+    return {
+      userId: u.id,
+      matches: [],
+      message: "Your resonance constellation is forming. Full matching coming soon.",
+    };
+  }),
+
+  // ── Admin: Flagged Messages ─────────────────────────────────────────
+  getFlaggedMessages: adminProc.query(async () => {
+    const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+    const flagged = await db.select({
+      message: schema.codexCommunityMessages,
+      thread: schema.codexCommunityThreads,
+    })
+      .from(schema.codexCommunityMessages)
+      .innerJoin(schema.codexCommunityThreads, eq(schema.codexCommunityMessages.threadId, schema.codexCommunityThreads.id))
+      .where(eq(schema.codexCommunityMessages.moderationStatus, "flagged"))
+      .orderBy(desc(schema.codexCommunityMessages.createdAt))
+      .limit(50);
+
+    return flagged.map(row => ({
+      messageId: row.message.id,
+      content: row.message.content,
+      authorId: row.message.authorId,
+      threadTitle: row.thread.title,
+      circleId: row.thread.circleId,
+      moderationNote: row.message.moderationNote,
+      createdAt: row.message.createdAt.toISOString(),
+    }));
+  }),
+
+  // ── Admin: Moderate Message ─────────────────────────────────────────
+  moderateMessage: adminProc
+    .input(z.object({
+      messageId: z.string(),
+      action: z.enum(["approve", "remove"]),
+      reason: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+
+      const [msg] = await db.select().from(schema.codexCommunityMessages)
+        .where(eq(schema.codexCommunityMessages.id, input.messageId)).limit(1);
+      if (!msg) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const newStatus = input.action === "approve" ? "approved" : "removed";
+      await db.update(schema.codexCommunityMessages)
+        .set({ moderationStatus: newStatus, moderationNote: input.reason || null })
+        .where(eq(schema.codexCommunityMessages.id, input.messageId));
+
+      await recordModerationAction(db, {
+        messageId: input.messageId,
+        userId: msg.authorId,
+        moderatorType: "admin",
+        action: input.action,
+        reason: input.reason,
+        previousStatus: msg.moderationStatus,
+        newStatus,
+      });
+
+      // Trust penalty for removal
+      if (input.action === "remove") {
+        const [thread] = await db.select({ circleId: schema.codexCommunityThreads.circleId })
+          .from(schema.codexCommunityThreads)
+          .where(eq(schema.codexCommunityThreads.id, msg.threadId)).limit(1);
+        if (thread) {
+          await updateTrustScore(db, msg.authorId, thread.circleId, "message_removed", input.reason);
+        }
+      }
+
+      return { success: true };
+    }),
+});
+
 export const codexRouter = router({
   admin: codexAdminRouter,
   client: codexClientRouter,
@@ -3205,4 +3949,5 @@ export const codexRouter = router({
   checkIn: codexCheckInRouter,
   adaptive: codexAdaptiveRouter,
   events: codexEventBusRouter,
+  community: codexCommunityRouter,
 });

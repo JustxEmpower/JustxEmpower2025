@@ -50,6 +50,13 @@
       "when": 1774715102069,
       "tag": "0006_glamorous_snowbird",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1774827241992,
+      "tag": "0007_volatile_johnny_storm",
+      "breakpoints": true
     }
   ]
 }

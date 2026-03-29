@@ -305,12 +305,14 @@ interface CommunityCircleCardProps {
   recommendedCircles: string[];
   communityTier: string;
   primaryArchetype: string;
+  onNavigate?: (view: string) => void;
 }
 
 export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
   recommendedCircles,
   communityTier,
   primaryArchetype,
+  onNavigate,
 }) => {
   const [hoveredCircle, setHoveredCircle] = useState<number | null>(null);
   const archetypeName = primaryArchetype
@@ -365,7 +367,7 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
                 </div>
               ))}
             </div>
-            <button className="cx-btn-primary" style={{ gap: '6px' }}>
+            <button className="cx-btn-primary" style={{ gap: '6px' }} onClick={() => onNavigate?.("community")}>
               <Compass size={13} /> Find Your Circle
             </button>
           </>
