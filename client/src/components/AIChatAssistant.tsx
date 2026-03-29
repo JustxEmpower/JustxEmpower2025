@@ -167,14 +167,37 @@ export function AIChatAssistant() {
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className={`fixed ${positionClasses} z-50 w-24 h-24 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-transform duration-200 overflow-hidden bg-white`}
+          className={`fixed ${positionClasses} z-50 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300 overflow-hidden group`}
+          style={{
+            background: 'linear-gradient(135deg, #EDE5D8 0%, #E8E0D2 50%, #EAE2D5 100%)',
+            border: '1px solid rgba(184,123,101,0.2)',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 0 0 1px rgba(255,255,255,0.5) inset',
+          }}
           aria-label="Open AI Chat Assistant"
         >
-          <img 
-            src="https://justxempower-assets.s3.us-east-1.amazonaws.com/media/brand/logo-r-final.png" 
-            alt="Just Empower" 
-            className="w-20 h-20 object-contain"
-          />
+          {/* Glow halo */}
+          <div style={{
+            position: 'absolute', width: 50, height: 50, borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(184,151,106,0.12), transparent 70%)',
+            pointerEvents: 'none',
+          }} />
+          {/* Vesica Piscis — Living Codex emblem */}
+          <svg
+            width={28} height={28} viewBox="0 0 40 40" fill="none"
+            style={{ filter: 'drop-shadow(0 0 4px rgba(184,123,101,0.25))', position: 'relative' }}
+          >
+            <circle cx="15" cy="20" r="11" stroke="#B87B65" strokeWidth="1.2" fill="none" opacity="0.85" />
+            <circle cx="25" cy="20" r="11" stroke="#B87B65" strokeWidth="1.2" fill="none" opacity="0.85" />
+            <defs>
+              <clipPath id="vesica-fab">
+                <circle cx="15" cy="20" r="11" />
+              </clipPath>
+            </defs>
+            <circle cx="25" cy="20" r="11" fill="rgba(184,123,101,0.12)" clipPath="url(#vesica-fab)" />
+            <path d="M20 17.5 L21.5 20 L20 22.5 L18.5 20 Z" fill="#B87B65" opacity="0.9" />
+            <circle cx="20" cy="12.2" r="0.7" fill="#B87B65" opacity="0.5" />
+            <circle cx="20" cy="27.8" r="0.7" fill="#B87B65" opacity="0.5" />
+          </svg>
         </button>
       )}
 
