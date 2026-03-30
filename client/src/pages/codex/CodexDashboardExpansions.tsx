@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronDown, ChevronRight, ArrowRight, Users, BookOpen, Compass } from 'lucide-react';
+import { trpc } from '@/lib/trpc';
 import NinePhaseIcons from './NinePhaseIcons';
 
 // ============================================================================
@@ -299,7 +300,7 @@ export const PatternConnectionsPanel: React.FC<PatternConnectionsPanelProps> = (
 };
 
 // ============================================================================
-// CommunityCircleCard — Premium with interactive hover
+// CommunityCircleCard — Live data from tRPC, clickable circles
 // ============================================================================
 interface CommunityCircleCardProps {
   recommendedCircles: string[];
@@ -319,6 +320,16 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
     .replace(/-/g, ' ')
     .replace(/\b\w/g, l => l.toUpperCase());
 
+  // Use live tRPC data for joined circles
+  const myCirclesQuery = trpc.codex.community.getMyCircles.useQuery();
+  const myCircles = myCirclesQuery.data || [];
+  const hasJoinedCircles = myCircles.length > 0;
+
+  // Show joined circles if available, otherwise fall back to static recommendations
+  const displayCircles = hasJoinedCircles
+    ? myCircles.slice(0, 3)
+    : recommendedCircles.slice(0, 3).map((name: string) => ({ id: null, name, circleType: "archetype", memberCount: 0 }));
+
   return (
     <div className="cx-widget cx-fade-in">
       <div className="cx-widget-header">
@@ -336,45 +347,79 @@ export const CommunityCircleCard: React.FC<CommunityCircleCardProps> = ({
         </span>
 
         <p style={{ fontSize: '0.85rem', color: 'var(--cx-ink2)', lineHeight: 1.6, marginBottom: '1rem' }}>
-          Connect with others on a similar path. Your archetype ({archetypeName}) resonates with these circles.
+          {hasJoinedCircles
+            ? `You're connected to ${myCircles.length} circle${myCircles.length !== 1 ? 's' : ''}. Tap to enter.`
+            : `Your archetype (${archetypeName}) resonates with these circles.`
+          }
         </p>
 
-        {recommendedCircles.length > 0 ? (
+        {displayCircles.length > 0 ? (
           <>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-              {recommendedCircles.map((circle, idx) => (
+              {displayCircles.map((circle: any, idx: number) => (
                 <div
-                  key={idx}
+                  key={circle.id || idx}
                   onMouseEnter={() => setHoveredCircle(idx)}
                   onMouseLeave={() => setHoveredCircle(null)}
+                  onClick={() => {
+                    if (circle.id) {
+                      onNavigate?.(`community:${circle.id}`);
+                    } else {
+                      onNavigate?.("community");
+                    }
+                  }}
                   style={{
-                    padding: '0.875rem 1rem',
+                    padding: '0.75rem 1rem',
                     background: hoveredCircle === idx ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.12)',
                     border: `1px solid ${hoveredCircle === idx ? 'rgba(184,151,106,0.18)' : 'rgba(255,255,255,0.2)'}`,
                     borderRadius: 'var(--cx-radius)',
-                    textAlign: 'center', cursor: 'pointer',
+                    cursor: 'pointer',
                     transition: 'all 350ms cubic-bezier(0.4,0,0.2,1)',
-                    transform: hoveredCircle === idx ? 'translateY(-2px)' : 'none',
-                    boxShadow: hoveredCircle === idx ? '0 6px 20px rgba(0,0,0,0.04)' : 'none',
+                    transform: hoveredCircle === idx ? 'translateX(4px)' : 'none',
+                    display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                   }}
                 >
-                  <span style={{
-                    fontFamily: 'Cormorant Garamond, serif', fontSize: '0.95rem',
-                    fontWeight: 600, color: 'var(--cx-gold)',
-                  }}>
-                    {circle}
-                  </span>
+                  <div>
+                    <span style={{
+                      fontFamily: 'Cormorant Garamond, serif', fontSize: '0.9rem',
+                      fontWeight: 600, color: 'var(--cx-gold)', display: 'block',
+                    }}>
+                      {circle.name}
+                    </span>
+                    {hasJoinedCircles && circle.memberCount > 0 && (
+                      <span style={{ fontSize: '0.65rem', color: 'var(--cx-ink3)' }}>
+                        {circle.memberCount} member{circle.memberCount !== 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </div>
+                  <ArrowRight size={13} style={{
+                    color: hoveredCircle === idx ? 'var(--cx-gold)' : 'var(--cx-ink3)',
+                    opacity: hoveredCircle === idx ? 0.8 : 0.3,
+                    transition: 'all 300ms',
+                  }} />
                 </div>
               ))}
             </div>
-            <button className="cx-btn-primary" style={{ gap: '6px' }} onClick={() => onNavigate?.("community")}>
-              <Compass size={13} /> Find Your Circle
+
+            {myCircles.length > 3 && (
+              <p style={{ fontSize: '0.7rem', color: 'var(--cx-ink3)', marginBottom: '0.75rem', textAlign: 'center' }}>
+                + {myCircles.length - 3} more circle{myCircles.length - 3 !== 1 ? 's' : ''}
+              </p>
+            )}
+
+            <button className="cx-btn-primary" style={{ gap: '6px', width: '100%' }} onClick={() => onNavigate?.("community")}>
+              <Compass size={13} /> {hasJoinedCircles ? 'View All Circles' : 'Find Your Circle'}
             </button>
           </>
         ) : (
-          <p style={{ fontSize: '0.8rem', color: 'var(--cx-ink3)', fontStyle: 'italic' }}>
-            Community circles will appear as you progress through your journey.
-          </p>
+          <>
+            <p style={{ fontSize: '0.8rem', color: 'var(--cx-ink3)', fontStyle: 'italic', marginBottom: '1rem' }}>
+              Community circles will appear as you progress through your journey.
+            </p>
+            <button className="cx-btn-primary" style={{ gap: '6px', width: '100%' }} onClick={() => onNavigate?.("community")}>
+              <Compass size={13} /> Explore Circles
+            </button>
+          </>
         )}
       </div>
     </div>

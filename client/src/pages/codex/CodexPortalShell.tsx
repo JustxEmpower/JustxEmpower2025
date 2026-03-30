@@ -90,6 +90,7 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [resumeConversationId, setResumeConversationId] = useState<string | null>(null);
   const [resumeGuideId, setResumeGuideId] = useState<string | null>(null);
+  const [communityCircleId, setCommunityCircleId] = useState<string | null>(null);
   const { onboardingComplete, markOnboardingComplete } = useOnboardingState();
 
   const userPhase = portal.user.phase || portal.scoring?.phase || '1';
@@ -112,6 +113,16 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
       setPrevView(activeView);
       setActiveView("codex");
       setPageKey(k => k + 1);
+      return;
+    }
+    // Deep-link into a specific community circle
+    if (view.startsWith("community:")) {
+      const cId = view.split(":")[1];
+      setCommunityCircleId(cId);
+      setPrevView(activeView);
+      setActiveView("community");
+      setPageKey(k => k + 1);
+      setMobileOpen(false);
       return;
     }
     // Journal → Guide discussion: pre-load conversation
@@ -141,7 +152,7 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
       case "journal": return <CodexJournal onNavigate={handleNavigate} />;
       case "codex": return <CodexModules onNavigate={handleNavigate} />;
       case "bridge": return <CodexJournalBridge />;
-      case "community": return <CodexCommunity onNavigate={handleNavigate} />;
+      case "community": return <CodexCommunity onNavigate={handleNavigate} initialCircleId={communityCircleId} onCircleConsumed={() => setCommunityCircleId(null)} />;
       default: return <CodexDashboard onNavigate={handleNavigate} />;
     }
   };
