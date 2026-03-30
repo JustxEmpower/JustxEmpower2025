@@ -2528,3 +2528,99 @@ export const codexGenomeVectors = mysqlTable("codex_genome_vectors", {
 
 export type CodexGenomeVector = typeof codexGenomeVectors.$inferSelect;
 export type InsertCodexGenomeVector = typeof codexGenomeVectors.$inferInsert;
+
+// ============================================================================
+// COMMUNITY MESSAGING — Direct messages + circle chat
+// Inspired by EusoTrip messaging architecture, adapted for sacred community
+// ============================================================================
+
+/**
+ * Conversations — DMs and group chats between circle members.
+ * Linked to a circle context so messaging stays within community bounds.
+ */
+export const codexConversations = mysqlTable("codex_conversations", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  circleId: varchar("circleId", { length: 30 }), // null = cross-circle DM
+  type: varchar("type", { length: 20 }).default("direct").notNull(), // direct | group | circle_chat
+  name: varchar("name", { length: 255 }), // for group conversations
+  createdById: varchar("createdById", { length: 30 }).notNull(),
+  lastMessageAt: timestamp("lastMessageAt"),
+  lastMessagePreview: varchar("lastMessagePreview", { length: 200 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexConversation = typeof codexConversations.$inferSelect;
+export type InsertCodexConversation = typeof codexConversations.$inferInsert;
+
+/**
+ * Conversation participants — membership, read state, preferences.
+ */
+export const codexConversationParticipants = mysqlTable("codex_conversation_participants", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  conversationId: varchar("conversationId", { length: 30 }).notNull(),
+  userId: varchar("userId", { length: 30 }).notNull(),
+  role: varchar("role", { length: 20 }).default("member").notNull(), // owner | admin | member
+  unreadCount: int("unreadCount").default(0).notNull(),
+  lastReadAt: timestamp("lastReadAt"),
+  isPinned: boolean("isPinned").default(false).notNull(),
+  isMuted: boolean("isMuted").default(false).notNull(),
+  isArchived: boolean("isArchived").default(false).notNull(),
+  joinedAt: timestamp("joinedAt").defaultNow().notNull(),
+  leftAt: timestamp("leftAt"),
+});
+
+export type CodexConversationParticipant = typeof codexConversationParticipants.$inferSelect;
+export type InsertCodexConversationParticipant = typeof codexConversationParticipants.$inferInsert;
+
+/**
+ * Direct/chat messages — real-time messages within conversations.
+ * Separate from community thread messages (which are discussion-oriented).
+ */
+export const codexDirectMessages = mysqlTable("codex_direct_messages", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  conversationId: varchar("conversationId", { length: 30 }).notNull(),
+  senderId: varchar("senderId", { length: 30 }).notNull(),
+  content: text("content"),
+  contentType: varchar("contentType", { length: 30 }).default("text").notNull(), // text | image | voice_note | journal_share | prompt_share | system
+  parentMessageId: varchar("parentMessageId", { length: 30 }), // reply threading
+  isUnsent: boolean("isUnsent").default(false).notNull(),
+  /** JSON: array of { userId, readAt } */
+  readReceipts: text("readReceipts"),
+  /** JSON: arbitrary metadata (attachment info, shared content refs, etc.) */
+  metadata: text("metadata"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type CodexDirectMessage = typeof codexDirectMessages.$inferSelect;
+export type InsertCodexDirectMessage = typeof codexDirectMessages.$inferInsert;
+
+/**
+ * Message attachments — files, images, voice notes shared in messages.
+ */
+export const codexMessageAttachments = mysqlTable("codex_message_attachments", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  messageId: varchar("messageId", { length: 30 }).notNull(),
+  type: varchar("type", { length: 20 }).notNull(), // image | document | audio | voice_note
+  fileName: varchar("fileName", { length: 255 }),
+  fileUrl: text("fileUrl"),
+  fileSize: int("fileSize"), // bytes
+  mimeType: varchar("mimeType", { length: 100 }),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type CodexMessageAttachment = typeof codexMessageAttachments.$inferSelect;
+export type InsertCodexMessageAttachment = typeof codexMessageAttachments.$inferInsert;
+
+/**
+ * User presence — tracks online/active status for circle members.
+ */
+export const codexUserPresence = mysqlTable("codex_user_presence", {
+  id: varchar("id", { length: 30 }).notNull().primaryKey(),
+  userId: varchar("userId", { length: 30 }).notNull().unique(),
+  status: varchar("status", { length: 20 }).default("offline").notNull(), // online | away | offline
+  lastSeenAt: timestamp("lastSeenAt").defaultNow().notNull(),
+  /** JSON: { circleId, view } — what the user is currently viewing */
+  activeContext: text("activeContext"),
+});

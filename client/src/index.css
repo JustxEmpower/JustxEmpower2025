@@ -921,6 +921,10 @@ video::-webkit-media-controls-overlay-play-button {
   0%, 100% { filter: drop-shadow(0 0 6px rgba(184,151,106,0.15)); }
   50% { filter: drop-shadow(0 0 18px rgba(184,151,106,0.35)); }
 }
+@keyframes cx-typing-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
 @keyframes cx-gold-glow {
   0% { box-shadow: 0 0 8px rgba(201, 169, 110, 0.1); }
   100% { box-shadow: 0 0 24px rgba(201, 169, 110, 0.25); }

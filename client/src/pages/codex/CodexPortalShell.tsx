@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { LayoutDashboard, Orbit, MessageSquare, Compass, ScrollText, BookHeart, ChevronLeft, ChevronRight, ArrowLeft, Menu, Users } from "lucide-react";
+import { LayoutDashboard, Orbit, MessageSquare, Compass, ScrollText, BookHeart, ChevronLeft, ChevronRight, ArrowLeft, Menu, Users, Mail } from "lucide-react";
 import { AnimationProvider } from './animation/01_AnimationEngine';
 import { GlimmerLayer } from './animation/02_AnimatedComponents';
 import CodexDashboard from "./CodexDashboard";
@@ -10,6 +10,7 @@ import CodexModules from "./CodexModules";
 import CodexConversationHistory from "./CodexConversationHistory";
 import CodexJournalBridge from "./CodexJournalBridge";
 import CodexCommunity from "./CodexCommunity";
+import CodexMessages from "./CodexMessages";
 import CodexOnboardingCeremony, { useOnboardingState } from "./CodexOnboardingCeremony";
 import { Link } from "lucide-react";
 
@@ -35,6 +36,7 @@ const NAV_SECTIONS = [
     label: "COMMUNITY",
     items: [
       { id: "community", label: "Circles", icon: <Users size={16} /> },
+      { id: "messages", label: "Messages", icon: <Mail size={16} /> },
     ],
   },
 ];
@@ -153,6 +155,7 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
       case "codex": return <CodexModules onNavigate={handleNavigate} />;
       case "bridge": return <CodexJournalBridge />;
       case "community": return <CodexCommunity onNavigate={handleNavigate} initialCircleId={communityCircleId} onCircleConsumed={() => setCommunityCircleId(null)} />;
+      case "messages": return <CodexMessages onNavigate={handleNavigate} />;
       default: return <CodexDashboard onNavigate={handleNavigate} />;
     }
   };

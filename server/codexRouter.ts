@@ -3409,6 +3409,7 @@ const codexCommunityRouter = router({
         isMember: !!membership,
         memberRole: membership?.role || null,
         memberTrustScore: membership?.trustScore || null,
+        currentUserId: u.id,
       };
     }),
 
@@ -3455,6 +3456,20 @@ const codexCommunityRouter = router({
 
       // Trust event for joining
       await updateTrustScore(db, u.id, input.circleId, "thread_created", "Joined circle");
+
+      // Auto-join the circle chat conversation if it exists
+      const circleChatResult = await db.execute(sql`
+        SELECT id FROM codex_conversations WHERE circleId = ${input.circleId} AND type = 'circle_chat' LIMIT 1
+      `);
+      const circleChatRows = (circleChatResult as any)[0];
+      if (circleChatRows.length > 0) {
+        await db.insert(schema.codexConversationParticipants).values({
+          id: nanoid(),
+          conversationId: circleChatRows[0].id,
+          userId: u.id,
+          role: "member",
+        }).catch(() => {}); // ignore if already a participant
+      }
 
       return { success: true, membershipId };
     }),
@@ -3939,6 +3954,415 @@ const codexCommunityRouter = router({
     }),
 });
 
+// ══════════════════════════════════════════════════════════════════════
+// MESSAGING ROUTER — Direct messages, circle chat, presence, read receipts
+// Adapted from EusoTrip messaging architecture for sacred community context
+// ══════════════════════════════════════════════════════════════════════
+
+const codexMessagingRouter = router({
+
+  // ── Presence heartbeat — call every 30s to stay "online" ───────────
+  heartbeat: customerProc
+    .input(z.object({ circleId: z.string().optional() }).optional())
+    .mutation(async ({ ctx }) => {
+      const db = getDb();
+      const userId = ctx.user.id;
+      const activeContext = ctx.input?.circleId ? JSON.stringify({ circleId: ctx.input.circleId }) : null;
+
+      // Upsert presence
+      await db.execute(sql`
+        INSERT INTO codex_user_presence (id, userId, status, lastSeenAt, activeContext)
+        VALUES (${nanoid()}, ${userId}, 'online', NOW(), ${activeContext})
+        ON DUPLICATE KEY UPDATE status = 'online', lastSeenAt = NOW(), activeContext = ${activeContext}
+      `);
+      return { ok: true };
+    }),
+
+  // ── Get online members for a circle ────────────────────────────────
+  getPresence: customerProc
+    .input(z.object({ circleId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const db = getDb();
+      // Get circle members who were active in last 5 minutes
+      const results = await db.execute(sql`
+        SELECT p.userId, p.status, p.lastSeenAt,
+               u.name as userName
+        FROM codex_user_presence p
+        JOIN codex_circle_members cm ON cm.userId = p.userId AND cm.circleId = ${input.circleId} AND cm.status = 'active'
+        JOIN users u ON u.id = p.userId
+        WHERE p.lastSeenAt > DATE_SUB(NOW(), INTERVAL 5 MINUTE)
+        ORDER BY p.lastSeenAt DESC
+      `);
+      return (results as any)[0] || [];
+    }),
+
+  // ── Get conversations for current user ─────────────────────────────
+  getConversations: customerProc
+    .input(z.object({
+      circleId: z.string().optional(),
+    }).optional())
+    .query(async ({ ctx, input }) => {
+      const db = getDb();
+      const userId = ctx.user.id;
+
+      let whereClause = sql`cp.userId = ${userId} AND cp.leftAt IS NULL`;
+      if (input?.circleId) {
+        whereClause = sql`${whereClause} AND c.circleId = ${input.circleId}`;
+      }
+
+      const results = await db.execute(sql`
+        SELECT c.id, c.circleId, c.type, c.name, c.lastMessageAt, c.lastMessagePreview,
+               cp.unreadCount, cp.isPinned, cp.isMuted, cp.isArchived,
+               (SELECT GROUP_CONCAT(
+                 JSON_OBJECT('userId', cp2.userId, 'name', u2.name)
+               ) FROM codex_conversation_participants cp2
+                JOIN users u2 ON u2.id = cp2.userId
+                WHERE cp2.conversationId = c.id AND cp2.leftAt IS NULL AND cp2.userId != ${userId}
+               ) as otherParticipants
+        FROM codex_conversations c
+        JOIN codex_conversation_participants cp ON cp.conversationId = c.id
+        WHERE ${whereClause}
+        ORDER BY cp.isPinned DESC, c.lastMessageAt DESC
+        LIMIT 50
+      `);
+
+      const rows = (results as any)[0] || [];
+      return rows.map((r: any) => ({
+        ...r,
+        isPinned: !!r.isPinned,
+        isMuted: !!r.isMuted,
+        isArchived: !!r.isArchived,
+        otherParticipants: r.otherParticipants
+          ? JSON.parse(`[${r.otherParticipants}]`)
+          : [],
+      }));
+    }),
+
+  // ── Get messages in a conversation ─────────────────────────────────
+  getMessages: customerProc
+    .input(z.object({
+      conversationId: z.string(),
+      limit: z.number().min(1).max(100).default(50),
+      before: z.string().optional(), // cursor: message ID
+    }))
+    .query(async ({ ctx, input }) => {
+      const db = getDb();
+      const userId = ctx.user.id;
+
+      // Verify participant
+      const [participant] = await db.select()
+        .from(schema.codexConversationParticipants)
+        .where(and(
+          eq(schema.codexConversationParticipants.conversationId, input.conversationId),
+          eq(schema.codexConversationParticipants.userId, userId),
+          sql`${schema.codexConversationParticipants.leftAt} IS NULL`
+        )).limit(1);
+
+      if (!participant) throw new TRPCError({ code: "FORBIDDEN", message: "Not a participant" });
+
+      let cursorClause = sql`1=1`;
+      if (input.before) {
+        cursorClause = sql`m.id < ${input.before}`;
+      }
+
+      const results = await db.execute(sql`
+        SELECT m.id, m.conversationId, m.senderId, m.content, m.contentType,
+               m.parentMessageId, m.isUnsent, m.readReceipts, m.metadata,
+               m.createdAt, m.updatedAt,
+               u.name as senderName
+        FROM codex_direct_messages m
+        JOIN users u ON u.id = m.senderId
+        WHERE m.conversationId = ${input.conversationId} AND ${cursorClause}
+        ORDER BY m.createdAt DESC
+        LIMIT ${input.limit}
+      `);
+
+      const messages = ((results as any)[0] || []).map((m: any) => ({
+        ...m,
+        isUnsent: !!m.isUnsent,
+        readReceipts: m.readReceipts ? JSON.parse(m.readReceipts) : [],
+        metadata: m.metadata ? JSON.parse(m.metadata) : null,
+      }));
+
+      return messages.reverse(); // chronological order
+    }),
+
+  // ── Send a message ─────────────────────────────────────────────────
+  sendMessage: customerProc
+    .input(z.object({
+      conversationId: z.string(),
+      content: z.string().min(1).max(5000),
+      contentType: z.string().default("text"),
+      parentMessageId: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+      const userId = ctx.user.id;
+
+      // Verify participant
+      const [participant] = await db.select()
+        .from(schema.codexConversationParticipants)
+        .where(and(
+          eq(schema.codexConversationParticipants.conversationId, input.conversationId),
+          eq(schema.codexConversationParticipants.userId, userId),
+          sql`${schema.codexConversationParticipants.leftAt} IS NULL`
+        )).limit(1);
+
+      if (!participant) throw new TRPCError({ code: "FORBIDDEN", message: "Not a participant" });
+
+      const messageId = nanoid();
+      const preview = input.content.length > 200 ? input.content.slice(0, 197) + "..." : input.content;
+
+      await db.insert(schema.codexDirectMessages).values({
+        id: messageId,
+        conversationId: input.conversationId,
+        senderId: userId,
+        content: input.content,
+        contentType: input.contentType,
+        parentMessageId: input.parentMessageId || null,
+        readReceipts: JSON.stringify([{ userId, readAt: new Date().toISOString() }]),
+      });
+
+      // Update conversation last message
+      await db.execute(sql`
+        UPDATE codex_conversations
+        SET lastMessageAt = NOW(), lastMessagePreview = ${preview}
+        WHERE id = ${input.conversationId}
+      `);
+
+      // Increment unread for other participants
+      await db.execute(sql`
+        UPDATE codex_conversation_participants
+        SET unreadCount = unreadCount + 1
+        WHERE conversationId = ${input.conversationId} AND userId != ${userId} AND leftAt IS NULL
+      `);
+
+      return { id: messageId };
+    }),
+
+  // ── Create or find a conversation ──────────────────────────────────
+  createConversation: customerProc
+    .input(z.object({
+      participantIds: z.array(z.string()).min(1).max(20),
+      circleId: z.string().optional(),
+      type: z.enum(["direct", "group", "circle_chat"]).default("direct"),
+      name: z.string().optional(),
+      initialMessage: z.string().optional(),
+    }))
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+      const userId = ctx.user.id;
+      const allParticipants = [...new Set([userId, ...input.participantIds])];
+
+      // For direct conversations, check if one already exists between these two users
+      if (input.type === "direct" && allParticipants.length === 2) {
+        const existing = await db.execute(sql`
+          SELECT c.id FROM codex_conversations c
+          WHERE c.type = 'direct'
+          AND (SELECT COUNT(*) FROM codex_conversation_participants cp
+               WHERE cp.conversationId = c.id AND cp.leftAt IS NULL
+               AND cp.userId IN (${allParticipants[0]}, ${allParticipants[1]})) = 2
+          LIMIT 1
+        `);
+        const rows = (existing as any)[0];
+        if (rows.length > 0) {
+          return { id: rows[0].id, existing: true };
+        }
+      }
+
+      const convId = nanoid();
+      await db.insert(schema.codexConversations).values({
+        id: convId,
+        circleId: input.circleId || null,
+        type: input.type,
+        name: input.name || null,
+        createdById: userId,
+      });
+
+      // Add all participants
+      for (const pId of allParticipants) {
+        await db.insert(schema.codexConversationParticipants).values({
+          id: nanoid(),
+          conversationId: convId,
+          userId: pId,
+          role: pId === userId ? "owner" : "member",
+        });
+      }
+
+      // Send initial message if provided
+      if (input.initialMessage) {
+        const msgId = nanoid();
+        const preview = input.initialMessage.length > 200 ? input.initialMessage.slice(0, 197) + "..." : input.initialMessage;
+        await db.insert(schema.codexDirectMessages).values({
+          id: msgId,
+          conversationId: convId,
+          senderId: userId,
+          content: input.initialMessage,
+          contentType: "text",
+          readReceipts: JSON.stringify([{ userId, readAt: new Date().toISOString() }]),
+        });
+        await db.execute(sql`
+          UPDATE codex_conversations SET lastMessageAt = NOW(), lastMessagePreview = ${preview} WHERE id = ${convId}
+        `);
+      }
+
+      return { id: convId, existing: false };
+    }),
+
+  // ── Mark conversation as read ──────────────────────────────────────
+  markAsRead: customerProc
+    .input(z.object({ conversationId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+      const userId = ctx.user.id;
+
+      await db.execute(sql`
+        UPDATE codex_conversation_participants
+        SET unreadCount = 0, lastReadAt = NOW()
+        WHERE conversationId = ${input.conversationId} AND userId = ${userId}
+      `);
+
+      // Update read receipts on recent messages
+      await db.execute(sql`
+        UPDATE codex_direct_messages
+        SET readReceipts = JSON_ARRAY_APPEND(
+          COALESCE(readReceipts, '[]'), '$',
+          JSON_OBJECT('userId', ${userId}, 'readAt', NOW())
+        )
+        WHERE conversationId = ${input.conversationId}
+        AND senderId != ${userId}
+        AND NOT JSON_CONTAINS(COALESCE(readReceipts, '[]'), JSON_QUOTE(${userId}), '$[*].userId')
+        AND createdAt > DATE_SUB(NOW(), INTERVAL 7 DAY)
+      `);
+
+      return { ok: true };
+    }),
+
+  // ── Unsend a message ───────────────────────────────────────────────
+  unsendMessage: customerProc
+    .input(z.object({ messageId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+      const [msg] = await db.select()
+        .from(schema.codexDirectMessages)
+        .where(eq(schema.codexDirectMessages.id, input.messageId))
+        .limit(1);
+
+      if (!msg) throw new TRPCError({ code: "NOT_FOUND" });
+      if (msg.senderId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN" });
+
+      await db.update(schema.codexDirectMessages)
+        .set({ isUnsent: true, content: null })
+        .where(eq(schema.codexDirectMessages.id, input.messageId));
+
+      return { ok: true };
+    }),
+
+  // ── Get circle members (for DM initiation + member list) ───────────
+  getCircleMembers: customerProc
+    .input(z.object({ circleId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const db = getDb();
+      const results = await db.execute(sql`
+        SELECT cm.userId, cm.role, cm.trustScore, cm.joinedAt,
+               u.name as userName,
+               p.status as presenceStatus, p.lastSeenAt
+        FROM codex_circle_members cm
+        JOIN users u ON u.id = cm.userId
+        LEFT JOIN codex_user_presence p ON p.userId = cm.userId
+        WHERE cm.circleId = ${input.circleId} AND cm.status = 'active'
+        ORDER BY
+          CASE WHEN p.lastSeenAt > DATE_SUB(NOW(), INTERVAL 5 MINUTE) THEN 0 ELSE 1 END,
+          cm.trustScore DESC
+      `);
+      return ((results as any)[0] || []).map((m: any) => ({
+        ...m,
+        isOnline: m.presenceStatus === 'online' && m.lastSeenAt && new Date(m.lastSeenAt) > new Date(Date.now() - 5 * 60000),
+      }));
+    }),
+
+  // ── Get or create the circle-wide chat conversation ────────────────
+  getCircleChat: customerProc
+    .input(z.object({ circleId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const db = getDb();
+      const userId = ctx.user.id;
+
+      // Find existing circle chat
+      const existing = await db.execute(sql`
+        SELECT c.id FROM codex_conversations c
+        WHERE c.circleId = ${input.circleId} AND c.type = 'circle_chat'
+        LIMIT 1
+      `);
+      const rows = (existing as any)[0];
+      if (rows.length > 0) {
+        return { conversationId: rows[0].id };
+      }
+
+      // Create circle chat + add all current members
+      const convId = nanoid();
+      await db.insert(schema.codexConversations).values({
+        id: convId,
+        circleId: input.circleId,
+        type: "circle_chat",
+        name: "Circle Chat",
+        createdById: userId,
+      });
+
+      const members = await db.execute(sql`
+        SELECT userId FROM codex_circle_members
+        WHERE circleId = ${input.circleId} AND status = 'active'
+      `);
+      for (const m of (members as any)[0] || []) {
+        await db.insert(schema.codexConversationParticipants).values({
+          id: nanoid(),
+          conversationId: convId,
+          userId: m.userId,
+          role: "member",
+        });
+      }
+
+      return { conversationId: convId };
+    }),
+
+  // ── Get unread count across all conversations ──────────────────────
+  getUnreadTotal: customerProc.query(async ({ ctx }) => {
+    const db = getDb();
+    const results = await db.execute(sql`
+      SELECT COALESCE(SUM(cp.unreadCount), 0) as total
+      FROM codex_conversation_participants cp
+      WHERE cp.userId = ${ctx.user.id} AND cp.leftAt IS NULL
+    `);
+    return { total: ((results as any)[0]?.[0]?.total || 0) as number };
+  }),
+
+  // ── Pin/unpin conversation ─────────────────────────────────────────
+  togglePin: customerProc
+    .input(z.object({ conversationId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+      await db.execute(sql`
+        UPDATE codex_conversation_participants
+        SET isPinned = NOT isPinned
+        WHERE conversationId = ${input.conversationId} AND userId = ${ctx.user.id}
+      `);
+      return { ok: true };
+    }),
+
+  // ── Archive conversation ───────────────────────────────────────────
+  archiveConversation: customerProc
+    .input(z.object({ conversationId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const db = getDb();
+      await db.execute(sql`
+        UPDATE codex_conversation_participants
+        SET isArchived = TRUE
+        WHERE conversationId = ${input.conversationId} AND userId = ${ctx.user.id}
+      `);
+      return { ok: true };
+    }),
+});
+
 export const codexRouter = router({
   admin: codexAdminRouter,
   client: codexClientRouter,
@@ -3950,4 +4374,5 @@ export const codexRouter = router({
   adaptive: codexAdaptiveRouter,
   events: codexEventBusRouter,
   community: codexCommunityRouter,
+  messaging: codexMessagingRouter,
 });
