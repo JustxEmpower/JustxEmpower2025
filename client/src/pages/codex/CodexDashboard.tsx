@@ -230,7 +230,19 @@ export default function CodexDashboard({ onNavigate }: Props) {
   ];
 
   return (
-    <div className="cx-page-enter" style={{ padding: "36px 40px", maxWidth: "72rem", margin: "0 auto" }}>
+    <div className="cx-page-enter" style={{ padding: "36px 40px", maxWidth: "72rem", margin: "0 auto", position: "relative" }}>
+
+      {/* Background logo animation */}
+      <div style={{
+        position: "absolute",
+        top: "40%", left: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex: 0,
+        pointerEvents: "none",
+        opacity: 0.2,
+      }}>
+        <CodexLogoLoader size={360} />
+      </div>
 
       {/* ── Welcome Header ── */}
       <div className="cx-fade-up" style={{ marginBottom: "28px" }}>
