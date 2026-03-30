@@ -232,14 +232,14 @@ export default function CodexDashboard({ onNavigate }: Props) {
   return (
     <div className="cx-page-enter" style={{ padding: "36px 40px", maxWidth: "72rem", margin: "0 auto", position: "relative" }}>
 
-      {/* Background logo animation — fixed center, very subtle */}
+      {/* Background logo animation — fixed center of content area */}
       <div style={{
         position: "fixed",
-        top: "50%", left: "50%",
+        top: "45%",
+        left: "calc(50% + 120px)",
         transform: "translate(-50%, -50%)",
         zIndex: 0,
         pointerEvents: "none",
-        opacity: 0.06,
       }}>
         <CodexLogoLoader size={420} />
       </div>
