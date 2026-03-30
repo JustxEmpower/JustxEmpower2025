@@ -51,12 +51,12 @@ export default function CodexMessages({ onNavigate }: Props) {
 
   const conversationsQuery = trpc.codex.messaging.getConversations.useQuery(
     undefined,
-    { refetchInterval: 5000 }
+    { refetchInterval: 5000, retry: 1, retryDelay: 5000 }
   );
 
   const messagesQuery = trpc.codex.messaging.getMessages.useQuery(
     { conversationId: activeConversationId!, limit: 80 },
-    { enabled: !!activeConversationId, refetchInterval: 3000 }
+    { enabled: !!activeConversationId, refetchInterval: 3000, retry: 1, retryDelay: 5000 }
   );
 
   const sendMut = trpc.codex.messaging.sendMessage.useMutation({
@@ -112,8 +112,9 @@ export default function CodexMessages({ onNavigate }: Props) {
   };
 
   const isLoading = conversationsQuery.isLoading;
+  const hasError = conversationsQuery.isError;
 
-  if (isLoading) {
+  if (isLoading && !hasError) {
     return (
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
         <div style={{ textAlign: "center" }}>
@@ -121,6 +122,27 @@ export default function CodexMessages({ onNavigate }: Props) {
           <p style={{ fontSize: "0.8rem", color: "var(--cx-ink3)", fontFamily: "'Cormorant Garamond', serif", fontStyle: "italic", marginTop: "1rem" }}>
             Loading messages...
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (hasError) {
+    return (
+      <div className="cx-page-enter" style={{ padding: "36px 40px", maxWidth: "64rem", margin: "0 auto" }}>
+        <div className="cx-fade-up" style={{ marginBottom: "2rem" }}>
+          <h1 style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "2rem", fontWeight: 300, color: "var(--cx-gold)", marginBottom: "0.5rem" }}>Messages</h1>
+        </div>
+        <div className="cx-widget cx-fade-up cx-delay-1" style={{ textAlign: "center", padding: "3rem 2rem" }}>
+          <div className="cx-widget-body">
+            <MessageSquare size={32} style={{ color: "var(--cx-gold)", opacity: 0.4, marginBottom: "1rem" }} />
+            <h3 style={{ fontFamily: "Cormorant Garamond, serif", fontSize: "1.25rem", fontWeight: 400, color: "var(--cx-cream, #f5e6d3)", marginBottom: "0.75rem" }}>
+              Messages coming soon
+            </h3>
+            <p style={{ fontSize: "0.85rem", color: "var(--cx-ink2)", lineHeight: 1.6 }}>
+              Join a circle and start connecting with others to begin messaging.
+            </p>
+          </div>
         </div>
       </div>
     );

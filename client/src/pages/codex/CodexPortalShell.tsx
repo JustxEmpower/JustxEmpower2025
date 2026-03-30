@@ -7,7 +7,6 @@ import CodexJourney from "./CodexJourney";
 import CodexGuide from "./CodexGuide";
 import CodexJournal from "./CodexJournal";
 import CodexModules from "./CodexModules";
-import CodexConversationHistory from "./CodexConversationHistory";
 import CodexJournalBridge from "./CodexJournalBridge";
 import CodexCommunity from "./CodexCommunity";
 import CodexMessages from "./CodexMessages";
@@ -20,7 +19,6 @@ const NAV_SECTIONS = [
     items: [
       { id: "dashboard", label: "Dashboard", icon: <LayoutDashboard size={16} /> },
       { id: "guide", label: "AI Guide", icon: <Orbit size={16} /> },
-      { id: "history", label: "Conversations", icon: <MessageSquare size={16} /> },
     ],
   },
   {
@@ -150,7 +148,6 @@ export default function CodexPortalShell({ portal, onNavigateExternal }: Props) 
       case "dashboard": return <CodexDashboard onNavigate={handleNavigate} />;
       case "journey": return <CodexJourney />;
       case "guide": return <CodexGuide resumeConversationId={resumeConversationId} resumeGuideId={resumeGuideId} onResumeHandled={() => { setResumeConversationId(null); setResumeGuideId(null); }} />;
-      case "history": return <CodexConversationHistory onResumeConversation={(guideId, convId) => { setResumeGuideId(guideId); setResumeConversationId(convId); setActiveView("guide"); }} />;
       case "journal": return <CodexJournal onNavigate={handleNavigate} />;
       case "codex": return <CodexModules onNavigate={handleNavigate} />;
       case "bridge": return <CodexJournalBridge />;

@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect, useCallback, lazy, Suspense } from "react";
+import { MessageSquare, Orbit } from "lucide-react";
 import { trpc } from "@/lib/trpc";
+import CodexConversationHistory from "./CodexConversationHistory";
 
 // Map character IDs back to guide type IDs for sidebar selection
 const CHAR_TO_GUIDE: Record<string, string> = {
@@ -32,6 +34,7 @@ interface CodexGuideProps {
 }
 
 export default function CodexGuide({ resumeConversationId, resumeGuideId, onResumeHandled }: CodexGuideProps = {}) {
+  const [guideTab, setGuideTab] = useState<"guide" | "history">("guide");
   const [selectedGuide, setSelectedGuide] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [message, setMessage] = useState("");
@@ -183,11 +186,11 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
     );
   }
 
-  // ── Guide Selection ──
+  // ── Guide Selection / Conversation History ──
   if (!selectedGuide) {
     return (
       <div style={{ padding: "36px 40px", maxWidth: "64rem", margin: "0 auto" }}>
-        <div className="cx-fade-in" style={{ marginBottom: "32px" }}>
+        <div className="cx-fade-in" style={{ marginBottom: "24px" }}>
           <p style={{ fontSize: "9.5px", letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--cx-ink3)", marginBottom: "6px" }}>YOUR GUIDES</p>
           <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "clamp(1.75rem, 3.5vw, 2.4rem)", fontWeight: 300, color: "var(--cx-ink)", marginBottom: "6px" }}>
             AI Guide
@@ -206,42 +209,82 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
           )}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(17rem, 1fr))", gap: "1rem" }}>
-          {guides.map((g: any, i: number) => (
+        {/* Tab toggle: Guides / Conversations */}
+        <div style={{ display: "flex", gap: "0.5rem", marginBottom: "1.5rem" }}>
+          {[
+            { key: "guide" as const, label: "Guides", icon: <Orbit size={12} /> },
+            { key: "history" as const, label: "Conversations", icon: <MessageSquare size={12} /> },
+          ].map(tab => (
             <button
-              key={g.id}
-              onClick={() => setSelectedGuide(g.id)}
-              className={`cx-widget cx-fade-up cx-delay-${Math.min(i + 1, 6)}`}
+              key={tab.key}
+              onClick={() => setGuideTab(tab.key)}
               style={{
-                textAlign: "left", cursor: "pointer", padding: "1.5rem",
-                transition: "all 300ms cubic-bezier(0.4,0,0.2,1)",
-                border: "1px solid var(--cx-border)",
-              }}
-              onMouseEnter={e => {
-                e.currentTarget.style.borderColor = "rgba(184,123,101,0.2)";
-                e.currentTarget.style.transform = "translateY(-1px)";
-              }}
-              onMouseLeave={e => {
-                e.currentTarget.style.borderColor = "var(--cx-border)";
-                e.currentTarget.style.transform = "translateY(0)";
+                padding: "0.5rem 1.25rem",
+                borderRadius: "50px",
+                fontSize: "0.8rem",
+                fontWeight: 500,
+                letterSpacing: "0.04em",
+                border: `1px solid ${guideTab === tab.key ? "rgba(184,151,106,0.4)" : "rgba(255,255,255,0.15)"}`,
+                background: guideTab === tab.key ? "rgba(184,151,106,0.1)" : "transparent",
+                color: guideTab === tab.key ? "var(--cx-gold)" : "var(--cx-ink2)",
+                cursor: "pointer",
+                transition: "all 300ms ease",
+                display: "flex", alignItems: "center", gap: "6px",
               }}
             >
-              <div style={{
-                width: 34, height: 34, borderRadius: "10px", marginBottom: "12px",
-                background: "rgba(184,123,101,0.06)",
-                border: "1px solid rgba(184,123,101,0.1)",
-                display: "flex", alignItems: "center", justifyContent: "center",
-                fontSize: "1rem",
-              }}>{g.icon}</div>
-              <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "15px", fontWeight: 300, color: "var(--cx-ink)", marginBottom: "4px" }}>
-                {g.name}
-              </h3>
-              <p style={{ fontSize: "11px", color: "var(--cx-ink3)", lineHeight: 1.55 }}>
-                {g.description}
-              </p>
+              {tab.icon} {tab.label}
             </button>
           ))}
         </div>
+
+        {guideTab === "history" ? (
+          <CodexConversationHistory
+            onResumeConversation={(guideId, convId) => {
+              const guideType = CHAR_TO_GUIDE[guideId] || "orientation";
+              setSelectedGuide(guideType);
+              setConversationId(convId);
+              setLocalMessages([]);
+              setGuideTab("guide");
+            }}
+          />
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(17rem, 1fr))", gap: "1rem" }}>
+            {guides.map((g: any, i: number) => (
+              <button
+                key={g.id}
+                onClick={() => setSelectedGuide(g.id)}
+                className={`cx-widget cx-fade-up cx-delay-${Math.min(i + 1, 6)}`}
+                style={{
+                  textAlign: "left", cursor: "pointer", padding: "1.5rem",
+                  transition: "all 300ms cubic-bezier(0.4,0,0.2,1)",
+                  border: "1px solid var(--cx-border)",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.borderColor = "rgba(184,123,101,0.2)";
+                  e.currentTarget.style.transform = "translateY(-1px)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.borderColor = "var(--cx-border)";
+                  e.currentTarget.style.transform = "translateY(0)";
+                }}
+              >
+                <div style={{
+                  width: 34, height: 34, borderRadius: "10px", marginBottom: "12px",
+                  background: "rgba(184,123,101,0.06)",
+                  border: "1px solid rgba(184,123,101,0.1)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "1rem",
+                }}>{g.icon}</div>
+                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "15px", fontWeight: 300, color: "var(--cx-ink)", marginBottom: "4px" }}>
+                  {g.name}
+                </h3>
+                <p style={{ fontSize: "11px", color: "var(--cx-ink3)", lineHeight: 1.55 }}>
+                  {g.description}
+                </p>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
     );
   }
