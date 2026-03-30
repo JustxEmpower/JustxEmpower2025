@@ -250,16 +250,16 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
           />
         ) : (
           <div style={{ position: "relative" }}>
-            {/* Large background logo animation */}
+            {/* Large background logo animation — fixed center */}
             <div style={{
-              position: "absolute",
+              position: "fixed",
               top: "50%", left: "50%",
               transform: "translate(-50%, -50%)",
               zIndex: 0,
               pointerEvents: "none",
-              opacity: 0.35,
+              opacity: 0.3,
             }}>
-              <CodexLogoLoader size={280} />
+              <CodexLogoLoader size={520} />
             </div>
 
             <div style={{
