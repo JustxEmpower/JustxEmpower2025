@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback, lazy, Suspense } from "react"
 import { MessageSquare, Orbit } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import CodexConversationHistory from "./CodexConversationHistory";
+import CodexLogoLoader from "./CodexLogoLoader";
 
 // Map character IDs back to guide type IDs for sidebar selection
 const CHAR_TO_GUIDE: Record<string, string> = {
@@ -248,41 +249,65 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
             }}
           />
         ) : (
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(17rem, 1fr))", gap: "1rem" }}>
-            {guides.map((g: any, i: number) => (
-              <button
-                key={g.id}
-                onClick={() => setSelectedGuide(g.id)}
-                className={`cx-widget cx-fade-up cx-delay-${Math.min(i + 1, 6)}`}
-                style={{
-                  textAlign: "left", cursor: "pointer", padding: "1.5rem",
-                  transition: "all 300ms cubic-bezier(0.4,0,0.2,1)",
-                  border: "1px solid var(--cx-border)",
-                }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.borderColor = "rgba(184,123,101,0.2)";
-                  e.currentTarget.style.transform = "translateY(-1px)";
-                }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.borderColor = "var(--cx-border)";
-                  e.currentTarget.style.transform = "translateY(0)";
-                }}
-              >
-                <div style={{
-                  width: 34, height: 34, borderRadius: "10px", marginBottom: "12px",
-                  background: "rgba(184,123,101,0.06)",
-                  border: "1px solid rgba(184,123,101,0.1)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: "1rem",
-                }}>{g.icon}</div>
-                <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "15px", fontWeight: 300, color: "var(--cx-ink)", marginBottom: "4px" }}>
-                  {g.name}
-                </h3>
-                <p style={{ fontSize: "11px", color: "var(--cx-ink3)", lineHeight: 1.55 }}>
-                  {g.description}
-                </p>
-              </button>
-            ))}
+          <div style={{ position: "relative" }}>
+            {/* Large background logo animation — visible through frosted glass tiles */}
+            <div style={{
+              position: "absolute",
+              top: "50%", left: "50%",
+              transform: "translate(-50%, -50%)",
+              zIndex: 0,
+              pointerEvents: "none",
+              opacity: 0.5,
+            }}>
+              <CodexLogoLoader size={280} />
+            </div>
+
+            <div style={{
+              position: "relative", zIndex: 1,
+              display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(17rem, 1fr))", gap: "1rem",
+            }}>
+              {guides.map((g: any, i: number) => (
+                <button
+                  key={g.id}
+                  onClick={() => setSelectedGuide(g.id)}
+                  className={`cx-fade-up cx-delay-${Math.min(i + 1, 6)}`}
+                  style={{
+                    textAlign: "left", cursor: "pointer", padding: "1.5rem",
+                    transition: "all 300ms cubic-bezier(0.4,0,0.2,1)",
+                    border: "1px solid rgba(200,188,174,0.12)",
+                    borderRadius: "12px",
+                    background: "rgba(30,26,20,0.45)",
+                    backdropFilter: "blur(16px)",
+                    WebkitBackdropFilter: "blur(16px)",
+                    boxShadow: "0 4px 24px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.04)",
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.borderColor = "rgba(184,123,101,0.3)";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.background = "rgba(30,26,20,0.55)";
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.borderColor = "rgba(200,188,174,0.12)";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.background = "rgba(30,26,20,0.45)";
+                  }}
+                >
+                  <div style={{
+                    width: 34, height: 34, borderRadius: "10px", marginBottom: "12px",
+                    background: "rgba(184,123,101,0.06)",
+                    border: "1px solid rgba(184,123,101,0.1)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: "1rem",
+                  }}>{g.icon}</div>
+                  <h3 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "15px", fontWeight: 300, color: "var(--cx-ink)", marginBottom: "4px" }}>
+                    {g.name}
+                  </h3>
+                  <p style={{ fontSize: "11px", color: "var(--cx-ink3)", lineHeight: 1.55 }}>
+                    {g.description}
+                  </p>
+                </button>
+              ))}
+            </div>
           </div>
         )}
       </div>
