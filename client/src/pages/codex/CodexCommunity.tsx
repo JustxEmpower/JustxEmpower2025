@@ -112,7 +112,7 @@ export default function CodexCommunity({ onNavigate, initialCircleId, onCircleCo
         }}>
           Your Circles
         </h1>
-        <p style={{ fontSize: "0.9rem", color: "var(--cx-ink2)", lineHeight: 1.6 }}>
+        <p style={{ fontSize: "0.9rem", color: "var(--cx-ink2)", lineHeight: 1.6, fontStyle: "italic", fontFamily: "'Cormorant Garamond', serif" }}>
           She found herself. Then she found her people.
         </p>
       </div>

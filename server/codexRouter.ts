@@ -3964,15 +3964,15 @@ const codexMessagingRouter = router({
   // ── Presence heartbeat — call every 30s to stay "online" ───────────
   heartbeat: customerProc
     .input(z.object({ circleId: z.string().optional() }).optional())
-    .mutation(async ({ ctx }) => {
-      const db = getDb();
-      const userId = ctx.user.id;
-      const activeContext = ctx.input?.circleId ? JSON.stringify({ circleId: ctx.input.circleId }) : null;
+    .mutation(async ({ ctx, input }) => {
+      const db = await getDb(); if (!db) return { ok: true };
+      const u = (ctx as any).codexUser as schema.CodexUser;
+      const activeContext = input?.circleId ? JSON.stringify({ circleId: input.circleId }) : null;
 
       // Upsert presence
       await db.execute(sql`
         INSERT INTO codex_user_presence (id, userId, status, lastSeenAt, activeContext)
-        VALUES (${nanoid()}, ${userId}, 'online', NOW(), ${activeContext})
+        VALUES (${nanoid()}, ${u.id}, 'online', NOW(), ${activeContext})
         ON DUPLICATE KEY UPDATE status = 'online', lastSeenAt = NOW(), activeContext = ${activeContext}
       `);
       return { ok: true };
@@ -3982,7 +3982,7 @@ const codexMessagingRouter = router({
   getPresence: customerProc
     .input(z.object({ circleId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const db = getDb();
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       // Get circle members who were active in last 5 minutes
       const results = await db.execute(sql`
         SELECT p.userId, p.status, p.lastSeenAt,
@@ -4002,8 +4002,8 @@ const codexMessagingRouter = router({
       circleId: z.string().optional(),
     }).optional())
     .query(async ({ ctx, input }) => {
-      const db = getDb();
-      const userId = ctx.user.id;
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser; const userId = u.id;
 
       let whereClause = sql`cp.userId = ${userId} AND cp.leftAt IS NULL`;
       if (input?.circleId) {
@@ -4046,8 +4046,8 @@ const codexMessagingRouter = router({
       before: z.string().optional(), // cursor: message ID
     }))
     .query(async ({ ctx, input }) => {
-      const db = getDb();
-      const userId = ctx.user.id;
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser; const userId = u.id;
 
       // Verify participant
       const [participant] = await db.select()
@@ -4096,8 +4096,8 @@ const codexMessagingRouter = router({
       parentMessageId: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const db = getDb();
-      const userId = ctx.user.id;
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser; const userId = u.id;
 
       // Verify participant
       const [participant] = await db.select()
@@ -4150,8 +4150,8 @@ const codexMessagingRouter = router({
       initialMessage: z.string().optional(),
     }))
     .mutation(async ({ ctx, input }) => {
-      const db = getDb();
-      const userId = ctx.user.id;
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser; const userId = u.id;
       const allParticipants = [...new Set([userId, ...input.participantIds])];
 
       // For direct conversations, check if one already exists between these two users
@@ -4213,8 +4213,8 @@ const codexMessagingRouter = router({
   markAsRead: customerProc
     .input(z.object({ conversationId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const db = getDb();
-      const userId = ctx.user.id;
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser; const userId = u.id;
 
       await db.execute(sql`
         UPDATE codex_conversation_participants
@@ -4242,14 +4242,14 @@ const codexMessagingRouter = router({
   unsendMessage: customerProc
     .input(z.object({ messageId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const db = getDb();
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       const [msg] = await db.select()
         .from(schema.codexDirectMessages)
         .where(eq(schema.codexDirectMessages.id, input.messageId))
         .limit(1);
 
       if (!msg) throw new TRPCError({ code: "NOT_FOUND" });
-      if (msg.senderId !== ctx.user.id) throw new TRPCError({ code: "FORBIDDEN" });
+      if (msg.senderId !== ((ctx as any).codexUser as schema.CodexUser).id) throw new TRPCError({ code: "FORBIDDEN" });
 
       await db.update(schema.codexDirectMessages)
         .set({ isUnsent: true, content: null })
@@ -4262,7 +4262,7 @@ const codexMessagingRouter = router({
   getCircleMembers: customerProc
     .input(z.object({ circleId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const db = getDb();
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       const results = await db.execute(sql`
         SELECT cm.userId, cm.role, cm.trustScore, cm.joinedAt,
                u.name as userName,
@@ -4285,8 +4285,8 @@ const codexMessagingRouter = router({
   getCircleChat: customerProc
     .input(z.object({ circleId: z.string() }))
     .query(async ({ ctx, input }) => {
-      const db = getDb();
-      const userId = ctx.user.id;
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser; const userId = u.id;
 
       // Find existing circle chat
       const existing = await db.execute(sql`
@@ -4327,11 +4327,12 @@ const codexMessagingRouter = router({
 
   // ── Get unread count across all conversations ──────────────────────
   getUnreadTotal: customerProc.query(async ({ ctx }) => {
-    const db = getDb();
+    const db = await getDb(); if (!db) return { total: 0 };
+    const u = (ctx as any).codexUser as schema.CodexUser;
     const results = await db.execute(sql`
       SELECT COALESCE(SUM(cp.unreadCount), 0) as total
       FROM codex_conversation_participants cp
-      WHERE cp.userId = ${ctx.user.id} AND cp.leftAt IS NULL
+      WHERE cp.userId = ${u.id} AND cp.leftAt IS NULL
     `);
     return { total: ((results as any)[0]?.[0]?.total || 0) as number };
   }),
@@ -4340,11 +4341,12 @@ const codexMessagingRouter = router({
   togglePin: customerProc
     .input(z.object({ conversationId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const db = getDb();
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
       await db.execute(sql`
         UPDATE codex_conversation_participants
         SET isPinned = NOT isPinned
-        WHERE conversationId = ${input.conversationId} AND userId = ${ctx.user.id}
+        WHERE conversationId = ${input.conversationId} AND userId = ${u.id}
       `);
       return { ok: true };
     }),
@@ -4353,11 +4355,12 @@ const codexMessagingRouter = router({
   archiveConversation: customerProc
     .input(z.object({ conversationId: z.string() }))
     .mutation(async ({ ctx, input }) => {
-      const db = getDb();
+      const db = await getDb(); if (!db) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      const u = (ctx as any).codexUser as schema.CodexUser;
       await db.execute(sql`
         UPDATE codex_conversation_participants
         SET isArchived = TRUE
-        WHERE conversationId = ${input.conversationId} AND userId = ${ctx.user.id}
+        WHERE conversationId = ${input.conversationId} AND userId = ${u.id}
       `);
       return { ok: true };
     }),
