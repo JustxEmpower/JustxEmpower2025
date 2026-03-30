@@ -249,21 +249,17 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
             }}
           />
         ) : (
-          <div style={{ position: "relative" }}>
-            {/* Large background logo animation — fixed center of content area */}
+          <div>
+            {/* Logo animation — centered above guide cards */}
             <div style={{
-              position: "fixed",
-              top: "45%",
-              left: "calc(50% + 120px)",
-              transform: "translate(-50%, -50%)",
-              zIndex: 0,
+              display: "flex", justifyContent: "center",
+              marginBottom: "24px",
               pointerEvents: "none",
             }}>
               <CodexLogoLoader size={420} />
             </div>
 
             <div style={{
-              position: "relative", zIndex: 1,
               display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(17rem, 1fr))", gap: "1rem",
             }}>
               {guides.map((g: any, i: number) => (

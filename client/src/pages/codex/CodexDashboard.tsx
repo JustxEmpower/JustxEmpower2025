@@ -232,18 +232,6 @@ export default function CodexDashboard({ onNavigate }: Props) {
   return (
     <div className="cx-page-enter" style={{ padding: "36px 40px", maxWidth: "72rem", margin: "0 auto", position: "relative" }}>
 
-      {/* Background logo animation — fixed center of content area */}
-      <div style={{
-        position: "fixed",
-        top: "45%",
-        left: "calc(50% + 120px)",
-        transform: "translate(-50%, -50%)",
-        zIndex: 0,
-        pointerEvents: "none",
-      }}>
-        <CodexLogoLoader size={420} />
-      </div>
-
       {/* ── Welcome Header ── */}
       <div className="cx-fade-up" style={{ marginBottom: "28px" }}>
         <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "1rem" }}>
@@ -273,6 +261,15 @@ export default function CodexDashboard({ onNavigate }: Props) {
             <ArrowRight size={12} style={{ marginLeft: 2, opacity: 0.6 }} />
           </button>
         </div>
+      </div>
+
+      {/* Logo animation — right under welcome header */}
+      <div style={{
+        display: "flex", justifyContent: "center",
+        marginBottom: "24px",
+        pointerEvents: "none",
+      }}>
+        <CodexLogoLoader size={420} />
       </div>
 
       {/* ── AI Growth Insight ── */}
