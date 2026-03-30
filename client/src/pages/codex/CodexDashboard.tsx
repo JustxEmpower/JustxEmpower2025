@@ -263,15 +263,19 @@ export default function CodexDashboard({ onNavigate }: Props) {
         </div>
       </div>
 
-      {/* Logo animation — right under welcome header */}
+      {/* Logo animation — under welcome, stays fixed as you scroll */}
       <div style={{
+        position: "sticky",
+        top: "20px",
+        zIndex: 0,
         display: "flex", justifyContent: "center",
-        marginBottom: "24px",
+        marginBottom: "-380px",
         pointerEvents: "none",
       }}>
         <CodexLogoLoader size={420} />
       </div>
 
+      <div style={{ position: "relative", zIndex: 1 }}>
       {/* ── AI Growth Insight ── */}
       {d.growthInsight && (
         <div className="cx-fade-up cx-widget cx-interactive cx-delay-1" style={{ marginBottom: "20px", cursor: "pointer" }} onClick={() => onNavigate("guide")}>
@@ -499,6 +503,7 @@ export default function CodexDashboard({ onNavigate }: Props) {
             </div>
           )}
         </div>
+      </div>
       </div>
     </div>
   );

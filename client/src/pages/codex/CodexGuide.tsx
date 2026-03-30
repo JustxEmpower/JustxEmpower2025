@@ -250,10 +250,13 @@ export default function CodexGuide({ resumeConversationId, resumeGuideId, onResu
           />
         ) : (
           <div>
-            {/* Logo animation — centered above guide cards */}
+            {/* Logo animation — stays fixed as you scroll */}
             <div style={{
+              position: "sticky",
+              top: "20px",
+              zIndex: 0,
               display: "flex", justifyContent: "center",
-              marginBottom: "24px",
+              marginBottom: "-380px",
               pointerEvents: "none",
             }}>
               <CodexLogoLoader size={420} />
